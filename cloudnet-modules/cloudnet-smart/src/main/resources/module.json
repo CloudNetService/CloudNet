@@ -1,0 +1,17 @@
+{
+  "runtimeModule": true,
+  "group": "de.dytanic.cloudnet.modules",
+  "name": "CloudNet-Smart",
+  "version": "1.0",
+  "author": "Dytanic",
+  "website": "https://cloudnetservice.eu",
+  "description": "CloudNet extension, which implement smart network handling and automatic services providing",
+  "main": "de.dytanic.cloudnet.ext.smart.CloudNetSmartModule",
+  "dependencies": [
+    {
+      "group": "de.dytanic.cloudnet.modules",
+      "name": "CloudNet-Bridge",
+      "version": "1.0"
+    }
+  ]
+}

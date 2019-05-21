@@ -1,0 +1,28 @@
+# This is the launcher configuration file
+# You can added or change properties for the CloudNet runtime
+# Please don't delete one of those configuration and use the '#' symbol to set as comment
+
+var cloudnet.launcher.select.version default
+var cloudnet.repository https://cloudnetservice.eu/cloudnet/updates/
+var cloudnet.repository.type default
+var cloudnet.auto-update false
+var cloudnet.auto-update.with-embedded true
+var cloudnet.messages.language english
+
+# CloudNet runtime properties
+#var cloudnet.tempDir temp
+#var cloudnet.modules.directory modules
+#var cloudnet.cluster.id 8024f7ca-f50a-432d-8a99-3dbba451485c
+#var cloudnet.tempDir.services temp/services
+#var cloudnet.tempDir.includes temp/includes
+#var cloudnet.storage.local local/templates
+#var cloudnet.persistable.services.path local/services
+#var cloudnet.config.task.path local/tasks.json
+#var cloudnet.config.json.path config.json
+#var cloudnet.permissions.json.path local/perms.json
+#var cloudnet.database.h2.path local/database/h2
+#var cloudnet.console.prompt &3%user%&0@&9%screen% &1=>
+#var cloudnet.config.default-address 127.0.0.1
+#var cloudnet.default.tasks.skip true
+#var cloudnet.default.permissions.skip true
+#var cloudnet.default.tasks.installation java-bungee-1.8.8

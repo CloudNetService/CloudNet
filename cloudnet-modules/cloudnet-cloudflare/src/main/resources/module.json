@@ -1,0 +1,10 @@
+{
+  "runtimeModule": true,
+  "group": "de.dytanic.cloudnet.modules",
+  "name": "CloudNet-CloudFlare",
+  "version": "1.0",
+  "author": "Dytanic",
+  "website": "https://cloudnetservice.eu",
+  "description": "Node extension for the https://cloudflare.com REST-API",
+  "main": "de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule"
+}

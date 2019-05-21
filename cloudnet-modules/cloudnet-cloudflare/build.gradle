@@ -1,0 +1,7 @@
+jar {
+    archiveName = cloudnetModuleCloudflareFileName
+}
+
+dependencies {
+    compileOnly project(':cloudnet')
+}

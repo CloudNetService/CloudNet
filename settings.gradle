@@ -1,0 +1,42 @@
+rootProject.name = 'cloudnet-root'
+
+// requires
+include 'cloudnet-common'
+include 'cloudnet-driver'
+// exports
+include 'cloudnet-wrapper-jvm'
+include 'cloudnet'
+// launcher
+include 'cloudnet-launcher'
+include 'cloudnet-modules'
+include 'cloudnet-plugins'
+
+// modules for cloudnet
+include 'cloudnet-modules:cloudnet-signs'
+findProject(':cloudnet-modules:cloudnet-signs')?.name = 'cloudnet-signs'
+include 'cloudnet-modules:cloudnet-bridge'
+findProject(':cloudnet-modules:cloudnet-bridge')?.name = 'cloudnet-bridge'
+include 'cloudnet-modules:cloudnet-smart'
+findProject(':cloudnet-modules:cloudnet-smart')?.name = 'cloudnet-smart'
+include 'cloudnet-modules:cloudnet-syncproxy'
+findProject(':cloudnet-modules:cloudnet-syncproxy')?.name = 'cloudnet-syncproxy'
+include 'cloudnet-modules:cloudnet-cloudflare'
+findProject(':cloudnet-modules:cloudnet-cloudflare')?.name = 'cloudnet-cloudflare'
+include 'cloudnet-modules:cloudnet-storage-ftp'
+findProject(':cloudnet-modules:cloudnet-storage-ftp')?.name = 'cloudnet-storage-ftp'
+include 'cloudnet-modules:cloudnet-report'
+findProject(':cloudnet-modules:cloudnet-report')?.name = 'cloudnet-report'
+include 'cloudnet-modules:cloudnet-database-mysql'
+findProject(':cloudnet-modules:cloudnet-database-mysql')?.name = 'cloudnet-database-mysql'
+include 'cloudnet-modules:cloudnet-cloudperms'
+findProject(':cloudnet-modules:cloudnet-cloudperms')?.name = 'cloudnet-cloudperms'
+//plugins
+include 'cloudnet-plugins:cloudnet-simplenametags'
+findProject(':cloudnet-plugins:cloudnet-simplenametags')?.name = 'cloudnet-simplenametags'
+
+include 'cloudnet-examples'
+include 'cloudnet-modules:cloudnet-rest'
+findProject(':cloudnet-modules:cloudnet-rest')?.name = 'cloudnet-rest'
+include 'cloudnet-plugins:cloudnet-bridge-test'
+findProject(':cloudnet-plugins:cloudnet-bridge-test')?.name = 'cloudnet-bridge-test'
+

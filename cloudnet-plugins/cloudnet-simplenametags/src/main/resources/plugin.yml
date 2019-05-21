@@ -1,0 +1,7 @@
+name: CloudNet-SimpleNameTags
+author: Dytanic
+version: 1.0
+
+main: de.dytanic.cloudnet.ext.simplenametags.CloudNetSimpleNameTagsPlugin
+
+depend: [CloudNet-CloudPerms]

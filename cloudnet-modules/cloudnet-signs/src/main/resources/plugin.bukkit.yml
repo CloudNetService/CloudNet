@@ -1,0 +1,13 @@
+name: CloudNet-Signs
+version: 1.0
+author: Dytanic
+website: https://cloudnetservice.eu
+description: Bukkit extension for the CloudNet runtime, which optimize some features
+
+main: de.dytanic.cloudnet.ext.signs.bukkit.BukkitCloudNetSignsPlugin
+
+depend: [CloudNet-Bridge]
+
+commands:
+  cloudsign:
+    aliases: [cs]

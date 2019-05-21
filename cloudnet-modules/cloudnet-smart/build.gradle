@@ -1,0 +1,12 @@
+jar {
+    archiveName = cloudnetModuleSmartFileName
+
+    manifest {
+        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Title': cloudNetCodeName
+    }
+}
+
+dependencies {
+    compileOnly project(':cloudnet')
+}

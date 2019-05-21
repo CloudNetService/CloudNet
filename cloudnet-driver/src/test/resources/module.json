@@ -1,0 +1,20 @@
+{
+  "group": "de.dytanic.cloudnet",
+  "name": "Test-Module",
+  "version": "1.0",
+  "main": "de.dytanic.cloudnet.driver.module.test.TestModule",
+  "repos": [
+    {
+      "name": "mvn",
+      "url": "http://central.maven.org/maven2"
+    }
+  ],
+  "dependencies": [
+    {
+      "group": "net.sf.jopt-simple",
+      "name": "jopt-simple",
+      "version": "5.0.4",
+      "repo": "mvn"
+    }
+  ]
+}

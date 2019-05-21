@@ -1,0 +1,9 @@
+{
+  "group": "de.dytanic.cloudnet.modules",
+  "name": "CloudNet-REST",
+  "version": "1.0",
+  "author": "Dytanic",
+  "website": "https://cloudnetservice.eu",
+  "description": "Node extension for the CloudNet runtime, which includes the default HTTP REST API for CloudNet",
+  "main": "de.dytanic.cloudnet.ext.rest.CloudNetRestModule"
+}

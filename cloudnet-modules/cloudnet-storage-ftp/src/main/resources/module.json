@@ -1,0 +1,18 @@
+{
+  "runtimeModule": true,
+  "group": "de.dytanic.cloudnet.modules",
+  "name": "CloudNet-Storage-FTP",
+  "version": "1.0",
+  "author": "Dytanic",
+  "website": "https://cloudnetservice.eu",
+  "description": "CloudNet extension, which includes the ftp storage system",
+  "main": "de.dytanic.cloudnet.ext.storage.ftp.CloudNetStorageFTPModule",
+  "dependencies": [
+    {
+      "group": "commons-net",
+      "name": "commons-net",
+      "version": "3.3",
+      "repo": "maven"
+    }
+  ]
+}

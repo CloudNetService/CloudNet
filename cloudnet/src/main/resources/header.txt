@@ -1,0 +1,11 @@
+
+&1        ___  _                    _ &d     __    __  _____ &b[&5%codename%&b]
+&1       / __\| |  ___   _   _   __| |&d  /\ \ \  /__\/__   \
+&1      / /   | | / _ \ | | | | / _` |&d /  \/ / /_\    / /\/ &9%version%&0
+&1     / /___ | || (_) || |_| || (_| |&d/ /\  / //__   / /
+&1     \____/ |_| \___/  \__,_| \__,_|&d\_\ \/  \__/   \/ &0by Dytanic
+      The next generation of Minecraft cloud systems
+
+     &b«&d*&b»&0 The Cloud Network Environment Technology 3
+     &b«&d*&b»&0 Discord Support - https://discord.gg/CPCWr7w
+

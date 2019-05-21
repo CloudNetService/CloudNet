@@ -1,0 +1,27 @@
+{
+  "group": "de.dytanic.cloudnet.modules.test",
+  "name": "CloudNet-TestModule",
+  "version": "1.0",
+  "author": "Dytanic",
+  "main": "de.dytanic.cloudnet.examples.ExampleModule",
+  "description": "The example module, which you can see a example of the api from CloudNet",
+  "website": "https://dytanic.de",
+  "properties": {
+    "test_property_for_runtime": "foo bar"
+  },
+  "dataFolder": "modules/CloudNet-TestModule",
+  "dependencies": [
+    {
+      "group": "net.sf.jopt-simple",
+      "name": "jopt-simple",
+      "version": "5.0.4",
+      "repo": "maven"
+    }
+  ],
+  "repos": [
+    {
+      "name": "maven",
+      "url": "http://central.maven.org/maven2"
+    }
+  ]
+}
