@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class BridgeConfigurationUpdateEvent extends DriverEvent {
 
-    private final BridgeConfiguration bridgeConfiguration;
+  private final BridgeConfiguration bridgeConfiguration;
 
 }

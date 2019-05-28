@@ -8,19 +8,16 @@ import org.spongepowered.api.event.cause.EventContext;
 
 abstract class SpongeCloudNetEvent implements Event {
 
-    public final CloudNetDriver getDriver()
-    {
-        return CloudNetDriver.getInstance();
-    }
+  public final CloudNetDriver getDriver() {
+    return CloudNetDriver.getInstance();
+  }
 
-    public final Wrapper getWrapper()
-    {
-        return Wrapper.getInstance();
-    }
+  public final Wrapper getWrapper() {
+    return Wrapper.getInstance();
+  }
 
-    @Override
-    public Cause getCause()
-    {
-        return Cause.builder().build(EventContext.builder().build());
-    }
+  @Override
+  public Cause getCause() {
+    return Cause.builder().build(EventContext.builder().build());
+  }
 }

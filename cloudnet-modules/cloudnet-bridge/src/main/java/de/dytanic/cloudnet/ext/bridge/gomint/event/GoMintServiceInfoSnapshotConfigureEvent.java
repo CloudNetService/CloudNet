@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class GoMintServiceInfoSnapshotConfigureEvent extends GoMintCloudNetEvent {
+public final class GoMintServiceInfoSnapshotConfigureEvent extends
+    GoMintCloudNetEvent {
 
-    @Getter
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  @Getter
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 }

@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class VelocityNetworkChannelPacketReceiveEvent extends VelocityCloudNetEvent {
+public final class VelocityNetworkChannelPacketReceiveEvent extends
+    VelocityCloudNetEvent {
 
-    @Getter
-    private final INetworkChannel channel;
+  @Getter
+  private final INetworkChannel channel;
 
-    @Getter
-    private final IPacket packet;
+  @Getter
+  private final IPacket packet;
 }

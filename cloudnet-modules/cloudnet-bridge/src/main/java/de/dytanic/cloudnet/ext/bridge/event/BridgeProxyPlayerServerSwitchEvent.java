@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkServiceInfo networkServiceInfo;
+  private final NetworkServiceInfo networkServiceInfo;
 
 }

@@ -7,14 +7,15 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class NukkitNetworkChannelPacketReceiveEvent extends NukkitCloudNetEvent {
+public final class NukkitNetworkChannelPacketReceiveEvent extends
+    NukkitCloudNetEvent {
 
-    @Getter
-    private static final HandlerList handlers = new HandlerList();
+  @Getter
+  private static final HandlerList handlers = new HandlerList();
 
-    @Getter
-    private final INetworkChannel channel;
+  @Getter
+  private final INetworkChannel channel;
 
-    @Getter
-    private final IPacket packet;
+  @Getter
+  private final IPacket packet;
 }

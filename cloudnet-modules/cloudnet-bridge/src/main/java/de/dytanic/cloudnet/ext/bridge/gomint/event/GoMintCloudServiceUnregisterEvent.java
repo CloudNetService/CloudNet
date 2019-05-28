@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class GoMintCloudServiceUnregisterEvent extends GoMintCloudNetEvent {
+public final class GoMintCloudServiceUnregisterEvent extends
+    GoMintCloudNetEvent {
 
-    @Getter
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  @Getter
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 }

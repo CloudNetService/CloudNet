@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CloudflareGroupConfiguration {
 
-    protected String name, sub;
+  protected String name, sub;
 
-    protected int priority, weight;
+  protected int priority, weight;
 
 }

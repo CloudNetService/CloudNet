@@ -8,19 +8,19 @@ import org.bukkit.event.HandlerList;
 
 @Getter
 @RequiredArgsConstructor
-public final class BukkitBridgeProxyPlayerServerSwitchEvent extends BukkitBridgeEvent {
+public final class BukkitBridgeProxyPlayerServerSwitchEvent extends
+    BukkitBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkServiceInfo networkServiceInfo;
+  private final NetworkServiceInfo networkServiceInfo;
 
-    @Getter
-    private static HandlerList handlerList = new HandlerList();
+  @Getter
+  private static HandlerList handlerList = new HandlerList();
 
-    @Override
-    public HandlerList getHandlers()
-    {
-        return handlerList;
-    }
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 
 }

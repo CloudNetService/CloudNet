@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignConfigurationTaskEntry {
 
-    protected String task;
+  protected String task;
 
-    protected SignLayout onlineLayout, emptyLayout, fullLayout;
+  protected SignLayout onlineLayout, emptyLayout, fullLayout;
 
 }

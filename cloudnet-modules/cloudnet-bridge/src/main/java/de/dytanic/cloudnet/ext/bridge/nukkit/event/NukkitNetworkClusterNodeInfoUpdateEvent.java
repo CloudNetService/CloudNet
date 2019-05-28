@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class NukkitNetworkClusterNodeInfoUpdateEvent extends NukkitCloudNetEvent {
+public final class NukkitNetworkClusterNodeInfoUpdateEvent extends
+    NukkitCloudNetEvent {
 
-    @Getter
-    private static final HandlerList handlers = new HandlerList();
+  @Getter
+  private static final HandlerList handlers = new HandlerList();
 
-    @Getter
-    private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+  @Getter
+  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 }

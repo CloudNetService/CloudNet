@@ -14,18 +14,18 @@ import io.gomint.proxprox.api.plugin.annotation.Version;
 @Description("ProxProx extension which implement the permission management system from CloudNet into ProxProx for players")
 public final class ProxProxCloudNetCloudPermissionsPlugin extends Plugin {
 
-    @Override
-    public void onStartup()
-    {
-        new CloudPermissionsPermissionManagement();
+  @Override
+  public void onStartup() {
+    new CloudPermissionsPermissionManagement();
 
-        registerListener(new ProxProxCloudNetCloudPermissionsPlayerListener());
-    }
+    registerListener(new ProxProxCloudNetCloudPermissionsPlayerListener());
+  }
 
-    @Override
-    public void onUninstall()
-    {
-        CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-        Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-    }
+  @Override
+  public void onUninstall() {
+    CloudNetDriver.getInstance().getEventManager()
+        .unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.getInstance().unregisterPacketListenersByClassLoader(
+        this.getClass().getClassLoader());
+  }
 }

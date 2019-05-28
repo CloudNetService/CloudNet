@@ -2,19 +2,20 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 public interface ICloudPlayer extends ICloudOfflinePlayer {
 
-    NetworkServiceInfo getLoginService();
+  NetworkServiceInfo getLoginService();
 
-    void setLoginService(NetworkServiceInfo loginService);
+  void setLoginService(NetworkServiceInfo loginService);
 
-    NetworkServiceInfo getConnectedService();
+  NetworkServiceInfo getConnectedService();
 
-    void setConnectedService(NetworkServiceInfo connectedService);
+  void setConnectedService(NetworkServiceInfo connectedService);
 
-    NetworkConnectionInfo getNetworkConnectionInfo();
+  NetworkConnectionInfo getNetworkConnectionInfo();
 
-    void setNetworkConnectionInfo(NetworkConnectionInfo networkConnectionInfo);
+  void setNetworkConnectionInfo(NetworkConnectionInfo networkConnectionInfo);
 
-    NetworkPlayerServerInfo getNetworkPlayerServerInfo();
+  NetworkPlayerServerInfo getNetworkPlayerServerInfo();
 
-    void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo);
+  void setNetworkPlayerServerInfo(
+      NetworkPlayerServerInfo networkPlayerServerInfo);
 }

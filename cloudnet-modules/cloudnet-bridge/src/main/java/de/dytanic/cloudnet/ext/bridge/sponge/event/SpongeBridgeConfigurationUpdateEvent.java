@@ -6,8 +6,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class SpongeBridgeConfigurationUpdateEvent extends SpongeBridgeEvent {
+public final class SpongeBridgeConfigurationUpdateEvent extends
+    SpongeBridgeEvent {
 
-    private final BridgeConfiguration bridgeConfiguration;
+  private final BridgeConfiguration bridgeConfiguration;
 
 }

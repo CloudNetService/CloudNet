@@ -7,12 +7,11 @@ import org.bukkit.event.HandlerList;
 @NoArgsConstructor
 public final class BukkitCloudNetTickEvent extends BukkitCloudNetEvent {
 
-    @Getter
-    private static HandlerList handlerList = new HandlerList();
+  @Getter
+  private static HandlerList handlerList = new HandlerList();
 
-    @Override
-    public HandlerList getHandlers()
-    {
-        return handlerList;
-    }
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 }

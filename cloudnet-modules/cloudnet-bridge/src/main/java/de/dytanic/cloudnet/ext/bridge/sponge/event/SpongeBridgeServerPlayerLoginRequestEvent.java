@@ -7,10 +7,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class SpongeBridgeServerPlayerLoginRequestEvent extends SpongeBridgeEvent {
+public final class SpongeBridgeServerPlayerLoginRequestEvent extends
+    SpongeBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkPlayerServerInfo networkPlayerServerInfo;
+  private final NetworkPlayerServerInfo networkPlayerServerInfo;
 
 }
