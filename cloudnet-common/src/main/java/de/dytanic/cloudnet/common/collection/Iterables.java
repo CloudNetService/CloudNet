@@ -75,7 +75,7 @@ public final class Iterables {
   }
 
   public static <T> CopyOnWriteArrayList<T> newCopyOnWriteArrayList(
-      Collection<T> collection) {
+    Collection<T> collection) {
     return new CopyOnWriteArrayList<>(collection);
   }
 
@@ -84,7 +84,7 @@ public final class Iterables {
   }
 
   public static <T> ConcurrentLinkedQueue<T> newConcurrentLinkedQueue(
-      Collection<T> collection) {
+    Collection<T> collection) {
     return new ConcurrentLinkedQueue<>(collection);
   }
 
@@ -93,7 +93,7 @@ public final class Iterables {
   }
 
   public static <T> LinkedBlockingQueue<T> newLinkedBlockingQueue(
-      Collection<T> collection) {
+    Collection<T> collection) {
     return new LinkedBlockingQueue<>(collection);
   }
 
@@ -102,7 +102,7 @@ public final class Iterables {
   }
 
   public static <T> ConcurrentLinkedDeque<T> newConcurrentLinkedDeque(
-      Collection<T> collection) {
+    Collection<T> collection) {
     return new ConcurrentLinkedDeque<>(collection);
   }
 
@@ -111,7 +111,7 @@ public final class Iterables {
   }
 
   public static <T> LinkedBlockingDeque<T> newLinkedBlockingDeque(
-      Collection<T> collection) {
+    Collection<T> collection) {
     return new LinkedBlockingDeque<>(collection);
   }
 
@@ -120,12 +120,12 @@ public final class Iterables {
   }
 
   public static <T> ArrayBlockingQueue<T> newArrayBlockingQueue(int capacity,
-      boolean fair) {
+    boolean fair) {
     return new ArrayBlockingQueue<>(capacity, fair);
   }
 
   public static <T> ArrayBlockingQueue<T> newArrayBlockingQueue(int capacity,
-      boolean fair, Collection<T> collection) {
+    boolean fair, Collection<T> collection) {
     return new ArrayBlockingQueue<>(capacity, fair, collection);
   }
 
@@ -159,7 +159,7 @@ public final class Iterables {
    * @param consumer the handler which handle the following keys
    */
   public static <T> void forEach(Enumeration<T> enumeration,
-      Consumer<T> consumer) {
+    Consumer<T> consumer) {
     if (enumeration == null || consumer == null) {
       return;
     }
@@ -192,7 +192,7 @@ public final class Iterables {
    * Throwable
    */
   public static <T> void forEach(Enumeration<T> enumeration,
-      Consumer<T> consumer, Consumer<Throwable> throwableConsumer) {
+    Consumer<T> consumer, Consumer<Throwable> throwableConsumer) {
     while (enumeration.hasMoreElements()) {
       try {
         consumer.accept(enumeration.nextElement());
@@ -226,7 +226,7 @@ public final class Iterables {
    * Throwable
    */
   public static <T> void forEach(Iterator<T> iterator, Consumer<T> consumer,
-      Consumer<Throwable> throwableConsumer) {
+    Consumer<Throwable> throwableConsumer) {
     while (iterator.hasNext()) {
       try {
         consumer.accept(iterator.next());
@@ -275,7 +275,7 @@ public final class Iterables {
   }
 
   public static <T> List<T> filter(Iterable<T> iterable,
-      Predicate<T> predicate) {
+    Predicate<T> predicate) {
     if (iterable == null || predicate == null) {
       return newArrayList();
     }
@@ -292,7 +292,7 @@ public final class Iterables {
   }
 
   public static <T> void filter(Iterable<T> iterable, Predicate<T> predicate,
-      Collection<T> out) {
+    Collection<T> out) {
     if (iterable == null || predicate == null || out == null) {
       return;
     }
@@ -323,7 +323,7 @@ public final class Iterables {
   }
 
   public static <T, V> List<V> map(Collection<T> coll,
-      Function<T, V> function) {
+    Function<T, V> function) {
     if (coll == null || function == null) {
       return null;
     }
@@ -356,7 +356,7 @@ public final class Iterables {
   }
 
   public static <K, T> T reduce(Collection<K> collection,
-      BiFunction<T, K, T> function, T t) {
+    BiFunction<T, K, T> function, T t) {
     if (collection == null || function == null || t == null) {
       return t;
     }

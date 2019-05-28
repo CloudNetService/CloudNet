@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class CommandTasks extends CommandDefault implements
-    ITabCompleter {
+  ITabCompleter {
 
   public CommandTasks() {
     super("tasks");
@@ -35,36 +35,36 @@ public final class CommandTasks extends CommandDefault implements
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-      String commandLine, Properties properties) {
+    String commandLine, Properties properties) {
     if (args.length == 0) {
       sender.sendMessage(
-          "tasks list | name=<name>",
-          "tasks reload",
-          "tasks create group <name>",
-          "tasks create task <name> <" + Arrays
-              .toString(ServiceEnvironmentType.values()) + ">",
-          "tasks delete group <name>", //TODO
-          "tasks delete task <name>", //TODO
-          "tasks group <group>",
-          "tasks group <group> add inclusion <url> <target>",
-          "tasks group <group> add template <storage> <prefix> <name>",
-          "tasks group <group> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]",
-          "tasks task <name>",
-          "tasks task <name> set maxHeapMemory <mb>",
-          "tasks task <name> set maintenance <true : false>",
-          "tasks task <name> set autoDeleteOnStop <true : false>",
-          "tasks task <name> set static <true : false>",
-          "tasks task <name> set startPort <port>",
-          "tasks task <name> set minServiceCount <number>",
-          "tasks task <name> set env <" + Arrays
-              .toString(ServiceEnvironmentType.values()) + ">",
-          "tasks task <name> add group <name>",
-          "tasks task <name> remove group <name>",
-          "tasks task <name> add node <node>",
-          "tasks task <name> remove node <name>",
-          "tasks task <name> add inclusion <url> <target>",
-          "tasks task <name> add template <storage> <prefix> <name>",
-          "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]"
+        "tasks list | name=<name>",
+        "tasks reload",
+        "tasks create group <name>",
+        "tasks create task <name> <" + Arrays
+          .toString(ServiceEnvironmentType.values()) + ">",
+        "tasks delete group <name>", //TODO
+        "tasks delete task <name>", //TODO
+        "tasks group <group>",
+        "tasks group <group> add inclusion <url> <target>",
+        "tasks group <group> add template <storage> <prefix> <name>",
+        "tasks group <group> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]",
+        "tasks task <name>",
+        "tasks task <name> set maxHeapMemory <mb>",
+        "tasks task <name> set maintenance <true : false>",
+        "tasks task <name> set autoDeleteOnStop <true : false>",
+        "tasks task <name> set static <true : false>",
+        "tasks task <name> set startPort <port>",
+        "tasks task <name> set minServiceCount <number>",
+        "tasks task <name> set env <" + Arrays
+          .toString(ServiceEnvironmentType.values()) + ">",
+        "tasks task <name> add group <name>",
+        "tasks task <name> remove group <name>",
+        "tasks task <name> add node <node>",
+        "tasks task <name> remove node <name>",
+        "tasks task <name> add inclusion <url> <target>",
+        "tasks task <name> add template <storage> <prefix> <name>",
+        "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]"
       );
       return;
     }
@@ -72,35 +72,35 @@ public final class CommandTasks extends CommandDefault implements
     if (args[0].equalsIgnoreCase("reload")) {
       getCloudServiceManager().reload();
       sender.sendMessage(
-          LanguageManager.getMessage("command-tasks-reload-success"));
+        LanguageManager.getMessage("command-tasks-reload-success"));
     }
 
     if (args[0].equalsIgnoreCase("list")) {
       sender.sendMessage("- Tasks", " ");
 
       for (ServiceTask serviceTask : this.getCloudServiceManager()
-          .getServiceTasks()) {
+        .getServiceTasks()) {
         if (properties.containsKey("name") &&
-            !properties.get("name").toLowerCase()
-                .contains(serviceTask.getName().toLowerCase())) {
+          !properties.get("name").toLowerCase()
+            .contains(serviceTask.getName().toLowerCase())) {
           continue;
         }
 
         sender.sendMessage(
-            serviceTask.getName() + " | MinServiceCount: " + serviceTask
-                .getMinServiceCount() + " | Nodes: " +
-                (serviceTask.getAssociatedNodes().isEmpty() ? "All"
-                    : serviceTask.getAssociatedNodes()) + " | StartPort: " +
-                serviceTask.getStartPort());
+          serviceTask.getName() + " | MinServiceCount: " + serviceTask
+            .getMinServiceCount() + " | Nodes: " +
+            (serviceTask.getAssociatedNodes().isEmpty() ? "All"
+              : serviceTask.getAssociatedNodes()) + " | StartPort: " +
+            serviceTask.getStartPort());
       }
 
       sender.sendMessage(" ", "- Groups", " ");
 
       for (GroupConfiguration groupConfiguration : this.getCloudServiceManager()
-          .getGroupConfigurations()) {
+        .getGroupConfigurations()) {
         if (properties.containsKey("name") &&
-            !properties.get("name").toLowerCase()
-                .contains(groupConfiguration.getName().toLowerCase())) {
+          !properties.get("name").toLowerCase()
+            .contains(groupConfiguration.getName().toLowerCase())) {
           continue;
         }
 
@@ -117,7 +117,7 @@ public final class CommandTasks extends CommandDefault implements
       if (args.length == 3 && args[1].equalsIgnoreCase("group")) {
         if (this.createGroupConfiguration(args[2])) {
           sender.sendMessage(
-              LanguageManager.getMessage("command-tasks-create-group"));
+            LanguageManager.getMessage("command-tasks-create-group"));
           return;
         }
       }
@@ -126,53 +126,53 @@ public final class CommandTasks extends CommandDefault implements
         if (!this.getCloudServiceManager().isTaskPresent(args[2])) {
           try {
             ServiceEnvironmentType type = ServiceEnvironmentType
-                .valueOf(args[3].toUpperCase());
+              .valueOf(args[3].toUpperCase());
 
             this.getCloudServiceManager()
-                .addPermanentServiceTask(new ServiceTask(
-                    Iterables.newArrayList(),
-                    Iterables.newArrayList(Collections.singletonList(
-                        new ServiceTemplate(args[2], "default",
-                            LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE)
-                    )),
-                    Iterables.newArrayList(),
-                    args[2],
-                    "jvm",
-                    true,
-                    false,
-                    Iterables.newArrayList(new String[]{
-                        getCloudNet().getConfig().getIdentity().getUniqueId()}),
-                    Iterables.newArrayList(Collections.singletonList(args[2])),
-                    new ProcessConfiguration(
-                        ServiceEnvironmentType.valueOf(args[3].toUpperCase()),
-                        type == ServiceEnvironmentType.BUNGEECORD
-                            || type == ServiceEnvironmentType.VELOCITY ||
-                            type == ServiceEnvironmentType.PROX_PROX ? 128
-                            : 372,
-                        Iterables.newArrayList()
-                    ),
-                    type == ServiceEnvironmentType.BUNGEECORD
-                        || type == ServiceEnvironmentType.VELOCITY ||
-                        type == ServiceEnvironmentType.PROX_PROX ? 25565
-                        : 44955,
-                    0
-                ));
+              .addPermanentServiceTask(new ServiceTask(
+                Iterables.newArrayList(),
+                Iterables.newArrayList(Collections.singletonList(
+                  new ServiceTemplate(args[2], "default",
+                    LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE)
+                )),
+                Iterables.newArrayList(),
+                args[2],
+                "jvm",
+                true,
+                false,
+                Iterables.newArrayList(new String[]{
+                  getCloudNet().getConfig().getIdentity().getUniqueId()}),
+                Iterables.newArrayList(Collections.singletonList(args[2])),
+                new ProcessConfiguration(
+                  ServiceEnvironmentType.valueOf(args[3].toUpperCase()),
+                  type == ServiceEnvironmentType.BUNGEECORD
+                    || type == ServiceEnvironmentType.VELOCITY ||
+                    type == ServiceEnvironmentType.PROX_PROX ? 128
+                    : 372,
+                  Iterables.newArrayList()
+                ),
+                type == ServiceEnvironmentType.BUNGEECORD
+                  || type == ServiceEnvironmentType.VELOCITY ||
+                  type == ServiceEnvironmentType.PROX_PROX ? 25565
+                  : 44955,
+                0
+              ));
 
             LocalTemplateStorageUtil.createAndPrepareTemplate(
-                CloudNetDriver.getInstance().getServicesRegistry()
-                    .getService(ITemplateStorage.class,
-                        LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE),
-                args[2],
-                "default",
-                ServiceEnvironmentType.valueOf(args[3].toUpperCase())
+              CloudNetDriver.getInstance().getServicesRegistry()
+                .getService(ITemplateStorage.class,
+                  LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE),
+              args[2],
+              "default",
+              ServiceEnvironmentType.valueOf(args[3].toUpperCase())
             );
 
             sender.sendMessage(
-                LanguageManager.getMessage("command-tasks-create-task"));
+              LanguageManager.getMessage("command-tasks-create-task"));
 
             if (this.createGroupConfiguration(args[2])) {
               sender.sendMessage(
-                  LanguageManager.getMessage("command-tasks-create-group"));
+                LanguageManager.getMessage("command-tasks-create-group"));
               return;
             }
 
@@ -189,14 +189,14 @@ public final class CommandTasks extends CommandDefault implements
         if (args[1].equalsIgnoreCase("group")) {
           getCloudServiceManager().removeGroupConfiguration(args[2]);
           sender.sendMessage(
-              LanguageManager.getMessage("command-tasks-delete-group"));
+            LanguageManager.getMessage("command-tasks-delete-group"));
           return;
         }
 
         if (args[1].equalsIgnoreCase("task")) {
           getCloudServiceManager().removePermanentServiceTask(args[2]);
           sender.sendMessage(
-              LanguageManager.getMessage("command-tasks-delete-task"));
+            LanguageManager.getMessage("command-tasks-delete-task"));
           return;
         }
       }
@@ -204,14 +204,14 @@ public final class CommandTasks extends CommandDefault implements
 
     if (args[0].equalsIgnoreCase("task")) {
       List<ServiceTask> serviceTasks = Iterables
-          .filter(this.getCloudServiceManager().getServiceTasks(),
-              new Predicate<ServiceTask>() {
-                @Override
-                public boolean test(ServiceTask serviceTask) {
-                  return serviceTask.getName().toLowerCase()
-                      .contains(args[1].toLowerCase());
-                }
-              });
+        .filter(this.getCloudServiceManager().getServiceTasks(),
+          new Predicate<ServiceTask>() {
+            @Override
+            public boolean test(ServiceTask serviceTask) {
+              return serviceTask.getName().toLowerCase()
+                .contains(args[1].toLowerCase());
+            }
+          });
 
       if (serviceTasks.isEmpty()) {
         return;
@@ -221,13 +221,13 @@ public final class CommandTasks extends CommandDefault implements
 
       if (serviceTasks.size() > 1) {
         serviceTask = Iterables
-            .first(this.getCloudServiceManager().getServiceTasks(),
-                new Predicate<ServiceTask>() {
-                  @Override
-                  public boolean test(ServiceTask serviceTask) {
-                    return serviceTask.getName().equalsIgnoreCase(args[1]);
-                  }
-                });
+          .first(this.getCloudServiceManager().getServiceTasks(),
+            new Predicate<ServiceTask>() {
+              @Override
+              public boolean test(ServiceTask serviceTask) {
+                return serviceTask.getName().equalsIgnoreCase(args[1]);
+              }
+            });
       } else {
         serviceTask = serviceTasks.get(0);
       }
@@ -244,11 +244,11 @@ public final class CommandTasks extends CommandDefault implements
               case "maxheapmemory":
                 if (Validate.testStringParseToInt(args[4])) {
                   serviceTask.getProcessConfiguration()
-                      .setMaxHeapMemorySize(Integer.parseInt(args[4]));
+                    .setMaxHeapMemorySize(Integer.parseInt(args[4]));
                   this.updateServiceTask(serviceTask);
                   this.sendMessage0(sender, serviceTask.getName(),
-                      "maxHeapMemory", serviceTask.getProcessConfiguration()
-                          .getMaxHeapMemorySize());
+                    "maxHeapMemory", serviceTask.getProcessConfiguration()
+                      .getMaxHeapMemorySize());
                 }
                 break;
               case "startport":
@@ -259,7 +259,7 @@ public final class CommandTasks extends CommandDefault implements
                     serviceTask.setStartPort(value);
                     this.updateServiceTask(serviceTask);
                     this.sendMessage0(sender, serviceTask.getName(),
-                        "startPort", serviceTask.getStartPort());
+                      "startPort", serviceTask.getStartPort());
                   }
                 }
                 break;
@@ -270,36 +270,36 @@ public final class CommandTasks extends CommandDefault implements
                   serviceTask.setMinServiceCount(value);
                   this.updateServiceTask(serviceTask);
                   this.sendMessage0(sender, serviceTask.getName(),
-                      "minServiceCount", serviceTask.getMinServiceCount());
+                    "minServiceCount", serviceTask.getMinServiceCount());
                 }
                 break;
               case "maintenance":
                 serviceTask.setMaintenance(args[4].equalsIgnoreCase("true"));
                 this.updateServiceTask(serviceTask);
                 this.sendMessage0(sender, serviceTask.getName(), "maintenance",
-                    serviceTask.isMaintenance());
+                  serviceTask.isMaintenance());
                 break;
               case "autodeleteonstop":
                 serviceTask
-                    .setAutoDeleteOnStop(args[4].equalsIgnoreCase("true"));
+                  .setAutoDeleteOnStop(args[4].equalsIgnoreCase("true"));
                 this.updateServiceTask(serviceTask);
                 this.sendMessage0(sender, serviceTask.getName(),
-                    "autoDeleteOnStop", serviceTask.isAutoDeleteOnStop());
+                  "autoDeleteOnStop", serviceTask.isAutoDeleteOnStop());
                 break;
               case "static":
                 serviceTask.setStaticServices(args[4].equalsIgnoreCase("true"));
                 this.updateServiceTask(serviceTask);
                 this.sendMessage0(sender, serviceTask.getName(),
-                    "staticServices", serviceTask.isAutoDeleteOnStop());
+                  "staticServices", serviceTask.isAutoDeleteOnStop());
                 break;
               case "env":
                 try {
                   serviceTask.getProcessConfiguration().setEnvironment(
-                      ServiceEnvironmentType.valueOf(args[4].toUpperCase()));
+                    ServiceEnvironmentType.valueOf(args[4].toUpperCase()));
                   this.updateServiceTask(serviceTask);
                   this.sendMessage0(sender, serviceTask.getName(),
-                      "environment",
-                      serviceTask.getProcessConfiguration().getEnvironment());
+                    "environment",
+                    serviceTask.getProcessConfiguration().getEnvironment());
                 } catch (Exception ignored) {
                 }
                 break;
@@ -313,29 +313,29 @@ public final class CommandTasks extends CommandDefault implements
                 serviceTask.getGroups().add(args[4]);
                 getCloudServiceManager().addPermanentServiceTask(serviceTask);
                 sender.sendMessage(LanguageManager
-                    .getMessage("command-tasks-add-group-success"));
+                  .getMessage("command-tasks-add-group-success"));
                 break;
               case "node":
                 serviceTask.getAssociatedNodes().add(args[4]);
                 getCloudServiceManager().addPermanentServiceTask(serviceTask);
                 sender.sendMessage(LanguageManager
-                    .getMessage("command-tasks-add-node-success"));
+                  .getMessage("command-tasks-add-node-success"));
                 break;
               case "template":
                 if (args.length == 7) {
                   if (CloudNetDriver.getInstance().getServicesRegistry()
-                      .containsService(ITemplateStorage.class, args[4])) {
+                    .containsService(ITemplateStorage.class, args[4])) {
                     ServiceTemplate serviceTemplate = new ServiceTemplate(
-                        args[5], args[6], args[4]);
+                      args[5], args[6], args[4]);
 
                     if (CloudNetDriver.getInstance().getServicesRegistry()
-                        .getService(ITemplateStorage.class, args[4])
-                        .has(serviceTemplate)) {
+                      .getService(ITemplateStorage.class, args[4])
+                      .has(serviceTemplate)) {
                       serviceTask.getTemplates().add(serviceTemplate);
                       updateServiceTask(serviceTask);
 
                       sender.sendMessage(LanguageManager
-                          .getMessage("command-tasks-add-template-success"));
+                        .getMessage("command-tasks-add-template-success"));
                     }
                   }
                 }
@@ -343,32 +343,32 @@ public final class CommandTasks extends CommandDefault implements
               case "deployment":
                 if (args.length > 6) {
                   if (CloudNetDriver.getInstance().getServicesRegistry()
-                      .containsService(ITemplateStorage.class, args[4])) {
+                    .containsService(ITemplateStorage.class, args[4])) {
                     ServiceDeployment serviceDeployment = new ServiceDeployment(
-                        new ServiceTemplate(args[5], args[6], args[4]),
-                        Iterables.newArrayList());
+                      new ServiceTemplate(args[5], args[6], args[4]),
+                      Iterables.newArrayList());
 
                     if (args.length == 8) {
                       serviceDeployment.getExcludes()
-                          .addAll(Arrays.asList(args[7].split(";")));
+                        .addAll(Arrays.asList(args[7].split(";")));
                     }
 
                     serviceTask.getDeployments().add(serviceDeployment);
                     updateServiceTask(serviceTask);
 
                     sender.sendMessage(LanguageManager
-                        .getMessage("command-tasks-add-deployment-success"));
+                      .getMessage("command-tasks-add-deployment-success"));
                   }
                 }
                 break;
               case "inclusion":
                 if (args.length == 6) {
                   serviceTask.getIncludes()
-                      .add(new ServiceRemoteInclusion(args[4], args[5]));
+                    .add(new ServiceRemoteInclusion(args[4], args[5]));
                   updateServiceTask(serviceTask);
 
                   sender.sendMessage(LanguageManager
-                      .getMessage("command-tasks-add-inclusion-success"));
+                    .getMessage("command-tasks-add-inclusion-success"));
                 }
                 break;
             }
@@ -380,13 +380,13 @@ public final class CommandTasks extends CommandDefault implements
                 serviceTask.getGroups().remove(args[4]);
                 getCloudServiceManager().addPermanentServiceTask(serviceTask);
                 sender.sendMessage(LanguageManager
-                    .getMessage("command-tasks-remove-group-success"));
+                  .getMessage("command-tasks-remove-group-success"));
                 break;
               case "node":
                 serviceTask.getAssociatedNodes().remove(args[4]);
                 getCloudServiceManager().addPermanentServiceTask(serviceTask);
                 sender.sendMessage(LanguageManager
-                    .getMessage("command-tasks-remove-node-success"));
+                  .getMessage("command-tasks-remove-node-success"));
                 break;
             }
           }
@@ -398,14 +398,14 @@ public final class CommandTasks extends CommandDefault implements
 
     if (args[0].equalsIgnoreCase("group")) {
       GroupConfiguration groupConfiguration = Iterables
-          .first(this.getCloudServiceManager().getGroupConfigurations(),
-              new Predicate<GroupConfiguration>() {
-                @Override
-                public boolean test(GroupConfiguration groupConfiguration) {
-                  return groupConfiguration.getName().toLowerCase()
-                      .contains(args[1].toLowerCase());
-                }
-              });
+        .first(this.getCloudServiceManager().getGroupConfigurations(),
+          new Predicate<GroupConfiguration>() {
+            @Override
+            public boolean test(GroupConfiguration groupConfiguration) {
+              return groupConfiguration.getName().toLowerCase()
+                .contains(args[1].toLowerCase());
+            }
+          });
 
       if (groupConfiguration != null) {
         if (args.length == 2) {
@@ -419,18 +419,18 @@ public final class CommandTasks extends CommandDefault implements
               case "template":
                 if (args.length >= 6) {
                   if (CloudNetDriver.getInstance().getServicesRegistry()
-                      .containsService(ITemplateStorage.class, args[4])) {
+                    .containsService(ITemplateStorage.class, args[4])) {
                     ServiceTemplate serviceTemplate = new ServiceTemplate(
-                        args[5], args[6], args[4]);
+                      args[5], args[6], args[4]);
 
                     if (CloudNetDriver.getInstance().getServicesRegistry()
-                        .getService(ITemplateStorage.class, args[4])
-                        .has(serviceTemplate)) {
+                      .getService(ITemplateStorage.class, args[4])
+                      .has(serviceTemplate)) {
                       groupConfiguration.getTemplates().add(serviceTemplate);
                       updateGroupConfiguration(groupConfiguration);
 
                       sender.sendMessage(LanguageManager
-                          .getMessage("command-tasks-add-template-success"));
+                        .getMessage("command-tasks-add-template-success"));
                     }
                   }
                 }
@@ -438,32 +438,32 @@ public final class CommandTasks extends CommandDefault implements
               case "deployment":
                 if (args.length > 6) {
                   if (CloudNetDriver.getInstance().getServicesRegistry()
-                      .containsService(ITemplateStorage.class, args[4])) {
+                    .containsService(ITemplateStorage.class, args[4])) {
                     ServiceDeployment serviceDeployment = new ServiceDeployment(
-                        new ServiceTemplate(args[5], args[6], args[4]),
-                        Iterables.newArrayList());
+                      new ServiceTemplate(args[5], args[6], args[4]),
+                      Iterables.newArrayList());
 
                     if (args.length == 8) {
                       serviceDeployment.getExcludes()
-                          .addAll(Arrays.asList(args[7].split(";")));
+                        .addAll(Arrays.asList(args[7].split(";")));
                     }
 
                     groupConfiguration.getDeployments().add(serviceDeployment);
                     updateGroupConfiguration(groupConfiguration);
 
                     sender.sendMessage(LanguageManager
-                        .getMessage("command-tasks-add-deployment-success"));
+                      .getMessage("command-tasks-add-deployment-success"));
                   }
                 }
                 break;
               case "inclusion":
                 if (args.length == 6) {
                   groupConfiguration.getIncludes()
-                      .add(new ServiceRemoteInclusion(args[4], args[5]));
+                    .add(new ServiceRemoteInclusion(args[4], args[5]));
                   updateGroupConfiguration(groupConfiguration);
 
                   sender.sendMessage(LanguageManager
-                      .getMessage("command-tasks-add-inclusion-success"));
+                    .getMessage("command-tasks-add-inclusion-success"));
                 }
                 break;
             }
@@ -478,21 +478,21 @@ public final class CommandTasks extends CommandDefault implements
     Collection<String> list = Iterables.newArrayList();
 
     list.addAll(Arrays.asList(
-        " ",
-        "* Name: " + serviceTask.getName(),
-        "* Minimal Services: " + serviceTask.getMinServiceCount(),
-        "* Associated nodes: " + serviceTask.getAssociatedNodes().toString(),
-        "* Groups: " + serviceTask.getGroups().toString(),
-        "* Start Port: " + serviceTask.getStartPort(),
-        " ",
-        "- Process Configuration",
-        "* Environment: " + serviceTask.getProcessConfiguration()
-            .getEnvironment(),
-        "* Max HeapMemory: " + serviceTask.getProcessConfiguration()
-            .getMaxHeapMemorySize(),
-        "* JVM Options: " + serviceTask.getProcessConfiguration()
-            .getJvmOptions().toString(),
-        " "
+      " ",
+      "* Name: " + serviceTask.getName(),
+      "* Minimal Services: " + serviceTask.getMinServiceCount(),
+      "* Associated nodes: " + serviceTask.getAssociatedNodes().toString(),
+      "* Groups: " + serviceTask.getGroups().toString(),
+      "* Start Port: " + serviceTask.getStartPort(),
+      " ",
+      "- Process Configuration",
+      "* Environment: " + serviceTask.getProcessConfiguration()
+        .getEnvironment(),
+      "* Max HeapMemory: " + serviceTask.getProcessConfiguration()
+        .getMaxHeapMemorySize(),
+      "* JVM Options: " + serviceTask.getProcessConfiguration()
+        .getJvmOptions().toString(),
+      " "
     ));
 
     list.add("* Includes:");
@@ -514,27 +514,27 @@ public final class CommandTasks extends CommandDefault implements
     for (ServiceDeployment deployment : serviceTask.getDeployments()) {
       list.add("- ");
       list.add("Template:  " + deployment.getTemplate().getStorage() + ":"
-          + deployment.getTemplate().getTemplatePath());
+        + deployment.getTemplate().getTemplatePath());
       list.add("Excludes: " + deployment.getExcludes());
     }
 
     list.add(" ");
 
     list.addAll(
-        Arrays.asList(serviceTask.getProperties().toPrettyJson().split("\n")));
+      Arrays.asList(serviceTask.getProperties().toPrettyJson().split("\n")));
     list.add(" ");
 
     sender.sendMessage(list.toArray(new String[0]));
   }
 
   private void display(ICommandSender sender,
-      GroupConfiguration groupConfiguration) {
+    GroupConfiguration groupConfiguration) {
     Collection<String> list = Iterables.newArrayList();
 
     list.addAll(Arrays.asList(
-        " ",
-        "* Name: " + groupConfiguration.getName(),
-        " "
+      " ",
+      "* Name: " + groupConfiguration.getName(),
+      " "
     ));
 
     list.add("* Includes:");
@@ -556,14 +556,14 @@ public final class CommandTasks extends CommandDefault implements
     for (ServiceDeployment deployment : groupConfiguration.getDeployments()) {
       list.add("- ");
       list.add("Template:  " + deployment.getTemplate().getStorage() + ":"
-          + deployment.getTemplate().getTemplatePath());
+        + deployment.getTemplate().getTemplatePath());
       list.add("Excludes: " + deployment.getExcludes());
     }
 
     list.add(" ");
 
     list.addAll(Arrays
-        .asList(groupConfiguration.getProperties().toPrettyJson().split("\n")));
+      .asList(groupConfiguration.getProperties().toPrettyJson().split("\n")));
     list.add(" ");
 
     sender.sendMessage(list.toArray(new String[0]));
@@ -578,12 +578,12 @@ public final class CommandTasks extends CommandDefault implements
   }
 
   private void sendMessage0(ICommandSender sender, String name, String property,
-      Object value) {
+    Object value) {
     sender.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
-            .replace("%name%", name)
-            .replace("%property%", property)
-            .replace("%value%", value.toString())
+      LanguageManager.getMessage("command-tasks-set-property-success")
+        .replace("%name%", name)
+        .replace("%property%", property)
+        .replace("%value%", value.toString())
     );
   }
 
@@ -598,7 +598,7 @@ public final class CommandTasks extends CommandDefault implements
 
     if (!this.getCloudServiceManager().isGroupConfigurationPresent(name)) {
       this.getCloudServiceManager()
-          .addGroupConfiguration(new EmptyGroupConfiguration(name));
+        .addGroupConfiguration(new EmptyGroupConfiguration(name));
       value = true;
     }
 
@@ -607,7 +607,7 @@ public final class CommandTasks extends CommandDefault implements
 
   @Override
   public Collection<String> complete(String commandLine, String[] args,
-      Properties properties) {
+    Properties properties) {
     Collection<String> collection = Iterables.newArrayList();
 
     if (args.length == 0) {
@@ -616,23 +616,23 @@ public final class CommandTasks extends CommandDefault implements
       switch (args[0].toLowerCase()) {
         case "group":
           collection.addAll(Iterables
-              .map(this.getCloudServiceManager().getGroupConfigurations(),
-                  new Function<GroupConfiguration, String>() {
-                    @Override
-                    public String apply(GroupConfiguration groupConfiguration) {
-                      return groupConfiguration.getName();
-                    }
-                  }));
+            .map(this.getCloudServiceManager().getGroupConfigurations(),
+              new Function<GroupConfiguration, String>() {
+                @Override
+                public String apply(GroupConfiguration groupConfiguration) {
+                  return groupConfiguration.getName();
+                }
+              }));
           break;
         case "task":
           collection.addAll(Iterables
-              .map(this.getCloudServiceManager().getServiceTasks(),
-                  new Function<ServiceTask, String>() {
-                    @Override
-                    public String apply(ServiceTask serviceTask) {
-                      return serviceTask.getName();
-                    }
-                  }));
+            .map(this.getCloudServiceManager().getServiceTasks(),
+              new Function<ServiceTask, String>() {
+                @Override
+                public String apply(ServiceTask serviceTask) {
+                  return serviceTask.getName();
+                }
+              }));
           break;
       }
     }

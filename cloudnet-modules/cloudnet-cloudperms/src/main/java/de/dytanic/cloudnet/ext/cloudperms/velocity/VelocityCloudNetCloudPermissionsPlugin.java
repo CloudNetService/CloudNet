@@ -18,14 +18,14 @@ import lombok.Getter;
 
 @Getter
 @Plugin(
-    id = "cloudnet_cloudperms_velocity",
-    name = "CloudNet-CloudPerms",
-    version = "1.0",
-    description = "Velocity extension which implement the permission management system from CloudNet into Velocity for players",
-    url = "https://cloudnetservice.eu",
-    authors = {
-        "Dytanic"
-    }
+  id = "cloudnet_cloudperms_velocity",
+  name = "CloudNet-CloudPerms",
+  version = "1.0",
+  description = "Velocity extension which implement the permission management system from CloudNet into Velocity for players",
+  url = "https://cloudnetservice.eu",
+  authors = {
+    "Dytanic"
+  }
 )
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
@@ -49,15 +49,15 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
     initPlayersPermissionFunction();
 
     proxyServer.getEventManager()
-        .register(this, new VelocityCloudNetCloudPermissionsPlayerListener());
+      .register(this, new VelocityCloudNetCloudPermissionsPlayerListener());
   }
 
   @Subscribe
   public void handleShutdown(ProxyShutdownEvent event) {
     CloudNetDriver.getInstance().getEventManager()
-        .unregisterListeners(this.getClass().getClassLoader());
+      .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-        this.getClass().getClassLoader());
+      this.getClass().getClassLoader());
   }
 
   /*= -------------------------------------------------------------------------------------------------- =*/
@@ -76,7 +76,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
       Field field = player.getClass().getDeclaredField("permissionFunction");
       field.setAccessible(true);
       field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(
-          player.getUniqueId()));
+        player.getUniqueId()));
 
     } catch (Exception ignored) {
 

@@ -28,13 +28,13 @@ final class NettyHttpServerRequest implements IHttpRequest {
   protected byte[] body;
 
   public NettyHttpServerRequest(NettyHttpServerContext context,
-      HttpRequest httpRequest, Map<String, String> pathParameters, URI uri) {
+    HttpRequest httpRequest, Map<String, String> pathParameters, URI uri) {
     this.context = context;
     this.httpRequest = httpRequest;
     this.uri = uri;
     this.pathParameters = pathParameters;
     this.queryParameters = new QueryStringDecoder(httpRequest.uri())
-        .parameters();
+      .parameters();
   }
 
   @Override
@@ -116,7 +116,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
   @Override
   public Map<String, String> headers() {
     Map<String, String> maps = Maps
-        .newHashMap(this.httpRequest.headers().size());
+      .newHashMap(this.httpRequest.headers().size());
 
     for (String key : this.httpRequest.headers().names()) {
       maps.put(key, this.httpRequest.headers().get(key));
@@ -151,7 +151,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
         } else {
           body = new byte[length];
           httpRequest.content()
-              .getBytes(httpRequest.content().readerIndex(), body);
+            .getBytes(httpRequest.content().readerIndex(), body);
         }
       }
 
@@ -169,7 +169,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
   @Override
   public IHttpRequest body(byte[] byteArray) {
     throw new UnsupportedOperationException(
-        "No setting http body in request message by client");
+      "No setting http body in request message by client");
   }
 
   @Override
@@ -180,7 +180,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
   }
 
   private HttpVersion getCloudNetHttpVersion(
-      io.netty.handler.codec.http.HttpVersion httpVersion) {
+    io.netty.handler.codec.http.HttpVersion httpVersion) {
     if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0) {
       return HttpVersion.HTTP_1_0;
     }
@@ -193,7 +193,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
   }
 
   private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(
-      HttpVersion httpVersion) {
+    HttpVersion httpVersion) {
     if (httpVersion == HttpVersion.HTTP_1_0) {
       return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
     }

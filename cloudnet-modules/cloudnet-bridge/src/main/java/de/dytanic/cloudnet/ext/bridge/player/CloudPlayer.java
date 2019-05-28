@@ -25,17 +25,17 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
   protected NetworkPlayerServerInfo networkPlayerServerInfo;
 
   public CloudPlayer(ICloudOfflinePlayer cloudOfflinePlayer,
-      NetworkServiceInfo loginService,
-      NetworkServiceInfo connectedService,
-      NetworkConnectionInfo networkConnectionInfo,
-      NetworkPlayerServerInfo networkPlayerServerInfo) {
+    NetworkServiceInfo loginService,
+    NetworkServiceInfo connectedService,
+    NetworkConnectionInfo networkConnectionInfo,
+    NetworkPlayerServerInfo networkPlayerServerInfo) {
     super(
-        cloudOfflinePlayer.getUniqueId(),
-        cloudOfflinePlayer.getName(),
-        cloudOfflinePlayer.getXBoxId(),
-        cloudOfflinePlayer.getFirstLoginTimeMillis(),
-        cloudOfflinePlayer.getLastLoginTimeMillis(),
-        cloudOfflinePlayer.getLastNetworkConnectionInfo()
+      cloudOfflinePlayer.getUniqueId(),
+      cloudOfflinePlayer.getName(),
+      cloudOfflinePlayer.getXBoxId(),
+      cloudOfflinePlayer.getFirstLoginTimeMillis(),
+      cloudOfflinePlayer.getLastLoginTimeMillis(),
+      cloudOfflinePlayer.getLastNetworkConnectionInfo()
     );
 
     //
@@ -49,20 +49,20 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
   }
 
   public CloudPlayer(
-      UUID uniqueId,
-      String name,
-      String xBoxId,
-      long firstLoginTimeMillis,
-      long lastLoginTimeMillis,
-      NetworkConnectionInfo lastNetworkConnectionInfo,
-      NetworkServiceInfo loginService,
-      NetworkServiceInfo connectedService,
-      NetworkConnectionInfo networkConnectionInfo,
-      NetworkPlayerServerInfo networkPlayerServerInfo,
-      JsonDocument properties
+    UUID uniqueId,
+    String name,
+    String xBoxId,
+    long firstLoginTimeMillis,
+    long lastLoginTimeMillis,
+    NetworkConnectionInfo lastNetworkConnectionInfo,
+    NetworkServiceInfo loginService,
+    NetworkServiceInfo connectedService,
+    NetworkConnectionInfo networkConnectionInfo,
+    NetworkPlayerServerInfo networkPlayerServerInfo,
+    JsonDocument properties
   ) {
     super(uniqueId, name, xBoxId, firstLoginTimeMillis, lastLoginTimeMillis,
-        lastNetworkConnectionInfo);
+      lastNetworkConnectionInfo);
     this.loginService = loginService;
     this.connectedService = connectedService;
     this.networkConnectionInfo = networkConnectionInfo;

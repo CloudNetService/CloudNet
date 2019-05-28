@@ -20,21 +20,21 @@ public final class V1SignConfigurationHttpHandler extends V1HttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-      throws Exception {
+    throws Exception {
     this.sendOptions(context, "GET, POST");
   }
 
   @Override
   public void handleGet(String path, IHttpContext context) throws Exception {
     context
-        .response()
-        .statusCode(HttpResponseCode.HTTP_OK)
-        .header("Content-Type", "application/json")
-        .body(GSON.toJson(
-            CloudNetSignsModule.getInstance().getSignConfiguration()))
-        .context()
-        .closeAfter(true)
-        .cancelNext()
+      .response()
+      .statusCode(HttpResponseCode.HTTP_OK)
+      .header("Content-Type", "application/json")
+      .body(GSON.toJson(
+        CloudNetSignsModule.getInstance().getSignConfiguration()))
+      .context()
+      .closeAfter(true)
+      .cancelNext()
     ;
   }
 
@@ -43,28 +43,28 @@ public final class V1SignConfigurationHttpHandler extends V1HttpHandler {
     try {
       if (context.request().body().length > 0) {
         SignConfiguration signConfiguration = GSON
-            .fromJson(context.request().bodyAsString(), SignConfiguration.TYPE);
+          .fromJson(context.request().bodyAsString(), SignConfiguration.TYPE);
 
         if (signConfiguration != null) {
           CloudNetSignsModule.getInstance()
-              .setSignConfiguration(signConfiguration);
+            .setSignConfiguration(signConfiguration);
           SignConfigurationReaderAndWriter.write(signConfiguration,
-              CloudNetSignsModule.getInstance().getConfigurationFile());
+            CloudNetSignsModule.getInstance().getConfigurationFile());
 
           CloudNetDriver.getInstance().sendChannelMessage(
-              SignConstants.SIGN_CHANNEL_NAME,
-              SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-              new JsonDocument("signConfiguration", signConfiguration)
+            SignConstants.SIGN_CHANNEL_NAME,
+            SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
+            new JsonDocument("signConfiguration", signConfiguration)
           );
 
           context
-              .response()
-              .statusCode(HttpResponseCode.HTTP_OK)
-              .header("Content-Type", "application")
-              .body(new JsonDocument("success", true).toByteArray())
-              .context()
-              .closeAfter(true)
-              .cancelNext()
+            .response()
+            .statusCode(HttpResponseCode.HTTP_OK)
+            .header("Content-Type", "application")
+            .body(new JsonDocument("success", true).toByteArray())
+            .context()
+            .closeAfter(true)
+            .cancelNext()
           ;
         }
       }
@@ -72,7 +72,7 @@ public final class V1SignConfigurationHttpHandler extends V1HttpHandler {
     } catch (Exception ex) {
 
       try (StringWriter writer = new StringWriter();
-          PrintWriter printWriter = new PrintWriter(writer)) {
+        PrintWriter printWriter = new PrintWriter(writer)) {
         ex.printStackTrace(printWriter);
         this.send400Response(context, writer.getBuffer().toString());
       }

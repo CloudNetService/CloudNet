@@ -31,10 +31,10 @@ public final class GsonUtil {
    * serializeNulls disableHtmlEscaping
    */
   public static final Gson GSON = new GsonBuilder()
-      .serializeNulls()
-      .disableHtmlEscaping()
-      .registerTypeAdapterFactory(TypeAdapters
-          .newTypeHierarchyFactory(JsonDocument.class,
-              new JsonDocumentTypeAdapter()))
-      .create();
+    .serializeNulls()
+    .disableHtmlEscaping()
+    .registerTypeAdapterFactory(TypeAdapters
+      .newTypeHierarchyFactory(JsonDocument.class,
+        new JsonDocumentTypeAdapter()))
+    .create();
 }

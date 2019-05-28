@@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
 
 @RequiredArgsConstructor
 public final class BukkitCloudServiceUnregisterEvent extends
-    BukkitCloudNetEvent {
+  BukkitCloudNetEvent {
 
   @Getter
   private static HandlerList handlerList = new HandlerList();

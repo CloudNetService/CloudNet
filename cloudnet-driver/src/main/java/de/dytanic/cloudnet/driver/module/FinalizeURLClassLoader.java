@@ -9,7 +9,7 @@ import java.util.Collection;
 public final class FinalizeURLClassLoader extends URLClassLoader {
 
   private static final Collection<FinalizeURLClassLoader> CLASS_LOADERS = Iterables
-      .newCopyOnWriteArrayList();
+    .newCopyOnWriteArrayList();
 
   static {
     ClassLoader.registerAsParallelCapable();
@@ -27,7 +27,7 @@ public final class FinalizeURLClassLoader extends URLClassLoader {
 
   @Override
   public Class<?> loadClass(String name, boolean resolve)
-      throws ClassNotFoundException {
+    throws ClassNotFoundException {
     try {
       return this.loadClass0(name, resolve);
     } catch (ClassNotFoundException ignored) {
@@ -46,7 +46,7 @@ public final class FinalizeURLClassLoader extends URLClassLoader {
   }
 
   private Class<?> loadClass0(String name, boolean resolve)
-      throws ClassNotFoundException {
+    throws ClassNotFoundException {
     return super.loadClass(name, resolve);
   }
 

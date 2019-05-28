@@ -21,7 +21,7 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
   @Test
   public void testDatabaseProvider() throws Exception {
     AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider(
-        "build/h2database");
+      "build/h2database");
     Assert.assertTrue(databaseProvider.init());
 
     databaseProvider.setDatabaseHandler(this);
@@ -30,10 +30,10 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
     Assert.assertNotNull(database);
 
     Assert.assertTrue(databaseProvider.getDatabaseNames()
-        .contains("randomDataDatabase".toUpperCase()));
+      .contains("randomDataDatabase".toUpperCase()));
     Assert.assertTrue(databaseProvider.deleteDatabase("randomDataDatabase"));
     Assert.assertFalse(databaseProvider.getDatabaseNames()
-        .contains("randomDataDatabase".toUpperCase()));
+      .contains("randomDataDatabase".toUpperCase()));
 
     database = databaseProvider.getDatabase("randomDataDatabase");
 
@@ -47,9 +47,9 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
     JsonDocument document = new JsonDocument();
     for (int i = 0; i < 100; i++) {
       document.append("val", i).append("name",
-          i == 50 ? "Albert" : i > 70 ? "Luzifer" : "Peter Parker")
-          .append("age", i > 70 ? 20 : 18).append("uniqueId", UUID.randomUUID())
-          .append("random", new Random().nextLong());
+        i == 50 ? "Albert" : i > 70 ? "Luzifer" : "Peter Parker")
+        .append("age", i > 70 ? 20 : 18).append("uniqueId", UUID.randomUUID())
+        .append("random", new Random().nextLong());
 
       Assert.assertEquals(5, document.size());
       Assert.assertTrue(database.insert(i + "", document));
@@ -61,11 +61,11 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
     Assert.assertEquals(1, database.get("val", 61).size());
     Assert.assertEquals(1,
-        database.get(new JsonDocument("name", "Albert").append("val", 50))
-            .size());
+      database.get(new JsonDocument("name", "Albert").append("val", 50))
+        .size());
     Assert.assertEquals(29,
-        database.get(new JsonDocument("age", 20).append("name", "Luzifer"))
-            .size());
+      database.get(new JsonDocument("age", 20).append("name", "Luzifer"))
+        .size());
 
     AtomicInteger counter = new AtomicInteger();
     database.iterate(new BiConsumer<String, JsonDocument>() {
@@ -77,14 +77,14 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
     Assert.assertEquals(100, counter.get());
 
     Assert.assertEquals(3,
-        database.filter(new BiPredicate<String, JsonDocument>() {
-          @Override
-          public boolean test(String s, JsonDocument strings) {
-            return s.equalsIgnoreCase("10") ||
-                s.equalsIgnoreCase("14") ||
-                s.equalsIgnoreCase("16");
-          }
-        }).size());
+      database.filter(new BiPredicate<String, JsonDocument>() {
+        @Override
+        public boolean test(String s, JsonDocument strings) {
+          return s.equalsIgnoreCase("10") ||
+            s.equalsIgnoreCase("14") ||
+            s.equalsIgnoreCase("16");
+        }
+      }).size());
 
     Assert.assertTrue(database.delete("10"));
     Assert.assertEquals(99, database.documents().size());
@@ -99,13 +99,13 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
   @Override
   public void handleInsert(IDatabase database, String key,
-      JsonDocument document) {
+    JsonDocument document) {
     this.resultString = "foobar";
   }
 
   @Override
   public void handleUpdate(IDatabase database, String key,
-      JsonDocument document) {
+    JsonDocument document) {
     this.value = true;
   }
 

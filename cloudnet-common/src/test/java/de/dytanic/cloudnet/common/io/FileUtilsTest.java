@@ -36,10 +36,10 @@ public final class FileUtilsTest {
     Assert.assertEquals(FileUtils.emptyZipByteArray().length, zip.length());
 
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-        "Hello, world! Hello Peter!".getBytes(StandardCharsets.UTF_8))) {
+      "Hello, world! Hello Peter!".getBytes(StandardCharsets.UTF_8))) {
       Assert.assertEquals("Hello, world! Hello Peter!",
-          new String(FileUtils.toByteArray(byteArrayInputStream),
-              StandardCharsets.UTF_8));
+        new String(FileUtils.toByteArray(byteArrayInputStream),
+          StandardCharsets.UTF_8));
     }
 
     FileUtils.openZipFileSystem(zip, new IVoidThrowableCallback<FileSystem>() {
@@ -48,9 +48,9 @@ public final class FileUtilsTest {
         Path zipEntryInfoFile = fileSystem.getPath("info.txt");
 
         try (OutputStream outputStream = Files
-            .newOutputStream(zipEntryInfoFile);
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-                "Info message :3".getBytes())) {
+          .newOutputStream(zipEntryInfoFile);
+          ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+            "Info message :3".getBytes())) {
           FileUtils.copy(byteArrayInputStream, outputStream, buffer);
         }
 
@@ -59,7 +59,7 @@ public final class FileUtilsTest {
     });
 
     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ZipFile zipFile = new ZipFile(zip)) {
+      ZipFile zipFile = new ZipFile(zip)) {
       ZipEntry zipEntry = zipFile.getEntry("info.txt");
       Assert.assertNotNull(zipEntry);
 
@@ -68,8 +68,8 @@ public final class FileUtilsTest {
       }
 
       Assert.assertEquals("Info message :3",
-          new String(byteArrayOutputStream.toByteArray(),
-              StandardCharsets.UTF_8));
+        new String(byteArrayOutputStream.toByteArray(),
+          StandardCharsets.UTF_8));
     }
 
     FileUtils.delete(testDirectory);
@@ -79,8 +79,8 @@ public final class FileUtilsTest {
     zip.createNewFile();
 
     try (OutputStream outputStream = Files.newOutputStream(zip.toPath());
-        InputStream inputStream = FileUtilsTest.class.getClassLoader()
-            .getResourceAsStream("file_utils_resources.zip")) {
+      InputStream inputStream = FileUtilsTest.class.getClassLoader()
+        .getResourceAsStream("file_utils_resources.zip")) {
       FileUtils.copy(inputStream, outputStream, buffer);
     }
 
@@ -92,7 +92,7 @@ public final class FileUtilsTest {
     Assert.assertTrue(new File(path.toFile(), "bungee/config.yml").exists());
     Assert.assertTrue(new File(path.toFile(), "nms/bukkit.yml").exists());
     Assert
-        .assertTrue(new File(path.toFile(), "nms/server.properties").exists());
+      .assertTrue(new File(path.toFile(), "nms/server.properties").exists());
 
     FileUtils.delete(path.toFile());
     Assert.assertFalse(Files.exists(path));

@@ -18,51 +18,51 @@ public final class PacketServerH2DatabaseListener implements IPacketListener {
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("operationType") && packet.getHeader()
-        .contains("name")) {
+      .contains("name")) {
       if (CloudNet.getInstance()
-          .getDatabaseProvider() instanceof H2DatabaseProvider) {
+        .getDatabaseProvider() instanceof H2DatabaseProvider) {
         H2Database database = (H2Database) CloudNet.getInstance()
-            .getDatabaseProvider()
-            .getDatabase(packet.getHeader().getString("name"));
+          .getDatabaseProvider()
+          .getDatabase(packet.getHeader().getString("name"));
 
         switch (packet.getHeader()
-            .get("operationType", PacketServerH2Database.OperationType.class)) {
+          .get("operationType", PacketServerH2Database.OperationType.class)) {
           case INSERT:
             if (packet.getHeader().contains("key") && packet.getHeader()
-                .contains("document")) {
+              .contains("document")) {
               CloudNetDriver.getInstance().getEventManager().callEvent(
-                  new DatabaseInsertEntryEvent(database,
-                      packet.getHeader().getString("key"),
-                      packet.getHeader().getDocument("document"))
+                new DatabaseInsertEntryEvent(database,
+                  packet.getHeader().getString("key"),
+                  packet.getHeader().getDocument("document"))
               );
               database.insert0(packet.getHeader().getString("key"),
-                  packet.getHeader().getDocument("document"));
+                packet.getHeader().getDocument("document"));
             }
             break;
           case UPDATE:
             if (packet.getHeader().contains("key") && packet.getHeader()
-                .contains("document")) {
+              .contains("document")) {
               CloudNetDriver.getInstance().getEventManager().callEvent(
-                  new DatabaseUpdateEntryEvent(database,
-                      packet.getHeader().getString("key"),
-                      packet.getHeader().getDocument("document"))
+                new DatabaseUpdateEntryEvent(database,
+                  packet.getHeader().getString("key"),
+                  packet.getHeader().getDocument("document"))
               );
               database.update0(packet.getHeader().getString("key"),
-                  packet.getHeader().getDocument("document"));
+                packet.getHeader().getDocument("document"));
             }
             break;
           case DELETE:
             if (packet.getHeader().contains("key")) {
               CloudNetDriver.getInstance().getEventManager().callEvent(
-                  new DatabaseDeleteEntryEvent(database,
-                      packet.getHeader().getString("key"))
+                new DatabaseDeleteEntryEvent(database,
+                  packet.getHeader().getString("key"))
               );
               database.delete0(packet.getHeader().getString("key"));
             }
             break;
           case CLEAR:
             CloudNetDriver.getInstance().getEventManager()
-                .callEvent(new DatabaseClearEntriesEvent(database));
+              .callEvent(new DatabaseClearEntriesEvent(database));
             database.clear0();
             break;
         }

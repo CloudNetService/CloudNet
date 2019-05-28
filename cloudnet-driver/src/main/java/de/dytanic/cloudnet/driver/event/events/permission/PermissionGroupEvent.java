@@ -10,7 +10,7 @@ abstract class PermissionGroupEvent extends PermissionEvent {
   private final IPermissionGroup permissionGroup;
 
   public PermissionGroupEvent(IPermissionManagement permissionManagement,
-      IPermissionGroup permissionGroup) {
+    IPermissionGroup permissionGroup) {
     super(permissionManagement);
 
     this.permissionGroup = permissionGroup;

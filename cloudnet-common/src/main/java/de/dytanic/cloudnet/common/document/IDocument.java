@@ -14,7 +14,7 @@ import java.util.Properties;
  * into the following implementation format of this interface.
  */
 public interface IDocument<T extends IDocument> extends IJsonDocPropertyable,
-    Serializable, IPersistable, IReadable, Iterable<String> {
+  Serializable, IPersistable, IReadable, Iterable<String> {
 
   Collection<String> keys();
 

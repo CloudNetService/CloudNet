@@ -8,9 +8,9 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 public final class PacketServerDeployLocalTemplate extends Packet {
 
   public PacketServerDeployLocalTemplate(ServiceTemplate template,
-      byte[] data) {
+    byte[] data) {
     super(PacketConstants.INTERNAL_CLUSTER_CHANNEL,
-        new JsonDocument("command", "deploy_template")
-            .append("serviceTemplate", template), data);
+      new JsonDocument("command", "deploy_template")
+        .append("serviceTemplate", template), data);
   }
 }

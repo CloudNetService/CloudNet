@@ -36,8 +36,8 @@ public final class MySQLDatabase implements IDatabase {
     this.name = name;
 
     databaseProvider.executeUpdate(
-        "CREATE TABLE IF NOT EXISTS " + name + "(" + TABLE_COLUMN_KEY
-            + " VARCHAR(1024), " + TABLE_COLUMN_VALUE + " TEXT);");
+      "CREATE TABLE IF NOT EXISTS " + name + "(" + TABLE_COLUMN_KEY
+        + " VARCHAR(1024), " + TABLE_COLUMN_VALUE + " TEXT);");
   }
 
   @Override
@@ -55,11 +55,11 @@ public final class MySQLDatabase implements IDatabase {
     }
 
     return !contains(key) ?
-        databaseProvider.executeUpdate(
-            "INSERT INTO " + name + "(" + TABLE_COLUMN_KEY + ","
-                + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
-            key, document.toString()
-        ) != -1 : update(key, document);
+      databaseProvider.executeUpdate(
+        "INSERT INTO " + name + "(" + TABLE_COLUMN_KEY + ","
+          + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
+        key, document.toString()
+      ) != -1 : update(key, document);
   }
 
   @Override
@@ -72,11 +72,11 @@ public final class MySQLDatabase implements IDatabase {
     }
 
     return !contains(key) ? insert(key, document)
-        : databaseProvider.executeUpdate(
-            "UPDATE " + name + " SET " + TABLE_COLUMN_VALUE + "=? WHERE "
-                + TABLE_COLUMN_KEY + "=?",
-            document.toString(), key
-        ) != -1;
+      : databaseProvider.executeUpdate(
+        "UPDATE " + name + " SET " + TABLE_COLUMN_VALUE + "=? WHERE "
+          + TABLE_COLUMN_KEY + "=?",
+        document.toString(), key
+      ) != -1;
   }
 
   @Override
@@ -84,16 +84,16 @@ public final class MySQLDatabase implements IDatabase {
     Validate.checkNotNull(key);
 
     return databaseProvider.executeQuery(
-        "SELECT " + TABLE_COLUMN_KEY + " FROM " + name + " WHERE "
-            + TABLE_COLUMN_KEY + "=?",
-        new IThrowableCallback<ResultSet, Boolean>() {
+      "SELECT " + TABLE_COLUMN_KEY + " FROM " + name + " WHERE "
+        + TABLE_COLUMN_KEY + "=?",
+      new IThrowableCallback<ResultSet, Boolean>() {
 
-          @Override
-          public Boolean call(ResultSet resultSet) throws Throwable {
-            return resultSet.next();
-          }
-        },
-        key
+        @Override
+        public Boolean call(ResultSet resultSet) throws Throwable {
+          return resultSet.next();
+        }
+      },
+      key
     );
   }
 
@@ -106,8 +106,8 @@ public final class MySQLDatabase implements IDatabase {
     }
 
     return databaseProvider.executeUpdate(
-        "DELETE FROM " + name + " WHERE " + TABLE_COLUMN_KEY + "=?",
-        key
+      "DELETE FROM " + name + " WHERE " + TABLE_COLUMN_KEY + "=?",
+      key
     ) != -1;
   }
 
@@ -116,16 +116,16 @@ public final class MySQLDatabase implements IDatabase {
     Validate.checkNotNull(key);
 
     return databaseProvider.executeQuery(
-        "SELECT " + TABLE_COLUMN_VALUE + " FROM " + name + " WHERE "
-            + TABLE_COLUMN_KEY + "=?",
-        new IThrowableCallback<ResultSet, JsonDocument>() {
-          @Override
-          public JsonDocument call(ResultSet resultSet) throws Throwable {
-            return resultSet.next() ? JsonDocument
-                .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)) : null;
-          }
-        },
-        key
+      "SELECT " + TABLE_COLUMN_VALUE + " FROM " + name + " WHERE "
+        + TABLE_COLUMN_KEY + "=?",
+      new IThrowableCallback<ResultSet, JsonDocument>() {
+        @Override
+        public JsonDocument call(ResultSet resultSet) throws Throwable {
+          return resultSet.next() ? JsonDocument
+            .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)) : null;
+        }
+      },
+      key
     );
   }
 
@@ -135,22 +135,22 @@ public final class MySQLDatabase implements IDatabase {
     Validate.checkNotNull(fieldValue);
 
     return databaseProvider.executeQuery(
-        "SELECT " + TABLE_COLUMN_VALUE + " FROM " + name + " WHERE "
-            + TABLE_COLUMN_VALUE + " LIKE ?",
-        new IThrowableCallback<ResultSet, List<JsonDocument>>() {
-          @Override
-          public List<JsonDocument> call(ResultSet resultSet) throws Throwable {
-            List<JsonDocument> jsonDocuments = Iterables.newArrayList();
+      "SELECT " + TABLE_COLUMN_VALUE + " FROM " + name + " WHERE "
+        + TABLE_COLUMN_VALUE + " LIKE ?",
+      new IThrowableCallback<ResultSet, List<JsonDocument>>() {
+        @Override
+        public List<JsonDocument> call(ResultSet resultSet) throws Throwable {
+          List<JsonDocument> jsonDocuments = Iterables.newArrayList();
 
-            while (resultSet.next()) {
-              jsonDocuments.add(JsonDocument
-                  .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
-            }
-
-            return jsonDocuments;
+          while (resultSet.next()) {
+            jsonDocuments.add(JsonDocument
+              .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
           }
-        },
-        "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue) + "%"
+
+          return jsonDocuments;
+        }
+      },
+      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue) + "%"
     );
   }
 
@@ -159,7 +159,7 @@ public final class MySQLDatabase implements IDatabase {
     Validate.checkNotNull(filters);
 
     StringBuilder stringBuilder = new StringBuilder("SELECT ")
-        .append(TABLE_COLUMN_VALUE).append(" FROM ").append(name);
+      .append(TABLE_COLUMN_VALUE).append(" FROM ").append(name);
 
     Collection<String> collection = Iterables.newArrayList();
 
@@ -174,7 +174,7 @@ public final class MySQLDatabase implements IDatabase {
 
         stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ?");
         collection
-            .add("%\"" + item + "\":" + filters.get(item).toString() + "%");
+          .add("%\"" + item + "\":" + filters.get(item).toString() + "%");
 
         if (iterator.hasNext()) {
           stringBuilder.append(" and ");
@@ -183,111 +183,111 @@ public final class MySQLDatabase implements IDatabase {
     }
 
     return databaseProvider.executeQuery(
-        stringBuilder.toString(),
-        new IThrowableCallback<ResultSet, List<JsonDocument>>() {
-          @Override
-          public List<JsonDocument> call(ResultSet resultSet) throws Throwable {
-            List<JsonDocument> jsonDocuments = Iterables.newArrayList();
+      stringBuilder.toString(),
+      new IThrowableCallback<ResultSet, List<JsonDocument>>() {
+        @Override
+        public List<JsonDocument> call(ResultSet resultSet) throws Throwable {
+          List<JsonDocument> jsonDocuments = Iterables.newArrayList();
 
-            while (resultSet.next()) {
-              jsonDocuments.add(JsonDocument
-                  .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
-            }
-
-            return jsonDocuments;
+          while (resultSet.next()) {
+            jsonDocuments.add(JsonDocument
+              .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
           }
-        },
-        collection.toArray()
+
+          return jsonDocuments;
+        }
+      },
+      collection.toArray()
     );
   }
 
   @Override
   public Collection<String> keys() {
     return databaseProvider.executeQuery(
-        "SELECT " + TABLE_COLUMN_KEY + " FROM " + name,
-        new IThrowableCallback<ResultSet, Collection<String>>() {
-          @Override
-          public Collection<String> call(ResultSet resultSet) throws Throwable {
-            Collection<String> keys = Iterables.newArrayList();
+      "SELECT " + TABLE_COLUMN_KEY + " FROM " + name,
+      new IThrowableCallback<ResultSet, Collection<String>>() {
+        @Override
+        public Collection<String> call(ResultSet resultSet) throws Throwable {
+          Collection<String> keys = Iterables.newArrayList();
 
-            while (resultSet.next()) {
-              keys.add(resultSet.getString(TABLE_COLUMN_KEY));
-            }
-
-            return keys;
+          while (resultSet.next()) {
+            keys.add(resultSet.getString(TABLE_COLUMN_KEY));
           }
+
+          return keys;
         }
+      }
     );
   }
 
   @Override
   public Collection<JsonDocument> documents() {
     return databaseProvider.executeQuery(
-        "SELECT " + TABLE_COLUMN_VALUE + " FROM " + name,
-        new IThrowableCallback<ResultSet, Collection<JsonDocument>>() {
-          @Override
-          public Collection<JsonDocument> call(ResultSet resultSet)
-              throws Throwable {
-            Collection<JsonDocument> documents = Iterables.newArrayList();
+      "SELECT " + TABLE_COLUMN_VALUE + " FROM " + name,
+      new IThrowableCallback<ResultSet, Collection<JsonDocument>>() {
+        @Override
+        public Collection<JsonDocument> call(ResultSet resultSet)
+          throws Throwable {
+          Collection<JsonDocument> documents = Iterables.newArrayList();
 
-            while (resultSet.next()) {
-              documents.add(JsonDocument
-                  .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
-            }
-
-            return documents;
+          while (resultSet.next()) {
+            documents.add(JsonDocument
+              .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
           }
+
+          return documents;
         }
+      }
     );
   }
 
   @Override
   public Map<String, JsonDocument> entries() {
     return databaseProvider.executeQuery(
-        "SELECT * FROM " + name,
-        new IThrowableCallback<ResultSet, Map<String, JsonDocument>>() {
-          @Override
-          public Map<String, JsonDocument> call(ResultSet resultSet)
-              throws Throwable {
-            Map<String, JsonDocument> map = Maps.newWeakHashMap();
+      "SELECT * FROM " + name,
+      new IThrowableCallback<ResultSet, Map<String, JsonDocument>>() {
+        @Override
+        public Map<String, JsonDocument> call(ResultSet resultSet)
+          throws Throwable {
+          Map<String, JsonDocument> map = Maps.newWeakHashMap();
 
-            while (resultSet.next()) {
-              map.put(resultSet.getString(TABLE_COLUMN_KEY), JsonDocument
-                  .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
-            }
-
-            return map;
+          while (resultSet.next()) {
+            map.put(resultSet.getString(TABLE_COLUMN_KEY), JsonDocument
+              .newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
           }
+
+          return map;
         }
+      }
     );
   }
 
   @Override
   public Map<String, JsonDocument> filter(
-      BiPredicate<String, JsonDocument> predicate) {
+    BiPredicate<String, JsonDocument> predicate) {
     Validate.checkNotNull(predicate);
 
     return databaseProvider.executeQuery(
-        "SELECT * FROM " + name,
-        new IThrowableCallback<ResultSet, Map<String, JsonDocument>>() {
-          @Override
-          public Map<String, JsonDocument> call(ResultSet resultSet)
-              throws Throwable {
-            Map<String, JsonDocument> map = Maps.newHashMap();
+      "SELECT * FROM " + name,
+      new IThrowableCallback<ResultSet, Map<String, JsonDocument>>() {
+        @Override
+        public Map<String, JsonDocument> call(ResultSet resultSet)
+          throws Throwable {
+          Map<String, JsonDocument> map = Maps.newHashMap();
 
-            while (resultSet.next()) {
-              String key = resultSet.getString(TABLE_COLUMN_KEY);
-              JsonDocument document = JsonDocument
-                  .newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
+          while (resultSet.next()) {
+            String key = resultSet.getString(TABLE_COLUMN_KEY);
+            JsonDocument document = JsonDocument
+              .newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
 
-              if (predicate.test(key, document)) {
-                map.put(key, document);
-              }
+            if (predicate.test(key, document)) {
+              map.put(key, document);
             }
-
-            return map;
           }
+
+          return map;
         }
+      }
     );
   }
 
@@ -296,20 +296,20 @@ public final class MySQLDatabase implements IDatabase {
     Validate.checkNotNull(consumer);
 
     databaseProvider.executeQuery(
-        "SELECT * FROM " + name,
-        new IThrowableCallback<ResultSet, Void>() {
-          @Override
-          public Void call(ResultSet resultSet) throws Throwable {
-            while (resultSet.next()) {
-              String key = resultSet.getString(TABLE_COLUMN_KEY);
-              JsonDocument document = JsonDocument
-                  .newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
-              consumer.accept(key, document);
-            }
-
-            return null;
+      "SELECT * FROM " + name,
+      new IThrowableCallback<ResultSet, Void>() {
+        @Override
+        public Void call(ResultSet resultSet) throws Throwable {
+          while (resultSet.next()) {
+            String key = resultSet.getString(TABLE_COLUMN_KEY);
+            JsonDocument document = JsonDocument
+              .newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
+            consumer.accept(key, document);
           }
+
+          return null;
         }
+      }
     );
   }
 
@@ -366,7 +366,7 @@ public final class MySQLDatabase implements IDatabase {
 
   @Override
   public ITask<List<JsonDocument>> getAsync(String fieldName,
-      Object fieldValue) {
+    Object fieldValue) {
     return schedule(new Callable<List<JsonDocument>>() {
       @Override
       public List<JsonDocument> call() throws Exception {
@@ -417,7 +417,7 @@ public final class MySQLDatabase implements IDatabase {
 
   @Override
   public ITask<Map<String, JsonDocument>> filterAsync(
-      BiPredicate<String, JsonDocument> predicate) {
+    BiPredicate<String, JsonDocument> predicate) {
     return schedule(new Callable<Map<String, JsonDocument>>() {
       @Override
       public Map<String, JsonDocument> call() throws Exception {

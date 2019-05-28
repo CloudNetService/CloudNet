@@ -98,7 +98,7 @@ public class ListenableTask<V> implements ITask<V> {
 
   @Override
   public V get(long timeout, TimeUnit unit)
-      throws InterruptedException, ExecutionException, TimeoutException {
+    throws InterruptedException, ExecutionException, TimeoutException {
     synchronized (this) {
       if (!isDone()) {
         this.wait(unit.toMillis(timeout));

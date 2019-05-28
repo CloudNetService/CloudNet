@@ -18,23 +18,23 @@ public final class CloudServiceListener {
   @EventListener
   public void handle(ChannelMessageReceiveEvent event) {
     if (event.getChannel().equals("cloudnet_smart_module") && event.getMessage()
-        .equals("update_configuration")) {
+      .equals("update_configuration")) {
       Collection<SmartServiceTaskConfig> configs = event.getData()
-          .get("smartServiceTaskConfiguration", TYPE);
+        .get("smartServiceTaskConfiguration", TYPE);
       CloudNetSmartModule.getInstance()
-          .setSmartServiceTaskConfigurations(configs);
+        .setSmartServiceTaskConfigurations(configs);
     }
   }
 
   @EventListener
   public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
     CloudNetSmartModule.getInstance()
-        .publishUpdateConfiguration(event.getChannel());
+      .publishUpdateConfiguration(event.getChannel());
   }
 
   @EventListener
   public void handle(CloudServicePostDeleteEvent event) {
     CloudNetSmartModule.getInstance().getProvidedSmartServices()
-        .remove(event.getCloudService().getServiceId().getUniqueId());
+      .remove(event.getCloudService().getServiceId().getUniqueId());
   }
 }

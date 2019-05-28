@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class VelocityBridgeConfigurationUpdateEvent extends
-    VelocityBridgeEvent {
+  VelocityBridgeEvent {
 
   private final BridgeConfiguration bridgeConfiguration;
 

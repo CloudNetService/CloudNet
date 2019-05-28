@@ -19,27 +19,27 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public final class NettySSLNetworkClientServerTest implements
-    INetworkChannelHandler {
+  INetworkChannelHandler {
 
   @Test
   public void testSslNetworking() throws Exception {
     SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
 
     INetworkServer server = new NettyNetworkServer(() -> this,
-        new SSLConfiguration(
-            true,
-            null,
-            selfSignedCertificate.certificate(),
-            selfSignedCertificate.privateKey()
-        ), null);
+      new SSLConfiguration(
+        true,
+        null,
+        selfSignedCertificate.certificate(),
+        selfSignedCertificate.privateKey()
+      ), null);
 
     INetworkClient client = new NettyNetworkClient(() -> this,
-        new SSLConfiguration(
-            false,
-            null,
-            selfSignedCertificate.certificate(),
-            selfSignedCertificate.privateKey()
-        ), null);
+      new SSLConfiguration(
+        false,
+        null,
+        selfSignedCertificate.certificate(),
+        selfSignedCertificate.privateKey()
+      ), null);
 
     Assert.assertTrue(server.isSslEnabled());
     Assert.assertTrue(client.isSslEnabled());
@@ -54,11 +54,11 @@ public final class NettySSLNetworkClientServerTest implements
     server.getPacketRegistry().addListener(1, new IPacketListener() {
       @Override
       public void handle(INetworkChannel channel, IPacket packet)
-          throws Exception {
+        throws Exception {
         if (packet.getHeader().contains("hello") && packet.getHeader()
-            .getString("hello").equalsIgnoreCase("Unit test") &&
-            new String(packet.getBody())
-                .equalsIgnoreCase("Test Test Test 1 2 4")) {
+          .getString("hello").equalsIgnoreCase("Unit test") &&
+          new String(packet.getBody())
+            .equalsIgnoreCase("Test Test Test 1 2 4")) {
           task.call();
         }
       }
@@ -77,14 +77,14 @@ public final class NettySSLNetworkClientServerTest implements
 
   @Override
   public void handleChannelInitialize(INetworkChannel channel)
-      throws Exception {
+    throws Exception {
     channel.sendPacket(new Packet(1, new JsonDocument("hello", "Unit test"),
-        "Test Test Test 1 2 4".getBytes()));
+      "Test Test Test 1 2 4".getBytes()));
   }
 
   @Override
   public boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-      throws Exception {
+    throws Exception {
     return true;
   }
 

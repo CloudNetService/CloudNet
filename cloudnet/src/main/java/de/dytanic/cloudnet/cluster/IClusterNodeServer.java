@@ -20,10 +20,10 @@ import java.util.UUID;
 public interface IClusterNodeServer extends AutoCloseable {
 
   void sendClusterChannelMessage(String channel, String message,
-      JsonDocument header, byte[] body);
+    JsonDocument header, byte[] body);
 
   void sendCustomChannelMessage(String channel, String message,
-      JsonDocument data);
+    JsonDocument data);
 
   IClusterNodeServerProvider getProvider();
 
@@ -48,45 +48,45 @@ public interface IClusterNodeServer extends AutoCloseable {
   String[] sendCommandLine(String commandLine);
 
   void deployTemplateInCluster(ServiceTemplate serviceTemplate,
-      byte[] zipResource);
+    byte[] zipResource);
 
   ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
 
   ServiceInfoSnapshot createCloudService(
-      ServiceConfiguration serviceConfiguration);
+    ServiceConfiguration serviceConfiguration);
 
   ServiceInfoSnapshot createCloudService(String name, String runtime,
-      boolean autoDeleteOnStop, boolean staticService,
-      Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      Collection<String> groups, ProcessConfiguration processConfiguration,
-      Integer port);
+    boolean autoDeleteOnStop, boolean staticService,
+    Collection<ServiceRemoteInclusion> includes,
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    Collection<String> groups, ProcessConfiguration processConfiguration,
+    Integer port);
 
   Collection<ServiceInfoSnapshot> createCloudService(
-      String nodeUniqueId, int amount, String name, String runtime,
-      boolean autoDeleteOnStop, boolean staticService,
-      Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments, Collection<String> groups,
-      ProcessConfiguration processConfiguration, Integer port);
+    String nodeUniqueId, int amount, String name, String runtime,
+    boolean autoDeleteOnStop, boolean staticService,
+    Collection<ServiceRemoteInclusion> includes,
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments, Collection<String> groups,
+    ProcessConfiguration processConfiguration, Integer port);
 
   ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId,
-      String commandLine);
+    String commandLine);
 
   ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId,
-      ServiceTemplate serviceTemplate);
+    ServiceTemplate serviceTemplate);
 
   ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId,
-      ServiceRemoteInclusion serviceRemoteInclusion);
+    ServiceRemoteInclusion serviceRemoteInclusion);
 
   ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId,
-      ServiceDeployment serviceDeployment);
+    ServiceDeployment serviceDeployment);
 
   Queue<String> getCachedLogMessagesFromService(UUID uniqueId);
 
   void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot,
-      ServiceLifeCycle lifeCycle);
+    ServiceLifeCycle lifeCycle);
 
   void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot);
 

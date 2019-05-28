@@ -50,32 +50,32 @@ final class NettyHttpServerContext implements IHttpContext {
   protected IHttpHandler lastHandler;
 
   public NettyHttpServerContext(NettyHttpServer nettyHttpServer,
-      NettyHttpChannel channel, URI uri, Map<String, String> pathParameters,
-      HttpRequest httpRequest) {
+    NettyHttpChannel channel, URI uri, Map<String, String> pathParameters,
+    HttpRequest httpRequest) {
     this.nettyHttpServer = nettyHttpServer;
     this.channel = channel;
     this.httpRequest = httpRequest;
     this.nettyChannel = channel.getChannel();
 
     this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest,
-        pathParameters, uri);
+      pathParameters, uri);
     this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
     if (this.httpRequest.headers().contains("Cookie")) {
       this.cookies.addAll(Iterables.map(ServerCookieDecoder.LAX
-              .decode(this.httpRequest.headers().get("Cookie")),
-          new Function<Cookie, HttpCookie>() {
-            @Override
-            public HttpCookie apply(Cookie cookie) {
-              return new HttpCookie(
-                  cookie.name(),
-                  cookie.value(),
-                  cookie.domain(),
-                  cookie.path(),
-                  cookie.maxAge()
-              );
-            }
-          }));
+          .decode(this.httpRequest.headers().get("Cookie")),
+        new Function<Cookie, HttpCookie>() {
+          @Override
+          public HttpCookie apply(Cookie cookie) {
+            return new HttpCookie(
+              cookie.name(),
+              cookie.value(),
+              cookie.domain(),
+              cookie.path(),
+              cookie.maxAge()
+            );
+          }
+        }));
     }
 
     this.updateHeaderResponse();
@@ -86,21 +86,21 @@ final class NettyHttpServerContext implements IHttpContext {
     if (webSocketServerChannel == null) {
       cancelSendResponse = true;
       WebSocketServerHandshakerFactory webSocketServerHandshakerFactory = new WebSocketServerHandshakerFactory(
-          httpRequest.uri(),
-          null,
-          false
+        httpRequest.uri(),
+        null,
+        false
       );
 
       nettyChannel.pipeline().remove("http-server-handler");
 
       WebSocketServerHandshaker webSocketServerHandshaker = webSocketServerHandshakerFactory
-          .newHandshaker(httpRequest);
+        .newHandshaker(httpRequest);
       webSocketServerHandshaker.handshake(nettyChannel, httpRequest);
 
       webSocketServerChannel = new NettyWebSocketServerChannel(channel,
-          nettyChannel, webSocketServerHandshaker);
+        nettyChannel, webSocketServerHandshaker);
       nettyChannel.pipeline().addLast("websocket-server-channel-handler",
-          new NettyWebSocketServerChannelHandler(webSocketServerChannel));
+        new NettyWebSocketServerChannelHandler(webSocketServerChannel));
 
       closeAfter(false);
     }
@@ -234,19 +234,19 @@ final class NettyHttpServerContext implements IHttpContext {
       this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
     } else {
       this.httpServerResponse.httpResponse.headers()
-          .set("Set-Cookie", ServerCookieEncoder.LAX.encode(
-              Iterables.map(this.cookies, new Function<HttpCookie, Cookie>() {
-                @Override
-                public Cookie apply(HttpCookie httpCookie) {
-                  Cookie cookie = new DefaultCookie(httpCookie.getName(),
-                      httpCookie.getValue());
-                  cookie.setDomain(httpCookie.getDomain());
-                  cookie.setMaxAge(httpCookie.getMaxAge());
-                  cookie.setPath(httpCookie.getPath());
+        .set("Set-Cookie", ServerCookieEncoder.LAX.encode(
+          Iterables.map(this.cookies, new Function<HttpCookie, Cookie>() {
+            @Override
+            public Cookie apply(HttpCookie httpCookie) {
+              Cookie cookie = new DefaultCookie(httpCookie.getName(),
+                httpCookie.getValue());
+              cookie.setDomain(httpCookie.getDomain());
+              cookie.setMaxAge(httpCookie.getMaxAge());
+              cookie.setPath(httpCookie.getPath());
 
-                  return cookie;
-                }
-              })));
+              return cookie;
+            }
+          })));
     }
   }
 }

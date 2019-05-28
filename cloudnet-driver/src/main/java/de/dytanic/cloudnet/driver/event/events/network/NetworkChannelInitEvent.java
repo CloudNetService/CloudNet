@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 public class NetworkChannelInitEvent extends NetworkEvent implements
-    ICancelable {
+  ICancelable {
 
   private final ChannelType channelType;
 
@@ -15,7 +15,7 @@ public class NetworkChannelInitEvent extends NetworkEvent implements
   private boolean cancelled;
 
   public NetworkChannelInitEvent(INetworkChannel channel,
-      ChannelType channelType) {
+    ChannelType channelType) {
     super(channel);
     this.channelType = channelType;
   }

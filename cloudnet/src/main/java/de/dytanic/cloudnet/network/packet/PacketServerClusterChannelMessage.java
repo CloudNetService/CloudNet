@@ -7,12 +7,12 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 public final class PacketServerClusterChannelMessage extends Packet {
 
   public PacketServerClusterChannelMessage(String channel, String message,
-      JsonDocument header, byte[] body) {
+    JsonDocument header, byte[] body) {
     super(
-        PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL,
-        new JsonDocument("channel", channel).append("message", message)
-            .append("header", header),
-        body
+      PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL,
+      new JsonDocument("channel", channel).append("message", message)
+        .append("header", header),
+      body
     );
   }
 }

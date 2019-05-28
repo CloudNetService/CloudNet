@@ -16,17 +16,17 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 public final class PacketServerServiceInfoPublisherListener implements
-    IPacketListener {
+  IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("serviceInfoSnapshot") && packet.getHeader()
-        .contains("type")) {
+      .contains("type")) {
       ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader()
-          .get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
+        .get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
       PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet
-          .getHeader().get("type",
-              PacketClientServerServiceInfoPublisher.PublisherType.class);
+        .getHeader().get("type",
+          PacketClientServerServiceInfoPublisher.PublisherType.class);
 
       switch (publisherType) {
         case UPDATE:
@@ -37,14 +37,14 @@ public final class PacketServerServiceInfoPublisherListener implements
           break;
         case CONNECTED:
           this.invoke0(
-              new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
+            new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
           break;
         case UNREGISTER:
           this.invoke0(new CloudServiceUnregisterEvent(serviceInfoSnapshot));
           break;
         case DISCONNECTED:
           this.invoke0(
-              new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
+            new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
           break;
         case STARTED:
           this.invoke0(new CloudServiceStartEvent(serviceInfoSnapshot));

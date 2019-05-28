@@ -24,7 +24,7 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
     try {
       URLConnection urlConnection = new URL(url + "repository")
-          .openConnection();
+        .openConnection();
       initHttpUrlConnection(urlConnection);
 
       urlConnection.connect();
@@ -53,7 +53,7 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
   @Override
   public boolean installUpdate(String destinationBaseDirectory,
-      String moduleDestinationBaseDirectory) {
+    String moduleDestinationBaseDirectory) {
     String version = getCurrentVersion();
     byte[] buffer = new byte[16384];
     boolean successful = true;
@@ -61,26 +61,26 @@ public final class DefaultRepositoryUpdater implements IUpdater {
     if (version != null) {
 
       if (!installFile(version, "cloudnet.jar",
-          new File(destinationBaseDirectory + "/" + version, "cloudnet.jar"),
-          buffer)) {
+        new File(destinationBaseDirectory + "/" + version, "cloudnet.jar"),
+        buffer)) {
         successful = false;
       }
 
       if (!installFile(version, "cloudnet.cnl",
-          new File(destinationBaseDirectory + "/" + version, "cloudnet.cnl"),
-          buffer)) {
+        new File(destinationBaseDirectory + "/" + version, "cloudnet.cnl"),
+        buffer)) {
         successful = false;
       }
 
       if (!installFile(version, "driver.jar",
-          new File(destinationBaseDirectory + "/" + version, "driver.jar"),
-          buffer)) {
+        new File(destinationBaseDirectory + "/" + version, "driver.jar"),
+        buffer)) {
         successful = false;
       }
 
       if (!installFile(version, "driver.cnl",
-          new File(destinationBaseDirectory + "/" + version, "driver.cnl"),
-          buffer)) {
+        new File(destinationBaseDirectory + "/" + version, "driver.cnl"),
+        buffer)) {
         successful = false;
       }
 
@@ -90,8 +90,8 @@ public final class DefaultRepositoryUpdater implements IUpdater {
     if (version != null && moduleDestinationBaseDirectory != null) {
       for (CloudNetModule module : Constants.DEFAULT_MODULES) {
         if (!installModuleFile(version, module.getFileName(),
-            new File(moduleDestinationBaseDirectory, module.getFileName()),
-            buffer)) {
+          new File(moduleDestinationBaseDirectory, module.getFileName()),
+          buffer)) {
           successful = false;
         }
       }
@@ -103,13 +103,13 @@ public final class DefaultRepositoryUpdater implements IUpdater {
   /*= ------------------------------------------------ =*/
 
   private boolean installModuleFile(String version, String name, File file,
-      byte[] buffer) {
+    byte[] buffer) {
     System.out.println(
-        "Installing remote version module " + name + " in version " + version);
+      "Installing remote version module " + name + " in version " + version);
 
     try {
       URLConnection urlConnection = new URL(
-          url + "versions/" + version + "/" + name).openConnection();
+        url + "versions/" + version + "/" + name).openConnection();
       initHttpUrlConnection(urlConnection);
 
       urlConnection.connect();
@@ -131,14 +131,14 @@ public final class DefaultRepositoryUpdater implements IUpdater {
   }
 
   private boolean installFile(String version, String name, File file,
-      byte[] buffer) {
+    byte[] buffer) {
     if (file.exists()) {
       return true;
     }
 
     try {
       URLConnection urlConnection = new URL(
-          url + "versions/" + version + "/" + name).openConnection();
+        url + "versions/" + version + "/" + name).openConnection();
       initHttpUrlConnection(urlConnection);
 
       urlConnection.connect();
@@ -163,6 +163,6 @@ public final class DefaultRepositoryUpdater implements IUpdater {
     urlConnection.setDoOutput(false);
 
     urlConnection.setRequestProperty("User-Agent",
-        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+      "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
   }
 }

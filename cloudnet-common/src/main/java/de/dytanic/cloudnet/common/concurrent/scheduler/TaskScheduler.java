@@ -32,7 +32,7 @@ public class TaskScheduler {
   private static final AtomicLong THREAD_GROUP_ID_LONG = new AtomicLong();
 
   protected final ThreadGroup threadGroup = new ThreadGroup(
-      "TaskSchedulerGroup-" + THREAD_GROUP_ID_LONG.incrementAndGet());
+    "TaskSchedulerGroup-" + THREAD_GROUP_ID_LONG.incrementAndGet());
 
   protected final AtomicLong threadId = new AtomicLong(0);
 
@@ -67,9 +67,9 @@ public class TaskScheduler {
 
 
   public TaskScheduler(Collection<TaskEntry<?>> entries,
-      long sleepThreadSwitch) {
+    long sleepThreadSwitch) {
     this(Runtime.getRuntime().availableProcessors(), entries,
-        sleepThreadSwitch);
+      sleepThreadSwitch);
   }
 
 
@@ -94,32 +94,32 @@ public class TaskScheduler {
 
 
   public TaskScheduler(int maxThreads, Collection<TaskEntry<?>> entries,
-      boolean dynamicWorkerCount) {
+    boolean dynamicWorkerCount) {
     this(maxThreads, entries, 10, dynamicWorkerCount);
   }
 
 
   public TaskScheduler(int maxThreads, Collection<TaskEntry<?>> entries,
-      long sleepThreadSwitch) {
+    long sleepThreadSwitch) {
     this(maxThreads, entries, sleepThreadSwitch, false);
   }
 
   public TaskScheduler(int maxThreads, Collection<TaskEntry<?>> entries,
-      long sleepThreadSwitch, boolean dynamicThreadCount) {
+    long sleepThreadSwitch, boolean dynamicThreadCount) {
     this(maxThreads, entries, sleepThreadSwitch, dynamicThreadCount, 10000L);
   }
 
   public TaskScheduler(int maxThreads, Collection<TaskEntry<?>> entries,
-      long sleepThreadSwitch, boolean dynamicThreadCount,
-      long threadLifeMillis) {
+    long sleepThreadSwitch, boolean dynamicThreadCount,
+    long threadLifeMillis) {
 
     this.sleepThreadSwitch = sleepThreadSwitch;
     this.dynamicWorkerCount = dynamicThreadCount;
     this.threadLifeMillis = threadLifeMillis;
 
     this.maxThreads =
-        maxThreads <= 0 ? Runtime.getRuntime().availableProcessors()
-            : maxThreads;
+      maxThreads <= 0 ? Runtime.getRuntime().availableProcessors()
+        : maxThreads;
 
     if (entries != null) {
       taskEntries.addAll(entries);
@@ -141,19 +141,19 @@ public class TaskScheduler {
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable, LocalDate localDate,
-      LocalTime localTime) {
+    LocalTime localTime) {
     return schedule(runnable, null, localDate, localTime);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      LocalDateTime localDateTime) {
+    LocalDateTime localDateTime) {
     return schedule(runnable, null, localDateTime);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      ZonedDateTime zonedDateTime) {
+    ZonedDateTime zonedDateTime) {
     return schedule(runnable, null, zonedDateTime);
   }
 
@@ -164,54 +164,54 @@ public class TaskScheduler {
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback) {
+    IVoidCallback<Void> callback) {
     return schedule(runnable, callback, 0);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, LocalDate localDate, LocalTime localTime) {
+    IVoidCallback<Void> callback, LocalDate localDate, LocalTime localTime) {
     return schedule(runnable, callback, localDate, localTime, 0);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, LocalDateTime localDateTime) {
+    IVoidCallback<Void> callback, LocalDateTime localDateTime) {
     return schedule(runnable, callback, localDateTime, 0);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, LocalDateTime localDateTime, long repeats) {
+    IVoidCallback<Void> callback, LocalDateTime localDateTime, long repeats) {
     return schedule(runnable, callback,
-        localDateTime.atZone(ZoneId.systemDefault()), repeats);
+      localDateTime.atZone(ZoneId.systemDefault()), repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, LocalDate localDate, LocalTime localTime,
-      long repeats) {
+    IVoidCallback<Void> callback, LocalDate localDate, LocalTime localTime,
+    long repeats) {
     return schedule(runnable, callback, LocalDateTime.of(localDate, localTime),
-        repeats);
+      repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, ZonedDateTime zonedDateTime) {
+    IVoidCallback<Void> callback, ZonedDateTime zonedDateTime) {
     return schedule(runnable, callback, zonedDateTime, 0);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, Instant instant) {
+    IVoidCallback<Void> callback, Instant instant) {
     return schedule(runnable, callback, instant, 0);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, Date timeout) {
+    IVoidCallback<Void> callback, Date timeout) {
     return schedule(runnable, callback,
-        timeout.getTime() - System.currentTimeMillis());
+      timeout.getTime() - System.currentTimeMillis());
   }
 
 
@@ -221,73 +221,73 @@ public class TaskScheduler {
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable, long delay,
-      TimeUnit timeUnit) {
+    TimeUnit timeUnit) {
     return schedule(runnable, (IVoidCallback<Void>) null,
-        timeUnit.toMillis(delay));
+      timeUnit.toMillis(delay));
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, long delay) {
+    IVoidCallback<Void> callback, long delay) {
     return schedule(runnable, callback, delay, 0);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, long delay, TimeUnit timeUnit) {
+    IVoidCallback<Void> callback, long delay, TimeUnit timeUnit) {
     return schedule(runnable, (IVoidCallback<Void>) null,
-        timeUnit.toMillis(delay));
+      timeUnit.toMillis(delay));
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable, long delay,
-      long repeats) {
+    long repeats) {
     return schedule(runnable, null, delay, repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, ZonedDateTime zonedDateTime, long repeats) {
+    IVoidCallback<Void> callback, ZonedDateTime zonedDateTime, long repeats) {
     return schedule(runnable, callback, zonedDateTime.toInstant(), repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, Instant instant, long repeats) {
+    IVoidCallback<Void> callback, Instant instant, long repeats) {
     return schedule(runnable, callback,
-        instant.toEpochMilli() - System.currentTimeMillis(), repeats);
+      instant.toEpochMilli() - System.currentTimeMillis(), repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable, Date timeout,
-      long repeats) {
+    long repeats) {
     return schedule(runnable, timeout.getTime() - System.currentTimeMillis(),
-        repeats);
+      repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable, long delay,
-      TimeUnit timeUnit, long repeats) {
+    TimeUnit timeUnit, long repeats) {
     return schedule(runnable, null, timeUnit.toMillis(delay), repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, Date timeout, long repeats) {
+    IVoidCallback<Void> callback, Date timeout, long repeats) {
     return schedule(runnable, callback,
-        timeout.getTime() - System.currentTimeMillis(), repeats);
+      timeout.getTime() - System.currentTimeMillis(), repeats);
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, long delay, long repeats) {
+    IVoidCallback<Void> callback, long delay, long repeats) {
     return schedule(new VoidTaskEntry(runnable, callback, delay, repeats));
   }
 
 
   public TaskEntryFuture<Void> schedule(Runnable runnable,
-      IVoidCallback<Void> callback, long delay, TimeUnit timeUnit,
-      long repeats) {
+    IVoidCallback<Void> callback, long delay, TimeUnit timeUnit,
+    long repeats) {
     return schedule(runnable, callback, timeUnit.toMillis(delay), repeats);
   }
 
@@ -301,25 +301,25 @@ public class TaskScheduler {
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      LocalDate localDate, LocalTime localTime) {
+    LocalDate localDate, LocalTime localTime) {
     return schedule(callable, null, localDate, localTime);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      LocalDateTime localDateTime) {
+    LocalDateTime localDateTime) {
     return schedule(callable, null, localDateTime);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      ZonedDateTime zonedDateTime) {
+    ZonedDateTime zonedDateTime) {
     return schedule(callable, null, zonedDateTime);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      Instant instant) {
+    Instant instant) {
     return schedule(callable, null, instant);
   }
 
@@ -330,88 +330,88 @@ public class TaskScheduler {
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable, long delay,
-      TimeUnit timeUnit) {
+    TimeUnit timeUnit) {
     return schedule(callable, null, timeUnit.toMillis(delay));
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback) {
+    IVoidCallback<V> callback) {
     return schedule(callable, callback, 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, LocalDate localDate, LocalTime localTime) {
+    IVoidCallback<V> callback, LocalDate localDate, LocalTime localTime) {
     return schedule(callable, callback, localDate, localTime, 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, LocalDateTime localDateTime) {
+    IVoidCallback<V> callback, LocalDateTime localDateTime) {
     return schedule(callable, callback, localDateTime, 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, ZonedDateTime zonedDateTime) {
+    IVoidCallback<V> callback, ZonedDateTime zonedDateTime) {
     return schedule(callable, callback, zonedDateTime, 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, Instant instant) {
+    IVoidCallback<V> callback, Instant instant) {
     return schedule(callable, callback, instant, 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, long delay) {
+    IVoidCallback<V> callback, long delay) {
     return schedule(callable, callback, delay, 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, long delay, TimeUnit timeUnit) {
+    IVoidCallback<V> callback, long delay, TimeUnit timeUnit) {
     return schedule(callable, callback, timeUnit.toMillis(delay));
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, long delay, long repeats) {
+    IVoidCallback<V> callback, long delay, long repeats) {
     return schedule(new TaskEntry<>(callable, callback, delay, repeats));
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, long delay, TimeUnit timeUnit, long repeats) {
+    IVoidCallback<V> callback, long delay, TimeUnit timeUnit, long repeats) {
     return schedule(callable, callback, timeUnit.toMillis(delay), repeats);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, LocalDate localDate, LocalTime localTime,
-      long repeats) {
+    IVoidCallback<V> callback, LocalDate localDate, LocalTime localTime,
+    long repeats) {
     return schedule(callable, callback, LocalDateTime.of(localDate, localTime),
-        repeats);
+      repeats);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, LocalDateTime localDateTime, long repeats) {
+    IVoidCallback<V> callback, LocalDateTime localDateTime, long repeats) {
     return schedule(callable, callback,
-        localDateTime.atZone(ZoneId.systemDefault()), 0);
+      localDateTime.atZone(ZoneId.systemDefault()), 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, ZonedDateTime zonedDateTime, long repeats) {
+    IVoidCallback<V> callback, ZonedDateTime zonedDateTime, long repeats) {
     return schedule(callable, callback, zonedDateTime.toInstant(), 0);
   }
 
 
   public <V> TaskEntryFuture<V> schedule(Callable<V> callable,
-      IVoidCallback<V> callback, Instant instant, long repeats) {
+    IVoidCallback<V> callback, Instant instant, long repeats) {
     return schedule(callable, callback, instant.toEpochMilli(), 0);
   }
 
@@ -422,7 +422,7 @@ public class TaskScheduler {
 
 
   public <V> Collection<TaskEntryFuture<V>> schedule(
-      Collection<TaskEntry<V>> threadEntries) {
+    Collection<TaskEntry<V>> threadEntries) {
 
     Collection<TaskEntryFuture<V>> TaskEntryFutures = new ArrayList<TaskEntryFuture<V>>();
     for (TaskEntry<V> entry : threadEntries) {
@@ -501,9 +501,9 @@ public class TaskScheduler {
   private void checkEnoughThreads() {
     Worker worker = hasFreeWorker();
     if (getCurrentThreadSize() < maxThreads
-        || (dynamicWorkerCount && maxThreads > 1
-        && taskEntries.size() > getCurrentThreadSize()
-        && taskEntries.size() <= (getMaxThreads() * 2)) && worker == null) {
+      || (dynamicWorkerCount && maxThreads > 1
+      && taskEntries.size() > getCurrentThreadSize()
+      && taskEntries.size() <= (getMaxThreads() * 2)) && worker == null) {
       newWorker();
     }
   }
@@ -534,7 +534,7 @@ public class TaskScheduler {
 
     Worker() {
       super(threadGroup,
-          threadGroup.getName() + "#" + threadId.incrementAndGet());
+        threadGroup.getName() + "#" + threadId.incrementAndGet());
       setDaemon(true);
     }
 
@@ -563,10 +563,10 @@ public class TaskScheduler {
         liveTimeStamp = System.currentTimeMillis();
 
         if (taskEntry.delayTimeOut != 0
-            && System.currentTimeMillis() < taskEntry.delayTimeOut) {
+          && System.currentTimeMillis() < taskEntry.delayTimeOut) {
           if (maxThreads != 1) {
             long difference =
-                taskEntry.delayTimeOut - System.currentTimeMillis();
+              taskEntry.delayTimeOut - System.currentTimeMillis();
 
             if (difference > sleepThreadSwitch) {
               sleepUninterruptedly(sleepThreadSwitch - 1);
@@ -633,13 +633,13 @@ public class TaskScheduler {
   private final class VoidTaskEntry extends TaskEntry<Void> {
 
     public VoidTaskEntry(Callable<Void> task, IVoidCallback<Void> complete,
-        long delay, long repeat) {
+      long delay, long repeat) {
       super(task, complete, delay, repeat);
     }
 
 
     public VoidTaskEntry(Runnable task, IVoidCallback<Void> complete,
-        long delay, long repeat) {
+      long delay, long repeat) {
       super(new Callable<Void>() {
 
         @Override

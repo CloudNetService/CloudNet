@@ -11,16 +11,16 @@ public final class V1HttpHandlerShowOpenAPI extends MethodHttpHandlerAdapter {
   @Override
   public void handleGet(String path, IHttpContext context) throws Exception {
     try (InputStream inputStream = V1HttpHandlerShowOpenAPI.class
-        .getClassLoader().getResourceAsStream("openapi/v1-openapi.yml")) {
+      .getClassLoader().getResourceAsStream("openapi/v1-openapi.yml")) {
       if (inputStream != null) {
         context
-            .response()
-            .statusCode(HttpResponseCode.HTTP_OK)
-            .header("Content-Type", "text/plain")
-            .body(FileUtils.toByteArray(inputStream))
-            .context()
-            .closeAfter(true)
-            .cancelNext()
+          .response()
+          .statusCode(HttpResponseCode.HTTP_OK)
+          .header("Content-Type", "text/plain")
+          .body(FileUtils.toByteArray(inputStream))
+          .context()
+          .closeAfter(true)
+          .cancelNext()
         ;
       }
     }

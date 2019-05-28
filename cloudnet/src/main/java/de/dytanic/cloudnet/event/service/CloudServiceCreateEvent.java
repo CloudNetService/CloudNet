@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @RequiredArgsConstructor
 public final class CloudServiceCreateEvent extends DriverEvent implements
-    ICancelable {
+  ICancelable {
 
   private final ServiceConfiguration serviceConfiguration;
 

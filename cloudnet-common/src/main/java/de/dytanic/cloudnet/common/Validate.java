@@ -37,7 +37,7 @@ public final class Validate {
   public static <T> T checkNotNull(T object, String message) {
     if (object == null) {
       throw new NullPointerException(message == null
-          ? "The input object is null. Please check the parameters!" : message);
+        ? "The input object is null. Please check the parameters!" : message);
     }
 
     return object;
@@ -67,8 +67,8 @@ public final class Validate {
   public static boolean assertTrue(boolean value, String message) {
     if (!value) {
       throw new IllegalArgumentException(
-          message == null ? "input condition is false. Expected true"
-              : message);
+        message == null ? "input condition is false. Expected true"
+          : message);
     }
 
     return value;

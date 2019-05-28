@@ -17,31 +17,31 @@ public final class CloudNetSignsModuleListener {
   @EventListener
   public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
     event.getNode().sendCustomChannelMessage(
-        SignConstants.SIGN_CLUSTER_CHANNEL_NAME,
-        SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-        new JsonDocument()
-            .append("signConfiguration",
-                CloudNetSignsModule.getInstance().getSignConfiguration())
-            .append("signs", CloudNetSignsModule.getInstance().loadSigns())
+      SignConstants.SIGN_CLUSTER_CHANNEL_NAME,
+      SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
+      new JsonDocument()
+        .append("signConfiguration",
+          CloudNetSignsModule.getInstance().getSignConfiguration())
+        .append("signs", CloudNetSignsModule.getInstance().loadSigns())
     );
   }
 
   @EventListener
   public void handle(NetworkChannelReceiveCallablePacketEvent event) {
     if (!event.getChannelName()
-        .equalsIgnoreCase(SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY)) {
+      .equalsIgnoreCase(SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY)) {
       return;
     }
 
     switch (event.getId().toLowerCase()) {
       case SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY: {
         event.setCallbackPacket(new JsonDocument("signs",
-            CloudNetSignsModule.getInstance().loadSigns()));
+          CloudNetSignsModule.getInstance().loadSigns()));
       }
       break;
       case SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_CONFIGURATION_PROPERTY: {
         event.setCallbackPacket(new JsonDocument("signConfiguration",
-            CloudNetSignsModule.getInstance().getSignConfiguration()));
+          CloudNetSignsModule.getInstance().getSignConfiguration()));
       }
       break;
     }
@@ -50,18 +50,18 @@ public final class CloudNetSignsModuleListener {
   @EventListener
   public void handle(ChannelMessageReceiveEvent event) {
     if (event.getChannel()
-        .equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)) {
+      .equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)) {
       switch (event.getMessage().toLowerCase()) {
         case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
           SignConfiguration signConfiguration = event.getData()
-              .get("signConfiguration", SignConfiguration.TYPE);
+            .get("signConfiguration", SignConfiguration.TYPE);
           Collection<Sign> signs = event.getData()
-              .get("signs", SignConstants.COLLECTION_SIGNS);
+            .get("signs", SignConstants.COLLECTION_SIGNS);
 
           CloudNetSignsModule.getInstance()
-              .setSignConfiguration(signConfiguration);
+            .setSignConfiguration(signConfiguration);
           SignConfigurationReaderAndWriter.write(signConfiguration,
-              CloudNetSignsModule.getInstance().getConfigurationFile());
+            CloudNetSignsModule.getInstance().getConfigurationFile());
 
           CloudNetSignsModule.getInstance().write(signs);
         }

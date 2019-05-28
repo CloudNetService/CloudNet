@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class ProxProxNetworkChannelPacketReceiveEvent extends
-    ProxProxCloudNetEvent {
+  ProxProxCloudNetEvent {
 
   @Getter
   private final INetworkChannel channel;

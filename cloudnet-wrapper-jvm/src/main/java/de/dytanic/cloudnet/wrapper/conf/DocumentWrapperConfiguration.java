@@ -18,16 +18,16 @@ import lombok.Getter;
  */
 @Getter
 public final class DocumentWrapperConfiguration implements
-    IWrapperConfiguration {
+  IWrapperConfiguration {
 
   private static final Path WRAPPER_CONFIG = Paths.get(System
-      .getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
+    .getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
   private static final Type
-      SERVICE_CFG_TYPE = new TypeToken<ServiceConfiguration>() {
+    SERVICE_CFG_TYPE = new TypeToken<ServiceConfiguration>() {
   }.getType(),
-      SERVICE_INFO_TYPE = new TypeToken<ServiceInfoSnapshot>() {
-      }.getType();
+    SERVICE_INFO_TYPE = new TypeToken<ServiceInfoSnapshot>() {
+    }.getType();
 
   private String connectionKey;
 
@@ -49,9 +49,9 @@ public final class DocumentWrapperConfiguration implements
     this.connectionKey = document.getString("connectionKey");
     this.targetListener = document.get("listener", HostAndPort.class);
     this.serviceConfiguration = document
-        .get("serviceConfiguration", SERVICE_CFG_TYPE);
+      .get("serviceConfiguration", SERVICE_CFG_TYPE);
     this.serviceInfoSnapshot = document
-        .get("serviceInfoSnapshot", SERVICE_INFO_TYPE);
+      .get("serviceInfoSnapshot", SERVICE_INFO_TYPE);
     this.sslConfig = document.getDocument("sslConfig");
   }
 }

@@ -38,7 +38,7 @@ public abstract class Command implements ICommandExecutor {
   }
 
   public Command(String[] names, String permission, String description,
-      String usage, String prefix) {
+    String usage, String prefix) {
     this.names = names;
     this.permission = permission;
     this.description = description;
@@ -52,7 +52,7 @@ public abstract class Command implements ICommandExecutor {
 
   public final boolean isValid() {
     return this.names != null && this.names.length > 0 && this.names[0] != null
-        && !this.names[0].isEmpty();
+      && !this.names[0].isEmpty();
   }
 
 }

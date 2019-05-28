@@ -17,10 +17,10 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public final class DefaultPacketListenerRegistry implements
-    IPacketListenerRegistry {
+  IPacketListenerRegistry {
 
   private final Map<Integer, List<IPacketListener>> listeners = Maps
-      .newConcurrentHashMap();
+    .newConcurrentHashMap();
 
   @Getter
   private final IPacketListenerRegistry parent;
@@ -67,7 +67,7 @@ public final class DefaultPacketListenerRegistry implements
   @Override
   public void removeListeners(ClassLoader classLoader) {
     for (Map.Entry<Integer, List<IPacketListener>> listenerCollectionEntry : this.listeners
-        .entrySet()) {
+      .entrySet()) {
       for (IPacketListener listener : listenerCollectionEntry.getValue()) {
         if (listener.getClass().getClassLoader().equals(classLoader)) {
           listenerCollectionEntry.getValue().remove(listener);
@@ -79,7 +79,7 @@ public final class DefaultPacketListenerRegistry implements
   @Override
   public boolean hasListener(Class<? extends IPacketListener> clazz) {
     for (Map.Entry<Integer, List<IPacketListener>> listenerCollectionEntry : this.listeners
-        .entrySet()) {
+      .entrySet()) {
       for (IPacketListener listener : listenerCollectionEntry.getValue()) {
         if (listener.getClass().equals(clazz)) {
           return true;

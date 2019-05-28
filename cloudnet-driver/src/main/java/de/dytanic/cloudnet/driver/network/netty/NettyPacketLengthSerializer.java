@@ -9,13 +9,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 public final class NettyPacketLengthSerializer extends
-    MessageToByteEncoder<ByteBuf> {
+  MessageToByteEncoder<ByteBuf> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out)
-      throws Exception {
+    throws Exception {
     int readableBytes = in.readableBytes(), lengthByteSpace = getVarIntSize(
-        readableBytes);
+      readableBytes);
 
     if (lengthByteSpace > 5) {
       throw new IllegalArgumentException();

@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class NukkitBridgeProxyPlayerServerConnectRequestEvent extends
-    NukkitBridgeEvent {
+  NukkitBridgeEvent {
 
   @Getter
   private static final HandlerList handlers = new HandlerList();

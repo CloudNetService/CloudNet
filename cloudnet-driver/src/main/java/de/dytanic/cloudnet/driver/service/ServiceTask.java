@@ -25,27 +25,27 @@ public class ServiceTask extends ServiceConfigurationBase {
   private int startPort, minServiceCount;
 
   public ServiceTask(Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      String name, String runtime, boolean autoDeleteOnStop,
-      boolean staticServices, Collection<String> associatedNodes,
-      Collection<String> groups,
-      ProcessConfiguration processConfiguration, int startPort,
-      int minServiceCount) {
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    String name, String runtime, boolean autoDeleteOnStop,
+    boolean staticServices, Collection<String> associatedNodes,
+    Collection<String> groups,
+    ProcessConfiguration processConfiguration, int startPort,
+    int minServiceCount) {
     this(includes, templates, deployments, name, runtime, false,
-        autoDeleteOnStop,
-        staticServices, associatedNodes, groups, processConfiguration,
-        startPort, minServiceCount);
+      autoDeleteOnStop,
+      staticServices, associatedNodes, groups, processConfiguration,
+      startPort, minServiceCount);
   }
 
   public ServiceTask(Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      String name, String runtime, boolean maintenance,
-      boolean autoDeleteOnStop, boolean staticServices,
-      Collection<String> associatedNodes, Collection<String> groups,
-      ProcessConfiguration processConfiguration, int startPort,
-      int minServiceCount) {
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    String name, String runtime, boolean maintenance,
+    boolean autoDeleteOnStop, boolean staticServices,
+    Collection<String> associatedNodes, Collection<String> groups,
+    ProcessConfiguration processConfiguration, int startPort,
+    int minServiceCount) {
     super(includes, templates, deployments);
 
     this.name = name;

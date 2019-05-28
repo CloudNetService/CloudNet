@@ -12,7 +12,7 @@ public interface IModuleProvider {
   IModuleProviderHandler getModuleProviderHandler();
 
   void setModuleDependencyLoader(
-      IModuleDependencyLoader moduleDependencyLoader);
+    IModuleDependencyLoader moduleDependencyLoader);
 
   IModuleDependencyLoader getModuleDependencyLoader();
 

@@ -26,16 +26,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 public final class DefaultDatabasePermissionManagement implements
-    IPermissionManagement {
+  IPermissionManagement {
 
   private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 
   private final File file = new File(System
-      .getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
+    .getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
   @Getter
   private final Map<String, IPermissionGroup> permissionGroupsMap = Maps
-      .newConcurrentHashMap();
+    .newConcurrentHashMap();
 
   @Getter
   @Setter
@@ -45,7 +45,7 @@ public final class DefaultDatabasePermissionManagement implements
   private final Callable<AbstractDatabaseProvider> databaseProviderCallable;
 
   public DefaultDatabasePermissionManagement(
-      Callable<AbstractDatabaseProvider> databaseProviderCallable) {
+    Callable<AbstractDatabaseProvider> databaseProviderCallable) {
     this.databaseProviderCallable = databaseProviderCallable;
 
     file.getParentFile().mkdirs();
@@ -57,7 +57,7 @@ public final class DefaultDatabasePermissionManagement implements
     Validate.checkNotNull(permissionUser);
 
     getDatabase().insert(permissionUser.getUniqueId().toString(),
-        new JsonDocument(permissionUser));
+      new JsonDocument(permissionUser));
     return permissionUser;
   }
 
@@ -70,7 +70,7 @@ public final class DefaultDatabasePermissionManagement implements
     }
 
     getDatabase().update(permissionUser.getUniqueId().toString(),
-        new JsonDocument(permissionUser));
+      new JsonDocument(permissionUser));
   }
 
   @Override
@@ -111,7 +111,7 @@ public final class DefaultDatabasePermissionManagement implements
 
     if (jsonDocument != null) {
       IPermissionUser permissionUser = jsonDocument
-          .toInstanceOf(PermissionUser.TYPE);
+        .toInstanceOf(PermissionUser.TYPE);
 
       if (testPermissionUser(permissionUser)) {
         updateUser(permissionUser);
@@ -128,19 +128,19 @@ public final class DefaultDatabasePermissionManagement implements
     Validate.checkNotNull(name);
 
     return Iterables.map(getDatabase().get("name", name),
-        new Function<JsonDocument, IPermissionUser>() {
-          @Override
-          public IPermissionUser apply(JsonDocument strings) {
-            IPermissionUser permissionUser = strings
-                .toInstanceOf(PermissionUser.TYPE);
+      new Function<JsonDocument, IPermissionUser>() {
+        @Override
+        public IPermissionUser apply(JsonDocument strings) {
+          IPermissionUser permissionUser = strings
+            .toInstanceOf(PermissionUser.TYPE);
 
-            if (testPermissionUser(permissionUser)) {
-              updateUser(permissionUser);
-            }
-
-            return permissionUser;
+          if (testPermissionUser(permissionUser)) {
+            updateUser(permissionUser);
           }
-        });
+
+          return permissionUser;
+        }
+      });
   }
 
   @Override
@@ -151,7 +151,7 @@ public final class DefaultDatabasePermissionManagement implements
       @Override
       public void accept(String s, JsonDocument strings) {
         IPermissionUser permissionUser = strings
-            .toInstanceOf(PermissionUser.TYPE);
+          .toInstanceOf(PermissionUser.TYPE);
         testPermissionUser(permissionUser);
 
         permissionUsers.add(permissionUser);
@@ -170,7 +170,7 @@ public final class DefaultDatabasePermissionManagement implements
     for (IPermissionUser permissionUser : users) {
       if (permissionUser != null) {
         getDatabase().insert(permissionUser.getUniqueId().toString(),
-            new JsonDocument(permissionUser));
+          new JsonDocument(permissionUser));
       }
     }
   }
@@ -185,7 +185,7 @@ public final class DefaultDatabasePermissionManagement implements
       @Override
       public void accept(String s, JsonDocument strings) {
         IPermissionUser permissionUser = strings
-            .toInstanceOf(PermissionUser.TYPE);
+          .toInstanceOf(PermissionUser.TYPE);
 
         testPermissionUser(permissionUser);
         if (permissionUser.inGroup(group)) {
@@ -316,7 +316,7 @@ public final class DefaultDatabasePermissionManagement implements
 
   private void saveGroups() {
     List<IPermissionGroup> permissionGroups = Iterables
-        .newArrayList(permissionGroupsMap.values());
+      .newArrayList(permissionGroupsMap.values());
     Collections.sort(permissionGroups);
 
     new JsonDocument("groups", permissionGroups).write(file);
@@ -327,8 +327,8 @@ public final class DefaultDatabasePermissionManagement implements
 
     if (document.contains("groups")) {
       Collection<PermissionGroup> permissionGroups = document
-          .get("groups", new TypeToken<Collection<PermissionGroup>>() {
-          }.getType());
+        .get("groups", new TypeToken<Collection<PermissionGroup>>() {
+        }.getType());
 
       this.permissionGroupsMap.clear();
 

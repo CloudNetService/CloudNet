@@ -1,16 +1,16 @@
 jar {
-    archiveName = cloudnetModuleBridgeFileName
+  archiveName = cloudnetModuleBridgeFileName
 }
 
 dependencies {
-    compileOnly project(':cloudnet')
-    compileOnly project(':cloudnet-wrapper-jvm')
-    compileOnly files('../libs/proxprox-1.0-SNAPSHOT.jar')
-    compileOnly files('../libs/gomint-1.0-SNAPSHOT.jar')
-    compileOnly files('../libs/nukkit-1.0-SNAPSHOT.jar')
-    compileOnly group: 'org.spongepowered', name: 'spongeapi', version: dependencySpongeVersion
-    compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
-    //compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
-    compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
-    compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
+  compileOnly project(':cloudnet')
+  compileOnly project(':cloudnet-wrapper-jvm')
+  compileOnly files('../libs/proxprox-1.0-SNAPSHOT.jar')
+  compileOnly files('../libs/gomint-1.0-SNAPSHOT.jar')
+  compileOnly files('../libs/nukkit-1.0-SNAPSHOT.jar')
+  compileOnly group: 'org.spongepowered', name: 'spongeapi', version: dependencySpongeVersion
+  compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
+  //compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
+  compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
+  compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
 }

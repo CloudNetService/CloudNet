@@ -14,23 +14,23 @@ import net.md_5.bungee.api.event.PermissionCheckEvent;
 public class LoginPendingConnectionCommandSender implements CommandSender {
 
   private final Collection<String> permissions = Iterables
-      .newArrayList(), groups = Iterables.newArrayList();
+    .newArrayList(), groups = Iterables.newArrayList();
 
   private final LoginEvent loginEvent;
 
   private final UUID uniqueId;
 
   public LoginPendingConnectionCommandSender(LoginEvent loginEvent,
-      UUID uniqueId) {
+    UUID uniqueId) {
     this.loginEvent = loginEvent;
     this.uniqueId = uniqueId;
 
     this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter()
-        .getGroups(loginEvent.getConnection().getName()));
+      .getGroups(loginEvent.getConnection().getName()));
 
     for (String group : groups) {
       for (String permission : ProxyServer.getInstance()
-          .getConfigurationAdapter().getPermissions(group)) {
+        .getConfigurationAdapter().getPermissions(group)) {
         this.setPermission(permission, true);
       }
     }
@@ -66,11 +66,11 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
     Validate.checkNotNull(permission);
 
     return ProxyServer.getInstance().getPluginManager()
-        .callEvent(new PermissionCheckEvent(
-            this,
-            permission,
-            this.permissions.contains(permission.toLowerCase()))
-        ).hasPermission();
+      .callEvent(new PermissionCheckEvent(
+        this,
+        permission,
+        this.permissions.contains(permission.toLowerCase()))
+      ).hasPermission();
   }
 
   @Override

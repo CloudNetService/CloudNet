@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class NukkitCloudServiceInfoUpdateEvent extends
-    NukkitCloudNetEvent {
+  NukkitCloudNetEvent {
 
   @Getter
   private static final HandlerList handlers = new HandlerList();

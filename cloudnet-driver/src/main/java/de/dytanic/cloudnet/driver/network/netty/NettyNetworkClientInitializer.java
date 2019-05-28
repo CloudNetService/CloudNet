@@ -16,19 +16,19 @@ final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
   protected void initChannel(Channel ch) throws Exception {
     if (nettyNetworkClient.sslContext != null) {
       ch.pipeline()
-          .addLast(nettyNetworkClient.sslContext
-              .newHandler(ch.alloc(), hostAndPort.getHost(),
-                  hostAndPort.getPort()));
+        .addLast(nettyNetworkClient.sslContext
+          .newHandler(ch.alloc(), hostAndPort.getHost(),
+            hostAndPort.getPort()));
     }
 
     ch.pipeline()
-        .addLast("packet-length-deserializer",
-            new NettyPacketLengthDeserializer())
-        .addLast("packet-decoder", new NettyPacketDecoder())
-        .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
-        .addLast("packet-encoder", new NettyPacketEncoder())
-        .addLast("network-client-handler",
-            new NettyNetworkClientHandler(nettyNetworkClient, hostAndPort))
+      .addLast("packet-length-deserializer",
+        new NettyPacketLengthDeserializer())
+      .addLast("packet-decoder", new NettyPacketDecoder())
+      .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
+      .addLast("packet-encoder", new NettyPacketEncoder())
+      .addLast("network-client-handler",
+        new NettyNetworkClientHandler(nettyNetworkClient, hostAndPort))
     ;
   }
 }

@@ -10,6 +10,6 @@ public final class PacketServerSetServiceTaskList extends Packet {
 
   public PacketServerSetServiceTaskList(Collection<ServiceTask> tasks) {
     super(PacketConstants.INTERNAL_CLUSTER_CHANNEL,
-        new JsonDocument("taskList", tasks).append("set", true), new byte[0]);
+      new JsonDocument("taskList", tasks).append("set", true), new byte[0]);
   }
 }

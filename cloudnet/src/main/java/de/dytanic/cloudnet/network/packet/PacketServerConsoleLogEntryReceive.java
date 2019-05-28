@@ -8,13 +8,13 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 public final class PacketServerConsoleLogEntryReceive extends Packet {
 
   public PacketServerConsoleLogEntryReceive(
-      ServiceInfoSnapshot serviceInfoSnapshot, String message,
-      boolean errorMessage) {
+    ServiceInfoSnapshot serviceInfoSnapshot, String message,
+    boolean errorMessage) {
     super(PacketConstants.INTERNAL_CLUSTER_CHANNEL,
-        new JsonDocument("command", "log_entry_receive")
-            .append("serviceInfoSnapshot", serviceInfoSnapshot)
-            .append("messageEntry", message)
-            .append("errorMessage", errorMessage),
-        new byte[0]);
+      new JsonDocument("command", "log_entry_receive")
+        .append("serviceInfoSnapshot", serviceInfoSnapshot)
+        .append("messageEntry", message)
+        .append("errorMessage", errorMessage),
+      new byte[0]);
   }
 }

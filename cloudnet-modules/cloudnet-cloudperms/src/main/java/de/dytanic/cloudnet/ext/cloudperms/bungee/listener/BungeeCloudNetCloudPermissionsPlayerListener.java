@@ -13,38 +13,38 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements
-    Listener {
+  Listener {
 
   @EventHandler
   public void handle(LoginEvent event) {
     UUID uniqueId = getUniqueId(event.getConnection().getClass(),
-        event.getConnection());
+      event.getConnection());
 
     if (uniqueId != null) {
       IPermissionUser permissionUser = CloudPermissionsPermissionManagement
-          .getInstance().getUser(uniqueId);
+        .getInstance().getUser(uniqueId);
 
       if (permissionUser == null) {
         CloudPermissionsPermissionManagement.getInstance()
-            .addUser(new PermissionUser(
-                uniqueId,
-                event.getConnection().getName(),
-                null,
-                0
-            ));
+          .addUser(new PermissionUser(
+            uniqueId,
+            event.getConnection().getName(),
+            null,
+            0
+          ));
 
         permissionUser = CloudPermissionsPermissionManagement.getInstance()
-            .getUser(uniqueId);
+          .getUser(uniqueId);
       }
 
       if (permissionUser != null) {
         CloudPermissionsPermissionManagement.getInstance()
-            .getCachedPermissionUsers()
-            .put(permissionUser.getUniqueId(), permissionUser);
+          .getCachedPermissionUsers()
+          .put(permissionUser.getUniqueId(), permissionUser);
 
         permissionUser.setName(event.getConnection().getName());
         CloudPermissionsPermissionManagement.getInstance()
-            .updateUser(permissionUser);
+          .updateUser(permissionUser);
       }
     }
   }
@@ -52,16 +52,16 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements
   @EventHandler
   public void handle(PermissionCheckEvent event) {
     UUID uniqueId = getUniqueId(event.getSender().getClass(),
-        event.getSender());
+      event.getSender());
 
     if (uniqueId != null) {
       IPermissionUser permissionUser = CloudPermissionsPermissionManagement
-          .getInstance().getUser(uniqueId);
+        .getInstance().getUser(uniqueId);
 
       if (permissionUser != null) {
         event.setHasPermission(
-            CloudPermissionsPermissionManagement.getInstance()
-                .hasPlayerPermission(permissionUser, event.getPermission()));
+          CloudPermissionsPermissionManagement.getInstance()
+            .hasPlayerPermission(permissionUser, event.getPermission()));
       }
     }
   }
@@ -69,11 +69,11 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements
   @EventHandler
   public void handle(PlayerDisconnectEvent event) {
     UUID uniqueId = getUniqueId(event.getPlayer().getClass(),
-        event.getPlayer());
+      event.getPlayer());
 
     if (uniqueId != null) {
       CloudPermissionsPermissionManagement.getInstance()
-          .getCachedPermissionUsers().remove(uniqueId);
+        .getCachedPermissionUsers().remove(uniqueId);
     }
   }
 

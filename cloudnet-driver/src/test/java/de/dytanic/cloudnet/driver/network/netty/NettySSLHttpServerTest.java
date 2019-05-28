@@ -31,25 +31,25 @@ public class NettySSLHttpServerTest {
     SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
 
     try (IHttpServer httpServer = new NettyHttpServer(new SSLConfiguration(
-        false,
-        null,
-        selfSignedCertificate.certificate(),
-        selfSignedCertificate.privateKey()
+      false,
+      null,
+      selfSignedCertificate.certificate(),
+      selfSignedCertificate.privateKey()
     ))) {
       Assert.assertTrue(httpServer.isSslEnabled());
       Assert.assertTrue(
-          httpServer.registerHandler("/test/power", new IHttpHandler() {
+        httpServer.registerHandler("/test/power", new IHttpHandler() {
 
-            @Override
-            public void handle(String path, IHttpContext context)
-                throws Exception {
-              context.response()
-                  .header("Content-Type", "text/plain")
-                  .body("Data-Set")
-                  .statusCode(200);
-            }
+          @Override
+          public void handle(String path, IHttpContext context)
+            throws Exception {
+            context.response()
+              .header("Content-Type", "text/plain")
+              .body("Data-Set")
+              .statusCode(200);
+          }
 
-          }).addListener(32462));
+        }).addListener(32462));
 
       HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
         @Override
@@ -59,41 +59,41 @@ public class NettySSLHttpServerTest {
       });
 
       TrustManager[] trustManagers = new TrustManager[]{
-          new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(X509Certificate[] x509Certificates,
-                String s) throws CertificateException {
+        new X509TrustManager() {
+          @Override
+          public void checkClientTrusted(X509Certificate[] x509Certificates,
+            String s) throws CertificateException {
 
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate[] x509Certificates,
-                String s) throws CertificateException {
-            }
-
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-              return new X509Certificate[]{selfSignedCertificate.cert()};
-            }
           }
+
+          @Override
+          public void checkServerTrusted(X509Certificate[] x509Certificates,
+            String s) throws CertificateException {
+          }
+
+          @Override
+          public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[]{selfSignedCertificate.cert()};
+          }
+        }
       };
 
       SSLContext sslContext = SSLContext.getInstance("SSL");
       sslContext.init(null, trustManagers, new SecureRandom());
 
       HttpsURLConnection
-          .setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+        .setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 
       HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(
-          "https://127.0.0.1:32462/test/power").openConnection();
+        "https://127.0.0.1:32462/test/power").openConnection();
       httpURLConnection.connect();
 
       Assert.assertEquals(HttpResponseCode.HTTP_OK,
-          httpURLConnection.getResponseCode());
+        httpURLConnection.getResponseCode());
 
       try (InputStream inputStream = httpURLConnection.getInputStream();
-          BufferedReader bufferedReader = new BufferedReader(
-              new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+        BufferedReader bufferedReader = new BufferedReader(
+          new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
         Assert.assertEquals("Data-Set", bufferedReader.readLine());
       }
 

@@ -9,7 +9,7 @@ public final class SyncProxyConfigurationWriterAndReaderTest {
   @Test
   public void testWriterAndReader() {
     SyncProxyConfiguration bungeeConfiguration = SyncProxyConfigurationWriterAndReader
-        .read(new File("build/sync_bungee.json"));
+      .read(new File("build/sync_bungee.json"));
 
     Assert.assertNotNull(bungeeConfiguration);
     Assert.assertNotNull(bungeeConfiguration.getLoginConfigurations());

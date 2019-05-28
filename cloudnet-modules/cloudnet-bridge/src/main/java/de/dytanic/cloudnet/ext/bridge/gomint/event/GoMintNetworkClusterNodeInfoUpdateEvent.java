@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class GoMintNetworkClusterNodeInfoUpdateEvent extends
-    GoMintCloudNetEvent {
+  GoMintCloudNetEvent {
 
   @Getter
   private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;

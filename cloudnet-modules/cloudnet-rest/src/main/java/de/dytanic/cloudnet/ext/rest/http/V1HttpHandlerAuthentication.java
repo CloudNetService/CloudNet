@@ -13,7 +13,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-      throws Exception {
+    throws Exception {
     this.sendOptions(context, "OPTIONS, GET");
   }
 
@@ -22,35 +22,35 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
     if (HTTP_SESSION.auth(context)) {
       if (context.request().queryParameters().containsKey("redirect")) {
         context
-            .response()
-            .statusCode(HttpResponseCode.HTTP_MOVED_TEMP)
-            .header("Location",
-                context.request().queryParameters().get("redirect").iterator()
-                    .next())
-            .context()
-            .closeAfter(true)
-            .cancelNext()
+          .response()
+          .statusCode(HttpResponseCode.HTTP_MOVED_TEMP)
+          .header("Location",
+            context.request().queryParameters().get("redirect").iterator()
+              .next())
+          .context()
+          .closeAfter(true)
+          .cancelNext()
         ;
       } else {
         context
-            .response()
-            .statusCode(HttpResponseCode.HTTP_OK)
-            .header("Content-Type", "application/json")
-            .body(new JsonDocument("success", true).append("userUniqueId",
-                HTTP_SESSION.getUser(context).getUniqueId()).toByteArray())
-            .context()
-            .closeAfter(true)
-            .cancelNext()
+          .response()
+          .statusCode(HttpResponseCode.HTTP_OK)
+          .header("Content-Type", "application/json")
+          .body(new JsonDocument("success", true).append("userUniqueId",
+            HTTP_SESSION.getUser(context).getUniqueId()).toByteArray())
+          .context()
+          .closeAfter(true)
+          .cancelNext()
         ;
       }
     } else {
       context
-          .response()
-          .statusCode(HttpResponseCode.HTTP_UNAUTHORIZED)
-          .header("WWW-Authenticate", "Basic realm=\"CloudNet-REST-v1\"")
-          .context()
-          .closeAfter(true)
-          .cancelNext()
+        .response()
+        .statusCode(HttpResponseCode.HTTP_UNAUTHORIZED)
+        .header("WWW-Authenticate", "Basic realm=\"CloudNet-REST-v1\"")
+        .context()
+        .closeAfter(true)
+        .cancelNext()
       ;
     }
   }

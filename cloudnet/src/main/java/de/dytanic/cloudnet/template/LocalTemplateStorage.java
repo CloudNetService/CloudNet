@@ -30,7 +30,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     try {
       FileUtils.extract(zipInput,
-          new File(this.storageDirectory, target.getTemplatePath()).toPath());
+        new File(this.storageDirectory, target.getTemplatePath()).toPath());
       return true;
     } catch (IOException e) {
       e.printStackTrace();
@@ -50,7 +50,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     try {
       FileUtils.copyFilesToDirectory(directory,
-          new File(this.storageDirectory, target.getTemplatePath()));
+        new File(this.storageDirectory, target.getTemplatePath()));
       return true;
     } catch (IOException e) {
       e.printStackTrace();
@@ -65,12 +65,12 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     Validate.checkNotNull(target);
 
     return this
-        .deploy(Iterables.map(Arrays.asList(paths), new Function<Path, File>() {
-          @Override
-          public File apply(Path t) {
-            return t.toFile();
-          }
-        }).toArray(new File[0]), target);
+      .deploy(Iterables.map(Arrays.asList(paths), new Function<Path, File>() {
+        @Override
+        public File apply(Path t) {
+          return t.toFile();
+        }
+      }).toArray(new File[0]), target);
   }
 
   @Override
@@ -81,7 +81,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     byte[] buffer = new byte[32768];
 
     File templateDirectory = new File(this.storageDirectory,
-        target.getTemplatePath());
+      target.getTemplatePath());
 
     boolean value = true;
 
@@ -89,10 +89,10 @@ public final class LocalTemplateStorage implements ITemplateStorage {
       try {
         if (entry.isDirectory()) {
           FileUtils.copyFilesToDirectory(entry,
-              new File(templateDirectory, entry.getName()), buffer);
+            new File(templateDirectory, entry.getName()), buffer);
         } else {
           FileUtils.copy(entry, new File(templateDirectory, entry.getName()),
-              buffer);
+            buffer);
         }
 
       } catch (Exception ex) {
@@ -112,7 +112,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     byte[] buffer = new byte[32768];
     File templateDirectory = new File(this.storageDirectory,
-        template.getTemplatePath());
+      template.getTemplatePath());
     boolean value = true;
 
     try {
@@ -165,7 +165,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
   public byte[] toZipByteArray(ServiceTemplate template) {
     File directory = new File(storageDirectory, template.getTemplatePath());
     return directory.exists() ? FileUtils
-        .convert(new Path[]{directory.toPath()}) : null;
+      .convert(new Path[]{directory.toPath()}) : null;
   }
 
   @Override
@@ -173,7 +173,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     Validate.checkNotNull(template);
 
     FileUtils
-        .delete(new File(this.storageDirectory, template.getTemplatePath()));
+      .delete(new File(this.storageDirectory, template.getTemplatePath()));
     return true;
   }
 
@@ -199,8 +199,8 @@ public final class LocalTemplateStorage implements ITemplateStorage {
             for (File subEntry : subPathEntries) {
               if (subEntry.isDirectory()) {
                 templates.add(
-                    new ServiceTemplate(entry.getName(), subEntry.getName(),
-                        LOCAL_TEMPLATE_STORAGE));
+                  new ServiceTemplate(entry.getName(), subEntry.getName(),
+                    LOCAL_TEMPLATE_STORAGE));
               }
             }
           }

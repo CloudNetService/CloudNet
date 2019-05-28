@@ -26,7 +26,7 @@ public interface INetworkChannelHandler {
    * handle from the packet listeners at the packetListenerRegistry
    */
   boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-      throws Exception;
+    throws Exception;
 
   /**
    * Handles the close phase from a NetworkChannel

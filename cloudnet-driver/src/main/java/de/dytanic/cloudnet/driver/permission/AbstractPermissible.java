@@ -12,7 +12,7 @@ import lombok.Setter;
 
 @Getter
 public abstract class AbstractPermissible extends
-    BasicJsonDocPropertyable implements IPermissible {
+  BasicJsonDocPropertyable implements IPermissible {
 
   @Setter
   protected String name;
@@ -87,12 +87,12 @@ public abstract class AbstractPermissible extends
 
     if (groupPermissions.containsKey(group)) {
       Permission p = Iterables
-          .first(groupPermissions.get(group), new Predicate<Permission>() {
-            @Override
-            public boolean test(Permission perm) {
-              return perm.getName().equalsIgnoreCase(permission);
-            }
-          });
+        .first(groupPermissions.get(group), new Predicate<Permission>() {
+          @Override
+          public boolean test(Permission perm) {
+            return perm.getName().equalsIgnoreCase(permission);
+          }
+        });
 
       if (p != null) {
         groupPermissions.get(group).remove(p);

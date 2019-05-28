@@ -19,24 +19,24 @@ public final class CommandLocalTemplate extends CommandDefault {
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-      String commandLine, Properties properties) {
+    String commandLine, Properties properties) {
     if (args.length == 0) {
       sender.sendMessage(
-          "lt list | prefix=<name> name=<name>",
-          "lt install <" + Arrays.toString(ServiceEnvironmentType.values())
-              + ">",
-          "lt install <prefix> <name> <" + Arrays
-              .toString(ServiceEnvironmentType.values()) + "> <version>",
-          "lt delete <prefix> <name>",
-          "lt create <prefix> <name> <" + Arrays
-              .toString(ServiceEnvironmentType.values()) + ">"
+        "lt list | prefix=<name> name=<name>",
+        "lt install <" + Arrays.toString(ServiceEnvironmentType.values())
+          + ">",
+        "lt install <prefix> <name> <" + Arrays
+          .toString(ServiceEnvironmentType.values()) + "> <version>",
+        "lt delete <prefix> <name>",
+        "lt create <prefix> <name> <" + Arrays
+          .toString(ServiceEnvironmentType.values()) + ">"
       );
       return;
     }
 
     ITemplateStorage storage = getCloudNet().getServicesRegistry()
-        .getService(ITemplateStorage.class,
-            LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+      .getService(ITemplateStorage.class,
+        LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
     if (storage == null) {
       throw new UnsupportedOperationException("Storage cannot be found!");
@@ -45,12 +45,12 @@ public final class CommandLocalTemplate extends CommandDefault {
     if (args[0].equalsIgnoreCase("list")) {
       for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
         if (properties.containsKey("prefix") && serviceTemplate.getPrefix()
-            .toLowerCase().contains(properties.get("prefix"))) {
+          .toLowerCase().contains(properties.get("prefix"))) {
           continue;
         }
 
         if (properties.containsKey("name") && serviceTemplate.getName()
-            .toLowerCase().contains(properties.get("name"))) {
+          .toLowerCase().contains(properties.get("name"))) {
           continue;
         }
 
@@ -62,16 +62,16 @@ public final class CommandLocalTemplate extends CommandDefault {
       if (args.length == 2) {
         try {
           ServiceEnvironmentType environmentType = ServiceEnvironmentType
-              .valueOf(args[1].toUpperCase());
+            .valueOf(args[1].toUpperCase());
 
           sender.sendMessage("ServiceType: " + environmentType);
 
           for (InstallableAppVersion installableAppVersion : InstallableAppVersion.VERSIONS) {
             if (installableAppVersion.getServiceEnvironment()
-                == environmentType) {
+              == environmentType) {
               sender.sendMessage(
-                  "- " + installableAppVersion.getVersion() + " * Environment: "
-                      + installableAppVersion.getEnvironmentType());
+                "- " + installableAppVersion.getVersion() + " * Environment: "
+                  + installableAppVersion.getEnvironmentType());
             }
           }
 
@@ -82,34 +82,34 @@ public final class CommandLocalTemplate extends CommandDefault {
 
       if (args.length == 5) {
         ServiceTemplate serviceTemplate = new ServiceTemplate(args[1], args[2],
-            LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+          LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
         try {
           InstallableAppVersion installableAppVersion = InstallableAppVersion
-              .getVersion(ServiceEnvironmentType.valueOf(args[3].toUpperCase()),
-                  args[4]);
+            .getVersion(ServiceEnvironmentType.valueOf(args[3].toUpperCase()),
+              args[4]);
           if (installableAppVersion != null) {
             sender.sendMessage(
-                LanguageManager.getMessage("command-local-template-install-try")
-                    .replace("%environment%",
-                        installableAppVersion.getServiceEnvironment().name())
-                    .replace("%version%", installableAppVersion.getVersion())
+              LanguageManager.getMessage("command-local-template-install-try")
+                .replace("%environment%",
+                  installableAppVersion.getServiceEnvironment().name())
+                .replace("%version%", installableAppVersion.getVersion())
             );
             if (LocalTemplateStorageUtil
-                .installApplicationJar(storage, serviceTemplate,
-                    installableAppVersion)) {
+              .installApplicationJar(storage, serviceTemplate,
+                installableAppVersion)) {
               sender.sendMessage(LanguageManager
-                  .getMessage("command-local-template-install-success")
-                  .replace("%environment%",
-                      installableAppVersion.getServiceEnvironment().name())
-                  .replace("%version%", installableAppVersion.getVersion())
+                .getMessage("command-local-template-install-success")
+                .replace("%environment%",
+                  installableAppVersion.getServiceEnvironment().name())
+                .replace("%version%", installableAppVersion.getVersion())
               );
             } else {
               sender.sendMessage(LanguageManager
-                  .getMessage("command-local-template-install-failed")
-                  .replace("%environment%",
-                      installableAppVersion.getServiceEnvironment().name())
-                  .replace("%version%", installableAppVersion.getVersion())
+                .getMessage("command-local-template-install-failed")
+                .replace("%environment%",
+                  installableAppVersion.getServiceEnvironment().name())
+                .replace("%version%", installableAppVersion.getVersion())
               );
             }
           }
@@ -117,26 +117,26 @@ public final class CommandLocalTemplate extends CommandDefault {
         }
 
         getCloudNet().deployTemplateInCluster(serviceTemplate,
-            storage.toZipByteArray(serviceTemplate));
+          storage.toZipByteArray(serviceTemplate));
       }
     }
 
     if (args[0].equalsIgnoreCase("delete") && args.length == 3) {
       storage.delete(new ServiceTemplate(args[1], args[2],
-          LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE));
+        LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE));
       sender.sendMessage(LanguageManager
-          .getMessage("command-local-template-delete-template-success"));
+        .getMessage("command-local-template-delete-template-success"));
     }
 
     if (args[0].equalsIgnoreCase("create") && args.length == 4) {
       try {
         ServiceEnvironmentType environment = ServiceEnvironmentType
-            .valueOf(args[3].toUpperCase());
+          .valueOf(args[3].toUpperCase());
 
         if (LocalTemplateStorageUtil
-            .createAndPrepareTemplate(storage, args[1], args[2], environment)) {
+          .createAndPrepareTemplate(storage, args[1], args[2], environment)) {
           sender.sendMessage(LanguageManager
-              .getMessage("command-local-template-create-template-success"));
+            .getMessage("command-local-template-create-template-success"));
         }
 
       } catch (Exception ignored) {
@@ -145,10 +145,10 @@ public final class CommandLocalTemplate extends CommandDefault {
   }
 
   private void displayTemplate(ICommandSender sender,
-      ServiceTemplate serviceTemplate) {
+    ServiceTemplate serviceTemplate) {
     sender.sendMessage(
-        "- " + serviceTemplate.getStorage() + ":" + serviceTemplate.getPrefix()
-            + "/" + serviceTemplate.getName());
+      "- " + serviceTemplate.getStorage() + ":" + serviceTemplate.getPrefix()
+        + "/" + serviceTemplate.getName());
   }
 
 }

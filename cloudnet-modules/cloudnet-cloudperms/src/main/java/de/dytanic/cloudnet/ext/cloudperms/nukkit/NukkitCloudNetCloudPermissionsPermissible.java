@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 public final class NukkitCloudNetCloudPermissionsPermissible extends
-    PermissibleBase {
+  PermissibleBase {
 
   private final Player player;
 
@@ -41,8 +41,8 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends
     }
 
     IPermissionUser permissionUser = CloudPermissionsPermissionManagement
-        .getInstance().getUser(player.getUniqueId());
+      .getInstance().getUser(player.getUniqueId());
     return permissionUser != null && CloudPermissionsPermissionManagement
-        .getInstance().hasPlayerPermission(permissionUser, inName);
+      .getInstance().hasPlayerPermission(permissionUser, inName);
   }
 }

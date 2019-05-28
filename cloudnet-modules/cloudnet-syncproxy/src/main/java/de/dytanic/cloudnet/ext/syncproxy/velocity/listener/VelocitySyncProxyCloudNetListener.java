@@ -19,39 +19,39 @@ public final class VelocitySyncProxyCloudNetListener {
   @EventListener
   public void handle(ServiceInfoSnapshotConfigureEvent event) {
     if (VelocityCloudNetSyncProxyPlugin.getInstance()
-        .getProxyLoginConfiguration() != null) {
+      .getProxyLoginConfiguration() != null) {
       event.getServiceInfoSnapshot().getProperties().append(
-          SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT,
-          VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
-              .getPlayerCount());
+        SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT,
+        VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
+          .getPlayerCount());
     }
   }
 
   @EventListener
   public void handle(CloudServiceInfoUpdateEvent event) {
     if (!event.getServiceInfo().getServiceId().getEnvironment()
-        .isMinecraftJavaProxy()) {
+      .isMinecraftJavaProxy()) {
       return;
     }
 
     SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = VelocityCloudNetSyncProxyPlugin
-        .getInstance().getProxyLoginConfiguration();
+      .getInstance().getProxyLoginConfiguration();
 
     if (syncProxyProxyLoginConfiguration != null) {
       if (VelocityCloudNetSyncProxyPlugin.getInstance()
-          .inGroup(event.getServiceInfo(), syncProxyProxyLoginConfiguration) &&
-          event.getServiceInfo().getProperties().contains(
-              SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
+        .inGroup(event.getServiceInfo(), syncProxyProxyLoginConfiguration) &&
+        event.getServiceInfo().getProperties().contains(
+          SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
         VelocityCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies()
-            .put(event.getServiceInfo().getServiceId().getUniqueId(),
-                event.getServiceInfo()
-                    .getProperties().getInt(
-                    SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
+          .put(event.getServiceInfo().getServiceId().getUniqueId(),
+            event.getServiceInfo()
+              .getProperties().getInt(
+              SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
       }
     }
 
     for (Player player : VelocityCloudNetSyncProxyPlugin.getInstance()
-        .getProxyServer().getAllPlayers()) {
+      .getProxyServer().getAllPlayers()) {
       VelocityCloudNetSyncProxyPlugin.getInstance().setTabList(player);
     }
   }
@@ -59,36 +59,36 @@ public final class VelocitySyncProxyCloudNetListener {
   @EventListener
   public void handle(CloudServiceStopEvent event) {
     if (!event.getServiceInfo().getServiceId().getEnvironment()
-        .isMinecraftJavaProxy()) {
+      .isMinecraftJavaProxy()) {
       return;
     }
 
     VelocityCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies()
-        .remove(event.getServiceInfo().getServiceId().getUniqueId());
+      .remove(event.getServiceInfo().getServiceId().getUniqueId());
   }
 
   @EventListener
   public void handle(CloudServiceDisconnectNetworkEvent event) {
     if (!event.getServiceInfo().getServiceId().getEnvironment()
-        .isMinecraftJavaProxy()) {
+      .isMinecraftJavaProxy()) {
       return;
     }
 
     VelocityCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies()
-        .remove(event.getServiceInfo().getServiceId().getUniqueId());
+      .remove(event.getServiceInfo().getServiceId().getUniqueId());
   }
 
   @EventListener
   public void handle(ChannelMessageReceiveEvent event) {
     if (!event.getChannel()
-        .equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) {
+      .equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) {
       return;
     }
 
     switch (event.getMessage().toLowerCase()) {
       case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
         SyncProxyConfiguration syncProxyConfiguration = event.getData()
-            .get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+          .get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
         if (syncProxyConfiguration != null) {
           SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
@@ -102,23 +102,23 @@ public final class VelocitySyncProxyCloudNetListener {
 
   private void handlePlayerNotWhitelisted() {
     SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = VelocityCloudNetSyncProxyPlugin
-        .getInstance().getProxyLoginConfiguration();
+      .getInstance().getProxyLoginConfiguration();
 
     if (syncProxyProxyLoginConfiguration != null) {
       for (Player player : VelocityCloudNetSyncProxyPlugin.getInstance()
-          .getProxyServer().getAllPlayers()) {
+        .getProxyServer().getAllPlayers()) {
         if (
-            syncProxyProxyLoginConfiguration.isMaintenance() &&
-                syncProxyProxyLoginConfiguration.getWhitelist() != null &&
-                !syncProxyProxyLoginConfiguration.getWhitelist()
-                    .contains(player.getUsername()) &&
-                !syncProxyProxyLoginConfiguration.getWhitelist()
-                    .contains(player.getUniqueId().toString()) &&
-                !player.hasPermission("cloudnet.syncproxy.maintenance")) {
+          syncProxyProxyLoginConfiguration.isMaintenance() &&
+            syncProxyProxyLoginConfiguration.getWhitelist() != null &&
+            !syncProxyProxyLoginConfiguration.getWhitelist()
+              .contains(player.getUsername()) &&
+            !syncProxyProxyLoginConfiguration.getWhitelist()
+              .contains(player.getUniqueId().toString()) &&
+            !player.hasPermission("cloudnet.syncproxy.maintenance")) {
           player.disconnect(TextComponent.of((
-              SyncProxyConfigurationProvider.load().getMessages()
-                  .get("player-login-not-whitelisted") + "")
-              .replace("&", "§")));
+            SyncProxyConfigurationProvider.load().getMessages()
+              .get("player-login-not-whitelisted") + "")
+            .replace("&", "§")));
         }
       }
     }

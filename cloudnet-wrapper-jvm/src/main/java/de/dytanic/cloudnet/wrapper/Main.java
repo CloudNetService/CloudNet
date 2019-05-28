@@ -21,11 +21,11 @@ public final class Main {
 
   public static synchronized void main(String... args) throws Throwable {
     LanguageManager.setLanguage(
-        System.getProperty("cloudnet.wrapper.messages.language", "english"));
+      System.getProperty("cloudnet.wrapper.messages.language", "english"));
     LanguageManager.addLanguageFile("german", Main.class.getClassLoader()
-        .getResourceAsStream("lang/german.properties"));
+      .getResourceAsStream("lang/german.properties"));
     LanguageManager.addLanguageFile("english", Main.class.getClassLoader()
-        .getResourceAsStream("lang/english.properties"));
+      .getResourceAsStream("lang/english.properties"));
 
     ILogger logger = new DefaultAsyncLogger();
     initLogger(logger);
@@ -38,18 +38,18 @@ public final class Main {
 
   private static void initLogger(ILogger logger) throws Throwable {
     for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
-        new DefaultFileLogHandler(new File(".wrapper/logs"), "wrapper.log",
-            DefaultFileLogHandler.SIZE_8MB),
-        new InternalPrintStreamLogHandler(System.out, System.err)}) {
+      new DefaultFileLogHandler(new File(".wrapper/logs"), "wrapper.log",
+        DefaultFileLogHandler.SIZE_8MB),
+      new InternalPrintStreamLogHandler(System.out, System.err)}) {
       logger.addLogHandler(logHandler.setFormatter(new WrapperLogFormatter()));
     }
 
     System.setOut(
-        new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true,
-            "UTF-8"));
+      new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true,
+        "UTF-8"));
     System.setErr(
-        new PrintStream(new LogOutputStream(logger, LogLevel.WARNING), true,
-            "UTF-8"));
+      new PrintStream(new LogOutputStream(logger, LogLevel.WARNING), true,
+        "UTF-8"));
 
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 

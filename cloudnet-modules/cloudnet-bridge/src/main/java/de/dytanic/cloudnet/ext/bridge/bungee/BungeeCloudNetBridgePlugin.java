@@ -30,57 +30,57 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
   @Override
   public synchronized void onDisable() {
     CloudNetDriver.getInstance().getEventManager()
-        .unregisterListeners(this.getClass().getClassLoader());
+      .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-        this.getClass().getClassLoader());
+      this.getClass().getClassLoader());
   }
 
   /*= ----------------------------------------------------------- =*/
 
   private void initServers() {
     for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance()
-        .getCloudServices()) {
+      .getCloudServices()) {
       if (serviceInfoSnapshot.getServiceId().getEnvironment()
-          .isMinecraftJavaServer()) {
+        .isMinecraftJavaServer()) {
         if ((serviceInfoSnapshot.getProperties().contains("Online-Mode")
-            && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
-            serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
+          && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
+          serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
           continue;
         }
 
         String name = serviceInfoSnapshot.getServiceId().getName();
 
         this.getProxy().getServers().put(name,
-            BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
-                serviceInfoSnapshot.getAddress().getHost(),
-                serviceInfoSnapshot.getAddress().getPort()
-            )));
+          BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
+            serviceInfoSnapshot.getAddress().getHost(),
+            serviceInfoSnapshot.getAddress().getPort()
+          )));
 
         BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION
-            .put(name, serviceInfoSnapshot);
+          .put(name, serviceInfoSnapshot);
         BungeeCloudNetHelper
-            .addItemToBungeeCordListenerPrioritySystem(serviceInfoSnapshot,
-                name);
+          .addItemToBungeeCordListenerPrioritySystem(serviceInfoSnapshot,
+            name);
       }
     }
   }
 
   private void registerCommands() {
     ProxyServer.getInstance().getPluginManager()
-        .registerCommand(this, new CommandCloudNet());
+      .registerCommand(this, new CommandCloudNet());
     ProxyServer.getInstance().getPluginManager()
-        .registerCommand(this, new CommandHub());
+      .registerCommand(this, new CommandHub());
   }
 
   private void initListeners() {
     //BungeeCord API
     ProxyServer.getInstance().getPluginManager()
-        .registerListener(this, new BungeePlayerListener());
+      .registerListener(this, new BungeePlayerListener());
 
     //CloudNet
     CloudNetDriver.getInstance().getEventManager()
-        .registerListener(new BungeeCloudNetListener());
+      .registerListener(new BungeeCloudNetListener());
     CloudNetDriver.getInstance().getEventManager()
-        .registerListener(new BridgeCustomChannelMessageListener());
+      .registerListener(new BridgeCustomChannelMessageListener());
   }
 }

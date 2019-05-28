@@ -30,7 +30,7 @@ public final class DefaultModuleHelper {
   public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";
 
   public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz,
-      File target) {
+    File target) {
     Validate.checkNotNull(clazz);
     Validate.checkNotNull(target);
 
@@ -42,13 +42,13 @@ public final class DefaultModuleHelper {
       }
 
       URLConnection connection = ResourceResolver
-          .resolveURIFromResourceByClass(clazz).toURL().openConnection();
+        .resolveURIFromResourceByClass(clazz).toURL().openConnection();
       connection.setRequestProperty("User-Agent",
-          "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
       connection.connect();
 
       try (InputStream inputStream = connection.getInputStream();
-          FileOutputStream fileOutputStream = new FileOutputStream(target)) {
+        FileOutputStream fileOutputStream = new FileOutputStream(target)) {
         FileUtils.copy(inputStream, fileOutputStream);
       }
       return true;
@@ -59,7 +59,7 @@ public final class DefaultModuleHelper {
   }
 
   public static void copyPluginConfigurationFileForEnvironment(
-      Class<?> targetClass, ServiceEnvironmentType type, File file) {
+    Class<?> targetClass, ServiceEnvironmentType type, File file) {
     FileUtils.openZipFileSystem(file, new IVoidThrowableCallback<FileSystem>() {
       @Override
       public Void call(FileSystem fileSystem) throws Throwable {
@@ -75,7 +75,7 @@ public final class DefaultModuleHelper {
               break;
             case BUNGEECORD:
               try (InputStream inputStream = targetClass.getClassLoader()
-                  .getResourceAsStream("plugin.bungee.yml")) {
+                .getResourceAsStream("plugin.bungee.yml")) {
                 if (inputStream != null) {
                   FileUtils.copy(inputStream, outputStream);
                 }
@@ -83,7 +83,7 @@ public final class DefaultModuleHelper {
               break;
             case NUKKIT:
               try (InputStream inputStream = targetClass.getClassLoader()
-                  .getResourceAsStream("plugin.nukkit.yml")) {
+                .getResourceAsStream("plugin.nukkit.yml")) {
                 if (inputStream != null) {
                   FileUtils.copy(inputStream, outputStream);
                 }
@@ -91,7 +91,7 @@ public final class DefaultModuleHelper {
               break;
             default:
               try (InputStream inputStream = targetClass.getClassLoader()
-                  .getResourceAsStream("plugin.bukkit.yml")) {
+                .getResourceAsStream("plugin.bukkit.yml")) {
                 if (inputStream != null) {
                   FileUtils.copy(inputStream, outputStream);
                 }

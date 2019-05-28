@@ -13,5 +13,5 @@ public abstract class CNLCommand {
   }
 
   public abstract void execute(Map<String, String> variables,
-      String commandLine, String... args) throws Exception;
+    String commandLine, String... args) throws Exception;
 }

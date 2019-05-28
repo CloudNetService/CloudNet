@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class NettyNetworkClientHandler extends
-    SimpleChannelInboundHandler<Packet> {
+  SimpleChannelInboundHandler<Packet> {
 
   private final NettyNetworkClient nettyNetworkClient;
 
@@ -22,9 +22,9 @@ final class NettyNetworkClientHandler extends
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     this.channel = new NettyNetworkChannel(ctx.channel(),
-        this.nettyNetworkClient.getPacketRegistry(),
-        this.nettyNetworkClient.networkChannelHandler.call(), connectedAddress,
-        new HostAndPort(ctx.channel().localAddress()), true);
+      this.nettyNetworkClient.getPacketRegistry(),
+      this.nettyNetworkClient.networkChannelHandler.call(), connectedAddress,
+      new HostAndPort(ctx.channel().localAddress()), true);
 
     this.nettyNetworkClient.channels.add(channel);
 
@@ -36,7 +36,7 @@ final class NettyNetworkClientHandler extends
   @Override
   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel()
-        .isWritable()) {
+      .isWritable()) {
       if (this.channel.getHandler() != null) {
         this.channel.getHandler().handleChannelClose(this.channel);
       }
@@ -49,9 +49,9 @@ final class NettyNetworkClientHandler extends
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-      throws Exception {
+    throws Exception {
     if (!(cause instanceof IOException)
-        && !(cause instanceof ClosedChannelException)) {
+      && !(cause instanceof ClosedChannelException)) {
       cause.printStackTrace();
     }
   }
@@ -63,10 +63,10 @@ final class NettyNetworkClientHandler extends
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Packet msg)
-      throws Exception {
+    throws Exception {
     nettyNetworkClient.taskScheduler.schedule((Callable<Void>) () -> {
       if (channel.getHandler() != null && !channel.getHandler()
-          .handlePacketReceive(channel, msg)) {
+        .handlePacketReceive(channel, msg)) {
         return null;
       }
 

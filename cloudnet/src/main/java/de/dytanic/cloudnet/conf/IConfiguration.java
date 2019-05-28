@@ -40,7 +40,7 @@ public interface IConfiguration {
   void setMaxCPUUsageToStartServices(double value);
 
   void setPrintErrorStreamLinesFromServices(
-      boolean printErrorStreamLinesFromServices);
+    boolean printErrorStreamLinesFromServices);
 
   int getMaxMemory();
 
@@ -63,7 +63,7 @@ public interface IConfiguration {
   String getJVMCommand();
 
   void setRunBlockedServiceStartTryLaterAutomatic(
-      boolean runBlockedServiceStartTryLaterAutomatic);
+    boolean runBlockedServiceStartTryLaterAutomatic);
 
   void setParallelServiceStartSequence(boolean value);
 

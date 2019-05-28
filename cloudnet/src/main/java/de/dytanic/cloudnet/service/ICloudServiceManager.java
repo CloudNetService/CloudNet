@@ -61,7 +61,7 @@ public interface ICloudServiceManager {
   boolean isGroupConfigurationPresent(String group);
 
   void setGroupConfigurations(
-      Collection<GroupConfiguration> groupConfigurations);
+    Collection<GroupConfiguration> groupConfigurations);
 
   //-
 
@@ -70,16 +70,16 @@ public interface ICloudServiceManager {
   ICloudService runTask(ServiceConfiguration serviceConfiguration);
 
   ICloudService runTask(
-      String name,
-      String runtime,
-      boolean autoDeleteOnStop,
-      boolean staticService,
-      Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      Collection<String> groups,
-      ProcessConfiguration processConfiguration,
-      Integer port
+    String name,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    Collection<ServiceRemoteInclusion> includes,
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    Collection<String> groups,
+    ProcessConfiguration processConfiguration,
+    Integer port
   );
 
   void startAllCloudServices();
@@ -97,22 +97,22 @@ public interface ICloudServiceManager {
   Collection<ICloudService> getCloudServices(String taskName);
 
   Collection<ICloudService> getCloudServices(
-      Predicate<ICloudService> predicate);
+    Predicate<ICloudService> predicate);
 
   Collection<ICloudService> getServices();
 
   ServiceInfoSnapshot getServiceInfoSnapshot(UUID uniqueId);
 
   ServiceInfoSnapshot getServiceInfoSnapshot(
-      Predicate<ServiceInfoSnapshot> predicate);
+    Predicate<ServiceInfoSnapshot> predicate);
 
   Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(String taskName);
 
   Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(
-      ServiceEnvironmentType environment);
+    ServiceEnvironmentType environment);
 
   Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(
-      Predicate<ServiceInfoSnapshot> predicate);
+    Predicate<ServiceInfoSnapshot> predicate);
 
   Collection<ServiceInfoSnapshot> getServiceInfoSnapshots();
 

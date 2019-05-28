@@ -29,8 +29,8 @@ public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
   public void initConfig() {
     getConfig().getString("database", "mysql");
     getConfig().get("addresses", TYPE, Collections.singletonList(
-        new MySQLConnectionEndpoint(false, "CloudNet",
-            new HostAndPort("127.0.0.1", 3306))
+      new MySQLConnectionEndpoint(false, "CloudNet",
+        new HostAndPort("127.0.0.1", 3306))
     ));
 
     getConfig().getString("username", "root");
@@ -45,13 +45,13 @@ public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider() {
     getRegistry().registerService(AbstractDatabaseProvider.class,
-        getConfig().getString("database"),
-        new MySQLDatabaseProvider(getConfig()));
+      getConfig().getString("database"),
+      new MySQLDatabaseProvider(getConfig()));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider() {
     getRegistry().unregisterService(AbstractDatabaseProvider.class,
-        getConfig().getString("database"));
+      getConfig().getString("database"));
   }
 }

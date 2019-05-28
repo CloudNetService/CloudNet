@@ -32,7 +32,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
   private Callable<V> callable;
 
   public DefaultScheduledTask(Callable<V> callable, long delay, long repeat,
-      long repeats, TimeUnit timeUnit) {
+    long repeats, TimeUnit timeUnit) {
     this.callable = callable;
 
     this.delay = delay > 0 ? timeUnit.toMillis(delay) : -1;
@@ -139,7 +139,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
   @Override
   public synchronized V get(long timeout, TimeUnit unit)
-      throws InterruptedException, ExecutionException, TimeoutException {
+    throws InterruptedException, ExecutionException, TimeoutException {
     wait = true;
     if (!isDone()) {
       this.wait(unit.toMillis(timeout));

@@ -27,7 +27,7 @@ public final class NodePlayerManager implements IPlayerManager {
   private static NodePlayerManager instance;
 
   private final Map<UUID, CloudPlayer> onlineCloudPlayers = Maps
-      .newConcurrentHashMap();
+    .newConcurrentHashMap();
 
   private final String databaseName;
 
@@ -43,7 +43,7 @@ public final class NodePlayerManager implements IPlayerManager {
 
   public IDatabase getDatabase() {
     return CloudNet.getInstance().getDatabaseProvider()
-        .getDatabase(databaseName);
+      .getDatabase(databaseName);
   }
 
   /*= ---------------------------------------------------------------- =*/
@@ -58,31 +58,31 @@ public final class NodePlayerManager implements IPlayerManager {
     Validate.checkNotNull(name);
 
     return Iterables
-        .filter(onlineCloudPlayers.values(), new Predicate<CloudPlayer>() {
-          @Override
-          public boolean test(CloudPlayer cloudPlayer) {
-            return cloudPlayer.getName().equalsIgnoreCase(name);
-          }
-        });
+      .filter(onlineCloudPlayers.values(), new Predicate<CloudPlayer>() {
+        @Override
+        public boolean test(CloudPlayer cloudPlayer) {
+          return cloudPlayer.getName().equalsIgnoreCase(name);
+        }
+      });
   }
 
   @Override
   public List<? extends ICloudPlayer> getOnlinePlayers(
-      ServiceEnvironmentType environment) {
+    ServiceEnvironmentType environment) {
     Validate.checkNotNull(environment);
 
     return Iterables
-        .filter(onlineCloudPlayers.values(), new Predicate<CloudPlayer>() {
-          @Override
-          public boolean test(CloudPlayer cloudPlayer) {
-            return (cloudPlayer.getLoginService() != null
-                && cloudPlayer.getLoginService().getEnvironment()
-                == environment) ||
-                (cloudPlayer.getConnectedService() != null
-                    && cloudPlayer.getConnectedService().getEnvironment()
-                    == environment);
-          }
-        });
+      .filter(onlineCloudPlayers.values(), new Predicate<CloudPlayer>() {
+        @Override
+        public boolean test(CloudPlayer cloudPlayer) {
+          return (cloudPlayer.getLoginService() != null
+            && cloudPlayer.getLoginService().getEnvironment()
+            == environment) ||
+            (cloudPlayer.getConnectedService() != null
+              && cloudPlayer.getConnectedService().getEnvironment()
+              == environment);
+        }
+      });
   }
 
   @Override
@@ -97,7 +97,7 @@ public final class NodePlayerManager implements IPlayerManager {
     JsonDocument jsonDocument = getDatabase().get(uniqueId.toString());
 
     return jsonDocument != null ? jsonDocument
-        .toInstanceOf(CloudOfflinePlayer.TYPE) : null;
+      .toInstanceOf(CloudOfflinePlayer.TYPE) : null;
   }
 
   @Override
@@ -105,24 +105,24 @@ public final class NodePlayerManager implements IPlayerManager {
     Validate.checkNotNull(name);
 
     return Iterables.map(getDatabase().get(new JsonDocument("name", name)),
-        new Function<JsonDocument, ICloudOfflinePlayer>() {
-          @Override
-          public ICloudOfflinePlayer apply(JsonDocument jsonDocument) {
-            return jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE);
-          }
-        });
+      new Function<JsonDocument, ICloudOfflinePlayer>() {
+        @Override
+        public ICloudOfflinePlayer apply(JsonDocument jsonDocument) {
+          return jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE);
+        }
+      });
   }
 
   @Override
   public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
     List<? extends ICloudOfflinePlayer> cloudOfflinePlayers = Iterables
-        .newArrayList();
+      .newArrayList();
 
     getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
       @Override
       public void accept(String s, JsonDocument jsonDocument) {
         cloudOfflinePlayers
-            .add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
+          .add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
       }
     });
 
@@ -153,7 +153,7 @@ public final class NodePlayerManager implements IPlayerManager {
 
   @Override
   public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(
-      ServiceEnvironmentType environment) {
+    ServiceEnvironmentType environment) {
     return schedule(new Callable<List<? extends ICloudPlayer>>() {
       @Override
       public List<? extends ICloudPlayer> call() throws Exception {
@@ -184,7 +184,7 @@ public final class NodePlayerManager implements IPlayerManager {
 
   @Override
   public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(
-      String name) {
+    String name) {
     return schedule(new Callable<List<? extends ICloudOfflinePlayer>>() {
       @Override
       public List<? extends ICloudOfflinePlayer> call() throws Exception {
@@ -211,17 +211,17 @@ public final class NodePlayerManager implements IPlayerManager {
 
     updateOfflinePlayer0(cloudOfflinePlayer);
     CloudNetDriver.getInstance().sendChannelMessage(
-        BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-        "update_offline_cloud_player",
-        new JsonDocument(
-            "offlineCloudPlayer", cloudOfflinePlayer
-        )
+      BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+      "update_offline_cloud_player",
+      new JsonDocument(
+        "offlineCloudPlayer", cloudOfflinePlayer
+      )
     );
   }
 
   public void updateOfflinePlayer0(ICloudOfflinePlayer cloudOfflinePlayer) {
     getDatabase().update(cloudOfflinePlayer.getUniqueId().toString(),
-        JsonDocument.newDocument(cloudOfflinePlayer));
+      JsonDocument.newDocument(cloudOfflinePlayer));
   }
 
   @Override
@@ -230,11 +230,11 @@ public final class NodePlayerManager implements IPlayerManager {
 
     updateOnlinePlayer0(cloudPlayer);
     CloudNetDriver.getInstance().sendChannelMessage(
-        BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-        "update_online_cloud_player",
-        new JsonDocument(
-            "cloudPlayer", cloudPlayer
-        )
+      BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+      "update_online_cloud_player",
+      new JsonDocument(
+        "cloudPlayer", cloudPlayer
+      )
     );
   }
 
@@ -248,11 +248,11 @@ public final class NodePlayerManager implements IPlayerManager {
     Validate.checkNotNull(serviceName);
 
     CloudNetDriver.getInstance().sendChannelMessage(
-        BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-        "send_on_proxy_player_to_server",
-        new JsonDocument()
-            .append("uniqueId", cloudPlayer.getUniqueId())
-            .append("serviceName", serviceName)
+      BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+      "send_on_proxy_player_to_server",
+      new JsonDocument()
+        .append("uniqueId", cloudPlayer.getUniqueId())
+        .append("serviceName", serviceName)
     );
   }
 
@@ -262,12 +262,12 @@ public final class NodePlayerManager implements IPlayerManager {
     Validate.checkNotNull(message);
 
     CloudNetDriver.getInstance().sendChannelMessage(
-        BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-        "send_message_to_proxy_player",
-        new JsonDocument()
-            .append("uniqueId", cloudPlayer.getUniqueId())
-            .append("name", cloudPlayer.getName())
-            .append("message", message)
+      BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+      "send_message_to_proxy_player",
+      new JsonDocument()
+        .append("uniqueId", cloudPlayer.getUniqueId())
+        .append("name", cloudPlayer.getName())
+        .append("message", message)
     );
   }
 
@@ -277,12 +277,12 @@ public final class NodePlayerManager implements IPlayerManager {
     Validate.checkNotNull(kickMessage);
 
     CloudNetDriver.getInstance().sendChannelMessage(
-        BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-        "kick_on_proxy_player_from_network",
-        new JsonDocument()
-            .append("uniqueId", cloudPlayer.getUniqueId())
-            .append("name", cloudPlayer.getName())
-            .append("kickMessage", kickMessage)
+      BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+      "kick_on_proxy_player_from_network",
+      new JsonDocument()
+        .append("uniqueId", cloudPlayer.getUniqueId())
+        .append("name", cloudPlayer.getName())
+        .append("kickMessage", kickMessage)
     );
   }
 

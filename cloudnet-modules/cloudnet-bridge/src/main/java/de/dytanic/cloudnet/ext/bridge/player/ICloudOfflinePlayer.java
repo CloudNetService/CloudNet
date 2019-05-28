@@ -42,7 +42,7 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable {
   NetworkConnectionInfo getLastNetworkConnectionInfo();
 
   void setLastNetworkConnectionInfo(
-      NetworkConnectionInfo lastNetworkConnectionInfo);
+    NetworkConnectionInfo lastNetworkConnectionInfo);
 
   void setProperties(JsonDocument properties);
 

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class VelocityChannelMessageReceiveEvent extends
-    VelocityCloudNetEvent {
+  VelocityCloudNetEvent {
 
   @Getter
   private final String channel, message;

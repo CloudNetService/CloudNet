@@ -9,24 +9,24 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 
 public final class PacketServerChannelMessageWrapperListener implements
-    IPacketListener {
+  IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("channel") && packet.getHeader()
-        .contains("message") && packet.getHeader().contains("data")) {
+      .contains("message") && packet.getHeader().contains("data")) {
       CloudNet.getInstance().sendAll(new PacketClientServerChannelMessage(
-          packet.getHeader().getString("channel"),
-          packet.getHeader().getString("message"),
-          packet.getHeader().getDocument("data"))
+        packet.getHeader().getString("channel"),
+        packet.getHeader().getString("message"),
+        packet.getHeader().getDocument("data"))
       );
 
       CloudNetDriver.getInstance().getEventManager().callEvent(
-          new ChannelMessageReceiveEvent(
-              packet.getHeader().getString("channel"),
-              packet.getHeader().getString("message"),
-              packet.getHeader().getDocument("data")
-          ));
+        new ChannelMessageReceiveEvent(
+          packet.getHeader().getString("channel"),
+          packet.getHeader().getString("message"),
+          packet.getHeader().getDocument("data")
+        ));
     }
   }
 }

@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PermissionGroup extends AbstractPermissible implements
-    IPermissionGroup {
+  IPermissionGroup {
 
   /**
    * The Gson TypeToken result of the PermissionGroup class
@@ -45,8 +45,8 @@ public class PermissionGroup extends AbstractPermissible implements
   }
 
   public PermissionGroup(String name, int potency, Collection<String> groups,
-      String prefix, String suffix, String display, int sortId,
-      boolean defaultGroup) {
+    String prefix, String suffix, String display, int sortId,
+    boolean defaultGroup) {
     super();
 
     this.name = name;

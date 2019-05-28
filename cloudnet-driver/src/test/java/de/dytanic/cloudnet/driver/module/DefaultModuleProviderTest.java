@@ -10,11 +10,11 @@ public final class DefaultModuleProviderTest {
     IModuleProvider moduleProvider = new DefaultModuleProvider();
 
     IModuleWrapper moduleWrapper = moduleProvider.loadModule(
-        DefaultModuleProviderTest.class.getClassLoader()
-            .getResource("module.jar"));
+      DefaultModuleProviderTest.class.getClassLoader()
+        .getResource("module.jar"));
     Assert.assertNull(moduleProvider.loadModule(
-        DefaultModuleProviderTest.class.getClassLoader()
-            .getResource("module.jar")));
+      DefaultModuleProviderTest.class.getClassLoader()
+        .getResource("module.jar")));
 
     Assert.assertNotNull(moduleWrapper);
     Assert.assertNotNull(System.getProperty("module_test_state"));

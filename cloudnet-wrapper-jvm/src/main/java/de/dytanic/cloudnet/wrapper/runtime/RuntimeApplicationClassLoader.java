@@ -19,7 +19,7 @@ public final class RuntimeApplicationClassLoader extends URLClassLoader {
   private final ClassLoader cloudNetWrapperClassLoader;
 
   public RuntimeApplicationClassLoader(ClassLoader cloudNetWrapperClassLoader,
-      URL url, ClassLoader parent) {
+    URL url, ClassLoader parent) {
     super(new URL[]{url}, parent);
 
     this.cloudNetWrapperClassLoader = cloudNetWrapperClassLoader;
@@ -27,7 +27,7 @@ public final class RuntimeApplicationClassLoader extends URLClassLoader {
 
   @Override
   protected Class<?> loadClass(String name, boolean resolve)
-      throws ClassNotFoundException {
+    throws ClassNotFoundException {
     try {
       Class<?> loaded = this.findLoadedClass(name);
       if (loaded != null) {

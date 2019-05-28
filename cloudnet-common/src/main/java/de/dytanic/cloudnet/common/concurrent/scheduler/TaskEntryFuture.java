@@ -60,7 +60,7 @@ public class TaskEntryFuture<T> implements Future<T> {
 
   @Override
   public synchronized T get(long pTimeout, TimeUnit pUnit)
-      throws InterruptedException, ExecutionException, TimeoutException {
+    throws InterruptedException, ExecutionException, TimeoutException {
 
     waits = true;
         /*

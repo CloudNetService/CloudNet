@@ -32,15 +32,15 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void createConfigurationOrUpdate() {
     configurationFile = new File(getModuleWrapper().getDataFolder(),
-        "config.json");
+      "config.json");
     syncProxyConfiguration = SyncProxyConfigurationWriterAndReader
-        .read(configurationFile);
+      .read(configurationFile);
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
   public void initListeners() {
     registerListeners(new IncludePluginListener(),
-        new SyncProxyConfigUpdateListener());
+      new SyncProxyConfigUpdateListener());
   }
 
   @ModuleTask(order = 60, event = ModuleLifeCycle.STARTED)
@@ -51,8 +51,8 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
   @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
   public void registerHttpHandlers() {
     getCloudNet().getHttpServer()
-        .registerHandler("/api/v1/modules/syncproxy/config",
-            new V1SyncProxyConfigurationHttpHandler(
-                "cloudnet.http.v1.modules.syncproxy.config"));
+      .registerHandler("/api/v1/modules/syncproxy/config",
+        new V1SyncProxyConfigurationHttpHandler(
+          "cloudnet.http.v1.modules.syncproxy.config"));
   }
 }

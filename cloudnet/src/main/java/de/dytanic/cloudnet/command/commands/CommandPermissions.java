@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public final class CommandPermissions extends CommandDefault implements
-    ITabCompleter {
+  ITabCompleter {
 
   private final DateFormat dateFormat = new SimpleDateFormat(
-      "dd.MM.yyyy HH:mm:ss");
+    "dd.MM.yyyy HH:mm:ss");
 
   public CommandPermissions() {
     super("permissions", "perms");
@@ -33,58 +33,58 @@ public final class CommandPermissions extends CommandDefault implements
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-      String commandLine, Properties properties) {
+    String commandLine, Properties properties) {
     if (args.length == 0) {
       sender.sendMessage(
-          "perms users group <group>",
-          "perms create user <name> <password> <potency>",
-          "perms delete user <uniqueId>",
-          "perms create group <name> <potency>",
-          "perms delete group <name>",
-          "perms user <name>",
-          "perms user <name> password <password>",
-          "perms user <name> rename <name>",
-          "perms user <name> check <password>",
-          "perms user <name> add group <name>",
-          "perms user <name> add group <name> <time in days>",
-          "perms user <name> remove group <name>",
-          "perms user <name> add permission <permission> <potency>",
-          "perms user <name> add permission <permission> <potency> <time in days : lifetime>",
-          "perms user <name> add permission <permission> <potency> <time in days : lifetime> <target>",
-          "perms user <name> remove permission <permission>",
-          "perms user <name> remove permission <permission> <target>",
-          "perms group",
-          "perms group <name>",
-          "perms group <name> setSortId <sortId>",
-          "perms group <name> setDisplay <sortId>",
-          "perms group <name> setDefaultGroup <true : false>",
-          "perms group <name> setPrefix <prefix> | '_' as ' ' ",
-          "perms group <name> setSuffix <suffix> | '_' as ' ' ",
-          "perms group <name> add permission <permission> <potency>",
-          "perms group <name> add permission <permission> <potency> <time in days : lifetime>",
-          "perms group <name> add permission <permission> <potency> <time in days : lifetime> <target>",
-          "perms group <name> remove permission <permission>",
-          "perms group <name> remove permission <permission> <target>",
-          "perms group <name> add group <name>",
-          "perms group <name> remove group <name>"
+        "perms users group <group>",
+        "perms create user <name> <password> <potency>",
+        "perms delete user <uniqueId>",
+        "perms create group <name> <potency>",
+        "perms delete group <name>",
+        "perms user <name>",
+        "perms user <name> password <password>",
+        "perms user <name> rename <name>",
+        "perms user <name> check <password>",
+        "perms user <name> add group <name>",
+        "perms user <name> add group <name> <time in days>",
+        "perms user <name> remove group <name>",
+        "perms user <name> add permission <permission> <potency>",
+        "perms user <name> add permission <permission> <potency> <time in days : lifetime>",
+        "perms user <name> add permission <permission> <potency> <time in days : lifetime> <target>",
+        "perms user <name> remove permission <permission>",
+        "perms user <name> remove permission <permission> <target>",
+        "perms group",
+        "perms group <name>",
+        "perms group <name> setSortId <sortId>",
+        "perms group <name> setDisplay <sortId>",
+        "perms group <name> setDefaultGroup <true : false>",
+        "perms group <name> setPrefix <prefix> | '_' as ' ' ",
+        "perms group <name> setSuffix <suffix> | '_' as ' ' ",
+        "perms group <name> add permission <permission> <potency>",
+        "perms group <name> add permission <permission> <potency> <time in days : lifetime>",
+        "perms group <name> add permission <permission> <potency> <time in days : lifetime> <target>",
+        "perms group <name> remove permission <permission>",
+        "perms group <name> remove permission <permission> <target>",
+        "perms group <name> add group <name>",
+        "perms group <name> remove group <name>"
       );
       return;
     }
 
     IPermissionManagement permissionManagement = getCloudNet()
-        .getPermissionManagement();
+      .getPermissionManagement();
 
     switch (args[0].toLowerCase()) {
       case "reload":
         getCloudNet().getPermissionManagement().reload();
         sender.sendMessage(LanguageManager
-            .getMessage("command-permissions-reload-permissions-success"));
+          .getMessage("command-permissions-reload-permissions-success"));
         break;
       case "users":
         if (args.length >= 3) {
           if (args[1].equalsIgnoreCase("group")) {
             for (IPermissionUser permissionUser : permissionManagement
-                .getUserByGroup(args[2])) {
+              .getUserByGroup(args[2])) {
               this.displayUser(sender, permissionUser);
             }
             return;
@@ -92,7 +92,7 @@ public final class CommandPermissions extends CommandDefault implements
 
           if (args[1].equalsIgnoreCase("group")) {
             for (IPermissionUser permissionUser : permissionManagement
-                .getUserByGroup(args[2])) {
+              .getUserByGroup(args[2])) {
               this.displayUser(sender, permissionUser);
             }
           }
@@ -104,17 +104,17 @@ public final class CommandPermissions extends CommandDefault implements
             if (args.length == 5) {
               if (permissionManagement.containsUser(args[2])) {
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-create-user-already-exists"));
+                  "command-permissions-create-user-already-exists"));
                 return;
               }
 
               try {
                 IPermissionUser permissionUser = permissionManagement
-                    .addUser(args[2], args[3], Integer.parseInt(args[4]));
+                  .addUser(args[2], args[3], Integer.parseInt(args[4]));
                 sender.sendMessage(
-                    LanguageManager.getMessage(
-                        "command-permissions-create-user-successful")
-                        .replace("%name%", permissionUser.getName())
+                  LanguageManager.getMessage(
+                    "command-permissions-create-user-successful")
+                    .replace("%name%", permissionUser.getName())
                 );
 
               } catch (Exception ignored) {
@@ -129,17 +129,17 @@ public final class CommandPermissions extends CommandDefault implements
             if (args.length == 4) {
               if (permissionManagement.getGroup(args[2]) != null) {
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-create-group-already-exists"));
+                  "command-permissions-create-group-already-exists"));
                 return;
               }
 
               try {
                 IPermissionGroup group = permissionManagement
-                    .addGroup(args[2], Integer.parseInt(args[3]));
+                  .addGroup(args[2], Integer.parseInt(args[3]));
                 sender.sendMessage(
-                    LanguageManager.getMessage(
-                        "command-permissions-create-group-successful")
-                        .replace("%name%", group.getName())
+                  LanguageManager.getMessage(
+                    "command-permissions-create-group-successful")
+                    .replace("%name%", group.getName())
                 );
 
               } catch (Exception ignored) {
@@ -157,8 +157,8 @@ public final class CommandPermissions extends CommandDefault implements
             permissionManagement.deleteUser(args[2]);
 
             sender.sendMessage(LanguageManager
-                .getMessage("command-permissions-delete-user-successful")
-                .replace("%name%", args[2]));
+              .getMessage("command-permissions-delete-user-successful")
+              .replace("%name%", args[2]));
             this.updateClusterNetwork();
             return;
           }
@@ -167,8 +167,8 @@ public final class CommandPermissions extends CommandDefault implements
             permissionManagement.deleteGroup(args[2]);
 
             sender.sendMessage(LanguageManager
-                .getMessage("command-permissions-delete-group-successful")
-                .replace("%name%", args[2]));
+              .getMessage("command-permissions-delete-group-successful")
+              .replace("%name%", args[2]));
             this.updateClusterNetwork();
             return;
           }
@@ -181,9 +181,9 @@ public final class CommandPermissions extends CommandDefault implements
         }
 
         List<IPermissionUser> permissionUsers = permissionManagement
-            .getUser(args[1]);
+          .getUser(args[1]);
         IPermissionUser permissionUser =
-            permissionUsers.isEmpty() ? null : permissionUsers.get(0);
+          permissionUsers.isEmpty() ? null : permissionUsers.get(0);
 
         if (permissionUser != null) {
           if (args.length == 2) {
@@ -197,18 +197,18 @@ public final class CommandPermissions extends CommandDefault implements
               permissionManagement.updateUser(permissionUser);
 
               sender.sendMessage(LanguageManager.getMessage(
-                  "command-permissions-user-change-password-success")
-                  .replace("%name%", args[1])
+                "command-permissions-user-change-password-success")
+                .replace("%name%", args[1])
               );
               this.updateClusterNetwork();
               return;
             }
             if (args[2].equalsIgnoreCase("check")) {
               sender.sendMessage(LanguageManager
-                  .getMessage("command-permissions-user-check-password")
-                  .replace("%name%", permissionUser.getName())
-                  .replace("%checked%",
-                      permissionUser.checkPassword(args[3]) + "")
+                .getMessage("command-permissions-user-check-password")
+                .replace("%name%", permissionUser.getName())
+                .replace("%checked%",
+                  permissionUser.checkPassword(args[3]) + "")
               );
             }
 
@@ -217,9 +217,9 @@ public final class CommandPermissions extends CommandDefault implements
               permissionManagement.updateUser(permissionUser);
 
               sender.sendMessage(LanguageManager
-                  .getMessage("command-permissions-user-rename-success")
-                  .replace("%name%", args[1])
-                  .replace("%new_name%", args[3])
+                .getMessage("command-permissions-user-rename-success")
+                .replace("%name%", args[1])
+                .replace("%new_name%", args[3])
               );
               this.updateClusterNetwork();
               return;
@@ -230,18 +230,18 @@ public final class CommandPermissions extends CommandDefault implements
             if (args[2].equalsIgnoreCase("add")) {
               if (args[3].equalsIgnoreCase("group")) {
                 if (args.length == 6 && Validate
-                    .testStringParseToInt(args[5])) {
+                  .testStringParseToInt(args[5])) {
                   permissionUser.addGroup(args[4], Integer.parseInt(args[5]),
-                      TimeUnit.DAYS);
+                    TimeUnit.DAYS);
                 } else {
                   permissionUser.addGroup(args[4]);
                 }
 
                 permissionManagement.updateUser(permissionUser);
                 sender.sendMessage(LanguageManager
-                    .getMessage("command-permissions-user-add-group-successful")
-                    .replace("%name%", args[1] + "")
-                    .replace("%group%", args[4] + "")
+                  .getMessage("command-permissions-user-add-group-successful")
+                  .replace("%name%", args[1] + "")
+                  .replace("%group%", args[4] + "")
                 );
                 this.updateClusterNetwork();
                 return;
@@ -253,9 +253,9 @@ public final class CommandPermissions extends CommandDefault implements
 
                 permissionManagement.updateUser(permissionUser);
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-user-remove-group-successful")
-                    .replace("%name%", args[1] + "")
-                    .replace("%group%", args[4] + "")
+                  "command-permissions-user-remove-group-successful")
+                  .replace("%name%", args[1] + "")
+                  .replace("%group%", args[4] + "")
                 );
                 this.updateClusterNetwork();
                 return;
@@ -271,9 +271,9 @@ public final class CommandPermissions extends CommandDefault implements
                 permissionManagement.updateUser(permissionUser);
 
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-user-remove-permission-successful")
-                    .replace("%name%", permissionUser.getName() + "")
-                    .replace("%permission%", args[4] + "")
+                  "command-permissions-user-remove-permission-successful")
+                  .replace("%name%", permissionUser.getName() + "")
+                  .replace("%permission%", args[4] + "")
                 );
                 this.updateClusterNetwork();
                 return;
@@ -286,27 +286,27 @@ public final class CommandPermissions extends CommandDefault implements
                 switch (args.length) {
                   case 6:
                     permissionUser.addPermission(
-                        new Permission(args[4], Integer.parseInt(args[5])));
+                      new Permission(args[4], Integer.parseInt(args[5])));
                     break;
                   case 7:
                     if (Validate.testStringParseToInt(args[6])) {
                       permissionUser.addPermission(
-                          new Permission(args[4], Integer.parseInt(args[5]),
-                              Integer.parseInt(args[6]), TimeUnit.DAYS));
+                        new Permission(args[4], Integer.parseInt(args[5]),
+                          Integer.parseInt(args[6]), TimeUnit.DAYS));
                     } else {
                       permissionUser.addPermission(
-                          new Permission(args[4], Integer.parseInt(args[5])));
+                        new Permission(args[4], Integer.parseInt(args[5])));
                     }
 
                     break;
                   case 8:
                     if (Validate.testStringParseToInt(args[6])) {
                       permissionUser.addPermission(args[7],
-                          new Permission(args[4], Integer.parseInt(args[5]),
-                              Integer.parseInt(args[6]), TimeUnit.DAYS));
+                        new Permission(args[4], Integer.parseInt(args[5]),
+                          Integer.parseInt(args[6]), TimeUnit.DAYS));
                     } else {
                       permissionUser.addPermission(args[7],
-                          new Permission(args[4], Integer.parseInt(args[5])));
+                        new Permission(args[4], Integer.parseInt(args[5])));
                     }
 
                     break;
@@ -315,10 +315,10 @@ public final class CommandPermissions extends CommandDefault implements
                 permissionManagement.updateUser(permissionUser);
 
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-user-add-permission-successful")
-                    .replace("%name%", permissionUser.getName())
-                    .replace("%permission%", args[4] + "")
-                    .replace("%potency%", args[5] + "")
+                  "command-permissions-user-add-permission-successful")
+                  .replace("%name%", permissionUser.getName())
+                  .replace("%permission%", args[4] + "")
+                  .replace("%potency%", args[5] + "")
                 );
 
                 this.updateClusterNetwork();
@@ -330,8 +330,8 @@ public final class CommandPermissions extends CommandDefault implements
           }
         } else {
           sender.sendMessage(
-              LanguageManager.getMessage("command-permissions-user-not-found")
-                  .replace("%name%", args[1]));
+            LanguageManager.getMessage("command-permissions-user-not-found")
+              .replace("%name%", args[1]));
         }
         break;
       case "group":
@@ -347,7 +347,7 @@ public final class CommandPermissions extends CommandDefault implements
         }
 
         IPermissionGroup permissionGroup = permissionManagement
-            .getGroup(args[1]);
+          .getGroup(args[1]);
 
         if (permissionGroup != null) {
           if (args.length == 2) {
@@ -362,25 +362,25 @@ public final class CommandPermissions extends CommandDefault implements
                   permissionManagement.updateGroup(permissionGroup);
                   this.updateClusterNetwork();
                   sender.sendMessage(
-                      LanguageManager.getMessage(
-                          "command-permissions-group-update-property")
-                          .replace("%group%", permissionGroup.getName())
-                          .replace("%value%", args[3])
-                          .replace("%property%", args[2])
+                    LanguageManager.getMessage(
+                      "command-permissions-group-update-property")
+                      .replace("%group%", permissionGroup.getName())
+                      .replace("%value%", args[3])
+                      .replace("%property%", args[2])
                   );
                 }
                 break;
               case "setdefaultgroup":
                 permissionGroup
-                    .setDefaultGroup(args[3].equalsIgnoreCase("true"));
+                  .setDefaultGroup(args[3].equalsIgnoreCase("true"));
                 permissionManagement.updateGroup(permissionGroup);
                 this.updateClusterNetwork();
                 sender.sendMessage(
-                    LanguageManager
-                        .getMessage("command-permissions-group-update-property")
-                        .replace("%group%", permissionGroup.getName())
-                        .replace("%value%", args[3])
-                        .replace("%property%", args[2])
+                  LanguageManager
+                    .getMessage("command-permissions-group-update-property")
+                    .replace("%group%", permissionGroup.getName())
+                    .replace("%value%", args[3])
+                    .replace("%property%", args[2])
                 );
                 break;
               case "setsuffix":
@@ -388,11 +388,11 @@ public final class CommandPermissions extends CommandDefault implements
                 permissionManagement.updateGroup(permissionGroup);
                 this.updateClusterNetwork();
                 sender.sendMessage(
-                    LanguageManager
-                        .getMessage("command-permissions-group-update-property")
-                        .replace("%group%", permissionGroup.getName())
-                        .replace("%value%", args[3])
-                        .replace("%property%", args[2])
+                  LanguageManager
+                    .getMessage("command-permissions-group-update-property")
+                    .replace("%group%", permissionGroup.getName())
+                    .replace("%value%", args[3])
+                    .replace("%property%", args[2])
                 );
                 break;
               case "setprefix":
@@ -401,11 +401,11 @@ public final class CommandPermissions extends CommandDefault implements
                 permissionManagement.updateGroup(permissionGroup);
                 this.updateClusterNetwork();
                 sender.sendMessage(
-                    LanguageManager
-                        .getMessage("command-permissions-group-update-property")
-                        .replace("%group%", permissionGroup.getName())
-                        .replace("%value%", args[3])
-                        .replace("%property%", args[2])
+                  LanguageManager
+                    .getMessage("command-permissions-group-update-property")
+                    .replace("%group%", permissionGroup.getName())
+                    .replace("%value%", args[3])
+                    .replace("%property%", args[2])
                 );
                 break;
               case "setdisplay":
@@ -414,11 +414,11 @@ public final class CommandPermissions extends CommandDefault implements
                 permissionManagement.updateGroup(permissionGroup);
                 this.updateClusterNetwork();
                 sender.sendMessage(
-                    LanguageManager
-                        .getMessage("command-permissions-group-update-property")
-                        .replace("%group%", permissionGroup.getName())
-                        .replace("%value%", args[3])
-                        .replace("%property%", args[2])
+                  LanguageManager
+                    .getMessage("command-permissions-group-update-property")
+                    .replace("%group%", permissionGroup.getName())
+                    .replace("%value%", args[3])
+                    .replace("%property%", args[2])
                 );
                 break;
             }
@@ -432,9 +432,9 @@ public final class CommandPermissions extends CommandDefault implements
 
                 permissionManagement.updateGroup(permissionGroup);
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-group-add-group-successful")
-                    .replace("%name%", args[1] + "")
-                    .replace("%group%", args[4] + "")
+                  "command-permissions-group-add-group-successful")
+                  .replace("%name%", args[1] + "")
+                  .replace("%group%", args[4] + "")
                 );
                 this.updateClusterNetwork();
                 return;
@@ -446,9 +446,9 @@ public final class CommandPermissions extends CommandDefault implements
 
                 permissionManagement.updateGroup(permissionGroup);
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-group-remove-group-successful")
-                    .replace("%name%", args[1] + "")
-                    .replace("%group%", args[4] + "")
+                  "command-permissions-group-remove-group-successful")
+                  .replace("%name%", args[1] + "")
+                  .replace("%group%", args[4] + "")
                 );
                 this.updateClusterNetwork();
                 return;
@@ -464,9 +464,9 @@ public final class CommandPermissions extends CommandDefault implements
                 permissionManagement.updateGroup(permissionGroup);
 
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-group-remove-permission-successful")
-                    .replace("%name%", permissionGroup.getName() + "")
-                    .replace("%permission%", args[4] + "")
+                  "command-permissions-group-remove-permission-successful")
+                  .replace("%name%", permissionGroup.getName() + "")
+                  .replace("%permission%", args[4] + "")
                 );
                 this.updateClusterNetwork();
                 return;
@@ -481,17 +481,17 @@ public final class CommandPermissions extends CommandDefault implements
                 switch (args.length) {
                   case 6:
                     permissionGroup.addPermission(
-                        new Permission(args[4], Integer.parseInt(args[5])));
+                      new Permission(args[4], Integer.parseInt(args[5])));
                     break;
                   case 7:
 
                     if (Validate.testStringParseToInt(args[6])) {
                       permissionGroup.addPermission(
-                          new Permission(args[4], Integer.parseInt(args[5]),
-                              Integer.parseInt(args[6]), TimeUnit.DAYS));
+                        new Permission(args[4], Integer.parseInt(args[5]),
+                          Integer.parseInt(args[6]), TimeUnit.DAYS));
                     } else {
                       permissionGroup.addPermission(
-                          new Permission(args[4], Integer.parseInt(args[5])));
+                        new Permission(args[4], Integer.parseInt(args[5])));
                     }
 
                     break;
@@ -499,11 +499,11 @@ public final class CommandPermissions extends CommandDefault implements
 
                     if (Validate.testStringParseToInt(args[6])) {
                       permissionGroup.addPermission(args[7],
-                          new Permission(args[4], Integer.parseInt(args[5]),
-                              Integer.parseInt(args[6]), TimeUnit.DAYS));
+                        new Permission(args[4], Integer.parseInt(args[5]),
+                          Integer.parseInt(args[6]), TimeUnit.DAYS));
                     } else {
                       permissionGroup.addPermission(args[7],
-                          new Permission(args[4], Integer.parseInt(args[5])));
+                        new Permission(args[4], Integer.parseInt(args[5])));
                     }
 
                     break;
@@ -512,10 +512,10 @@ public final class CommandPermissions extends CommandDefault implements
                 permissionManagement.updateGroup(permissionGroup);
 
                 sender.sendMessage(LanguageManager.getMessage(
-                    "command-permissions-group-add-permission-successful")
-                    .replace("%name%", permissionGroup.getName())
-                    .replace("%permission%", args[4] + "")
-                    .replace("%potency%", args[5] + "")
+                  "command-permissions-group-add-permission-successful")
+                  .replace("%name%", permissionGroup.getName())
+                  .replace("%permission%", args[4] + "")
+                  .replace("%potency%", args[5] + "")
                 );
 
                 this.updateClusterNetwork();
@@ -530,9 +530,9 @@ public final class CommandPermissions extends CommandDefault implements
               permissionManagement.updateGroup(permissionGroup);
 
               sender.sendMessage(LanguageManager.getMessage(
-                  "command-permissions-group-remove-permission-successful")
-                  .replace("%name%", permissionGroup.getName() + "")
-                  .replace("%permission%", args[4] + "")
+                "command-permissions-group-remove-permission-successful")
+                .replace("%name%", permissionGroup.getName() + "")
+                .replace("%permission%", args[4] + "")
               );
               this.updateClusterNetwork();
               return;
@@ -540,26 +540,26 @@ public final class CommandPermissions extends CommandDefault implements
           }
         } else {
           sender.sendMessage(
-              LanguageManager.getMessage("command-permissions-group-not-found")
-                  .replace("%name%", args[1]));
+            LanguageManager.getMessage("command-permissions-group-not-found")
+              .replace("%name%", args[1]));
         }
         break;
     }
   }
 
   private void displayUser(ICommandSender sender,
-      IPermissionUser permissionUser) {
+    IPermissionUser permissionUser) {
     sender.sendMessage(
-        "* " + permissionUser.getUniqueId() + ":" + permissionUser.getName()
-            + " | " + permissionUser.getPotency(),
-        "Groups: "
+      "* " + permissionUser.getUniqueId() + ":" + permissionUser.getName()
+        + " | " + permissionUser.getPotency(),
+      "Groups: "
     );
 
     for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
       sender.sendMessage(
-          "- " + groupInfo.getGroup() + ": " + (groupInfo.getTimeOutMillis() > 0
-              ?
-              dateFormat.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
+        "- " + groupInfo.getGroup() + ": " + (groupInfo.getTimeOutMillis() > 0
+          ?
+          dateFormat.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
     }
 
     sender.sendMessage(" ");
@@ -567,45 +567,45 @@ public final class CommandPermissions extends CommandDefault implements
   }
 
   private void displayGroup(ICommandSender sender,
-      IPermissionGroup permissionGroup) {
+    IPermissionGroup permissionGroup) {
     sender.sendMessage(
-        "* " + permissionGroup.getName() + " | " + permissionGroup.getPotency(),
-        "Parent groups: " + permissionGroup.getGroups(),
-        "Default: " + permissionGroup.isDefaultGroup() + " | SortId: "
-            + permissionGroup.getSortId(),
-        "Prefix: " + permissionGroup.getPrefix().replace("&", "[color]"),
-        "Suffix: " + permissionGroup.getSuffix().replace("&", "[color]"),
-        "Display: " + permissionGroup.getDisplay().replace("&", "[color]")
+      "* " + permissionGroup.getName() + " | " + permissionGroup.getPotency(),
+      "Parent groups: " + permissionGroup.getGroups(),
+      "Default: " + permissionGroup.isDefaultGroup() + " | SortId: "
+        + permissionGroup.getSortId(),
+      "Prefix: " + permissionGroup.getPrefix().replace("&", "[color]"),
+      "Suffix: " + permissionGroup.getSuffix().replace("&", "[color]"),
+      "Display: " + permissionGroup.getDisplay().replace("&", "[color]")
     );
 
     this.displayPermissions(sender, permissionGroup);
   }
 
   private void displayPermissions(ICommandSender sender,
-      IPermissible permissible) {
+    IPermissible permissible) {
     sender.sendMessage("Permissions: ");
     for (Permission permission : permissible.getPermissions()) {
       sender.sendMessage(
-          "- " + permission.getName() + ":" + permission.getPotency()
-              + " | Timeout " +
-              (permission.getTimeOutMillis() > 0 ?
-                  dateFormat.format(permission.getTimeOutMillis())
-                  : "LIFETIME"));
+        "- " + permission.getName() + ":" + permission.getPotency()
+          + " | Timeout " +
+          (permission.getTimeOutMillis() > 0 ?
+            dateFormat.format(permission.getTimeOutMillis())
+            : "LIFETIME"));
     }
 
     sender.sendMessage(" ");
 
     for (Map.Entry<String, Collection<Permission>> groupPermissions : permissible
-        .getGroupPermissions().entrySet()) {
+      .getGroupPermissions().entrySet()) {
       sender.sendMessage("* " + groupPermissions.getKey());
 
       for (Permission permission : groupPermissions.getValue()) {
         sender.sendMessage(
-            "- " + permission.getName() + ":" + permission.getPotency()
-                + " | Timeout " +
-                (permission.getTimeOutMillis() > 0 ?
-                    dateFormat.format(permission.getTimeOutMillis())
-                    : "LIFETIME"));
+          "- " + permission.getName() + ":" + permission.getPotency()
+            + " | Timeout " +
+            (permission.getTimeOutMillis() > 0 ?
+              dateFormat.format(permission.getTimeOutMillis())
+              : "LIFETIME"));
       }
     }
   }
@@ -616,27 +616,27 @@ public final class CommandPermissions extends CommandDefault implements
 
   @Override
   public Collection<String> complete(String commandLine, String[] args,
-      Properties properties) {
+    Properties properties) {
     IPermissionManagement permissionManager = getCloudNet()
-        .getPermissionManagement();
+      .getPermissionManagement();
 
     return args.length == 0 ? Arrays.asList("user", "group")
-        : args[0].equalsIgnoreCase("group") ?
-            Iterables.map(permissionManager.getGroups(),
-                new Function<IPermissionGroup, String>() {
-                  @Override
-                  public String apply(IPermissionGroup permissionGroup) {
-                    return permissionGroup.getName();
-                  }
-                })
-            :
-                Iterables.map(permissionManager.getUsers(),
-                    new Function<IPermissionUser, String>() {
-                      @Override
-                      public String apply(IPermissionUser permissionUser) {
-                        return permissionUser.getName();
-                      }
-                    })
-        ;
+      : args[0].equalsIgnoreCase("group") ?
+        Iterables.map(permissionManager.getGroups(),
+          new Function<IPermissionGroup, String>() {
+            @Override
+            public String apply(IPermissionGroup permissionGroup) {
+              return permissionGroup.getName();
+            }
+          })
+        :
+          Iterables.map(permissionManager.getUsers(),
+            new Function<IPermissionUser, String>() {
+              @Override
+              public String apply(IPermissionUser permissionUser) {
+                return permissionUser.getName();
+              }
+            })
+      ;
   }
 }

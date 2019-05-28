@@ -25,38 +25,38 @@ public final class CommandHub extends Command {
 
     if (BungeeCloudNetHelper.isOnAFallbackInstance(proxiedPlayer)) {
       sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-          BridgeConfigurationProvider.load().getMessages()
-              .get("command-hub-already-in-hub")));
+        BridgeConfigurationProvider.load().getMessages()
+          .get("command-hub-already-in-hub")));
       return;
     }
 
     String server = BungeeCloudNetHelper
-        .filterServiceForProxiedPlayer(proxiedPlayer,
-            proxiedPlayer.getServer() != null ?
-                proxiedPlayer.getServer().getInfo().getName()
-                :
-                    null);
+      .filterServiceForProxiedPlayer(proxiedPlayer,
+        proxiedPlayer.getServer() != null ?
+          proxiedPlayer.getServer().getInfo().getName()
+          :
+            null);
 
     if (server != null) {
       ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(server);
 
       if (serverInfo == null) {
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-            BridgeConfigurationProvider.load().getMessages()
-                .get("command-hub-no-server-found")));
+          BridgeConfigurationProvider.load().getMessages()
+            .get("command-hub-no-server-found")));
         return;
       }
 
       proxiedPlayer.connect(serverInfo);
       sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-          BridgeConfigurationProvider.load().getMessages()
-              .get("command-hub-success-connect"))
-          .replace("%server%", server + "")
+        BridgeConfigurationProvider.load().getMessages()
+          .get("command-hub-success-connect"))
+        .replace("%server%", server + "")
       );
     } else {
       sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-          BridgeConfigurationProvider.load().getMessages()
-              .get("command-hub-no-server-found")));
+        BridgeConfigurationProvider.load().getMessages()
+          .get("command-hub-no-server-found")));
     }
   }
 

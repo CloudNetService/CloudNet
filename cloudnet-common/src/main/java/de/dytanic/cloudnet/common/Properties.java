@@ -75,14 +75,14 @@ public class Properties extends LinkedHashMap<String, String> {
       if (argument.contains("=")) {
         int x = argument.indexOf("=");
         properties.put(argument.substring(0, x).replaceFirst("-", "")
-                .replaceFirst("-", ""),
-            argument.substring(x + 1, argument.length()));
+            .replaceFirst("-", ""),
+          argument.substring(x + 1, argument.length()));
         continue;
       }
 
       if (argument.contains("--") || argument.contains("-")) {
         properties
-            .put(argument.replaceFirst("-", "").replaceFirst("-", ""), "true");
+          .put(argument.replaceFirst("-", "").replaceFirst("-", ""), "true");
         continue;
       }
 
@@ -138,7 +138,7 @@ public class Properties extends LinkedHashMap<String, String> {
    */
   public void load(InputStream inputStream) throws IOException {
     try (InputStreamReader inputStreamReader = new InputStreamReader(
-        inputStream, StandardCharsets.UTF_8)) {
+      inputStream, StandardCharsets.UTF_8)) {
       load(inputStreamReader);
     }
   }
@@ -157,7 +157,7 @@ public class Properties extends LinkedHashMap<String, String> {
 
       while ((input = bufferedReader.readLine()) != null) {
         if (input.isEmpty() || input.equals(" ") || input.startsWith("#")
-            || !input.contains("=")) {
+          || !input.contains("=")) {
           continue;
         }
 
@@ -248,9 +248,9 @@ public class Properties extends LinkedHashMap<String, String> {
    * @see java.util.Properties
    */
   public void save(String commit, OutputStream outputStream)
-      throws IOException {
+    throws IOException {
     try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-        outputStream, StandardCharsets.UTF_8)) {
+      outputStream, StandardCharsets.UTF_8)) {
       save(commit, outputStreamWriter);
     }
   }
@@ -279,14 +279,14 @@ public class Properties extends LinkedHashMap<String, String> {
       if (commit != null) {
         for (String key : commit.split("\n")) {
           printWriter
-              .write("# " + key.replace("\n", "") + System.lineSeparator());
+            .write("# " + key.replace("\n", "") + System.lineSeparator());
         }
       }
 
       for (Map.Entry<String, String> keys : entrySet()) {
         if (keys.getKey() != null && keys.getValue() != null) {
           printWriter.write(
-              keys.getKey() + "=" + keys.getValue() + System.lineSeparator());
+            keys.getKey() + "=" + keys.getValue() + System.lineSeparator());
         }
       }
 

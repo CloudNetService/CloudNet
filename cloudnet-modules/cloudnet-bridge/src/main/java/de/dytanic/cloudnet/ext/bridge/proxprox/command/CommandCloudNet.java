@@ -10,7 +10,7 @@ public final class CommandCloudNet extends Command {
 
   public CommandCloudNet() {
     super("cloudnet", "dispatch the commandline of the CloudNet node console",
-        "cloud", "cl");
+      "cloud", "cl");
   }
 
   @Override
@@ -21,8 +21,8 @@ public final class CommandCloudNet extends Command {
 
     if (args.length == 0) {
       sender.sendMessage(
-          ChatColor.toANSI(BridgeConfigurationProvider.load().getPrefix())
-              + "/cloudnet <command>");
+        ChatColor.toANSI(BridgeConfigurationProvider.load().getPrefix())
+          + "/cloudnet <command>");
       return;
     }
 
@@ -32,14 +32,14 @@ public final class CommandCloudNet extends Command {
     }
 
     String[] messages = CloudNetDriver.getInstance()
-        .sendCommandLine(stringBuilder.toString());
+      .sendCommandLine(stringBuilder.toString());
 
     if (messages != null) {
       for (String message : messages) {
         if (message != null) {
           sender.sendMessage(
-              ChatColor.toANSI(
-                  BridgeConfigurationProvider.load().getPrefix() + message)
+            ChatColor.toANSI(
+              BridgeConfigurationProvider.load().getPrefix() + message)
           );
         }
       }

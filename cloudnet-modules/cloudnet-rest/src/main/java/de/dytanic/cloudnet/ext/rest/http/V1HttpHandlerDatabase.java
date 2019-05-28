@@ -22,46 +22,46 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-      throws Exception {
+    throws Exception {
     super.sendOptions(context, "GET, DELETE, POST");
   }
 
   @Override
   public void handleGet(String path, IHttpContext context) throws Exception {
     IDatabase database = getDatabaseProvider()
-        .getDatabase(context.request().pathParameters().get("name"));
+      .getDatabase(context.request().pathParameters().get("name"));
 
     context
-        .response()
-        .header("Content-Type", "application/json")
-        .statusCode(HttpResponseCode.HTTP_OK)
+      .response()
+      .header("Content-Type", "application/json")
+      .statusCode(HttpResponseCode.HTTP_OK)
     ;
 
     if (context.request().pathParameters().containsKey("key")) {
       context
-          .response()
-          .body(
-              database.contains(context.request().pathParameters().get("key")) ?
-                  database.get(context.request().pathParameters().get("key"))
-                      .toJson()
-                  :
-                      new JsonDocument().toJson())
+        .response()
+        .body(
+          database.contains(context.request().pathParameters().get("key")) ?
+            database.get(context.request().pathParameters().get("key"))
+              .toJson()
+            :
+              new JsonDocument().toJson())
       ;
 
     } else {
       Map<String, String> queryFilters = Maps.newHashMap();
 
       for (Map.Entry<String, List<String>> queryEntry : context.request()
-          .queryParameters().entrySet()) {
+        .queryParameters().entrySet()) {
         queryFilters.put(queryEntry.getKey(), queryEntry.getValue().get(0));
       }
 
       context
-          .response()
-          .body(GSON.toJson(database.get(new JsonDocument(queryFilters))))
-          .context()
-          .closeAfter(true)
-          .cancelNext()
+        .response()
+        .body(GSON.toJson(database.get(new JsonDocument(queryFilters))))
+        .context()
+        .closeAfter(true)
+        .cancelNext()
       ;
     }
   }
@@ -69,15 +69,15 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
   @Override
   public void handlePost(String path, IHttpContext context) throws Exception {
     IDatabase database = getDatabaseProvider()
-        .getDatabase(context.request().pathParameters().get("name"));
+      .getDatabase(context.request().pathParameters().get("name"));
 
     context
-        .response()
-        .header("Content-Type", "application/json")
-        .statusCode(HttpResponseCode.HTTP_OK)
-        .context()
-        .closeAfter(true)
-        .cancelNext()
+      .response()
+      .header("Content-Type", "application/json")
+      .statusCode(HttpResponseCode.HTTP_OK)
+      .context()
+      .closeAfter(true)
+      .cancelNext()
     ;
 
     if (context.request().pathParameters().containsKey("key")) {
@@ -86,18 +86,18 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
         JsonDocument jsonDocument = new JsonDocument(context.request().body());
 
         context
-            .response()
-            .body(new JsonDocument("success", database
-                .insert(context.request().pathParameters().get("key"),
-                    jsonDocument)).toString())
+          .response()
+          .body(new JsonDocument("success", database
+            .insert(context.request().pathParameters().get("key"),
+              jsonDocument)).toString())
         ;
 
       } catch (Exception ignored) {
         context
-            .response()
-            .statusCode(HttpResponseCode.HTTP_BAD_REQUEST)
-            .body(new JsonDocument("reason", "Your input data must to be json")
-                .toJson())
+          .response()
+          .statusCode(HttpResponseCode.HTTP_BAD_REQUEST)
+          .body(new JsonDocument("reason", "Your input data must to be json")
+            .toJson())
         ;
       }
     }
@@ -106,30 +106,30 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
   @Override
   public void handleDelete(String path, IHttpContext context) throws Exception {
     IDatabase database = getDatabaseProvider()
-        .getDatabase(context.request().pathParameters().get("name"));
+      .getDatabase(context.request().pathParameters().get("name"));
 
     context
-        .response()
-        .header("Content-Type", "application/json")
-        .statusCode(HttpResponseCode.HTTP_OK)
-        .context()
-        .closeAfter(true)
-        .cancelNext()
+      .response()
+      .header("Content-Type", "application/json")
+      .statusCode(HttpResponseCode.HTTP_OK)
+      .context()
+      .closeAfter(true)
+      .cancelNext()
     ;
 
     if (context.request().pathParameters().containsKey("key")) {
       context
-          .response()
-          .body(new JsonDocument("success",
-              database.delete(context.request().pathParameters().get("key")))
-              .toJson())
+        .response()
+        .body(new JsonDocument("success",
+          database.delete(context.request().pathParameters().get("key")))
+          .toJson())
       ;
     } else {
       database.clear();
 
       context
-          .response()
-          .body(new JsonDocument("success", true).toJson())
+        .response()
+        .body(new JsonDocument("success", true).toJson())
       ;
     }
   }

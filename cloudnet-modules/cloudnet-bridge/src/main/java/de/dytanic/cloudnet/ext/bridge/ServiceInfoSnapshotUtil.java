@@ -42,16 +42,16 @@ public final class ServiceInfoSnapshotUtil {
   }
 
   public static Collection<PluginInfo> getPlugins(
-      ServiceInfoSnapshot serviceInfoSnapshot) {
+    ServiceInfoSnapshot serviceInfoSnapshot) {
     return serviceInfoSnapshot.getProperties()
-        .get("Plugins", new TypeToken<PluginInfo>() {
-        }.getType());
+      .get("Plugins", new TypeToken<PluginInfo>() {
+      }.getType());
   }
 
   public static Collection<JsonDocument> getPlayers(
-      ServiceInfoSnapshot serviceInfoSnapshot) {
+    ServiceInfoSnapshot serviceInfoSnapshot) {
     return serviceInfoSnapshot.getProperties()
-        .get("Players", new TypeToken<JsonDocument>() {
-        }.getType());
+      .get("Players", new TypeToken<JsonDocument>() {
+      }.getType());
   }
 }

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class GoMintBridgeProxyPlayerDisconnectEvent extends
-    GoMintBridgeEvent {
+  GoMintBridgeEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

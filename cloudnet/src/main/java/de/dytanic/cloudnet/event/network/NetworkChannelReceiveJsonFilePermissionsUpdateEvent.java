@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends
-    NetworkEvent implements ICancelable {
+  NetworkEvent implements ICancelable {
 
   private List<PermissionUser> permissionUsers;
 
@@ -21,8 +21,8 @@ public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends
   private boolean cancelled;
 
   public NetworkChannelReceiveJsonFilePermissionsUpdateEvent(
-      INetworkChannel channel, List<PermissionUser> permissionUsers,
-      List<PermissionGroup> permissionGroups) {
+    INetworkChannel channel, List<PermissionUser> permissionUsers,
+    List<PermissionGroup> permissionGroups) {
     super(channel);
     this.permissionUsers = permissionUsers;
     this.permissionGroups = permissionGroups;

@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements
-    ICancelable {
+  ICancelable {
 
   @Setter
   private boolean cancelled;
@@ -16,7 +16,7 @@ public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements
   private final IPacket packet;
 
   public NetworkChannelPacketReceiveEvent(INetworkChannel channel,
-      IPacket packet) {
+    IPacket packet) {
     super(channel);
     this.packet = packet;
   }

@@ -221,9 +221,9 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
   @Override
   public IConfigurationRegistry save() {
     new JsonDocument()
-        .append("registryVersion", registryVersion)
-        .append("entries", entries)
-        .write(path);
+      .append("registryVersion", registryVersion)
+      .append("entries", entries)
+      .write(path);
 
     return this;
   }

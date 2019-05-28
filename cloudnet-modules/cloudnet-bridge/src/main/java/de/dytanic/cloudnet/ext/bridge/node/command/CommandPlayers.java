@@ -17,7 +17,7 @@ import java.util.List;
 public final class CommandPlayers extends Command {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-      "dd.MM.yyyy HH:mm:ss");
+    "dd.MM.yyyy HH:mm:ss");
 
   public CommandPlayers() {
     super("players", "player", "pl");
@@ -26,38 +26,38 @@ public final class CommandPlayers extends Command {
     this.prefix = "cloudnet-bridge";
     this.usage = "players online";
     this.description = LanguageManager
-        .getMessage("module-bridge-command-players-description");
+      .getMessage("module-bridge-command-players-description");
   }
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-      String commandLine, Properties properties) {
+    String commandLine, Properties properties) {
     if (args.length == 0) {
       sender.sendMessage(
-          "players online",
-          "players player <name>",
-          "players player <name> kick <reason>",
-          "players player <name> send <target>",
-          "players player <name> message <message>"
+        "players online",
+        "players player <name>",
+        "players player <name> kick <reason>",
+        "players player <name> send <target>",
+        "players player <name> message <message>"
       );
       return;
     }
 
     if (args[0].equalsIgnoreCase("online")) {
       for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance()
-          .getOnlinePlayers()) {
+        .getOnlinePlayers()) {
         sender.sendMessage(
-            "- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName()
-                + " | " +
-                (cloudPlayer.getLoginService() != null ?
-                    cloudPlayer.getLoginService().getUniqueId().toString()
-                        .split("-")[0] + " " + cloudPlayer.getLoginService()
-                        .getServerName() : null) +
-                " | " +
-                (cloudPlayer.getConnectedService() != null ?
-                    cloudPlayer.getConnectedService().getUniqueId().toString()
-                        .split("-")[0] + " " + cloudPlayer.getConnectedService()
-                        .getServerName() : null)
+          "- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName()
+            + " | " +
+            (cloudPlayer.getLoginService() != null ?
+              cloudPlayer.getLoginService().getUniqueId().toString()
+                .split("-")[0] + " " + cloudPlayer.getLoginService()
+                .getServerName() : null) +
+            " | " +
+            (cloudPlayer.getConnectedService() != null ?
+              cloudPlayer.getConnectedService().getUniqueId().toString()
+                .split("-")[0] + " " + cloudPlayer.getConnectedService()
+                .getServerName() : null)
         );
       }
       return;
@@ -65,11 +65,11 @@ public final class CommandPlayers extends Command {
 
     if (args[0].equalsIgnoreCase("player") && args.length > 1) {
       List<? extends ICloudOfflinePlayer> cloudPlayers = NodePlayerManager
-          .getInstance().getOnlinePlayer(args[1]);
+        .getInstance().getOnlinePlayer(args[1]);
 
       if (cloudPlayers.isEmpty()) {
         cloudPlayers = NodePlayerManager.getInstance()
-            .getOfflinePlayer(args[1]);
+          .getOfflinePlayer(args[1]);
       }
 
       if (args.length < 4) {
@@ -92,21 +92,21 @@ public final class CommandPlayers extends Command {
         switch (args[2].toLowerCase()) {
           case "kick":
             BridgePlayerManager.getInstance()
-                .proxyKickPlayer(cloudPlayer, buildMessage(args, 3));
+              .proxyKickPlayer(cloudPlayer, buildMessage(args, 3));
             sender.sendMessage(LanguageManager.getMessage(
-                "module-bridge-command-players-send-player-server"));
+              "module-bridge-command-players-send-player-server"));
             break;
           case "message":
             BridgePlayerManager.getInstance()
-                .proxySendPlayerMessage(cloudPlayer, buildMessage(args, 3));
+              .proxySendPlayerMessage(cloudPlayer, buildMessage(args, 3));
             sender.sendMessage(LanguageManager.getMessage(
-                "module-bridge-command-players-send-player-message"));
+              "module-bridge-command-players-send-player-message"));
             break;
           case "send":
             BridgePlayerManager.getInstance()
-                .proxySendPlayer(cloudPlayer, args[3]);
+              .proxySendPlayer(cloudPlayer, args[3]);
             sender.sendMessage(LanguageManager
-                .getMessage("module-bridge-command-players-kick-player"));
+              .getMessage("module-bridge-command-players-kick-player"));
             break;
         }
       }
@@ -124,7 +124,7 @@ public final class CommandPlayers extends Command {
   }
 
   private void displayPlayer(ICommandSender sender,
-      ICloudOfflinePlayer cloudOfflinePlayer) {
+    ICloudOfflinePlayer cloudOfflinePlayer) {
     if (cloudOfflinePlayer == null) {
       return;
     }
@@ -132,63 +132,63 @@ public final class CommandPlayers extends Command {
     List<String> messages = Iterables.newArrayList();
 
     messages.addAll(Arrays.asList(
-        "* CloudPlayer " + cloudOfflinePlayer.getUniqueId() + " "
-            + cloudOfflinePlayer.getName(),
-        "- XBoxId: " + cloudOfflinePlayer.getXBoxId(),
-        "- First Login: " + DATE_FORMAT
-            .format(cloudOfflinePlayer.getFirstLoginTimeMillis()),
-        "- Last Login: " + DATE_FORMAT
-            .format(cloudOfflinePlayer.getLastLoginTimeMillis())
+      "* CloudPlayer " + cloudOfflinePlayer.getUniqueId() + " "
+        + cloudOfflinePlayer.getName(),
+      "- XBoxId: " + cloudOfflinePlayer.getXBoxId(),
+      "- First Login: " + DATE_FORMAT
+        .format(cloudOfflinePlayer.getFirstLoginTimeMillis()),
+      "- Last Login: " + DATE_FORMAT
+        .format(cloudOfflinePlayer.getLastLoginTimeMillis())
     ));
 
     messages.addAll(Arrays.asList(
-        "- Last NetworkConnectionInfo: ",
-        "  Player Address: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
-            .getAddress(),
-        "  Listener: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
-            .getListener(),
-        "  Version: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
-            .getVersion(),
-        "  Online mode: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
-            .isOnlineMode(),
-        "  Legacy: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
-            .isLegacy()
+      "- Last NetworkConnectionInfo: ",
+      "  Player Address: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
+        .getAddress(),
+      "  Listener: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
+        .getListener(),
+      "  Version: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
+        .getVersion(),
+      "  Online mode: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
+        .isOnlineMode(),
+      "  Legacy: " + cloudOfflinePlayer.getLastNetworkConnectionInfo()
+        .isLegacy()
     ));
 
     if (cloudOfflinePlayer instanceof ICloudPlayer) {
       ICloudPlayer cloudPlayer = (ICloudPlayer) cloudOfflinePlayer;
 
       messages.addAll(Arrays.asList(
-          "- Current NetworkConnectionInfo: ",
-          "  Player Address: " + cloudPlayer.getNetworkConnectionInfo()
-              .getAddress(),
-          "  Listener: " + cloudPlayer.getNetworkConnectionInfo().getListener(),
-          "  Version: " + cloudPlayer.getNetworkConnectionInfo().getVersion(),
-          "  Online mode: " + cloudPlayer.getNetworkConnectionInfo()
-              .isOnlineMode(),
-          "  Legacy: " + cloudPlayer.getNetworkConnectionInfo().isLegacy()
+        "- Current NetworkConnectionInfo: ",
+        "  Player Address: " + cloudPlayer.getNetworkConnectionInfo()
+          .getAddress(),
+        "  Listener: " + cloudPlayer.getNetworkConnectionInfo().getListener(),
+        "  Version: " + cloudPlayer.getNetworkConnectionInfo().getVersion(),
+        "  Online mode: " + cloudPlayer.getNetworkConnectionInfo()
+          .isOnlineMode(),
+        "  Legacy: " + cloudPlayer.getNetworkConnectionInfo().isLegacy()
       ));
 
       messages
-          .add("- Login Service: " + (cloudPlayer.getLoginService() != null ?
-              cloudPlayer.getLoginService().getUniqueId() + " " + cloudPlayer
-                  .getLoginService().getServerName()
-              :
-                  null
-          ));
+        .add("- Login Service: " + (cloudPlayer.getLoginService() != null ?
+          cloudPlayer.getLoginService().getUniqueId() + " " + cloudPlayer
+            .getLoginService().getServerName()
+          :
+            null
+        ));
 
       messages.add(
-          "- Connected Service: " + (cloudPlayer.getConnectedService() != null ?
-              cloudPlayer.getConnectedService().getUniqueId() + " "
-                  + cloudPlayer.getConnectedService().getServerName()
-              :
-                  null
-          ));
+        "- Connected Service: " + (cloudPlayer.getConnectedService() != null ?
+          cloudPlayer.getConnectedService().getUniqueId() + " "
+            + cloudPlayer.getConnectedService().getServerName()
+          :
+            null
+        ));
     }
 
     messages.add("- Properties: ");
     messages.addAll(Arrays
-        .asList(cloudOfflinePlayer.getProperties().toPrettyJson().split("\n")));
+      .asList(cloudOfflinePlayer.getProperties().toPrettyJson().split("\n")));
     messages.add(" ");
 
     sender.sendMessage(messages.toArray(new String[0]));

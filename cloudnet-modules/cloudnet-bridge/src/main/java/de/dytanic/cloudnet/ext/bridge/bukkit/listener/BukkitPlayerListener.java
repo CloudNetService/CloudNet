@@ -24,28 +24,28 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public final class BukkitPlayerListener implements Listener {
 
   private final Collection<UUID> accessUniqueIds = Iterables
-      .newCopyOnWriteArrayList();
+    .newCopyOnWriteArrayList();
 
   private final Collection<String> accessNames = Iterables
-      .newCopyOnWriteArrayList();
+    .newCopyOnWriteArrayList();
 
   private final BukkitCloudNetBridgePlugin plugin;
 
   @EventHandler
   public void handle(BukkitBridgeProxyPlayerServerConnectRequestEvent event) {
     BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider
-        .load();
+      .load();
 
     if (Bukkit.getOnlineMode()) {
       return;
     }
 
     if (bridgeConfiguration != null
-        && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
+      && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
       for (String group : bridgeConfiguration
-          .getExcludedOnlyProxyWalkableGroups()) {
+        .getExcludedOnlyProxyWalkableGroups()) {
         if (Iterables.contains(group,
-            Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+          Wrapper.getInstance().getServiceConfiguration().getGroups())) {
           return;
         }
       }
@@ -81,7 +81,7 @@ public final class BukkitPlayerListener implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void handle(PlayerLoginEvent event) {
     BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider
-        .load();
+      .load();
 
     boolean onlyProxyProtection = true;
 
@@ -90,11 +90,11 @@ public final class BukkitPlayerListener implements Listener {
     }
 
     if (onlyProxyProtection && bridgeConfiguration != null
-        && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
+      && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
       for (String group : bridgeConfiguration
-          .getExcludedOnlyProxyWalkableGroups()) {
+        .getExcludedOnlyProxyWalkableGroups()) {
         if (Iterables.contains(group,
-            Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+          Wrapper.getInstance().getServiceConfiguration().getGroups())) {
           onlyProxyProtection = false;
           break;
         }
@@ -109,8 +109,8 @@ public final class BukkitPlayerListener implements Listener {
         if (!accessUniqueIds.contains(uniqueId)) {
           event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
           event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
-              bridgeConfiguration.getMessages()
-                  .get("server-join-cancel-because-only-proxy")));
+            bridgeConfiguration.getMessages()
+              .get("server-join-cancel-because-only-proxy")));
           return;
 
         } else {
@@ -127,8 +127,8 @@ public final class BukkitPlayerListener implements Listener {
           if (!accessNames.contains(name)) {
             event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
             event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
-                bridgeConfiguration.getMessages()
-                    .get("server-join-cancel-because-only-proxy")));
+              bridgeConfiguration.getMessages()
+                .get("server-join-cancel-because-only-proxy")));
             return;
 
           } else {
@@ -139,18 +139,18 @@ public final class BukkitPlayerListener implements Listener {
     }
 
     BridgeHelper.sendChannelMessageServerLoginRequest(
-        BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-        BukkitCloudNetHelper
-            .createNetworkPlayerServerInfo(event.getPlayer(), true)
+      BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      BukkitCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getPlayer(), true)
     );
   }
 
   @EventHandler
   public void handle(PlayerJoinEvent event) {
     BridgeHelper.sendChannelMessageServerLoginSuccess(
-        BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-        BukkitCloudNetHelper
-            .createNetworkPlayerServerInfo(event.getPlayer(), false));
+      BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      BukkitCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getPlayer(), false));
 
     BridgeHelper.updateServiceInfo();
   }
@@ -158,9 +158,9 @@ public final class BukkitPlayerListener implements Listener {
   @EventHandler
   public void handle(PlayerQuitEvent event) {
     BridgeHelper.sendChannelMessageServerDisconnect(
-        BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-        BukkitCloudNetHelper
-            .createNetworkPlayerServerInfo(event.getPlayer(), false));
+      BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      BukkitCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getPlayer(), false));
 
     Wrapper.getInstance().runTask(new Runnable() {
       @Override

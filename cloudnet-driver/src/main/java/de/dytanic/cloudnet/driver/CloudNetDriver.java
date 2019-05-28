@@ -78,56 +78,56 @@ public abstract class CloudNetDriver {
   public abstract String[] sendCommandLine(String commandLine);
 
   public abstract String[] sendCommandLine(String nodeUniqueId,
-      String commandLine);
+    String commandLine);
 
   public abstract void sendChannelMessage(String channel, String message,
-      JsonDocument data);
+    JsonDocument data);
 
   public abstract ServiceInfoSnapshot createCloudService(
-      ServiceTask serviceTask);
+    ServiceTask serviceTask);
 
   public abstract ServiceInfoSnapshot createCloudService(
-      ServiceConfiguration serviceConfiguration);
+    ServiceConfiguration serviceConfiguration);
 
   public abstract ServiceInfoSnapshot createCloudService(
-      String name,
-      String runtime,
-      boolean autoDeleteOnStop,
-      boolean staticService,
-      Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      Collection<String> groups,
-      ProcessConfiguration processConfiguration,
-      Integer port
+    String name,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    Collection<ServiceRemoteInclusion> includes,
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    Collection<String> groups,
+    ProcessConfiguration processConfiguration,
+    Integer port
   );
 
   public abstract Collection<ServiceInfoSnapshot> createCloudService(
-      String nodeUniqueId,
-      int amount,
-      String name,
-      String runtime,
-      boolean autoDeleteOnStop,
-      boolean staticService,
-      Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      Collection<String> groups,
-      ProcessConfiguration processConfiguration,
-      Integer port
+    String nodeUniqueId,
+    int amount,
+    String name,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    Collection<ServiceRemoteInclusion> includes,
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    Collection<String> groups,
+    ProcessConfiguration processConfiguration,
+    Integer port
   );
 
   public abstract ServiceInfoSnapshot sendCommandLineToCloudService(
-      UUID uniqueId, String commandLine);
+    UUID uniqueId, String commandLine);
 
   public abstract ServiceInfoSnapshot addServiceTemplateToCloudService(
-      UUID uniqueId, ServiceTemplate serviceTemplate);
+    UUID uniqueId, ServiceTemplate serviceTemplate);
 
   public abstract ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(
-      UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion);
+    UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion);
 
   public abstract ServiceInfoSnapshot addServiceDeploymentToCloudService(
-      UUID uniqueId, ServiceDeployment serviceDeployment);
+    UUID uniqueId, ServiceDeployment serviceDeployment);
 
   public abstract Queue<String> getCachedLogMessagesFromService(UUID uniqueId);
 
@@ -150,16 +150,16 @@ public abstract class CloudNetDriver {
   }
 
   public abstract void setCloudServiceLifeCycle(
-      ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle);
+    ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle);
 
   public abstract void restartCloudService(
-      ServiceInfoSnapshot serviceInfoSnapshot);
+    ServiceInfoSnapshot serviceInfoSnapshot);
 
   public abstract void killCloudService(
-      ServiceInfoSnapshot serviceInfoSnapshot);
+    ServiceInfoSnapshot serviceInfoSnapshot);
 
   public abstract void runCommand(ServiceInfoSnapshot serviceInfoSnapshot,
-      String command);
+    String command);
 
   public abstract Collection<UUID> getServicesAsUniqueId();
 
@@ -170,10 +170,10 @@ public abstract class CloudNetDriver {
   public abstract Collection<ServiceInfoSnapshot> getStartedCloudServices();
 
   public abstract Collection<ServiceInfoSnapshot> getCloudService(
-      String taskName);
+    String taskName);
 
   public abstract Collection<ServiceInfoSnapshot> getCloudServiceByGroup(
-      String group);
+    String group);
 
   public abstract ServiceInfoSnapshot getCloudService(UUID uniqueId);
 
@@ -202,12 +202,12 @@ public abstract class CloudNetDriver {
   public abstract boolean isGroupConfigurationPresent(String name);
 
   public abstract void addGroupConfiguration(
-      GroupConfiguration groupConfiguration);
+    GroupConfiguration groupConfiguration);
 
   public abstract void removeGroupConfiguration(String name);
 
   public abstract void removeGroupConfiguration(
-      GroupConfiguration groupConfiguration);
+    GroupConfiguration groupConfiguration);
 
   public abstract NetworkClusterNode[] getNodes();
 
@@ -216,18 +216,18 @@ public abstract class CloudNetDriver {
   public abstract NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots();
 
   public abstract NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(
-      String uniqueId);
+    String uniqueId);
 
   public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
 
   public abstract Collection<ServiceInfoSnapshot> getCloudServices(
-      ServiceEnvironmentType environment);
+    ServiceEnvironmentType environment);
 
   public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(
-      String serviceName);
+    String serviceName);
 
   public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(
-      UUID uniqueId, String commandLine);
+    UUID uniqueId, String commandLine);
 
   public abstract void addUser(IPermissionUser permissionUser);
 
@@ -272,56 +272,56 @@ public abstract class CloudNetDriver {
   public abstract ITask<String[]> sendCommandLineAsync(String commandLine);
 
   public abstract ITask<String[]> sendCommandLineAsync(String nodeUniqueId,
-      String commandLine);
+    String commandLine);
 
   public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(
-      ServiceTask serviceTask);
+    ServiceTask serviceTask);
 
   public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(
-      ServiceConfiguration serviceConfiguration);
+    ServiceConfiguration serviceConfiguration);
 
   public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(
-      String name,
-      String runtime,
-      boolean autoDeleteOnStop,
-      boolean staticService,
-      Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      Collection<String> groups,
-      ProcessConfiguration processConfiguration,
-      Integer port
+    String name,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    Collection<ServiceRemoteInclusion> includes,
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    Collection<String> groups,
+    ProcessConfiguration processConfiguration,
+    Integer port
   );
 
   public abstract ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
-      String nodeUniqueId,
-      int amount,
-      String name,
-      String runtime,
-      boolean autoDeleteOnStop,
-      boolean staticService,
-      Collection<ServiceRemoteInclusion> includes,
-      Collection<ServiceTemplate> templates,
-      Collection<ServiceDeployment> deployments,
-      Collection<String> groups,
-      ProcessConfiguration processConfiguration,
-      Integer port
+    String nodeUniqueId,
+    int amount,
+    String name,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    Collection<ServiceRemoteInclusion> includes,
+    Collection<ServiceTemplate> templates,
+    Collection<ServiceDeployment> deployments,
+    Collection<String> groups,
+    ProcessConfiguration processConfiguration,
+    Integer port
   );
 
   public abstract ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(
-      UUID uniqueId, String commandLine);
+    UUID uniqueId, String commandLine);
 
   public abstract ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(
-      UUID uniqueId, ServiceTemplate serviceTemplate);
+    UUID uniqueId, ServiceTemplate serviceTemplate);
 
   public abstract ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(
-      UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion);
+    UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion);
 
   public abstract ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(
-      UUID uniqueId, ServiceDeployment serviceDeployment);
+    UUID uniqueId, ServiceDeployment serviceDeployment);
 
   public abstract ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(
-      UUID uniqueId);
+    UUID uniqueId);
 
   public abstract void includeWaitingServiceTemplates(UUID uniqueId);
 
@@ -332,17 +332,17 @@ public abstract class CloudNetDriver {
   public abstract ITask<Collection<UUID>> getServicesAsUniqueIdAsync();
 
   public abstract ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(
-      String name);
+    String name);
 
   public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync();
 
   public abstract ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync();
 
   public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(
-      String taskName);
+    String taskName);
 
   public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(
-      String group);
+    String group);
 
   public abstract ITask<Integer> getServicesCountAsync();
 
@@ -351,7 +351,7 @@ public abstract class CloudNetDriver {
   public abstract ITask<Integer> getServicesCountByTaskAsync(String taskName);
 
   public abstract ITask<ServiceInfoSnapshot> getCloudServicesAsync(
-      UUID uniqueId);
+    UUID uniqueId);
 
   public abstract ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync();
 
@@ -362,7 +362,7 @@ public abstract class CloudNetDriver {
   public abstract ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync();
 
   public abstract ITask<GroupConfiguration> getGroupConfigurationAsync(
-      String name);
+    String name);
 
   public abstract ITask<Boolean> isGroupConfigurationPresentAsync(String name);
 
@@ -373,18 +373,18 @@ public abstract class CloudNetDriver {
   public abstract ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync();
 
   public abstract ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(
-      String uniqueId);
+    String uniqueId);
 
   public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
 
   public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(
-      ServiceEnvironmentType environment);
+    ServiceEnvironmentType environment);
 
   public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(
-      String serviceName);
+    String serviceName);
 
   public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(
-      UUID uniqueId, String commandLine);
+    UUID uniqueId, String commandLine);
 
   public abstract ITask<Void> addUserAsync(IPermissionUser permissionUser);
 
@@ -399,7 +399,7 @@ public abstract class CloudNetDriver {
   public abstract ITask<Collection<IPermissionUser>> getUsersAsync();
 
   public abstract ITask<Collection<IPermissionUser>> getUserByGroupAsync(
-      String group);
+    String group);
 
   public abstract ITask<Boolean> containsGroupAsync(String name);
 
@@ -410,8 +410,8 @@ public abstract class CloudNetDriver {
   /*= ------------------------------------------------------------------------------------------------ =*/
 
   public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel,
-      String channel, String id, JsonDocument data,
-      Function<JsonDocument, R> function) {
+    String channel, String id, JsonDocument data,
+    Function<JsonDocument, R> function) {
     Validate.checkNotNull(networkChannel);
     Validate.checkNotNull(channel);
     Validate.checkNotNull(id);
@@ -419,40 +419,40 @@ public abstract class CloudNetDriver {
     Validate.checkNotNull(function);
 
     return this.sendCallablePacket(networkChannel, channel,
-        data.append(PacketConstants.SYNC_PACKET_ID_PROPERTY, id), null,
-        new Function<Pair<JsonDocument, byte[]>, R>() {
-          @Override
-          public R apply(Pair<JsonDocument, byte[]> jsonDocumentPair) {
-            return function.apply(jsonDocumentPair.getFirst());
-          }
-        });
+      data.append(PacketConstants.SYNC_PACKET_ID_PROPERTY, id), null,
+      new Function<Pair<JsonDocument, byte[]>, R>() {
+        @Override
+        public R apply(Pair<JsonDocument, byte[]> jsonDocumentPair) {
+          return function.apply(jsonDocumentPair.getFirst());
+        }
+      });
   }
 
   public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-      JsonDocument header, byte[] body,
-      Function<Pair<JsonDocument, byte[]>, R> function) {
+    JsonDocument header, byte[] body,
+    Function<Pair<JsonDocument, byte[]>, R> function) {
     return this.sendCallablePacketWithAsDriverSyncAPI(
-        this.getNetworkClient().getChannels().iterator().next(), header, body,
-        function);
+      this.getNetworkClient().getChannels().iterator().next(), header, body,
+      function);
   }
 
   public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPI(
-      INetworkChannel channel, JsonDocument header, byte[] body,
-      Function<Pair<JsonDocument, byte[]>, R> function) {
+    INetworkChannel channel, JsonDocument header, byte[] body,
+    Function<Pair<JsonDocument, byte[]>, R> function) {
     return this
-        .sendCallablePacket(channel, "cloudnet_driver_sync_api", header, body,
-            function);
+      .sendCallablePacket(channel, "cloudnet_driver_sync_api", header, body,
+        function);
   }
 
   public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel,
-      String channel, JsonDocument header, byte[] body,
-      Function<Pair<JsonDocument, byte[]>, R> function) {
+    String channel, JsonDocument header, byte[] body,
+    Function<Pair<JsonDocument, byte[]>, R> function) {
     return sendCallablePacket0(networkChannel, channel, header, body, function);
   }
 
   private <R> ITask<R> sendCallablePacket0(INetworkChannel networkChannel,
-      String channel, JsonDocument header, byte[] body,
-      Function<Pair<JsonDocument, byte[]>, R> function) {
+    String channel, JsonDocument header, byte[] body,
+    Function<Pair<JsonDocument, byte[]>, R> function) {
     header.append(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY, channel);
 
     Value<R> value = new Value<>();
@@ -465,25 +465,25 @@ public abstract class CloudNetDriver {
     });
 
     InternalSyncPacketChannel.sendCallablePacket(networkChannel, header, body,
-        new ITaskListener<Pair<JsonDocument, byte[]>>() {
+      new ITaskListener<Pair<JsonDocument, byte[]>>() {
 
-          @Override
-          public void onComplete(ITask<Pair<JsonDocument, byte[]>> task,
-              Pair<JsonDocument, byte[]> result) {
-            value.setValue(function.apply(result));
-            try {
-              listenableTask.call();
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
+        @Override
+        public void onComplete(ITask<Pair<JsonDocument, byte[]>> task,
+          Pair<JsonDocument, byte[]> result) {
+          value.setValue(function.apply(result));
+          try {
+            listenableTask.call();
+          } catch (Exception e) {
+            e.printStackTrace();
           }
+        }
 
-          @Override
-          public void onFailure(ITask<Pair<JsonDocument, byte[]>> task,
-              Throwable th) {
-            th.printStackTrace();
-          }
-        });
+        @Override
+        public void onFailure(ITask<Pair<JsonDocument, byte[]>> task,
+          Throwable th) {
+          th.printStackTrace();
+        }
+      });
 
     return listenableTask;
   }

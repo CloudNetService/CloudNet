@@ -10,21 +10,21 @@ import java.util.Collection;
 import java.util.List;
 
 public final class PacketServerSetGlobalServiceInfoListListener implements
-    IPacketListener {
+  IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("serviceInfoList")) {
       Collection<ServiceInfoSnapshot> serviceInfoSnapshots = packet.getHeader()
-          .get("serviceInfoList", new TypeToken<List<ServiceInfoSnapshot>>() {
-          }.getType());
+        .get("serviceInfoList", new TypeToken<List<ServiceInfoSnapshot>>() {
+        }.getType());
 
       for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
         if (serviceInfoSnapshot != null) {
           CloudNet.getInstance().getCloudServiceManager()
-              .getGlobalServiceInfoSnapshots()
-              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                  serviceInfoSnapshot);
+            .getGlobalServiceInfoSnapshots()
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              serviceInfoSnapshot);
         }
       }
     }

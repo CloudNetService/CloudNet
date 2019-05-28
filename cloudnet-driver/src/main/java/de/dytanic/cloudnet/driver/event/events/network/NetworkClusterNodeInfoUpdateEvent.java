@@ -10,7 +10,7 @@ public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
   private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
   public NetworkClusterNodeInfoUpdateEvent(INetworkChannel channel,
-      NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
+    NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
     super(channel);
 
     this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;

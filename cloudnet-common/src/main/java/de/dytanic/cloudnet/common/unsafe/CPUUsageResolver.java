@@ -26,7 +26,7 @@ public final class CPUUsageResolver {
    * A simple decimal format to easy display the CPU usage value.
    */
   public static final DecimalFormat CPU_USAGE_OUTPUT_FORMAT = new DecimalFormat(
-      "##.##");
+    "##.##");
 
   private CPUUsageResolver() {
     throw new UnsupportedOperationException();
@@ -41,8 +41,8 @@ public final class CPUUsageResolver {
    */
   public static double getSystemCPUUsage() {
     return
-        ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean())
-            .getSystemCpuLoad() * 100;
+      ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean())
+        .getSystemCpuLoad() * 100;
   }
 
   /**
@@ -55,8 +55,8 @@ public final class CPUUsageResolver {
    */
   public static double getProcessCPUUsage() {
     return
-        ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean())
-            .getProcessCpuLoad() * 100;
+      ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean())
+        .getProcessCpuLoad() * 100;
   }
 
   /**
@@ -68,7 +68,7 @@ public final class CPUUsageResolver {
    */
   public static long getSystemMemory() {
     return ((OperatingSystemMXBean) ManagementFactory
-        .getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
+      .getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
   }
 
 }

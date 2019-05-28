@@ -10,7 +10,7 @@ abstract class PermissionUserEvent extends PermissionEvent {
   private final IPermissionUser permissionUser;
 
   public PermissionUserEvent(IPermissionManagement permissionManagement,
-      IPermissionUser permissionUser) {
+    IPermissionUser permissionUser) {
     super(permissionManagement);
 
     this.permissionUser = permissionUser;

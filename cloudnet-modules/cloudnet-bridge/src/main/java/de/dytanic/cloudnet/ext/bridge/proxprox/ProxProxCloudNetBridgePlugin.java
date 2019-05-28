@@ -37,8 +37,8 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
     this.initServers();
 
     task = getScheduler()
-        .scheduleSync(this::updateProxProxDefaultServer, 0, 250,
-            TimeUnit.MILLISECONDS);
+      .scheduleSync(this::updateProxProxDefaultServer, 0, 250,
+        TimeUnit.MILLISECONDS);
     BridgeHelper.updateServiceInfo();
   }
 
@@ -49,9 +49,9 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
     }
 
     CloudNetDriver.getInstance().getEventManager()
-        .unregisterListeners(this.getClass().getClassLoader());
+      .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-        this.getClass().getClassLoader());
+      this.getClass().getClassLoader());
   }
 
   private void registerCommands() {
@@ -64,43 +64,43 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
 
     //CloudNet
     CloudNetDriver.getInstance().getEventManager()
-        .registerListener(new ProxProxCloudNetListener());
+      .registerListener(new ProxProxCloudNetListener());
     CloudNetDriver.getInstance().getEventManager()
-        .registerListener(new BridgeCustomChannelMessageListener());
+      .registerListener(new BridgeCustomChannelMessageListener());
   }
 
   private void initServers() {
     for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance()
-        .getCloudServices()) {
+      .getCloudServices()) {
       if (serviceInfoSnapshot.getServiceId().getEnvironment()
-          .isMinecraftBedrockServer()) {
+        .isMinecraftBedrockServer()) {
         if ((serviceInfoSnapshot.getProperties().contains("Online-Mode")
-            && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
-            serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
+          && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
+          serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
           continue;
         }
 
         String name = serviceInfoSnapshot.getServiceId().getName();
         ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION
-            .put(name, serviceInfoSnapshot);
+          .put(name, serviceInfoSnapshot);
       }
     }
   }
 
   private void updateProxProxDefaultServer() {
     for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider
-        .load().getBungeeFallbackConfigurations()) {
+      .load().getBungeeFallbackConfigurations()) {
       if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables
-          .contains(
-              proxyFallbackConfiguration.getTargetGroup(),
-              Wrapper.getInstance().getCurrentServiceInfoSnapshot()
-                  .getConfiguration().getGroups()
-          )) {
+        .contains(
+          proxyFallbackConfiguration.getTargetGroup(),
+          Wrapper.getInstance().getCurrentServiceInfoSnapshot()
+            .getConfiguration().getGroups()
+        )) {
         Map.Entry<String, ServiceInfoSnapshot> server = null;
 
         List<Map.Entry<String, ServiceInfoSnapshot>> entries = ProxProxCloudNetHelper
-            .getFilteredEntries(
-                proxyFallbackConfiguration.getDefaultFallbackTask(), null);
+          .getFilteredEntries(
+            proxyFallbackConfiguration.getDefaultFallbackTask(), null);
 
         if (entries.size() > 0) {
           server = entries.get(new Random().nextInt(entries.size()));
@@ -108,8 +108,8 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
 
         if (server != null) {
           ProxProxCloudNetHelper.getProxyServer().getConfig().setDefaultServer(
-              new ServerConfig(server.getValue().getAddress().getHost(),
-                  server.getValue().getAddress().getPort())
+            new ServerConfig(server.getValue().getAddress().getHost(),
+              server.getValue().getAddress().getPort())
           );
           return;
         }

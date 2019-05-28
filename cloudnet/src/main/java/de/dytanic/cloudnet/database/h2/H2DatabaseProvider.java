@@ -56,7 +56,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
   public boolean init() throws Exception {
     this.h2dbFile.getParentFile().mkdirs();
     this.connection = DriverManager
-        .getConnection("jdbc:h2:" + h2dbFile.getAbsolutePath());
+      .getConnection("jdbc:h2:" + h2dbFile.getAbsolutePath());
 
     return this.connection != null;
   }
@@ -69,8 +69,8 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
     if (!cachedDatabaseInstances.contains(name)) {
       cachedDatabaseInstances
-          .add(name, System.currentTimeMillis() + NEW_CREATION_DELAY,
-              new H2Database(this, name));
+        .add(name, System.currentTimeMillis() + NEW_CREATION_DELAY,
+          new H2Database(this, name));
     }
 
     return cachedDatabaseInstances.getSecond(name);
@@ -98,7 +98,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
     cachedDatabaseInstances.remove(name);
 
     try (PreparedStatement preparedStatement = connection
-        .prepareStatement("DROP TABLE " + name)) {
+      .prepareStatement("DROP TABLE " + name)) {
       return preparedStatement.executeUpdate() != -1;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -110,18 +110,18 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public Collection<String> getDatabaseNames() {
     return executeQuery(
-        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
-        new IThrowableCallback<ResultSet, Collection<String>>() {
-          @Override
-          public Collection<String> call(ResultSet resultSet) throws Throwable {
-            Collection<String> collection = Iterables.newArrayList();
-            while (resultSet.next()) {
-              collection.add(resultSet.getString("table_name"));
-            }
-
-            return collection;
+      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
+      new IThrowableCallback<ResultSet, Collection<String>>() {
+        @Override
+        public Collection<String> call(ResultSet resultSet) throws Throwable {
+          Collection<String> collection = Iterables.newArrayList();
+          while (resultSet.next()) {
+            collection.add(resultSet.getString("table_name"));
           }
+
+          return collection;
         }
+      }
     );
   }
 
@@ -148,7 +148,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
     Validate.checkNotNull(objects);
 
     try (PreparedStatement preparedStatement = connection
-        .prepareStatement(query)) {
+      .prepareStatement(query)) {
       int i = 1;
       for (Object object : objects) {
         preparedStatement.setString(i++, object.toString());
@@ -164,13 +164,13 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
   }
 
   public <T> T executeQuery(String query,
-      IThrowableCallback<ResultSet, T> callback, Object... objects) {
+    IThrowableCallback<ResultSet, T> callback, Object... objects) {
     Validate.checkNotNull(query);
     Validate.checkNotNull(callback);
     Validate.checkNotNull(objects);
 
     try (PreparedStatement preparedStatement = connection
-        .prepareStatement(query)) {
+      .prepareStatement(query)) {
       int i = 1;
       for (Object object : objects) {
         preparedStatement.setString(i++, object.toString());
@@ -191,7 +191,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
   private void removedOutdatedEntries() {
     for (Map.Entry<String, Pair<Long, H2Database>> entry : cachedDatabaseInstances
-        .entrySet()) {
+      .entrySet()) {
       if (entry.getValue().getFirst() < System.currentTimeMillis()) {
         cachedDatabaseInstances.remove(entry.getKey());
       }

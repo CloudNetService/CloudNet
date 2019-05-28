@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class BridgeProxyPlayerServerConnectRequestEvent extends
-    DriverEvent {
+  DriverEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

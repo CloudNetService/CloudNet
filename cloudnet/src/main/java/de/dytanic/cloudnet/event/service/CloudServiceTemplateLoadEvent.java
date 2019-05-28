@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @RequiredArgsConstructor
 public final class CloudServiceTemplateLoadEvent extends DriverEvent implements
-    ICancelable {
+  ICancelable {
 
   private final ICloudService cloudService;
 

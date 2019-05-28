@@ -11,15 +11,15 @@ public final class JsonConfigurationRegistryTest {
   @Test
   public void testConfigurationRegistry() {
     IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(
-        Paths.get("build/registry.json"));
+      Paths.get("build/registry.json"));
 
     Assert.assertNotNull(
-        configurationRegistry
-            .put("a", "Test String")
-            .put("b", "foobar".getBytes())
-            .put("c", 24)
-            .put("d", new Person("Peter Parker", 24, new JsonDocument("address",
-                new HostAndPort("localhost", 6533))))
+      configurationRegistry
+        .put("a", "Test String")
+        .put("b", "foobar".getBytes())
+        .put("c", 24)
+        .put("d", new Person("Peter Parker", 24, new JsonDocument("address",
+          new HostAndPort("localhost", 6533))))
     );
 
     Assert.assertTrue(configurationRegistry.contains("a"));
@@ -38,10 +38,10 @@ public final class JsonConfigurationRegistryTest {
 
     Assert.assertEquals("Test String", configurationRegistry.getString("a"));
     Assert.assertEquals("foobar",
-        new String(configurationRegistry.getBytes("b")));
+      new String(configurationRegistry.getBytes("b")));
     Assert.assertEquals((Object) 24, configurationRegistry.getInt("c"));
     Assert.assertEquals((Object) ((short) 24),
-        configurationRegistry.getShort("c"));
+      configurationRegistry.getShort("c"));
     Assert.assertEquals((Object) 24L, configurationRegistry.getLong("c"));
 
     Person person = configurationRegistry.getObject("d", Person.class);
@@ -56,7 +56,7 @@ public final class JsonConfigurationRegistryTest {
     Assert.assertTrue(person.properties.contains("address"));
 
     HostAndPort hostAndPort = person.properties
-        .get("address", HostAndPort.class);
+      .get("address", HostAndPort.class);
     Assert.assertNotNull(hostAndPort);
 
     Assert.assertEquals("localhost", hostAndPort.getHost());

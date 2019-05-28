@@ -41,9 +41,9 @@ final class NettyNetworkChannel implements INetworkChannel {
   private INetworkChannelHandler handler;
 
   public NettyNetworkChannel(Channel channel,
-      IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
-      HostAndPort serverAddress, HostAndPort clientAddress,
-      boolean clientProvidedChannel) {
+    IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
+    HostAndPort serverAddress, HostAndPort clientAddress,
+    boolean clientProvidedChannel) {
     this.channel = channel;
     this.handler = handler;
 

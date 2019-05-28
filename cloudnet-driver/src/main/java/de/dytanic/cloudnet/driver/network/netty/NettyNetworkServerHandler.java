@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class NettyNetworkServerHandler extends
-    SimpleChannelInboundHandler<Packet> {
+  SimpleChannelInboundHandler<Packet> {
 
   private final NettyNetworkServer nettyNetworkServer;
 
@@ -22,9 +22,9 @@ final class NettyNetworkServerHandler extends
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     this.channel = new NettyNetworkChannel(ctx.channel(),
-        this.nettyNetworkServer.getPacketRegistry(),
-        this.nettyNetworkServer.networkChannelHandler.call(), connectedAddress,
-        new HostAndPort(ctx.channel().remoteAddress()), false);
+      this.nettyNetworkServer.getPacketRegistry(),
+      this.nettyNetworkServer.networkChannelHandler.call(), connectedAddress,
+      new HostAndPort(ctx.channel().remoteAddress()), false);
     this.nettyNetworkServer.channels.add(channel);
 
     if (this.channel.getHandler() != null) {
@@ -35,7 +35,7 @@ final class NettyNetworkServerHandler extends
   @Override
   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel()
-        .isWritable()) {
+      .isWritable()) {
       if (this.channel.getHandler() != null) {
         this.channel.getHandler().handleChannelClose(this.channel);
       }
@@ -48,9 +48,9 @@ final class NettyNetworkServerHandler extends
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-      throws Exception {
+    throws Exception {
     if (!(cause instanceof IOException)
-        && !(cause instanceof ClosedChannelException)) {
+      && !(cause instanceof ClosedChannelException)) {
       cause.printStackTrace();
     }
   }
@@ -62,10 +62,10 @@ final class NettyNetworkServerHandler extends
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Packet msg)
-      throws Exception {
+    throws Exception {
     nettyNetworkServer.taskScheduler.schedule((Callable<Void>) () -> {
       if (channel.getHandler() != null && !channel.getHandler()
-          .handlePacketReceive(channel, msg)) {
+        .handlePacketReceive(channel, msg)) {
         return null;
       }
 

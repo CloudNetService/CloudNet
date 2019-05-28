@@ -17,21 +17,21 @@ public final class V1CloudflareConfigurationHttpHandler extends V1HttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-      throws Exception {
+    throws Exception {
     this.sendOptions(context, "GET, POST");
   }
 
   @Override
   public void handleGet(String path, IHttpContext context) throws Exception {
     context
-        .response()
-        .statusCode(HttpResponseCode.HTTP_OK)
-        .header("Content-Type", "application/json")
-        .body(GSON.toJson(CloudNetCloudflareModule.getInstance()
-            .getCloudflareConfiguration()))
-        .context()
-        .closeAfter(true)
-        .cancelNext()
+      .response()
+      .statusCode(HttpResponseCode.HTTP_OK)
+      .header("Content-Type", "application/json")
+      .body(GSON.toJson(CloudNetCloudflareModule.getInstance()
+        .getCloudflareConfiguration()))
+      .context()
+      .closeAfter(true)
+      .cancelNext()
     ;
   }
 
@@ -40,21 +40,21 @@ public final class V1CloudflareConfigurationHttpHandler extends V1HttpHandler {
     try {
       if (context.request().body().length > 0) {
         CloudflareConfiguration cloudflareConfiguration = GSON
-            .fromJson(context.request().bodyAsString(),
-                CloudflareConfiguration.TYPE);
+          .fromJson(context.request().bodyAsString(),
+            CloudflareConfiguration.TYPE);
 
         if (cloudflareConfiguration != null) {
           CloudNetCloudflareModule.getInstance()
-              .updateConfiguration(cloudflareConfiguration);
+            .updateConfiguration(cloudflareConfiguration);
 
           context
-              .response()
-              .statusCode(HttpResponseCode.HTTP_OK)
-              .header("Content-Type", "application")
-              .body(new JsonDocument("success", true).toByteArray())
-              .context()
-              .closeAfter(true)
-              .cancelNext()
+            .response()
+            .statusCode(HttpResponseCode.HTTP_OK)
+            .header("Content-Type", "application")
+            .body(new JsonDocument("success", true).toByteArray())
+            .context()
+            .closeAfter(true)
+            .cancelNext()
           ;
         }
       }
@@ -62,7 +62,7 @@ public final class V1CloudflareConfigurationHttpHandler extends V1HttpHandler {
     } catch (Exception ex) {
 
       try (StringWriter writer = new StringWriter();
-          PrintWriter printWriter = new PrintWriter(writer)) {
+        PrintWriter printWriter = new PrintWriter(writer)) {
         ex.printStackTrace(printWriter);
         this.send400Response(context, writer.getBuffer().toString());
       }

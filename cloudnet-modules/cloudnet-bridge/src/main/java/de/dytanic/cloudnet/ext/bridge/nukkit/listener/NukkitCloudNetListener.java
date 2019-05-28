@@ -18,19 +18,19 @@ public final class NukkitCloudNetListener {
   public void handle(ServiceInfoSnapshotConfigureEvent event) {
     NukkitCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
     this.nukkitCall(new NukkitServiceInfoSnapshotConfigureEvent(
-        event.getServiceInfoSnapshot()));
+      event.getServiceInfoSnapshot()));
   }
 
   @EventListener
   public void handle(CloudServiceInfoUpdateEvent event) {
     this.nukkitCall(
-        new NukkitCloudServiceInfoUpdateEvent(event.getServiceInfo()));
+      new NukkitCloudServiceInfoUpdateEvent(event.getServiceInfo()));
   }
 
   @EventListener
   public void handle(CloudServiceRegisterEvent event) {
     this.nukkitCall(
-        new NukkitCloudServiceRegisterEvent(event.getServiceInfo()));
+      new NukkitCloudServiceRegisterEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -41,13 +41,13 @@ public final class NukkitCloudNetListener {
   @EventListener
   public void handle(CloudServiceConnectNetworkEvent event) {
     this.nukkitCall(
-        new NukkitCloudServiceConnectNetworkEvent(event.getServiceInfo()));
+      new NukkitCloudServiceConnectNetworkEvent(event.getServiceInfo()));
   }
 
   @EventListener
   public void handle(CloudServiceDisconnectNetworkEvent event) {
     this.nukkitCall(
-        new NukkitCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
+      new NukkitCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -58,13 +58,13 @@ public final class NukkitCloudNetListener {
   @EventListener
   public void handle(CloudServiceUnregisterEvent event) {
     this.nukkitCall(
-        new NukkitCloudServiceUnregisterEvent(event.getServiceInfo()));
+      new NukkitCloudServiceUnregisterEvent(event.getServiceInfo()));
   }
 
   @EventListener
   public void handle(ChannelMessageReceiveEvent event) {
     this.nukkitCall(new NukkitChannelMessageReceiveEvent(event.getChannel(),
-        event.getMessage(), event.getData()));
+      event.getMessage(), event.getData()));
   }
 
   @EventListener
@@ -75,68 +75,68 @@ public final class NukkitCloudNetListener {
   @EventListener
   public void handle(NetworkClusterNodeInfoUpdateEvent event) {
     this.nukkitCall(new NukkitNetworkClusterNodeInfoUpdateEvent(
-        event.getNetworkClusterNodeInfoSnapshot()));
+      event.getNetworkClusterNodeInfoSnapshot()));
   }
 
   @EventListener
   public void handle(NetworkChannelPacketReceiveEvent event) {
     this.nukkitCall(
-        new NukkitNetworkChannelPacketReceiveEvent(event.getChannel(),
-            event.getPacket()));
+      new NukkitNetworkChannelPacketReceiveEvent(event.getChannel(),
+        event.getPacket()));
   }
 
   @EventListener
   public void handle(BridgeConfigurationUpdateEvent event) {
     this.nukkitCall(new NukkitBridgeConfigurationUpdateEvent(
-        event.getBridgeConfiguration()));
+      event.getBridgeConfiguration()));
   }
 
   @EventListener
   public void handle(BridgeProxyPlayerLoginRequestEvent event) {
     this.nukkitCall(new NukkitBridgeProxyPlayerLoginSuccessEvent(
-        event.getNetworkConnectionInfo()));
+      event.getNetworkConnectionInfo()));
   }
 
   @EventListener
   public void handle(BridgeProxyPlayerLoginSuccessEvent event) {
     this.nukkitCall(new NukkitBridgeProxyPlayerLoginSuccessEvent(
-        event.getNetworkConnectionInfo()));
+      event.getNetworkConnectionInfo()));
   }
 
   @EventListener
   public void handle(BridgeProxyPlayerServerConnectRequestEvent event) {
     this.nukkitCall(new NukkitBridgeProxyPlayerServerConnectRequestEvent(
-        event.getNetworkConnectionInfo(), event.getNetworkServiceInfo()));
+      event.getNetworkConnectionInfo(), event.getNetworkServiceInfo()));
   }
 
   @EventListener
   public void handle(BridgeProxyPlayerServerSwitchEvent event) {
     this.nukkitCall(new NukkitBridgeProxyPlayerServerSwitchEvent(
-        event.getNetworkConnectionInfo(), event.getNetworkServiceInfo()));
+      event.getNetworkConnectionInfo(), event.getNetworkServiceInfo()));
   }
 
   @EventListener
   public void handle(BridgeProxyPlayerDisconnectEvent event) {
     this.nukkitCall(new NukkitBridgeProxyPlayerDisconnectEvent(
-        event.getNetworkConnectionInfo()));
+      event.getNetworkConnectionInfo()));
   }
 
   @EventListener
   public void handle(BridgeServerPlayerLoginRequestEvent event) {
     this.nukkitCall(new NukkitBridgeServerPlayerLoginRequestEvent(
-        event.getNetworkConnectionInfo(), event.getNetworkPlayerServerInfo()));
+      event.getNetworkConnectionInfo(), event.getNetworkPlayerServerInfo()));
   }
 
   @EventListener
   public void handle(BridgeServerPlayerLoginSuccessEvent event) {
     this.nukkitCall(new NukkitBridgeServerPlayerLoginSuccessEvent(
-        event.getNetworkConnectionInfo(), event.getNetworkPlayerServerInfo()));
+      event.getNetworkConnectionInfo(), event.getNetworkPlayerServerInfo()));
   }
 
   @EventListener
   public void handle(BridgeServerPlayerDisconnectEvent event) {
     this.nukkitCall(new NukkitBridgeServerPlayerDisconnectEvent(
-        event.getNetworkConnectionInfo(), event.getNetworkPlayerServerInfo()));
+      event.getNetworkConnectionInfo(), event.getNetworkPlayerServerInfo()));
   }
 
   private void nukkitCall(Event event) {

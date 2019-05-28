@@ -14,18 +14,18 @@ public final class CNLCommandCNL extends CNLCommand {
 
   @Override
   public void execute(Map<String, String> variables, String commandLine,
-      String... args) throws Exception {
+    String... args) throws Exception {
     if (args.length > 0) {
 
       StringBuilder stringBuilder = new StringBuilder();
       for (int i = 1; i < args.length;
-          stringBuilder.append(args[i++]).append(" ")) {
+        stringBuilder.append(args[i++]).append(" ")) {
         ;
       }
 
       CNLInterpreter.runInterpreter(
-          new File(stringBuilder.substring(0, stringBuilder.length() - 1)),
-          variables);
+        new File(stringBuilder.substring(0, stringBuilder.length() - 1)),
+        variables);
     }
   }
 }

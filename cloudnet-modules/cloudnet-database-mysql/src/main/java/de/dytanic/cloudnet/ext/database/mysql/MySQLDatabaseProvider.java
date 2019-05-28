@@ -41,13 +41,13 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
   public boolean init() throws Exception {
     addresses = config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
     MySQLConnectionEndpoint endpoint = addresses
-        .get(new Random().nextInt(addresses.size()));
+      .get(new Random().nextInt(addresses.size()));
 
     hikariDataSource.setJdbcUrl(
-        "jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint
-            .getAddress().getPort() + "/" + endpoint.getDatabase() +
-            (endpoint.isUseSsl() ? "?useSSL=true&trustServerCertificate=true"
-                : "")
+      "jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint
+        .getAddress().getPort() + "/" + endpoint.getDatabase() +
+        (endpoint.isUseSsl() ? "?useSSL=true&trustServerCertificate=true"
+          : "")
     );
 
     //base configuration
@@ -71,8 +71,8 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
     if (!cachedDatabaseInstances.contains(name)) {
       cachedDatabaseInstances
-          .add(name, System.currentTimeMillis() + NEW_CREATION_DELAY,
-              new MySQLDatabase(this, name));
+        .add(name, System.currentTimeMillis() + NEW_CREATION_DELAY,
+          new MySQLDatabase(this, name));
     }
 
     return cachedDatabaseInstances.getSecond(name);
@@ -101,8 +101,8 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
     if (containsDatabase(name)) {
       try (Connection connection = getConnection();
-          PreparedStatement preparedStatement = connection
-              .prepareStatement("DROP TABLE " + name)) {
+        PreparedStatement preparedStatement = connection
+          .prepareStatement("DROP TABLE " + name)) {
         return preparedStatement.executeUpdate() != -1;
       } catch (SQLException e) {
         e.printStackTrace();
@@ -115,18 +115,18 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public Collection<String> getDatabaseNames() {
     return executeQuery(
-        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
-        new IThrowableCallback<ResultSet, Collection<String>>() {
-          @Override
-          public Collection<String> call(ResultSet resultSet) throws Throwable {
-            Collection<String> collection = Iterables.newArrayList();
-            while (resultSet.next()) {
-              collection.add(resultSet.getString("table_name"));
-            }
-
-            return collection;
+      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
+      new IThrowableCallback<ResultSet, Collection<String>>() {
+        @Override
+        public Collection<String> call(ResultSet resultSet) throws Throwable {
+          Collection<String> collection = Iterables.newArrayList();
+          while (resultSet.next()) {
+            collection.add(resultSet.getString("table_name"));
           }
+
+          return collection;
         }
+      }
     );
   }
 
@@ -147,9 +147,9 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     Validate.checkNotNull(objects);
 
     try (
-        Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection
-            .prepareStatement(query)) {
+      Connection connection = getConnection();
+      PreparedStatement preparedStatement = connection
+        .prepareStatement(query)) {
       int i = 1;
       for (Object object : objects) {
         preparedStatement.setString(i++, object.toString());
@@ -165,14 +165,14 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   public <T> T executeQuery(String query,
-      IThrowableCallback<ResultSet, T> callback, Object... objects) {
+    IThrowableCallback<ResultSet, T> callback, Object... objects) {
     Validate.checkNotNull(query);
     Validate.checkNotNull(callback);
     Validate.checkNotNull(objects);
 
     try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection
-            .prepareStatement(query)) {
+      PreparedStatement preparedStatement = connection
+        .prepareStatement(query)) {
       int i = 1;
       for (Object object : objects) {
         preparedStatement.setString(i++, object.toString());
@@ -193,7 +193,7 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
   private void removedOutdatedEntries() {
     for (Map.Entry<String, Pair<Long, MySQLDatabase>> entry : cachedDatabaseInstances
-        .entrySet()) {
+      .entrySet()) {
       if (entry.getValue().getFirst() < System.currentTimeMillis()) {
         cachedDatabaseInstances.remove(entry.getKey());
       }

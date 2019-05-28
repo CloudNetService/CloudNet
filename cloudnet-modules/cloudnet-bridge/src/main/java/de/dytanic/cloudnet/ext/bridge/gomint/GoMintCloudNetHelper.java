@@ -36,9 +36,9 @@ public final class GoMintCloudNetHelper {
   @Getter
   @Setter
   private static volatile String
-      apiMotd,
-      extra = "",
-      state = "LOBBY";
+    apiMotd,
+    extra = "",
+    state = "LOBBY";
 
   @Getter
   @Setter
@@ -74,140 +74,140 @@ public final class GoMintCloudNetHelper {
 
     if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
       CloudNetDriver.getInstance().getServiceTaskAsync(task)
-          .addListener(new ITaskListener<ServiceTask>() {
+        .addListener(new ITaskListener<ServiceTask>() {
 
-            @Override
-            public void onComplete(ITask<ServiceTask> task,
-                ServiceTask serviceTask) {
-              if (serviceTask != null) {
-                CloudNetDriver.getInstance()
-                    .createCloudServiceAsync(serviceTask)
-                    .addListener(new ITaskListener<ServiceInfoSnapshot>() {
+          @Override
+          public void onComplete(ITask<ServiceTask> task,
+            ServiceTask serviceTask) {
+            if (serviceTask != null) {
+              CloudNetDriver.getInstance()
+                .createCloudServiceAsync(serviceTask)
+                .addListener(new ITaskListener<ServiceInfoSnapshot>() {
 
-                      @Override
-                      public void onComplete(ITask<ServiceInfoSnapshot> task,
-                          ServiceInfoSnapshot serviceInfoSnapshot) {
-                        if (serviceInfoSnapshot != null) {
-                          CloudNetDriver.getInstance()
-                              .startCloudService(serviceInfoSnapshot);
-                        }
-                      }
-                    });
-              }
+                  @Override
+                  public void onComplete(ITask<ServiceInfoSnapshot> task,
+                    ServiceInfoSnapshot serviceInfoSnapshot) {
+                    if (serviceInfoSnapshot != null) {
+                      CloudNetDriver.getInstance()
+                        .startCloudService(serviceInfoSnapshot);
+                    }
+                  }
+                });
             }
-          });
+          }
+        });
     }
   }
 
   public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
     serviceInfoSnapshot.getProperties()
-        .append("Online", true)
-        .append("Version", Protocol.MINECRAFT_PE_NETWORK_VERSION)
-        .append("GoMint-Version", GoMint.instance().getVersion())
-        .append("Max-Players", maxPlayers)
-        .append("Motd", apiMotd)
-        .append("Extra", extra)
-        .append("State", state)
-        .append("TPS", GoMint.instance().getTPS());
+      .append("Online", true)
+      .append("Version", Protocol.MINECRAFT_PE_NETWORK_VERSION)
+      .append("GoMint-Version", GoMint.instance().getVersion())
+      .append("Max-Players", maxPlayers)
+      .append("Motd", apiMotd)
+      .append("Extra", extra)
+      .append("State", state)
+      .append("TPS", GoMint.instance().getTPS());
 
     if (GoMint.instance().isMainThread()) {
       serviceInfoSnapshot.getProperties()
-          .append("Online-Count", GoMint.instance().getPlayers().size())
-          .append("Players", Iterables.map(GoMint.instance().getPlayers(),
-              new Function<EntityPlayer, GoMintCloudNetPlayerInfo>() {
+        .append("Online-Count", GoMint.instance().getPlayers().size())
+        .append("Players", Iterables.map(GoMint.instance().getPlayers(),
+          new Function<EntityPlayer, GoMintCloudNetPlayerInfo>() {
 
-                @Override
-                public GoMintCloudNetPlayerInfo apply(
-                    EntityPlayer entityPlayer) {
-                  Location location = entityPlayer.getLocation();
+            @Override
+            public GoMintCloudNetPlayerInfo apply(
+              EntityPlayer entityPlayer) {
+              Location location = entityPlayer.getLocation();
 
-                  io.gomint.server.entity.EntityPlayer player = (io.gomint.server.entity.EntityPlayer) entityPlayer;
+              io.gomint.server.entity.EntityPlayer player = (io.gomint.server.entity.EntityPlayer) entityPlayer;
 
-                  return new GoMintCloudNetPlayerInfo(
-                      entityPlayer.getUUID(),
-                      entityPlayer.isOnline(),
-                      entityPlayer.getName(),
-                      entityPlayer.getDeviceInfo().getDeviceName(),
-                      entityPlayer.getXboxID(),
-                      entityPlayer.getGamemode().name(),
-                      entityPlayer.getHealth(),
-                      entityPlayer.getMaxHealth(),
-                      entityPlayer.getSaturation(),
-                      entityPlayer.getLevel(),
-                      entityPlayer.getPing(),
-                      entityPlayer.getLocale(),
-                      new WorldPosition(
-                          location.getX(),
-                          location.getY(),
-                          location.getZ(),
-                          location.getYaw(),
-                          location.getPitch(),
-                          location.getWorld().getWorldName()
-                      ),
-                      new HostAndPort(
-                          player.getConnection().getConnection().getAddress())
-                  );
-                }
-              }))
-          .append("Worlds", Iterables.map(GoMint.instance().getWorlds(),
-              new Function<World, WorldInfo>() {
-                @Override
-                public WorldInfo apply(World world) {
-                  Map<String, String> gameRules = Maps.newHashMap();
+              return new GoMintCloudNetPlayerInfo(
+                entityPlayer.getUUID(),
+                entityPlayer.isOnline(),
+                entityPlayer.getName(),
+                entityPlayer.getDeviceInfo().getDeviceName(),
+                entityPlayer.getXboxID(),
+                entityPlayer.getGamemode().name(),
+                entityPlayer.getHealth(),
+                entityPlayer.getMaxHealth(),
+                entityPlayer.getSaturation(),
+                entityPlayer.getLevel(),
+                entityPlayer.getPing(),
+                entityPlayer.getLocale(),
+                new WorldPosition(
+                  location.getX(),
+                  location.getY(),
+                  location.getZ(),
+                  location.getYaw(),
+                  location.getPitch(),
+                  location.getWorld().getWorldName()
+                ),
+                new HostAndPort(
+                  player.getConnection().getConnection().getAddress())
+              );
+            }
+          }))
+        .append("Worlds", Iterables.map(GoMint.instance().getWorlds(),
+          new Function<World, WorldInfo>() {
+            @Override
+            public WorldInfo apply(World world) {
+              Map<String, String> gameRules = Maps.newHashMap();
 
-                  for (Field field : Gamerule.class.getFields()) {
-                    if (Modifier.isStatic(field.getModifiers()) && Modifier
-                        .isFinal(field.getModifiers()) &&
-                        Modifier.isPublic(field.getModifiers())
-                        && Gamerule.class.isAssignableFrom(field.getType())) {
-                      try {
-                        field.setAccessible(true);
-                        Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
-                        gameRules.put(gameRule.getNbtName(),
-                            world.getGamerule(gameRule) + "");
+              for (Field field : Gamerule.class.getFields()) {
+                if (Modifier.isStatic(field.getModifiers()) && Modifier
+                  .isFinal(field.getModifiers()) &&
+                  Modifier.isPublic(field.getModifiers())
+                  && Gamerule.class.isAssignableFrom(field.getType())) {
+                  try {
+                    field.setAccessible(true);
+                    Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
+                    gameRules.put(gameRule.getNbtName(),
+                      world.getGamerule(gameRule) + "");
 
-                      } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                      }
-                    }
+                  } catch (IllegalAccessException e) {
+                    e.printStackTrace();
                   }
-
-                  return new WorldInfo(
-                      UUID.randomUUID(),
-                      world.getLevelName(),
-                      world.getDifficulty().name(),
-                      gameRules
-                  );
                 }
-              }))
+              }
+
+              return new WorldInfo(
+                UUID.randomUUID(),
+                world.getLevelName(),
+                world.getDifficulty().name(),
+                gameRules
+              );
+            }
+          }))
       ;
     }
   }
 
   public static NetworkConnectionInfo createNetworkConnectionInfo(
-      EntityPlayer entityPlayer) {
+    EntityPlayer entityPlayer) {
     io.gomint.server.entity.EntityPlayer player = (io.gomint.server.entity.EntityPlayer) entityPlayer;
 
     return BridgeHelper.createNetworkConnectionInfo(
-        player.getUUID(),
-        player.getName(),
-        Protocol.MINECRAFT_PE_PROTOCOL_VERSION,
-        new HostAndPort(player.getConnection().getConnection().getAddress()),
-        new HostAndPort(
-            getGoMintServer().getServerConfig().getListener().getIp(),
-            GoMint.instance().getPort()),
-        true,
-        false,
-        new NetworkServiceInfo(
-            ServiceEnvironmentType.GO_MINT,
-            Wrapper.getInstance().getServiceId().getUniqueId(),
-            Wrapper.getInstance().getServiceId().getName()
-        )
+      player.getUUID(),
+      player.getName(),
+      Protocol.MINECRAFT_PE_PROTOCOL_VERSION,
+      new HostAndPort(player.getConnection().getConnection().getAddress()),
+      new HostAndPort(
+        getGoMintServer().getServerConfig().getListener().getIp(),
+        GoMint.instance().getPort()),
+      true,
+      false,
+      new NetworkServiceInfo(
+        ServiceEnvironmentType.GO_MINT,
+        Wrapper.getInstance().getServiceId().getUniqueId(),
+        Wrapper.getInstance().getServiceId().getName()
+      )
     );
   }
 
   public static NetworkPlayerServerInfo createNetworkPlayerServerInfo(
-      EntityPlayer entityPlayer, boolean login) {
+    EntityPlayer entityPlayer, boolean login) {
     WorldPosition worldPosition;
 
     if (login) {
@@ -216,32 +216,32 @@ public final class GoMintCloudNetHelper {
       Location location = entityPlayer.getLocation();
 
       worldPosition = new WorldPosition(
-          location.getX(),
-          location.getY(),
-          location.getZ(),
-          location.getYaw(),
-          location.getPitch(),
-          location.getWorld().getWorldName()
+        location.getX(),
+        location.getY(),
+        location.getZ(),
+        location.getYaw(),
+        location.getPitch(),
+        location.getWorld().getWorldName()
       );
     }
 
     io.gomint.server.entity.EntityPlayer player = (io.gomint.server.entity.EntityPlayer) entityPlayer;
 
     return new NetworkPlayerServerInfo(
-        entityPlayer.getUUID(),
-        entityPlayer.getName(),
-        entityPlayer.getXboxID(),
-        entityPlayer.getHealth(),
-        entityPlayer.getMaxHealth(),
-        entityPlayer.getSaturation(),
-        entityPlayer.getLevel(),
-        worldPosition,
-        new HostAndPort(player.getConnection().getConnection().getAddress()),
-        new NetworkServiceInfo(
-            ServiceEnvironmentType.GO_MINT,
-            Wrapper.getInstance().getServiceId().getUniqueId(),
-            Wrapper.getInstance().getServiceId().getName()
-        )
+      entityPlayer.getUUID(),
+      entityPlayer.getName(),
+      entityPlayer.getXboxID(),
+      entityPlayer.getHealth(),
+      entityPlayer.getMaxHealth(),
+      entityPlayer.getSaturation(),
+      entityPlayer.getLevel(),
+      worldPosition,
+      new HostAndPort(player.getConnection().getConnection().getAddress()),
+      new NetworkServiceInfo(
+        ServiceEnvironmentType.GO_MINT,
+        Wrapper.getInstance().getServiceId().getUniqueId(),
+        Wrapper.getInstance().getServiceId().getName()
+      )
     );
   }
 }

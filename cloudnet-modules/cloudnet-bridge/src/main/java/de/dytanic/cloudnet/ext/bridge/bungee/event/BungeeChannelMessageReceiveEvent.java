@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class BungeeChannelMessageReceiveEvent extends
-    BungeeCloudNetEvent {
+  BungeeCloudNetEvent {
 
   @Getter
   private final String channel, message;

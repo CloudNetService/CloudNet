@@ -42,7 +42,7 @@ public final class FileUtils {
   }
 
   private static final Map<String, String> zipFileSystemProperties = Maps
-      .newHashMap();
+    .newHashMap();
 
   static {
     zipFileSystemProperties.put("create", "false");
@@ -71,15 +71,15 @@ public final class FileUtils {
   }
 
   public static void openZipFileSystem(File file,
-      IVoidThrowableCallback<FileSystem> consumer) {
+    IVoidThrowableCallback<FileSystem> consumer) {
     openZipFileSystem(file.toPath(), consumer);
   }
 
   public static void openZipFileSystem(Path path,
-      IVoidThrowableCallback<FileSystem> consumer) {
+    IVoidThrowableCallback<FileSystem> consumer) {
     try (FileSystem fileSystem = FileSystems
-        .newFileSystem(URI.create("jar:" + path.toUri()),
-            zipFileSystemProperties)) {
+      .newFileSystem(URI.create("jar:" + path.toUri()),
+        zipFileSystemProperties)) {
       consumer.call(fileSystem);
     } catch (Throwable e) {
       e.printStackTrace();
@@ -87,7 +87,7 @@ public final class FileUtils {
   }
 
   public static void copy(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+    throws IOException {
     byte[] buffer = new byte[8192];
     copy(inputStream, outputStream, buffer);
 
@@ -101,12 +101,12 @@ public final class FileUtils {
   }
 
   public static void copy(InputStream inputStream, OutputStream outputStream,
-      byte[] buffer) throws IOException {
+    byte[] buffer) throws IOException {
     copy(inputStream, outputStream, buffer, null);
   }
 
   public static void copy(InputStream inputStream, OutputStream outputStream,
-      byte[] buffer, Consumer<Integer> lengthInputListener) throws IOException {
+    byte[] buffer, Consumer<Integer> lengthInputListener) throws IOException {
     int len;
 
     while ((len = inputStream.read(buffer, 0, buffer.length)) != -1) {
@@ -124,7 +124,7 @@ public final class FileUtils {
   }
 
   public static void copy(File from, File to, byte[] buffer)
-      throws IOException {
+    throws IOException {
     copy(from.toPath(), to.toPath(), buffer);
   }
 
@@ -133,7 +133,7 @@ public final class FileUtils {
   }
 
   public static void copy(Path from, Path to, byte[] buffer)
-      throws IOException {
+    throws IOException {
     if (from == null || to == null || !Files.exists(from)) {
       return;
     }
@@ -146,19 +146,19 @@ public final class FileUtils {
     }
 
     try (InputStream inputStream = Files
-        .newInputStream(from); OutputStream outputStream = Files
-        .newOutputStream(to)) {
+      .newInputStream(from); OutputStream outputStream = Files
+      .newOutputStream(to)) {
       copy(inputStream, outputStream, buffer);
     }
   }
 
   public static void copyFilesToDirectory(File from, File to)
-      throws IOException {
+    throws IOException {
     copyFilesToDirectory(from, to, new byte[16384]);
   }
 
   public static void copyFilesToDirectory(File from, File to, byte[] buffer)
-      throws IOException {
+    throws IOException {
     if (to == null || from == null || !from.exists()) {
       return;
     }
@@ -176,16 +176,16 @@ public final class FileUtils {
 
           if (file.isDirectory()) {
             copyFilesToDirectory(file,
-                new File(to.getAbsolutePath() + "/" + file.getName()));
+              new File(to.getAbsolutePath() + "/" + file.getName()));
           } else {
             copy(file.toPath(),
-                Paths.get(to.getAbsolutePath() + "/" + file.getName()), buffer);
+              Paths.get(to.getAbsolutePath() + "/" + file.getName()), buffer);
           }
         }
       }
     } else {
       copy(from.toPath(),
-          Paths.get(to.getAbsolutePath() + "/" + from.getName()), buffer);
+        Paths.get(to.getAbsolutePath() + "/" + from.getName()), buffer);
     }
   }
 
@@ -212,7 +212,7 @@ public final class FileUtils {
   }
 
   public static Path convert(Path zipPath, Path... directories)
-      throws IOException {
+    throws IOException {
     if (directories == null) {
       return null;
     }
@@ -222,8 +222,8 @@ public final class FileUtils {
     }
 
     try (OutputStream outputStream = Files.newOutputStream(zipPath);
-        ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream,
-            StandardCharsets.UTF_8)) {
+      ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream,
+        StandardCharsets.UTF_8)) {
       for (Path dir : directories) {
         if (Files.exists(dir)) {
           convert0(zipOutputStream, dir);
@@ -241,14 +241,14 @@ public final class FileUtils {
 
     try (ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream()) {
       try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteBuffer,
-          StandardCharsets.UTF_8)) {
+        StandardCharsets.UTF_8)) {
         for (Path dir : directories) {
           if (Files.exists(dir)) {
             if (Files.isDirectory(dir)) {
               convert0(zipOutputStream, dir);
             } else {
               zipOutputStream
-                  .putNextEntry(new ZipEntry(dir.toFile().getName()));
+                .putNextEntry(new ZipEntry(dir.toFile().getName()));
               try (InputStream inputStream = Files.newInputStream(dir)) {
                 copy(inputStream, zipOutputStream);
               }
@@ -268,29 +268,29 @@ public final class FileUtils {
   }
 
   private static void convert0(ZipOutputStream zipOutputStream, Path directory)
-      throws IOException {
+    throws IOException {
     Files.walkFileTree(
-        directory,
-        EnumSet.noneOf(FileVisitOption.class),
-        Integer.MAX_VALUE,
-        new SimpleFileVisitor<Path>() {
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-              throws IOException {
-            try (InputStream inputStream = Files.newInputStream(file)) {
-              zipOutputStream.putNextEntry(
-                  new ZipEntry(directory.relativize(file).toString()));
-              copy(inputStream, zipOutputStream);
-              zipOutputStream.closeEntry();
-            } catch (Exception ex) {
-              zipOutputStream.closeEntry();
-            }
-            return FileVisitResult.CONTINUE;
+      directory,
+      EnumSet.noneOf(FileVisitOption.class),
+      Integer.MAX_VALUE,
+      new SimpleFileVisitor<Path>() {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+          throws IOException {
+          try (InputStream inputStream = Files.newInputStream(file)) {
+            zipOutputStream.putNextEntry(
+              new ZipEntry(directory.relativize(file).toString()));
+            copy(inputStream, zipOutputStream);
+            zipOutputStream.closeEntry();
+          } catch (Exception ex) {
+            zipOutputStream.closeEntry();
           }
-        });
+          return FileVisitResult.CONTINUE;
+        }
+      });
   }
 
   public static Path extract(Path zipPath, Path targetDirectory)
-      throws IOException {
+    throws IOException {
     if (zipPath == null || targetDirectory == null || !Files.exists(zipPath)) {
       return targetDirectory;
     }
@@ -303,13 +303,13 @@ public final class FileUtils {
   }
 
   public static Path extract(byte[] zipData, Path targetDirectory)
-      throws IOException {
+    throws IOException {
     if (zipData == null || zipData.length == 0 || targetDirectory == null) {
       return targetDirectory;
     }
 
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-        zipData)) {
+      zipData)) {
       extract0(byteArrayInputStream, targetDirectory);
     }
 
@@ -317,9 +317,9 @@ public final class FileUtils {
   }
 
   public static void extract0(InputStream inputStream, Path targetDirectory)
-      throws IOException {
+    throws IOException {
     try (ZipInputStream zipInputStream = new ZipInputStream(inputStream,
-        StandardCharsets.UTF_8)) {
+      StandardCharsets.UTF_8)) {
       ZipEntry zipEntry = null;
 
       while ((zipEntry = zipInputStream.getNextEntry()) != null) {
@@ -334,7 +334,7 @@ public final class FileUtils {
 
     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
       ZipOutputStream zipOutputStream = new ZipOutputStream(
-          byteArrayOutputStream, StandardCharsets.UTF_8);
+        byteArrayOutputStream, StandardCharsets.UTF_8);
       zipOutputStream.close();
 
       bytes = byteArrayOutputStream.toByteArray();
@@ -347,7 +347,7 @@ public final class FileUtils {
   }
 
   private static void extract1(ZipInputStream zipInputStream, ZipEntry zipEntry,
-      Path targetDirectory) throws IOException {
+    Path targetDirectory) throws IOException {
     Path file = Paths.get(targetDirectory.toString(), zipEntry.getName());
 
     if (zipEntry.isDirectory()) {

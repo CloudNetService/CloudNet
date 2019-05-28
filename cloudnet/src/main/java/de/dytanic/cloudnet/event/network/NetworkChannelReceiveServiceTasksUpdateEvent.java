@@ -11,14 +11,14 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public final class NetworkChannelReceiveServiceTasksUpdateEvent extends
-    NetworkEvent implements ICancelable {
+  NetworkEvent implements ICancelable {
 
   private List<ServiceTask> serviceTasks;
 
   private boolean cancelled;
 
   public NetworkChannelReceiveServiceTasksUpdateEvent(INetworkChannel channel,
-      List<ServiceTask> serviceTasks) {
+    List<ServiceTask> serviceTasks) {
     super(channel);
     this.serviceTasks = serviceTasks;
   }

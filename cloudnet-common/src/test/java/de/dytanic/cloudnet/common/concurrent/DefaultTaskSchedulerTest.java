@@ -62,7 +62,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
     Assert.assertTrue(del >= 1000);
 
     IScheduledTask<Integer> callbackTask = scheduler
-        .schedule(new CallableCounter(), 0, 1, 5);
+      .schedule(new CallableCounter(), 0, 1, 5);
     Assert.assertEquals(5, callbackTask.get().intValue());
 
     scheduler.cancelAll();

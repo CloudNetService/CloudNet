@@ -13,7 +13,7 @@ public final class StringUtil {
    * A char array of all letters from A to Z and 1 to 9
    */
   public static final char[] DEFAULT_ALPHABET_UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-      .toCharArray();
+    .toCharArray();
 
   private StringUtil() {
     throw new UnsupportedOperationException();
@@ -32,7 +32,7 @@ public final class StringUtil {
     synchronized (random) {
       for (int i = 0; i < length; i++) {
         stringBuilder.append(DEFAULT_ALPHABET_UPPERCASE[random
-            .nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
+          .nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
       }
     }
 

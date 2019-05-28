@@ -49,7 +49,7 @@ public class AsyncPrintStream extends PrintStream {
   };
 
   public AsyncPrintStream(OutputStream out)
-      throws UnsupportedEncodingException {
+    throws UnsupportedEncodingException {
     super(out, true, StandardCharsets.UTF_8.name());
   }
 

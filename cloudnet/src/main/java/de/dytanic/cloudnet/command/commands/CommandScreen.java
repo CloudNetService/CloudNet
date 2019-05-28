@@ -21,7 +21,7 @@ public final class CommandScreen extends CommandDefault {
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-      String commandLine, Properties properties) {
+    String commandLine, Properties properties) {
     if (args.length == 0) {
       sender.sendMessage("screen <local service uniqueId | name> | toggling");
       return;
@@ -33,39 +33,39 @@ public final class CommandScreen extends CommandDefault {
       if (cloudService != null) {
         if (!(sender instanceof ConsoleCommandSender)) {
           for (String input : cloudService.getServiceConsoleLogCache()
-              .getCachedLogMessages()) {
+            .getCachedLogMessages()) {
             sender.sendMessage(
-                "[" + cloudService.getServiceId().getName() + "] " + input);
+              "[" + cloudService.getServiceId().getName() + "] " + input);
           }
         } else {
           cloudService.getServiceConsoleLogCache().setAutoPrintReceivedInput(
-              !cloudService.getServiceConsoleLogCache()
-                  .isAutoPrintReceivedInput());
+            !cloudService.getServiceConsoleLogCache()
+              .isAutoPrintReceivedInput());
 
           if (cloudService.getServiceConsoleLogCache()
-              .isAutoPrintReceivedInput()) {
+            .isAutoPrintReceivedInput()) {
             for (String input : cloudService.getServiceConsoleLogCache()
-                .getCachedLogMessages()) {
+              .getCachedLogMessages()) {
               CloudNetDriver.getInstance().getLogger().log(LogLevel.IMPORTANT,
-                  "[" + cloudService.getServiceId().getName() + "] " + input);
+                "[" + cloudService.getServiceId().getName() + "] " + input);
             }
 
             sender.sendMessage(
-                LanguageManager.getMessage("command-screen-enable-for-service")
-                    .replace("%name%",
-                        cloudService.getServiceId().getName() + "")
-                    .replace("%uniqueId%",
-                        cloudService.getServiceId().getUniqueId().toString()
-                            .split("-")[0] + "")
+              LanguageManager.getMessage("command-screen-enable-for-service")
+                .replace("%name%",
+                  cloudService.getServiceId().getName() + "")
+                .replace("%uniqueId%",
+                  cloudService.getServiceId().getUniqueId().toString()
+                    .split("-")[0] + "")
             );
           } else {
             sender.sendMessage(
-                LanguageManager.getMessage("command-screen-disable-for-service")
-                    .replace("%name%",
-                        cloudService.getServiceId().getName() + "")
-                    .replace("%uniqueId%",
-                        cloudService.getServiceId().getUniqueId().toString()
-                            .split("-")[0] + "")
+              LanguageManager.getMessage("command-screen-disable-for-service")
+                .replace("%name%",
+                  cloudService.getServiceId().getName() + "")
+                .replace("%uniqueId%",
+                  cloudService.getServiceId().getUniqueId().toString()
+                    .split("-")[0] + "")
             );
           }
         }
@@ -77,36 +77,36 @@ public final class CommandScreen extends CommandDefault {
     Validate.checkNotNull(argument);
 
     ICloudService cloudService = Iterables.first(
-        CloudNet.getInstance().getCloudServiceManager().getCloudServices()
-            .values(), new Predicate<ICloudService>() {
-          @Override
-          public boolean test(ICloudService cloudService) {
-            return cloudService.getServiceId().getUniqueId().toString()
-                .toLowerCase().contains(argument.toLowerCase());
-          }
-        });
+      CloudNet.getInstance().getCloudServiceManager().getCloudServices()
+        .values(), new Predicate<ICloudService>() {
+        @Override
+        public boolean test(ICloudService cloudService) {
+          return cloudService.getServiceId().getUniqueId().toString()
+            .toLowerCase().contains(argument.toLowerCase());
+        }
+      });
 
     if (cloudService == null) {
       List<ICloudService> cloudServices = Iterables.filter(
-          CloudNet.getInstance().getCloudServiceManager().getCloudServices()
-              .values(), new Predicate<ICloudService>() {
-            @Override
-            public boolean test(ICloudService cloudService) {
-              return cloudService.getServiceId().getName().toLowerCase()
-                  .contains(argument.toLowerCase());
-            }
-          });
+        CloudNet.getInstance().getCloudServiceManager().getCloudServices()
+          .values(), new Predicate<ICloudService>() {
+          @Override
+          public boolean test(ICloudService cloudService) {
+            return cloudService.getServiceId().getName().toLowerCase()
+              .contains(argument.toLowerCase());
+          }
+        });
 
       if (!cloudServices.isEmpty()) {
         if (cloudServices.size() > 1) {
           cloudService = Iterables
-              .first(cloudServices, new Predicate<ICloudService>() {
-                @Override
-                public boolean test(ICloudService cloudService) {
-                  return cloudService.getServiceId().getName()
-                      .equalsIgnoreCase(argument);
-                }
-              });
+            .first(cloudServices, new Predicate<ICloudService>() {
+              @Override
+              public boolean test(ICloudService cloudService) {
+                return cloudService.getServiceId().getName()
+                  .equalsIgnoreCase(argument);
+              }
+            });
         } else {
           cloudService = cloudServices.get(0);
         }

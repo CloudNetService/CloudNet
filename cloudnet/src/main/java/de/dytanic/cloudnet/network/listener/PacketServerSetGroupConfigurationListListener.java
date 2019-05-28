@@ -11,27 +11,27 @@ import de.dytanic.cloudnet.event.network.NetworkChannelReceiveGroupConfiguration
 import java.util.List;
 
 public final class PacketServerSetGroupConfigurationListListener implements
-    IPacketListener {
+  IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("groups") && packet.getHeader()
-        .contains("set")) {
+      .contains("set")) {
       List<GroupConfiguration> groupConfigurations = packet.getHeader()
-          .get("groups", new TypeToken<List<GroupConfiguration>>() {
-          }.getType());
+        .get("groups", new TypeToken<List<GroupConfiguration>>() {
+        }.getType());
 
       if (groupConfigurations != null) {
         NetworkChannelReceiveGroupConfigurationsUpdateEvent event = new NetworkChannelReceiveGroupConfigurationsUpdateEvent(
-            channel, groupConfigurations);
+          channel, groupConfigurations);
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
         if (!event.isCancelled()) {
           CloudNet.getInstance().getCloudServiceManager()
-              .setGroupConfigurations(
-                  event.getGroupConfigurations() != null ? event
-                      .getGroupConfigurations() : groupConfigurations
-              );
+            .setGroupConfigurations(
+              event.getGroupConfigurations() != null ? event
+                .getGroupConfigurations() : groupConfigurations
+            );
         }
       }
     }

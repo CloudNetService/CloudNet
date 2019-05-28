@@ -24,7 +24,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   public <T, E extends T> IServicesRegistry registerService(Class<T> clazz,
-      String name, E service) {
+    String name, E service) {
     if (clazz == null || name == null || service == null) {
       return this;
     }
@@ -44,7 +44,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   public <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz,
-      Class<E> serviceClazz) {
+    Class<E> serviceClazz) {
     if (clazz == null || serviceClazz == null) {
       return this;
     }
@@ -71,7 +71,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   public <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz,
-      E service) {
+    E service) {
     if (clazz == null || service == null) {
       return this;
     }

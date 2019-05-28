@@ -11,14 +11,14 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, IPacket packet,
-      ByteBuf byteBuf) {
+    ByteBuf byteBuf) {
     //Writing the channelId
     NettyUtils.writeVarInt(byteBuf, packet.getChannel());
 
     //Writing the uniqueId
     NettyUtils.writeString(byteBuf,
-        packet.getUniqueId() != null ? packet.getUniqueId().toString()
-            : UUID.randomUUID().toString());
+      packet.getUniqueId() != null ? packet.getUniqueId().toString()
+        : UUID.randomUUID().toString());
 
     byte[] data;
 

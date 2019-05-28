@@ -29,173 +29,173 @@ public final class SignConfigurationReaderAndWriter {
 
     if (!document.contains("config")) {
       write(new SignConfiguration(
-          Collections.singletonList(new SignConfigurationEntry(
-              "Lobby",
-              true,
-              Collections.singletonList(new SignConfigurationTaskEntry(
-                  "Template_Group_Layout",
-                  new SignLayout(
-                      new String[]{
-                          "&eLobby &0- &e%task_id%",
-                          "&8[&eLOBBY&8]",
-                          "%online_players% / %max_players%",
-                          "%motd%"
-                      },
-                      "GOLD_BLOCK",
-                      0
-                  ),
-                  new SignLayout(
-                      new String[]{
-                          "&7Lobby &0- &7%task_id%",
-                          "&8[&7LOBBY&8]",
-                          "%online_players% / %max_players%",
-                          "%motd%"
-                      },
-                      "GOLD_BLOCK",
-                      0
-                  ),
-                  new SignLayout(
-                      new String[]{
-                          "&6Lobby &0- &6%task_id%",
-                          "&8[&6PRIME&8]",
-                          "%online_players% / %max_players%",
-                          "%motd%"
-                      },
-                      "EMERALD_BLOCK",
-                      0
-                  )
-              )),
-              new SignLayout(
-                  new String[]{
-                      "-* %name% *-",
-                      "&8[&eLOBBY&8]",
-                      "%online_players% / %max_players%",
-                      "%motd%"
-                  },
-                  "GOLD_BLOCK",
-                  0
-              ),
-              new SignLayout(
-                  new String[]{
-                      "-* %name% *-",
-                      "&8[&7LOBBY&8]",
-                      "%online_players% / %max_players%",
-                      "%motd%"
-                  },
-                  "GOLD_BLOCK",
-                  0
-              ),
-              new SignLayout(
-                  new String[]{
-                      "-* %name% *-",
-                      "&8[&6PRIME&8]",
-                      "%online_players% / %max_players%",
-                      "%motd%"
-                  },
-                  "EMERALD_BLOCK",
-                  0
-              ),
-              new SignLayoutConfiguration(
-                  Arrays.asList(
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Server",
-                              "starting",
-                              ""
-                          },
-                          "BEDROCK",
-                          0
-                      ),
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Server",
-                              "starting .",
-                              ""
-                          },
-                          "BEDROCK",
-                          0
-                      ),
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Server",
-                              "starting ..",
-                              ""
-                          },
-                          "BEDROCK",
-                          0
-                      ),
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Server",
-                              "starting ...",
-                              ""
-                          },
-                          "BEDROCK",
-                          0
-                      )
-                  ),
-                  2
-              ),
-              new SignLayoutConfiguration(
-                  Arrays.asList(
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Waiting for",
-                              "server",
-                              ""
-                          },
-                          "REDSTONE_BLOCK",
-                          0
-                      ),
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Waiting for",
-                              "server .",
-                              ""
-                          },
-                          "REDSTONE_BLOCK",
-                          0
-                      ),
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Waiting for",
-                              "server ..",
-                              ""
-                          },
-                          "REDSTONE_BLOCK",
-                          0
-                      ),
-                      new SignLayout(
-                          new String[]{
-                              "",
-                              "Waiting for",
-                              "server ...",
-                              ""
-                          },
-                          "REDSTONE_BLOCK",
-                          0
-                      )
-                  ),
-                  2
-              )
+        Collections.singletonList(new SignConfigurationEntry(
+          "Lobby",
+          true,
+          Collections.singletonList(new SignConfigurationTaskEntry(
+            "Template_Group_Layout",
+            new SignLayout(
+              new String[]{
+                "&eLobby &0- &e%task_id%",
+                "&8[&eLOBBY&8]",
+                "%online_players% / %max_players%",
+                "%motd%"
+              },
+              "GOLD_BLOCK",
+              0
+            ),
+            new SignLayout(
+              new String[]{
+                "&7Lobby &0- &7%task_id%",
+                "&8[&7LOBBY&8]",
+                "%online_players% / %max_players%",
+                "%motd%"
+              },
+              "GOLD_BLOCK",
+              0
+            ),
+            new SignLayout(
+              new String[]{
+                "&6Lobby &0- &6%task_id%",
+                "&8[&6PRIME&8]",
+                "%online_players% / %max_players%",
+                "%motd%"
+              },
+              "EMERALD_BLOCK",
+              0
+            )
           )),
-          Maps.of(
-              new Pair<>("server-connecting-message",
-                  "&7You will send to &c%server%&7..."),
-              new Pair<>("command-cloudsign-create-success",
-                  "&7The target sign with the target group &6%group% &7is successfully created."),
-              new Pair<>("command-cloudsign-remove-success",
-                  "&7The target sign will removed! Please wait..."),
-              new Pair<>("command-cloudsign-sign-already-exist",
-                  "&7The sign is already set. If you want to remove that, use the /cloudsign remove command")
+          new SignLayout(
+            new String[]{
+              "-* %name% *-",
+              "&8[&eLOBBY&8]",
+              "%online_players% / %max_players%",
+              "%motd%"
+            },
+            "GOLD_BLOCK",
+            0
+          ),
+          new SignLayout(
+            new String[]{
+              "-* %name% *-",
+              "&8[&7LOBBY&8]",
+              "%online_players% / %max_players%",
+              "%motd%"
+            },
+            "GOLD_BLOCK",
+            0
+          ),
+          new SignLayout(
+            new String[]{
+              "-* %name% *-",
+              "&8[&6PRIME&8]",
+              "%online_players% / %max_players%",
+              "%motd%"
+            },
+            "EMERALD_BLOCK",
+            0
+          ),
+          new SignLayoutConfiguration(
+            Arrays.asList(
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Server",
+                  "starting",
+                  ""
+                },
+                "BEDROCK",
+                0
+              ),
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Server",
+                  "starting .",
+                  ""
+                },
+                "BEDROCK",
+                0
+              ),
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Server",
+                  "starting ..",
+                  ""
+                },
+                "BEDROCK",
+                0
+              ),
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Server",
+                  "starting ...",
+                  ""
+                },
+                "BEDROCK",
+                0
+              )
+            ),
+            2
+          ),
+          new SignLayoutConfiguration(
+            Arrays.asList(
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Waiting for",
+                  "server",
+                  ""
+                },
+                "REDSTONE_BLOCK",
+                0
+              ),
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Waiting for",
+                  "server .",
+                  ""
+                },
+                "REDSTONE_BLOCK",
+                0
+              ),
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Waiting for",
+                  "server ..",
+                  ""
+                },
+                "REDSTONE_BLOCK",
+                0
+              ),
+              new SignLayout(
+                new String[]{
+                  "",
+                  "Waiting for",
+                  "server ...",
+                  ""
+                },
+                "REDSTONE_BLOCK",
+                0
+              )
+            ),
+            2
           )
+        )),
+        Maps.of(
+          new Pair<>("server-connecting-message",
+            "&7You will send to &c%server%&7..."),
+          new Pair<>("command-cloudsign-create-success",
+            "&7The target sign with the target group &6%group% &7is successfully created."),
+          new Pair<>("command-cloudsign-remove-success",
+            "&7The target sign will removed! Please wait..."),
+          new Pair<>("command-cloudsign-sign-already-exist",
+            "&7The sign is already set. If you want to remove that, use the /cloudsign remove command")
+        )
       ), file);
 
       document = JsonDocument.newDocument(file);

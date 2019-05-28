@@ -23,20 +23,20 @@ public final class NukkitCloudNetBridgePlugin extends PluginBase {
   public synchronized void onDisable() {
     HandlerList.unregisterAll(this);
     CloudNetDriver.getInstance().getEventManager()
-        .unregisterListeners(this.getClass().getClassLoader());
+      .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-        this.getClass().getClassLoader());
+      this.getClass().getClassLoader());
   }
 
   private void initListeners() {
     //NukkitAPI
     Server.getInstance().getPluginManager()
-        .registerEvents(new NukkitPlayerListener(), this);
+      .registerEvents(new NukkitPlayerListener(), this);
 
     //CloudNet
     CloudNetDriver.getInstance().getEventManager()
-        .registerListener(new NukkitCloudNetListener());
+      .registerListener(new NukkitCloudNetListener());
     CloudNetDriver.getInstance().getEventManager()
-        .registerListener(new BridgeCustomChannelMessageListener());
+      .registerListener(new BridgeCustomChannelMessageListener());
   }
 }

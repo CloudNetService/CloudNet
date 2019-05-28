@@ -15,19 +15,19 @@ import org.junit.Test;
 public class NettyNetworkClientServerTest {
 
   private boolean
-      connectedClient = false,
-      connectedServer = false;
+    connectedClient = false,
+    connectedServer = false;
 
   private volatile String
-      cliPacketServerReceive = null,
-      cliPacketClientReceive = null;
+    cliPacketServerReceive = null,
+    cliPacketClientReceive = null;
 
   @Test
   public void testNettyConnectorServer() throws Throwable {
     INetworkServer networkServer = new NettyNetworkServer(
-        NetworkChannelServerHandler::new);
+      NetworkChannelServerHandler::new);
     INetworkClient networkClient = new NettyNetworkClient(
-        NetworkChannelClientHandler::new);
+      NetworkChannelClientHandler::new);
 
     networkClient.getPacketRegistry().addListener(6, new PacketListenerImpl());
     networkServer.getPacketRegistry().addListener(6, new PacketListenerImpl());
@@ -45,9 +45,9 @@ public class NettyNetworkClientServerTest {
     Assert.assertEquals(1, networkServer.getChannels().size());
 
     networkServer
-        .sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
+      .sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
     networkClient
-        .sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
+      .sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
 
     Thread.sleep(50);
 
@@ -65,7 +65,7 @@ public class NettyNetworkClientServerTest {
   }
 
   private final class NetworkChannelClientHandler implements
-      INetworkChannelHandler {
+    INetworkChannelHandler {
 
     @Override
     public void handleChannelInitialize(INetworkChannel channel) {
@@ -86,7 +86,7 @@ public class NettyNetworkClientServerTest {
   }
 
   private final class NetworkChannelServerHandler implements
-      INetworkChannelHandler {
+    INetworkChannelHandler {
 
     @Override
     public void handleChannelInitialize(INetworkChannel channel) {

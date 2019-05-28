@@ -29,11 +29,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
   }.getType();
 
   private static final Map<String, String> defaultRepositories = Maps.of(
-      new Pair<>("maven", "http://central.maven.org/maven2/")
+    new Pair<>("maven", "http://central.maven.org/maven2/")
   );
 
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
-      .create();
+    .create();
 
   private static final String MODULE_CONFIG_PATH = "module.json";
 
@@ -59,10 +59,10 @@ public class DefaultModuleWrapper implements IModuleWrapper {
   private JsonDocument moduleConfigurationSource;
 
   private final EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks = Maps
-      .newEnumMap(ModuleLifeCycle.class);
+    .newEnumMap(ModuleLifeCycle.class);
 
   public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url)
-      throws Exception {
+    throws Exception {
     Validate.checkNotNull(url);
     Validate.checkNotNull(moduleProvider);
 
@@ -81,20 +81,20 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     //Document moduleConfigurationSource;
 
     try (FinalizeURLClassLoader classLoader = new FinalizeURLClassLoader(url);
-        InputStream inputStream = classLoader
-            .getResourceAsStream(MODULE_CONFIG_PATH)) {
+      InputStream inputStream = classLoader
+        .getResourceAsStream(MODULE_CONFIG_PATH)) {
       if (inputStream == null) {
         throw new ModuleConfigurationNotFoundException(url);
       }
 
       try (InputStreamReader reader = new InputStreamReader(inputStream,
-          StandardCharsets.UTF_8)) {
+        StandardCharsets.UTF_8)) {
         JsonObject jsonObject = new JsonParser().parse(reader)
-            .getAsJsonObject();
+          .getAsJsonObject();
 
         moduleConfigurationSource = new JsonDocument(jsonObject);
         moduleConfiguration = GSON
-            .fromJson(jsonObject, MODULE_CONFIGURATION_TYPE);
+          .fromJson(jsonObject, MODULE_CONFIGURATION_TYPE);
       }
     }
 
@@ -123,51 +123,51 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     if (moduleConfiguration.getRepos() != null) {
       for (ModuleRepository moduleRepository : moduleConfiguration.getRepos()) {
         if (moduleRepository.getName() != null
-            && moduleRepository.getUrl() != null) {
+          && moduleRepository.getUrl() != null) {
           repositories.put(moduleRepository.getName(),
-              moduleRepository.getUrl().endsWith("/") ? moduleRepository
-                  .getUrl() : moduleRepository.getUrl() + "/");
+            moduleRepository.getUrl().endsWith("/") ? moduleRepository
+              .getUrl() : moduleRepository.getUrl() + "/");
         }
       }
     }
 
     if (moduleConfiguration.getDependencies() != null) {
       for (ModuleDependency moduleDependency : moduleConfiguration
-          .getDependencies()) {
+        .getDependencies()) {
         if (moduleDependency.getGroup() != null
-            && moduleDependency.getName() != null
-            && moduleDependency.getVersion() != null) {
+          && moduleDependency.getName() != null
+          && moduleDependency.getVersion() != null) {
           if (moduleDependency.getUrl() != null) {
             if (moduleProvider.getModuleProviderHandler() != null) {
               moduleProvider.getModuleProviderHandler()
-                  .handlePreInstallDependency(this, moduleDependency);
+                .handlePreInstallDependency(this, moduleDependency);
             }
 
             urls.add(moduleProvider.getModuleDependencyLoader()
-                .loadModuleDependencyByUrl(moduleConfiguration,
-                    moduleDependency, repositories));
+              .loadModuleDependencyByUrl(moduleConfiguration,
+                moduleDependency, repositories));
 
             if (moduleProvider.getModuleProviderHandler() != null) {
               moduleProvider.getModuleProviderHandler()
-                  .handlePostInstallDependency(this, moduleDependency);
+                .handlePostInstallDependency(this, moduleDependency);
             }
             continue;
           }
 
           if (moduleDependency.getRepo() != null && repositories
-              .containsKey(moduleDependency.getRepo())) {
+            .containsKey(moduleDependency.getRepo())) {
             if (moduleProvider.getModuleProviderHandler() != null) {
               moduleProvider.getModuleProviderHandler()
-                  .handlePreInstallDependency(this, moduleDependency);
+                .handlePreInstallDependency(this, moduleDependency);
             }
 
             urls.add(moduleProvider.getModuleDependencyLoader()
-                .loadModuleDependencyByRepository(moduleConfiguration,
-                    moduleDependency, repositories));
+              .loadModuleDependencyByRepository(moduleConfiguration,
+                moduleDependency, repositories));
 
             if (moduleProvider.getModuleProviderHandler() != null) {
               moduleProvider.getModuleProviderHandler()
-                  .handlePostInstallDependency(this, moduleDependency);
+                .handlePostInstallDependency(this, moduleDependency);
             }
           }
         }
@@ -189,10 +189,10 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     for (Method method : clazz.getDeclaredMethods()) {
       if (method.getParameterCount() == 0 && method
-          .isAnnotationPresent(ModuleTask.class)) {
+        .isAnnotationPresent(ModuleTask.class)) {
         ModuleTask moduleTask = method.getAnnotation(ModuleTask.class);
         this.moduleTasks.get(moduleTask.event())
-            .add(new DefaultModuleTaskEntry(this, moduleTask, method));
+          .add(new DefaultModuleTaskEntry(this, moduleTask, method));
       }
     }
   }
@@ -219,35 +219,35 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     this.loadModule();
 
     if (moduleLifeCycle == ModuleLifeCycle.LOADED
-        || moduleLifeCycle == ModuleLifeCycle.STOPPED) {
+      || moduleLifeCycle == ModuleLifeCycle.STOPPED) {
       moduleProvider.getModuleProviderHandler().handlePreModuleStart(this);
       if (this.moduleConfiguration.getDependencies() != null) {
         for (ModuleDependency moduleDependency : this.moduleConfiguration
-            .getDependencies()) {
+          .getDependencies()) {
           if (moduleDependency != null && moduleDependency.getGroup() != null
-              && moduleDependency.getName() != null &&
-              moduleDependency.getVersion() != null
-              && moduleDependency.getRepo() == null &&
-              moduleDependency.getUrl() == null) {
+            && moduleDependency.getName() != null &&
+            moduleDependency.getVersion() != null
+            && moduleDependency.getRepo() == null &&
+            moduleDependency.getUrl() == null) {
             IModuleWrapper moduleWrapper = Iterables
-                .first(this.getModuleProvider().getModules(),
-                    new Predicate<IModuleWrapper>() {
-                      @Override
-                      public boolean test(IModuleWrapper module) {
-                        return module.getModuleConfiguration().getGroup()
-                            .equals(moduleDependency.getGroup()) &&
-                            module.getModuleConfiguration().getName()
-                                .equals(moduleDependency.getName());
-                      }
-                    });
+              .first(this.getModuleProvider().getModules(),
+                new Predicate<IModuleWrapper>() {
+                  @Override
+                  public boolean test(IModuleWrapper module) {
+                    return module.getModuleConfiguration().getGroup()
+                      .equals(moduleDependency.getGroup()) &&
+                      module.getModuleConfiguration().getName()
+                        .equals(moduleDependency.getName());
+                  }
+                });
 
             if (moduleWrapper != null) {
               moduleWrapper.startModule();
             } else {
               new ModuleDependencyNotFoundException(
-                  "Module Dependency for " + moduleDependency.getGroup() + ":"
-                      + moduleDependency.getName() +
-                      ":" + moduleDependency.getVersion()).printStackTrace();
+                "Module Dependency for " + moduleDependency.getGroup() + ":"
+                  + moduleDependency.getName() +
+                  ":" + moduleDependency.getVersion()).printStackTrace();
               return this;
             }
           }
@@ -265,7 +265,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
   @Override
   public IModuleWrapper stopModule() {
     if (moduleLifeCycle == ModuleLifeCycle.STARTED
-        || moduleLifeCycle == ModuleLifeCycle.LOADED) {
+      || moduleLifeCycle == ModuleLifeCycle.LOADED) {
       moduleProvider.getModuleProviderHandler().handlePreModuleStop(this);
       fireTasks(this.moduleTasks.get(ModuleLifeCycle.STOPPED));
       moduleProvider.getModuleProviderHandler().handlePostModuleStop(this);

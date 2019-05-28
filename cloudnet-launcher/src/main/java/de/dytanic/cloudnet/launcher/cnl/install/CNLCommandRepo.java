@@ -14,7 +14,7 @@ public class CNLCommandRepo extends CNLCommand {
 
   @Override
   public void execute(Map<String, String> variables, String commandLine,
-      String... args) throws Exception {
+    String... args) throws Exception {
     if (args.length == 2) {
       this.repositories.put(args[0], args[1]);
     }

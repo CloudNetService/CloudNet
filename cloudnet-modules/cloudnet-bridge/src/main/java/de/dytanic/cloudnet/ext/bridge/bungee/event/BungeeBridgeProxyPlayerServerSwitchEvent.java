@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class BungeeBridgeProxyPlayerServerSwitchEvent extends
-    BungeeBridgeEvent {
+  BungeeBridgeEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

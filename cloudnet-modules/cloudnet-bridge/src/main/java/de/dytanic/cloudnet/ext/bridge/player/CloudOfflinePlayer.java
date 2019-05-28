@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements
-    ICloudOfflinePlayer {
+  ICloudOfflinePlayer {
 
   public static final Type TYPE = new TypeToken<CloudOfflinePlayer>() {
   }.getType();
@@ -35,12 +35,12 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements
     Validate.checkNotNull(cloudPlayer);
 
     CloudOfflinePlayer cloudOfflinePlayer = new CloudOfflinePlayer(
-        cloudPlayer.getUniqueId(),
-        cloudPlayer.getName(),
-        cloudPlayer.getXBoxId(),
-        cloudPlayer.getFirstLoginTimeMillis(),
-        cloudPlayer.getLastLoginTimeMillis(),
-        cloudPlayer.getLastNetworkConnectionInfo()
+      cloudPlayer.getUniqueId(),
+      cloudPlayer.getName(),
+      cloudPlayer.getXBoxId(),
+      cloudPlayer.getFirstLoginTimeMillis(),
+      cloudPlayer.getLastLoginTimeMillis(),
+      cloudPlayer.getLastNetworkConnectionInfo()
     );
 
     cloudOfflinePlayer.setProperties(cloudPlayer.getProperties());

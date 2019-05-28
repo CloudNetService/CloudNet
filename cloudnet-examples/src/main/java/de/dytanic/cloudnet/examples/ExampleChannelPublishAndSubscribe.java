@@ -9,11 +9,11 @@ public final class ExampleChannelPublishAndSubscribe {
 
   public void publishMessage() {
     CloudNetDriver.getInstance()
-        .sendChannelMessage("user_channel", "user_info_publishing",
-            new JsonDocument()
-                .append("name", "Peter Parker")
-                .append("age", 17)
-        );
+      .sendChannelMessage("user_channel", "user_info_publishing",
+        new JsonDocument()
+          .append("name", "Peter Parker")
+          .append("age", 17)
+      );
     //Send a channel message to all services and nodes in network
   }
 
@@ -24,8 +24,8 @@ public final class ExampleChannelPublishAndSubscribe {
         case "user_info_publishing":
 
           System.out.println(
-              "Name: " + event.getData().getString("name") + " | Age: " + event
-                  .getData().getInt("age"));
+            "Name: " + event.getData().getString("name") + " | Age: " + event
+              .getData().getInt("age"));
           break;
       }
     }

@@ -20,7 +20,7 @@ public final class QueuedConsoleLogHandler implements ILogHandler {
    * print into the console
    */
   private final Queue<LogEntry> cachedQueuedLogEntries = Iterables
-      .newConcurrentLinkedQueue();
+    .newConcurrentLinkedQueue();
 
   @Override
   public void handle(LogEntry logEntry) {
@@ -31,7 +31,7 @@ public final class QueuedConsoleLogHandler implements ILogHandler {
     }
 
     CloudNetDriver.getInstance().getEventManager()
-        .callEvent(new LoggingEntryEvent(logEntry));
+      .callEvent(new LoggingEntryEvent(logEntry));
   }
 
   @Override

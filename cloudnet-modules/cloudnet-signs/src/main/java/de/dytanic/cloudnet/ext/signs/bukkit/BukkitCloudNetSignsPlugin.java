@@ -29,9 +29,9 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
   @Override
   public void onDisable() {
     CloudNetDriver.getInstance().getEventManager()
-        .unregisterListeners(getClassLoader());
+      .unregisterListeners(getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-        this.getClass().getClassLoader());
+      this.getClass().getClassLoader());
   }
 
   private void initListeners() {
@@ -40,14 +40,14 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
     getCommand("cloudsign").setPermission("cloudnet.command.cloudsign");
     getCommand("cloudsign").setUsage("/cloudsign create <targetGroup>");
     getCommand("cloudsign").setDescription(
-        "Add or Removes signs from the provided Group configuration");
+      "Add or Removes signs from the provided Group configuration");
 
     //CloudNet listeners
     CloudNetDriver.getInstance().getEventManager()
-        .registerListener(new BukkitCloudNetSignListener());
+      .registerListener(new BukkitCloudNetSignListener());
 
     //Bukkit listeners
     Bukkit.getPluginManager()
-        .registerEvents(new BukkitSignInteractionListener(), this);
+      .registerEvents(new BukkitSignInteractionListener(), this);
   }
 }

@@ -32,7 +32,7 @@ public class CNLInterpreter {
 
 
   public static void runInterpreter(Path path, Map<String, String> variables)
-      throws Exception {
+    throws Exception {
     runInterpreter(path.toFile(), variables);
   }
 
@@ -43,7 +43,7 @@ public class CNLInterpreter {
 
 
   public static void runInterpreter(File file, Map<String, String> variables)
-      throws Exception {
+    throws Exception {
     try (InputStream inputStream = new FileInputStream(file)) {
       runInterpreter(inputStream, variables);
     }
@@ -56,25 +56,25 @@ public class CNLInterpreter {
 
 
   public static void runInterpreter(InputStream inputStream,
-      Map<String, String> variables) throws Exception {
+    Map<String, String> variables) throws Exception {
     try (InputStreamReader inputStreamReader = new InputStreamReader(
-        inputStream, StandardCharsets.UTF_8)) {
+      inputStream, StandardCharsets.UTF_8)) {
       runInterpreter(inputStreamReader, variables);
     }
   }
 
 
   public static void runInterpreter(InputStreamReader inputStreamReader)
-      throws Exception {
+    throws Exception {
     runInterpreter(inputStreamReader, new HashMap<>());
   }
 
 
   public static void runInterpreter(InputStreamReader inputStreamReader,
-      Map<String, String> variables) throws Exception {
+    Map<String, String> variables) throws Exception {
 
     try (BufferedReader bufferedReader = new BufferedReader(
-        inputStreamReader)) {
+      inputStreamReader)) {
 
       String commandLine;
       while ((commandLine = bufferedReader.readLine()) != null) {
@@ -85,9 +85,9 @@ public class CNLInterpreter {
 
 
   public static void runCommand(Map<String, String> variables,
-      String commandLine) throws CNLCommandExecuteException {
+    String commandLine) throws CNLCommandExecuteException {
     if (commandLine.startsWith(" ") || commandLine.startsWith("#")
-        || commandLine.trim().isEmpty()) {
+      || commandLine.trim().isEmpty()) {
       return;
     }
 
@@ -102,7 +102,7 @@ public class CNLInterpreter {
         args = new String[0];
       } else {
         List<String> list = Arrays
-            .asList(commandLine.replaceFirst(name + " ", "").split(" "));
+          .asList(commandLine.replaceFirst(name + " ", "").split(" "));
         list.replaceAll(new UnaryOperator<String>() {
 
           @Override

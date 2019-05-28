@@ -14,20 +14,20 @@ public final class IncludePluginListener {
   @EventListener
   public void handle(CloudServicePreStartEvent event) {
     if (!event.getCloudService().getServiceConfiguration().getServiceId()
-        .getEnvironment().isMinecraftJavaServer()) {
+      .getEnvironment().isMinecraftJavaServer()) {
       return;
     }
 
     SignConfigurationEntry signConfigurationEntry = Iterables.first(
-        CloudNetSignsModule.getInstance().getSignConfiguration()
-            .getConfigurations(),
-        new Predicate<SignConfigurationEntry>() {
-          @Override
-          public boolean test(SignConfigurationEntry signConfigurationEntry) {
-            return Iterables.contains(signConfigurationEntry.getTargetGroup(),
-                event.getCloudService().getServiceConfiguration().getGroups());
-          }
-        });
+      CloudNetSignsModule.getInstance().getSignConfiguration()
+        .getConfigurations(),
+      new Predicate<SignConfigurationEntry>() {
+        @Override
+        public boolean test(SignConfigurationEntry signConfigurationEntry) {
+          return Iterables.contains(signConfigurationEntry.getTargetGroup(),
+            event.getCloudService().getServiceConfiguration().getGroups());
+        }
+      });
 
     if (signConfigurationEntry == null) {
       return;
@@ -35,16 +35,16 @@ public final class IncludePluginListener {
 
     new File(event.getCloudService().getDirectory(), "plugins").mkdirs();
     File file = new File(event.getCloudService().getDirectory(),
-        "plugins/cloudnet-signs.jar");
+      "plugins/cloudnet-signs.jar");
     file.delete();
 
     if (DefaultModuleHelper
-        .copyCurrentModuleInstanceFromClass(IncludePluginListener.class,
-            file)) {
+      .copyCurrentModuleInstanceFromClass(IncludePluginListener.class,
+        file)) {
       DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
-          IncludePluginListener.class,
-          event.getCloudService().getServiceConfiguration().getProcessConfig()
-              .getEnvironment(), file);
+        IncludePluginListener.class,
+        event.getCloudService().getServiceConfiguration().getProcessConfig()
+          .getEnvironment(), file);
     }
   }
 }

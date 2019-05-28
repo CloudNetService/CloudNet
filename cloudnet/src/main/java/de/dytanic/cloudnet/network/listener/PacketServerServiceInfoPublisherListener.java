@@ -20,17 +20,17 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class PacketServerServiceInfoPublisherListener implements
-    IPacketListener {
+  IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("serviceInfoSnapshot") && packet.getHeader()
-        .contains("type")) {
+      .contains("type")) {
       ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader()
-          .get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
+        .get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
       PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet
-          .getHeader().get("type",
-              PacketClientServerServiceInfoPublisher.PublisherType.class);
+        .getHeader().get("type",
+          PacketClientServerServiceInfoPublisher.PublisherType.class);
 
       if (serviceInfoSnapshot == null || publisherType == null) {
         return;
@@ -40,44 +40,44 @@ public final class PacketServerServiceInfoPublisherListener implements
         case UPDATE:
           invokeEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
           getGlobalServiceInfoSnapshots()
-              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                  serviceInfoSnapshot);
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              serviceInfoSnapshot);
           break;
         case REGISTER:
           invokeEvent(new CloudServiceRegisterEvent(serviceInfoSnapshot));
           getGlobalServiceInfoSnapshots()
-              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                  serviceInfoSnapshot);
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              serviceInfoSnapshot);
           break;
         case CONNECTED:
           invokeEvent(new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
           getGlobalServiceInfoSnapshots()
-              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                  serviceInfoSnapshot);
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              serviceInfoSnapshot);
           break;
         case DISCONNECTED:
           invokeEvent(
-              new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
+            new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
           getGlobalServiceInfoSnapshots()
-              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                  serviceInfoSnapshot);
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              serviceInfoSnapshot);
           break;
         case UNREGISTER:
           invokeEvent(new CloudServiceUnregisterEvent(serviceInfoSnapshot));
           getGlobalServiceInfoSnapshots()
-              .remove(serviceInfoSnapshot.getServiceId().getUniqueId());
+            .remove(serviceInfoSnapshot.getServiceId().getUniqueId());
           break;
         case STARTED:
           invokeEvent(new CloudServiceStartEvent(serviceInfoSnapshot));
           getGlobalServiceInfoSnapshots()
-              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                  serviceInfoSnapshot);
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              serviceInfoSnapshot);
           break;
         case STOPPED:
           invokeEvent(new CloudServiceStopEvent(serviceInfoSnapshot));
           getGlobalServiceInfoSnapshots()
-              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                  serviceInfoSnapshot);
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              serviceInfoSnapshot);
           break;
       }
 
@@ -91,17 +91,17 @@ public final class PacketServerServiceInfoPublisherListener implements
 
   private Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots() {
     return CloudNet.getInstance().getCloudServiceManager()
-        .getGlobalServiceInfoSnapshots();
+      .getGlobalServiceInfoSnapshots();
   }
 
   private void sendUpdateToAllServices(ServiceInfoSnapshot serviceInfoSnapshot,
-      PacketClientServerServiceInfoPublisher.PublisherType type) {
+    PacketClientServerServiceInfoPublisher.PublisherType type) {
     for (ICloudService cloudService : CloudNet.getInstance()
-        .getCloudServiceManager().getCloudServices().values()) {
+      .getCloudServiceManager().getCloudServices().values()) {
       if (cloudService.getNetworkChannel() != null) {
         cloudService.getNetworkChannel().sendPacket(
-            new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot,
-                type));
+          new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot,
+            type));
       }
     }
   }

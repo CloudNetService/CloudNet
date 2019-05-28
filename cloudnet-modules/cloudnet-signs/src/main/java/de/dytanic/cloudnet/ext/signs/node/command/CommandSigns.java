@@ -19,15 +19,15 @@ public final class CommandSigns extends Command {
     this.permission = "cloudnet.console.command.signs";
     this.prefix = "cloudnet-signs";
     this.description = LanguageManager
-        .getMessage("module-signs-command-signs-description");
+      .getMessage("module-signs-command-signs-description");
   }
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-      String commandLine, Properties properties) {
+    String commandLine, Properties properties) {
     if (args.length == 0) {
       sender.sendMessage(
-          "signs reload"
+        "signs reload"
       );
 
       return;
@@ -35,19 +35,19 @@ public final class CommandSigns extends Command {
 
     if (args[0].equalsIgnoreCase("reload")) {
       CloudNetSignsModule.getInstance()
-          .setSignConfiguration(SignConfigurationReaderAndWriter.read(
-              CloudNetSignsModule.getInstance().getConfigurationFile()
-          ));
+        .setSignConfiguration(SignConfigurationReaderAndWriter.read(
+          CloudNetSignsModule.getInstance().getConfigurationFile()
+        ));
 
       CloudNetDriver.getInstance().sendChannelMessage(
-          SignConstants.SIGN_CHANNEL_NAME,
-          SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-          new JsonDocument("signConfiguration",
-              CloudNetSignsModule.getInstance().getSignConfiguration())
+        SignConstants.SIGN_CHANNEL_NAME,
+        SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
+        new JsonDocument("signConfiguration",
+          CloudNetSignsModule.getInstance().getSignConfiguration())
       );
 
       sender.sendMessage(
-          LanguageManager.getMessage("module-signs-command-reload-success"));
+        LanguageManager.getMessage("module-signs-command-reload-success"));
     }
   }
 }

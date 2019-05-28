@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 public final class NetworkChannelReceiveCallablePacketEvent extends
-    NetworkEvent {
+  NetworkEvent {
 
   private final String channelName;
 
@@ -24,7 +24,7 @@ public final class NetworkChannelReceiveCallablePacketEvent extends
   private IPacket callbackPacket;
 
   public NetworkChannelReceiveCallablePacketEvent(INetworkChannel channel,
-      UUID uniqueId, String channelName, String id, JsonDocument header) {
+    UUID uniqueId, String channelName, String id, JsonDocument header) {
     super(channel);
 
     this.uniqueId = uniqueId;
@@ -35,6 +35,6 @@ public final class NetworkChannelReceiveCallablePacketEvent extends
 
   public void setCallbackPacket(JsonDocument header) {
     this.callbackPacket = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL,
-        this.uniqueId, header, null);
+      this.uniqueId, header, null);
   }
 }

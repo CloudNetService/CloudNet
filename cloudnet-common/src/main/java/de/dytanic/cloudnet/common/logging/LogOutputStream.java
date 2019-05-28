@@ -30,7 +30,7 @@ public class LogOutputStream extends ByteArrayOutputStream {
     this.reset();
 
     if (input != null && !input.isEmpty() && !input
-        .equals(System.lineSeparator())) {
+      .equals(System.lineSeparator())) {
       logger.log(logLevel, input);
     }
   }

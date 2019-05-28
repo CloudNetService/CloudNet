@@ -11,7 +11,7 @@ import java.util.Collection;
  * nodes that are configured on the platform
  */
 public interface IClusterNodeServerProvider extends AutoCloseable,
-    IPacketSender {
+  IPacketSender {
 
   /**
    * Returns the represent nodes that are configured on the application. The
@@ -52,5 +52,5 @@ public interface IClusterNodeServerProvider extends AutoCloseable,
    * @param zipResource the template data as zip archive resource
    */
   void deployTemplateInCluster(ServiceTemplate serviceTemplate,
-      byte[] zipResource);
+    byte[] zipResource);
 }

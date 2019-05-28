@@ -12,45 +12,45 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements
-    Listener {
+  Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void handle(PlayerLoginEvent event) {
     IPermissionUser permissionUser = CloudPermissionsPermissionManagement
-        .getInstance().getUser(event.getPlayer().getUniqueId());
+      .getInstance().getUser(event.getPlayer().getUniqueId());
 
     if (permissionUser == null) {
       CloudPermissionsPermissionManagement.getInstance()
-          .addUser(new PermissionUser(
-              event.getPlayer().getUniqueId(),
-              event.getPlayer().getName(),
-              null,
-              0
-          ));
+        .addUser(new PermissionUser(
+          event.getPlayer().getUniqueId(),
+          event.getPlayer().getName(),
+          null,
+          0
+        ));
 
       permissionUser = CloudPermissionsPermissionManagement.getInstance()
-          .getUser(event.getPlayer().getUniqueId());
+        .getUser(event.getPlayer().getUniqueId());
     }
 
     if (permissionUser != null) {
       CloudPermissionsPermissionManagement.getInstance()
-          .getCachedPermissionUsers()
-          .put(permissionUser.getUniqueId(), permissionUser);
+        .getCachedPermissionUsers()
+        .put(permissionUser.getUniqueId(), permissionUser);
 
       if (Bukkit.getOnlineMode()) {
         permissionUser.setName(event.getPlayer().getName());
         CloudPermissionsPermissionManagement.getInstance()
-            .updateUser(permissionUser);
+          .updateUser(permissionUser);
       }
     }
 
     BukkitCloudNetCloudPermissionsPlugin.getInstance()
-        .injectCloudPermissible(event.getPlayer());
+      .injectCloudPermissible(event.getPlayer());
   }
 
   @EventHandler
   public void handle(PlayerQuitEvent event) {
     CloudPermissionsPermissionManagement.getInstance()
-        .getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+      .getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
   }
 }

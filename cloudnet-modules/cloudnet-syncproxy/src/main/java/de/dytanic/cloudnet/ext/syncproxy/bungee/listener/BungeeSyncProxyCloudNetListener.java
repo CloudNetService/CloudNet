@@ -22,35 +22,35 @@ public final class BungeeSyncProxyCloudNetListener {
   @EventListener
   public void handle(ServiceInfoSnapshotConfigureEvent event) {
     if (BungeeCloudNetSyncProxyPlugin.getInstance().getProxyLoginConfiguration()
-        != null) {
+      != null) {
       event.getServiceInfoSnapshot().getProperties().append(
-          SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT,
-          ProxyServer.getInstance().getOnlineCount());
+        SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT,
+        ProxyServer.getInstance().getOnlineCount());
     }
   }
 
   @EventListener
   public void handle(CloudServiceInfoUpdateEvent event) {
     if (!event.getServiceInfo().getServiceId().getEnvironment()
-        .isMinecraftJavaProxy() &&
-        !event.getServiceInfo().getServiceId().getEnvironment()
-            .isMinecraftBedrockProxy()) {
+      .isMinecraftJavaProxy() &&
+      !event.getServiceInfo().getServiceId().getEnvironment()
+        .isMinecraftBedrockProxy()) {
       return;
     }
 
     SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = BungeeCloudNetSyncProxyPlugin
-        .getInstance().getProxyLoginConfiguration();
+      .getInstance().getProxyLoginConfiguration();
 
     if (syncProxyProxyLoginConfiguration != null) {
       if (BungeeCloudNetSyncProxyPlugin.getInstance()
-          .inGroup(event.getServiceInfo(), syncProxyProxyLoginConfiguration) &&
-          event.getServiceInfo().getProperties().contains(
-              SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
+        .inGroup(event.getServiceInfo(), syncProxyProxyLoginConfiguration) &&
+        event.getServiceInfo().getProperties().contains(
+          SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
         BungeeCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies()
-            .put(event.getServiceInfo().getServiceId().getUniqueId(),
-                event.getServiceInfo()
-                    .getProperties().getInt(
-                    SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
+          .put(event.getServiceInfo().getServiceId().getUniqueId(),
+            event.getServiceInfo()
+              .getProperties().getInt(
+              SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
       }
     }
 
@@ -62,40 +62,40 @@ public final class BungeeSyncProxyCloudNetListener {
   @EventListener
   public void handle(CloudServiceStopEvent event) {
     if (!event.getServiceInfo().getServiceId().getEnvironment()
-        .isMinecraftJavaProxy() &&
-        !event.getServiceInfo().getServiceId().getEnvironment()
-            .isMinecraftBedrockProxy()) {
+      .isMinecraftJavaProxy() &&
+      !event.getServiceInfo().getServiceId().getEnvironment()
+        .isMinecraftBedrockProxy()) {
       return;
     }
 
     BungeeCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies()
-        .remove(event.getServiceInfo().getServiceId().getUniqueId());
+      .remove(event.getServiceInfo().getServiceId().getUniqueId());
   }
 
   @EventListener
   public void handle(CloudServiceDisconnectNetworkEvent event) {
     if (!event.getServiceInfo().getServiceId().getEnvironment()
-        .isMinecraftJavaProxy() &&
-        !event.getServiceInfo().getServiceId().getEnvironment()
-            .isMinecraftBedrockProxy()) {
+      .isMinecraftJavaProxy() &&
+      !event.getServiceInfo().getServiceId().getEnvironment()
+        .isMinecraftBedrockProxy()) {
       return;
     }
 
     BungeeCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies()
-        .remove(event.getServiceInfo().getServiceId().getUniqueId());
+      .remove(event.getServiceInfo().getServiceId().getUniqueId());
   }
 
   @EventListener
   public void handle(ChannelMessageReceiveEvent event) {
     if (!event.getChannel()
-        .equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) {
+      .equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) {
       return;
     }
 
     switch (event.getMessage().toLowerCase()) {
       case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
         SyncProxyConfiguration syncProxyConfiguration = event.getData()
-            .get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+          .get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
         if (syncProxyConfiguration != null) {
           SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
@@ -111,28 +111,28 @@ public final class BungeeSyncProxyCloudNetListener {
 
   private void handlePlayerNotWhitelisted() {
     SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = BungeeCloudNetSyncProxyPlugin
-        .getInstance().getProxyLoginConfiguration();
+      .getInstance().getProxyLoginConfiguration();
 
     if (syncProxyProxyLoginConfiguration != null) {
       for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance()
-          .getPlayers()) {
+        .getPlayers()) {
         if (syncProxyProxyLoginConfiguration.isMaintenance() &&
-            syncProxyProxyLoginConfiguration.getWhitelist() != null &&
-            !syncProxyProxyLoginConfiguration.getWhitelist()
-                .contains(proxiedPlayer.getName())) {
+          syncProxyProxyLoginConfiguration.getWhitelist() != null &&
+          !syncProxyProxyLoginConfiguration.getWhitelist()
+            .contains(proxiedPlayer.getName())) {
           UUID uniqueId = getUniqueIdOfPendingConnection(proxiedPlayer);
 
           if (uniqueId != null && syncProxyProxyLoginConfiguration
-              .getWhitelist().contains(uniqueId.toString())) {
+            .getWhitelist().contains(uniqueId.toString())) {
             continue;
           }
 
           if (!proxiedPlayer.hasPermission("cloudnet.syncproxy.maintenance")) {
             proxiedPlayer.disconnect(
-                ChatColor.translateAlternateColorCodes('&',
-                    SyncProxyConfigurationProvider.load().getMessages()
-                        .get("player-login-not-whitelisted") + ""
-                )
+              ChatColor.translateAlternateColorCodes('&',
+                SyncProxyConfigurationProvider.load().getMessages()
+                  .get("player-login-not-whitelisted") + ""
+              )
             );
           }
         }

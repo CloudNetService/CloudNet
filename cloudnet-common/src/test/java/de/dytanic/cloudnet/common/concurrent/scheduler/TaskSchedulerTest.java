@@ -14,7 +14,7 @@ public class TaskSchedulerTest implements Callable<String> {
 
     Assert.assertEquals(4, taskScheduler.getMaxThreads());
     Assert.assertEquals(6,
-        taskScheduler.chargeThreadLimit((short) 2).getMaxThreads());
+      taskScheduler.chargeThreadLimit((short) 2).getMaxThreads());
 
     Future<String> x = taskScheduler.schedule(this);
 

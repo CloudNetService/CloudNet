@@ -10,7 +10,7 @@ import java.util.Map;
 public final class DefaultCommandMap implements ICommandMap {
 
   private final Map<String, Command> registeredCommands = Maps
-      .newConcurrentHashMap();
+    .newConcurrentHashMap();
 
   @Override
   public void registerCommand(Command command) {
@@ -20,8 +20,8 @@ public final class DefaultCommandMap implements ICommandMap {
 
         if (command.getPrefix() != null && !command.getPrefix().isEmpty()) {
           this.registeredCommands
-              .put(command.getPrefix().toLowerCase() + ":" + name.toLowerCase(),
-                  command);
+            .put(command.getPrefix().toLowerCase() + ":" + name.toLowerCase(),
+              command);
         }
       }
     }
@@ -42,10 +42,10 @@ public final class DefaultCommandMap implements ICommandMap {
           this.registeredCommands.remove(commandName.toLowerCase());
 
           if (commandEntry.getPrefix() != null && !commandEntry.getPrefix()
-              .isEmpty()) {
+            .isEmpty()) {
             this.registeredCommands.remove(
-                commandEntry.getPrefix().toLowerCase() + ":" + commandName
-                    .toLowerCase());
+              commandEntry.getPrefix().toLowerCase() + ":" + commandName
+                .toLowerCase());
           }
         }
       }
@@ -62,10 +62,10 @@ public final class DefaultCommandMap implements ICommandMap {
           this.registeredCommands.remove(commandName.toLowerCase());
 
           if (commandEntry.getPrefix() != null && !commandEntry.getPrefix()
-              .isEmpty()) {
+            .isEmpty()) {
             this.registeredCommands.remove(
-                commandEntry.getPrefix().toLowerCase() + ":" + commandName
-                    .toLowerCase());
+              commandEntry.getPrefix().toLowerCase() + ":" + commandName
+                .toLowerCase());
           }
         }
       }
@@ -107,7 +107,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     String[] a = commandLine.split(" ");
     return a.length >= 1 ? this.registeredCommands.get(a[0].toLowerCase())
-        : null;
+      : null;
   }
 
   @Override
@@ -117,9 +117,9 @@ public final class DefaultCommandMap implements ICommandMap {
 
   @Override
   public boolean dispatchCommand(ICommandSender commandSender,
-      String commandLine) {
+    String commandLine) {
     if (commandSender == null || commandLine == null || commandLine.trim()
-        .isEmpty()) {
+      .isEmpty()) {
       return false;
     }
 
@@ -135,7 +135,7 @@ public final class DefaultCommandMap implements ICommandMap {
   }
 
   public boolean dispatchCommand0(ICommandSender commandSender,
-      String commandLine) {
+    String commandLine) {
     String[] args = commandLine.split(" ");
 
     if (!this.registeredCommands.containsKey(args[0].toLowerCase())) {
@@ -146,17 +146,17 @@ public final class DefaultCommandMap implements ICommandMap {
     String commandName = args[0].toLowerCase();
 
     if (command.getPermission() != null && !commandSender
-        .hasPermission(command.getPermission())) {
+      .hasPermission(command.getPermission())) {
       return false;
     }
 
     args =
-        args.length > 1 ? commandLine.replaceFirst(args[0] + " ", "").split(" ")
-            : new String[0];
+      args.length > 1 ? commandLine.replaceFirst(args[0] + " ", "").split(" ")
+        : new String[0];
 
     try {
       command.execute(commandSender, commandName, args, commandLine,
-          Properties.parseLine(args));
+        Properties.parseLine(args));
       return true;
 
     } catch (Exception ex) {

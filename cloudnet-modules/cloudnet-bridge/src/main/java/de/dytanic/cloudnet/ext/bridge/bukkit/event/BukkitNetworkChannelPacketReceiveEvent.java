@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 
 @RequiredArgsConstructor
 public final class BukkitNetworkChannelPacketReceiveEvent extends
-    BukkitCloudNetEvent {
+  BukkitCloudNetEvent {
 
   @Getter
   private static HandlerList handlerList = new HandlerList();

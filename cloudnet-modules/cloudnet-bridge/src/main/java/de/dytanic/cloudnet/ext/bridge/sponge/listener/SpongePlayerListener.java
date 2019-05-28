@@ -11,9 +11,9 @@ public final class SpongePlayerListener {
   @Listener
   public void handle(ClientConnectionEvent.Join event) {
     BridgeHelper.sendChannelMessageServerLoginSuccess(SpongeCloudNetHelper
-            .createNetworkConnectionInfo(event.getTargetEntity()),
-        SpongeCloudNetHelper
-            .createNetworkPlayerServerInfo(event.getTargetEntity(), false)
+        .createNetworkConnectionInfo(event.getTargetEntity()),
+      SpongeCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getTargetEntity(), false)
     );
 
     BridgeHelper.updateServiceInfo();
@@ -22,9 +22,9 @@ public final class SpongePlayerListener {
   @Listener
   public void handle(ClientConnectionEvent.Disconnect event) {
     BridgeHelper.sendChannelMessageServerDisconnect(SpongeCloudNetHelper
-            .createNetworkConnectionInfo(event.getTargetEntity()),
-        SpongeCloudNetHelper
-            .createNetworkPlayerServerInfo(event.getTargetEntity(), false));
+        .createNetworkConnectionInfo(event.getTargetEntity()),
+      SpongeCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getTargetEntity(), false));
 
     Wrapper.getInstance().runTask(new Runnable() {
       @Override

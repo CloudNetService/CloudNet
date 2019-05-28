@@ -45,7 +45,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
   public DefaultFileLogHandler(File directory, String pattern, long maxBytes) {
     if (directory == null) {
       directory = new File(System
-          .getProperty("cloudnet.logging.fallback.log.directory", "logs"));
+        .getProperty("cloudnet.logging.fallback.log.directory", "logs"));
     }
 
     this.directory = directory;
@@ -71,7 +71,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     String formatted = getFormatter().format(logEntry);
     this.writternBytes =
-        writternBytes + formatted.getBytes(StandardCharsets.UTF_8).length;
+      writternBytes + formatted.getBytes(StandardCharsets.UTF_8).length;
 
     if (this.writternBytes > maxBytes) {
       selectLogFile();

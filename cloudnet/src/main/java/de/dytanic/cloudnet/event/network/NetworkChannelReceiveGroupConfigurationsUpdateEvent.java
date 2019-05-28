@@ -11,14 +11,14 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public final class NetworkChannelReceiveGroupConfigurationsUpdateEvent extends
-    NetworkEvent implements ICancelable {
+  NetworkEvent implements ICancelable {
 
   private List<GroupConfiguration> groupConfigurations;
 
   private boolean cancelled;
 
   public NetworkChannelReceiveGroupConfigurationsUpdateEvent(
-      INetworkChannel channel, List<GroupConfiguration> groupConfigurations) {
+    INetworkChannel channel, List<GroupConfiguration> groupConfigurations) {
     super(channel);
     this.groupConfigurations = groupConfigurations;
   }

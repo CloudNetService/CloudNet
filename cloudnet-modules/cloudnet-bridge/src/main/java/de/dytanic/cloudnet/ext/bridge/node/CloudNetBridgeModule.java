@@ -39,33 +39,33 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     this.getModuleWrapper().getDataFolder().mkdirs();
 
     this.bridgeConfiguration = getConfig()
-        .get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
-            "&7Cloud &8| &b",
-            Iterables.newArrayList(),
-            Iterables.newArrayList(),
-            Collections.singletonList(
-                new ProxyFallbackConfiguration(
-                    "Proxy",
-                    "Lobby",
-                    Collections
-                        .singletonList(new ProxyFallback(1, "Lobby", null))
-                )
-            ),
-            Maps.of(
-                new Pair<>("command-hub-success-connect",
-                    "&7You did successfully connect to %server%"),
-                new Pair<>("command-hub-already-in-hub",
-                    "&cYou are already connected"),
-                new Pair<>("command-hub-no-server-found",
-                    "&7Hub server cannot be found"),
-                new Pair<>("server-join-cancel-because-only-proxy",
-                    "&7You must connect from a original proxy server")
-            )
-        ));
+      .get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
+        "&7Cloud &8| &b",
+        Iterables.newArrayList(),
+        Iterables.newArrayList(),
+        Collections.singletonList(
+          new ProxyFallbackConfiguration(
+            "Proxy",
+            "Lobby",
+            Collections
+              .singletonList(new ProxyFallback(1, "Lobby", null))
+          )
+        ),
+        Maps.of(
+          new Pair<>("command-hub-success-connect",
+            "&7You did successfully connect to %server%"),
+          new Pair<>("command-hub-already-in-hub",
+            "&cYou are already connected"),
+          new Pair<>("command-hub-no-server-found",
+            "&7Hub server cannot be found"),
+          new Pair<>("server-join-cancel-because-only-proxy",
+            "&7You must connect from a original proxy server")
+        )
+      ));
 
     if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null) {
       this.bridgeConfiguration
-          .setExcludedOnlyProxyWalkableGroups(Iterables.newArrayList());
+        .setExcludedOnlyProxyWalkableGroups(Iterables.newArrayList());
     }
 
     saveConfig();
@@ -86,8 +86,8 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
   @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
   public void registerHandlers() {
     getHttpServer().registerHandler("/api/v1/modules/bridge/config",
-        new V1BridgeConfigurationHttpHandler(
-            "cloudnet.http.v1.modules.bridge.config"));
+      new V1BridgeConfigurationHttpHandler(
+        "cloudnet.http.v1.modules.bridge.config"));
   }
 
   @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
@@ -99,6 +99,6 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
   @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
   public void initListeners() {
     registerListeners(new NetworkListenerRegisterListener(),
-        new IncludePluginListener(), new NodeCustomChannelMessageListener());
+      new IncludePluginListener(), new NodeCustomChannelMessageListener());
   }
 }

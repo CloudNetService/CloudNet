@@ -43,9 +43,9 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void createConfigurationOrUpdate() {
     configurationFile = new File(getModuleWrapper().getDataFolder(),
-        "config.json");
+      "config.json");
     signConfiguration = SignConfigurationReaderAndWriter
-        .read(configurationFile);
+      .read(configurationFile);
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
@@ -62,8 +62,8 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
   @ModuleTask(order = 123, event = ModuleLifeCycle.STARTED)
   public void registerHttpHandlers() {
     getHttpServer().registerHandler("/api/v1/modules/signs/config",
-        new V1SignConfigurationHttpHandler(
-            "cloudnet.http.v1.modules.signs.config"));
+      new V1SignConfigurationHttpHandler(
+        "cloudnet.http.v1.modules.signs.config"));
   }
 
   public void addSignToFile(Sign sign) {
@@ -97,19 +97,19 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
 
   public Collection<Sign> loadSigns() {
     IDatabase database = getDatabaseProvider()
-        .getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+      .getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
     JsonDocument document = database.get(SIGN_STORE_DOCUMENT);
 
     return document != null ? document
-        .get("signs", SignConstants.COLLECTION_SIGNS, Iterables.newArrayList())
-        : Iterables.newArrayList();
+      .get("signs", SignConstants.COLLECTION_SIGNS, Iterables.newArrayList())
+      : Iterables.newArrayList();
   }
 
   public void write(Collection<Sign> signs) {
     Validate.checkNotNull(signs);
 
     IDatabase database = getDatabaseProvider()
-        .getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+      .getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
     JsonDocument document = database.get(SIGN_STORE_DOCUMENT);
 
     if (document == null) {

@@ -19,8 +19,8 @@ public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
   @Override
   public void onDisable() {
     CloudNetDriver.getInstance().getEventManager()
-        .unregisterListeners(this.getClass().getClassLoader());
+      .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-        this.getClass().getClassLoader());
+      this.getClass().getClassLoader());
   }
 }

@@ -10,7 +10,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface IPermissible extends INameable, IJsonDocPropertyable,
-    Comparable<IPermissible> {
+  Comparable<IPermissible> {
 
   void setName(String name);
 
@@ -75,9 +75,9 @@ public interface IPermissible extends INameable, IJsonDocPropertyable,
   }
 
   default boolean addPermission(String group, String permission, int potency,
-      long time, TimeUnit millis) {
+    long time, TimeUnit millis) {
     return addPermission(group, new Permission(permission, potency,
-        (System.currentTimeMillis() + millis.toMillis(time))));
+      (System.currentTimeMillis() + millis.toMillis(time))));
   }
 
   default Collection<String> getPermissionNames() {
@@ -90,44 +90,44 @@ public interface IPermissible extends INameable, IJsonDocPropertyable,
   }
 
   default PermissionCheckResult hasPermission(
-      Collection<Permission> permissions, Permission permission) {
+    Collection<Permission> permissions, Permission permission) {
     if (permissions == null || permission == null
-        || permission.getName() == null) {
+      || permission.getName() == null) {
       return PermissionCheckResult.DENIED;
     }
 
     Permission targetPerms = Iterables
-        .first(permissions, new Predicate<Permission>() {
-          @Override
-          public boolean test(Permission perm) {
-            return perm.getName().equalsIgnoreCase(permission.getName());
-          }
-        });
+      .first(permissions, new Predicate<Permission>() {
+        @Override
+        public boolean test(Permission perm) {
+          return perm.getName().equalsIgnoreCase(permission.getName());
+        }
+      });
 
     if (targetPerms != null && permission.getName()
-        .equalsIgnoreCase(targetPerms.getName())
-        && targetPerms.getPotency() < 0) {
+      .equalsIgnoreCase(targetPerms.getName())
+      && targetPerms.getPotency() < 0) {
       return PermissionCheckResult.FORBIDDEN;
     }
 
     for (Permission permissionEntry : permissions) {
 
       if (permissionEntry.getName().equals("*") && (
-          permissionEntry.getPotency() >= permission.getPotency()
-              || getPotency() >= permission.getPotency())) {
-        return PermissionCheckResult.ALLOWED;
-      }
-
-      if (permissionEntry.getName().endsWith("*") && permission.getName()
-          .contains(permissionEntry.getName().replace("*", ""))
-          && (permissionEntry.getPotency() >= permission.getPotency()
+        permissionEntry.getPotency() >= permission.getPotency()
           || getPotency() >= permission.getPotency())) {
         return PermissionCheckResult.ALLOWED;
       }
 
+      if (permissionEntry.getName().endsWith("*") && permission.getName()
+        .contains(permissionEntry.getName().replace("*", ""))
+        && (permissionEntry.getPotency() >= permission.getPotency()
+        || getPotency() >= permission.getPotency())) {
+        return PermissionCheckResult.ALLOWED;
+      }
+
       if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) &&
-          (permissionEntry.getPotency() >= permission.getPotency()
-              || getPotency() >= permission.getPotency())) {
+        (permissionEntry.getPotency() >= permission.getPotency()
+          || getPotency() >= permission.getPotency())) {
         return PermissionCheckResult.ALLOWED;
       }
     }
@@ -136,14 +136,14 @@ public interface IPermissible extends INameable, IJsonDocPropertyable,
   }
 
   default PermissionCheckResult hasPermission(String group,
-      Permission permission) {
+    Permission permission) {
     if (group == null || permission == null) {
       return PermissionCheckResult.DENIED;
     }
 
     return getGroupPermissions().containsKey(group) ? hasPermission(
-        getGroupPermissions().get(group), permission)
-        : PermissionCheckResult.DENIED;
+      getGroupPermissions().get(group), permission)
+      : PermissionCheckResult.DENIED;
   }
 
   default PermissionCheckResult hasPermission(Permission permission) {
