@@ -9,15 +9,15 @@ import lombok.Setter;
 @Setter
 public class DatabaseInsertEntryEvent extends DatabaseEvent {
 
-    private String key;
+  private String key;
 
-    private JsonDocument document;
+  private JsonDocument document;
 
-    public DatabaseInsertEntryEvent(IDatabase database, String key, JsonDocument document)
-    {
-        super(database);
+  public DatabaseInsertEntryEvent(IDatabase database, String key,
+      JsonDocument document) {
+    super(database);
 
-        this.key = key;
-        this.document = document;
-    }
+    this.key = key;
+    this.document = document;
+  }
 }

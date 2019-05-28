@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class CloudServiceConsoleLogReceiveEntryEvent extends DriverEvent {
 
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 
-    private final String message;
+  private final String message;
 
-    private final boolean errorMessage;
+  private final boolean errorMessage;
 
 }

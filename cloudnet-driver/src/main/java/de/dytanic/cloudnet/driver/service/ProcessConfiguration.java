@@ -1,11 +1,10 @@
 package de.dytanic.cloudnet.driver.service;
 
+import java.util.Collection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.Collection;
 
 @Data
 @ToString
@@ -13,10 +12,10 @@ import java.util.Collection;
 @AllArgsConstructor
 public final class ProcessConfiguration {
 
-    protected ServiceEnvironmentType environment;
+  protected ServiceEnvironmentType environment;
 
-    protected int maxHeapMemorySize;
+  protected int maxHeapMemorySize;
 
-    protected Collection<String> jvmOptions;
+  protected Collection<String> jvmOptions;
 
 }

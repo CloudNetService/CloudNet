@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.common.Properties;
-
 import java.util.Collection;
 
 /**
@@ -11,14 +10,16 @@ import java.util.Collection;
  */
 public interface ITabCompleter {
 
-    /**
-     * This method allows on a Command implementation to complete the tab requests from the console
-     * or a supported command sender
-     *
-     * @param commandLine the commandLine, that is currently written
-     * @param args        the command line split into arguments
-     * @param properties  the parsed properties from the command line
-     * @return all available results. It does not necessarily depend on the actual input, which is already given
-     */
-    Collection<String> complete(String commandLine, String[] args, Properties properties);
+  /**
+   * This method allows on a Command implementation to complete the tab requests
+   * from the console or a supported command sender
+   *
+   * @param commandLine the commandLine, that is currently written
+   * @param args the command line split into arguments
+   * @param properties the parsed properties from the command line
+   * @return all available results. It does not necessarily depend on the actual
+   * input, which is already given
+   */
+  Collection<String> complete(String commandLine, String[] args,
+      Properties properties);
 }

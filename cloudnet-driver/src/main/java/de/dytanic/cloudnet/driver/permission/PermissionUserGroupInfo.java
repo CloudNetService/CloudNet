@@ -10,8 +10,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class PermissionUserGroupInfo extends BasicJsonDocPropertyable {
 
-    protected String group;
+  protected String group;
 
-    protected long timeOutMillis;
+  protected long timeOutMillis;
 
 }

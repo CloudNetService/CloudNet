@@ -1,6 +1,10 @@
 package de.dytanic.cloudnet.driver.module;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @ToString
@@ -9,6 +13,6 @@ import lombok.*;
 @AllArgsConstructor
 public class ModuleDependency {
 
-    private String repo, url, group, name, version;
+  private String repo, url, group, name, version;
 
 }

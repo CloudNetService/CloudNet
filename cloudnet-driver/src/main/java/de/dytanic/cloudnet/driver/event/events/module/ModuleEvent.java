@@ -10,8 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public abstract class ModuleEvent extends DriverEvent {
 
-    private IModuleProvider moduleProvider;
+  private IModuleProvider moduleProvider;
 
-    private IModuleWrapper module;
+  private IModuleWrapper module;
 
 }

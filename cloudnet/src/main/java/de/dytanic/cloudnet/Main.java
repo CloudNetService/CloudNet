@@ -1,66 +1,76 @@
 package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.*;
+import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
+import de.dytanic.cloudnet.common.logging.AsyncPrintStream;
+import de.dytanic.cloudnet.common.logging.DefaultAsyncLogger;
+import de.dytanic.cloudnet.common.logging.DefaultFileLogHandler;
+import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
+import de.dytanic.cloudnet.common.logging.ILogger;
+import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.logging.LogOutputStream;
 import de.dytanic.cloudnet.console.ConsoleLogHandler;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.console.util.HeaderReader;
-
 import java.io.File;
 import java.util.Arrays;
 
 public final class Main {
 
-    private Main()
-    {
-        throw new UnsupportedOperationException();
+  private Main() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static synchronized void main(String... args) throws Throwable {
+    LanguageManager.setLanguage(
+        System.getProperty("cloudnet.messages.language", "english"));
+    LanguageManager.addLanguageFile("german", Main.class.getClassLoader()
+        .getResourceAsStream("lang/german.properties"));
+    LanguageManager.addLanguageFile("english", Main.class.getClassLoader()
+        .getResourceAsStream("lang/english.properties"));
+
+    IConsole console = new JLine2Console();
+    ILogger logger = new DefaultAsyncLogger();
+
+    logger.setLevel(LogLevel.ALL);
+
+    initLoggerAndConsole(console, logger);
+    HeaderReader.readAndPrintHeader(console);
+
+    CloudNet cloudNet = new CloudNet(Arrays.asList(args), logger, console);
+    cloudNet.start();
+  }
+
+  private static void initLoggerAndConsole(IConsole console, ILogger logger)
+      throws Throwable {
+    for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
+        new DefaultFileLogHandler(new File("local/logs"), "cloudnet.log",
+            DefaultFileLogHandler.SIZE_8MB),
+        new ConsoleLogHandler(console).setFormatter(
+            console.hasColorSupport() ? new ColouredLogFormatter()
+                : new DefaultLogFormatter())
+    }) {
+      logger.addLogHandler(logHandler);
     }
 
-    public static synchronized void main(String... args) throws Throwable
-    {
-        LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
-        LanguageManager.addLanguageFile("german", Main.class.getClassLoader().getResourceAsStream("lang/german.properties"));
-        LanguageManager.addLanguageFile("english", Main.class.getClassLoader().getResourceAsStream("lang/english.properties"));
+    System.setOut(
+        new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
+    System.setErr(
+        new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));
 
-        IConsole console = new JLine2Console();
-        ILogger logger = new DefaultAsyncLogger();
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
-        logger.setLevel(LogLevel.ALL);
-
-        initLoggerAndConsole(console, logger);
-        HeaderReader.readAndPrintHeader(console);
-
-        CloudNet cloudNet = new CloudNet(Arrays.asList(args), logger, console);
-        cloudNet.start();
-    }
-
-    private static void initLoggerAndConsole(IConsole console, ILogger logger) throws Throwable
-    {
-        for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
-            new DefaultFileLogHandler(new File("local/logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB),
-            new ConsoleLogHandler(console).setFormatter(console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter())
-        })
-            logger.addLogHandler(logHandler);
-
-        System.setOut(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
-        System.setErr(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));
-
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-            @Override
-            public void run()
-            {
-                try
-                {
-                    logger.close();
-                    console.close();
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }));
-    }
+      @Override
+      public void run() {
+        try {
+          logger.close();
+          console.close();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }));
+  }
 }

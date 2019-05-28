@@ -6,92 +6,117 @@ import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.Permission;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
 public class DefaultDatabasePermissionManagementTest {
 
-    @Test
-    public void testFilePermissionManager() throws Exception
-    {
-        String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
-        AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database");
-        Assert.assertTrue(databaseProvider.init());
+  @Test
+  public void testFilePermissionManager() throws Exception {
+    String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
+    AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider(
+        "build/h2database");
+    Assert.assertTrue(databaseProvider.init());
 
-        System.setProperty("cloudnet.permissions.json.path", "build/group_permissions.json");
+    System.setProperty("cloudnet.permissions.json.path",
+        "build/group_permissions.json");
 
-        IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(new Callable<AbstractDatabaseProvider>() {
-            @Override
-            public AbstractDatabaseProvider call() throws Exception
-            {
-                return databaseProvider;
-            }
+    IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(
+        new Callable<AbstractDatabaseProvider>() {
+          @Override
+          public AbstractDatabaseProvider call() throws Exception {
+            return databaseProvider;
+          }
         });
 
-        IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", (byte) 5);
-        Assert.assertNotNull(permissionUser);
-        Assert.assertEquals(1, permissionManagement.getUsers().size());
+    IPermissionUser permissionUser = permissionManagement
+        .addUser(userName, "1234", (byte) 5);
+    Assert.assertNotNull(permissionUser);
+    Assert.assertEquals(1, permissionManagement.getUsers().size());
 
-        permissionUser.addGroup(groupName);
-        permissionManagement.updateUser(permissionUser);
-        Assert.assertNotNull(permissionManagement.getUser(permissionUser.getUniqueId()));
-        Assert.assertNotNull(permissionManagement.getUser(permissionUser.getName()));
+    permissionUser.addGroup(groupName);
+    permissionManagement.updateUser(permissionUser);
+    Assert.assertNotNull(
+        permissionManagement.getUser(permissionUser.getUniqueId()));
+    Assert
+        .assertNotNull(permissionManagement.getUser(permissionUser.getName()));
 
-        permissionUser.addPermission(new Permission(permission, 10));
-        permissionManagement.updateUser(permissionUser);
-        Assert.assertNotNull(permissionManagement.getUser(permissionUser.getUniqueId()));
-        Assert.assertTrue(permissionManagement.hasPermission(permissionUser, permission));
-        Assert.assertFalse(permissionManagement.hasPermission(permissionUser, new Permission(permission, 11)));
+    permissionUser.addPermission(new Permission(permission, 10));
+    permissionManagement.updateUser(permissionUser);
+    Assert.assertNotNull(
+        permissionManagement.getUser(permissionUser.getUniqueId()));
+    Assert.assertTrue(
+        permissionManagement.hasPermission(permissionUser, permission));
+    Assert.assertFalse(permissionManagement
+        .hasPermission(permissionUser, new Permission(permission, 11)));
 
-        permissionUser.addPermission("Test_Group", new Permission(permission, 10));
-        permissionManagement.updateUser(permissionUser);
-        Assert.assertNotNull(permissionManagement.getUser(permissionUser.getUniqueId()));
-        Assert.assertTrue(permissionManagement.hasPermission(permissionUser, "Test_Group", new Permission(permission)));
-        Assert.assertFalse(permissionManagement.hasPermission(permissionUser, "Test_Group", new Permission(permission, 11)));
+    permissionUser.addPermission("Test_Group", new Permission(permission, 10));
+    permissionManagement.updateUser(permissionUser);
+    Assert.assertNotNull(
+        permissionManagement.getUser(permissionUser.getUniqueId()));
+    Assert.assertTrue(permissionManagement
+        .hasPermission(permissionUser, "Test_Group",
+            new Permission(permission)));
+    Assert.assertFalse(permissionManagement
+        .hasPermission(permissionUser, "Test_Group",
+            new Permission(permission, 11)));
 
-        permissionUser.addPermission(new Permission("test.permission.1234", 10, 5, TimeUnit.MILLISECONDS));
-        Thread.sleep(10);
-        Assert.assertTrue(permissionManagement.testPermissionUser(permissionUser));
+    permissionUser.addPermission(
+        new Permission("test.permission.1234", 10, 5, TimeUnit.MILLISECONDS));
+    Thread.sleep(10);
+    Assert.assertTrue(permissionManagement.testPermissionUser(permissionUser));
 
-        permissionManagement.updateUser(permissionUser);
-        Assert.assertFalse(permissionManagement.hasPermission(permissionUser, "test.permission.1234"));
+    permissionManagement.updateUser(permissionUser);
+    Assert.assertFalse(permissionManagement
+        .hasPermission(permissionUser, "test.permission.1234"));
 
-        permissionManagement.addGroup(groupName, (byte) 64);
-        Assert.assertNotNull(permissionManagement.getGroup(groupName));
-        Assert.assertEquals(1, permissionManagement.getGroups().size());
+    permissionManagement.addGroup(groupName, (byte) 64);
+    Assert.assertNotNull(permissionManagement.getGroup(groupName));
+    Assert.assertEquals(1, permissionManagement.getGroups().size());
 
-        IPermissionGroup permissionGroup = permissionManagement.getGroup(groupName);
-        permissionGroup.addPermission(new Permission(groupPermission, 4));
-        permissionManagement.updateGroup(permissionGroup);
-        Assert.assertTrue(permissionManagement.hasPermission(permissionUser, groupPermission));
-        Assert.assertFalse(permissionManagement.hasPermission(permissionUser, new Permission(groupPermission, 600)));
+    IPermissionGroup permissionGroup = permissionManagement.getGroup(groupName);
+    permissionGroup.addPermission(new Permission(groupPermission, 4));
+    permissionManagement.updateGroup(permissionGroup);
+    Assert.assertTrue(
+        permissionManagement.hasPermission(permissionUser, groupPermission));
+    Assert.assertFalse(permissionManagement
+        .hasPermission(permissionUser, new Permission(groupPermission, 600)));
 
-        permissionGroup.addPermission(new Permission("test.test.5678", 10, 1));
-        permissionManagement.updateGroup(permissionGroup);
-        Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("test.test.5678").asBoolean());
+    permissionGroup.addPermission(new Permission("test.test.5678", 10, 1));
+    permissionManagement.updateGroup(permissionGroup);
+    Assert.assertFalse(
+        permissionManagement.getGroup(groupName).hasPermission("test.test.5678")
+            .asBoolean());
 
-        permissionGroup.addPermission("City", new Permission("test.test.5678", 10, 1));
-        permissionManagement.updateGroup(permissionGroup);
-        Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("City", new Permission("test.test.5678")).asBoolean());
+    permissionGroup
+        .addPermission("City", new Permission("test.test.5678", 10, 1));
+    permissionManagement.updateGroup(permissionGroup);
+    Assert.assertFalse(permissionManagement.getGroup(groupName)
+        .hasPermission("City", new Permission("test.test.5678")).asBoolean());
 
-        permissionGroup.addPermission("City", new Permission("test.test.91011", -1));
-        permissionManagement.updateGroup(permissionGroup);
-        Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("City", new Permission("test.test.91011")).asBoolean());
+    permissionGroup
+        .addPermission("City", new Permission("test.test.91011", -1));
+    permissionManagement.updateGroup(permissionGroup);
+    Assert.assertFalse(permissionManagement.getGroup(groupName)
+        .hasPermission("City", new Permission("test.test.91011")).asBoolean());
 
-        Assert.assertEquals(1, permissionManagement.getUserByGroup(groupName).size());
-        permissionUser.removeGroup(groupName);
-        permissionManagement.updateUser(permissionUser);
-        Assert.assertFalse(permissionManagement.getUser(permissionUser.getName()).get(0).inGroup(groupName));
+    Assert
+        .assertEquals(1, permissionManagement.getUserByGroup(groupName).size());
+    permissionUser.removeGroup(groupName);
+    permissionManagement.updateUser(permissionUser);
+    Assert.assertFalse(
+        permissionManagement.getUser(permissionUser.getName()).get(0)
+            .inGroup(groupName));
 
-        permissionManagement.deleteUser(userName);
-        Assert.assertEquals(0, permissionManagement.getUserByGroup(groupName).size());
-        Assert.assertEquals(0, permissionManagement.getUsers().size());
+    permissionManagement.deleteUser(userName);
+    Assert
+        .assertEquals(0, permissionManagement.getUserByGroup(groupName).size());
+    Assert.assertEquals(0, permissionManagement.getUsers().size());
 
-        permissionManagement.deleteGroup(groupName);
-        Assert.assertNull(permissionManagement.getGroup(groupName));
-        Assert.assertTrue(permissionUser.checkPassword("1234"));
-    }
+    permissionManagement.deleteGroup(groupName);
+    Assert.assertNull(permissionManagement.getGroup(groupName));
+    Assert.assertTrue(permissionUser.checkPassword("1234"));
+  }
 }

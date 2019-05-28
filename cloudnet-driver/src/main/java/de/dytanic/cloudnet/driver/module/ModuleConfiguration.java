@@ -1,7 +1,11 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @ToString
@@ -10,28 +14,27 @@ import lombok.*;
 @AllArgsConstructor
 public class ModuleConfiguration {
 
-    protected boolean runtimeModule;
+  protected boolean runtimeModule;
 
-    protected String
-        group,
-        name,
-        version,
-        main,
-        description,
-        author,
-        website;
+  protected String
+      group,
+      name,
+      version,
+      main,
+      description,
+      author,
+      website;
 
-    //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
+  //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
 
-    protected ModuleRepository[] repos;
+  protected ModuleRepository[] repos;
 
-    protected ModuleDependency[] dependencies;
+  protected ModuleDependency[] dependencies;
 
-    protected JsonDocument properties;
+  protected JsonDocument properties;
 
-    public String getMainClass()
-    {
-        return this.main;
-    }
+  public String getMainClass() {
+    return this.main;
+  }
 
 }

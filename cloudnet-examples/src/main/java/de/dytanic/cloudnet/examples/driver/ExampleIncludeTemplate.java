@@ -6,22 +6,23 @@ import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-
 import java.util.Arrays;
 import java.util.UUID;
 
 public final class ExampleIncludeTemplate {
 
-    public void exampleIncludeTemplates(UUID playerUniqueId, ServiceInfoSnapshot serviceInfoSnapshot)
-    {
-        //Add serviceTemplate to existing service
-        CloudNetDriver.getInstance().addServiceTemplateToCloudService(serviceInfoSnapshot.getServiceId().getUniqueId(), new ServiceTemplate(
+  public void exampleIncludeTemplates(UUID playerUniqueId,
+      ServiceInfoSnapshot serviceInfoSnapshot) {
+    //Add serviceTemplate to existing service
+    CloudNetDriver.getInstance().addServiceTemplateToCloudService(
+        serviceInfoSnapshot.getServiceId().getUniqueId(), new ServiceTemplate(
             "Lobby", "test1",
             "local"
         ));
 
-        //Create service with custom template
-        ServiceInfoSnapshot newService = CloudNetDriver.getInstance().createCloudService(
+    //Create service with custom template
+    ServiceInfoSnapshot newService = CloudNetDriver.getInstance()
+        .createCloudService(
             "PS-" + playerUniqueId.toString(),
             "jvm",
             true,
@@ -43,6 +44,6 @@ public final class ExampleIncludeTemplate {
             null
         );
 
-        CloudNetDriver.getInstance().startCloudService(newService);
-    }
+    CloudNetDriver.getInstance().startCloudService(newService);
+  }
 }

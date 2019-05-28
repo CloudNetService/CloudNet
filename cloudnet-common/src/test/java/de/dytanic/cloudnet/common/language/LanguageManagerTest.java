@@ -6,16 +6,16 @@ import org.junit.Test;
 
 public class LanguageManagerTest {
 
-    @Test
-    public void test()
-    {
-        Properties properties = new Properties();
-        properties.put("test_message", "Test_Message");
+  @Test
+  public void test() {
+    Properties properties = new Properties();
+    properties.put("test_message", "Test_Message");
 
-        LanguageManager.setLanguage("en");
-        LanguageManager.addLanguageFile("en", properties);
+    LanguageManager.setLanguage("en");
+    LanguageManager.addLanguageFile("en", properties);
 
-        Assert.assertNotNull(LanguageManager.getMessage("test_message"));
-        Assert.assertEquals("Test_Message", LanguageManager.getMessage("test_message"));
-    }
+    Assert.assertNotNull(LanguageManager.getMessage("test_message"));
+    Assert.assertEquals("Test_Message",
+        LanguageManager.getMessage("test_message"));
+  }
 }

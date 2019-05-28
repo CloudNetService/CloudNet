@@ -11,10 +11,10 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class ServiceTaskRemoveEvent extends Event {
 
-    private final ICloudServiceManager cloudServiceManager;
+  private final ICloudServiceManager cloudServiceManager;
 
-    private final ServiceTask task;
+  private final ServiceTask task;
 
-    @Setter
-    private boolean cancelled;
+  @Setter
+  private boolean cancelled;
 }

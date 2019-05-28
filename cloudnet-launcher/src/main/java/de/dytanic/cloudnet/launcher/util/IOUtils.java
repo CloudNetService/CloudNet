@@ -7,32 +7,30 @@ import java.nio.file.Path;
 
 public final class IOUtils {
 
-    private IOUtils()
-    {
-        throw new UnsupportedOperationException();
+  private IOUtils() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static void copy(byte[] buffer, InputStream inputStream, Path path)
+      throws Exception {
+    if (Files.exists(path)) {
+      Files.delete(path);
     }
 
-    public static void copy(byte[] buffer, InputStream inputStream, Path path) throws Exception
-    {
-        if (Files.exists(path))
-            Files.delete(path);
+    Files.createFile(path);
 
-        Files.createFile(path);
-
-        try (OutputStream outputStream = Files.newOutputStream(path))
-        {
-            copy(buffer, inputStream, outputStream);
-        }
+    try (OutputStream outputStream = Files.newOutputStream(path)) {
+      copy(buffer, inputStream, outputStream);
     }
+  }
 
-    public static void copy(byte[] buffer, InputStream inputStream, OutputStream outputStream) throws Exception
-    {
-        int len;
-        while ((len = inputStream.read(buffer, 0, buffer.length)) != -1)
-        {
-            outputStream.write(buffer, 0, len);
-            outputStream.flush();
-        }
+  public static void copy(byte[] buffer, InputStream inputStream,
+      OutputStream outputStream) throws Exception {
+    int len;
+    while ((len = inputStream.read(buffer, 0, buffer.length)) != -1) {
+      outputStream.write(buffer, 0, len);
+      outputStream.flush();
     }
+  }
 
 }

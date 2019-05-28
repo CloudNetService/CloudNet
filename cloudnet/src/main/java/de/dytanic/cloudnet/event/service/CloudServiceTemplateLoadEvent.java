@@ -11,15 +11,16 @@ import lombok.Setter;
 
 @Getter
 @RequiredArgsConstructor
-public final class CloudServiceTemplateLoadEvent extends DriverEvent implements ICancelable {
+public final class CloudServiceTemplateLoadEvent extends DriverEvent implements
+    ICancelable {
 
-    private final ICloudService cloudService;
+  private final ICloudService cloudService;
 
-    private final ITemplateStorage storage;
+  private final ITemplateStorage storage;
 
-    private final ServiceTemplate template;
+  private final ServiceTemplate template;
 
-    @Setter
-    private boolean cancelled;
+  @Setter
+  private boolean cancelled;
 
 }

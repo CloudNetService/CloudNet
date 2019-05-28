@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable {
 
-    private final String url;
+  private final String url;
 
-    private final String destination;
+  private final String destination;
 
 }

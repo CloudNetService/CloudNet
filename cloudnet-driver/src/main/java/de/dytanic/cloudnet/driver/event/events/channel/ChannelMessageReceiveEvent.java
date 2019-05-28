@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class ChannelMessageReceiveEvent extends Event {
 
-    private final String channel;
+  private final String channel;
 
-    private final String message;
+  private final String message;
 
-    private final JsonDocument data;
+  private final JsonDocument data;
 
 }

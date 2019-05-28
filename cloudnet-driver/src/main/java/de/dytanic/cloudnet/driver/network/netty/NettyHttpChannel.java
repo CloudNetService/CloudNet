@@ -10,25 +10,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 final class NettyHttpChannel implements IHttpChannel {
 
-    protected final Channel channel;
+  protected final Channel channel;
 
-    protected final HostAndPort serverAddress, clientAddress;
+  protected final HostAndPort serverAddress, clientAddress;
 
-    @Override
-    public HostAndPort serverAddress()
-    {
-        return serverAddress;
-    }
+  @Override
+  public HostAndPort serverAddress() {
+    return serverAddress;
+  }
 
-    @Override
-    public HostAndPort clientAddress()
-    {
-        return clientAddress;
-    }
+  @Override
+  public HostAndPort clientAddress() {
+    return clientAddress;
+  }
 
-    @Override
-    public void close() throws Exception
-    {
-        channel.close();
-    }
+  @Override
+  public void close() throws Exception {
+    channel.close();
+  }
 }

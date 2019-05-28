@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 abstract class DatabaseEvent extends DriverEvent {
 
-    private final IDatabase database;
+  private final IDatabase database;
 
 }

@@ -6,9 +6,9 @@ import org.junit.Test;
 
 public final class GsonUtilTest {
 
-    @Test
-    public void testGsonConstants()
-    {
-        Assert.assertEquals("{\"value\":false}", GsonUtil.GSON.toJson(new JsonDocument("value", false)));
-    }
+  @Test
+  public void testGsonConstants() {
+    Assert.assertEquals("{\"value\":false}",
+        GsonUtil.GSON.toJson(new JsonDocument("value", false)));
+  }
 }

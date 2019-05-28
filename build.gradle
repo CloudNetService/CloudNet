@@ -209,6 +209,8 @@ task allJavadoc(type: Javadoc) {
     }.collect { it.path }
 
     source = exportedProjects.collect { project(it).sourceSets.main.allJava }
-    classpath = files(exportedProjects.collect { project(it).sourceSets.main.compileClasspath })
+    classpath = files(exportedProjects.collect {
+        project(it).sourceSets.main.compileClasspath
+    })
     failOnError = false
 }

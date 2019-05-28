@@ -1,6 +1,10 @@
 package de.dytanic.cloudnet.common.document;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -9,60 +13,68 @@ import java.nio.file.Paths;
  */
 public interface IPersistable {
 
-    IPersistable write(OutputStream outputStream);
+  IPersistable write(OutputStream outputStream);
 
-    IPersistable write(Writer writer);
+  IPersistable write(Writer writer);
 
-    /*= --------------------------------------------------------------- =*/
+  /*= --------------------------------------------------------------- =*/
 
-    default IPersistable write(Path path)
-    {
-        try (OutputStream outputStream = new FileOutputStream(path.toFile()))
-        {
-            this.write(outputStream);
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        return this;
+  default IPersistable write(Path path) {
+    try (OutputStream outputStream = new FileOutputStream(path.toFile())) {
+      this.write(outputStream);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
 
-    default IPersistable write(String path)
-    {
-        if (path == null) return this;
+    return this;
+  }
 
-        return this.write(Paths.get(path));
+  default IPersistable write(String path) {
+    if (path == null) {
+      return this;
     }
 
-    default IPersistable write(String... paths)
-    {
-        if (paths == null) return this;
-        for (String path : paths) this.write(path);
+    return this.write(Paths.get(path));
+  }
 
-        return this;
+  default IPersistable write(String... paths) {
+    if (paths == null) {
+      return this;
+    }
+    for (String path : paths) {
+      this.write(path);
     }
 
-    default IPersistable write(File file)
-    {
-        if (file == null) return this;
+    return this;
+  }
 
-        return this.write(file.toPath());
+  default IPersistable write(File file) {
+    if (file == null) {
+      return this;
     }
 
-    default IPersistable write(File... files)
-    {
-        if (files == null) return this;
-        for (File file : files) this.write(file);
+    return this.write(file.toPath());
+  }
 
-        return this;
+  default IPersistable write(File... files) {
+    if (files == null) {
+      return this;
+    }
+    for (File file : files) {
+      this.write(file);
     }
 
-    default IPersistable write(Path... paths)
-    {
-        if (paths == null) return this;
-        for (Path path : paths) this.write(path);
+    return this;
+  }
 
-        return this;
+  default IPersistable write(Path... paths) {
+    if (paths == null) {
+      return this;
     }
+    for (Path path : paths) {
+      this.write(path);
+    }
+
+    return this;
+  }
 }

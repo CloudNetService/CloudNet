@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class DefaultModule implements IModule {
 
-    IModuleWrapper moduleWrapper;
+  IModuleWrapper moduleWrapper;
 
-    ClassLoader classLoader;
+  ClassLoader classLoader;
 
-    ModuleConfiguration moduleConfig;
+  ModuleConfiguration moduleConfig;
 
 }

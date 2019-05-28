@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommandPostProcessEvent extends Event {
 
-    private final String commandLine;
+  private final String commandLine;
 
-    private final ICommandSender commandSender;
+  private final ICommandSender commandSender;
 
 }

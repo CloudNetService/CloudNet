@@ -12,23 +12,29 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterNodeInfoUpdate;
 import de.dytanic.cloudnet.service.ICloudService;
 
-public final class PacketServerClusterNodeInfoUpdateListener implements IPacketListener {
+public final class PacketServerClusterNodeInfoUpdateListener implements
+    IPacketListener {
 
-    @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("clusterNodeInfoSnapshot"))
-        {
-            NetworkClusterNodeInfoSnapshot snapshot = packet.getHeader().get("clusterNodeInfoSnapshot", NetworkClusterNodeInfoSnapshot.TYPE);
-            IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(snapshot.getNode().getUniqueId());
+  @Override
+  public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    if (packet.getHeader().contains("clusterNodeInfoSnapshot")) {
+      NetworkClusterNodeInfoSnapshot snapshot = packet.getHeader()
+          .get("clusterNodeInfoSnapshot", NetworkClusterNodeInfoSnapshot.TYPE);
+      IClusterNodeServer clusterNodeServer = CloudNet.getInstance()
+          .getClusterNodeServerProvider()
+          .getNodeServer(snapshot.getNode().getUniqueId());
 
-            clusterNodeServer.setNodeInfoSnapshot(snapshot);
-            CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkClusterNodeInfoUpdateEvent(channel, snapshot));
+      clusterNodeServer.setNodeInfoSnapshot(snapshot);
+      CloudNetDriver.getInstance().getEventManager()
+          .callEvent(new NetworkClusterNodeInfoUpdateEvent(channel, snapshot));
 
-            Packet packet1 = new PacketServerClusterNodeInfoUpdate(snapshot);
-            for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values())
-                if (cloudService.getNetworkChannel() != null)
-                    cloudService.getNetworkChannel().sendPacket(packet1);
+      Packet packet1 = new PacketServerClusterNodeInfoUpdate(snapshot);
+      for (ICloudService cloudService : CloudNet.getInstance()
+          .getCloudServiceManager().getCloudServices().values()) {
+        if (cloudService.getNetworkChannel() != null) {
+          cloudService.getNetworkChannel().sendPacket(packet1);
         }
+      }
     }
+  }
 }

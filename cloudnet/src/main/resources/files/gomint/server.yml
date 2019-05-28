@@ -26,33 +26,33 @@ loadAllWorldsAtStart: false
 # Configure each world like you need to
 worlds:
   # The auto-save interval in which chunks should be saved automatically in milliseconds
-- autoSaveInterval: 600000
-  # Name of the chunk generator for this world
-  chunkGenerator: normal
-  # How many blocks should we update per tick using random reasons
-  randomUpdatesPerTick: 3
-  # Disabled random ticking?
-  disableRandomTicking: false
-  # Disabled chunk gc?
-  disableChunkGC: false
-  # Name of the world this affects
-  name: world
-  # After how many seconds should a chunk be marked to be gced after the last player left the chunk.
-  secondsUntilGCAfterLastPlayerLeft: 300
-  # Amount of seconds to wait after the chunk has come into the cache before we can select it for gc.
-  waitAfterLoadForGCSeconds: 120
-  # Whether or not the world should be saved automatically on a regular basis
-  autoSave: true
-  # Save the world when it gets unloaded or the server shuts down?
-  saveOnUnload: true
-  # View distance of a player. This defines the amount of chunks sent to a player when he moves or spawns.
-  # This is measured in Chunks.
-  viewDistance: 6
-  # Amount of Chunks which will always be loaded and stay loaded around the spawn area.
-  # You can set this to 0 if you don't want to hold any Chunks in Memory but this also means
-  # that you have to load the Chunks from disk everytime someone joins and the Chunk GC has cleared
-  # the chunks. USE 0 WITH CAUTION!!!
-  amountOfChunksForSpawnArea: 4
+  - autoSaveInterval: 600000
+    # Name of the chunk generator for this world
+    chunkGenerator: normal
+    # How many blocks should we update per tick using random reasons
+    randomUpdatesPerTick: 3
+    # Disabled random ticking?
+    disableRandomTicking: false
+    # Disabled chunk gc?
+    disableChunkGC: false
+    # Name of the world this affects
+    name: world
+    # After how many seconds should a chunk be marked to be gced after the last player left the chunk.
+    secondsUntilGCAfterLastPlayerLeft: 300
+    # Amount of seconds to wait after the chunk has come into the cache before we can select it for gc.
+    waitAfterLoadForGCSeconds: 120
+    # Whether or not the world should be saved automatically on a regular basis
+    autoSave: true
+    # Save the world when it gets unloaded or the server shuts down?
+    saveOnUnload: true
+    # View distance of a player. This defines the amount of chunks sent to a player when he moves or spawns.
+    # This is measured in Chunks.
+    viewDistance: 6
+    # Amount of Chunks which will always be loaded and stay loaded around the spawn area.
+    # You can set this to 0 if you don't want to hold any Chunks in Memory but this also means
+    # that you have to load the Chunks from disk everytime someone joins and the Chunk GC has cleared
+    # the chunks. USE 0 WITH CAUTION!!!
+    amountOfChunksForSpawnArea: 4
 # Configure vanilla features. If you configure this to something else than default you are on your own. I will not support/solve issues when something has been changed here.
 vanilla:
   # Disable the sprint reset when you hit something?

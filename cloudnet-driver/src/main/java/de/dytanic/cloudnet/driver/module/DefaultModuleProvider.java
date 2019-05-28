@@ -2,9 +2,6 @@ package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,166 +9,165 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Predicate;
+import lombok.Getter;
+import lombok.Setter;
 
 public final class DefaultModuleProvider implements IModuleProvider {
 
-    protected Collection<DefaultModuleWrapper> moduleWrappers = Iterables.newCopyOnWriteArrayList();
+  protected Collection<DefaultModuleWrapper> moduleWrappers = Iterables
+      .newCopyOnWriteArrayList();
 
-    @Getter
-    @Setter
-    protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
+  @Getter
+  @Setter
+  protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
 
-    @Getter
-    @Setter
-    protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
+  @Getter
+  @Setter
+  protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
-    @Override
-    public Collection<IModuleWrapper> getModules()
-    {
-        return Collections.unmodifiableCollection(moduleWrappers);
-    }
+  @Override
+  public Collection<IModuleWrapper> getModules() {
+    return Collections.unmodifiableCollection(moduleWrappers);
+  }
 
-    @Override
-    public Collection<IModuleWrapper> getModules(String group)
-    {
-        Validate.checkNotNull(group);
+  @Override
+  public Collection<IModuleWrapper> getModules(String group) {
+    Validate.checkNotNull(group);
 
-        return Iterables.filter(this.getModules(), new Predicate<IModuleWrapper>() {
-            @Override
-            public boolean test(IModuleWrapper defaultModuleWrapper)
-            {
-                return defaultModuleWrapper.getModuleConfiguration().group.equals(group);
-            }
+    return Iterables.filter(this.getModules(), new Predicate<IModuleWrapper>() {
+      @Override
+      public boolean test(IModuleWrapper defaultModuleWrapper) {
+        return defaultModuleWrapper.getModuleConfiguration().group
+            .equals(group);
+      }
+    });
+  }
+
+  @Override
+  public IModuleWrapper getModule(String name) {
+    Validate.checkNotNull(name);
+
+    return Iterables
+        .first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
+          @Override
+          public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
+            return defaultModuleWrapper.getModuleConfiguration().getName()
+                .equals(name);
+          }
         });
+  }
+
+  @Override
+  public IModuleWrapper loadModule(URL url) {
+    Validate.checkNotNull(url);
+
+    DefaultModuleWrapper moduleWrapper = null;
+
+    if (Iterables
+        .first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
+          @Override
+          public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
+            return defaultModuleWrapper.getUrl().toString()
+                .equalsIgnoreCase(url.toString());
+          }
+        }) != null) {
+      return null;
     }
 
-    @Override
-    public IModuleWrapper getModule(String name)
-    {
-        Validate.checkNotNull(name);
+    try {
 
-        return Iterables.first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
-            @Override
-            public boolean test(DefaultModuleWrapper defaultModuleWrapper)
-            {
-                return defaultModuleWrapper.getModuleConfiguration().getName().equals(name);
-            }
-        });
+      this.moduleWrappers
+          .add(moduleWrapper = new DefaultModuleWrapper(this, url));
+      moduleWrapper.loadModule();
+
+    } catch (Throwable throwable) {
+      throwable.printStackTrace();
+
+      if (moduleWrapper != null) {
+        moduleWrapper.unloadModule();
+      }
     }
 
-    @Override
-    public IModuleWrapper loadModule(URL url)
-    {
-        Validate.checkNotNull(url);
+    return moduleWrapper;
+  }
 
-        DefaultModuleWrapper moduleWrapper = null;
+  @Override
+  public IModuleWrapper loadModule(File file) {
+    Validate.checkNotNull(file);
 
-        if (Iterables.first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
-            @Override
-            public boolean test(DefaultModuleWrapper defaultModuleWrapper)
-            {
-                return defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString());
-            }
-        }) != null) return null;
+    return loadModule(file.toPath());
+  }
 
-        try
-        {
+  @Override
+  public IModuleWrapper loadModule(Path path) {
+    Validate.checkNotNull(path);
 
-            this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url));
-            moduleWrapper.loadModule();
-
-        } catch (Throwable throwable)
-        {
-            throwable.printStackTrace();
-
-            if (moduleWrapper != null)
-                moduleWrapper.unloadModule();
-        }
-
-        return moduleWrapper;
+    try {
+      return loadModule(path.toUri().toURL());
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
     }
 
-    @Override
-    public IModuleWrapper loadModule(File file)
-    {
-        Validate.checkNotNull(file);
+    return null;
+  }
 
-        return loadModule(file.toPath());
+  @Override
+  public IModuleProvider loadModule(URL... urls) {
+    Validate.checkNotNull(urls);
+
+    for (URL url : urls) {
+      loadModule(url);
     }
 
-    @Override
-    public IModuleWrapper loadModule(Path path)
-    {
-        Validate.checkNotNull(path);
+    return this;
+  }
 
-        try
-        {
-            return loadModule(path.toUri().toURL());
-        } catch (MalformedURLException e)
-        {
-            e.printStackTrace();
-        }
+  @Override
+  public IModuleProvider loadModule(File... files) {
+    Validate.checkNotNull(files);
 
-        return null;
+    for (File file : files) {
+      loadModule(file);
     }
 
-    @Override
-    public IModuleProvider loadModule(URL... urls)
-    {
-        Validate.checkNotNull(urls);
+    return this;
+  }
 
-        for (URL url : urls)
-            loadModule(url);
+  @Override
+  public IModuleProvider loadModule(Path... paths) {
+    Validate.checkNotNull(paths);
 
-        return this;
+    for (Path path : paths) {
+      loadModule(path);
     }
 
-    @Override
-    public IModuleProvider loadModule(File... files)
-    {
-        Validate.checkNotNull(files);
+    return this;
+  }
 
-        for (File file : files)
-            loadModule(file);
-
-        return this;
+  @Override
+  public IModuleProvider startAll() {
+    for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
+      moduleWrapper.startModule();
     }
 
-    @Override
-    public IModuleProvider loadModule(Path... paths)
-    {
-        Validate.checkNotNull(paths);
+    return this;
+  }
 
-        for (Path path : paths)
-            loadModule(path);
-
-        return this;
+  @Override
+  public IModuleProvider stopAll() {
+    for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
+      moduleWrapper.stopModule();
     }
 
-    @Override
-    public IModuleProvider startAll()
-    {
-        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
-            moduleWrapper.startModule();
+    return this;
+  }
 
-        return this;
+  @Override
+  public IModuleProvider unloadAll() {
+    for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
+      moduleWrapper.unloadModule();
     }
 
-    @Override
-    public IModuleProvider stopAll()
-    {
-        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
-            moduleWrapper.stopModule();
-
-        return this;
-    }
-
-    @Override
-    public IModuleProvider unloadAll()
-    {
-        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
-            moduleWrapper.unloadModule();
-
-        return this;
-    }
+    return this;
+  }
 }

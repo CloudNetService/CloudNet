@@ -7,15 +7,15 @@ import java.util.concurrent.TimeUnit;
 
 public interface ITask<V> extends Future<V>, Callable<V> {
 
-    ITask<V> addListener(ITaskListener<V>... listeners);
+  ITask<V> addListener(ITaskListener<V>... listeners);
 
-    ITask<V> clearListeners();
+  ITask<V> clearListeners();
 
-    Collection<ITaskListener<V>> getListeners();
+  Collection<ITaskListener<V>> getListeners();
 
-    Callable<V> getCallable();
+  Callable<V> getCallable();
 
-    V getDef(V def);
+  V getDef(V def);
 
-    V get(long time, TimeUnit timeUnit, V def);
+  V get(long time, TimeUnit timeUnit, V def);
 }

@@ -3,13 +3,12 @@ package de.dytanic.cloudnet.driver.network.cluster;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.lang.reflect.Type;
-import java.util.Collection;
 
 @Data
 @NoArgsConstructor
@@ -17,19 +16,19 @@ import java.util.Collection;
 @EqualsAndHashCode(callSuper = false)
 public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
 
-    public static final Type TYPE = new TypeToken<NetworkClusterNodeInfoSnapshot>() {
-    }.getType();
+  public static final Type TYPE = new TypeToken<NetworkClusterNodeInfoSnapshot>() {
+  }.getType();
 
-    protected long creationTime;
+  protected long creationTime;
 
-    protected NetworkClusterNode node;
+  protected NetworkClusterNode node;
 
-    protected String version;
+  protected String version;
 
-    protected int currentServicesCount, usedMemory, reservedMemory, maxMemory;
+  protected int currentServicesCount, usedMemory, reservedMemory, maxMemory;
 
-    protected ProcessSnapshot processSnapshot;
+  protected ProcessSnapshot processSnapshot;
 
-    protected Collection<NetworkClusterNodeExtensionSnapshot> extensions;
+  protected Collection<NetworkClusterNodeExtensionSnapshot> extensions;
 
 }

@@ -8,6 +8,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommandNotFoundEvent extends Event {
 
-    private final String commandLine;
+  private final String commandLine;
 
 }
