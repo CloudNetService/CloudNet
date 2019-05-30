@@ -278,7 +278,7 @@ public interface IPermissionManagement {
 
     default Collection<Permission> getAllPermissions(IPermissible permissible, String group) {
         if (permissible == null)
-            return null;
+            return Collections.emptyList();
 
         Collection<Permission> permissions = new ArrayList<>(permissible.getPermissions());
         if (group != null && permissible.getGroupPermissions().containsKey(group))
