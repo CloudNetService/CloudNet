@@ -4,22 +4,22 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
-public final class NetworkChannelReceiveServiceTasksUpdateEvent extends NetworkEvent implements ICancelable {
+public final class NetworkChannelReceiveServiceTasksUpdateEvent extends
+  NetworkEvent implements ICancelable {
 
-    private List<ServiceTask> serviceTasks;
+  private List<ServiceTask> serviceTasks;
 
-    private boolean cancelled;
+  private boolean cancelled;
 
-    public NetworkChannelReceiveServiceTasksUpdateEvent(INetworkChannel channel, List<ServiceTask> serviceTasks)
-    {
-        super(channel);
-        this.serviceTasks = serviceTasks;
-    }
+  public NetworkChannelReceiveServiceTasksUpdateEvent(INetworkChannel channel,
+    List<ServiceTask> serviceTasks) {
+    super(channel);
+    this.serviceTasks = serviceTasks;
+  }
 }

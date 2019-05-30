@@ -38,12 +38,12 @@ commands:
   tab-complete: 0
   log: true
   spam-exclusions:
-  - /skill
+    - /skill
   replace-commands:
-  - setblock
-  - summon
-  - testforblock
-  - tellraw
+    - setblock
+    - summon
+    - testforblock
+    - tellraw
   silent-commandblock-console: false
 messages:
   whitelist: You are not whitelisted on this server!
@@ -98,22 +98,22 @@ world-settings:
       enabled: true
       engine-mode: 1
       hide-blocks:
-      - 14
-      - 15
-      - 16
-      - 21
-      - 48
-      - 49
-      - 54
-      - 56
-      - 73
-      - 74
-      - 82
-      - 129
-      - 130
+        - 14
+        - 15
+        - 16
+        - 21
+        - 48
+        - 49
+        - 54
+        - 56
+        - 73
+        - 74
+        - 82
+        - 129
+        - 130
       replace-blocks:
-      - 1
-      - 5
+        - 1
+        - 5
     nerf-spawner-mobs: false
     growth:
       cactus-modifier: 100

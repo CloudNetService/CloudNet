@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class PermissionEvent extends Event {
 
-    private final IPermissionManagement permissionManagement;
+  private final IPermissionManagement permissionManagement;
 
 }

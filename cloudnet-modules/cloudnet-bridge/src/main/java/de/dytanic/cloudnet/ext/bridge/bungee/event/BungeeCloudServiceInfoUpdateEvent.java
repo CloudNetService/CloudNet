@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class BungeeCloudServiceInfoUpdateEvent extends BungeeCloudNetEvent {
+public final class BungeeCloudServiceInfoUpdateEvent extends
+  BungeeCloudNetEvent {
 
-    @Getter
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  @Getter
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 }

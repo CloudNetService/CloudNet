@@ -7,12 +7,12 @@ import lombok.Getter;
 @Getter
 public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
 
-    private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
-    public NetworkClusterNodeInfoUpdateEvent(INetworkChannel channel, NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot)
-    {
-        super(channel);
+  public NetworkClusterNodeInfoUpdateEvent(INetworkChannel channel,
+    NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
+    super(channel);
 
-        this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
-    }
+    this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
+  }
 }

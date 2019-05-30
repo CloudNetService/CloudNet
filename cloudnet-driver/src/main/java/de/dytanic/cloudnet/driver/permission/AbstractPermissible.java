@@ -3,94 +3,106 @@ package de.dytanic.cloudnet.driver.permission;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
+public abstract class AbstractPermissible extends
+  BasicJsonDocPropertyable implements IPermissible {
 
-    @Setter
-    protected String name;
+  @Setter
+  protected String name;
 
-    @Setter
-    protected int potency;
+  @Setter
+  protected int potency;
 
-    protected final long createdTime;
+  protected final long createdTime;
 
-    @Setter
-    protected List<Permission> permissions;
+  @Setter
+  protected List<Permission> permissions;
 
-    protected Map<String, Collection<Permission>> groupPermissions;
+  protected Map<String, Collection<Permission>> groupPermissions;
 
-    public AbstractPermissible()
-    {
-        this.createdTime = System.currentTimeMillis();
-        this.permissions = Iterables.newArrayList();
-        this.groupPermissions = Maps.newHashMap();
+  public AbstractPermissible() {
+    this.createdTime = System.currentTimeMillis();
+    this.permissions = Iterables.newArrayList();
+    this.groupPermissions = Maps.newHashMap();
+  }
+
+  @Override
+  public boolean addPermission(Permission permission) {
+    if (permission == null || permission.getName() == null) {
+      return false;
     }
 
-    @Override
-    public boolean addPermission(Permission permission)
-    {
-        if (permission == null || permission.getName() == null) return false;
+    Permission exist = this.getPermission(permission.getName());
 
-        Permission exist = this.getPermission(permission.getName());
-
-        if (exist != null) this.permissions.remove(exist);
-
-        this.permissions.add(permission);
-
-        return true;
+    if (exist != null) {
+      this.permissions.remove(exist);
     }
 
-    @Override
-    public boolean addPermission(String group, Permission permission)
-    {
-        if (group == null || permission == null) return false;
+    this.permissions.add(permission);
 
-        if (!groupPermissions.containsKey(group))
-            groupPermissions.put(group, Iterables.newArrayList());
+    return true;
+  }
 
-        groupPermissions.get(group).add(permission);
-        return true;
+  @Override
+  public boolean addPermission(String group, Permission permission) {
+    if (group == null || permission == null) {
+      return false;
     }
 
-    @Override
-    public boolean removePermission(String permission)
-    {
-        if (permission == null) return false;
-
-        Permission exist = this.getPermission(permission);
-
-        if (exist != null) return this.permissions.remove(exist);
-        else return false;
+    if (!groupPermissions.containsKey(group)) {
+      groupPermissions.put(group, Iterables.newArrayList());
     }
 
-    @Override
-    public boolean removePermission(String group, String permission)
-    {
-        if (group == null || permission == null) return false;
+    groupPermissions.get(group).add(permission);
+    return true;
+  }
 
-        if (groupPermissions.containsKey(group))
-        {
-            Permission p = Iterables.first(groupPermissions.get(group), new Predicate<Permission>() {
-                @Override
-                public boolean test(Permission perm)
-                {
-                    return perm.getName().equalsIgnoreCase(permission);
-                }
-            });
-
-            if (p != null) groupPermissions.get(group).remove(p);
-
-            if (groupPermissions.get(group).isEmpty()) groupPermissions.remove(group);
-        }
-
-        return true;
+  @Override
+  public boolean removePermission(String permission) {
+    if (permission == null) {
+      return false;
     }
+
+    Permission exist = this.getPermission(permission);
+
+    if (exist != null) {
+      return this.permissions.remove(exist);
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public boolean removePermission(String group, String permission) {
+    if (group == null || permission == null) {
+      return false;
+    }
+
+    if (groupPermissions.containsKey(group)) {
+      Permission p = Iterables
+        .first(groupPermissions.get(group), new Predicate<Permission>() {
+          @Override
+          public boolean test(Permission perm) {
+            return perm.getName().equalsIgnoreCase(permission);
+          }
+        });
+
+      if (p != null) {
+        groupPermissions.get(group).remove(p);
+      }
+
+      if (groupPermissions.get(group).isEmpty()) {
+        groupPermissions.remove(group);
+      }
+    }
+
+    return true;
+  }
 }

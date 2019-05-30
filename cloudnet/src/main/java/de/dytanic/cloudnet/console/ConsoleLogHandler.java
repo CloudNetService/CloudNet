@@ -9,17 +9,15 @@ import lombok.Getter;
 @AllArgsConstructor
 public final class ConsoleLogHandler extends AbstractLogHandler {
 
-    private final IConsole console;
+  private final IConsole console;
 
-    @Override
-    public void handle(LogEntry logEntry)
-    {
-        console.writeLine(getFormatter().format(logEntry));
-    }
+  @Override
+  public void handle(LogEntry logEntry) {
+    console.writeLine(getFormatter().format(logEntry));
+  }
 
-    @Override
-    public void close() throws Exception
-    {
+  @Override
+  public void close() throws Exception {
 
-    }
+  }
 }

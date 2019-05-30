@@ -7,12 +7,12 @@ import lombok.Getter;
 @Getter
 abstract class PermissionGroupEvent extends PermissionEvent {
 
-    private final IPermissionGroup permissionGroup;
+  private final IPermissionGroup permissionGroup;
 
-    public PermissionGroupEvent(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup)
-    {
-        super(permissionManagement);
+  public PermissionGroupEvent(IPermissionManagement permissionManagement,
+    IPermissionGroup permissionGroup) {
+    super(permissionManagement);
 
-        this.permissionGroup = permissionGroup;
-    }
+    this.permissionGroup = permissionGroup;
+  }
 }

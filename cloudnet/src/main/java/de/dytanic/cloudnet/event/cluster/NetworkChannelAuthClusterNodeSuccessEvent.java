@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class NetworkChannelAuthClusterNodeSuccessEvent extends Event {
 
-    private final IClusterNodeServer node;
+  private final IClusterNodeServer node;
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
 }

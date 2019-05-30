@@ -6,37 +6,37 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig> {
+public class SmartServiceTaskConfig implements
+  Comparable<SmartServiceTaskConfig> {
 
-    protected String task;
+  protected String task;
 
-    protected int priority;
+  protected int priority;
 
-    protected boolean directTemplatesAndInclusionsSetup;
+  protected boolean directTemplatesAndInclusionsSetup;
 
-    protected int preparedServices;
+  protected int preparedServices;
 
-    protected int minServiceOnlineCount;
+  protected int minServiceOnlineCount;
 
-    protected boolean dynamicMemoryAllocation;
+  protected boolean dynamicMemoryAllocation;
 
-    protected int dynamicMemoryAllocationRange;
+  protected int dynamicMemoryAllocationRange;
 
-    protected int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
+  protected int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
 
-    protected int autoStopTimeByUnusedServiceInSeconds;
+  protected int autoStopTimeByUnusedServiceInSeconds;
 
-    protected boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService;
+  protected boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService;
 
-    protected int percentOfPlayersForANewServiceByInstance;
+  protected int percentOfPlayersForANewServiceByInstance;
 
-    protected int forAnewInstanceDelayTimeInSeconds;
+  protected int forAnewInstanceDelayTimeInSeconds;
 
-    protected TemplateInstaller templateInstaller;
+  protected TemplateInstaller templateInstaller;
 
-    @Override
-    public int compareTo(SmartServiceTaskConfig o)
-    {
-        return priority + o.priority;
-    }
+  @Override
+  public int compareTo(SmartServiceTaskConfig o) {
+    return priority + o.priority;
+  }
 }

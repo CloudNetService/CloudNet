@@ -7,44 +7,44 @@ import org.junit.Test;
 
 public class DefaultPacketRegistryTest {
 
-    private String testValue = null;
+  private String testValue = null;
 
-    private int property = 0;
+  private int property = 0;
 
-    @Test
-    public void testPacketRegistry() throws Throwable
-    {
-        final int channelId = 4;
+  @Test
+  public void testPacketRegistry() throws Throwable {
+    final int channelId = 4;
 
-        IPacketListener listener = new PacketListenerImpl();
+    IPacketListener listener = new PacketListenerImpl();
 
-        IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
-        registry.addListener(channelId, listener);
+    IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+    registry.addListener(channelId, listener);
 
-        Assert.assertEquals(1, registry.getListeners().size());
+    Assert.assertEquals(1, registry.getListeners().size());
 
-        registry.handlePacket(null, new Packet(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()));
+    registry.handlePacket(null,
+      new Packet(channelId, new JsonDocument("testProperty", 65),
+        "TestValue".getBytes()));
 
-        Assert.assertEquals(65, property);
-        Assert.assertEquals("TestValue", testValue);
+    Assert.assertEquals(65, property);
+    Assert.assertEquals("TestValue", testValue);
 
-        registry.removeListeners(channelId);
+    registry.removeListeners(channelId);
 
-        Assert.assertEquals(0, registry.getListeners().size());
+    Assert.assertEquals(0, registry.getListeners().size());
 
-        registry.addListener(channelId, listener);
-        registry.removeListener(channelId, listener);
+    registry.addListener(channelId, listener);
+    registry.removeListener(channelId, listener);
 
-        Assert.assertEquals(0, registry.getListeners().size());
+    Assert.assertEquals(0, registry.getListeners().size());
+  }
+
+  private final class PacketListenerImpl implements IPacketListener {
+
+    @Override
+    public void handle(INetworkChannel channel, IPacket packet) {
+      testValue = new String(packet.getBody());
+      property = packet.getHeader().getInt("testProperty");
     }
-
-    private final class PacketListenerImpl implements IPacketListener {
-
-        @Override
-        public void handle(INetworkChannel channel, IPacket packet)
-        {
-            testValue = new String(packet.getBody());
-            property = packet.getHeader().getInt("testProperty");
-        }
-    }
+  }
 }

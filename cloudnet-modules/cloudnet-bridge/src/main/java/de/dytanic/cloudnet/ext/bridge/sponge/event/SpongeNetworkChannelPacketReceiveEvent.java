@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class SpongeNetworkChannelPacketReceiveEvent extends SpongeCloudNetEvent {
+public final class SpongeNetworkChannelPacketReceiveEvent extends
+  SpongeCloudNetEvent {
 
-    @Getter
-    private final INetworkChannel channel;
+  @Getter
+  private final INetworkChannel channel;
 
-    @Getter
-    private final IPacket packet;
+  @Getter
+  private final IPacket packet;
 }

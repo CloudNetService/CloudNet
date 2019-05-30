@@ -1,115 +1,126 @@
 package de.dytanic.cloudnet.common.logging;
 
-import lombok.Getter;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import lombok.Getter;
 
 /**
- * A standard file logger for this LoggingAPI. All important configurations can be made in the constructor
+ * A standard file logger for this LoggingAPI. All important configurations can
+ * be made in the constructor
  */
 @Getter
 public final class DefaultFileLogHandler extends AbstractLogHandler {
 
-    public static final long SIZE_8MB = 8000000L;
+  public static final long SIZE_8MB = 8000000L;
 
-    /*= -------------------------------- =*/
+  /*= -------------------------------- =*/
 
-    private final File directory;
+  private final File directory;
 
-    private final String pattern;
+  private final String pattern;
 
-    private final long maxBytes;
+  private final long maxBytes;
 
-    /*= -------------------------------- =*/
+  /*= -------------------------------- =*/
 
-    private File entry;
+  private File entry;
 
-    private PrintWriter printWriter;
+  private PrintWriter printWriter;
 
-    private long writternBytes = 0L;
+  private long writternBytes = 0L;
 
-    private int index = 0;
+  private int index = 0;
 
-    /**
-     * The default constructor with all important configuration
-     *
-     * @param directory the default storage for the log files
-     * @param pattern   the file pattern, for the log files like "app.log" will be to than "app.log.0"
-     * @param maxBytes  the maximum bytes, that a log file should have, to switch to the next log file
-     */
-    public DefaultFileLogHandler(File directory, String pattern, long maxBytes)
-    {
-        if (directory == null)
-            directory = new File(System.getProperty("cloudnet.logging.fallback.log.directory", "logs"));
-
-        this.directory = directory;
-        this.directory.mkdirs();
-
-        this.pattern = pattern;
-        this.maxBytes = maxBytes;
-
-        selectLogFile();
+  /**
+   * The default constructor with all important configuration
+   *
+   * @param directory the default storage for the log files
+   * @param pattern the file pattern, for the log files like "app.log" will be
+   * to than "app.log.0"
+   * @param maxBytes the maximum bytes, that a log file should have, to switch
+   * to the next log file
+   */
+  public DefaultFileLogHandler(File directory, String pattern, long maxBytes) {
+    if (directory == null) {
+      directory = new File(System
+        .getProperty("cloudnet.logging.fallback.log.directory", "logs"));
     }
 
-    @Override
-    public void handle(LogEntry logEntry)
-    {
-        if (getFormatter() == null) setFormatter(new DefaultLogFormatter());
-        if (entry == null) selectLogFile();
-        if (entry.length() > maxBytes) selectLogFile();
+    this.directory = directory;
+    this.directory.mkdirs();
 
-        String formatted = getFormatter().format(logEntry);
-        this.writternBytes = writternBytes + formatted.getBytes(StandardCharsets.UTF_8).length;
+    this.pattern = pattern;
+    this.maxBytes = maxBytes;
 
-        if (this.writternBytes > maxBytes) selectLogFile();
+    selectLogFile();
+  }
 
-        printWriter.write(formatted);
-        printWriter.flush();
+  @Override
+  public void handle(LogEntry logEntry) {
+    if (getFormatter() == null) {
+      setFormatter(new DefaultLogFormatter());
+    }
+    if (entry == null) {
+      selectLogFile();
+    }
+    if (entry.length() > maxBytes) {
+      selectLogFile();
     }
 
-    @Override
-    public void close() throws Exception
-    {
+    String formatted = getFormatter().format(logEntry);
+    this.writternBytes =
+      writternBytes + formatted.getBytes(StandardCharsets.UTF_8).length;
 
-        index = 0;
-        printWriter.close();
+    if (this.writternBytes > maxBytes) {
+      selectLogFile();
     }
 
-    private void selectLogFile()
-    {
-        if (printWriter != null) printWriter.close();
-        if (writternBytes != 0L) writternBytes = 0L;
+    printWriter.write(formatted);
+    printWriter.flush();
+  }
 
-        entry = null;
-        File file;
+  @Override
+  public void close() throws Exception {
 
-        while (entry == null)
-        {
-            file = new File(directory, pattern + "." + index);
+    index = 0;
+    printWriter.close();
+  }
 
-            try
-            {
+  private void selectLogFile() {
+    if (printWriter != null) {
+      printWriter.close();
+    }
+    if (writternBytes != 0L) {
+      writternBytes = 0L;
+    }
 
-                if (!file.exists()) file.createNewFile();
+    entry = null;
+    File file;
 
-                if (file.length() < maxBytes)
-                {
-                    this.entry = file;
-                    this.printWriter = new PrintWriter(new FileWriter(this.entry, true));
-                    break;
-                }
+    while (entry == null) {
+      file = new File(directory, pattern + "." + index);
 
-            } catch (Exception ex)
-            {
-                ex.printStackTrace();
-            }
+      try {
 
-            index++;
+        if (!file.exists()) {
+          file.createNewFile();
         }
 
-        index = 0;
+        if (file.length() < maxBytes) {
+          this.entry = file;
+          this.printWriter = new PrintWriter(new FileWriter(this.entry, true));
+          break;
+        }
+
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+
+      index++;
     }
+
+    index = 0;
+  }
 }

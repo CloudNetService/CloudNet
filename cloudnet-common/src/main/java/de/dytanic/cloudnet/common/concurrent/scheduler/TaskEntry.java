@@ -2,12 +2,11 @@ package de.dytanic.cloudnet.common.concurrent.scheduler;
 
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 import de.dytanic.cloudnet.common.concurrent.IVoidCallback;
-
 import java.util.concurrent.Callable;
 
 /**
- * This class, will be removed in the future, and exchanged
- * for a new TaskScheduler with the support of the ITask class.
+ * This class, will be removed in the future, and exchanged for a new
+ * TaskScheduler with the support of the ITask class.
  *
  * @see de.dytanic.cloudnet.common.concurrent.ITask
  * @see TaskScheduler
@@ -16,89 +15,84 @@ import java.util.concurrent.Callable;
 @UnsafeClass
 public class TaskEntry<T> {
 
-    protected volatile Callable<T> task;
+  protected volatile Callable<T> task;
 
-    protected volatile T value = null;
+  protected volatile T value = null;
 
-    protected IVoidCallback<T> callback;
+  protected IVoidCallback<T> callback;
 
-    protected long delayTimeOut, repeat, delay;
+  protected long delayTimeOut, repeat, delay;
 
-    protected boolean completed = false;
+  protected boolean completed = false;
 
-    private final TaskEntryFuture<T> future;
+  private final TaskEntryFuture<T> future;
 
-    public TaskEntry(Callable<T> task, IVoidCallback<T> complete, long delay, long repeat)
-    {
+  public TaskEntry(Callable<T> task, IVoidCallback<T> complete, long delay,
+    long repeat) {
 
-        this.task = task;
-        this.callback = complete;
-        this.delay = delay;
-        this.delayTimeOut = System.currentTimeMillis() + delay;
-        this.repeat = repeat;
-        this.future = new TaskEntryFuture<>(this, false);
+    this.task = task;
+    this.callback = complete;
+    this.delay = delay;
+    this.delayTimeOut = System.currentTimeMillis() + delay;
+    this.repeat = repeat;
+    this.future = new TaskEntryFuture<>(this, false);
+  }
+
+
+  protected void invoke() throws Exception {
+
+    if (task == null) {
+      return;
     }
 
+    T val = task.call();
 
-    protected void invoke() throws Exception
-    {
+    value = val;
 
-        if (task == null)
-            return;
+    if (callback != null) {
+      callback.call(val);
+    }
 
-        T val = task.call();
+    if (repeat != -1 && repeat != 0) {
+      repeat--;
+    }
 
-        value = val;
+    if (repeat != 0) {
+      this.delayTimeOut = System.currentTimeMillis() + delay;
+    } else {
+      completed = true;
 
-        if (callback != null)
-            callback.call(val);
-
-        if (repeat != -1 && repeat != 0) repeat--;
-
-        if (repeat != 0)
-            this.delayTimeOut = System.currentTimeMillis() + delay;
-        else
-        {
-            completed = true;
-
-            if (future.waits)
-            {
-                synchronized (future)
-                {
-                    future.notifyAll();
-                }
-            }
+      if (future.waits) {
+        synchronized (future) {
+          future.notifyAll();
         }
+      }
     }
+  }
 
 
-    public IVoidCallback<T> getCallback()
-    {
-        return callback;
-    }
+  public IVoidCallback<T> getCallback() {
+    return callback;
+  }
 
 
-    public long getDelayTimeOut()
-    {
-        return delayTimeOut;
-    }
+  public long getDelayTimeOut() {
+    return delayTimeOut;
+  }
 
 
-    public long getRepeat()
-    {
-        return repeat;
-    }
+  public long getRepeat() {
+    return repeat;
+  }
 
 
-    protected TaskEntryFuture<T> drop()
-    {
-        return future;
-    }
+  protected TaskEntryFuture<T> drop() {
+    return future;
+  }
 
 
-    public boolean isCompleted()
-    {
-        return completed;
-    }
+  public boolean isCompleted() {
+    return completed;
+  }
 
 }

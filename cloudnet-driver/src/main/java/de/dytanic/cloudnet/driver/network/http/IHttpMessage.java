@@ -4,34 +4,34 @@ import java.util.Map;
 
 public interface IHttpMessage<T extends IHttpMessage> {
 
-    IHttpContext context();
+  IHttpContext context();
 
-    String header(String name);
+  String header(String name);
 
-    int headerAsInt(String name);
+  int headerAsInt(String name);
 
-    boolean headerAsBoolean(String name);
+  boolean headerAsBoolean(String name);
 
-    T header(String name, String value);
+  T header(String name, String value);
 
-    T removeHeader(String name);
+  T removeHeader(String name);
 
-    T clearHeaders();
+  T clearHeaders();
 
-    boolean hasHeader(String name);
+  boolean hasHeader(String name);
 
-    Map<String, String> headers();
+  Map<String, String> headers();
 
-    HttpVersion version();
+  HttpVersion version();
 
-    T version(HttpVersion version);
+  T version(HttpVersion version);
 
-    byte[] body();
+  byte[] body();
 
-    String bodyAsString();
+  String bodyAsString();
 
-    T body(byte[] byteArray);
+  T body(byte[] byteArray);
 
-    T body(String text);
+  T body(String text);
 
 }

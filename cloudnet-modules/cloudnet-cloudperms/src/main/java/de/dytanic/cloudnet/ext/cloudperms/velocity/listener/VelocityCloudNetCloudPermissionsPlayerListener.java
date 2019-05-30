@@ -12,40 +12,43 @@ import de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissi
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
-    @Subscribe(order = PostOrder.FIRST)
-    public void handle(LoginEvent event)
-    {
-        IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUniqueId());
+  @Subscribe(order = PostOrder.FIRST)
+  public void handle(LoginEvent event) {
+    IPermissionUser permissionUser = CloudPermissionsPermissionManagement
+      .getInstance().getUser(event.getPlayer().getUniqueId());
 
-        if (permissionUser == null)
-        {
-            CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                event.getPlayer().getUniqueId(),
-                event.getPlayer().getUsername(),
-                null,
-                0
-            ));
+    if (permissionUser == null) {
+      CloudPermissionsPermissionManagement.getInstance()
+        .addUser(new PermissionUser(
+          event.getPlayer().getUniqueId(),
+          event.getPlayer().getUsername(),
+          null,
+          0
+        ));
 
-            permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUniqueId());
-        }
-
-        if (permissionUser != null)
-        {
-            CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
-            permissionUser.setName(event.getPlayer().getUsername());
-            CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
-        }
+      permissionUser = CloudPermissionsPermissionManagement.getInstance()
+        .getUser(event.getPlayer().getUniqueId());
     }
 
-    @Subscribe
-    public void handle(PermissionsSetupEvent event)
-    {
-        event.setProvider(VelocityCloudNetCloudPermissionsPlugin.getInstance().getPermissionProvider());
+    if (permissionUser != null) {
+      CloudPermissionsPermissionManagement.getInstance()
+        .getCachedPermissionUsers()
+        .put(permissionUser.getUniqueId(), permissionUser);
+      permissionUser.setName(event.getPlayer().getUsername());
+      CloudPermissionsPermissionManagement.getInstance()
+        .updateUser(permissionUser);
     }
+  }
 
-    @Subscribe
-    public void handle(DisconnectEvent event)
-    {
-        CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
-    }
+  @Subscribe
+  public void handle(PermissionsSetupEvent event) {
+    event.setProvider(VelocityCloudNetCloudPermissionsPlugin.getInstance()
+      .getPermissionProvider());
+  }
+
+  @Subscribe
+  public void handle(DisconnectEvent event) {
+    CloudPermissionsPermissionManagement.getInstance()
+      .getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+  }
 }

@@ -10,34 +10,36 @@ import io.gomint.event.player.PlayerQuitEvent;
 
 public final class GoMintPlayerListener implements EventListener {
 
-    @EventHandler
-    public void handle(PlayerLoginEvent event)
-    {
-        BridgeHelper.sendChannelMessageServerLoginRequest(GoMintCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-            GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), true));
-    }
+  @EventHandler
+  public void handle(PlayerLoginEvent event) {
+    BridgeHelper.sendChannelMessageServerLoginRequest(
+      GoMintCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      GoMintCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getPlayer(), true));
+  }
 
-    @EventHandler
-    public void handle(PlayerJoinEvent event)
-    {
-        BridgeHelper.sendChannelMessageServerLoginSuccess(GoMintCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-            GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+  @EventHandler
+  public void handle(PlayerJoinEvent event) {
+    BridgeHelper.sendChannelMessageServerLoginSuccess(
+      GoMintCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      GoMintCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getPlayer(), false));
 
+    BridgeHelper.updateServiceInfo();
+  }
+
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    BridgeHelper.sendChannelMessageServerDisconnect(
+      GoMintCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      GoMintCloudNetHelper
+        .createNetworkPlayerServerInfo(event.getPlayer(), false));
+
+    GoMintCloudNetHelper.getPlugin().getScheduler().execute(new Runnable() {
+      @Override
+      public void run() {
         BridgeHelper.updateServiceInfo();
-    }
-
-    @EventHandler
-    public void handle(PlayerQuitEvent event)
-    {
-        BridgeHelper.sendChannelMessageServerDisconnect(GoMintCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-            GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
-
-        GoMintCloudNetHelper.getPlugin().getScheduler().execute(new Runnable() {
-            @Override
-            public void run()
-            {
-                BridgeHelper.updateServiceInfo();
-            }
-        });
-    }
+      }
+    });
+  }
 }

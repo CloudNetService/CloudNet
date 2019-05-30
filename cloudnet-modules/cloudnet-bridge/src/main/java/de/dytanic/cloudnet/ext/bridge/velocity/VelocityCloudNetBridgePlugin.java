@@ -16,85 +16,92 @@ import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
-
 import java.net.InetSocketAddress;
+import lombok.Getter;
 
 @Getter
 @Plugin(
-    id = "cloudnet_bridge_velocity",
-    name = "CloudNet-Bridge",
-    version = "1.0",
-    description = "Velocity extension for the CloudNet runtime, which optimize some features",
-    url = "https://cloudnetservice.eu",
-    authors = {
-        "Dytanic"
-    }
+  id = "cloudnet_bridge_velocity",
+  name = "CloudNet-Bridge",
+  version = "1.0",
+  description = "Velocity extension for the CloudNet runtime, which optimize some features",
+  url = "https://cloudnetservice.eu",
+  authors = {
+    "Dytanic"
+  }
 )
 public final class VelocityCloudNetBridgePlugin {
 
-    @Getter
-    private static VelocityCloudNetBridgePlugin instance;
+  @Getter
+  private static VelocityCloudNetBridgePlugin instance;
 
-    private final ProxyServer proxyServer;
+  private final ProxyServer proxyServer;
 
-    @Inject
-    public VelocityCloudNetBridgePlugin(ProxyServer proxyServer)
-    {
-        instance = this;
+  @Inject
+  public VelocityCloudNetBridgePlugin(ProxyServer proxyServer) {
+    instance = this;
 
-        this.proxyServer = proxyServer;
-        VelocityCloudNetHelper.setProxyServer(proxyServer);
+    this.proxyServer = proxyServer;
+    VelocityCloudNetHelper.setProxyServer(proxyServer);
+  }
+
+  @Subscribe
+  public void handleProxyInit(ProxyInitializeEvent event) {
+    initListeners();
+    registerCommands();
+    initServers();
+  }
+
+  @Subscribe
+  public void handleShutdown(ProxyShutdownEvent event) {
+    CloudNetDriver.getInstance().getEventManager()
+      .unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.getInstance().unregisterPacketListenersByClassLoader(
+      this.getClass().getClassLoader());
+  }
+
+  private void initListeners() {
+    //Velocity API
+    this.proxyServer.getEventManager()
+      .register(this, new VelocityPlayerListener());
+
+    //CloudNet
+    CloudNetDriver.getInstance().getEventManager()
+      .registerListener(new VelocityCloudNetListener());
+    CloudNetDriver.getInstance().getEventManager()
+      .registerListener(new BridgeCustomChannelMessageListener());
+  }
+
+  private void registerCommands() {
+    this.proxyServer.getCommandManager()
+      .register(new CommandCloudNet(), "cloudnet", "cloud", "cl");
+    this.proxyServer.getCommandManager()
+      .register(new CommandHub(), "hub", "l", "leave", "lobby");
+  }
+
+  private void initServers() {
+    for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance()
+      .getCloudServices()) {
+      if (serviceInfoSnapshot.getServiceId().getEnvironment()
+        .isMinecraftJavaServer()) {
+        if ((serviceInfoSnapshot.getProperties().contains("Online-Mode")
+          && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
+          serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
+          continue;
+        }
+
+        String name = serviceInfoSnapshot.getServiceId().getName();
+        proxyServer.registerServer(new ServerInfo(name, new InetSocketAddress(
+          serviceInfoSnapshot.getAddress().getHost(),
+          serviceInfoSnapshot.getAddress().getPort()
+        )));
+
+        VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION
+          .put(name, serviceInfoSnapshot);
+        VelocityCloudNetHelper
+          .addServerToVelocityPrioritySystemConfiguration(serviceInfoSnapshot,
+            name);
+      }
     }
-
-    @Subscribe
-    public void handleProxyInit(ProxyInitializeEvent event)
-    {
-        initListeners();
-        registerCommands();
-        initServers();
-    }
-
-    @Subscribe
-    public void handleShutdown(ProxyShutdownEvent event)
-    {
-        CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-        Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-    }
-
-    private void initListeners()
-    {
-        //Velocity API
-        this.proxyServer.getEventManager().register(this, new VelocityPlayerListener());
-
-        //CloudNet
-        CloudNetDriver.getInstance().getEventManager().registerListener(new VelocityCloudNetListener());
-        CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
-    }
-
-    private void registerCommands()
-    {
-        this.proxyServer.getCommandManager().register(new CommandCloudNet(), "cloudnet", "cloud", "cl");
-        this.proxyServer.getCommandManager().register(new CommandHub(), "hub", "l", "leave", "lobby");
-    }
-
-    private void initServers()
-    {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices())
-            if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer())
-            {
-                if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
-                    serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING)
-                    continue;
-
-                String name = serviceInfoSnapshot.getServiceId().getName();
-                proxyServer.registerServer(new ServerInfo(name, new InetSocketAddress(
-                    serviceInfoSnapshot.getAddress().getHost(),
-                    serviceInfoSnapshot.getAddress().getPort()
-                )));
-
-                VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
-                VelocityCloudNetHelper.addServerToVelocityPrioritySystemConfiguration(serviceInfoSnapshot, name);
-            }
-    }
+  }
 }

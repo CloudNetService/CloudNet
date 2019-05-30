@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class VelocityCloudServiceInfoUpdateEvent extends VelocityCloudNetEvent {
+public final class VelocityCloudServiceInfoUpdateEvent extends
+  VelocityCloudNetEvent {
 
-    @Getter
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  @Getter
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 }

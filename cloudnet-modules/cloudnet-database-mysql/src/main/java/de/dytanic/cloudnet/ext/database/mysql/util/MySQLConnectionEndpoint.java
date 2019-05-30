@@ -8,10 +8,10 @@ import lombok.Value;
 @AllArgsConstructor
 public class MySQLConnectionEndpoint {
 
-    protected final boolean useSsl;
+  protected final boolean useSsl;
 
-    protected final String database;
+  protected final String database;
 
-    protected final HostAndPort address;
+  protected final HostAndPort address;
 
 }

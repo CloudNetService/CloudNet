@@ -7,10 +7,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class ProxProxBridgeServerPlayerLoginSuccessEvent extends ProxProxBridgeEvent {
+public final class ProxProxBridgeServerPlayerLoginSuccessEvent extends
+  ProxProxBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkPlayerServerInfo networkPlayerServerInfo;
+  private final NetworkPlayerServerInfo networkPlayerServerInfo;
 
 }

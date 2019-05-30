@@ -4,26 +4,26 @@ import java.util.Collection;
 
 public interface IPermissionGroup extends IPermissible {
 
-    Collection<String> getGroups();
+  Collection<String> getGroups();
 
-    boolean isDefaultGroup();
+  boolean isDefaultGroup();
 
-    int getSortId();
+  int getSortId();
 
-    String getPrefix();
+  String getPrefix();
 
-    String getSuffix();
+  String getSuffix();
 
-    String getDisplay();
+  String getDisplay();
 
-    void setDefaultGroup(boolean defaultGroup);
+  void setDefaultGroup(boolean defaultGroup);
 
-    void setSortId(int sortId);
+  void setSortId(int sortId);
 
-    void setPrefix(String prefix);
+  void setPrefix(String prefix);
 
-    void setSuffix(String suffix);
+  void setSuffix(String suffix);
 
-    void setDisplay(String display);
+  void setDisplay(String display);
 
 }

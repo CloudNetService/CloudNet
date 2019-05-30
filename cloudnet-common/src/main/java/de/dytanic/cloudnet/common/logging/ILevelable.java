@@ -7,10 +7,10 @@ package de.dytanic.cloudnet.common.logging;
  */
 interface ILevelable {
 
-    /**
-     * Returns the current configured access level. All log entries under this level can be
-     * only noticed
-     */
-    int getLevel();
+  /**
+   * Returns the current configured access level. All log entries under this
+   * level can be only noticed
+   */
+  int getLevel();
 
 }

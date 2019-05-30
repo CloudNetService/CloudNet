@@ -7,14 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ThreadSnapshot {
 
-    private long id;
+  private long id;
 
-    private String name;
+  private String name;
 
-    private Thread.State threadState;
+  private Thread.State threadState;
 
-    private boolean daemon;
+  private boolean daemon;
 
-    private int priority;
+  private int priority;
 
 }

@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface ModuleTask {
 
-    byte order() default 32;
+  byte order() default 32;
 
-    ModuleLifeCycle event() default ModuleLifeCycle.STARTED;
+  ModuleLifeCycle event() default ModuleLifeCycle.STARTED;
 
 }

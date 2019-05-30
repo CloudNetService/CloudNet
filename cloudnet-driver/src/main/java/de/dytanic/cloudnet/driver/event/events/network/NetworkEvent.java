@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class NetworkEvent extends DriverEvent {
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
 }

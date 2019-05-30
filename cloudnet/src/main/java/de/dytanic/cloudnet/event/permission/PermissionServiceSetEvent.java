@@ -9,6 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public final class PermissionServiceSetEvent extends DriverEvent {
 
-    private final IPermissionManagement permissionManager;
+  private final IPermissionManagement permissionManager;
 
 }

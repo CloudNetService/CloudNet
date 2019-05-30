@@ -5,14 +5,14 @@ import java.util.Map;
 
 public interface IHttpRequest extends IHttpMessage<IHttpRequest> {
 
-    Map<String, String> pathParameters();
+  Map<String, String> pathParameters();
 
-    String path();
+  String path();
 
-    String uri();
+  String uri();
 
-    String method();
+  String method();
 
-    Map<String, List<String>> queryParameters();
+  Map<String, List<String>> queryParameters();
 
 }

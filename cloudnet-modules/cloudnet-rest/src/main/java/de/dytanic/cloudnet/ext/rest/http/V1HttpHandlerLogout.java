@@ -6,31 +6,31 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 
 public class V1HttpHandlerLogout extends V1HttpHandler {
 
-    public V1HttpHandlerLogout()
-    {
-        super(null);
+  public V1HttpHandlerLogout() {
+    super(null);
+  }
+
+  @Override
+  public void handleOptions(String path, IHttpContext context)
+    throws Exception {
+    this.sendOptions(context, "OPTIONS");
+  }
+
+  @Override
+  public void handle(String path, IHttpContext context) throws Exception {
+    super.handle(path, context);
+
+    if (context.request().method().equalsIgnoreCase("OPTIONS")) {
+      return;
     }
 
-    @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception
-    {
-        this.sendOptions(context, "OPTIONS");
-    }
+    HTTP_SESSION.logout(context);
 
-    @Override
-    public void handle(String path, IHttpContext context) throws Exception
-    {
-        super.handle(path, context);
-
-        if (context.request().method().equalsIgnoreCase("OPTIONS")) return;
-
-        HTTP_SESSION.logout(context);
-
-        context
-            .response()
-            .statusCode(HttpResponseCode.HTTP_OK)
-            .context()
-            .closeAfter(true)
-            .cancelNext();
-    }
+    context
+      .response()
+      .statusCode(HttpResponseCode.HTTP_OK)
+      .context()
+      .closeAfter(true)
+      .cancelNext();
+  }
 }

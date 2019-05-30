@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class NetworkChannelAuthCloudServiceSuccessEvent extends Event {
 
-    private final ICloudService cloudService;
+  private final ICloudService cloudService;
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
 }

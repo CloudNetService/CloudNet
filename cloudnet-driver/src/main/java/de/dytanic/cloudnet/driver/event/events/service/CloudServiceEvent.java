@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class CloudServiceEvent extends DriverEvent {
 
-    private final ServiceInfoSnapshot serviceInfo;
+  private final ServiceInfoSnapshot serviceInfo;
 
 }

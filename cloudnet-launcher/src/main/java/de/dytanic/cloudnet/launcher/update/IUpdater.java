@@ -2,12 +2,13 @@ package de.dytanic.cloudnet.launcher.update;
 
 public interface IUpdater {
 
-    boolean init(String url);
+  boolean init(String url);
 
-    String getRepositoryVersion();
+  String getRepositoryVersion();
 
-    String getCurrentVersion();
+  String getCurrentVersion();
 
-    boolean installUpdate(String destinationBaseDirectory, String moduleDestinationBaseDirectory);
+  boolean installUpdate(String destinationBaseDirectory,
+    String moduleDestinationBaseDirectory);
 
 }

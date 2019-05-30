@@ -6,8 +6,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class GoMintBridgeConfigurationUpdateEvent extends GoMintBridgeEvent {
+public final class GoMintBridgeConfigurationUpdateEvent extends
+  GoMintBridgeEvent {
 
-    private final BridgeConfiguration bridgeConfiguration;
+  private final BridgeConfiguration bridgeConfiguration;
 
 }

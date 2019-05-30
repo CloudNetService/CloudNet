@@ -8,10 +8,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class BridgeProxyPlayerServerConnectRequestEvent extends DriverEvent {
+public final class BridgeProxyPlayerServerConnectRequestEvent extends
+  DriverEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkServiceInfo networkServiceInfo;
+  private final NetworkServiceInfo networkServiceInfo;
 
 }

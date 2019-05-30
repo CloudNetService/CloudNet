@@ -7,8 +7,10 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public final class PacketServerClusterNodeInfoUpdate extends Packet {
 
-    public PacketServerClusterNodeInfoUpdate(NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot)
-    {
-        super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument("clusterNodeInfoSnapshot", networkClusterNodeInfoSnapshot), new byte[0]);
-    }
+  public PacketServerClusterNodeInfoUpdate(
+    NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
+    super(PacketConstants.INTERNAL_CLUSTER_CHANNEL,
+      new JsonDocument("clusterNodeInfoSnapshot",
+        networkClusterNodeInfoSnapshot), new byte[0]);
+  }
 }

@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class VelocityNetworkClusterNodeInfoUpdateEvent extends VelocityCloudNetEvent {
+public final class VelocityNetworkClusterNodeInfoUpdateEvent extends
+  VelocityCloudNetEvent {
 
-    @Getter
-    private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+  @Getter
+  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 }
