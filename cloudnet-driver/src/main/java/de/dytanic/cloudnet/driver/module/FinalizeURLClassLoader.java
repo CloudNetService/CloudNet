@@ -54,10 +54,5 @@ public final class FinalizeURLClassLoader extends URLClassLoader {
   public void close() throws IOException {
     super.close();
     CLASS_LOADERS.remove(this);
-
-    try {
-      finalize();
-    } catch (Throwable ignored) {
-    }
   }
 }

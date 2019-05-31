@@ -45,12 +45,4 @@ public class Packet implements IPacket {
     this.body = body;
     this.uniqueId = UUID.randomUUID();
   }
-
-  @Override
-  public void finalize() {
-    try {
-      super.finalize();
-    } catch (Throwable ignored) {
-    }
-  }
 }
