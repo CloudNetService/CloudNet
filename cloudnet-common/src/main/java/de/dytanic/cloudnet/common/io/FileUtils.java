@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -88,16 +87,7 @@ public final class FileUtils {
 
   public static void copy(InputStream inputStream, OutputStream outputStream)
     throws IOException {
-    byte[] buffer = new byte[8192];
-    copy(inputStream, outputStream, buffer);
-
-    try {
-
-      Method method = byte[].class.getMethod("finalize");
-      method.setAccessible(true);
-      method.invoke(buffer);
-    } catch (Exception ex) {
-    }
+    copy(inputStream, outputStream, new byte[8192]);
   }
 
   public static void copy(InputStream inputStream, OutputStream outputStream,
