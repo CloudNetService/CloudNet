@@ -16,8 +16,7 @@ import java.net.InetSocketAddress;
 public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
     @Override
-    public synchronized void onEnable()
-    {
+    public synchronized void onEnable() {
         this.initListeners();
         BukkitCloudNetHelper.setPlugin(this);
 
@@ -28,15 +27,13 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
     }
 
     @Override
-    public synchronized void onDisable()
-    {
+    public synchronized void onDisable() {
         HandlerList.unregisterAll(this);
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    private void initListeners()
-    {
+    private void initListeners() {
         //BukkitAPI
         Bukkit.getServer().getPluginManager().registerEvents(new BukkitPlayerListener(this), this);
 
@@ -45,50 +42,43 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 
-    private void runFireServerListPingEvent()
-    {
-        try
-        {
+    private void runFireServerListPingEvent() {
+        try {
             ServerListPingEvent serverListPingEvent = new ServerListPingEvent(
-                new InetSocketAddress("127.0.0.1", 53345).getAddress(),
-                BukkitCloudNetHelper.getApiMotd(),
-                BukkitCloudNetHelper.getOnlineCount(),
-                BukkitCloudNetHelper.getMaxPlayers()
+                    new InetSocketAddress("127.0.0.1", 53345).getAddress(),
+                    BukkitCloudNetHelper.getApiMotd(),
+                    BukkitCloudNetHelper.getOnlineCount(),
+                    BukkitCloudNetHelper.getMaxPlayers()
             );
 
             boolean hasToUpdate = false, value = false;
 
             Bukkit.getPluginManager().callEvent(serverListPingEvent);
-            if (!serverListPingEvent.getMotd().equalsIgnoreCase(BukkitCloudNetHelper.getApiMotd()))
-            {
+            if (!serverListPingEvent.getMotd().equalsIgnoreCase(BukkitCloudNetHelper.getApiMotd())) {
                 hasToUpdate = true;
 
                 BukkitCloudNetHelper.setApiMotd(serverListPingEvent.getMotd());
                 if (serverListPingEvent.getMotd().toLowerCase().contains("running") ||
-                    serverListPingEvent.getMotd().toLowerCase().contains("ingame") ||
-                    serverListPingEvent.getMotd().toLowerCase().contains("playing"))
+                        serverListPingEvent.getMotd().toLowerCase().contains("ingame") ||
+                        serverListPingEvent.getMotd().toLowerCase().contains("playing"))
                     value = true;
             }
 
-            if (serverListPingEvent.getMaxPlayers() != BukkitCloudNetHelper.getMaxPlayers())
-            {
+            if (serverListPingEvent.getMaxPlayers() != BukkitCloudNetHelper.getMaxPlayers()) {
                 hasToUpdate = true;
                 BukkitCloudNetHelper.setMaxPlayers(serverListPingEvent.getMaxPlayers());
             }
 
-            if (value)
-            {
+            if (value) {
                 BukkitCloudNetHelper.changeToIngame();
                 return;
             }
 
-            if (hasToUpdate)
-            {
+            if (hasToUpdate) {
                 BridgeHelper.updateServiceInfo();
             }
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
     }
 }

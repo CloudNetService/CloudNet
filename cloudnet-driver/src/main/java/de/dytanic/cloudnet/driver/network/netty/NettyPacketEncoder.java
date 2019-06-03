@@ -11,8 +11,7 @@ import java.util.UUID;
 final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf byteBuf)
-    {
+    protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf byteBuf) {
         //Writing the channelId
         NettyUtils.writeVarInt(byteBuf, packet.getChannel());
 
@@ -22,13 +21,11 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
         byte[] data;
 
         //Writing the header
-        if (packet.getHeader() != null)
-        {
+        if (packet.getHeader() != null) {
             data = packet.getHeader().toByteArray();
             NettyUtils.writeVarInt(byteBuf, data.length);
             byteBuf.writeBytes(data);
-        } else
-        {
+        } else {
             NettyUtils.writeString(byteBuf, "{}");
         }
 

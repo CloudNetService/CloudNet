@@ -9,8 +9,7 @@ import java.util.Collection;
 
 public final class PacketServerSetGroupConfigurationList extends Packet {
 
-    public PacketServerSetGroupConfigurationList(Collection<GroupConfiguration> groupConfigurations)
-    {
+    public PacketServerSetGroupConfigurationList(Collection<GroupConfiguration> groupConfigurations) {
         super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument("groups", groupConfigurations).append("set", true), new byte[0]);
     }
 }

@@ -25,15 +25,13 @@ public abstract class AbstractLogHandler implements ILogHandler {
      *
      * @return the current instance of the AbstractLogHandler class
      */
-    public AbstractLogHandler setFormatter(IFormatter formatter)
-    {
+    public AbstractLogHandler setFormatter(IFormatter formatter) {
         this.formatter = formatter;
         return this;
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
 
     }
 }

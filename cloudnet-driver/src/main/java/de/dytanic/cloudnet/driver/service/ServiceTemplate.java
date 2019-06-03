@@ -9,8 +9,7 @@ public class ServiceTemplate implements INameable {
 
     private final String prefix, name, storage;
 
-    public ServiceTemplate(String prefix, String name, String storage)
-    {
+    public ServiceTemplate(String prefix, String name, String storage) {
         Validate.checkNotNull(prefix);
         Validate.checkNotNull(name);
         Validate.checkNotNull(storage);
@@ -20,8 +19,7 @@ public class ServiceTemplate implements INameable {
         this.storage = storage;
     }
 
-    public String getTemplatePath()
-    {
+    public String getTemplatePath() {
         return prefix + "/" + name;
     }
 }

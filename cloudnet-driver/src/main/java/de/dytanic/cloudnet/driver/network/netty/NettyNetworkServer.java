@@ -43,72 +43,62 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     protected final Callable<INetworkChannelHandler> networkChannelHandler;
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler)
-    {
+    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler) {
         this(networkChannelHandler, null, null);
     }
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler)
-    {
+    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
         this(networkChannelHandler, null, taskScheduler);
     }
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler)
-    {
+    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
         super(sslConfiguration);
         this.networkChannelHandler = networkChannelHandler;
         this.taskSchedulerFromConstructor = taskScheduler != null;
         this.taskScheduler = taskScheduler == null ? new DefaultTaskScheduler(Runtime.getRuntime().availableProcessors()) : taskScheduler;
 
-        try
-        {
+        try {
             this.init();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public boolean isSslEnabled()
-    {
+    public boolean isSslEnabled() {
         return sslContext != null;
     }
 
     /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
-    public boolean addListener(int port)
-    {
+    public boolean addListener(int port) {
         return this.addListener(new HostAndPort("0.0.0.0", port));
     }
 
     @Override
-    public boolean addListener(HostAndPort hostAndPort)
-    {
+    public boolean addListener(HostAndPort hostAndPort) {
         Validate.checkNotNull(hostAndPort);
         Validate.checkNotNull(hostAndPort.getHost());
 
         if (!this.channelFutures.containsKey(hostAndPort.getPort()))
-            try
-            {
+            try {
                 this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-                    .group(bossEventLoopGroup, workerEventLoopGroup)
-                    .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childOption(ChannelOption.IP_TOS, 24)
-                    .childOption(ChannelOption.AUTO_READ, true)
-                    .channel(NettyUtils.getServerSocketChannelClass())
-                    .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
-                    .bind(hostAndPort.getHost(), hostAndPort.getPort())
-                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-                    .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-                    .sync()
-                    .channel()
-                    .closeFuture()));
+                        .group(bossEventLoopGroup, workerEventLoopGroup)
+                        .childOption(ChannelOption.TCP_NODELAY, true)
+                        .childOption(ChannelOption.IP_TOS, 24)
+                        .childOption(ChannelOption.AUTO_READ, true)
+                        .channel(NettyUtils.getServerSocketChannelClass())
+                        .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
+                        .bind(hostAndPort.getHost(), hostAndPort.getPort())
+                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+                        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+                        .sync()
+                        .channel()
+                        .closeFuture()));
 
                 return true;
-            } catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
@@ -116,8 +106,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         taskScheduler.shutdown();
         this.closeChannels();
 
@@ -128,20 +117,16 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         this.workerEventLoopGroup.shutdownGracefully();
     }
 
-    public Collection<INetworkChannel> getChannels()
-    {
+    public Collection<INetworkChannel> getChannels() {
         return Collections.unmodifiableCollection(this.channels);
     }
 
     @Override
-    public void closeChannels()
-    {
+    public void closeChannels() {
         for (INetworkChannel channel : this.channels)
-            try
-            {
+            try {
                 channel.close();
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -149,8 +134,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void sendPacket(IPacket packet)
-    {
+    public void sendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels)
@@ -158,8 +142,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void sendPacket(IPacket... packets)
-    {
+    public void sendPacket(IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels)

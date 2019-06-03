@@ -8,8 +8,7 @@ import java.util.Map;
 
 public final class PacketServerSetH2DatabaseData extends Packet {
 
-    public PacketServerSetH2DatabaseData(Map<String, Map<String, JsonDocument>> documents)
-    {
+    public PacketServerSetH2DatabaseData(Map<String, Map<String, JsonDocument>> documents) {
         super(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new JsonDocument("set_h2db", true).append("documents", documents), new byte[0]);
     }
 }

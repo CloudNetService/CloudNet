@@ -20,8 +20,7 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
     protected boolean value, geh, cleared;
 
     @Test
-    public void testDatabaseProvider() throws Exception
-    {
+    public void testDatabaseProvider() throws Exception {
         AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database");
         Assert.assertTrue(databaseProvider.init());
 
@@ -44,8 +43,7 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
         Assert.assertFalse(database.contains("_xxx_"));
 
         JsonDocument document = new JsonDocument();
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             document.append("val", i).append("name", i == 50 ? "Albert" : i > 70 ? "Luzifer" : "Peter Parker").append("age", i > 70 ? 20 : 18).append("uniqueId", UUID.randomUUID()).append("random", new Random().nextLong());
 
             Assert.assertEquals(5, document.size());
@@ -63,8 +61,7 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
         AtomicInteger counter = new AtomicInteger();
         database.iterate(new BiConsumer<String, JsonDocument>() {
             @Override
-            public void accept(String s, JsonDocument strings)
-            {
+            public void accept(String s, JsonDocument strings) {
                 counter.incrementAndGet();
             }
         });
@@ -72,11 +69,10 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
         Assert.assertEquals(3, database.filter(new BiPredicate<String, JsonDocument>() {
             @Override
-            public boolean test(String s, JsonDocument strings)
-            {
+            public boolean test(String s, JsonDocument strings) {
                 return s.equalsIgnoreCase("10") ||
-                    s.equalsIgnoreCase("14") ||
-                    s.equalsIgnoreCase("16");
+                        s.equalsIgnoreCase("14") ||
+                        s.equalsIgnoreCase("16");
             }
         }).size());
 
@@ -92,26 +88,22 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
     }
 
     @Override
-    public void handleInsert(IDatabase database, String key, JsonDocument document)
-    {
+    public void handleInsert(IDatabase database, String key, JsonDocument document) {
         this.resultString = "foobar";
     }
 
     @Override
-    public void handleUpdate(IDatabase database, String key, JsonDocument document)
-    {
+    public void handleUpdate(IDatabase database, String key, JsonDocument document) {
         this.value = true;
     }
 
     @Override
-    public void handleDelete(IDatabase database, String key)
-    {
+    public void handleDelete(IDatabase database, String key) {
         geh = true;
     }
 
     @Override
-    public void handleClear(IDatabase database)
-    {
+    public void handleClear(IDatabase database) {
         cleared = true;
     }
 }

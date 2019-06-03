@@ -26,23 +26,20 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
 
     private final Map<UUID, IPermissionUser> cachedPermissionUsers = Maps.newConcurrentHashMap();
 
-    public CloudPermissionsPermissionManagement()
-    {
+    public CloudPermissionsPermissionManagement() {
         instance = this;
 
         init();
     }
 
-    private void init()
-    {
+    private void init() {
         for (IPermissionGroup permissionGroup : getDriver().getGroups())
             cachedPermissionGroups.put(permissionGroup.getName(), permissionGroup);
 
         getDriver().getEventManager().registerListener(new PermissionsUpdateListener());
     }
 
-    public boolean hasPlayerPermission(IPermissionUser permissionUser, String perm)
-    {
+    public boolean hasPlayerPermission(IPermissionUser permissionUser, String perm) {
         Permission permission = new Permission(perm, 0);
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups())
@@ -55,27 +52,22 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
     /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
-    public IPermissionManagementHandler getPermissionManagementHandler()
-    {
+    public IPermissionManagementHandler getPermissionManagementHandler() {
         throw new UnsupportedOperationException("PermissionManagementHandler is not on this implementation");
     }
 
     @Override
-    public void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler)
-    {
+    public void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler) {
         throw new UnsupportedOperationException("PermissionManagementHandler is not on this implementation");
     }
 
     @Override
-    public IPermissionUser addUser(IPermissionUser permissionUser)
-    {
+    public IPermissionUser addUser(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        try
-        {
+        try {
             getDriver().addUserAsync(permissionUser).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e)
-        {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
 
@@ -83,86 +75,75 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
     }
 
     @Override
-    public void updateUser(IPermissionUser permissionUser)
-    {
+    public void updateUser(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         getDriver().updateUser(permissionUser);
     }
 
     @Override
-    public void deleteUser(String name)
-    {
+    public void deleteUser(String name) {
         Validate.checkNotNull(name);
 
         getDriver().deleteUser(name);
     }
 
     @Override
-    public void deleteUser(IPermissionUser permissionUser)
-    {
+    public void deleteUser(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         getDriver().deleteUser(permissionUser);
     }
 
     @Override
-    public boolean containsUser(UUID uniqueId)
-    {
+    public boolean containsUser(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return cachedPermissionUsers.containsKey(uniqueId) || getDriver().containsUser(uniqueId);
     }
 
     @Override
-    public boolean containsUser(String name)
-    {
+    public boolean containsUser(String name) {
         Validate.checkNotNull(name);
 
         return getDriver().containsUser(name);
     }
 
     @Override
-    public IPermissionUser getUser(UUID uniqueId)
-    {
+    public IPermissionUser getUser(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return cachedPermissionUsers.containsKey(uniqueId) ? cachedPermissionUsers.get(uniqueId) : getDriver().getUser(uniqueId);
     }
 
     @Override
-    public List<IPermissionUser> getUser(String name)
-    {
+    public List<IPermissionUser> getUser(String name) {
         Validate.checkNotNull(name);
 
         return getDriver().getUser(name);
     }
 
     @Override
-    public Collection<IPermissionUser> getUsers()
-    {
+    public Collection<IPermissionUser> getUsers() {
         return getDriver().getUsers();
     }
 
     @Override
-    public void setUsers(Collection<? extends IPermissionUser> users)
-    {
+    public void setUsers(Collection<? extends IPermissionUser> users) {
         Validate.checkNotNull(users);
 
         getDriver().setUsers(users);
     }
 
     @Override
-    public Collection<IPermissionUser> getUserByGroup(String group)
-    {
+    public Collection<IPermissionUser> getUserByGroup(String group) {
         Validate.checkNotNull(group);
 
         return getDriver().getUserByGroup(group);
     }
 
     @Override
-    public IPermissionGroup addGroup(IPermissionGroup permissionGroup)
-    {
+    public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
         getDriver().addGroup(permissionGroup);
@@ -171,62 +152,54 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
     }
 
     @Override
-    public void updateGroup(IPermissionGroup permissionGroup)
-    {
+    public void updateGroup(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
         getDriver().updateGroup(permissionGroup);
     }
 
     @Override
-    public void deleteGroup(String group)
-    {
+    public void deleteGroup(String group) {
         Validate.checkNotNull(group);
 
         getDriver().deleteGroup(group);
     }
 
     @Override
-    public void deleteGroup(IPermissionGroup group)
-    {
+    public void deleteGroup(IPermissionGroup group) {
         Validate.checkNotNull(group);
 
         getDriver().deleteGroup(group);
     }
 
     @Override
-    public boolean containsGroup(String name)
-    {
+    public boolean containsGroup(String name) {
         Validate.checkNotNull(name);
 
         return cachedPermissionGroups.containsKey(name);
     }
 
     @Override
-    public IPermissionGroup getGroup(String name)
-    {
+    public IPermissionGroup getGroup(String name) {
         Validate.checkNotNull(name);
 
         return cachedPermissionGroups.get(name);
     }
 
     @Override
-    public Collection<IPermissionGroup> getGroups()
-    {
+    public Collection<IPermissionGroup> getGroups() {
         return cachedPermissionGroups.values();
     }
 
     @Override
-    public void setGroups(Collection<? extends IPermissionGroup> groups)
-    {
+    public void setGroups(Collection<? extends IPermissionGroup> groups) {
         Validate.checkNotNull(groups);
 
         getDriver().setGroups(groups);
     }
 
     @Override
-    public boolean reload()
-    {
+    public boolean reload() {
         Collection<IPermissionGroup> permissionGroups = getDriver().getGroups();
 
         cachedPermissionGroups.clear();
@@ -239,8 +212,7 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
 
     /*= -------------------------------------------------------------- =*/
 
-    private CloudNetDriver getDriver()
-    {
+    private CloudNetDriver getDriver() {
         return CloudNetDriver.getInstance();
     }
 }

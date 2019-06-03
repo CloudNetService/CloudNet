@@ -10,8 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultTaskSchedulerTest implements Callable<String> {
 
     @Test
-    public void testDefaultTaskScheduler() throws Exception
-    {
+    public void testDefaultTaskScheduler() throws Exception {
         ITaskScheduler scheduler = new DefaultTaskScheduler(4, 50000, 50);
 
         Assert.assertEquals(4, scheduler.getMaxThreadSize());
@@ -24,8 +23,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         IScheduledTask<String> y = scheduler.schedule(new Callable<String>() {
             @Override
-            public String call() throws Exception
-            {
+            public String call() throws Exception {
                 yTaskCount.incrementAndGet();
 
                 return "Hello, world";
@@ -40,8 +38,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         IScheduledTask<String> delayed = scheduler.schedule(new Callable<String>() {
             @Override
-            public String call() throws Exception
-            {
+            public String call() throws Exception {
                 return "test_string";
             }
         }, 20, TimeUnit.MILLISECONDS);
@@ -54,8 +51,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         delayed = scheduler.schedule(new Callable<String>() {
             @Override
-            public String call() throws Exception
-            {
+            public String call() throws Exception {
                 return null;
             }
         }, 1, TimeUnit.SECONDS);
@@ -73,8 +69,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
     }
 
     @Override
-    public String call() throws Exception
-    {
+    public String call() throws Exception {
         for (int i = 0; i++ < 5; Thread.sleep(2)) ;
 
         return "Hello World";
@@ -85,8 +80,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
         private int counter = 0;
 
         @Override
-        public Integer call() throws Exception
-        {
+        public Integer call() throws Exception {
             return ++counter;
         }
     }

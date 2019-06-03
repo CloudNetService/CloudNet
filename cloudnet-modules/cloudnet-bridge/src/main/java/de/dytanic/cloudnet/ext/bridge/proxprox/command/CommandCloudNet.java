@@ -8,18 +8,15 @@ import io.gomint.proxprox.api.command.CommandSender;
 
 public final class CommandCloudNet extends Command {
 
-    public CommandCloudNet()
-    {
+    public CommandCloudNet() {
         super("cloudnet", "dispatch the commandline of the CloudNet node console", "cloud", "cl");
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
-    {
+    public void execute(CommandSender sender, String[] args) {
         if (!sender.hasPermission("cloudnet.command.cloudnet")) return;
 
-        if (args.length == 0)
-        {
+        if (args.length == 0) {
             sender.sendMessage(ChatColor.toANSI(BridgeConfigurationProvider.load().getPrefix()) + "/cloudnet <command>");
             return;
         }
@@ -33,7 +30,7 @@ public final class CommandCloudNet extends Command {
             for (String message : messages)
                 if (message != null)
                     sender.sendMessage(
-                        ChatColor.toANSI(BridgeConfigurationProvider.load().getPrefix() + message)
+                            ChatColor.toANSI(BridgeConfigurationProvider.load().getPrefix() + message)
                     );
     }
 }

@@ -40,20 +40,16 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
     private int len;
 
     @Override
-    public synchronized IServiceConsoleLogCache update()
-    {
-        if (cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING && cloudService.isAlive() && cloudService.getProcess() != null)
-        {
+    public synchronized IServiceConsoleLogCache update() {
+        if (cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING && cloudService.isAlive() && cloudService.getProcess() != null) {
             readStream(cloudService.getProcess().getInputStream(), false);
             readStream(cloudService.getProcess().getErrorStream(), CloudNet.getInstance().getConfig().isPrintErrorStreamLinesFromServices());
         }
         return this;
     }
 
-    private synchronized void readStream(InputStream inputStream, boolean printErrorIntoConsole)
-    {
-        try
-        {
+    private synchronized void readStream(InputStream inputStream, boolean printErrorIntoConsole) {
+        try {
             while (inputStream.available() > 0 && (len = inputStream.read(buffer, 0, buffer.length)) != -1)
                 stringBuffer.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
 
@@ -67,14 +63,12 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
             stringBuffer.setLength(0);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
             stringBuffer.setLength(0);
         }
     }
 
-    private void addCachedItem(String text, boolean printErrorIntoConsole)
-    {
+    private void addCachedItem(String text, boolean printErrorIntoConsole) {
         if (text == null) return;
 
         while (cachedLogMessages.size() >= CloudNet.getInstance().getConfig().getMaxServiceConsoleLogCacheSize())

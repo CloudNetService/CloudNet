@@ -14,22 +14,19 @@ public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
     private static BungeeCloudNetCloudPermissionsPlugin instance;
 
     @Override
-    public void onLoad()
-    {
+    public void onLoad() {
         instance = this;
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         new CloudPermissionsPermissionManagement();
 
         getProxy().getPluginManager().registerListener(this, new BungeeCloudNetCloudPermissionsPlayerListener());
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }

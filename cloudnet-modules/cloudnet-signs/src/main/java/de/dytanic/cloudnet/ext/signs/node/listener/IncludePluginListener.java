@@ -13,19 +13,17 @@ import java.util.function.Predicate;
 public final class IncludePluginListener {
 
     @EventListener
-    public void handle(CloudServicePreStartEvent event)
-    {
+    public void handle(CloudServicePreStartEvent event) {
         if (!event.getCloudService().getServiceConfiguration().getServiceId().getEnvironment().isMinecraftJavaServer())
             return;
 
         SignConfigurationEntry signConfigurationEntry = Iterables.first(CloudNetSignsModule.getInstance().getSignConfiguration().getConfigurations(),
-            new Predicate<SignConfigurationEntry>() {
-                @Override
-                public boolean test(SignConfigurationEntry signConfigurationEntry)
-                {
-                    return Iterables.contains(signConfigurationEntry.getTargetGroup(), event.getCloudService().getServiceConfiguration().getGroups());
-                }
-            });
+                new Predicate<SignConfigurationEntry>() {
+                    @Override
+                    public boolean test(SignConfigurationEntry signConfigurationEntry) {
+                        return Iterables.contains(signConfigurationEntry.getTargetGroup(), event.getCloudService().getServiceConfiguration().getGroups());
+                    }
+                });
 
         if (signConfigurationEntry == null) return;
 
@@ -35,6 +33,6 @@ public final class IncludePluginListener {
 
         if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file))
             DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(IncludePluginListener.class,
-                event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
+                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
     }
 }

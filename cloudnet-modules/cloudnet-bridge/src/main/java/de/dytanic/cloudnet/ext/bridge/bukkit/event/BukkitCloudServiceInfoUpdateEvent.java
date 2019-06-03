@@ -15,8 +15,7 @@ public final class BukkitCloudServiceInfoUpdateEvent extends BukkitCloudNetEvent
     private final ServiceInfoSnapshot serviceInfoSnapshot;
 
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 }

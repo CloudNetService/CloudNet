@@ -12,31 +12,27 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 public final class NukkitPlayerListener implements Listener {
 
     @EventHandler
-    public void handle(PlayerLoginEvent event)
-    {
+    public void handle(PlayerLoginEvent event) {
         BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-            NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), true));
+                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), true));
     }
 
     @EventHandler
-    public void handle(PlayerJoinEvent event)
-    {
+    public void handle(PlayerJoinEvent event) {
         BridgeHelper.sendChannelMessageServerLoginSuccess(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-            NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
         BridgeHelper.updateServiceInfo();
     }
 
     @EventHandler
-    public void handle(PlayerQuitEvent event)
-    {
+    public void handle(PlayerQuitEvent event) {
         BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-            NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
         Wrapper.getInstance().runTask(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 BridgeHelper.updateServiceInfo();
             }
         });

@@ -13,93 +13,79 @@ import java.util.function.Predicate;
 
 public final class V1HttpHandlerServices extends V1HttpHandler {
 
-    public V1HttpHandlerServices(String permission)
-    {
+    public V1HttpHandlerServices(String permission) {
         super(permission);
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception
-    {
+    public void handleOptions(String path, IHttpContext context) throws Exception {
         this.sendOptions(context, "OPTIONS, GET");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception
-    {
-        if (context.request().pathParameters().containsKey("uuid"))
-        {
+    public void handleGet(String path, IHttpContext context) throws Exception {
+        if (context.request().pathParameters().containsKey("uuid")) {
             ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
                 @Override
-                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot)
-                {
+                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
                     return serviceInfoSnapshot.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid"));
                 }
             });
 
-            if (serviceInfoSnapshot == null)
-            {
+            if (serviceInfoSnapshot == null) {
                 serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
                     @Override
-                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot)
-                    {
+                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
                         return serviceInfoSnapshot.getServiceId().getName().contains(context.request().pathParameters().get("uuid"));
                     }
                 });
             }
 
-            if (serviceInfoSnapshot == null)
-            {
+            if (serviceInfoSnapshot == null) {
                 context
-                    .response()
-                    .statusCode(HttpResponseCode.HTTP_NOT_FOUND)
-                    .context()
-                    .closeAfter(true)
-                    .cancelNext()
+                        .response()
+                        .statusCode(HttpResponseCode.HTTP_NOT_FOUND)
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext()
                 ;
 
                 return;
             }
 
-            if (context.request().pathParameters().containsKey("operation"))
-            {
-                switch (context.request().pathParameters().get("operation").toLowerCase())
-                {
-                    case "start":
-                    {
+            if (context.request().pathParameters().containsKey("operation")) {
+                switch (context.request().pathParameters().get("operation").toLowerCase()) {
+                    case "start": {
                         CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
                         context
-                            .response()
-                            .statusCode(HttpResponseCode.HTTP_OK)
-                            .header("Content-Type", "application/json")
-                            .body(GSON.toJson(serviceInfoSnapshot))
+                                .response()
+                                .statusCode(HttpResponseCode.HTTP_OK)
+                                .header("Content-Type", "application/json")
+                                .body(GSON.toJson(serviceInfoSnapshot))
                         ;
                     }
                     break;
-                    case "stop":
-                    {
+                    case "stop": {
                         CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
                         context
-                            .response()
-                            .statusCode(HttpResponseCode.HTTP_OK)
-                            .header("Content-Type", "application/json")
-                            .body(GSON.toJson(serviceInfoSnapshot))
+                                .response()
+                                .statusCode(HttpResponseCode.HTTP_OK)
+                                .header("Content-Type", "application/json")
+                                .body(GSON.toJson(serviceInfoSnapshot))
                         ;
                     }
                     break;
-                    case "delete":
-                    {
+                    case "delete": {
                         CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
                         context
-                            .response()
-                            .statusCode(HttpResponseCode.HTTP_OK)
-                            .header("Content-Type", "application/json")
-                            .body(GSON.toJson(serviceInfoSnapshot))
+                                .response()
+                                .statusCode(HttpResponseCode.HTTP_OK)
+                                .header("Content-Type", "application/json")
+                                .body(GSON.toJson(serviceInfoSnapshot))
                         ;
                     }
                     break;
-                    case "log":
-                    {
+                    case "log": {
                         Queue<String> queue = CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId());
 
                         StringBuilder stringBuilder = new StringBuilder();
@@ -107,69 +93,63 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                         for (String item : queue) stringBuilder.append(item).append("\n");
 
                         context
-                            .response()
-                            .statusCode(HttpResponseCode.HTTP_OK)
-                            .header("Content-Type", "text/plain")
-                            .body(stringBuilder.toString())
+                                .response()
+                                .statusCode(HttpResponseCode.HTTP_OK)
+                                .header("Content-Type", "text/plain")
+                                .body(stringBuilder.toString())
                         ;
                     }
                     break;
-                    case "log_json":
-                    {
+                    case "log_json": {
                         Queue<String> queue = CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId());
 
                         context
-                            .response()
-                            .statusCode(HttpResponseCode.HTTP_OK)
-                            .header("Content-Type", "application/json")
-                            .body(GSON.toJson(queue))
+                                .response()
+                                .statusCode(HttpResponseCode.HTTP_OK)
+                                .header("Content-Type", "application/json")
+                                .body(GSON.toJson(queue))
                         ;
                     }
                     break;
                 }
-            } else
-            {
+            } else {
                 context
-                    .response()
-                    .statusCode(HttpResponseCode.HTTP_OK)
-                    .header("Content-Type", "application/json")
-                    .body(GSON.toJson(serviceInfoSnapshot))
+                        .response()
+                        .statusCode(HttpResponseCode.HTTP_OK)
+                        .header("Content-Type", "application/json")
+                        .body(GSON.toJson(serviceInfoSnapshot))
                 ;
             }
 
             context
-                .closeAfter(true)
-                .cancelNext()
+                    .closeAfter(true)
+                    .cancelNext()
             ;
             return;
         }
 
         context
-            .response()
-            .header("Content-Type", "application/json")
-            .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
-                @Override
-                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot)
-                {
-                    if (context.request().queryParameters().containsKey("name") &&
-                        !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName()))
-                        return false;
+                .response()
+                .header("Content-Type", "application/json")
+                .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
+                    @Override
+                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
+                        if (context.request().queryParameters().containsKey("name") &&
+                                !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName()))
+                            return false;
 
-                    if (context.request().queryParameters().containsKey("task") &&
-                        !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName()))
-                        return false;
+                        if (context.request().queryParameters().containsKey("task") &&
+                                !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName()))
+                            return false;
 
-                    if (context.request().queryParameters().containsKey("node") &&
-                        !context.request().queryParameters().get("node").contains(serviceInfoSnapshot.getServiceId().getNodeUniqueId()))
-                        return false;
-
-                    return true;
-                }
-            })))
-            .statusCode(200)
-            .context()
-            .closeAfter(true)
-            .cancelNext()
+                        return !context.request().queryParameters().containsKey("node") ||
+                                context.request().queryParameters().get("node").contains(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
+                    }
+                })))
+                .statusCode(200)
+                .context()
+                .closeAfter(true)
+                .cancelNext()
         ;
     }
 }

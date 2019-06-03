@@ -19,26 +19,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class DefaultAsyncLogger implements ILogger {
 
     protected final Collection<ILogHandler> handlers = Iterables.newArrayList();
-
-    @Getter
-    @Setter
-    protected int level = -1;
-
     private final BlockingQueue<LogHandlerRunnable> entries = new LinkedBlockingQueue<>();
-
     private final Thread logThread = new Thread() {
 
         @Override
-        public void run()
-        {
+        public void run() {
             while (!isInterrupted())
-                try
-                {
+                try {
                     LogHandlerRunnable logHandlerRunnable = entries.take();
                     logHandlerRunnable.call();
 
-                } catch (Throwable e)
-                {
+                } catch (Throwable e) {
                     break;
                 }
 
@@ -46,24 +37,24 @@ public class DefaultAsyncLogger implements ILogger {
                 entries.poll().call();
         }
     };
+    @Getter
+    @Setter
+    protected int level = -1;
 
-    public DefaultAsyncLogger()
-    {
+    public DefaultAsyncLogger() {
         logThread.setPriority(Thread.MIN_PRIORITY);
         logThread.start();
     }
 
     @Override
-    public ILogger log(LogEntry logEntry)
-    {
+    public ILogger log(LogEntry logEntry) {
         handleLogEntry(logEntry);
 
         return this;
     }
 
     @Override
-    public ILogger log(LogEntry... logEntries)
-    {
+    public ILogger log(LogEntry... logEntries) {
         for (LogEntry logEntry : logEntries)
             handleLogEntry(logEntry);
 
@@ -71,74 +62,64 @@ public class DefaultAsyncLogger implements ILogger {
     }
 
     @Override
-    public boolean hasAsyncSupport()
-    {
+    public boolean hasAsyncSupport() {
         return true;
     }
 
     @Override
-    public synchronized ILogger addLogHandler(ILogHandler logHandler)
-    {
+    public synchronized ILogger addLogHandler(ILogHandler logHandler) {
 
         this.handlers.add(logHandler);
         return this;
     }
 
     @Override
-    public synchronized ILogger addLogHandlers(ILogHandler... logHandlers)
-    {
+    public synchronized ILogger addLogHandlers(ILogHandler... logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) addLogHandler(logHandler);
         return this;
     }
 
     @Override
-    public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers)
-    {
+    public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) addLogHandler(logHandler);
         return this;
     }
 
     @Override
-    public synchronized ILogger removeLogHandler(ILogHandler logHandler)
-    {
+    public synchronized ILogger removeLogHandler(ILogHandler logHandler) {
 
         this.handlers.remove(logHandler);
         return this;
     }
 
     @Override
-    public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers)
-    {
+    public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) removeLogHandler(logHandler);
         return this;
     }
 
     @Override
-    public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers)
-    {
+    public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) removeLogHandler(logHandler);
         return this;
     }
 
     @Override
-    public Iterable<ILogHandler> getLogHandlers()
-    {
+    public Iterable<ILogHandler> getLogHandlers() {
         return new ArrayList<>(this.handlers);
     }
 
     @Override
-    public boolean hasLogHandler(ILogHandler logHandler)
-    {
+    public boolean hasLogHandler(ILogHandler logHandler) {
         return this.handlers.contains(logHandler);
     }
 
     @Override
-    public boolean hasLogHandlers(ILogHandler... logHandlers)
-    {
+    public boolean hasLogHandlers(ILogHandler... logHandlers) {
         for (ILogHandler logHandler : logHandlers)
             if (!this.handlers.contains(logHandler)) return false;
 
@@ -146,8 +127,7 @@ public class DefaultAsyncLogger implements ILogger {
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         for (ILogHandler logHandler : this.handlers) logHandler.close();
 
         this.logThread.interrupt();
@@ -157,10 +137,8 @@ public class DefaultAsyncLogger implements ILogger {
 
     /*= ---------------------------------------------------- =*/
 
-    private void handleLogEntry(LogEntry logEntry)
-    {
-        if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level))
-        {
+    private void handleLogEntry(LogEntry logEntry) {
+        if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level)) {
             if (logEntry.getLogLevel().isAsync())
                 entries.offer(new LogHandlerRunnable(logEntry));
             else
@@ -174,15 +152,12 @@ public class DefaultAsyncLogger implements ILogger {
         private final LogEntry logEntry;
 
         @Override
-        public Void call()
-        {
+        public Void call() {
 
             for (ILogHandler iLogHandler : handlers)
-                try
-                {
+                try {
                     iLogHandler.handle(logEntry);
-                } catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             return null;

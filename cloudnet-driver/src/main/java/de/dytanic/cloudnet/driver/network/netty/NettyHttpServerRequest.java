@@ -28,8 +28,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     protected byte[] body;
 
-    public NettyHttpServerRequest(NettyHttpServerContext context, HttpRequest httpRequest, Map<String, String> pathParameters, URI uri)
-    {
+    public NettyHttpServerRequest(NettyHttpServerContext context, HttpRequest httpRequest, Map<String, String> pathParameters, URI uri) {
         this.context = context;
         this.httpRequest = httpRequest;
         this.uri = uri;
@@ -38,65 +37,55 @@ final class NettyHttpServerRequest implements IHttpRequest {
     }
 
     @Override
-    public Map<String, String> pathParameters()
-    {
+    public Map<String, String> pathParameters() {
         return this.pathParameters;
     }
 
     @Override
-    public String path()
-    {
+    public String path() {
         return this.uri.getPath();
     }
 
     @Override
-    public String uri()
-    {
+    public String uri() {
         return httpRequest.uri();
     }
 
     @Override
-    public String method()
-    {
+    public String method() {
         return this.httpRequest.method().name();
     }
 
     @Override
-    public Map<String, List<String>> queryParameters()
-    {
+    public Map<String, List<String>> queryParameters() {
         return this.queryParameters;
     }
 
     @Override
-    public IHttpContext context()
-    {
+    public IHttpContext context() {
         return this.context;
     }
 
     @Override
-    public String header(String name)
-    {
+    public String header(String name) {
         Validate.checkNotNull(name);
         return this.httpRequest.headers().getAsString(name);
     }
 
     @Override
-    public int headerAsInt(String name)
-    {
+    public int headerAsInt(String name) {
         Validate.checkNotNull(name);
         return this.httpRequest.headers().getInt(name);
     }
 
     @Override
-    public boolean headerAsBoolean(String name)
-    {
+    public boolean headerAsBoolean(String name) {
         Validate.checkNotNull(name);
         return Boolean.parseBoolean(this.httpRequest.headers().get(name));
     }
 
     @Override
-    public IHttpRequest header(String name, String value)
-    {
+    public IHttpRequest header(String name, String value) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(value);
 
@@ -105,30 +94,26 @@ final class NettyHttpServerRequest implements IHttpRequest {
     }
 
     @Override
-    public IHttpRequest removeHeader(String name)
-    {
+    public IHttpRequest removeHeader(String name) {
         Validate.checkNotNull(name);
         this.httpRequest.headers().remove(name);
         return this;
     }
 
     @Override
-    public IHttpRequest clearHeaders()
-    {
+    public IHttpRequest clearHeaders() {
         this.httpRequest.headers().clear();
         return this;
     }
 
     @Override
-    public boolean hasHeader(String name)
-    {
+    public boolean hasHeader(String name) {
         Validate.checkNotNull(name);
         return this.httpRequest.headers().contains(name);
     }
 
     @Override
-    public Map<String, String> headers()
-    {
+    public Map<String, String> headers() {
         Map<String, String> maps = Maps.newHashMap(this.httpRequest.headers().size());
 
         for (String key : this.httpRequest.headers().names())
@@ -138,14 +123,12 @@ final class NettyHttpServerRequest implements IHttpRequest {
     }
 
     @Override
-    public HttpVersion version()
-    {
+    public HttpVersion version() {
         return this.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
     }
 
     @Override
-    public IHttpRequest version(HttpVersion version)
-    {
+    public IHttpRequest version(HttpVersion version) {
         Validate.checkNotNull(version);
 
         this.httpRequest.setProtocolVersion(this.getNettyHttpVersion(version));
@@ -153,20 +136,16 @@ final class NettyHttpServerRequest implements IHttpRequest {
     }
 
     @Override
-    public byte[] body()
-    {
-        if (httpRequest instanceof FullHttpRequest)
-        {
-            if (body == null)
-            {
+    public byte[] body() {
+        if (httpRequest instanceof FullHttpRequest) {
+            if (body == null) {
                 FullHttpRequest httpRequest = (FullHttpRequest) this.httpRequest;
 
                 int length = httpRequest.content().readableBytes();
 
                 if (httpRequest.content().hasArray())
                     body = httpRequest.content().array();
-                else
-                {
+                else {
                     body = new byte[length];
                     httpRequest.content().getBytes(httpRequest.content().readerIndex(), body);
                 }
@@ -179,27 +158,23 @@ final class NettyHttpServerRequest implements IHttpRequest {
     }
 
     @Override
-    public String bodyAsString()
-    {
+    public String bodyAsString() {
         return new String(body(), StandardCharsets.UTF_8);
     }
 
     @Override
-    public IHttpRequest body(byte[] byteArray)
-    {
+    public IHttpRequest body(byte[] byteArray) {
         throw new UnsupportedOperationException("No setting http body in request message by client");
     }
 
     @Override
-    public IHttpRequest body(String text)
-    {
+    public IHttpRequest body(String text) {
         Validate.checkNotNull(text);
 
         return this.body(text.getBytes(StandardCharsets.UTF_8));
     }
 
-    private HttpVersion getCloudNetHttpVersion(io.netty.handler.codec.http.HttpVersion httpVersion)
-    {
+    private HttpVersion getCloudNetHttpVersion(io.netty.handler.codec.http.HttpVersion httpVersion) {
         if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0)
             return HttpVersion.HTTP_1_0;
 
@@ -209,8 +184,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
         return HttpVersion.HTTP_1_0;
     }
 
-    private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(HttpVersion httpVersion)
-    {
+    private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(HttpVersion httpVersion) {
         if (httpVersion == HttpVersion.HTTP_1_0)
             return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
 

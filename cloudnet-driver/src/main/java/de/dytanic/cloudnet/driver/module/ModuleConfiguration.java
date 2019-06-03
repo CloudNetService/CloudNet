@@ -13,13 +13,13 @@ public class ModuleConfiguration {
     protected boolean runtimeModule;
 
     protected String
-        group,
-        name,
-        version,
-        main,
-        description,
-        author,
-        website;
+            group,
+            name,
+            version,
+            main,
+            description,
+            author,
+            website;
 
     //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
 
@@ -29,8 +29,7 @@ public class ModuleConfiguration {
 
     protected JsonDocument properties;
 
-    public String getMainClass()
-    {
+    public String getMainClass() {
         return this.main;
     }
 

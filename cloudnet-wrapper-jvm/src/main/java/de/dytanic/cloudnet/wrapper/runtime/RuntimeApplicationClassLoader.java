@@ -12,41 +12,35 @@ import java.net.URLClassLoader;
  */
 public final class RuntimeApplicationClassLoader extends URLClassLoader {
 
-    static
-    {
+    static {
         ClassLoader.registerAsParallelCapable();
     }
 
     @Getter
     private final ClassLoader cloudNetWrapperClassLoader;
 
-    public RuntimeApplicationClassLoader(ClassLoader cloudNetWrapperClassLoader, URL url, ClassLoader parent)
-    {
+    public RuntimeApplicationClassLoader(ClassLoader cloudNetWrapperClassLoader, URL url, ClassLoader parent) {
         super(new URL[]{url}, parent);
 
         this.cloudNetWrapperClassLoader = cloudNetWrapperClassLoader;
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
-    {
-        try
-        {
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        try {
             Class<?> loaded = this.findLoadedClass(name);
             if (loaded != null)
                 return loaded;
             else
                 return super.loadClass(name, resolve);
 
-        } catch (Throwable ex)
-        {
+        } catch (Throwable ex) {
             return cloudNetWrapperClassLoader.loadClass(name);
         }
     }
 
     @Override
-    public URL getResource(String name)
-    {
+    public URL getResource(String name) {
         URL url = super.getResource(name);
 
         if (url == null)
@@ -56,8 +50,7 @@ public final class RuntimeApplicationClassLoader extends URLClassLoader {
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         return super.equals(obj) || cloudNetWrapperClassLoader.equals(obj);
     }
 }

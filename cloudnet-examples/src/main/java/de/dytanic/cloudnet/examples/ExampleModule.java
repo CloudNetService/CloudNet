@@ -9,8 +9,7 @@ public final class ExampleModule extends DriverModule { //Defines the module cla
 
     @ModuleTask(event = ModuleLifeCycle.LOADED)
     //Defines a module task method. You can create more as one module task for one event
-    public void printLoadMessage()
-    {
+    public void printLoadMessage() {
         System.out.println("Module is successfully loaded");
     }
 
@@ -27,20 +26,17 @@ public final class ExampleModule extends DriverModule { //Defines the module cla
     }
 
     @ModuleTask(event = ModuleLifeCycle.STARTED) //important section, because on this event the module will start
-    public void registerListeners()
-    {
+    public void registerListeners() {
         CloudNetDriver.getInstance().getEventManager().registerListener(new ExampleListener()); //Register a listener object on the event manager
     }
 
     @ModuleTask(event = ModuleLifeCycle.STOPPED) //important section, because on this event the module will stop
-    public void stopModule()
-    {
+    public void stopModule() {
         getEventManager().callEvent("test_channel", new ExampleOwnEvent(getModuleWrapper()));
         //call own event on a specific event channel. All listeners which listen on this channel can handle with this object
     }
 
     @ModuleTask(event = ModuleLifeCycle.UNLOADED) // Will call, if the module will unload from runtime
-    public void unloadModule()
-    {
+    public void unloadModule() {
     }
 }

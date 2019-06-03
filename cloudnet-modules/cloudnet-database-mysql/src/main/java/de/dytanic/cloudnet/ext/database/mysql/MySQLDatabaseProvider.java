@@ -39,13 +39,12 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     private List<MySQLConnectionEndpoint> addresses;
 
     @Override
-    public boolean init() throws Exception
-    {
+    public boolean init() throws Exception {
         addresses = config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
         MySQLConnectionEndpoint endpoint = addresses.get(new Random().nextInt(addresses.size()));
 
         hikariDataSource.setJdbcUrl("jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint.getAddress().getPort() + "/" + endpoint.getDatabase() +
-            (endpoint.isUseSsl() ? "?useSSL=true&trustServerCertificate=true" : "")
+                (endpoint.isUseSsl() ? "?useSSL=true&trustServerCertificate=true" : "")
         );
 
         //base configuration
@@ -62,8 +61,7 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public IDatabase getDatabase(String name)
-    {
+    public IDatabase getDatabase(String name) {
         Validate.checkNotNull(name);
 
         removedOutdatedEntries();
@@ -75,8 +73,7 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public boolean containsDatabase(String name)
-    {
+    public boolean containsDatabase(String name) {
         Validate.checkNotNull(name);
 
         removedOutdatedEntries();
@@ -88,19 +85,16 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public boolean deleteDatabase(String name)
-    {
+    public boolean deleteDatabase(String name) {
         Validate.checkNotNull(name);
 
         cachedDatabaseInstances.remove(name);
 
         if (containsDatabase(name))
             try (Connection connection = getConnection();
-                 PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE " + name))
-            {
+                 PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE " + name)) {
                 return preparedStatement.executeUpdate() != -1;
-            } catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 
@@ -108,80 +102,69 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public Collection<String> getDatabaseNames()
-    {
+    public Collection<String> getDatabaseNames() {
         return executeQuery(
-            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
-            new IThrowableCallback<ResultSet, Collection<String>>() {
-                @Override
-                public Collection<String> call(ResultSet resultSet) throws Throwable
-                {
-                    Collection<String> collection = Iterables.newArrayList();
-                    while (resultSet.next()) collection.add(resultSet.getString("table_name"));
+                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
+                new IThrowableCallback<ResultSet, Collection<String>>() {
+                    @Override
+                    public Collection<String> call(ResultSet resultSet) throws Throwable {
+                        Collection<String> collection = Iterables.newArrayList();
+                        while (resultSet.next()) collection.add(resultSet.getString("table_name"));
 
-                    return collection;
+                        return collection;
+                    }
                 }
-            }
         );
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return config.getString("database");
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         hikariDataSource.close();
     }
 
     /*= ------------------------------------------------------------ =*/
 
-    public int executeUpdate(String query, Object... objects)
-    {
+    public int executeUpdate(String query, Object... objects) {
         Validate.checkNotNull(query);
         Validate.checkNotNull(objects);
 
         try (
-            Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query))
-        {
+                Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
             for (Object object : objects)
                 preparedStatement.setString(i++, object.toString());
 
             return preparedStatement.executeUpdate();
 
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return -1;
     }
 
-    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects)
-    {
+    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
         Validate.checkNotNull(query);
         Validate.checkNotNull(callback);
         Validate.checkNotNull(objects);
 
         try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query))
-        {
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
             for (Object object : objects)
                 preparedStatement.setString(i++, object.toString());
 
-            try (ResultSet resultSet = preparedStatement.executeQuery())
-            {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return callback.call(resultSet);
             }
 
-        } catch (Throwable e)
-        {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
 
@@ -190,15 +173,13 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
     /*= ------------------------------------------------------------ =*/
 
-    private void removedOutdatedEntries()
-    {
+    private void removedOutdatedEntries() {
         for (Map.Entry<String, Pair<Long, MySQLDatabase>> entry : cachedDatabaseInstances.entrySet())
             if (entry.getValue().getFirst() < System.currentTimeMillis())
                 cachedDatabaseInstances.remove(entry.getKey());
     }
 
-    private Connection getConnection() throws SQLException
-    {
+    private Connection getConnection() throws SQLException {
         return hikariDataSource.getConnection();
     }
 }

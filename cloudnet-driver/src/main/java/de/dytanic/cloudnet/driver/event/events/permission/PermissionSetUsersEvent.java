@@ -11,8 +11,7 @@ public final class PermissionSetUsersEvent extends PermissionEvent {
 
     private final Collection<? extends IPermissionUser> users;
 
-    public PermissionSetUsersEvent(IPermissionManagement permissionManagement, Collection<? extends IPermissionUser> users)
-    {
+    public PermissionSetUsersEvent(IPermissionManagement permissionManagement, Collection<? extends IPermissionUser> users) {
         super(permissionManagement);
 
         this.users = users;

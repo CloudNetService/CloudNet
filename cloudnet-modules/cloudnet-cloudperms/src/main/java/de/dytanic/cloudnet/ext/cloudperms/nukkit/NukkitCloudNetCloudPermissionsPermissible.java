@@ -12,34 +12,29 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     private final Player player;
 
-    public NukkitCloudNetCloudPermissionsPermissible(Player player)
-    {
+    public NukkitCloudNetCloudPermissionsPermissible(Player player) {
         super(player);
 
         this.player = player;
     }
 
     @Override
-    public boolean isPermissionSet(String name)
-    {
+    public boolean isPermissionSet(String name) {
         return hasPermission(name);
     }
 
     @Override
-    public boolean isPermissionSet(Permission perm)
-    {
+    public boolean isPermissionSet(Permission perm) {
         return isPermissionSet(perm.getName());
     }
 
     @Override
-    public boolean hasPermission(Permission perm)
-    {
+    public boolean hasPermission(Permission perm) {
         return hasPermission(perm.getName());
     }
 
     @Override
-    public boolean hasPermission(String inName)
-    {
+    public boolean hasPermission(String inName) {
         if (inName == null) return false;
 
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());

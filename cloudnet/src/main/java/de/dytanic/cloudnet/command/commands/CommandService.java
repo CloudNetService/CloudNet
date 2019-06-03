@@ -20,125 +20,111 @@ import java.util.function.Predicate;
 
 public final class CommandService extends CommandDefault implements ITabCompleter {
 
-    public CommandService()
-    {
+    public CommandService() {
         super("service", "services", "serv", "ser");
     }
 
     @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-    {
-        if (args.length == 0)
-        {
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
+        if (args.length == 0) {
             sender.sendMessage(
-                "service list | id=<text> | task=<text> | group=<text> | --names",
-                "service foreach | task=<text> | id=<text> | group=<text> ",
-                "--start | --stop | --delete | --restart | --includeInclusions | --includeTemplates | --deployResources",
-                "service <uniqueId | name>",
-                "service <uniqueId | name> info",
-                "service <uniqueId | name> start",
-                "service <uniqueId | name> stop | --force",
-                "service <uniqueId | name> delete",
-                "service <uniqueId | name> restart",
-                "service <uniqueId | name> command <command>",
-                "service <uniqueId | name> includeInclusions",
-                "service <uniqueId | name> includeTemplates",
-                "service <uniqueId | name> deployResources",
-                "service <uniqueId | name> add inclusion <url> <target>",
-                "service <uniqueId | name> add template <storage> <prefix> <name>",
-                "service <uniqueId | name> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]"
+                    "service list | id=<text> | task=<text> | group=<text> | --names",
+                    "service foreach | task=<text> | id=<text> | group=<text> ",
+                    "--start | --stop | --delete | --restart | --includeInclusions | --includeTemplates | --deployResources",
+                    "service <uniqueId | name>",
+                    "service <uniqueId | name> info",
+                    "service <uniqueId | name> start",
+                    "service <uniqueId | name> stop | --force",
+                    "service <uniqueId | name> delete",
+                    "service <uniqueId | name> restart",
+                    "service <uniqueId | name> command <command>",
+                    "service <uniqueId | name> includeInclusions",
+                    "service <uniqueId | name> includeTemplates",
+                    "service <uniqueId | name> deployResources",
+                    "service <uniqueId | name> add inclusion <url> <target>",
+                    "service <uniqueId | name> add template <storage> <prefix> <name>",
+                    "service <uniqueId | name> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]"
             );
             return;
         }
 
-        if (args[0].equalsIgnoreCase("list"))
-        {
+        if (args[0].equalsIgnoreCase("list")) {
 
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices())
-            {
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
                 if (properties.containsKey("id") &&
-                    !serviceInfoSnapshot.getServiceId().getUniqueId().toString()
-                        .toLowerCase().contains(properties.get("id").toLowerCase())) continue;
+                        !serviceInfoSnapshot.getServiceId().getUniqueId().toString()
+                                .toLowerCase().contains(properties.get("id").toLowerCase())) continue;
 
                 if (properties.containsKey("group") &&
-                    !Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
+                        !Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
                     continue;
 
                 if (properties.containsKey("task") &&
-                    !properties.get("task").toLowerCase().contains(
-                        serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase())) continue;
+                        !properties.get("task").toLowerCase().contains(
+                                serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase())) continue;
 
                 if (!properties.containsKey("names"))
                     sender.sendMessage(
-                        serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0] +
-                            " | Name: " + serviceInfoSnapshot.getServiceId().getName() +
-                            " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId() +
-                            " | Status: " + serviceInfoSnapshot.getLifeCycle() +
-                            " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":" +
-                            serviceInfoSnapshot.getAddress().getPort() +
-                            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
+                            serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0] +
+                                    " | Name: " + serviceInfoSnapshot.getServiceId().getName() +
+                                    " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId() +
+                                    " | Status: " + serviceInfoSnapshot.getLifeCycle() +
+                                    " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":" +
+                                    serviceInfoSnapshot.getAddress().getPort() +
+                                    " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
                     );
                 else
                     sender.sendMessage(serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId() +
-                        " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
+                            " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
             }
             return;
         }
 
-        if (args[0].equalsIgnoreCase("foreach"))
-        {
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices())
-            {
+        if (args[0].equalsIgnoreCase("foreach")) {
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
                 if (properties.containsKey("id") &&
-                    !serviceInfoSnapshot.getServiceId().getUniqueId().toString()
-                        .toLowerCase().contains(properties.get("id").toLowerCase())) continue;
+                        !serviceInfoSnapshot.getServiceId().getUniqueId().toString()
+                                .toLowerCase().contains(properties.get("id").toLowerCase())) continue;
 
                 if (properties.containsKey("group") &&
-                    !Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
+                        !Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
                     continue;
 
                 if (properties.containsKey("task") &&
-                    !properties.get("task").toLowerCase().contains(
-                        serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase())) continue;
+                        !properties.get("task").toLowerCase().contains(
+                                serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase())) continue;
 
-                if (properties.containsKey("delete"))
-                {
+                if (properties.containsKey("delete")) {
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
                     continue;
                 }
 
-                if (properties.containsKey("restart"))
-                {
+                if (properties.containsKey("restart")) {
                     CloudNetDriver.getInstance().restartCloudService(serviceInfoSnapshot);
                     continue;
                 }
 
-                if (properties.containsKey("includeInclusions"))
-                {
+                if (properties.containsKey("includeInclusions")) {
                     CloudNetDriver.getInstance().includeWaitingServiceInclusions(serviceInfoSnapshot.getServiceId().getUniqueId());
                     continue;
                 }
 
-                if (properties.containsKey("includeTemplates"))
-                {
+                if (properties.containsKey("includeTemplates")) {
                     CloudNetDriver.getInstance().includeWaitingServiceTemplates(serviceInfoSnapshot.getServiceId().getUniqueId());
                     continue;
                 }
 
-                if (properties.containsKey("deployResources"))
-                {
+                if (properties.containsKey("deployResources")) {
                     CloudNetDriver.getInstance().deployResources(serviceInfoSnapshot.getServiceId().getUniqueId());
                     continue;
                 }
 
-                if (properties.containsKey("start"))
-                {
+                if (properties.containsKey("start")) {
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
                     continue;
                 }
 
-                if (properties.containsKey("stop"))
-                {
+                if (properties.containsKey("stop")) {
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
                 }
             }
@@ -147,31 +133,23 @@ public final class CommandService extends CommandDefault implements ITabComplete
         ServiceInfoSnapshot serviceInfoSnapshot = getServiceInfoSnapshot(args[0]);
 
         //Handle service
-        if (serviceInfoSnapshot != null)
-        {
-            if (args.length == 1)
-            {
+        if (serviceInfoSnapshot != null) {
+            if (args.length == 1) {
                 this.display(sender, serviceInfoSnapshot, false);
                 return;
             }
 
-            if (args.length > 4)
-            {
-                if (args[1].equalsIgnoreCase("add"))
-                {
-                    switch (args[2])
-                    {
+            if (args.length > 4) {
+                if (args[1].equalsIgnoreCase("add")) {
+                    switch (args[2]) {
                         case "template":
-                            if (args.length == 6)
-                            {
-                                if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[3]))
-                                {
+                            if (args.length == 6) {
+                                if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[3])) {
                                     ServiceTemplate serviceTemplate = new ServiceTemplate(args[4], args[5], args[3]);
 
-                                    if (CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[3]).has(serviceTemplate))
-                                    {
+                                    if (CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[3]).has(serviceTemplate)) {
                                         CloudNetDriver.getInstance().addServiceTemplateToCloudService(serviceInfoSnapshot.getServiceId().getUniqueId(),
-                                            serviceTemplate);
+                                                serviceTemplate);
 
                                         sender.sendMessage(LanguageManager.getMessage("command-service-add-template-success"));
                                     }
@@ -179,18 +157,16 @@ public final class CommandService extends CommandDefault implements ITabComplete
                             }
                             break;
                         case "deployment":
-                            if (args.length > 5)
-                            {
-                                if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[3]))
-                                {
+                            if (args.length > 5) {
+                                if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[3])) {
                                     ServiceDeployment serviceDeployment = new ServiceDeployment(new ServiceTemplate(args[4], args[5], args[3]), Iterables.newArrayList());
 
                                     if (args.length == 7)
                                         serviceDeployment.getExcludes().addAll(Arrays.asList(args[6].split(";")));
 
                                     CloudNetDriver.getInstance().addServiceDeploymentToCloudService(
-                                        serviceInfoSnapshot.getServiceId().getUniqueId(),
-                                        serviceDeployment
+                                            serviceInfoSnapshot.getServiceId().getUniqueId(),
+                                            serviceDeployment
                                     );
 
                                     sender.sendMessage(LanguageManager.getMessage("command-service-add-deployment-success"));
@@ -198,11 +174,10 @@ public final class CommandService extends CommandDefault implements ITabComplete
                             }
                             break;
                         case "inclusion":
-                            if (args.length == 5)
-                            {
+                            if (args.length == 5) {
                                 CloudNetDriver.getInstance().addServiceRemoteInclusionToCloudService(
-                                    serviceInfoSnapshot.getServiceId().getUniqueId(),
-                                    new ServiceRemoteInclusion(args[3], args[4])
+                                        serviceInfoSnapshot.getServiceId().getUniqueId(),
+                                        new ServiceRemoteInclusion(args[3], args[4])
                                 );
 
                                 sender.sendMessage(LanguageManager.getMessage("command-service-add-inclusion-success"));
@@ -214,8 +189,7 @@ public final class CommandService extends CommandDefault implements ITabComplete
                 }
             }
 
-            if (args.length > 2 && args[1].equalsIgnoreCase("command"))
-            {
+            if (args.length > 2 && args[1].equalsIgnoreCase("command")) {
                 StringBuilder stringBuilder = new StringBuilder();
 
                 for (int i = 2; i < args.length; i++)
@@ -225,16 +199,13 @@ public final class CommandService extends CommandDefault implements ITabComplete
                 return;
             }
 
-            if (args.length > 1)
-            {
-                if (args[1].equalsIgnoreCase("start"))
-                {
+            if (args.length > 1) {
+                if (args[1].equalsIgnoreCase("start")) {
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("stop"))
-                {
+                if (args[1].equalsIgnoreCase("stop")) {
                     if (!properties.containsKey("--force"))
                         CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
                     else
@@ -243,57 +214,50 @@ public final class CommandService extends CommandDefault implements ITabComplete
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("delete"))
-                {
+                if (args[1].equalsIgnoreCase("delete")) {
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("includeInclusions"))
-                {
+                if (args[1].equalsIgnoreCase("includeInclusions")) {
                     CloudNetDriver.getInstance().includeWaitingServiceInclusions(serviceInfoSnapshot.getServiceId().getUniqueId());
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("includeTemplates"))
-                {
+                if (args[1].equalsIgnoreCase("includeTemplates")) {
                     CloudNetDriver.getInstance().includeWaitingServiceTemplates(serviceInfoSnapshot.getServiceId().getUniqueId());
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("deployResources"))
-                {
+                if (args[1].equalsIgnoreCase("deployResources")) {
                     CloudNetDriver.getInstance().deployResources(serviceInfoSnapshot.getServiceId().getUniqueId());
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("restart"))
-                {
+                if (args[1].equalsIgnoreCase("restart")) {
                     CloudNetDriver.getInstance().restartCloudService(serviceInfoSnapshot);
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("info"))
-                {
+                if (args[1].equalsIgnoreCase("info")) {
                     this.display(sender, serviceInfoSnapshot, true);
                 }
             }
         }
     }
 
-    private void display(ICommandSender sender, ServiceInfoSnapshot serviceInfoSnapshot, boolean full)
-    {
+    private void display(ICommandSender sender, ServiceInfoSnapshot serviceInfoSnapshot, boolean full) {
         Collection<String> list = Iterables.newArrayList();
 
         list.addAll(Arrays.asList(
-            " ",
-            "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
-            "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),
-            "* Port: " + serviceInfoSnapshot.getConfiguration().getPort(),
-            "* Connected: " + serviceInfoSnapshot.isConnected(),
-            "* Lifecycle: " + serviceInfoSnapshot.getLifeCycle(),
-            "* Groups: " + Arrays.toString(serviceInfoSnapshot.getConfiguration().getGroups()),
-            " "
+                " ",
+                "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
+                "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),
+                "* Port: " + serviceInfoSnapshot.getConfiguration().getPort(),
+                "* Connected: " + serviceInfoSnapshot.isConnected(),
+                "* Lifecycle: " + serviceInfoSnapshot.getLifeCycle(),
+                "* Groups: " + Arrays.toString(serviceInfoSnapshot.getConfiguration().getGroups()),
+                " "
         ));
 
         list.add("* Includes:");
@@ -310,8 +274,7 @@ public final class CommandService extends CommandDefault implements ITabComplete
         list.add(" ");
         list.add("* Deployments:");
 
-        for (ServiceDeployment deployment : serviceInfoSnapshot.getConfiguration().getDeployments())
-        {
+        for (ServiceDeployment deployment : serviceInfoSnapshot.getConfiguration().getDeployments()) {
             list.add("- ");
             list.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
             list.add("Excludes: " + deployment.getExcludes());
@@ -321,18 +284,17 @@ public final class CommandService extends CommandDefault implements ITabComplete
         list.add("* ServiceInfoSnapshot | " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(serviceInfoSnapshot.getCreationTime()));
 
         list.addAll(Arrays.asList(
-            "CPU usage: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()) + "%",
-            "Threads: " + serviceInfoSnapshot.getProcessSnapshot().getThreads().size(),
-            "Heap usage: " + (serviceInfoSnapshot.getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +
-                (serviceInfoSnapshot.getProcessSnapshot().getMaxHeapMemory() / 1048576) + "MB",
-            "Loaded classes: " + serviceInfoSnapshot.getProcessSnapshot().getCurrentLoadedClassCount(),
-            "Unloaded classes: " + serviceInfoSnapshot.getProcessSnapshot().getUnloadedClassCount(),
-            "Total loaded classes: " + serviceInfoSnapshot.getProcessSnapshot().getTotalLoadedClassCount(),
-            " "
+                "CPU usage: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()) + "%",
+                "Threads: " + serviceInfoSnapshot.getProcessSnapshot().getThreads().size(),
+                "Heap usage: " + (serviceInfoSnapshot.getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +
+                        (serviceInfoSnapshot.getProcessSnapshot().getMaxHeapMemory() / 1048576) + "MB",
+                "Loaded classes: " + serviceInfoSnapshot.getProcessSnapshot().getCurrentLoadedClassCount(),
+                "Unloaded classes: " + serviceInfoSnapshot.getProcessSnapshot().getUnloadedClassCount(),
+                "Total loaded classes: " + serviceInfoSnapshot.getProcessSnapshot().getTotalLoadedClassCount(),
+                " "
         ));
 
-        if (full)
-        {
+        if (full) {
             list.add("Properties:");
             list.addAll(Arrays.asList(serviceInfoSnapshot.getProperties().toPrettyJson().split("\n")));
             list.add(" ");
@@ -342,46 +304,38 @@ public final class CommandService extends CommandDefault implements ITabComplete
     }
 
     @Override
-    public Collection<String> complete(String commandLine, String[] args, Properties properties)
-    {
+    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
         return Iterables.map(CloudNetDriver.getInstance().getCloudServices(), new Function<ServiceInfoSnapshot, String>() {
             @Override
-            public String apply(ServiceInfoSnapshot serviceInfoSnapshot)
-            {
+            public String apply(ServiceInfoSnapshot serviceInfoSnapshot) {
                 return serviceInfoSnapshot.getServiceId().getUniqueId().toString();
             }
         });
     }
 
-    private ServiceInfoSnapshot getServiceInfoSnapshot(String argument)
-    {
+    private ServiceInfoSnapshot getServiceInfoSnapshot(String argument) {
         Validate.checkNotNull(argument);
 
         ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
             @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot)
-            {
+            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
                 return serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase());
             }
         });
 
-        if (serviceInfoSnapshot == null)
-        {
+        if (serviceInfoSnapshot == null) {
             List<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
                 @Override
-                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot)
-                {
+                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
                     return serviceInfoSnapshot.getServiceId().getName().toLowerCase().contains(argument.toLowerCase());
                 }
             });
 
-            if (!serviceInfoSnapshots.isEmpty())
-            {
+            if (!serviceInfoSnapshots.isEmpty()) {
                 if (serviceInfoSnapshots.size() > 1)
                     serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, new Predicate<ServiceInfoSnapshot>() {
                         @Override
-                        public boolean test(ServiceInfoSnapshot serviceInfoSnapshot)
-                        {
+                        public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
                             return serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(argument);
                         }
                     });

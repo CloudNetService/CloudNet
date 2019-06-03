@@ -18,22 +18,21 @@ import java.util.concurrent.TimeUnit;
 public final class NettySSLNetworkClientServerTest implements INetworkChannelHandler {
 
     @Test
-    public void testSslNetworking() throws Exception
-    {
+    public void testSslNetworking() throws Exception {
         SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
 
         INetworkServer server = new NettyNetworkServer(() -> this, new SSLConfiguration(
-            true,
-            null,
-            selfSignedCertificate.certificate(),
-            selfSignedCertificate.privateKey()
+                true,
+                null,
+                selfSignedCertificate.certificate(),
+                selfSignedCertificate.privateKey()
         ), null);
 
         INetworkClient client = new NettyNetworkClient(() -> this, new SSLConfiguration(
-            false,
-            null,
-            selfSignedCertificate.certificate(),
-            selfSignedCertificate.privateKey()
+                false,
+                null,
+                selfSignedCertificate.certificate(),
+                selfSignedCertificate.privateKey()
         ), null);
 
         Assert.assertTrue(server.isSslEnabled());
@@ -41,18 +40,16 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
 
         ITask<String> task = new ListenableTask<>(new Callable<String>() {
             @Override
-            public String call() throws Exception
-            {
+            public String call() throws Exception {
                 return "Hello, world!";
             }
         });
 
         server.getPacketRegistry().addListener(1, new IPacketListener() {
             @Override
-            public void handle(INetworkChannel channel, IPacket packet) throws Exception
-            {
+            public void handle(INetworkChannel channel, IPacket packet) throws Exception {
                 if (packet.getHeader().contains("hello") && packet.getHeader().getString("hello").equalsIgnoreCase("Unit test") &&
-                    new String(packet.getBody()).equalsIgnoreCase("Test Test Test 1 2 4"))
+                        new String(packet.getBody()).equalsIgnoreCase("Test Test Test 1 2 4"))
                     task.call();
             }
         });
@@ -69,20 +66,17 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
     }
 
     @Override
-    public void handleChannelInitialize(INetworkChannel channel) throws Exception
-    {
+    public void handleChannelInitialize(INetworkChannel channel) throws Exception {
         channel.sendPacket(new Packet(1, new JsonDocument("hello", "Unit test"), "Test Test Test 1 2 4".getBytes()));
     }
 
     @Override
-    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) throws Exception
-    {
+    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) throws Exception {
         return true;
     }
 
     @Override
-    public void handleChannelClose(INetworkChannel channel) throws Exception
-    {
+    public void handleChannelClose(INetworkChannel channel) throws Exception {
 
     }
 }

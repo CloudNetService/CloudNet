@@ -3,10 +3,8 @@ package de.dytanic.cloudnet.driver.network.http;
 public interface IMethodHttpHandler extends IHttpHandler {
 
     @Override
-    default void handle(String path, IHttpContext context) throws Exception
-    {
-        switch (context.request().method().toUpperCase())
-        {
+    default void handle(String path, IHttpContext context) throws Exception {
+        switch (context.request().method().toUpperCase()) {
             case "GET":
                 this.handleGet(path, context);
                 break;

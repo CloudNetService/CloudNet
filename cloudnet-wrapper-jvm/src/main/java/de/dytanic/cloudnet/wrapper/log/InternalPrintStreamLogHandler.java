@@ -14,15 +14,13 @@ public final class InternalPrintStreamLogHandler extends AbstractLogHandler {
 
     private final PrintStream outputStream, errorStream;
 
-    public InternalPrintStreamLogHandler(PrintStream outputStream, PrintStream errorStream)
-    {
+    public InternalPrintStreamLogHandler(PrintStream outputStream, PrintStream errorStream) {
         this.outputStream = outputStream;
         this.errorStream = errorStream;
     }
 
     @Override
-    public void handle(LogEntry logEntry)
-    {
+    public void handle(LogEntry logEntry) {
         if (logEntry.getLogLevel().equals(LogLevel.ERROR) || logEntry.getLogLevel().equals(LogLevel.WARNING))
             this.errorStream.print(getFormatter().format(logEntry));
         else
@@ -30,8 +28,7 @@ public final class InternalPrintStreamLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
 
     }
 }

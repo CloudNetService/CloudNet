@@ -13,13 +13,11 @@ import java.util.Arrays;
 
 public final class Main {
 
-    private Main()
-    {
+    private Main() {
         throw new UnsupportedOperationException();
     }
 
-    public static synchronized void main(String... args) throws Throwable
-    {
+    public static synchronized void main(String... args) throws Throwable {
         LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
         LanguageManager.addLanguageFile("german", Main.class.getClassLoader().getResourceAsStream("lang/german.properties"));
         LanguageManager.addLanguageFile("english", Main.class.getClassLoader().getResourceAsStream("lang/english.properties"));
@@ -36,11 +34,10 @@ public final class Main {
         cloudNet.start();
     }
 
-    private static void initLoggerAndConsole(IConsole console, ILogger logger) throws Throwable
-    {
+    private static void initLoggerAndConsole(IConsole console, ILogger logger) throws Throwable {
         for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
-            new DefaultFileLogHandler(new File("local/logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB),
-            new ConsoleLogHandler(console).setFormatter(console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter())
+                new DefaultFileLogHandler(new File("local/logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB),
+                new ConsoleLogHandler(console).setFormatter(console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter())
         })
             logger.addLogHandler(logHandler);
 
@@ -50,14 +47,11 @@ public final class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
             @Override
-            public void run()
-            {
-                try
-                {
+            public void run() {
+                try {
                     logger.close();
                     console.close();
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

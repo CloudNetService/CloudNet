@@ -14,33 +14,27 @@ public class DriverModule extends DefaultModule {
 
     private JsonDocument config;
 
-    public final JsonDocument getConfig()
-    {
-        if (config == null)
-        {
+    public final JsonDocument getConfig() {
+        if (config == null) {
             config = reloadConfig0();
         }
 
         return config;
     }
 
-    public final JsonDocument reloadConfig()
-    {
+    public final JsonDocument reloadConfig() {
         return config = reloadConfig0();
     }
 
-    public final DriverModule saveConfig()
-    {
-        if (config != null)
-        {
+    public final DriverModule saveConfig() {
+        if (config != null) {
             config.write(new File(getModuleWrapper().getDataFolder(), "config.json"));
         }
 
         return this;
     }
 
-    private JsonDocument reloadConfig0()
-    {
+    private JsonDocument reloadConfig0() {
         getModuleWrapper().getDataFolder().mkdirs();
 
         File file = new File(getModuleWrapper().getDataFolder(), "config.json");
@@ -50,38 +44,31 @@ public class DriverModule extends DefaultModule {
         return JsonDocument.newDocument(file);
     }
 
-    public final ILogger log(LogLevel level, String message)
-    {
+    public final ILogger log(LogLevel level, String message) {
         return getLogger().log(level, message);
     }
 
-    public final IEventManager registerListener(Object listener)
-    {
+    public final IEventManager registerListener(Object listener) {
         return getEventManager().registerListener(listener);
     }
 
-    public final IEventManager registerListeners(Object... listeners)
-    {
+    public final IEventManager registerListeners(Object... listeners) {
         return getEventManager().registerListeners(listeners);
     }
 
-    public final IServicesRegistry getRegistry()
-    {
+    public final IServicesRegistry getRegistry() {
         return this.getDriver().getServicesRegistry();
     }
 
-    public final ILogger getLogger()
-    {
+    public final ILogger getLogger() {
         return this.getDriver().getLogger();
     }
 
-    public final IEventManager getEventManager()
-    {
+    public final IEventManager getEventManager() {
         return this.getDriver().getEventManager();
     }
 
-    public final CloudNetDriver getDriver()
-    {
+    public final CloudNetDriver getDriver() {
         return CloudNetDriver.getInstance();
     }
 }

@@ -8,17 +8,14 @@ import java.util.Map;
 
 public final class CNLCommandCNL extends CNLCommand {
 
-    public CNLCommandCNL()
-    {
+    public CNLCommandCNL() {
         super("cnl");
     }
 
 
     @Override
-    public void execute(Map<String, String> variables, String commandLine, String... args) throws Exception
-    {
-        if (args.length > 0)
-        {
+    public void execute(Map<String, String> variables, String commandLine, String... args) throws Exception {
+        if (args.length > 0) {
 
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 1; i < args.length; stringBuilder.append(args[i++]).append(" "))

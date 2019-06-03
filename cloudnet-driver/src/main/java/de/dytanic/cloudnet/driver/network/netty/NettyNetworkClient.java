@@ -46,35 +46,28 @@ public final class NettyNetworkClient implements INetworkClient {
 
     protected SslContext sslContext;
 
-    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler)
-    {
+    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler) {
         this(networkChannelHandler, null, null);
     }
 
-    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler)
-    {
+    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
         this.networkChannelHandler = networkChannelHandler;
         this.sslConfiguration = sslConfiguration;
 
         this.taskSchedulerFromConstructor = taskScheduler != null;
         this.taskScheduler = taskScheduler == null ? new DefaultTaskScheduler(Runtime.getRuntime().availableProcessors()) : taskScheduler;
 
-        try
-        {
+        try {
             this.init();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void init() throws Exception
-    {
-        if (sslConfiguration != null)
-        {
+    private void init() throws Exception {
+        if (sslConfiguration != null) {
             if (sslConfiguration.getCertificatePath() != null &&
-                sslConfiguration.getPrivateKeyPath() != null)
-            {
+                    sslConfiguration.getPrivateKeyPath() != null) {
                 SslContextBuilder builder = SslContextBuilder.forClient();
 
                 if (sslConfiguration.getTrustCertificatePath() != null)
@@ -83,52 +76,47 @@ public final class NettyNetworkClient implements INetworkClient {
                     builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
 
                 this.sslContext = builder
-                    .keyManager(sslConfiguration.getCertificatePath(), sslConfiguration.getPrivateKeyPath())
-                    .clientAuth(sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
-                    .build();
-            } else
-            {
+                        .keyManager(sslConfiguration.getCertificatePath(), sslConfiguration.getPrivateKeyPath())
+                        .clientAuth(sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+                        .build();
+            } else {
                 SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
                 this.sslContext = SslContextBuilder.forClient()
-                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                    .keyManager(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
-                    .build();
+                        .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                        .keyManager(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
+                        .build();
             }
         }
     }
 
     @Override
-    public boolean isSslEnabled()
-    {
+    public boolean isSslEnabled() {
         return sslContext != null;
     }
 
     /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
-    public boolean connect(HostAndPort hostAndPort)
-    {
+    public boolean connect(HostAndPort hostAndPort) {
         Validate.checkNotNull(hostAndPort);
         Validate.checkNotNull(hostAndPort.getHost());
 
-        try
-        {
+        try {
             new Bootstrap()
-                .group(eventLoopGroup)
-                .option(ChannelOption.AUTO_READ, true)
-                .option(ChannelOption.IP_TOS, 24)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .channel(NettyUtils.getSocketChannelClass())
-                .handler(new NettyNetworkClientInitializer(this, hostAndPort))
-                .connect(hostAndPort.getHost(), hostAndPort.getPort())
-                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-                .sync()
-                .channel();
+                    .group(eventLoopGroup)
+                    .option(ChannelOption.AUTO_READ, true)
+                    .option(ChannelOption.IP_TOS, 24)
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .channel(NettyUtils.getSocketChannelClass())
+                    .handler(new NettyNetworkClientInitializer(this, hostAndPort))
+                    .connect(hostAndPort.getHost(), hostAndPort.getPort())
+                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+                    .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+                    .sync()
+                    .channel();
 
             return true;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -136,28 +124,23 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         taskScheduler.shutdown();
         this.closeChannels();
         eventLoopGroup.shutdownGracefully();
     }
 
     @Override
-    public Collection<INetworkChannel> getChannels()
-    {
+    public Collection<INetworkChannel> getChannels() {
         return Collections.unmodifiableCollection(this.channels);
     }
 
     @Override
-    public void closeChannels()
-    {
+    public void closeChannels() {
         for (INetworkChannel channel : this.channels)
-            try
-            {
+            try {
                 channel.close();
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -165,8 +148,7 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void sendPacket(IPacket packet)
-    {
+    public void sendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels)
@@ -174,8 +156,7 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void sendPacket(IPacket... packets)
-    {
+    public void sendPacket(IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels)

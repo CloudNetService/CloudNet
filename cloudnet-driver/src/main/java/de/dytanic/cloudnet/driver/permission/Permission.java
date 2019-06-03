@@ -17,14 +17,12 @@ public final class Permission {
 
     private long timeOutMillis;
 
-    public Permission(String name, int potency)
-    {
+    public Permission(String name, int potency) {
         this.name = name;
         this.potency = potency;
     }
 
-    public Permission(String name, int potency, long time, TimeUnit timeUnit)
-    {
+    public Permission(String name, int potency, long time, TimeUnit timeUnit) {
         this.name = name;
         this.potency = potency;
         this.timeOutMillis = System.currentTimeMillis() + timeUnit.toMillis(time);

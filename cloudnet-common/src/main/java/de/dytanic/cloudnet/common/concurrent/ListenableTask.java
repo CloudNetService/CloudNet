@@ -10,22 +10,17 @@ import java.util.concurrent.*;
 public class ListenableTask<V> implements ITask<V> {
 
     @Getter
+    private final Callable<V> callable;
+    @Getter
     private Collection<ITaskListener<V>> listeners;
-
     private volatile V value;
-
     private volatile boolean done, cancelled;
 
-    @Getter
-    private final Callable<V> callable;
-
-    public ListenableTask(Callable<V> callable)
-    {
+    public ListenableTask(Callable<V> callable) {
         this(callable, null);
     }
 
-    public ListenableTask(Callable<V> callable, ITaskListener<V> listener)
-    {
+    public ListenableTask(Callable<V> callable, ITaskListener<V> listener) {
         Validate.checkNotNull(callable);
 
         this.callable = callable;
@@ -34,8 +29,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public ITask<V> addListener(ITaskListener<V>... listeners)
-    {
+    public ITask<V> addListener(ITaskListener<V>... listeners) {
         if (listeners == null) return this;
 
         initListenersCollectionIfNotExists();
@@ -48,8 +42,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public ITask<V> clearListeners()
-    {
+    public ITask<V> clearListeners() {
         if (this.listeners != null)
             this.listeners.clear();
 
@@ -57,21 +50,17 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public V getDef(V def)
-    {
+    public V getDef(V def) {
         return get(5, TimeUnit.SECONDS, def);
     }
 
     @Override
-    public V get(long time, TimeUnit timeUnit, V def)
-    {
+    public V get(long time, TimeUnit timeUnit, V def) {
         Validate.checkNotNull(timeUnit);
 
-        try
-        {
+        try {
             return get(time, timeUnit);
-        } catch (Throwable ignored)
-        {
+        } catch (Throwable ignored) {
             ignored.printStackTrace();
         }
 
@@ -79,16 +68,13 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public boolean cancel(boolean mayInterruptIfRunning)
-    {
+    public boolean cancel(boolean mayInterruptIfRunning) {
         return this.cancelled = mayInterruptIfRunning;
     }
 
     @Override
-    public V get() throws InterruptedException, ExecutionException
-    {
-        synchronized (this)
-        {
+    public V get() throws InterruptedException, ExecutionException {
+        synchronized (this) {
             if (!isDone()) this.wait();
         }
 
@@ -96,10 +82,8 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
-    {
-        synchronized (this)
-        {
+    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        synchronized (this) {
             if (!isDone()) this.wait(unit.toMillis(timeout));
         }
 
@@ -109,15 +93,11 @@ public class ListenableTask<V> implements ITask<V> {
     /*= ------------------------------------------------------------------------------------------------------ =*/
 
     @Override
-    public V call()
-    {
-        if (!isCancelled())
-        {
-            try
-            {
+    public V call() {
+        if (!isCancelled()) {
+            try {
                 this.value = this.callable.call();
-            } catch (Throwable ex)
-            {
+            } catch (Throwable ex) {
                 this.invokeFailure(ex);
             }
         }
@@ -125,13 +105,10 @@ public class ListenableTask<V> implements ITask<V> {
         this.done = true;
         this.invokeTaskListener();
 
-        synchronized (this)
-        {
-            try
-            {
+        synchronized (this) {
+            try {
                 this.notifyAll();
-            } catch (Throwable ignored)
-            {
+            } catch (Throwable ignored) {
             }
         }
 
@@ -140,37 +117,30 @@ public class ListenableTask<V> implements ITask<V> {
 
     /*= ---------------------------------------------------------------------------------- =*/
 
-    private void initListenersCollectionIfNotExists()
-    {
+    private void initListenersCollectionIfNotExists() {
         if (this.listeners == null)
             this.listeners = new ConcurrentLinkedQueue<>();
     }
 
-    private void invokeTaskListener()
-    {
+    private void invokeTaskListener() {
         if (this.listeners != null)
             for (ITaskListener<V> listener : this.listeners)
-                try
-                {
+                try {
                     if (this.cancelled)
                         listener.onCancelled(this);
                     else
                         listener.onComplete(this, this.value);
-                } catch (Exception exception)
-                {
+                } catch (Exception exception) {
                     exception.printStackTrace();
                 }
     }
 
-    private void invokeFailure(Throwable ex)
-    {
+    private void invokeFailure(Throwable ex) {
         if (this.listeners != null)
             for (ITaskListener<V> listener : this.listeners)
-                try
-                {
+                try {
                     listener.onFailure(this, ex);
-                } catch (Exception exception)
-                {
+                } catch (Exception exception) {
                     exception.printStackTrace();
                 }
     }

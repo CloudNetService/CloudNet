@@ -26,62 +26,53 @@ public final class DefaultModuleProvider implements IModuleProvider {
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
     @Override
-    public Collection<IModuleWrapper> getModules()
-    {
+    public Collection<IModuleWrapper> getModules() {
         return Collections.unmodifiableCollection(moduleWrappers);
     }
 
     @Override
-    public Collection<IModuleWrapper> getModules(String group)
-    {
+    public Collection<IModuleWrapper> getModules(String group) {
         Validate.checkNotNull(group);
 
         return Iterables.filter(this.getModules(), new Predicate<IModuleWrapper>() {
             @Override
-            public boolean test(IModuleWrapper defaultModuleWrapper)
-            {
+            public boolean test(IModuleWrapper defaultModuleWrapper) {
                 return defaultModuleWrapper.getModuleConfiguration().group.equals(group);
             }
         });
     }
 
     @Override
-    public IModuleWrapper getModule(String name)
-    {
+    public IModuleWrapper getModule(String name) {
         Validate.checkNotNull(name);
 
         return Iterables.first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
             @Override
-            public boolean test(DefaultModuleWrapper defaultModuleWrapper)
-            {
+            public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
                 return defaultModuleWrapper.getModuleConfiguration().getName().equals(name);
             }
         });
     }
 
     @Override
-    public IModuleWrapper loadModule(URL url)
-    {
+    public IModuleWrapper loadModule(URL url) {
         Validate.checkNotNull(url);
 
         DefaultModuleWrapper moduleWrapper = null;
 
         if (Iterables.first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
             @Override
-            public boolean test(DefaultModuleWrapper defaultModuleWrapper)
-            {
+            public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
                 return defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString());
             }
         }) != null) return null;
 
-        try
-        {
+        try {
 
             this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url));
             moduleWrapper.loadModule();
 
-        } catch (Throwable throwable)
-        {
+        } catch (Throwable throwable) {
             throwable.printStackTrace();
 
             if (moduleWrapper != null)
@@ -92,23 +83,19 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleWrapper loadModule(File file)
-    {
+    public IModuleWrapper loadModule(File file) {
         Validate.checkNotNull(file);
 
         return loadModule(file.toPath());
     }
 
     @Override
-    public IModuleWrapper loadModule(Path path)
-    {
+    public IModuleWrapper loadModule(Path path) {
         Validate.checkNotNull(path);
 
-        try
-        {
+        try {
             return loadModule(path.toUri().toURL());
-        } catch (MalformedURLException e)
-        {
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
@@ -116,8 +103,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider loadModule(URL... urls)
-    {
+    public IModuleProvider loadModule(URL... urls) {
         Validate.checkNotNull(urls);
 
         for (URL url : urls)
@@ -127,8 +113,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider loadModule(File... files)
-    {
+    public IModuleProvider loadModule(File... files) {
         Validate.checkNotNull(files);
 
         for (File file : files)
@@ -138,8 +123,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider loadModule(Path... paths)
-    {
+    public IModuleProvider loadModule(Path... paths) {
         Validate.checkNotNull(paths);
 
         for (Path path : paths)
@@ -149,8 +133,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider startAll()
-    {
+    public IModuleProvider startAll() {
         for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
             moduleWrapper.startModule();
 
@@ -158,8 +141,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider stopAll()
-    {
+    public IModuleProvider stopAll() {
         for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
             moduleWrapper.stopModule();
 
@@ -167,8 +149,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider unloadAll()
-    {
+    public IModuleProvider unloadAll() {
         for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
             moduleWrapper.unloadModule();
 

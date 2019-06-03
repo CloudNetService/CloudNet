@@ -9,11 +9,9 @@ import java.io.StringWriter;
 public final class WrapperLogFormatter implements IFormatter {
 
     @Override
-    public String format(LogEntry logEntry)
-    {
+    public String format(LogEntry logEntry) {
         StringBuilder builder = new StringBuilder();
-        if (logEntry.getThrowable() != null)
-        {
+        if (logEntry.getThrowable() != null) {
             StringWriter writer = new StringWriter();
             logEntry.getThrowable().printStackTrace(new PrintWriter(writer));
             builder.append(writer).append(System.lineSeparator());

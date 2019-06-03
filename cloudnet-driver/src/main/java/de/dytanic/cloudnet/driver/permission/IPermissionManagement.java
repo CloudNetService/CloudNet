@@ -53,14 +53,11 @@ public interface IPermissionManagement {
 
     /*= ----------------------------------------------------------------------------------- =*/
 
-    default IPermissionGroup getHighestPermissionGroup(IPermissionUser permissionUser)
-    {
+    default IPermissionGroup getHighestPermissionGroup(IPermissionUser permissionUser) {
         IPermissionGroup permissionGroup = null;
 
-        for (IPermissionGroup group : getGroups(permissionUser))
-        {
-            if (permissionGroup == null)
-            {
+        for (IPermissionGroup group : getGroups(permissionUser)) {
+            if (permissionGroup == null) {
                 permissionGroup = group;
                 continue;
             }
@@ -72,8 +69,7 @@ public interface IPermissionManagement {
         return permissionGroup;
     }
 
-    default IPermissionGroup getDefaultPermissionGroup()
-    {
+    default IPermissionGroup getDefaultPermissionGroup() {
         for (IPermissionGroup group : getGroups())
             if (group != null && group.isDefaultGroup())
                 return group;
@@ -81,15 +77,13 @@ public interface IPermissionManagement {
         return null;
     }
 
-    default boolean testPermissionGroup(IPermissionGroup permissionGroup)
-    {
+    default boolean testPermissionGroup(IPermissionGroup permissionGroup) {
         if (permissionGroup == null) return false;
 
         return testPermissible(permissionGroup);
     }
 
-    default boolean testPermissionUser(IPermissionUser permissionUser)
-    {
+    default boolean testPermissionUser(IPermissionUser permissionUser) {
         if (permissionUser == null) return false;
 
         boolean result = testPermissible(permissionUser);
@@ -97,8 +91,7 @@ public interface IPermissionManagement {
         List<PermissionUserGroupInfo> groupsToRemove = Iterables.newArrayList();
 
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups())
-            if (groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis())
-            {
+            if (groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis()) {
                 if (groupsToRemove != null) groupsToRemove = Iterables.newArrayList();
 
                 groupsToRemove.add(groupInfo);
@@ -112,8 +105,7 @@ public interface IPermissionManagement {
         return result;
     }
 
-    default boolean testPermissible(IPermissible permissible)
-    {
+    default boolean testPermissible(IPermissible permissible) {
         if (permissible == null) return false;
 
         boolean result = false;
@@ -124,22 +116,19 @@ public interface IPermissionManagement {
             if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis())
                 haveToRemove.add(permission.getName());
 
-        if (!haveToRemove.isEmpty())
-        {
+        if (!haveToRemove.isEmpty()) {
             result = true;
 
             for (String permission : haveToRemove) permissible.removePermission(permission);
             haveToRemove.clear();
         }
 
-        for (Map.Entry<String, Collection<Permission>> entry : permissible.getGroupPermissions().entrySet())
-        {
+        for (Map.Entry<String, Collection<Permission>> entry : permissible.getGroupPermissions().entrySet()) {
             for (Permission permission : entry.getValue())
                 if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis())
                     haveToRemove.add(permission.getName());
 
-            if (!haveToRemove.isEmpty())
-            {
+            if (!haveToRemove.isEmpty()) {
                 result = true;
 
                 for (String permission : haveToRemove) permissible.removePermission(entry.getKey(), permission);
@@ -150,24 +139,20 @@ public interface IPermissionManagement {
         return result;
     }
 
-    default IPermissionUser addUser(String name, String password, int potency)
-    {
+    default IPermissionUser addUser(String name, String password, int potency) {
         return this.addUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
     }
 
-    default IPermissionGroup addGroup(String role, int potency)
-    {
+    default IPermissionGroup addGroup(String role, int potency) {
         return this.addGroup(new PermissionGroup(role, potency));
     }
 
-    default Collection<IPermissionGroup> getGroups(IPermissionUser permissionUser)
-    {
+    default Collection<IPermissionGroup> getGroups(IPermissionUser permissionUser) {
         Collection<IPermissionGroup> permissionGroups = Iterables.newArrayList();
 
         if (permissionUser == null) return permissionGroups;
 
-        for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups())
-        {
+        for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             IPermissionGroup permissionGroup = getGroup(groupInfo.getGroup());
 
             if (permissionGroup != null) permissionGroups.add(permissionGroup);
@@ -176,28 +161,23 @@ public interface IPermissionManagement {
         return permissionGroups;
     }
 
-    default Collection<IPermissionGroup> getExtendedGroups(IPermissionGroup group)
-    {
+    default Collection<IPermissionGroup> getExtendedGroups(IPermissionGroup group) {
         return group == null ? Collections.EMPTY_LIST : Iterables.filter(this.getGroups(), new Predicate<IPermissionGroup>() {
             @Override
-            public boolean test(IPermissionGroup permissionGroup)
-            {
+            public boolean test(IPermissionGroup permissionGroup) {
                 return group.getGroups().contains(permissionGroup.getName());
             }
         });
     }
 
-    default boolean hasPermission(IPermissionUser permissionUser, String permission)
-    {
+    default boolean hasPermission(IPermissionUser permissionUser, String permission) {
         return this.hasPermission(permissionUser, new Permission(permission));
     }
 
-    default boolean hasPermission(IPermissionUser permissionUser, Permission permission)
-    {
+    default boolean hasPermission(IPermissionUser permissionUser, Permission permission) {
         if (permissionUser == null || permission == null || permission.getName() == null) return false;
 
-        switch (permissionUser.hasPermission(permission))
-        {
+        switch (permissionUser.hasPermission(permission)) {
             case ALLOWED:
                 return true;
             case FORBIDDEN:
@@ -212,12 +192,10 @@ public interface IPermissionManagement {
         return tryExtendedGroups(getDefaultPermissionGroup(), permission);
     }
 
-    default boolean hasPermission(IPermissionUser permissionUser, String group, Permission permission)
-    {
+    default boolean hasPermission(IPermissionUser permissionUser, String group, Permission permission) {
         if (permissionUser == null || group == null || permission == null || permission.getName() == null) return false;
 
-        switch (permissionUser.hasPermission(group, permission))
-        {
+        switch (permissionUser.hasPermission(group, permission)) {
             case ALLOWED:
                 return true;
             case FORBIDDEN:
@@ -232,12 +210,10 @@ public interface IPermissionManagement {
         return tryExtendedGroups(getDefaultPermissionGroup(), group, permission);
     }
 
-    default boolean tryExtendedGroups(IPermissionGroup permissionGroup, Permission permission)
-    {
+    default boolean tryExtendedGroups(IPermissionGroup permissionGroup, Permission permission) {
         if (permissionGroup == null) return false;
 
-        switch (permissionGroup.hasPermission(permission))
-        {
+        switch (permissionGroup.hasPermission(permission)) {
             case ALLOWED:
                 return true;
             case FORBIDDEN:
@@ -252,12 +228,10 @@ public interface IPermissionManagement {
         return false;
     }
 
-    default boolean tryExtendedGroups(IPermissionGroup permissionGroup, String group, Permission permission)
-    {
+    default boolean tryExtendedGroups(IPermissionGroup permissionGroup, String group, Permission permission) {
         if (permissionGroup == null) return false;
 
-        switch (permissionGroup.hasPermission(group, permission))
-        {
+        switch (permissionGroup.hasPermission(group, permission)) {
             case ALLOWED:
                 return true;
             case FORBIDDEN:

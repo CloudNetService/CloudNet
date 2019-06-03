@@ -30,8 +30,7 @@ public enum PermissionCheckResult {
      *
      * @return the result as boolean
      */
-    public boolean asBoolean()
-    {
+    public boolean asBoolean() {
         return value;
     }
 }

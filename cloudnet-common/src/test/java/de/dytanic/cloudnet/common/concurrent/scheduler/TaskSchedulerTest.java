@@ -9,8 +9,7 @@ import java.util.concurrent.Future;
 public class TaskSchedulerTest implements Callable<String> {
 
     @Test
-    public void testTaskScheduler() throws Exception
-    {
+    public void testTaskScheduler() throws Exception {
 
         TaskScheduler taskScheduler = new TaskScheduler(4, null, 1L, false, 15000);
 
@@ -34,8 +33,7 @@ public class TaskSchedulerTest implements Callable<String> {
     }
 
     @Override
-    public String call() throws Exception
-    {
+    public String call() throws Exception {
         for (int i = 0; i++ < 5; Thread.sleep(2)) ;
 
         return "Hello World";

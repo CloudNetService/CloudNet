@@ -18,10 +18,10 @@ import java.util.List;
 final class DefaultCloudServiceManagerConfiguration {
 
     private static final Type
-        COLL_SERVICE_TASK = new TypeToken<Collection<ServiceTask>>() {
+            COLL_SERVICE_TASK = new TypeToken<Collection<ServiceTask>>() {
     }.getType(),
-        COLL_GROUP_CONFIGURATION = new TypeToken<Collection<GroupConfiguration>>() {
-        }.getType();
+            COLL_GROUP_CONFIGURATION = new TypeToken<Collection<GroupConfiguration>>() {
+            }.getType();
 
     private static final Path TASK_CONFIG_FILE = Paths.get(System.getProperty("cloudnet.config.task.path", "local/tasks.json"));
 
@@ -29,16 +29,14 @@ final class DefaultCloudServiceManagerConfiguration {
 
     private final List<GroupConfiguration> groups = Iterables.newCopyOnWriteArrayList();
 
-    public DefaultCloudServiceManagerConfiguration()
-    {
+    public DefaultCloudServiceManagerConfiguration() {
         if (!Files.exists(TASK_CONFIG_FILE))
             this.save();
 
         this.load();
     }
 
-    public void load()
-    {
+    public void load() {
         this.tasks.clear();
         this.groups.clear();
 
@@ -48,8 +46,7 @@ final class DefaultCloudServiceManagerConfiguration {
         this.groups.addAll(document.get("groups", COLL_GROUP_CONFIGURATION));
     }
 
-    public void save()
-    {
+    public void save() {
         new JsonDocument("groups", groups).append("tasks", tasks).write(TASK_CONFIG_FILE);
     }
 }

@@ -9,16 +9,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WorkerThreadTest {
 
     @Test
-    public void testWorker() throws Exception
-    {
+    public void testWorker() throws Exception {
         WorkerThread worker = new WorkerThread();
         worker.start();
 
         AtomicInteger value = new AtomicInteger();
         ITask<Integer> task1 = worker.submit(new Callable<Integer>() {
             @Override
-            public Integer call() throws Exception
-            {
+            public Integer call() throws Exception {
                 return 1;
             }
         });
@@ -28,15 +26,13 @@ public class WorkerThreadTest {
 
         ITask<Integer> task2 = worker.submit(new Callable<Integer>() {
             @Override
-            public Integer call() throws Exception
-            {
+            public Integer call() throws Exception {
                 return 2;
             }
         }, new ITaskListener<Integer>() {
 
             @Override
-            public void onComplete(ITask<Integer> task, Integer result)
-            {
+            public void onComplete(ITask<Integer> task, Integer result) {
                 value.set(result);
             }
         });

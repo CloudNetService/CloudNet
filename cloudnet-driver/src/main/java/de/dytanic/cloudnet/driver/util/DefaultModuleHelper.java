@@ -19,20 +19,17 @@ import java.nio.file.Path;
 @UnsafeClass
 public final class DefaultModuleHelper {
 
-    private DefaultModuleHelper()
-    {
+    public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";
+
+    private DefaultModuleHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";
-
-    public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target)
-    {
+    public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
         Validate.checkNotNull(clazz);
         Validate.checkNotNull(target);
 
-        try
-        {
+        try {
             target.getParentFile().mkdirs();
 
             if (!target.exists())
@@ -43,52 +40,43 @@ public final class DefaultModuleHelper {
             connection.connect();
 
             try (InputStream inputStream = connection.getInputStream();
-                 FileOutputStream fileOutputStream = new FileOutputStream(target))
-            {
+                 FileOutputStream fileOutputStream = new FileOutputStream(target)) {
                 FileUtils.copy(inputStream, fileOutputStream);
             }
             return true;
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    public static void copyPluginConfigurationFileForEnvironment(Class<?> targetClass, ServiceEnvironmentType type, File file)
-    {
+    public static void copyPluginConfigurationFileForEnvironment(Class<?> targetClass, ServiceEnvironmentType type, File file) {
         FileUtils.openZipFileSystem(file, new IVoidThrowableCallback<FileSystem>() {
             @Override
-            public Void call(FileSystem fileSystem) throws Throwable
-            {
+            public Void call(FileSystem fileSystem) throws Throwable {
                 Path pluginPath = fileSystem.getPath("plugin.yml");
 
                 if (Files.exists(pluginPath))
                     Files.delete(pluginPath);
 
-                try (OutputStream outputStream = Files.newOutputStream(pluginPath))
-                {
-                    switch (type)
-                    {
+                try (OutputStream outputStream = Files.newOutputStream(pluginPath)) {
+                    switch (type) {
                         case VELOCITY:
                             break;
                         case BUNGEECORD:
-                            try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bungee.yml"))
-                            {
+                            try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bungee.yml")) {
                                 if (inputStream != null)
                                     FileUtils.copy(inputStream, outputStream);
                             }
                             break;
                         case NUKKIT:
-                            try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.nukkit.yml"))
-                            {
+                            try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.nukkit.yml")) {
                                 if (inputStream != null)
                                     FileUtils.copy(inputStream, outputStream);
                             }
                             break;
                         default:
-                            try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bukkit.yml"))
-                            {
+                            try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bukkit.yml")) {
                                 if (inputStream != null)
                                     FileUtils.copy(inputStream, outputStream);
                             }

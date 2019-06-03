@@ -11,24 +11,22 @@ import java.util.List;
 
 public final class ExampleDatabaseProviderHandling {
 
-    public void testDatabaseProvider() throws Throwable
-    {
+    public void testDatabaseProvider() throws Throwable {
         AbstractDatabaseProvider databaseProvider = CloudNet.getInstance().getDatabaseProvider();
 
         IDatabase database = databaseProvider.getDatabase("My custom Database");
         database.insert("Peter", new JsonDocument()
-            .append("name", "Peter")
-            .append("lastName", "Parker")
-            .append("age", 17)
-            .append("registered", System.currentTimeMillis())
+                .append("name", "Peter")
+                .append("lastName", "Parker")
+                .append("age", 17)
+                .append("registered", System.currentTimeMillis())
         );
 
         if (database.contains("Peter"))
             database.getAsync("Peter").addListener(new ITaskListener<JsonDocument>() {
 
                 @Override
-                public void onComplete(ITask<JsonDocument> task, JsonDocument document)
-                {
+                public void onComplete(ITask<JsonDocument> task, JsonDocument document) {
                     System.out.println(document.getString("name"));
                     System.out.println(document.getString("lastName"));
                     System.out.println(document.getInt("age"));

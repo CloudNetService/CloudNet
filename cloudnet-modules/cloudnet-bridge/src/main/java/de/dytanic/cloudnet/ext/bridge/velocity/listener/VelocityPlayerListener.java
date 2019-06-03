@@ -16,30 +16,25 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 public final class VelocityPlayerListener {
 
     @Subscribe
-    public void handle(LoginEvent event)
-    {
+    public void handle(LoginEvent event) {
         BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
     }
 
     @Subscribe
-    public void handle(PostLoginEvent event)
-    {
+    public void handle(PostLoginEvent event) {
         BridgeHelper.sendChannelMessageProxyLoginSuccess(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
         Wrapper.getInstance().runTask(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 VelocityCloudNetHelper.updateServiceInfo();
             }
         });
     }
 
     @Subscribe
-    public void handle(ServerPreConnectEvent event)
-    {
-        if (!event.getPlayer().getCurrentServer().isPresent())
-        {
+    public void handle(ServerPreConnectEvent event) {
+        if (!event.getPlayer().getCurrentServer().isPresent()) {
             String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), null);
 
             if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent())
@@ -48,35 +43,30 @@ public final class VelocityPlayerListener {
 
         ServiceInfoSnapshot serviceInfoSnapshot = VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getResult().getServer().get().getServerInfo().getName());
 
-        if (serviceInfoSnapshot != null)
-        {
+        if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerConnectRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
-                    serviceInfoSnapshot.getServiceId().getName()));
+                    new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
+                            serviceInfoSnapshot.getServiceId().getName()));
 
-            try
-            {
+            try {
                 Thread.sleep(10);
-            } catch (InterruptedException ignored)
-            {
+            } catch (InterruptedException ignored) {
             }
         }
     }
 
     @Subscribe
-    public void handle(ServerConnectedEvent event)
-    {
+    public void handle(ServerConnectedEvent event) {
         ServiceInfoSnapshot serviceInfoSnapshot = VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getServer().getServerInfo().getName());
 
         if (serviceInfoSnapshot != null)
             BridgeHelper.sendChannelMessageProxyServerSwitch(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
-                    serviceInfoSnapshot.getServiceId().getName()));
+                    new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
+                            serviceInfoSnapshot.getServiceId().getName()));
     }
 
     @Subscribe
-    public void handle(KickedFromServerEvent event)
-    {
+    public void handle(KickedFromServerEvent event) {
         String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
 
         if (event.getOriginalReason().isPresent())
@@ -87,14 +77,12 @@ public final class VelocityPlayerListener {
     }
 
     @Subscribe
-    public void handle(DisconnectEvent event)
-    {
+    public void handle(DisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
         Wrapper.getInstance().runTask(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 VelocityCloudNetHelper.updateServiceInfo();
             }
         });

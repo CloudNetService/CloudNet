@@ -8,28 +8,24 @@ public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
     protected JsonDocument properties = new JsonDocument();
 
     @Override
-    public <E> IJsonDocPropertyable setProperty(JsonDocProperty<E> docProperty, E val)
-    {
+    public <E> IJsonDocPropertyable setProperty(JsonDocProperty<E> docProperty, E val) {
         properties.setProperty(docProperty, val);
         return this;
     }
 
     @Override
-    public <E> E getProperty(JsonDocProperty<E> docProperty)
-    {
+    public <E> E getProperty(JsonDocProperty<E> docProperty) {
         return properties.getProperty(docProperty);
     }
 
     @Override
-    public <E> IJsonDocPropertyable removeProperty(JsonDocProperty<E> docProperty)
-    {
+    public <E> IJsonDocPropertyable removeProperty(JsonDocProperty<E> docProperty) {
         properties.removeProperty(docProperty);
         return this;
     }
 
     @Override
-    public <E> boolean hasProperty(JsonDocProperty<E> docProperty)
-    {
+    public <E> boolean hasProperty(JsonDocProperty<E> docProperty) {
         return docProperty.tester.test(properties);
     }
 }

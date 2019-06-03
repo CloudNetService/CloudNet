@@ -21,8 +21,7 @@ public final class V1HttpSession {
 
     private final Collection<SessionEntry> entries = Iterables.newCopyOnWriteArrayList();
 
-    public boolean auth(IHttpContext context) throws Exception
-    {
+    public boolean auth(IHttpContext context) throws Exception {
         if (isAuthorized(context))
             logout(context);
 
@@ -38,8 +37,7 @@ public final class V1HttpSession {
         List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUser(credentials[0]);
         IPermissionUser permissionUser = Iterables.first(permissionUsers, new Predicate<IPermissionUser>() {
             @Override
-            public boolean test(IPermissionUser iPermissionUser)
-            {
+            public boolean test(IPermissionUser iPermissionUser) {
                 return iPermissionUser.checkPassword(credentials[1]);
             }
         });
@@ -47,29 +45,28 @@ public final class V1HttpSession {
         if (permissionUser == null) return false;
 
         SessionEntry sessionEntry = new SessionEntry(
-            System.nanoTime(),
-            System.currentTimeMillis(),
-            context.channel().clientAddress().getHost(),
-            UUID.randomUUID().toString(),
-            permissionUser.getUniqueId().toString()
+                System.nanoTime(),
+                System.currentTimeMillis(),
+                context.channel().clientAddress().getHost(),
+                UUID.randomUUID().toString(),
+                permissionUser.getUniqueId().toString()
         );
 
         context.addCookie(new HttpCookie(
-            COOKIE_NAME,
-            createKey(sessionEntry, context),
-            null,
-            "/",
-            sessionEntry.lastUsageMillis + EXPIRE_TIME))
-            .response()
-            .statusCode(200)
+                COOKIE_NAME,
+                createKey(sessionEntry, context),
+                null,
+                "/",
+                sessionEntry.lastUsageMillis + EXPIRE_TIME))
+                .response()
+                .statusCode(200)
         ;
 
         entries.add(sessionEntry);
         return true;
     }
 
-    public boolean isAuthorized(IHttpContext context) throws Exception
-    {
+    public boolean isAuthorized(IHttpContext context) throws Exception {
         if (!context.hasCookie(COOKIE_NAME))
             return false;
 
@@ -78,8 +75,7 @@ public final class V1HttpSession {
         SessionEntry sessionEntry = getValidSessionEntry(httpCookie.getValue(), context);
         if (sessionEntry == null) return false;
 
-        if ((sessionEntry.lastUsageMillis + EXPIRE_TIME) < System.currentTimeMillis())
-        {
+        if ((sessionEntry.lastUsageMillis + EXPIRE_TIME) < System.currentTimeMillis()) {
             logout(context);
             return false;
         }
@@ -89,8 +85,7 @@ public final class V1HttpSession {
         return true;
     }
 
-    public SessionEntry getValidSessionEntry(String cookieValue, IHttpContext context) throws Exception
-    {
+    public SessionEntry getValidSessionEntry(String cookieValue, IHttpContext context) throws Exception {
         if (cookieValue == null || context == null) return null;
 
         for (SessionEntry entry : this.entries)
@@ -100,8 +95,7 @@ public final class V1HttpSession {
         return null;
     }
 
-    public void logout(IHttpContext context) throws Exception
-    {
+    public void logout(IHttpContext context) throws Exception {
         Validate.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
@@ -111,8 +105,7 @@ public final class V1HttpSession {
         context.removeCookie(COOKIE_NAME);
     }
 
-    public IPermissionUser getUser(IHttpContext context) throws Exception
-    {
+    public IPermissionUser getUser(IHttpContext context) throws Exception {
         Validate.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
@@ -120,15 +113,13 @@ public final class V1HttpSession {
         return getUser(sessionEntry, context);
     }
 
-    private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) throws Exception
-    {
+    private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) throws Exception {
         if (sessionEntry == null || context == null) return null;
 
         return CloudNet.getInstance().getPermissionManagement().getUser(UUID.fromString(sessionEntry.userUniqueId));
     }
 
-    private String getCookieValue(IHttpContext context) throws Exception
-    {
+    private String getCookieValue(IHttpContext context) throws Exception {
         HttpCookie httpCookie = context.cookie(COOKIE_NAME);
 
         if (httpCookie != null)
@@ -137,15 +128,14 @@ public final class V1HttpSession {
             return null;
     }
 
-    private String createKey(SessionEntry sessionEntry, IHttpContext context)
-    {
+    private String createKey(SessionEntry sessionEntry, IHttpContext context) {
         return Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(sessionEntry.creationTime +
-            ":" +
-            context.channel().clientAddress().getHost() +
-            "#" +
-            sessionEntry.uniqueId +
-            "#" +
-            sessionEntry.userUniqueId
+                ":" +
+                context.channel().clientAddress().getHost() +
+                "#" +
+                sessionEntry.uniqueId +
+                "#" +
+                sessionEntry.userUniqueId
         ));
     }
 

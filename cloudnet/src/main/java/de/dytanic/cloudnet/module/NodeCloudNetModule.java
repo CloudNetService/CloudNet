@@ -14,13 +14,11 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 
 public abstract class NodeCloudNetModule extends DriverModule {
 
-    public final void registerCommand(Command command)
-    {
+    public final void registerCommand(Command command) {
         getCloudNet().getCommandMap().registerCommand(command);
     }
 
-    public final <T extends ITemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage)
-    {
+    public final <T extends ITemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage) {
         Validate.checkNotNull(serviceName);
         Validate.checkNotNull(templateStorage);
 
@@ -29,8 +27,7 @@ public abstract class NodeCloudNetModule extends DriverModule {
         return templateStorage;
     }
 
-    public final <T extends AbstractDatabaseProvider> T registerDatabaseProvider(String serviceName, T databaseProvider)
-    {
+    public final <T extends AbstractDatabaseProvider> T registerDatabaseProvider(String serviceName, T databaseProvider) {
         Validate.checkNotNull(serviceName);
         Validate.checkNotNull(databaseProvider);
 
@@ -39,41 +36,34 @@ public abstract class NodeCloudNetModule extends DriverModule {
         return databaseProvider;
     }
 
-    public final IHttpServer registerHttpHandler(String path, IHttpHandler... httpHandlers)
-    {
+    public final IHttpServer registerHttpHandler(String path, IHttpHandler... httpHandlers) {
         Validate.checkNotNull(path);
         Validate.checkNotNull(httpHandlers);
 
         return getHttpServer().registerHandler(path, httpHandlers);
     }
 
-    public final AbstractDatabaseProvider getDatabaseProvider()
-    {
+    public final AbstractDatabaseProvider getDatabaseProvider() {
         return getCloudNet().getDatabaseProvider();
     }
 
-    public final IHttpServer getHttpServer()
-    {
+    public final IHttpServer getHttpServer() {
         return getCloudNet().getHttpServer();
     }
 
-    public final NetworkClusterNode getIdentity()
-    {
+    public final NetworkClusterNode getIdentity() {
         return getCloudNetConfig().getIdentity();
     }
 
-    public final IConfiguration getCloudNetConfig()
-    {
+    public final IConfiguration getCloudNetConfig() {
         return CloudNet.getInstance().getConfig();
     }
 
-    public final IConfigurationRegistry getCloudRegistry()
-    {
+    public final IConfigurationRegistry getCloudRegistry() {
         return CloudNet.getInstance().getConfigurationRegistry();
     }
 
-    public final CloudNet getCloudNet()
-    {
+    public final CloudNet getCloudNet() {
         return CloudNet.getInstance();
     }
 }

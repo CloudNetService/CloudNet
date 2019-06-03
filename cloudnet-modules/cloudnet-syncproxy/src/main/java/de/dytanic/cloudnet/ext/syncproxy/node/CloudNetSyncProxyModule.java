@@ -26,34 +26,29 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
     @Getter
     private File configurationFile;
 
-    public CloudNetSyncProxyModule()
-    {
+    public CloudNetSyncProxyModule() {
         instance = this;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
-    public void createConfigurationOrUpdate()
-    {
+    public void createConfigurationOrUpdate() {
         configurationFile = new File(getModuleWrapper().getDataFolder(), "config.json");
         syncProxyConfiguration = SyncProxyConfigurationWriterAndReader.read(configurationFile);
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
-    public void initListeners()
-    {
+    public void initListeners() {
         registerListeners(new IncludePluginListener(), new SyncProxyConfigUpdateListener());
     }
 
     @ModuleTask(order = 60, event = ModuleLifeCycle.STARTED)
-    public void registerCommands()
-    {
+    public void registerCommands() {
         registerCommand(new CommandSyncProxy());
     }
 
     @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
-    public void registerHttpHandlers()
-    {
+    public void registerHttpHandlers() {
         getCloudNet().getHttpServer().registerHandler("/api/v1/modules/syncproxy/config",
-            new V1SyncProxyConfigurationHttpHandler("cloudnet.http.v1.modules.syncproxy.config"));
+                new V1SyncProxyConfigurationHttpHandler("cloudnet.http.v1.modules.syncproxy.config"));
     }
 }

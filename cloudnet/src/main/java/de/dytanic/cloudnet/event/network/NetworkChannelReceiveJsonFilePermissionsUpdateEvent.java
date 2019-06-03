@@ -20,8 +20,7 @@ public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends N
 
     private boolean cancelled;
 
-    public NetworkChannelReceiveJsonFilePermissionsUpdateEvent(INetworkChannel channel, List<PermissionUser> permissionUsers, List<PermissionGroup> permissionGroups)
-    {
+    public NetworkChannelReceiveJsonFilePermissionsUpdateEvent(INetworkChannel channel, List<PermissionUser> permissionUsers, List<PermissionGroup> permissionGroups) {
         super(channel);
         this.permissionUsers = permissionUsers;
         this.permissionGroups = permissionGroups;

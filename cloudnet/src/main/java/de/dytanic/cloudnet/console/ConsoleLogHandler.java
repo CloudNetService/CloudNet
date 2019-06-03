@@ -12,14 +12,12 @@ public final class ConsoleLogHandler extends AbstractLogHandler {
     private final IConsole console;
 
     @Override
-    public void handle(LogEntry logEntry)
-    {
+    public void handle(LogEntry logEntry) {
         console.writeLine(getFormatter().format(logEntry));
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
 
     }
 }

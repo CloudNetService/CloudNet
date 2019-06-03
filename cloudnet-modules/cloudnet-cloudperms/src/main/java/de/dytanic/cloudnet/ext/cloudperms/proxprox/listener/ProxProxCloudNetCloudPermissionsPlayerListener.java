@@ -12,24 +12,21 @@ import io.gomint.proxprox.api.plugin.event.Listener;
 public final class ProxProxCloudNetCloudPermissionsPlayerListener implements Listener {
 
     @EventHandler(priority = -64)
-    public void handle(PlayerLoginEvent event)
-    {
+    public void handle(PlayerLoginEvent event) {
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUUID());
 
-        if (permissionUser == null)
-        {
+        if (permissionUser == null) {
             CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                event.getPlayer().getUUID(),
-                event.getPlayer().getName(),
-                null,
-                0
+                    event.getPlayer().getUUID(),
+                    event.getPlayer().getName(),
+                    null,
+                    0
             ));
 
             permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUUID());
         }
 
-        if (permissionUser != null)
-        {
+        if (permissionUser != null) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
 
             permissionUser.setName(event.getPlayer().getName());
@@ -38,8 +35,7 @@ public final class ProxProxCloudNetCloudPermissionsPlayerListener implements Lis
     }
 
     @EventHandler
-    public void handle(PermissionCheckEvent event)
-    {
+    public void handle(PermissionCheckEvent event) {
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUUID());
 
         if (permissionUser != null)
@@ -47,8 +43,7 @@ public final class ProxProxCloudNetCloudPermissionsPlayerListener implements Lis
     }
 
     @EventHandler
-    public void handle(PlayerQuitEvent event)
-    {
+    public void handle(PlayerQuitEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUUID());
     }
 }

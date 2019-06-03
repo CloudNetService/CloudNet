@@ -6,13 +6,11 @@ import io.gomint.proxprox.api.plugin.event.Event;
 
 abstract class ProxProxCloudNetEvent extends Event {
 
-    public final CloudNetDriver getDriver()
-    {
+    public final CloudNetDriver getDriver() {
         return CloudNetDriver.getInstance();
     }
 
-    public final Wrapper getWrapper()
-    {
+    public final Wrapper getWrapper() {
         return Wrapper.getInstance();
     }
 

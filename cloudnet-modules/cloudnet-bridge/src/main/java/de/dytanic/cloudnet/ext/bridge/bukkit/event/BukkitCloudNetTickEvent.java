@@ -11,8 +11,7 @@ public final class BukkitCloudNetTickEvent extends BukkitCloudNetEvent {
     private static HandlerList handlerList = new HandlerList();
 
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 }

@@ -11,6 +11,6 @@ public enum ModuleLifeCycle {
     //Calls when the Module want be unload
     UNLOADED,
     //If the classLoader is finalized
-    UNUSEABLE;
+    UNUSEABLE
 
 }

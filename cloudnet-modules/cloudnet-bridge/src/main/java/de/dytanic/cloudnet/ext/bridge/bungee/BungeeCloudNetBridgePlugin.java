@@ -20,8 +20,7 @@ import java.net.InetSocketAddress;
 public final class BungeeCloudNetBridgePlugin extends Plugin {
 
     @Override
-    public synchronized void onEnable()
-    {
+    public synchronized void onEnable() {
         this.initListeners();
         this.registerCommands();
         this.initServers();
@@ -30,28 +29,25 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
     }
 
     @Override
-    public synchronized void onDisable()
-    {
+    public synchronized void onDisable() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
     /*= ----------------------------------------------------------- =*/
 
-    private void initServers()
-    {
+    private void initServers() {
         for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices())
-            if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer())
-            {
+            if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer()) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
-                    serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING)
+                        serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING)
                     continue;
 
                 String name = serviceInfoSnapshot.getServiceId().getName();
 
                 this.getProxy().getServers().put(name, BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
-                    serviceInfoSnapshot.getAddress().getHost(),
-                    serviceInfoSnapshot.getAddress().getPort()
+                        serviceInfoSnapshot.getAddress().getHost(),
+                        serviceInfoSnapshot.getAddress().getPort()
                 )));
 
                 BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
@@ -59,14 +55,12 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
             }
     }
 
-    private void registerCommands()
-    {
+    private void registerCommands() {
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandCloudNet());
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandHub());
     }
 
-    private void initListeners()
-    {
+    private void initListeners() {
         //BungeeCord API
         ProxyServer.getInstance().getPluginManager().registerListener(this, new BungeePlayerListener());
 

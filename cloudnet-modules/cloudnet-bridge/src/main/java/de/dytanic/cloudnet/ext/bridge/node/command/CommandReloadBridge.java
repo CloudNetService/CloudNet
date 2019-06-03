@@ -12,8 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
 
 public final class CommandReloadBridge extends Command {
 
-    public CommandReloadBridge()
-    {
+    public CommandReloadBridge() {
         super("bridge", "rlb", "rl-bridge", "reload-bridge");
 
         this.permission = "cloudnet.console.command.reload";
@@ -23,15 +22,14 @@ public final class CommandReloadBridge extends Command {
     }
 
     @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-    {
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().reloadConfig().get("config", BridgeConfiguration.TYPE);
         CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);
 
         CloudNetDriver.getInstance().sendChannelMessage(
-            BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-            "update_bridge_configuration",
-            new JsonDocument("bridgeConfiguration", bridgeConfiguration)
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+                "update_bridge_configuration",
+                new JsonDocument("bridgeConfiguration", bridgeConfiguration)
         );
 
         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-bridge-execute-success"));

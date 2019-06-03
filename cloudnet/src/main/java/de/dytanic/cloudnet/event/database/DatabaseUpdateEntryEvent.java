@@ -13,8 +13,7 @@ public class DatabaseUpdateEntryEvent extends DatabaseEvent {
 
     private JsonDocument document;
 
-    public DatabaseUpdateEntryEvent(IDatabase database, String key, JsonDocument document)
-    {
+    public DatabaseUpdateEntryEvent(IDatabase database, String key, JsonDocument document) {
         super(database);
 
         this.key = key;

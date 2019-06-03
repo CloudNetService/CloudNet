@@ -19,34 +19,25 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
     private static final long NEW_CREATION_DELAY = 600000;
 
-    protected final NetorHashMap<String, Long, H2Database> cachedDatabaseInstances = new NetorHashMap<>();
-
-    protected final ITaskScheduler taskScheduler;
-
-    protected final boolean autoShutdownTaskScheduler;
-
-    protected final File h2dbFile;
-
-    protected Connection connection;
-
-    static
-    {
+    static {
         Driver.load();
     }
 
-    public H2DatabaseProvider(String h2File)
-    {
+    protected final NetorHashMap<String, Long, H2Database> cachedDatabaseInstances = new NetorHashMap<>();
+    protected final ITaskScheduler taskScheduler;
+    protected final boolean autoShutdownTaskScheduler;
+    protected final File h2dbFile;
+    protected Connection connection;
+
+    public H2DatabaseProvider(String h2File) {
         this(h2File, null);
     }
 
-    public H2DatabaseProvider(String h2File, ITaskScheduler taskScheduler)
-    {
-        if (taskScheduler != null)
-        {
+    public H2DatabaseProvider(String h2File, ITaskScheduler taskScheduler) {
+        if (taskScheduler != null) {
             this.taskScheduler = taskScheduler;
             autoShutdownTaskScheduler = false;
-        } else
-        {
+        } else {
             this.taskScheduler = new DefaultTaskScheduler(1);
             autoShutdownTaskScheduler = true;
         }
@@ -55,8 +46,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public boolean init() throws Exception
-    {
+    public boolean init() throws Exception {
         this.h2dbFile.getParentFile().mkdirs();
         this.connection = DriverManager.getConnection("jdbc:h2:" + h2dbFile.getAbsolutePath());
 
@@ -64,8 +54,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public H2Database getDatabase(String name)
-    {
+    public H2Database getDatabase(String name) {
         Validate.checkNotNull(name);
 
         removedOutdatedEntries();
@@ -77,8 +66,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public boolean containsDatabase(String name)
-    {
+    public boolean containsDatabase(String name) {
         Validate.checkNotNull(name);
 
         removedOutdatedEntries();
@@ -90,17 +78,14 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public boolean deleteDatabase(String name)
-    {
+    public boolean deleteDatabase(String name) {
         Validate.checkNotNull(name);
 
         cachedDatabaseInstances.remove(name);
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE " + name))
-        {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE " + name)) {
             return preparedStatement.executeUpdate() != -1;
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -108,32 +93,28 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public Collection<String> getDatabaseNames()
-    {
+    public Collection<String> getDatabaseNames() {
         return executeQuery(
-            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
-            new IThrowableCallback<ResultSet, Collection<String>>() {
-                @Override
-                public Collection<String> call(ResultSet resultSet) throws Throwable
-                {
-                    Collection<String> collection = Iterables.newArrayList();
-                    while (resultSet.next()) collection.add(resultSet.getString("table_name"));
+                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
+                new IThrowableCallback<ResultSet, Collection<String>>() {
+                    @Override
+                    public Collection<String> call(ResultSet resultSet) throws Throwable {
+                        Collection<String> collection = Iterables.newArrayList();
+                        while (resultSet.next()) collection.add(resultSet.getString("table_name"));
 
-                    return collection;
+                        return collection;
+                    }
                 }
-            }
         );
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return "h2";
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         if (autoShutdownTaskScheduler) taskScheduler.shutdown();
 
         if (connection != null) connection.close();
@@ -141,46 +122,39 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
     /*= ------------------------------------------------------------ =*/
 
-    public int executeUpdate(String query, Object... objects)
-    {
+    public int executeUpdate(String query, Object... objects) {
         Validate.checkNotNull(query);
         Validate.checkNotNull(objects);
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query))
-        {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
             for (Object object : objects)
                 preparedStatement.setString(i++, object.toString());
 
             return preparedStatement.executeUpdate();
 
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return -1;
     }
 
-    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects)
-    {
+    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
         Validate.checkNotNull(query);
         Validate.checkNotNull(callback);
         Validate.checkNotNull(objects);
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query))
-        {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
             for (Object object : objects)
                 preparedStatement.setString(i++, object.toString());
 
-            try (ResultSet resultSet = preparedStatement.executeQuery())
-            {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return callback.call(resultSet);
             }
 
-        } catch (Throwable e)
-        {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
 
@@ -189,8 +163,7 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
     /*= ------------------------------------------------------------ =*/
 
-    private void removedOutdatedEntries()
-    {
+    private void removedOutdatedEntries() {
         for (Map.Entry<String, Pair<Long, H2Database>> entry : cachedDatabaseInstances.entrySet())
             if (entry.getValue().getFirst() < System.currentTimeMillis())
                 cachedDatabaseInstances.remove(entry.getKey());

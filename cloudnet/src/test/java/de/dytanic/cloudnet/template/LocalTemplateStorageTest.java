@@ -14,14 +14,12 @@ import java.util.function.Predicate;
 public final class LocalTemplateStorageTest {
 
     @Test
-    public void testTemplateStorage() throws Exception
-    {
+    public void testTemplateStorage() throws Exception {
         File directory = new File("build/local_template_storage");
         ITemplateStorage storage = new LocalTemplateStorage(directory);
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             InputStream inputStream = LocalTemplateStorageTest.class.getClassLoader().getResourceAsStream("local_template_storage.zip"))
-        {
+             InputStream inputStream = LocalTemplateStorageTest.class.getClassLoader().getResourceAsStream("local_template_storage.zip")) {
             FileUtils.copy(inputStream, byteArrayOutputStream);
             storage.deploy(byteArrayOutputStream.toByteArray(), new ServiceTemplate("Test", "default", "local"));
             Assert.assertTrue(new File(directory, "Test/default/plugins/test_file.yml").exists());
@@ -30,10 +28,9 @@ public final class LocalTemplateStorageTest {
         Assert.assertEquals(1, storage.getTemplates().size());
         Assert.assertNotNull(Iterables.first(storage.getTemplates(), new Predicate<ServiceTemplate>() {
             @Override
-            public boolean test(ServiceTemplate serviceTemplate)
-            {
+            public boolean test(ServiceTemplate serviceTemplate) {
                 return serviceTemplate.getPrefix().equals("Test") &&
-                    serviceTemplate.getName().equals("default");
+                        serviceTemplate.getName().equals("default");
             }
         }));
 

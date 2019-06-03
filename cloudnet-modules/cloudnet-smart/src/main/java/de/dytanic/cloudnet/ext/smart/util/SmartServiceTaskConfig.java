@@ -35,8 +35,7 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
     protected TemplateInstaller templateInstaller;
 
     @Override
-    public int compareTo(SmartServiceTaskConfig o)
-    {
+    public int compareTo(SmartServiceTaskConfig o) {
         return priority + o.priority;
     }
 }

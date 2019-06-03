@@ -14,8 +14,7 @@ import java.util.List;
 public class NettyPacketEncoderDecoderTest {
 
     @Test
-    public void testEncoderDecoder() throws Exception
-    {
+    public void testEncoderDecoder() throws Exception {
         NettyPacketEncoder nettyPacketEncoder = new NettyPacketEncoder();
         NettyPacketDecoder nettyPacketDecoder = new NettyPacketDecoder();
 

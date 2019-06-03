@@ -32,8 +32,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     private final WebSocketServerHandshaker webSocketServerHandshaker;
 
     @Override
-    public IWebSocketChannel addListener(IWebSocketListener... listeners)
-    {
+    public IWebSocketChannel addListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
         for (IWebSocketListener listener : listeners)
@@ -44,15 +43,13 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IWebSocketChannel removeListener(IWebSocketListener... listeners)
-    {
+    public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
         for (IWebSocketListener listener : webSocketListeners)
             if (Iterables.first(listeners, new Predicate<IWebSocketListener>() {
                 @Override
-                public boolean test(IWebSocketListener webSocketListener)
-                {
+                public boolean test(IWebSocketListener webSocketListener) {
                     return webSocketListener != null && webSocketListener.equals(listener);
                 }
             }) != null)
@@ -62,8 +59,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes)
-    {
+    public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes) {
         Validate.checkNotNull(classes);
 
         for (IWebSocketListener listener : webSocketListeners)
@@ -74,8 +70,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IWebSocketChannel removeListener(ClassLoader classLoader)
-    {
+    public IWebSocketChannel removeListener(ClassLoader classLoader) {
         for (IWebSocketListener listener : webSocketListeners)
             if (listener.getClass().getClassLoader().equals(classLoader))
                 webSocketListeners.remove(listener);
@@ -84,21 +79,18 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IWebSocketChannel clearListeners()
-    {
+    public IWebSocketChannel clearListeners() {
         this.webSocketListeners.clear();
         return this;
     }
 
     @Override
-    public Collection<IWebSocketListener> getListeners()
-    {
+    public Collection<IWebSocketListener> getListeners() {
         return this.webSocketListeners;
     }
 
     @Override
-    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, String text)
-    {
+    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, String text) {
         Validate.checkNotNull(webSocketFrameType);
         Validate.checkNotNull(text);
 
@@ -106,15 +98,13 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, byte[] bytes)
-    {
+    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, byte[] bytes) {
         Validate.checkNotNull(webSocketFrameType);
         Validate.checkNotNull(bytes);
 
         WebSocketFrame webSocketFrame;
 
-        switch (webSocketFrameType)
-        {
+        switch (webSocketFrameType) {
             case PING:
                 webSocketFrame = new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
                 break;
@@ -134,21 +124,18 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IHttpChannel channel()
-    {
+    public IHttpChannel channel() {
         return httpChannel;
     }
 
     @Override
-    public void close(int statusCode, String reasonText)
-    {
+    public void close(int statusCode, String reasonText) {
         Validate.checkNotNull(statusCode);
 
         Value<Integer> statusCodeWrapper = new Value<>(statusCode);
         Value<String> reasonTextWrapper = new Value<>(reasonText);
 
-        for (IWebSocketListener listener : webSocketListeners)
-        {
+        for (IWebSocketListener listener : webSocketListeners) {
             listener.handleClose(this, statusCodeWrapper, reasonTextWrapper);
         }
 
@@ -156,8 +143,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         this.close(200, "default closing");
     }
 }

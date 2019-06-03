@@ -19,14 +19,12 @@ import java.util.concurrent.TimeUnit;
 public final class GoMintCloudNetBridgePlugin extends Plugin {
 
     @Override
-    public void onInstall()
-    {
+    public void onInstall() {
         GoMintCloudNetHelper.setPlugin(this);
     }
 
     @Override
-    public void onStartup()
-    {
+    public void onStartup() {
         this.initListeners();
 
         BridgeHelper.updateServiceInfo();
@@ -35,14 +33,12 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
     }
 
     @Override
-    public void onUninstall()
-    {
+    public void onUninstall() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    private void initListeners()
-    {
+    private void initListeners() {
         //GoMint API
         registerListener(new GoMintPlayerListener());
 
@@ -51,41 +47,36 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 
-    private void runFirePingEvent()
-    {
+    private void runFirePingEvent() {
         PingEvent pingEvent = new PingEvent(
-            GoMintCloudNetHelper.getApiMotd(),
-            GoMint.instance().getPlayers().size(),
-            GoMintCloudNetHelper.getMaxPlayers()
+                GoMintCloudNetHelper.getApiMotd(),
+                GoMint.instance().getPlayers().size(),
+                GoMintCloudNetHelper.getMaxPlayers()
         );
 
         boolean hasToUpdate = false, value = false;
 
         GoMint.instance().getPluginManager().callEvent(pingEvent);
-        if (pingEvent.getMotd() != null && !pingEvent.getMotd().equalsIgnoreCase(GoMintCloudNetHelper.getApiMotd()))
-        {
+        if (pingEvent.getMotd() != null && !pingEvent.getMotd().equalsIgnoreCase(GoMintCloudNetHelper.getApiMotd())) {
             hasToUpdate = true;
             GoMintCloudNetHelper.setApiMotd(pingEvent.getMotd());
             if (pingEvent.getMotd().toLowerCase().contains("running") ||
-                pingEvent.getMotd().toLowerCase().contains("ingame") ||
-                pingEvent.getMotd().toLowerCase().contains("playing"))
+                    pingEvent.getMotd().toLowerCase().contains("ingame") ||
+                    pingEvent.getMotd().toLowerCase().contains("playing"))
                 value = true;
         }
 
-        if (pingEvent.getMaxPlayers() != GoMintCloudNetHelper.getMaxPlayers())
-        {
+        if (pingEvent.getMaxPlayers() != GoMintCloudNetHelper.getMaxPlayers()) {
             hasToUpdate = true;
             GoMintCloudNetHelper.setMaxPlayers(pingEvent.getMaxPlayers());
         }
 
-        if (value)
-        {
+        if (value) {
             GoMintCloudNetHelper.changeToIngame();
             return;
         }
 
-        if (hasToUpdate)
-        {
+        if (hasToUpdate) {
             BridgeHelper.updateServiceInfo();
         }
     }

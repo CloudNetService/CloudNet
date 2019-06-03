@@ -19,26 +19,22 @@ public final class DefaultRepositoryUpdater implements IUpdater {
     private Properties properties;
 
     @Override
-    public boolean init(String url)
-    {
+    public boolean init(String url) {
         this.url = url = url.endsWith("/") ? url : url + "/";
         properties = new Properties();
 
-        try
-        {
+        try {
             URLConnection urlConnection = new URL(url + "repository").openConnection();
             initHttpUrlConnection(urlConnection);
 
             urlConnection.connect();
 
-            try (InputStream inputStream = urlConnection.getInputStream())
-            {
+            try (InputStream inputStream = urlConnection.getInputStream()) {
                 properties.load(inputStream);
             }
             return true;
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -46,26 +42,22 @@ public final class DefaultRepositoryUpdater implements IUpdater {
     }
 
     @Override
-    public String getRepositoryVersion()
-    {
+    public String getRepositoryVersion() {
         return properties.getProperty("repository-version");
     }
 
     @Override
-    public String getCurrentVersion()
-    {
+    public String getCurrentVersion() {
         return properties.getProperty("app-version");
     }
 
     @Override
-    public boolean installUpdate(String destinationBaseDirectory, String moduleDestinationBaseDirectory)
-    {
+    public boolean installUpdate(String destinationBaseDirectory, String moduleDestinationBaseDirectory) {
         String version = getCurrentVersion();
         byte[] buffer = new byte[16384];
         boolean successful = true;
 
-        if (version != null)
-        {
+        if (version != null) {
 
             if (!installFile(version, "cloudnet.jar", new File(destinationBaseDirectory + "/" + version, "cloudnet.jar"), buffer))
                 successful = false;
@@ -82,8 +74,7 @@ public final class DefaultRepositoryUpdater implements IUpdater {
             //return successful;
         }
 
-        if (version != null && moduleDestinationBaseDirectory != null)
-        {
+        if (version != null && moduleDestinationBaseDirectory != null) {
             for (CloudNetModule module : Constants.DEFAULT_MODULES)
                 if (!installModuleFile(version, module.getFileName(), new File(moduleDestinationBaseDirectory, module.getFileName()), buffer))
                     successful = false;
@@ -94,12 +85,10 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
     /*= ------------------------------------------------ =*/
 
-    private boolean installModuleFile(String version, String name, File file, byte[] buffer)
-    {
+    private boolean installModuleFile(String version, String name, File file, byte[] buffer) {
         System.out.println("Installing remote version module " + name + " in version " + version);
 
-        try
-        {
+        try {
             URLConnection urlConnection = new URL(url + "versions/" + version + "/" + name).openConnection();
             initHttpUrlConnection(urlConnection);
 
@@ -109,26 +98,22 @@ public final class DefaultRepositoryUpdater implements IUpdater {
             file.delete();
             file.createNewFile();
 
-            try (InputStream inputStream = urlConnection.getInputStream())
-            {
+            try (InputStream inputStream = urlConnection.getInputStream()) {
                 IOUtils.copy(buffer, inputStream, file.toPath());
             }
 
             return true;
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return false;
     }
 
-    private boolean installFile(String version, String name, File file, byte[] buffer)
-    {
+    private boolean installFile(String version, String name, File file, byte[] buffer) {
         if (file.exists()) return true;
 
-        try
-        {
+        try {
             URLConnection urlConnection = new URL(url + "versions/" + version + "/" + name).openConnection();
             initHttpUrlConnection(urlConnection);
 
@@ -136,23 +121,20 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
             file.getParentFile().mkdirs();
 
-            try (InputStream inputStream = urlConnection.getInputStream())
-            {
+            try (InputStream inputStream = urlConnection.getInputStream()) {
                 IOUtils.copy(buffer, inputStream, file.toPath());
             }
 
             return true;
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
         return false;
     }
 
-    private void initHttpUrlConnection(URLConnection urlConnection)
-    {
+    private void initHttpUrlConnection(URLConnection urlConnection) {
         urlConnection.setUseCaches(false);
         urlConnection.setDoOutput(false);
 

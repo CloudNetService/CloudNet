@@ -15,8 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultDatabasePermissionManagementTest {
 
     @Test
-    public void testFilePermissionManager() throws Exception
-    {
+    public void testFilePermissionManager() throws Exception {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
         AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database");
         Assert.assertTrue(databaseProvider.init());
@@ -25,8 +24,7 @@ public class DefaultDatabasePermissionManagementTest {
 
         IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(new Callable<AbstractDatabaseProvider>() {
             @Override
-            public AbstractDatabaseProvider call() throws Exception
-            {
+            public AbstractDatabaseProvider call() throws Exception {
                 return databaseProvider;
             }
         });

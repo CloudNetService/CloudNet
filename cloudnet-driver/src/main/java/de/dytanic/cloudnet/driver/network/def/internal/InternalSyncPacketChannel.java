@@ -29,24 +29,19 @@ public final class InternalSyncPacketChannel {
 
     private final static Map<UUID, SynchronizedCallback> WAITING_PACKETS = Maps.newConcurrentHashMap();
 
-    private InternalSyncPacketChannel()
-    {
+    private InternalSyncPacketChannel() {
         throw new UnsupportedOperationException();
     }
 
-    public static boolean handleIncomingChannel(Packet packet)
-    {
+    public static boolean handleIncomingChannel(Packet packet) {
         Validate.checkNotNull(packet);
 
-        if (WAITING_PACKETS.containsKey(packet.getUniqueId()))
-        {
-            try
-            {
+        if (WAITING_PACKETS.containsKey(packet.getUniqueId())) {
+            try {
                 SynchronizedCallback syncEntry = WAITING_PACKETS.get(packet.getUniqueId());
                 syncEntry.response = new Pair<>(packet.getHeader(), packet.getBody());
                 syncEntry.task.call();
-            } catch (Throwable e)
-            {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
 
@@ -57,13 +52,11 @@ public final class InternalSyncPacketChannel {
         } else return false;
     }
 
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body)
-    {
+    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body) {
         return sendCallablePacket(channel, header, body, null);
     }
 
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener)
-    {
+    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener) {
         Validate.checkNotNull(channel);
         Validate.checkNotNull(header);
 
@@ -74,8 +67,7 @@ public final class InternalSyncPacketChannel {
         syncEntry.task = new ListenableTask<>(new Callable<Pair<JsonDocument, byte[]>>() {
 
             @Override
-            public Pair<JsonDocument, byte[]> call() throws Exception
-            {
+            public Pair<JsonDocument, byte[]> call() throws Exception {
                 return syncEntry.response;
             }
 
@@ -87,21 +79,17 @@ public final class InternalSyncPacketChannel {
         return syncEntry.task;
     }
 
-    private static void checkCachedValidation()
-    {
+    private static void checkCachedValidation() {
         long systemCurrent = System.currentTimeMillis();
 
         for (Map.Entry<UUID, SynchronizedCallback> entry : WAITING_PACKETS.entrySet())
-            if (entry.getValue().timeOut < systemCurrent)
-            {
+            if (entry.getValue().timeOut < systemCurrent) {
                 WAITING_PACKETS.remove(entry.getKey());
 
-                try
-                {
+                try {
                     entry.getValue().response = new Pair<>(new JsonDocument(), new byte[0]);
                     entry.getValue().task.call();
-                } catch (Throwable throwable)
-                {
+                } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 }
             }
@@ -109,10 +97,8 @@ public final class InternalSyncPacketChannel {
 
     private static class SynchronizedCallback {
 
-        private volatile Pair<JsonDocument, byte[]> response = new Pair<>(new JsonDocument(), new byte[0]);
-
         private final long timeOut = System.currentTimeMillis() + 30000;
-
+        private volatile Pair<JsonDocument, byte[]> response = new Pair<>(new JsonDocument(), new byte[0]);
         private volatile ITask<Pair<JsonDocument, byte[]>> task;
     }
 }

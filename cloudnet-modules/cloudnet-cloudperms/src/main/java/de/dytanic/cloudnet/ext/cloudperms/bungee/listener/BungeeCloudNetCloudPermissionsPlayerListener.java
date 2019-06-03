@@ -16,28 +16,24 @@ import java.util.UUID;
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
 
     @EventHandler
-    public void handle(LoginEvent event)
-    {
+    public void handle(LoginEvent event) {
         UUID uniqueId = getUniqueId(event.getConnection().getClass(), event.getConnection());
 
-        if (uniqueId != null)
-        {
+        if (uniqueId != null) {
             IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
 
-            if (permissionUser == null)
-            {
+            if (permissionUser == null) {
                 CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                    uniqueId,
-                    event.getConnection().getName(),
-                    null,
-                    0
+                        uniqueId,
+                        event.getConnection().getName(),
+                        null,
+                        0
                 ));
 
                 permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
             }
 
-            if (permissionUser != null)
-            {
+            if (permissionUser != null) {
                 CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
 
                 permissionUser.setName(event.getConnection().getName());
@@ -47,12 +43,10 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
     }
 
     @EventHandler
-    public void handle(PermissionCheckEvent event)
-    {
+    public void handle(PermissionCheckEvent event) {
         UUID uniqueId = getUniqueId(event.getSender().getClass(), event.getSender());
 
-        if (uniqueId != null)
-        {
+        if (uniqueId != null) {
             IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
 
             if (permissionUser != null)
@@ -61,8 +55,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
     }
 
     @EventHandler
-    public void handle(PlayerDisconnectEvent event)
-    {
+    public void handle(PlayerDisconnectEvent event) {
         UUID uniqueId = getUniqueId(event.getPlayer().getClass(), event.getPlayer());
 
         if (uniqueId != null)
@@ -71,21 +64,18 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
 
     /*= --------------------------------------------------------- =*/
 
-    private UUID getUniqueId(Class<?> clazz, Object instance)
-    {
+    private UUID getUniqueId(Class<?> clazz, Object instance) {
         Validate.checkNotNull(clazz);
         Validate.checkNotNull(instance);
 
         UUID uniqueId = null;
 
-        try
-        {
+        try {
             Method method = clazz.getMethod("getUniqueId");
             method.setAccessible(true);
             uniqueId = (UUID) method.invoke(instance);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return uniqueId;

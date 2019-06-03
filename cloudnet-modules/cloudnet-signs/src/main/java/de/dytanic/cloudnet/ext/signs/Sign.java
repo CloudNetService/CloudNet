@@ -22,8 +22,7 @@ public class Sign implements Comparable<Sign> {
 
     private volatile ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public Sign(String providedGroup, String targetGroup, SignPosition worldPosition, String templatePath)
-    {
+    public Sign(String providedGroup, String targetGroup, SignPosition worldPosition, String templatePath) {
         this.signId = System.currentTimeMillis();
         //=- * | * -=//
         this.providedGroup = providedGroup;
@@ -33,8 +32,7 @@ public class Sign implements Comparable<Sign> {
     }
 
     @Override
-    public int compareTo(Sign o)
-    {
+    public int compareTo(Sign o) {
         return Long.compare(signId, o.getSignId());
     }
 }

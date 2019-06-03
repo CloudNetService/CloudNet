@@ -6,19 +6,17 @@ import java.util.Map;
 public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoader {
 
     @Override
-    public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception
-    {
+    public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
         return new URL(moduleDependency.getUrl());
     }
 
     @Override
-    public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception
-    {
+    public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
         return new URL(
-            moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
-                moduleDependency.getGroup().replace(".", "/") + "/" +
-                moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
-                moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar"
+                moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
+                        moduleDependency.getGroup().replace(".", "/") + "/" +
+                        moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
+                        moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar"
         );
     }
 }

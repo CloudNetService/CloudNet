@@ -25,17 +25,17 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
     HostAndPort getClientAddress();
 
     /**
+     * Returns the networkChannelHandler from this channel
+     */
+    INetworkChannelHandler getHandler();
+
+    /**
      * Sets the channel handler for the channels. That is important for the handling of
      * receiving packets or channel closing and connect handler
      *
      * @param handler the handler, that should handle this channel
      */
     void setHandler(INetworkChannelHandler handler);
-
-    /**
-     * Returns the networkChannelHandler from this channel
-     */
-    INetworkChannelHandler getHandler();
 
     /**
      * Returns the own packet listener registry. The packetRegistry is a sub registry of

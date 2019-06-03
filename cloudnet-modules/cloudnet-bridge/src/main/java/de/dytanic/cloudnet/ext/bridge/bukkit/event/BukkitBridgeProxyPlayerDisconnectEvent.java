@@ -9,14 +9,12 @@ import org.bukkit.event.HandlerList;
 @RequiredArgsConstructor
 public final class BukkitBridgeProxyPlayerDisconnectEvent extends BukkitBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
-
     @Getter
     private static HandlerList handlerList = new HandlerList();
+    private final NetworkConnectionInfo networkConnectionInfo;
 
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 

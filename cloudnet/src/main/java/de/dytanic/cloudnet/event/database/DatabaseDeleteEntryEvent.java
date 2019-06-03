@@ -10,8 +10,7 @@ public class DatabaseDeleteEntryEvent extends DatabaseEvent {
 
     private String key;
 
-    public DatabaseDeleteEntryEvent(IDatabase database, String key)
-    {
+    public DatabaseDeleteEntryEvent(IDatabase database, String key) {
         super(database);
 
         this.key = key;

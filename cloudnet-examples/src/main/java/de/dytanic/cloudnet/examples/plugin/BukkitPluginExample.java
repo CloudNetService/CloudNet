@@ -15,8 +15,7 @@ import java.util.concurrent.Callable;
 public final class BukkitPluginExample extends JavaPlugin {
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         ServiceId serviceId = Wrapper.getInstance().getServiceId();
 
         serviceId.getUniqueId(); //The unique identifier of the service
@@ -29,14 +28,12 @@ public final class BukkitPluginExample extends JavaPlugin {
 
         Wrapper.getInstance().runTask(new Callable<String>() { //Use the single thread scheduler by the wrapper application to run tasks which you add into the queue
             @Override
-            public String call() throws Exception
-            {
+            public String call() throws Exception {
                 return "Hello, world";
             }
         }).addListener(new ITaskListener<String>() {
             @Override
-            public void onComplete(ITask<String> task, String result)
-            {
+            public void onComplete(ITask<String> task, String result) {
                 Bukkit.broadcastMessage(result);
             }
         });

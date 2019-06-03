@@ -14,29 +14,24 @@ import java.util.function.Predicate;
 @Getter
 public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
+    protected final long createdTime;
     @Setter
     protected String name;
-
     @Setter
     protected int potency;
-
-    protected final long createdTime;
-
     @Setter
     protected List<Permission> permissions;
 
     protected Map<String, Collection<Permission>> groupPermissions;
 
-    public AbstractPermissible()
-    {
+    public AbstractPermissible() {
         this.createdTime = System.currentTimeMillis();
         this.permissions = Iterables.newArrayList();
         this.groupPermissions = Maps.newHashMap();
     }
 
     @Override
-    public boolean addPermission(Permission permission)
-    {
+    public boolean addPermission(Permission permission) {
         if (permission == null || permission.getName() == null) return false;
 
         Permission exist = this.getPermission(permission.getName());
@@ -49,8 +44,7 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     }
 
     @Override
-    public boolean addPermission(String group, Permission permission)
-    {
+    public boolean addPermission(String group, Permission permission) {
         if (group == null || permission == null) return false;
 
         if (!groupPermissions.containsKey(group))
@@ -61,8 +55,7 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     }
 
     @Override
-    public boolean removePermission(String permission)
-    {
+    public boolean removePermission(String permission) {
         if (permission == null) return false;
 
         Permission exist = this.getPermission(permission);
@@ -72,16 +65,13 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     }
 
     @Override
-    public boolean removePermission(String group, String permission)
-    {
+    public boolean removePermission(String group, String permission) {
         if (group == null || permission == null) return false;
 
-        if (groupPermissions.containsKey(group))
-        {
+        if (groupPermissions.containsKey(group)) {
             Permission p = Iterables.first(groupPermissions.get(group), new Predicate<Permission>() {
                 @Override
-                public boolean test(Permission perm)
-                {
+                public boolean test(Permission perm) {
                     return perm.getName().equalsIgnoreCase(permission);
                 }
             });

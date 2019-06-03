@@ -40,8 +40,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
      * @param pattern   the file pattern, for the log files like "app.log" will be to than "app.log.0"
      * @param maxBytes  the maximum bytes, that a log file should have, to switch to the next log file
      */
-    public DefaultFileLogHandler(File directory, String pattern, long maxBytes)
-    {
+    public DefaultFileLogHandler(File directory, String pattern, long maxBytes) {
         if (directory == null)
             directory = new File(System.getProperty("cloudnet.logging.fallback.log.directory", "logs"));
 
@@ -55,8 +54,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void handle(LogEntry logEntry)
-    {
+    public void handle(LogEntry logEntry) {
         if (getFormatter() == null) setFormatter(new DefaultLogFormatter());
         if (entry == null) selectLogFile();
         if (entry.length() > maxBytes) selectLogFile();
@@ -71,39 +69,33 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
 
         index = 0;
         printWriter.close();
     }
 
-    private void selectLogFile()
-    {
+    private void selectLogFile() {
         if (printWriter != null) printWriter.close();
         if (writternBytes != 0L) writternBytes = 0L;
 
         entry = null;
         File file;
 
-        while (entry == null)
-        {
+        while (entry == null) {
             file = new File(directory, pattern + "." + index);
 
-            try
-            {
+            try {
 
                 if (!file.exists()) file.createNewFile();
 
-                if (file.length() < maxBytes)
-                {
+                if (file.length() < maxBytes) {
                     this.entry = file;
                     this.printWriter = new PrintWriter(new FileWriter(this.entry, true));
                     break;
                 }
 
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
 

@@ -9,8 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultJsonFilePermissionManagementTest {
 
     @Test
-    public void testFilePermissionManager() throws Exception
-    {
+    public void testFilePermissionManager() throws Exception {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
         File permissionsConfig = new File("build/permissions.json");
 

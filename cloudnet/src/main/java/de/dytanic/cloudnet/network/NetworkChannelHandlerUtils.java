@@ -20,23 +20,18 @@ import java.util.UUID;
 
 final class NetworkChannelHandlerUtils {
 
-    private NetworkChannelHandlerUtils()
-    {
+    private NetworkChannelHandlerUtils() {
         throw new UnsupportedOperationException();
     }
 
-    static boolean handleInitChannel(INetworkChannel channel, ChannelType channelType)
-    {
+    static boolean handleInitChannel(INetworkChannel channel, ChannelType channelType) {
         NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(channel, channelType);
         CloudNetDriver.getInstance().getEventManager().callEvent(networkChannelInitEvent);
 
-        if (networkChannelInitEvent.isCancelled())
-        {
-            try
-            {
+        if (networkChannelInitEvent.isCancelled()) {
+            try {
                 channel.close();
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return false;
@@ -45,21 +40,17 @@ final class NetworkChannelHandlerUtils {
         return true;
     }
 
-    static void handleRemoveDisconnectedClusterInNetwork(INetworkChannel channel, IClusterNodeServer clusterNodeServer)
-    {
-        try
-        {
+    static void handleRemoveDisconnectedClusterInNetwork(INetworkChannel channel, IClusterNodeServer clusterNodeServer) {
+        try {
             clusterNodeServer.close();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         Collection<Packet> removed = Iterables.newArrayList();
 
         for (Map.Entry<UUID, ServiceInfoSnapshot> entry : CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().entrySet())
-            if (entry.getValue().getServiceId().getNodeUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
-            {
+            if (entry.getValue().getServiceId().getNodeUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId())) {
                 CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(entry.getKey());
                 removed.add(new PacketClientServerServiceInfoPublisher(entry.getValue(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
                 CloudNet.getInstance().getEventManager().callEvent(new CloudServiceUnregisterEvent(entry.getValue()));
@@ -71,9 +62,9 @@ final class NetworkChannelHandlerUtils {
                     cloudService.getNetworkChannel().sendPacket(packet);
 
         System.out.println(LanguageManager.getMessage("cluster-server-networking-disconnected")
-            .replace("%id%", clusterNodeServer.getNodeInfo().getUniqueId() + "")
-            .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-            .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+                .replace("%id%", clusterNodeServer.getNodeInfo().getUniqueId() + "")
+                .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+                .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         );
     }
 }

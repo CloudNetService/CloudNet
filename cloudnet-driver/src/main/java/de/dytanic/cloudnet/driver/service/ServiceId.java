@@ -21,8 +21,7 @@ public final class ServiceId {
 
     private final ServiceEnvironmentType environment;
 
-    public String getName()
-    {
+    public String getName() {
         return taskName + "-" + taskServiceId;
     }
 }

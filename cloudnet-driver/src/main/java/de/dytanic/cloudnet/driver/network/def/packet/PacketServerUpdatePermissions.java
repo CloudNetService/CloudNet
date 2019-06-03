@@ -10,40 +10,36 @@ import java.util.Collection;
 
 public class PacketServerUpdatePermissions extends Packet {
 
-    public PacketServerUpdatePermissions(UpdateType updateType, IPermissionUser permissionUser)
-    {
+    public PacketServerUpdatePermissions(UpdateType updateType, IPermissionUser permissionUser) {
         super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                .append("permissions_event", true)
-                .append("updateType", updateType)
-                .append("permissionUser", permissionUser)
-            , null);
+                        .append("permissions_event", true)
+                        .append("updateType", updateType)
+                        .append("permissionUser", permissionUser)
+                , null);
     }
 
-    public PacketServerUpdatePermissions(UpdateType updateType, IPermissionGroup permissionGroup)
-    {
+    public PacketServerUpdatePermissions(UpdateType updateType, IPermissionGroup permissionGroup) {
         super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                .append("permissions_event", true)
-                .append("updateType", updateType)
-                .append("permissionGroup", permissionGroup)
-            , null);
+                        .append("permissions_event", true)
+                        .append("updateType", updateType)
+                        .append("permissionGroup", permissionGroup)
+                , null);
     }
 
-    public PacketServerUpdatePermissions(UpdateType updateType, Collection<? extends IPermissionGroup> permissionGroups)
-    {
+    public PacketServerUpdatePermissions(UpdateType updateType, Collection<? extends IPermissionGroup> permissionGroups) {
         super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                .append("permissions_event", true)
-                .append("updateType", updateType)
-                .append("permissionGroups", permissionGroups)
-            , null);
+                        .append("permissions_event", true)
+                        .append("updateType", updateType)
+                        .append("permissionGroups", permissionGroups)
+                , null);
     }
 
-    public PacketServerUpdatePermissions(UpdateType updateType, Iterable<? extends IPermissionUser> permissionUsers)
-    {
+    public PacketServerUpdatePermissions(UpdateType updateType, Iterable<? extends IPermissionUser> permissionUsers) {
         super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                .append("permissions_event", true)
-                .append("updateType", updateType)
-                .append("permissionUsers", permissionUsers)
-            , null);
+                        .append("permissions_event", true)
+                        .append("updateType", updateType)
+                        .append("permissionUsers", permissionUsers)
+                , null);
     }
 
     public enum UpdateType {

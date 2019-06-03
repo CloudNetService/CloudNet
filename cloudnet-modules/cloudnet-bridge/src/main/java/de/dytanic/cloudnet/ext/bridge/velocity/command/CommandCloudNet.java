@@ -11,12 +11,10 @@ import org.checkerframework.checker.optional.qual.MaybePresent;
 public final class CommandCloudNet implements Command {
 
     @Override
-    public void execute(@MaybePresent CommandSource source, @NonNull @MaybePresent String[] args)
-    {
+    public void execute(@MaybePresent CommandSource source, @NonNull @MaybePresent String[] args) {
         if (!source.hasPermission("cloudnet.command.cloudnet")) return;
 
-        if (args.length == 0)
-        {
+        if (args.length == 0) {
             source.sendMessage(TextComponent.of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + "/cloudnet <command>"));
             return;
         }

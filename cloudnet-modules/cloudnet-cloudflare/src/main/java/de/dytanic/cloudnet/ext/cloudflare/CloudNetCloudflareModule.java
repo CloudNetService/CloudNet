@@ -28,85 +28,77 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
     @Setter
     private CloudflareConfiguration cloudflareConfiguration;
 
-    public CloudNetCloudflareModule()
-    {
+    public CloudNetCloudflareModule() {
         instance = this;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
-    public void loadConfiguration()
-    {
+    public void loadConfiguration() {
         this.cloudflareConfiguration = getConfig().get("config", CloudflareConfiguration.TYPE, new CloudflareConfiguration(
-            Iterables.newArrayList(new CloudflareConfigurationEntry[]{
-                new CloudflareConfigurationEntry(
-                    false,
-                    getInitialHostAddress(),
-                    "user@example.com",
-                    "api_token_string",
-                    "zoneId",
-                    "example.com",
-                    Iterables.newArrayList(
-                        new CloudflareGroupConfiguration[]{
-                            new CloudflareGroupConfiguration("Proxy", "@", 1, 1)
-                        }
-                    )
-                )
-            })
+                Iterables.newArrayList(new CloudflareConfigurationEntry[]{
+                        new CloudflareConfigurationEntry(
+                                false,
+                                getInitialHostAddress(),
+                                "user@example.com",
+                                "api_token_string",
+                                "zoneId",
+                                "example.com",
+                                Iterables.newArrayList(
+                                        new CloudflareGroupConfiguration[]{
+                                                new CloudflareGroupConfiguration("Proxy", "@", 1, 1)
+                                        }
+                                )
+                        )
+                })
         ));
 
         saveConfig();
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
-    public void initCloudflareAPI()
-    {
+    public void initCloudflareAPI() {
         new CloudflareAPI(getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME));
     }
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
-    public void addedDefaultCloudflareDNSServices()
-    {
+    public void addedDefaultCloudflareDNSServices() {
         for (CloudflareConfigurationEntry cloudflareConfigurationEntry : this.getCloudflareConfiguration().getEntries())
-            if (cloudflareConfigurationEntry.isEnabled())
-            {
+            if (cloudflareConfigurationEntry.isEnabled()) {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
-                    getCloudNet().getConfig().getIdentity().getUniqueId(),
-                    cloudflareConfigurationEntry.getEmail(),
-                    cloudflareConfigurationEntry.getApiToken(),
-                    cloudflareConfigurationEntry.getZoneId(),
-                    new DefaultDNSRecord(
-                        DNSType.A,
-                        getCloudNetConfig().getIdentity().getUniqueId() + "."
-                            + cloudflareConfigurationEntry.getDomainName(),
-                        cloudflareConfigurationEntry.getHostAddress(),
-                        new JsonDocument().toJsonObject()
-                    )
+                        getCloudNet().getConfig().getIdentity().getUniqueId(),
+                        cloudflareConfigurationEntry.getEmail(),
+                        cloudflareConfigurationEntry.getApiToken(),
+                        cloudflareConfigurationEntry.getZoneId(),
+                        new DefaultDNSRecord(
+                                DNSType.A,
+                                getCloudNetConfig().getIdentity().getUniqueId() + "."
+                                        + cloudflareConfigurationEntry.getDomainName(),
+                                cloudflareConfigurationEntry.getHostAddress(),
+                                new JsonDocument().toJsonObject()
+                        )
                 );
 
                 if (response.getFirst() < 400)
                     CloudNetDriver.getInstance().getLogger().info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
-                        .replace("%service%", getCloudNet().getConfig().getIdentity().getUniqueId() + "")
-                        .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
-                        .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
+                            .replace("%service%", getCloudNet().getConfig().getIdentity().getUniqueId() + "")
+                            .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
+                            .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
                     );
             }
     }
 
     @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
-    public void registerListeners()
-    {
+    public void registerListeners() {
         registerListener(new CloudflareStartAndStopListener());
     }
 
     @ModuleTask(order = 123, event = ModuleLifeCycle.STARTED)
-    public void registerHttpHandlers()
-    {
+    public void registerHttpHandlers() {
         getHttpServer().registerHandler("/api/v1/modules/cloudflare/config",
-            new V1CloudflareConfigurationHttpHandler("cloudnet.http.v1.modules.cloudflare.config"));
+                new V1CloudflareConfigurationHttpHandler("cloudnet.http.v1.modules.cloudflare.config"));
     }
 
-    public void updateConfiguration(CloudflareConfiguration cloudflareConfiguration)
-    {
+    public void updateConfiguration(CloudflareConfiguration cloudflareConfiguration) {
         this.cloudflareConfiguration = cloudflareConfiguration;
 
         getConfig().append("config", cloudflareConfiguration);
@@ -114,48 +106,38 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
-    public void closeCloudflareAPI()
-    {
+    public void closeCloudflareAPI() {
         if (CloudflareAPI.getInstance() != null)
-            try
-            {
+            try {
                 CloudflareAPI.getInstance().close();
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
-    public void removeRecordsOnDelete()
-    {
-        for (Map.Entry<String, Pair<String, JsonDocument>> entry : CloudflareAPI.getInstance().getCreatedRecords().entrySet())
-        {
+    public void removeRecordsOnDelete() {
+        for (Map.Entry<String, Pair<String, JsonDocument>> entry : CloudflareAPI.getInstance().getCreatedRecords().entrySet()) {
             CloudflareAPI.getInstance().deleteRecord(
-                entry.getValue().getSecond().getString("email"),
-                entry.getValue().getSecond().getString("apiKey"),
-                entry.getValue().getSecond().getString("zoneId"),
-                entry.getKey()
+                    entry.getValue().getSecond().getString("email"),
+                    entry.getValue().getSecond().getString("apiKey"),
+                    entry.getValue().getSecond().getString("zoneId"),
+                    entry.getKey()
             );
 
-            try
-            {
+            try {
                 Thread.sleep(400);
-            } catch (InterruptedException ignored)
-            {
+            } catch (InterruptedException ignored) {
             }
         }
     }
 
     /*= ------------------------------------------------------------------------------------------- =*/
 
-    private String getInitialHostAddress()
-    {
-        try
-        {
+    private String getInitialHostAddress() {
+        try {
             return InetAddress.getLocalHost().getHostAddress();
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return "0.0.0.0";
         }
     }

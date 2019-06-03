@@ -11,33 +11,28 @@ public final class DefaultCommandMapTest {
     private String b;
 
     @Test
-    public void testMap()
-    {
+    public void testMap() {
         ICommandMap commandMap = new DefaultCommandMap();
 
         ICommandSender commandSender = new ICommandSender() {
 
             @Override
-            public void sendMessage(String message)
-            {
+            public void sendMessage(String message) {
                 b = message;
             }
 
             @Override
-            public void sendMessage(String... messages)
-            {
+            public void sendMessage(String... messages) {
 
             }
 
             @Override
-            public boolean hasPermission(String permission)
-            {
+            public boolean hasPermission(String permission) {
                 return true;
             }
 
             @Override
-            public String getName()
-            {
+            public String getName() {
                 return "test";
             }
         };
@@ -51,8 +46,7 @@ public final class DefaultCommandMapTest {
             }
 
             @Override
-            public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-            {
+            public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
                 Assert.assertEquals(2, args.length);
                 Assert.assertEquals("val", args[1]);
 

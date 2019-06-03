@@ -14,28 +14,24 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void handle(PlayerLoginEvent event)
-    {
+    public void handle(PlayerLoginEvent event) {
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUniqueId());
 
-        if (permissionUser == null)
-        {
+        if (permissionUser == null) {
             CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                event.getPlayer().getUniqueId(),
-                event.getPlayer().getName(),
-                null,
-                0
+                    event.getPlayer().getUniqueId(),
+                    event.getPlayer().getName(),
+                    null,
+                    0
             ));
 
             permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUniqueId());
         }
 
-        if (permissionUser != null)
-        {
+        if (permissionUser != null) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
 
-            if (Bukkit.getOnlineMode())
-            {
+            if (Bukkit.getOnlineMode()) {
                 permissionUser.setName(event.getPlayer().getName());
                 CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
             }
@@ -45,8 +41,7 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
     }
 
     @EventHandler
-    public void handle(PlayerQuitEvent event)
-    {
+    public void handle(PlayerQuitEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
 }

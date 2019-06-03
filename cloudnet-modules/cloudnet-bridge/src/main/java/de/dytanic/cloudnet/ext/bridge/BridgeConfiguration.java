@@ -2,7 +2,9 @@ package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.lang.reflect.Type;
 import java.util.Collection;

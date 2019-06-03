@@ -29,74 +29,62 @@ public final class BungeeCloudNetHelper {
 
     public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = Maps.newConcurrentHashMap();
 
-    private BungeeCloudNetHelper()
-    {
+    private BungeeCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static void addItemToBungeeCordListenerPrioritySystem(ServiceInfoSnapshot serviceInfoSnapshot, String name)
-    {
+    public static void addItemToBungeeCordListenerPrioritySystem(ServiceInfoSnapshot serviceInfoSnapshot, String name) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(serviceInfoSnapshot);
 
         handleWithListenerInfoServerPriority(new Consumer<Collection<String>>() {
             @Override
-            public void accept(Collection<String> collection)
-            {
+            public void accept(Collection<String> collection) {
                 for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
                     if (bungeeFallbackConfiguration != null && bungeeFallbackConfiguration.getFallbacks() != null &&
-                        bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(bungeeFallbackConfiguration.getTargetGroup(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()))
+                            bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(bungeeFallbackConfiguration.getTargetGroup(),
+                            Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()))
                         if (!collection.contains(name) && bungeeFallbackConfiguration.getDefaultFallbackTask().equals(serviceInfoSnapshot.getServiceId().getTaskName()))
                             collection.add(name);
             }
         });
     }
 
-    public static void removeItemToBungeeCordListenerPrioritySystem(ServiceInfoSnapshot serviceInfoSnapshot, String name)
-    {
+    public static void removeItemToBungeeCordListenerPrioritySystem(ServiceInfoSnapshot serviceInfoSnapshot, String name) {
         Validate.checkNotNull(name);
 
         handleWithListenerInfoServerPriority(new Consumer<Collection<String>>() {
             @Override
-            public void accept(Collection<String> collection)
-            {
+            public void accept(Collection<String> collection) {
                 collection.remove(name);
             }
         });
     }
 
-    public static void handleWithListenerInfoServerPriority(Consumer<Collection<String>> listenerInfoConsumer)
-    {
-        try
-        {
+    public static void handleWithListenerInfoServerPriority(Consumer<Collection<String>> listenerInfoConsumer) {
+        try {
             Method method = ListenerInfo.class.getMethod("getServerPriority");
             method.setAccessible(true);
 
-            for (ListenerInfo listenerInfo : ProxyServer.getInstance().getConfigurationAdapter().getListeners())
-            {
+            for (ListenerInfo listenerInfo : ProxyServer.getInstance().getConfigurationAdapter().getListeners()) {
                 Object instance = method.invoke(listenerInfo);
                 listenerInfoConsumer.accept((Collection<String>) instance);
             }
 
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored)
-        {
-        } catch (Exception ex)
-        {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public static boolean isOnAFallbackInstance(ProxiedPlayer proxiedPlayer)
-    {
+    public static boolean isOnAFallbackInstance(ProxiedPlayer proxiedPlayer) {
         ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(proxiedPlayer.getServer().getInfo().getName());
 
         for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
             if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                bungeeFallbackConfiguration.getTargetGroup(),
-                Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            ))
-            {
+                    bungeeFallbackConfiguration.getTargetGroup(),
+                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+            )) {
                 for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks())
                     if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask()))
                         return true;
@@ -105,21 +93,18 @@ public final class BungeeCloudNetHelper {
         return false;
     }
 
-    public static String filterServiceForProxiedPlayer(ProxiedPlayer proxiedPlayer, String currentServer)
-    {
+    public static String filterServiceForProxiedPlayer(ProxiedPlayer proxiedPlayer, String currentServer) {
         for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
             if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                proxyFallbackConfiguration.getTargetGroup(),
-                Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            ))
-            {
+                    proxyFallbackConfiguration.getTargetGroup(),
+                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+            )) {
                 List<ProxyFallback> proxyFallbacks = Iterables.newArrayList(proxyFallbackConfiguration.getFallbacks());
                 Collections.sort(proxyFallbacks);
 
                 String server = null;
 
-                for (ProxyFallback proxyFallback : proxyFallbacks)
-                {
+                for (ProxyFallback proxyFallback : proxyFallbacks) {
                     if (proxyFallback.getTask() != null) continue;
                     if (proxyFallback.getPermission() != null && !proxiedPlayer.hasPermission(proxyFallback.getPermission()))
                         continue;
@@ -131,8 +116,7 @@ public final class BungeeCloudNetHelper {
                     server = entries.get(new Random().nextInt(entries.size())).getKey();
                 }
 
-                if (server == null)
-                {
+                if (server == null) {
                     List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallbackConfiguration.getDefaultFallbackTask(), currentServer);
 
                     if (entries.size() > 0)
@@ -145,72 +129,65 @@ public final class BungeeCloudNetHelper {
         return null;
     }
 
-    private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer)
-    {
+    private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
         return Iterables.filter(
-            SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(), new Predicate<Map.Entry<String, ServiceInfoSnapshot>>() {
+                SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(), new Predicate<Map.Entry<String, ServiceInfoSnapshot>>() {
 
-                @Override
-                public boolean test(Map.Entry<String, ServiceInfoSnapshot> stringServiceInfoSnapshotEntry)
-                {
-                    if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey()))
-                        return false;
+                    @Override
+                    public boolean test(Map.Entry<String, ServiceInfoSnapshot> stringServiceInfoSnapshotEntry) {
+                        if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey()))
+                            return false;
 
-                    return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
-                }
-            });
+                        return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
+                    }
+                });
     }
 
-    public static boolean isServiceEnvironmentTypeProvidedForBungeeCord(ServiceInfoSnapshot serviceInfoSnapshot)
-    {
+    public static boolean isServiceEnvironmentTypeProvidedForBungeeCord(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
         return serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer();
     }
 
-    public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot)
-    {
+    public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         serviceInfoSnapshot.getProperties()
-            .append("Online", true)
-            .append("Version", ProxyServer.getInstance().getVersion())
-            .append("Game-Version", ProxyServer.getInstance().getGameVersion())
-            .append("Online-Count", ProxyServer.getInstance().getOnlineCount())
-            .append("Channels", ProxyServer.getInstance().getChannels())
-            .append("BungeeCord-Name", ProxyServer.getInstance().getName())
-            .append("Players", Iterables.map(ProxyServer.getInstance().getPlayers(), new Function<ProxiedPlayer, BungeeCloudNetPlayerInfo>() {
-                @Override
-                public BungeeCloudNetPlayerInfo apply(ProxiedPlayer proxiedPlayer)
-                {
-                    return new BungeeCloudNetPlayerInfo(
-                        getUniqueIdOfPlayer(proxiedPlayer),
-                        proxiedPlayer.getName(),
-                        proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : null,
-                        proxiedPlayer.getPing(),
-                        new HostAndPort(proxiedPlayer.getPendingConnection().getAddress())
-                    );
-                }
-            }))
-            .append("Plugins", Iterables.map(ProxyServer.getInstance().getPluginManager().getPlugins(), new Function<Plugin, PluginInfo>() {
-                @Override
-                public PluginInfo apply(Plugin plugin)
-                {
-                    PluginInfo pluginInfo = new PluginInfo(plugin.getDescription().getName(), plugin.getDescription().getVersion());
+                .append("Online", true)
+                .append("Version", ProxyServer.getInstance().getVersion())
+                .append("Game-Version", ProxyServer.getInstance().getGameVersion())
+                .append("Online-Count", ProxyServer.getInstance().getOnlineCount())
+                .append("Channels", ProxyServer.getInstance().getChannels())
+                .append("BungeeCord-Name", ProxyServer.getInstance().getName())
+                .append("Players", Iterables.map(ProxyServer.getInstance().getPlayers(), new Function<ProxiedPlayer, BungeeCloudNetPlayerInfo>() {
+                    @Override
+                    public BungeeCloudNetPlayerInfo apply(ProxiedPlayer proxiedPlayer) {
+                        return new BungeeCloudNetPlayerInfo(
+                                getUniqueIdOfPlayer(proxiedPlayer),
+                                proxiedPlayer.getName(),
+                                proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : null,
+                                proxiedPlayer.getPing(),
+                                new HostAndPort(proxiedPlayer.getPendingConnection().getAddress())
+                        );
+                    }
+                }))
+                .append("Plugins", Iterables.map(ProxyServer.getInstance().getPluginManager().getPlugins(), new Function<Plugin, PluginInfo>() {
+                    @Override
+                    public PluginInfo apply(Plugin plugin) {
+                        PluginInfo pluginInfo = new PluginInfo(plugin.getDescription().getName(), plugin.getDescription().getVersion());
 
-                    pluginInfo.getProperties()
-                        .append("author", plugin.getDescription().getAuthor())
-                        .append("main-class", plugin.getDescription().getMain())
-                        .append("depends", plugin.getDescription().getDepends())
-                    ;
+                        pluginInfo.getProperties()
+                                .append("author", plugin.getDescription().getAuthor())
+                                .append("main-class", plugin.getDescription().getMain())
+                                .append("depends", plugin.getDescription().getDepends())
+                        ;
 
-                    return pluginInfo;
-                }
-            }))
+                        return pluginInfo;
+                    }
+                }))
         ;
     }
 
-    public static NetworkConnectionInfo createNetworkConnectionInfo(PendingConnection pendingConnection)
-    {
+    public static NetworkConnectionInfo createNetworkConnectionInfo(PendingConnection pendingConnection) {
         Boolean onlineMode = isOnlineModeOfPendingConnection(pendingConnection);
         if (onlineMode == null) onlineMode = true;
 
@@ -218,117 +195,101 @@ public final class BungeeCloudNetHelper {
         if (legacy == null) legacy = true;
 
         return BridgeHelper.createNetworkConnectionInfo(
-            getUniqueIdOfPendingConnection(pendingConnection) == null ? UUID.randomUUID() : getUniqueIdOfPendingConnection(pendingConnection),
-            pendingConnection.getName(),
-            getVersionOfPendingConnection(pendingConnection),
-            new HostAndPort(pendingConnection.getAddress()),
-            new HostAndPort(pendingConnection.getListener().getHost()),
-            onlineMode,
-            legacy,
-            new NetworkServiceInfo(
-                ServiceEnvironmentType.BUNGEECORD,
-                Wrapper.getInstance().getServiceId().getUniqueId(),
-                Wrapper.getInstance().getServiceId().getName()
-            )
+                getUniqueIdOfPendingConnection(pendingConnection) == null ? UUID.randomUUID() : getUniqueIdOfPendingConnection(pendingConnection),
+                pendingConnection.getName(),
+                getVersionOfPendingConnection(pendingConnection),
+                new HostAndPort(pendingConnection.getAddress()),
+                new HostAndPort(pendingConnection.getListener().getHost()),
+                onlineMode,
+                legacy,
+                new NetworkServiceInfo(
+                        ServiceEnvironmentType.BUNGEECORD,
+                        Wrapper.getInstance().getServiceId().getUniqueId(),
+                        Wrapper.getInstance().getServiceId().getName()
+                )
         );
     }
 
-    public static UUID getUniqueIdOfPlayer(ProxiedPlayer proxiedPlayer)
-    {
+    public static UUID getUniqueIdOfPlayer(ProxiedPlayer proxiedPlayer) {
         Validate.checkNotNull(proxiedPlayer);
 
         UUID uniqueId = null;
 
-        try
-        {
+        try {
             Method method = ProxiedPlayer.class.getMethod("getUniqueId");
             method.setAccessible(true);
             uniqueId = (UUID) method.invoke(proxiedPlayer);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return uniqueId;
     }
 
-    public static UUID getUniqueIdOfPendingConnection(PendingConnection connection)
-    {
+    public static UUID getUniqueIdOfPendingConnection(PendingConnection connection) {
         Validate.checkNotNull(connection);
 
         UUID uniqueId = null;
 
-        try
-        {
+        try {
             Method method = PendingConnection.class.getMethod("getUniqueId");
             method.setAccessible(true);
             uniqueId = (UUID) method.invoke(connection);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return uniqueId;
     }
 
-    public static Boolean isOnlineModeOfPendingConnection(PendingConnection connection)
-    {
+    public static Boolean isOnlineModeOfPendingConnection(PendingConnection connection) {
         Validate.checkNotNull(connection);
 
         Boolean bool = null;
 
-        try
-        {
+        try {
             Method method = PendingConnection.class.getMethod("isOnlineMode");
             method.setAccessible(true);
             bool = (Boolean) method.invoke(connection);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return bool;
     }
 
-    public static Boolean isLegacyOfPendingConnection(PendingConnection connection)
-    {
+    public static Boolean isLegacyOfPendingConnection(PendingConnection connection) {
         Validate.checkNotNull(connection);
 
         Boolean bool = null;
 
-        try
-        {
+        try {
             Method method = PendingConnection.class.getMethod("isLegacy");
             method.setAccessible(true);
             bool = (Boolean) method.invoke(connection);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return bool;
     }
 
-    public static int getVersionOfPendingConnection(PendingConnection pendingConnection)
-    {
+    public static int getVersionOfPendingConnection(PendingConnection pendingConnection) {
         Validate.checkNotNull(pendingConnection);
 
-        try
-        {
+        try {
 
             Method method = PendingConnection.class.getDeclaredMethod("getVersion");
             method.setAccessible(true);
             return (int) method.invoke(pendingConnection);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return -1;
     }
 
-    public static ServerInfo createServerInfo(String name, InetSocketAddress address)
-    {
+    public static ServerInfo createServerInfo(String name, InetSocketAddress address) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(address);
 
@@ -340,8 +301,7 @@ public final class BungeeCloudNetHelper {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address);
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         try //with restricted
@@ -349,8 +309,7 @@ public final class BungeeCloudNetHelper {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, false);
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         try //with motd
@@ -358,8 +317,7 @@ public final class BungeeCloudNetHelper {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, String.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, "CloudNet provided serverInfo", false);
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return null;

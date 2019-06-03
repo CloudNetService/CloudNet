@@ -21,26 +21,21 @@ public final class JLine2CommandCompleter implements Completer {
     private final ICommandMap commandMap;
 
     @Override
-    public int complete(String buffer, int cursor, List<CharSequence> candidates)
-    {
+    public int complete(String buffer, int cursor, List<CharSequence> candidates) {
         List<String> responses = Iterables.newArrayList();
 
-        if (buffer.isEmpty() || buffer.indexOf(' ') == -1)
-        {
+        if (buffer.isEmpty() || buffer.indexOf(' ') == -1) {
             responses.addAll(Iterables.filter(commandMap.getCommandNames(), new Predicate<String>() {
 
                 @Override
-                public boolean test(String s)
-                {
+                public boolean test(String s) {
                     return s != null && s.toLowerCase().startsWith(buffer.toLowerCase());
                 }
             }));
-        } else
-        {
+        } else {
             Command command = commandMap.getCommandFromLine(buffer);
 
-            if (command instanceof ITabCompleter)
-            {
+            if (command instanceof ITabCompleter) {
                 String[] args = buffer.split(" ");
                 String testString = args[args.length - 1];
                 args = buffer.replaceFirst(args[0] + " ", "").split(" ");
@@ -48,8 +43,7 @@ public final class JLine2CommandCompleter implements Completer {
                 responses.addAll(Iterables.filter(((ITabCompleter) command).complete(buffer, args, Properties.parseLine(args)), new Predicate<String>() {
 
                     @Override
-                    public boolean test(String s)
-                    {
+                    public boolean test(String s) {
                         return s != null && (testString.isEmpty() || s.toLowerCase().startsWith(testString.toLowerCase()));
                     }
                 }));

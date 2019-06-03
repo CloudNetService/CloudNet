@@ -9,8 +9,7 @@ import org.checkerframework.checker.optional.qual.MaybePresent;
 public class VelocityCloudNetCloudPermissionsPermissionProvider implements PermissionProvider {
 
     @Override
-    public @MaybePresent PermissionFunction createFunction(@MaybePresent PermissionSubject subject)
-    {
+    public @MaybePresent PermissionFunction createFunction(@MaybePresent PermissionSubject subject) {
         return subject instanceof Player ? new VelocityCloudNetCloudPermissionsPermissionFunction(((Player) subject).getUniqueId()) : null;
     }
 }

@@ -6,8 +6,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 
 abstract class CommandDefault extends Command {
 
-    protected CommandDefault(String... names)
-    {
+    protected CommandDefault(String... names) {
         this.names = names;
         this.prefix = "cloudnet";
         this.permission = "cloudnet.command." + names[0];
@@ -15,8 +14,7 @@ abstract class CommandDefault extends Command {
         this.usage = names[0];
     }
 
-    protected final CloudNet getCloudNet()
-    {
+    protected final CloudNet getCloudNet() {
         return CloudNet.getInstance();
     }
 }

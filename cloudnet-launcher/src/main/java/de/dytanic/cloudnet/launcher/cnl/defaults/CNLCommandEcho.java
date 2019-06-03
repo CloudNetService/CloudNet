@@ -6,14 +6,12 @@ import java.util.Map;
 
 public final class CNLCommandEcho extends CNLCommand {
 
-    public CNLCommandEcho()
-    {
+    public CNLCommandEcho() {
         super("echo");
     }
 
     @Override
-    public void execute(Map<String, String> variables, String commandLine, String... args)
-    {
+    public void execute(Map<String, String> variables, String commandLine, String... args) {
 
         StringBuilder stringBuilder = new StringBuilder();
 

@@ -11,18 +11,15 @@ import java.io.File;
 public final class IncludePluginListener {
 
     @EventListener
-    public void handle(CloudServicePreStartEvent event)
-    {
+    public void handle(CloudServicePreStartEvent event) {
         if (!CloudNetCloudPermissionsModule.getInstance().getConfig().getBoolean("enabled")) return;
 
-        try
-        {
+        try {
             for (String group : CloudNetCloudPermissionsModule.getInstance().getExcludedGroups())
                 if (Iterables.contains(group, event.getCloudService().getServiceConfiguration().getGroups()))
                     return;
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         new File(event.getCloudService().getDirectory(), "plugins").mkdirs();
@@ -31,6 +28,6 @@ public final class IncludePluginListener {
 
         if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file))
             DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(IncludePluginListener.class,
-                event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
+                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
     }
 }

@@ -16,21 +16,19 @@ import java.text.DecimalFormat;
 @UnsafeClass
 public final class CPUUsageResolver {
 
-    //default initialization
-    static
-    {
-        getProcessCPUUsage();
-        getSystemCPUUsage();
-        getSystemMemory();
-    }
-
     /**
      * A simple decimal format to easy display the CPU usage value.
      */
     public static final DecimalFormat CPU_USAGE_OUTPUT_FORMAT = new DecimalFormat("##.##");
 
-    private CPUUsageResolver()
-    {
+    //default initialization
+    static {
+        getProcessCPUUsage();
+        getSystemCPUUsage();
+        getSystemMemory();
+    }
+
+    private CPUUsageResolver() {
         throw new UnsupportedOperationException();
     }
 
@@ -40,8 +38,7 @@ public final class CPUUsageResolver {
      * @return the current system cpu usage as double value
      * @see com.sun.management.OperatingSystemMXBean
      */
-    public static double getSystemCPUUsage()
-    {
+    public static double getSystemCPUUsage() {
         return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getSystemCpuLoad() * 100;
     }
 
@@ -51,8 +48,7 @@ public final class CPUUsageResolver {
      * @return the cpu usage of this JVM process as double value in range from 0 to 100 % in percent
      * @see com.sun.management.OperatingSystemMXBean
      */
-    public static double getProcessCPUUsage()
-    {
+    public static double getProcessCPUUsage() {
         return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getProcessCpuLoad() * 100;
     }
 
@@ -62,8 +58,7 @@ public final class CPUUsageResolver {
      * @return the system configured memory in bytes
      * @see com.sun.management.OperatingSystemMXBean
      */
-    public static long getSystemMemory()
-    {
+    public static long getSystemMemory() {
         return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
     }
 

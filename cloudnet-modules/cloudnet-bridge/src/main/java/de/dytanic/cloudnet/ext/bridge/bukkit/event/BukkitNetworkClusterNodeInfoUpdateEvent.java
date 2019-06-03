@@ -15,8 +15,7 @@ public final class BukkitNetworkClusterNodeInfoUpdateEvent extends BukkitCloudNe
     private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 }

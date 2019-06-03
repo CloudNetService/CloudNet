@@ -15,69 +15,60 @@ import java.io.StringWriter;
 
 public final class V1SyncProxyConfigurationHttpHandler extends V1HttpHandler {
 
-    public V1SyncProxyConfigurationHttpHandler(String permission)
-    {
+    public V1SyncProxyConfigurationHttpHandler(String permission) {
         super(permission);
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception
-    {
+    public void handleOptions(String path, IHttpContext context) throws Exception {
         this.sendOptions(context, "GET, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception
-    {
+    public void handleGet(String path, IHttpContext context) throws Exception {
         context
-            .response()
-            .statusCode(HttpResponseCode.HTTP_OK)
-            .header("Content-Type", "application/json")
-            .body(GSON.toJson(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration()))
-            .context()
-            .closeAfter(true)
-            .cancelNext()
+                .response()
+                .statusCode(HttpResponseCode.HTTP_OK)
+                .header("Content-Type", "application/json")
+                .body(GSON.toJson(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration()))
+                .context()
+                .closeAfter(true)
+                .cancelNext()
         ;
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception
-    {
-        try
-        {
-            if (context.request().body().length > 0)
-            {
+    public void handlePost(String path, IHttpContext context) throws Exception {
+        try {
+            if (context.request().body().length > 0) {
                 SyncProxyConfiguration syncProxyConfiguration = GSON.fromJson(context.request().bodyAsString(), SyncProxyConfiguration.TYPE);
 
-                if (syncProxyConfiguration != null)
-                {
+                if (syncProxyConfiguration != null) {
                     CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
                     SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
 
                     CloudNetDriver.getInstance().sendChannelMessage(
-                        SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-                        SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-                        new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
+                            SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
+                            SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
+                            new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
                     );
 
                     context
-                        .response()
-                        .statusCode(HttpResponseCode.HTTP_OK)
-                        .header("Content-Type", "application")
-                        .body(new JsonDocument("success", true).toByteArray())
-                        .context()
-                        .closeAfter(true)
-                        .cancelNext()
+                            .response()
+                            .statusCode(HttpResponseCode.HTTP_OK)
+                            .header("Content-Type", "application")
+                            .body(new JsonDocument("success", true).toByteArray())
+                            .context()
+                            .closeAfter(true)
+                            .cancelNext()
                     ;
                 }
             }
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
 
             try (StringWriter writer = new StringWriter();
-                 PrintWriter printWriter = new PrintWriter(writer))
-            {
+                 PrintWriter printWriter = new PrintWriter(writer)) {
                 ex.printStackTrace(printWriter);
                 this.send400Response(context, writer.getBuffer().toString());
             }

@@ -16,8 +16,7 @@ import java.util.function.Function;
 
 public final class CommandModules extends CommandDefault implements ITabCompleter {
 
-    public CommandModules()
-    {
+    public CommandModules() {
         super("modules", "module");
     }
 
@@ -33,32 +32,27 @@ public final class CommandModules extends CommandDefault implements ITabComplete
      */
     @Deprecated
     @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-    {
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         IModuleProvider moduleProvider = CloudNetDriver.getInstance().getModuleProvider();
         Collection<IModuleWrapper> moduleWrappers = moduleProvider.getModules();
 
-        if (args.length == 0)
-        {
+        if (args.length == 0) {
             sender.sendMessage(
-                "Modules(" + moduleWrappers.size() + "): " + Arrays.toString(Iterables.map(moduleWrappers, new Function<IModuleWrapper, String>() {
+                    "Modules(" + moduleWrappers.size() + "): " + Arrays.toString(Iterables.map(moduleWrappers, new Function<IModuleWrapper, String>() {
 
-                    @Override
-                    public String apply(IModuleWrapper moduleWrapper)
-                    {
-                        return moduleWrapper.getModule().getName();
-                    }
-                }).toArray(new String[0])),
-                " ",
-                "modules list | group=<name> name=<name> version=<version>"
+                        @Override
+                        public String apply(IModuleWrapper moduleWrapper) {
+                            return moduleWrapper.getModule().getName();
+                        }
+                    }).toArray(new String[0])),
+                    " ",
+                    "modules list | group=<name> name=<name> version=<version>"
             );
             return;
         }
 
-        if (args[0].equalsIgnoreCase("list"))
-        {
-            for (IModuleWrapper wrapper : moduleWrappers)
-            {
+        if (args[0].equalsIgnoreCase("list")) {
+            for (IModuleWrapper wrapper : moduleWrappers) {
                 if (properties.containsKey("group") && !wrapper.getModuleConfiguration().getGroup().contains(properties.get("group")))
                     continue;
                 if (properties.containsKey("name") && !wrapper.getModuleConfiguration().getName().contains(properties.get("name")))
@@ -71,14 +65,13 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         }
     }
 
-    private void displayModuleInfo(ICommandSender sender, IModuleWrapper moduleWrapper)
-    {
+    private void displayModuleInfo(ICommandSender sender, IModuleWrapper moduleWrapper) {
         List<String> list = Iterables.newArrayList();
 
         list.add("* Module: " +
-            moduleWrapper.getModuleConfiguration().getGroup() + ":" +
-            moduleWrapper.getModuleConfiguration().getName() + ":" +
-            moduleWrapper.getModuleConfiguration().getVersion()
+                moduleWrapper.getModuleConfiguration().getGroup() + ":" +
+                moduleWrapper.getModuleConfiguration().getName() + ":" +
+                moduleWrapper.getModuleConfiguration().getVersion()
         );
 
         list.add("* Health status: " + moduleWrapper.getModuleLifeCycle().name());
@@ -92,25 +85,23 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         if (moduleWrapper.getModuleConfiguration().getDescription() != null)
             list.add("* Description: " + moduleWrapper.getModuleConfiguration().getDescription());
 
-        if (moduleWrapper.getModuleConfiguration().getDependencies() != null)
-        {
+        if (moduleWrapper.getModuleConfiguration().getDependencies() != null) {
             list.add(" ");
             list.add("* Dependencies: ");
             for (ModuleDependency moduleDependency : moduleWrapper.getModuleConfiguration().getDependencies())
                 list.addAll(Arrays.asList(
-                    "- ",
-                    "Dependency: " + moduleDependency.getGroup() + ":" + moduleDependency.getName() + ":" + moduleDependency.getVersion(),
-                    (
-                        moduleDependency.getUrl() != null ?
-                            "Url: " + moduleDependency.getUrl()
-                            :
-                            "Repository: " + moduleDependency.getRepo()
-                    )
+                        "- ",
+                        "Dependency: " + moduleDependency.getGroup() + ":" + moduleDependency.getName() + ":" + moduleDependency.getVersion(),
+                        (
+                                moduleDependency.getUrl() != null ?
+                                        "Url: " + moduleDependency.getUrl()
+                                        :
+                                        "Repository: " + moduleDependency.getRepo()
+                        )
                 ));
         }
 
-        if (moduleWrapper.getModuleConfiguration().getProperties() != null)
-        {
+        if (moduleWrapper.getModuleConfiguration().getProperties() != null) {
             list.add(" ");
             list.add("* Properties: ");
             list.addAll(Arrays.asList(moduleWrapper.getModuleConfiguration().getProperties().toPrettyJson().split("\n")));
@@ -119,22 +110,20 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         list.add(" ");
 
         sender.sendMessage(
-            "Module: " +
-                moduleWrapper.getModuleConfiguration().getGroup() + ":" +
-                moduleWrapper.getModuleConfiguration().getName() + ":" +
-                moduleWrapper.getModuleConfiguration().getVersion(),
-            "Author: " + moduleWrapper.getModuleConfiguration().getAuthor()
+                "Module: " +
+                        moduleWrapper.getModuleConfiguration().getGroup() + ":" +
+                        moduleWrapper.getModuleConfiguration().getName() + ":" +
+                        moduleWrapper.getModuleConfiguration().getVersion(),
+                "Author: " + moduleWrapper.getModuleConfiguration().getAuthor()
         );
         sender.sendMessage(list.toArray(new String[0]));
     }
 
     @Override
-    public Collection<String> complete(String commandLine, String[] args, Properties properties)
-    {
+    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
         return args.length < 3 ? Iterables.map(CloudNetDriver.getInstance().getModuleProvider().getModules(), new Function<IModuleWrapper, String>() {
             @Override
-            public String apply(IModuleWrapper moduleWrapper)
-            {
+            public String apply(IModuleWrapper moduleWrapper) {
                 return moduleWrapper.getModule().getName();
             }
         }) : Arrays.asList("start", "stop", "unload");

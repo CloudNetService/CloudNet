@@ -28,35 +28,30 @@ import java.util.concurrent.Callable;
 public final class NettyWebSocketServerExample {
 
     private static final String
-        PING_STRING = "ping value",
-        PONG_STRING = "pong value",
-        TEXT_STRING = "text value",
-        BINARY_STRING = "binary value";
+            PING_STRING = "ping value",
+            PONG_STRING = "pong value",
+            TEXT_STRING = "text value",
+            BINARY_STRING = "binary value";
 
     private static final ITask<String> task = new ListenableTask<>(new Callable<String>() {
         @Override
-        public String call() throws Exception
-        {
+        public String call() throws Exception {
             return "Async_response_message";
         }
     });
 
     @Test
-    public void testWebSocket() throws Exception
-    {
+    public void testWebSocket() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
         httpServer.registerHandler("/test", new IHttpHandler() {
             @Override
-            public void handle(String path, IHttpContext context) throws Exception
-            {
+            public void handle(String path, IHttpContext context) throws Exception {
                 IWebSocketChannel channel = context.upgrade();
                 channel.addListener(new IWebSocketListener() {
                     @Override
-                    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception
-                    {
-                        switch (type)
-                        {
+                    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
+                        switch (type) {
                             case PING:
                                 if (new String(bytes, StandardCharsets.UTF_8).equals(PING_STRING))
                                     channel.sendWebSocketFrame(WebSocketFrameType.PONG, PONG_STRING);
@@ -78,86 +73,74 @@ public final class NettyWebSocketServerExample {
 
         EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
         WebSocketClientHandshaker webSocketClientHandshaker = WebSocketClientHandshakerFactory
-            .newHandshaker(
-                new URI("ws://127.0.0.1:4044/test"),
-                WebSocketVersion.V13,
-                null,
-                false,
-                HttpHeaders.EMPTY_HEADERS,
-                1280000
-            );
+                .newHandshaker(
+                        new URI("ws://127.0.0.1:4044/test"),
+                        WebSocketVersion.V13,
+                        null,
+                        false,
+                        HttpHeaders.EMPTY_HEADERS,
+                        1280000
+                );
 
         new Bootstrap()
-            .group(eventLoopGroup)
-            .channel(NettyUtils.getSocketChannelClass())
-            .handler(new ChannelInitializer<Channel>() {
-                @Override
-                protected void initChannel(Channel ch) throws Exception
-                {
-                    ch.pipeline().addLast(
-                        new HttpClientCodec(),
-                        new HttpObjectAggregator(65536),
-                        WebSocketClientCompressionHandler.INSTANCE,
-                        new ChannelInboundHandlerAdapter() {
+                .group(eventLoopGroup)
+                .channel(NettyUtils.getSocketChannelClass())
+                .handler(new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel ch) throws Exception {
+                        ch.pipeline().addLast(
+                                new HttpClientCodec(),
+                                new HttpObjectAggregator(65536),
+                                WebSocketClientCompressionHandler.INSTANCE,
+                                new ChannelInboundHandlerAdapter() {
 
-                            @Override
-                            public void channelActive(ChannelHandlerContext ctx) throws Exception
-                            {
-                                webSocketClientHandshaker.handshake(ctx.channel());
-                            }
-
-                            @Override
-                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
-                            {
-                                if (!webSocketClientHandshaker.isHandshakeComplete() && msg instanceof FullHttpResponse)
-                                {
-                                    try
-                                    {
-                                        webSocketClientHandshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);
-                                    } catch (Exception ex)
-                                    {
-                                        ex.printStackTrace();
+                                    @Override
+                                    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                        webSocketClientHandshaker.handshake(ctx.channel());
                                     }
 
-                                    ctx.channel().eventLoop().execute(new Runnable() {
-                                        @Override
-                                        public void run()
-                                        {
-                                            ctx.channel().writeAndFlush(new PingWebSocketFrame(Unpooled.buffer().writeBytes(PING_STRING.getBytes())));
-                                        }
-                                    });
-                                    return;
-                                }
+                                    @Override
+                                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                                        if (!webSocketClientHandshaker.isHandshakeComplete() && msg instanceof FullHttpResponse) {
+                                            try {
+                                                webSocketClientHandshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);
+                                            } catch (Exception ex) {
+                                                ex.printStackTrace();
+                                            }
 
-                                if (msg instanceof WebSocketFrame)
-                                {
-                                    WebSocketFrame webSocketFrame = (WebSocketFrame) msg;
-
-                                    if (msg instanceof PongWebSocketFrame)
-                                    {
-                                        if (PONG_STRING.equals(webSocketFrame.content().toString(StandardCharsets.UTF_8)))
-                                        {
-                                            ctx.channel().writeAndFlush(new TextWebSocketFrame(Unpooled.buffer().writeBytes(TEXT_STRING.getBytes())));
+                                            ctx.channel().eventLoop().execute(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    ctx.channel().writeAndFlush(new PingWebSocketFrame(Unpooled.buffer().writeBytes(PING_STRING.getBytes())));
+                                                }
+                                            });
+                                            return;
                                         }
-                                        return;
+
+                                        if (msg instanceof WebSocketFrame) {
+                                            WebSocketFrame webSocketFrame = (WebSocketFrame) msg;
+
+                                            if (msg instanceof PongWebSocketFrame) {
+                                                if (PONG_STRING.equals(webSocketFrame.content().toString(StandardCharsets.UTF_8))) {
+                                                    ctx.channel().writeAndFlush(new TextWebSocketFrame(Unpooled.buffer().writeBytes(TEXT_STRING.getBytes())));
+                                                }
+                                                return;
+                                            }
+
+                                            if (msg instanceof BinaryWebSocketFrame) {
+                                                if (BINARY_STRING.equals(webSocketFrame.content().toString(StandardCharsets.UTF_8))) {
+                                                    ctx.channel().writeAndFlush(new CloseWebSocketFrame()).addListener(ChannelFutureListener.CLOSE);
+                                                    task.call();
+                                                }
+                                            }
+                                        }
                                     }
-
-                                    if (msg instanceof BinaryWebSocketFrame)
-                                    {
-                                        if (BINARY_STRING.equals(webSocketFrame.content().toString(StandardCharsets.UTF_8)))
-                                        {
-                                            ctx.channel().writeAndFlush(new CloseWebSocketFrame()).addListener(ChannelFutureListener.CLOSE);
-                                            task.call();
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                }
-            })
-            .connect("127.0.0.1", 4044)
-            .sync()
-            .channel()
+                                });
+                    }
+                })
+                .connect("127.0.0.1", 4044)
+                .sync()
+                .channel()
         ;
 
         Assert.assertEquals("Async_response_message", task.get());

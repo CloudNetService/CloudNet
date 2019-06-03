@@ -23,10 +23,10 @@ public final class DocumentWrapperConfiguration implements IWrapperConfiguration
     private static final Path WRAPPER_CONFIG = Paths.get(System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
     private static final Type
-        SERVICE_CFG_TYPE = new TypeToken<ServiceConfiguration>() {
+            SERVICE_CFG_TYPE = new TypeToken<ServiceConfiguration>() {
     }.getType(),
-        SERVICE_INFO_TYPE = new TypeToken<ServiceInfoSnapshot>() {
-        }.getType();
+            SERVICE_INFO_TYPE = new TypeToken<ServiceInfoSnapshot>() {
+            }.getType();
 
     private String connectionKey;
 
@@ -38,13 +38,11 @@ public final class DocumentWrapperConfiguration implements IWrapperConfiguration
 
     private JsonDocument sslConfig;
 
-    public DocumentWrapperConfiguration()
-    {
+    public DocumentWrapperConfiguration() {
         this.load();
     }
 
-    private void load()
-    {
+    private void load() {
         JsonDocument document = JsonDocument.newDocument(WRAPPER_CONFIG);
 
         this.connectionKey = document.getString("connectionKey");

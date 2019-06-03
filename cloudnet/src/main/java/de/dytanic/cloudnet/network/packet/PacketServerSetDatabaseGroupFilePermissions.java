@@ -9,10 +9,9 @@ import java.util.Collection;
 
 public final class PacketServerSetDatabaseGroupFilePermissions extends Packet {
 
-    public PacketServerSetDatabaseGroupFilePermissions(Collection<IPermissionGroup> permissionGroups)
-    {
+    public PacketServerSetDatabaseGroupFilePermissions(Collection<IPermissionGroup> permissionGroups) {
         super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument()
-            .append("permissionGroups", permissionGroups)
-            .append("set_json_database", true), null);
+                .append("permissionGroups", permissionGroups)
+                .append("set_json_database", true), null);
     }
 }

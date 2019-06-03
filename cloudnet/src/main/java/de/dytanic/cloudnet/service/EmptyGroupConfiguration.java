@@ -5,8 +5,7 @@ import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 
 public final class EmptyGroupConfiguration extends GroupConfiguration {
 
-    public EmptyGroupConfiguration(String name)
-    {
+    public EmptyGroupConfiguration(String name) {
         super(name);
 
         this.includes = Iterables.newArrayList();

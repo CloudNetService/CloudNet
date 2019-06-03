@@ -14,14 +14,12 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
     @Getter
     private static BukkitCloudNetSignsPlugin instance;
 
-    public BukkitCloudNetSignsPlugin()
-    {
+    public BukkitCloudNetSignsPlugin() {
         instance = this;
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         new BukkitSignManagement(this);
 
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
@@ -29,14 +27,12 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    private void initListeners()
-    {
+    private void initListeners() {
         //Commands
         getCommand("cloudsign").setExecutor(new CommandCloudSign());
         getCommand("cloudsign").setPermission("cloudnet.command.cloudsign");

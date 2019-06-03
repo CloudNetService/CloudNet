@@ -9,14 +9,13 @@ import de.dytanic.cloudnet.event.cluster.NetworkClusterChannelMessageReceiveEven
 public final class PacketServerClusterChannelMessageListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
         CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkClusterChannelMessageReceiveEvent(
-            channel,
-            packet.getHeader().getString("channel"),
-            packet.getHeader().getString("message"),
-            packet.getHeader().getDocument("header"),
-            packet.getBody()
+                channel,
+                packet.getHeader().getString("channel"),
+                packet.getHeader().getString("message"),
+                packet.getHeader().getDocument("header"),
+                packet.getBody()
         ));
     }
 }

@@ -17,8 +17,7 @@ public final class NetworkChannelReceiveGroupConfigurationsUpdateEvent extends N
 
     private boolean cancelled;
 
-    public NetworkChannelReceiveGroupConfigurationsUpdateEvent(INetworkChannel channel, List<GroupConfiguration> groupConfigurations)
-    {
+    public NetworkChannelReceiveGroupConfigurationsUpdateEvent(INetworkChannel channel, List<GroupConfiguration> groupConfigurations) {
         super(channel);
         this.groupConfigurations = groupConfigurations;
     }

@@ -13,8 +13,7 @@ public class NetworkChannelInitEvent extends NetworkEvent implements ICancelable
     @Setter
     private boolean cancelled;
 
-    public NetworkChannelInitEvent(INetworkChannel channel, ChannelType channelType)
-    {
+    public NetworkChannelInitEvent(INetworkChannel channel, ChannelType channelType) {
         super(channel);
         this.channelType = channelType;
     }

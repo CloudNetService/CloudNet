@@ -9,13 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProxyFallback implements Comparable<ProxyFallback> {
 
+    protected String task, permission;
     private int priority;
 
-    protected String task, permission;
-
     @Override
-    public int compareTo(ProxyFallback o)
-    {
+    public int compareTo(ProxyFallback o) {
         return priority + o.priority;
     }
 }

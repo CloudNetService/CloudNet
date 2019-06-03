@@ -9,8 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         Listener listener = new CloudNetSimpleNameTagsListener();
 
         getServer().getPluginManager().registerEvents(listener, this);
@@ -18,8 +17,7 @@ public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }

@@ -17,11 +17,7 @@ import java.util.Map;
  */
 public final class LanguageManager {
 
-    private LanguageManager()
-    {
-        throw new UnsupportedOperationException();
-    }
-
+    private static final Map<String, Properties> LANGUAGE_CACHE = new HashMap<>();
     /**
      * The current language, which the getMessage() method will the message return
      */
@@ -29,7 +25,9 @@ public final class LanguageManager {
     @Setter
     private static volatile String language;
 
-    private static final Map<String, Properties> LANGUAGE_CACHE = new HashMap<>();
+    private LanguageManager() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Resolve and returns the following message in the language which is currently set as member "language"
@@ -37,8 +35,7 @@ public final class LanguageManager {
      * @param property the following message property, which should sort out
      * @return the message which is defined in language cache or a fallback message like "MESSAGE OR LANGUAGE NOT FOUND!"
      */
-    public static String getMessage(String property)
-    {
+    public static String getMessage(String property) {
         if (language == null || !LANGUAGE_CACHE.containsKey(language)) return "MESSAGE OR LANGUAGE NOT FOUND!";
 
         return LANGUAGE_CACHE.get(language).get(property);
@@ -50,8 +47,7 @@ public final class LanguageManager {
      * @param language   the language, which should append
      * @param properties the properties which will add in the language as parameter
      */
-    public static void addLanguageFile(String language, Properties properties)
-    {
+    public static void addLanguageFile(String language, Properties properties) {
         if (language == null || properties == null) return;
 
         if (LANGUAGE_CACHE.containsKey(language))
@@ -66,8 +62,7 @@ public final class LanguageManager {
      * @param language the language, which should append
      * @param file     the properties which will add in the language as parameter
      */
-    public static void addLanguageFile(String language, File file)
-    {
+    public static void addLanguageFile(String language, File file) {
         addLanguageFile(language, file.toPath());
     }
 
@@ -77,13 +72,10 @@ public final class LanguageManager {
      * @param language the language, which should append
      * @param file     the properties which will add in the language as parameter
      */
-    public static void addLanguageFile(String language, Path file)
-    {
-        try (InputStream inputStream = new FileInputStream(file.toFile()))
-        {
+    public static void addLanguageFile(String language, Path file) {
+        try (InputStream inputStream = new FileInputStream(file.toFile())) {
             addLanguageFile(language, inputStream);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -94,15 +86,12 @@ public final class LanguageManager {
      * @param language    the language, which should append
      * @param inputStream the properties which will add in the language as parameter
      */
-    public static void addLanguageFile(String language, InputStream inputStream)
-    {
+    public static void addLanguageFile(String language, InputStream inputStream) {
         Properties properties = new Properties();
 
-        try
-        {
+        try {
             properties.load(inputStream);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

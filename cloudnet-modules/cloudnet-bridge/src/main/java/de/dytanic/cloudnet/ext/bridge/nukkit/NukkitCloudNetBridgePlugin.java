@@ -13,23 +13,20 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 public final class NukkitCloudNetBridgePlugin extends PluginBase {
 
     @Override
-    public synchronized void onEnable()
-    {
+    public synchronized void onEnable() {
         this.initListeners();
 
         BridgeHelper.updateServiceInfo();
     }
 
     @Override
-    public synchronized void onDisable()
-    {
+    public synchronized void onDisable() {
         HandlerList.unregisterAll(this);
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    private void initListeners()
-    {
+    private void initListeners() {
         //NukkitAPI
         Server.getInstance().getPluginManager().registerEvents(new NukkitPlayerListener(), this);
 

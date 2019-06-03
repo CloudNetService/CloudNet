@@ -13,14 +13,12 @@ import de.dytanic.cloudnet.service.ICloudService;
 public final class PacketServerChannelMessageNodeListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("channel") && packet.getHeader().contains("message") && packet.getHeader().contains("data"))
-        {
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+        if (packet.getHeader().contains("channel") && packet.getHeader().contains("message") && packet.getHeader().contains("data")) {
             Packet packetClientServerChannelMessage = new PacketClientServerChannelMessage(
-                packet.getHeader().getString("channel"),
-                packet.getHeader().getString("message"),
-                packet.getHeader().getDocument("data")
+                    packet.getHeader().getString("channel"),
+                    packet.getHeader().getString("message"),
+                    packet.getHeader().getDocument("data")
             );
 
             for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values())
@@ -28,11 +26,11 @@ public final class PacketServerChannelMessageNodeListener implements IPacketList
                     cloudService.getNetworkChannel().sendPacket(packetClientServerChannelMessage);
 
             CloudNetDriver.getInstance().getEventManager().callEvent(
-                new ChannelMessageReceiveEvent(
-                    packet.getHeader().getString("channel"),
-                    packet.getHeader().getString("message"),
-                    packet.getHeader().getDocument("data")
-                ));
+                    new ChannelMessageReceiveEvent(
+                            packet.getHeader().getString("channel"),
+                            packet.getHeader().getString("message"),
+                            packet.getHeader().getDocument("data")
+                    ));
         }
     }
 }

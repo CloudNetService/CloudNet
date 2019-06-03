@@ -20,28 +20,23 @@ import java.util.function.Predicate;
 public final class CloudNetSimpleNameTagsListener implements Listener {
 
     @EventHandler
-    public void handle(PlayerJoinEvent event)
-    {
+    public void handle(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("CloudNet-SimpleNameTags"), new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(event.getPlayer());
             }
         }, 4L);
     }
 
     @EventListener
-    public void handle(PermissionUpdateUserEvent event)
-    {
+    public void handle(PermissionUpdateUserEvent event) {
         Value<Player> player = new Value<>();
 
         forEachPlayers(new Predicate<Player>() {
             @Override
-            public boolean test(Player p)
-            {
-                if (p.getUniqueId().equals(event.getPermissionUser().getUniqueId()))
-                {
+            public boolean test(Player p) {
+                if (p.getUniqueId().equals(event.getPermissionUser().getUniqueId())) {
                     player.setValue(p);
                     return true;
                 }
@@ -55,12 +50,10 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
     }
 
     @EventListener
-    public void handle(PermissionUpdateGroupEvent event)
-    {
+    public void handle(PermissionUpdateGroupEvent event) {
         forEachPlayers(new Predicate<Player>() {
             @Override
-            public boolean test(Player player)
-            {
+            public boolean test(Player player) {
                 IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
 
                 if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName()))
@@ -73,11 +66,9 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
 
     /*= ----------------------------------------------------------------- =*/
 
-    private void forEachPlayers(Predicate<Player> predicate)
-    {
+    private void forEachPlayers(Predicate<Player> predicate) {
         Method method;
-        try
-        {
+        try {
             method = Server.class.getMethod("getOnlinePlayers");
             method.setAccessible(true);
             Object result = method.invoke(Bukkit.getServer());
@@ -92,8 +83,7 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
                     if (predicate.test(player))
                         return;
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
     }
 }

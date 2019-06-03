@@ -28,14 +28,12 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     private static BukkitCloudNetCloudPermissionsPlugin instance;
 
     @Override
-    public void onLoad()
-    {
+    public void onLoad() {
         instance = this;
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         new CloudPermissionsPermissionManagement();
         initPlayersCloudPermissible();
 
@@ -43,36 +41,30 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    public void updateNameTags(Player player)
-    {
+    public void updateNameTags(Player player) {
         updateNameTags(player, null);
     }
 
-    public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction)
-    {
+    public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction) {
         updateNameTags(player, playerIPermissionGroupFunction, null);
     }
 
     public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction,
-                               Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction)
-    {
+                               Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction) {
         Validate.checkNotNull(player);
 
         IPermissionUser playerPermissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
         Value<IPermissionGroup> playerPermissionGroup = new Value<>(playerIPermissionGroupFunction != null ? playerIPermissionGroupFunction.apply(player) : null);
 
-        if (playerPermissionUser != null && playerPermissionGroup.getValue() == null)
-        {
+        if (playerPermissionUser != null && playerPermissionGroup.getValue() == null) {
             playerPermissionGroup.setValue(CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(playerPermissionUser));
 
-            if (playerPermissionGroup.getValue() == null)
-            {
+            if (playerPermissionGroup.getValue() == null) {
                 playerPermissionGroup.setValue(CloudPermissionsPermissionManagement.getInstance().getDefaultPermissionGroup());
             }
         }
@@ -81,63 +73,53 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
         forEachPlayers(new Consumer<Player>() {
             @Override
-            public void accept(Player all)
-            {
+            public void accept(Player all) {
                 initScoreboard(all);
 
-                if (playerPermissionGroup.getValue() != null)
-                {
+                if (playerPermissionGroup.getValue() != null) {
                     addTeamEntry(player, all, playerPermissionGroup.getValue());
                 }
 
                 IPermissionUser targetPermissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(all.getUniqueId());
                 IPermissionGroup targetPermissionGroup = allOtherPlayerPermissionGroupFunction != null ? allOtherPlayerPermissionGroupFunction.apply(all) : null;
 
-                if (targetPermissionUser != null && targetPermissionGroup == null)
-                {
+                if (targetPermissionUser != null && targetPermissionGroup == null) {
                     targetPermissionGroup = CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(targetPermissionUser);
 
-                    if (targetPermissionGroup == null)
-                    {
+                    if (targetPermissionGroup == null) {
                         targetPermissionGroup = CloudPermissionsPermissionManagement.getInstance().getDefaultPermissionGroup();
                     }
                 }
 
-                if (targetPermissionGroup != null)
-                {
+                if (targetPermissionGroup != null) {
                     addTeamEntry(all, player, targetPermissionGroup);
                 }
             }
         });
     }
 
-    private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup)
-    {
+    private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup) {
         String teamName = permissionGroup.getSortId() + permissionGroup.getName();
 
-        try
-        {
+        try {
             if (teamName.length() > 16) teamName = shortenStringTo16Bytes(teamName);
-        } catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
         Team team = all.getScoreboard().getTeam(teamName);
         if (team == null) team = all.getScoreboard().registerNewTeam(teamName);
 
-        try
-        {
+        try {
             team.setPrefix(ChatColor.translateAlternateColorCodes('&',
-                permissionGroup.getPrefix().length() > 16 ?
-                    shortenStringTo16Bytes(permissionGroup.getPrefix()) : permissionGroup.getPrefix()));
+                    permissionGroup.getPrefix().length() > 16 ?
+                            shortenStringTo16Bytes(permissionGroup.getPrefix()) : permissionGroup.getPrefix()));
 
             team.setSuffix(ChatColor.translateAlternateColorCodes('&',
-                permissionGroup.getSuffix().length() > 16 ?
-                    shortenStringTo16Bytes(permissionGroup.getSuffix()) : permissionGroup.getSuffix()));
+                    permissionGroup.getSuffix().length() > 16 ?
+                            shortenStringTo16Bytes(permissionGroup.getSuffix()) : permissionGroup.getSuffix()));
 
-        } catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         team.addPlayer(target);
@@ -145,12 +127,10 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         target.setDisplayName(ChatColor.translateAlternateColorCodes('&', permissionGroup.getDisplay() + target.getName()));
     }
 
-    public void injectCloudPermissible(Player player)
-    {
+    public void injectCloudPermissible(Player player) {
         Validate.checkNotNull(player);
 
-        try
-        {
+        try {
             Field field;
             Class<?> clazz = reflectCraftClazz(".entity.CraftHumanEntity");
 
@@ -158,25 +138,21 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             else field = Class.forName("net.glowstone.entity.GlowHumanEntity").getDeclaredField("permissions");
 
             injectCloudPermissible0(player, field);
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
     }
 
     /*= --------------------------------------------------------------------------------------------------- =*/
 
-    private String shortenStringTo16Bytes(String input) throws UnsupportedEncodingException
-    {
+    private String shortenStringTo16Bytes(String input) throws UnsupportedEncodingException {
         return input.substring(0, 16);
     }
 
-    private void initScoreboard(Player all)
-    {
+    private void initScoreboard(Player all) {
         if (all.getScoreboard() == null) all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());
     }
 
-    private void injectCloudPermissible0(Player player, Field field) throws Exception
-    {
+    private void injectCloudPermissible0(Player player, Field field) throws Exception {
         Validate.checkNotNull(player);
         Validate.checkNotNull(field);
 
@@ -184,36 +160,28 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         field.set(player, new BukkitCloudNetCloudPermissionsPermissible(player));
     }
 
-    private Class<?> reflectCraftClazz(String suffix)
-    {
-        try
-        {
+    private Class<?> reflectCraftClazz(String suffix) {
+        try {
             String version = org.bukkit.Bukkit.getServer().getClass().getPackage()
-                .getName().split("\\.")[3];
+                    .getName().split("\\.")[3];
             return Class.forName("org.bukkit.craftbukkit." + version + suffix);
-        } catch (Exception ex)
-        {
-            try
-            {
+        } catch (Exception ex) {
+            try {
                 return Class.forName("org.bukkit.craftbukkit." + suffix);
-            } catch (ClassNotFoundException ignored)
-            {
+            } catch (ClassNotFoundException ignored) {
             }
         }
         return null;
     }
 
-    private void forEachPlayers(Consumer<Player> consumer)
-    {
+    private void forEachPlayers(Consumer<Player> consumer) {
         Method method;
-        try
-        {
+        try {
             method = Server.class.getMethod("getOnlinePlayers");
             method.setAccessible(true);
             Object result = method.invoke(Bukkit.getServer());
 
-            if (result instanceof Iterable)
-            {
+            if (result instanceof Iterable) {
                 for (Object item : ((Iterable) result))
                     consumer.accept((Player) item);
                 return;
@@ -223,17 +191,14 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 for (Player player : ((Player[]) result))
                     consumer.accept(player);
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
     }
 
-    private void initPlayersCloudPermissible()
-    {
+    private void initPlayersCloudPermissible() {
         forEachPlayers(new Consumer<Player>() {
             @Override
-            public void accept(Player player)
-            {
+            public void accept(Player player) {
                 injectCloudPermissible(player);
             }
         });

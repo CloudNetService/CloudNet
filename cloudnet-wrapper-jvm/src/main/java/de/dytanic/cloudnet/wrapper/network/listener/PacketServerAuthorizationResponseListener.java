@@ -20,18 +20,14 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
     private boolean result;
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("access") && packet.getHeader().contains("text"))
-        {
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+        if (packet.getHeader().contains("access") && packet.getHeader().contains("text")) {
             result = packet.getHeader().getBoolean("access");
 
-            try
-            {
+            try {
                 lock.lock();
                 condition.signalAll();
-            } finally
-            {
+            } finally {
                 lock.unlock();
             }
         }

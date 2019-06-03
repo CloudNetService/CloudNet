@@ -17,8 +17,7 @@ public final class NetworkChannelReceiveServiceTasksUpdateEvent extends NetworkE
 
     private boolean cancelled;
 
-    public NetworkChannelReceiveServiceTasksUpdateEvent(INetworkChannel channel, List<ServiceTask> serviceTasks)
-    {
+    public NetworkChannelReceiveServiceTasksUpdateEvent(INetworkChannel channel, List<ServiceTask> serviceTasks) {
         super(channel);
         this.serviceTasks = serviceTasks;
     }

@@ -21,8 +21,7 @@ public final class QueuedConsoleLogHandler implements ILogHandler {
     private final Queue<LogEntry> cachedQueuedLogEntries = Iterables.newConcurrentLinkedQueue();
 
     @Override
-    public void handle(LogEntry logEntry)
-    {
+    public void handle(LogEntry logEntry) {
         cachedQueuedLogEntries.offer(logEntry);
 
         while (cachedQueuedLogEntries.size() > 128)
@@ -32,7 +31,6 @@ public final class QueuedConsoleLogHandler implements ILogHandler {
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
     }
 }

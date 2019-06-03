@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.node;
 
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -38,39 +37,33 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
     @Getter
     private File configurationFile;
 
-    public CloudNetSignsModule()
-    {
+    public CloudNetSignsModule() {
         instance = this;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
-    public void createConfigurationOrUpdate()
-    {
+    public void createConfigurationOrUpdate() {
         configurationFile = new File(getModuleWrapper().getDataFolder(), "config.json");
         signConfiguration = SignConfigurationReaderAndWriter.read(configurationFile);
     }
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
-    public void registerListeners()
-    {
+    public void registerListeners() {
         registerListener(new IncludePluginListener());
         registerListener(new CloudNetSignsModuleListener());
     }
 
     @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
-    public void registerCommands()
-    {
+    public void registerCommands() {
         registerCommand(new CommandSigns());
     }
 
     @ModuleTask(order = 123, event = ModuleLifeCycle.STARTED)
-    public void registerHttpHandlers()
-    {
+    public void registerHttpHandlers() {
         getHttpServer().registerHandler("/api/v1/modules/signs/config", new V1SignConfigurationHttpHandler("cloudnet.http.v1.modules.signs.config"));
     }
 
-    public void addSignToFile(Sign sign)
-    {
+    public void addSignToFile(Sign sign) {
         Validate.checkNotNull(sign);
 
         Collection<Sign> signs = this.loadSigns();
@@ -79,16 +72,14 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
         this.write(signs);
     }
 
-    public void removeSignToFile(Sign sign)
-    {
+    public void removeSignToFile(Sign sign) {
         Validate.checkNotNull(sign);
 
         Collection<Sign> signs = this.loadSigns();
 
         Sign first = Iterables.first(signs, new Predicate<Sign>() {
             @Override
-            public boolean test(Sign s)
-            {
+            public boolean test(Sign s) {
                 return sign.getSignId() == s.getSignId();
             }
         });
@@ -100,16 +91,14 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
         this.write(signs);
     }
 
-    public Collection<Sign> loadSigns()
-    {
+    public Collection<Sign> loadSigns() {
         IDatabase database = getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(SIGN_STORE_DOCUMENT);
 
         return document != null ? document.get("signs", SignConstants.COLLECTION_SIGNS, Iterables.newArrayList()) : Iterables.newArrayList();
     }
 
-    public void write(Collection<Sign> signs)
-    {
+    public void write(Collection<Sign> signs) {
         Validate.checkNotNull(signs);
 
         IDatabase database = getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);

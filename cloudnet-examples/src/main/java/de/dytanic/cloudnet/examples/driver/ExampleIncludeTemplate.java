@@ -12,35 +12,34 @@ import java.util.UUID;
 
 public final class ExampleIncludeTemplate {
 
-    public void exampleIncludeTemplates(UUID playerUniqueId, ServiceInfoSnapshot serviceInfoSnapshot)
-    {
+    public void exampleIncludeTemplates(UUID playerUniqueId, ServiceInfoSnapshot serviceInfoSnapshot) {
         //Add serviceTemplate to existing service
         CloudNetDriver.getInstance().addServiceTemplateToCloudService(serviceInfoSnapshot.getServiceId().getUniqueId(), new ServiceTemplate(
-            "Lobby", "test1",
-            "local"
+                "Lobby", "test1",
+                "local"
         ));
 
         //Create service with custom template
         ServiceInfoSnapshot newService = CloudNetDriver.getInstance().createCloudService(
-            "PS-" + playerUniqueId.toString(),
-            "jvm",
-            true,
-            false,
-            Iterables.newArrayList(),
-            Iterables.newArrayList(new ServiceTemplate[]{
-                new ServiceTemplate(
-                    "Lobby", "test1",
-                    "local"
-                )
-            }),
-            Iterables.newArrayList(),
-            Arrays.asList("PrivateServerGroup"),
-            new ProcessConfiguration(
-                ServiceEnvironmentType.MINECRAFT_SERVER,
-                256,
-                Iterables.newArrayList()
-            ),
-            null
+                "PS-" + playerUniqueId.toString(),
+                "jvm",
+                true,
+                false,
+                Iterables.newArrayList(),
+                Iterables.newArrayList(new ServiceTemplate[]{
+                        new ServiceTemplate(
+                                "Lobby", "test1",
+                                "local"
+                        )
+                }),
+                Iterables.newArrayList(),
+                Arrays.asList("PrivateServerGroup"),
+                new ProcessConfiguration(
+                        ServiceEnvironmentType.MINECRAFT_SERVER,
+                        256,
+                        Iterables.newArrayList()
+                ),
+                null
         );
 
         CloudNetDriver.getInstance().startCloudService(newService);

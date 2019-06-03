@@ -16,8 +16,7 @@ import java.util.function.Predicate;
 
 public final class CommandSyncProxy extends Command {
 
-    public CommandSyncProxy()
-    {
+    public CommandSyncProxy() {
         super("syncproxy", "sp");
 
         this.permission = "cloudnet.console.command.syncproxy";
@@ -26,95 +25,81 @@ public final class CommandSyncProxy extends Command {
     }
 
     @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-    {
-        if (args.length == 0)
-        {
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
+        if (args.length == 0) {
             sender.sendMessage(
-                "syncproxy reload",
-                "syncproxy list",
-                "syncproxy target <group> maxPlayers <number>",
-                "syncproxy target <group> maintenance <true : false>",
-                "syncproxy target <group> whitelist",
-                "syncproxy target <group> whitelist add <name>",
-                "syncproxy target <group> whitelist remove <name>"
+                    "syncproxy reload",
+                    "syncproxy list",
+                    "syncproxy target <group> maxPlayers <number>",
+                    "syncproxy target <group> maintenance <true : false>",
+                    "syncproxy target <group> whitelist",
+                    "syncproxy target <group> whitelist add <name>",
+                    "syncproxy target <group> whitelist remove <name>"
             );
 
             return;
         }
 
-        if (args[0].equalsIgnoreCase("list"))
-        {
+        if (args[0].equalsIgnoreCase("list")) {
             this.displayListConfiguration(sender, CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
             return;
         }
 
-        if (args[0].equalsIgnoreCase("target") && args.length > 1)
-        {
+        if (args[0].equalsIgnoreCase("target") && args.length > 1) {
             SyncProxyProxyLoginConfiguration syncProxyLoginConfiguration = getSyncProxyLoginConfiguration(args[1]);
 
-            if (syncProxyLoginConfiguration != null)
-            {
-                if (args.length > 2)
-                {
-                    if (args.length == 4)
-                    {
-                        if (args[2].equalsIgnoreCase("maxPlayers") && Validate.testStringParseToInt(args[3]))
-                        {
+            if (syncProxyLoginConfiguration != null) {
+                if (args.length > 2) {
+                    if (args.length == 4) {
+                        if (args[2].equalsIgnoreCase("maxPlayers") && Validate.testStringParseToInt(args[3])) {
                             syncProxyLoginConfiguration.setMaxPlayers(Integer.parseInt(args[3]));
                             this.saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
 
                             sender.sendMessage(
-                                LanguageManager.getMessage("module-syncproxy-command-set-maxplayers")
-                                    .replace("%group%", args[1])
-                                    .replace("%count%", args[3])
+                                    LanguageManager.getMessage("module-syncproxy-command-set-maxplayers")
+                                            .replace("%group%", args[1])
+                                            .replace("%count%", args[3])
                             );
                         }
 
-                        if (args[2].equalsIgnoreCase("maintenance"))
-                        {
+                        if (args[2].equalsIgnoreCase("maintenance")) {
                             syncProxyLoginConfiguration.setMaintenance(args[3].equalsIgnoreCase("true"));
                             this.saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
 
                             sender.sendMessage(
-                                LanguageManager.getMessage("module-syncproxy-command-set-maintenance")
-                                    .replace("%group%", args[1])
-                                    .replace("%maintenance%", args[3])
+                                    LanguageManager.getMessage("module-syncproxy-command-set-maintenance")
+                                            .replace("%group%", args[1])
+                                            .replace("%maintenance%", args[3])
                             );
                         }
                     }
 
-                    if (args[2].equalsIgnoreCase("whitelist"))
-                    {
-                        if (args.length == 3)
-                        {
+                    if (args[2].equalsIgnoreCase("whitelist")) {
+                        if (args.length == 3) {
                             this.displayWhitelist(sender, syncProxyLoginConfiguration.getWhitelist());
                             return;
                         }
 
-                        if (args.length == 5)
-                        {
-                            if (args[3].equalsIgnoreCase("add"))
-                            {
+                        if (args.length == 5) {
+                            if (args[3].equalsIgnoreCase("add")) {
                                 syncProxyLoginConfiguration.getWhitelist().add(args[4]);
                                 this.saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
 
                                 sender.sendMessage(
-                                    LanguageManager.getMessage("module-syncproxy-command-add-whitelist-entry")
-                                        .replace("%group%", args[1])
-                                        .replace("%name%", args[4])
+                                        LanguageManager.getMessage("module-syncproxy-command-add-whitelist-entry")
+                                                .replace("%group%", args[1])
+                                                .replace("%name%", args[4])
                                 );
                             }
 
-                            if (args[3].equalsIgnoreCase("remove"))
-                            {
+                            if (args[3].equalsIgnoreCase("remove")) {
                                 syncProxyLoginConfiguration.getWhitelist().remove(args[4]);
                                 this.saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
 
                                 sender.sendMessage(
-                                    LanguageManager.getMessage("module-syncproxy-command-remove-whitelist-entry")
-                                        .replace("%group%", args[1])
-                                        .replace("%name%", args[4])
+                                        LanguageManager.getMessage("module-syncproxy-command-remove-whitelist-entry")
+                                                .replace("%group%", args[1])
+                                                .replace("%name%", args[4])
                                 );
                             }
                         }
@@ -124,78 +109,70 @@ public final class CommandSyncProxy extends Command {
             return;
         }
 
-        if (args[0].equalsIgnoreCase("reload"))
-        {
+        if (args[0].equalsIgnoreCase("reload")) {
             CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(SyncProxyConfigurationWriterAndReader.read(
-                CloudNetSyncProxyModule.getInstance().getConfigurationFile()
+                    CloudNetSyncProxyModule.getInstance().getConfigurationFile()
             ));
 
             CloudNetDriver.getInstance().sendChannelMessage(
-                SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-                SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-                new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
+                    SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
+                    SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
+                    new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
             );
 
             sender.sendMessage(LanguageManager.getMessage("module-syncproxy-command-reload-success"));
         }
     }
 
-    private void saveAndUpdate(SyncProxyConfiguration syncProxyConfiguration)
-    {
+    private void saveAndUpdate(SyncProxyConfiguration syncProxyConfiguration) {
         SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
 
         CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
         CloudNetDriver.getInstance().sendChannelMessage(
-            SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-            SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-            new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
+                SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
+                SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
+                new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
         );
     }
 
-    private SyncProxyProxyLoginConfiguration getSyncProxyLoginConfiguration(String group)
-    {
+    private SyncProxyProxyLoginConfiguration getSyncProxyLoginConfiguration(String group) {
         return Iterables.first(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration().getLoginConfigurations(),
-            new Predicate<SyncProxyProxyLoginConfiguration>() {
-                @Override
-                public boolean test(SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration)
-                {
-                    return syncProxyProxyLoginConfiguration.getTargetGroup().equalsIgnoreCase(group);
-                }
-            });
+                new Predicate<SyncProxyProxyLoginConfiguration>() {
+                    @Override
+                    public boolean test(SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
+                        return syncProxyProxyLoginConfiguration.getTargetGroup().equalsIgnoreCase(group);
+                    }
+                });
     }
 
-    private void displayListConfiguration(ICommandSender sender, SyncProxyConfiguration syncProxyConfiguration)
-    {
+    private void displayListConfiguration(ICommandSender sender, SyncProxyConfiguration syncProxyConfiguration) {
         for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration : syncProxyConfiguration.getLoginConfigurations())
             displayConfiguration(sender, syncProxyProxyLoginConfiguration);
 
-        for (SyncProxyTabListConfiguration syncProxyTabListConfiguration : syncProxyConfiguration.getTabListConfigurations())
-        {
+        for (SyncProxyTabListConfiguration syncProxyTabListConfiguration : syncProxyConfiguration.getTabListConfigurations()) {
             sender.sendMessage(
-                "* " + syncProxyTabListConfiguration.getTargetGroup(),
-                "AnimationsPerSecond: " + syncProxyTabListConfiguration.getAnimationsPerSecond(),
-                " ",
-                "Entries: "
+                    "* " + syncProxyTabListConfiguration.getTargetGroup(),
+                    "AnimationsPerSecond: " + syncProxyTabListConfiguration.getAnimationsPerSecond(),
+                    " ",
+                    "Entries: "
             );
 
             int index = 1;
-            for (SyncProxyTabList tabList : syncProxyTabListConfiguration.getEntries())
-            {
+            for (SyncProxyTabList tabList : syncProxyTabListConfiguration.getEntries()) {
                 sender.sendMessage(
-                    "- " + index++,
-                    "Header: " + tabList.getHeader().replace("&", "#"),
-                    "Footer: " + tabList.getFooter().replace("&", "#")
+                        "- " + index++,
+                        "Header: " + tabList.getHeader().replace("&", "#"),
+                        "Footer: " + tabList.getFooter().replace("&", "#")
                 );
             }
         }
     }
 
-    private void displayConfiguration(ICommandSender sender, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration)
-    {
+    private void displayConfiguration(ICommandSender sender, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
         sender.sendMessage(
-            "* " + syncProxyProxyLoginConfiguration.getTargetGroup(),
-            "Maintenance: " + (syncProxyProxyLoginConfiguration.isMaintenance() ? "enabled" : "disabled"),
-            "Max-Players: " + syncProxyProxyLoginConfiguration.getMaxPlayers()
+                "* " + syncProxyProxyLoginConfiguration.getTargetGroup(),
+                "Maintenance: " + (syncProxyProxyLoginConfiguration.isMaintenance() ? "enabled" : "disabled"),
+                "Max-Players: " + syncProxyProxyLoginConfiguration.getMaxPlayers()
         );
 
         this.displayWhitelist(sender, syncProxyProxyLoginConfiguration.getWhitelist());
@@ -208,16 +185,15 @@ public final class CommandSyncProxy extends Command {
             this.displayMotd(sender, syncProxyMotd);
     }
 
-    private void displayMotd(ICommandSender sender, SyncProxyMotd syncProxyMotd)
-    {
+    private void displayMotd(ICommandSender sender, SyncProxyMotd syncProxyMotd) {
         sender.sendMessage(
-            "- Motd",
-            "AutoSlot: " + syncProxyMotd.isAutoSlot(),
-            "AutoSlot-MaxPlayerDistance: " + syncProxyMotd.getAutoSlotMaxPlayersDistance(),
-            "Protocol-Text: " + syncProxyMotd.getProtocolText(),
-            "First Line: " + syncProxyMotd.getFirstLine().replace("&", "#"),
-            "Second Line: " + syncProxyMotd.getSecondLine().replace("&", "#"),
-            "PlayerInfo: "
+                "- Motd",
+                "AutoSlot: " + syncProxyMotd.isAutoSlot(),
+                "AutoSlot-MaxPlayerDistance: " + syncProxyMotd.getAutoSlotMaxPlayersDistance(),
+                "Protocol-Text: " + syncProxyMotd.getProtocolText(),
+                "First Line: " + syncProxyMotd.getFirstLine().replace("&", "#"),
+                "Second Line: " + syncProxyMotd.getSecondLine().replace("&", "#"),
+                "PlayerInfo: "
         );
 
         if (syncProxyMotd.getPlayerInfo() != null)
@@ -225,8 +201,7 @@ public final class CommandSyncProxy extends Command {
                 sender.sendMessage("- " + playerInfoItem);
     }
 
-    private void displayWhitelist(ICommandSender sender, Collection<String> whitelistEntries)
-    {
+    private void displayWhitelist(ICommandSender sender, Collection<String> whitelistEntries) {
         sender.sendMessage("Whitelist:");
 
         for (String whitelistEntry : whitelistEntries)

@@ -10,16 +10,15 @@ import java.nio.file.Paths;
 public final class JsonConfigurationRegistryTest {
 
     @Test
-    public void testConfigurationRegistry()
-    {
+    public void testConfigurationRegistry() {
         IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(Paths.get("build/registry.json"));
 
         Assert.assertNotNull(
-            configurationRegistry
-                .put("a", "Test String")
-                .put("b", "foobar".getBytes())
-                .put("c", 24)
-                .put("d", new Person("Peter Parker", 24, new JsonDocument("address", new HostAndPort("localhost", 6533))))
+                configurationRegistry
+                        .put("a", "Test String")
+                        .put("b", "foobar".getBytes())
+                        .put("c", 24)
+                        .put("d", new Person("Peter Parker", 24, new JsonDocument("address", new HostAndPort("localhost", 6533))))
         );
 
         Assert.assertTrue(configurationRegistry.contains("a"));
@@ -65,14 +64,11 @@ public final class JsonConfigurationRegistryTest {
 
     private final class Person {
 
+        private final JsonDocument properties;
         private String name;
-
         private int alter;
 
-        private final JsonDocument properties;
-
-        public Person(String name, int alter, JsonDocument properties)
-        {
+        public Person(String name, int alter, JsonDocument properties) {
             this.name = name;
             this.alter = alter;
             this.properties = properties;

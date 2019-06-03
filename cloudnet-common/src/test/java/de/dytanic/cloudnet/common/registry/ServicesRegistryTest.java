@@ -6,13 +6,12 @@ import org.junit.Test;
 public final class ServicesRegistryTest {
 
     @Test
-    public void testDefaultRegistry()
-    {
+    public void testDefaultRegistry() {
         DefaultServicesRegistry registry = new DefaultServicesRegistry();
 
         registry
-            .registerService(A.class, "b", new B())
-            .registerService(A.class, "c", new C());
+                .registerService(A.class, "b", new B())
+                .registerService(A.class, "c", new C());
 
         Assert.assertEquals(2, registry.getServices(A.class).size());
         Assert.assertEquals(10, registry.getService(A.class, "b").getValue());
@@ -44,8 +43,7 @@ public final class ServicesRegistryTest {
     private class B implements A {
 
         @Override
-        public int getValue()
-        {
+        public int getValue() {
             return 10;
         }
     }
@@ -53,8 +51,7 @@ public final class ServicesRegistryTest {
     private class C implements A {
 
         @Override
-        public int getValue()
-        {
+        public int getValue() {
             return 21;
         }
     }

@@ -20,8 +20,7 @@ public final class RuntimeAgent {
     /**
      * The premain() for the java agent
      */
-    public static void premain(String string, Instrumentation inst)
-    {
+    public static void premain(String string, Instrumentation inst) {
         instrumentation = inst;
     }
 }

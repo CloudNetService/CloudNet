@@ -30,8 +30,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
 
     private boolean defaultGroup;
 
-    public PermissionGroup(String name, int potency)
-    {
+    public PermissionGroup(String name, int potency) {
         super();
 
         this.name = name;
@@ -44,8 +43,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         this.defaultGroup = false;
     }
 
-    public PermissionGroup(String name, int potency, Collection<String> groups, String prefix, String suffix, String display, int sortId, boolean defaultGroup)
-    {
+    public PermissionGroup(String name, int potency, Collection<String> groups, String prefix, String suffix, String display, int sortId, boolean defaultGroup) {
         super();
 
         this.name = name;

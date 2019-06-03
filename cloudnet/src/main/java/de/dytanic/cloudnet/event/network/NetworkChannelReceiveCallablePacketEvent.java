@@ -23,8 +23,7 @@ public final class NetworkChannelReceiveCallablePacketEvent extends NetworkEvent
 
     private IPacket callbackPacket;
 
-    public NetworkChannelReceiveCallablePacketEvent(INetworkChannel channel, UUID uniqueId, String channelName, String id, JsonDocument header)
-    {
+    public NetworkChannelReceiveCallablePacketEvent(INetworkChannel channel, UUID uniqueId, String channelName, String id, JsonDocument header) {
         super(channel);
 
         this.uniqueId = uniqueId;
@@ -33,8 +32,7 @@ public final class NetworkChannelReceiveCallablePacketEvent extends NetworkEvent
         this.id = id;
     }
 
-    public void setCallbackPacket(JsonDocument header)
-    {
+    public void setCallbackPacket(JsonDocument header) {
         this.callbackPacket = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, this.uniqueId, header, null);
     }
 }

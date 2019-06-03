@@ -50,9 +50,9 @@ public interface IClusterNodeServer extends AutoCloseable {
                                            Collection<String> groups, ProcessConfiguration processConfiguration, Integer port);
 
     Collection<ServiceInfoSnapshot> createCloudService(
-        String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-        Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-        Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, Integer port);
+            String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
+            Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, Integer port);
 
     ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine);
 

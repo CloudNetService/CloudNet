@@ -31,17 +31,16 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
 
     /*= --------------------------------------------------------------- =*/
 
-    public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer)
-    {
+    public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer) {
         Validate.checkNotNull(cloudPlayer);
 
         CloudOfflinePlayer cloudOfflinePlayer = new CloudOfflinePlayer(
-            cloudPlayer.getUniqueId(),
-            cloudPlayer.getName(),
-            cloudPlayer.getXBoxId(),
-            cloudPlayer.getFirstLoginTimeMillis(),
-            cloudPlayer.getLastLoginTimeMillis(),
-            cloudPlayer.getLastNetworkConnectionInfo()
+                cloudPlayer.getUniqueId(),
+                cloudPlayer.getName(),
+                cloudPlayer.getXBoxId(),
+                cloudPlayer.getFirstLoginTimeMillis(),
+                cloudPlayer.getLastLoginTimeMillis(),
+                cloudPlayer.getLastNetworkConnectionInfo()
         );
 
         cloudOfflinePlayer.setProperties(cloudPlayer.getProperties());
@@ -50,8 +49,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     }
 
     @Override
-    public void setProperties(JsonDocument properties)
-    {
+    public void setProperties(JsonDocument properties) {
         this.properties = properties;
     }
 }

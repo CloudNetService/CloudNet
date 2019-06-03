@@ -20,14 +20,12 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
     protected final Queue<String> writtenMessages = Iterables.newConcurrentLinkedQueue();
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return permissionUser.getName();
     }
 
     @Override
-    public void sendMessage(String message)
-    {
+    public void sendMessage(String message) {
         Validate.checkNotNull(message);
 
         this.writtenMessages.add(message);
@@ -36,8 +34,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
     }
 
     @Override
-    public void sendMessage(String... messages)
-    {
+    public void sendMessage(String... messages) {
         Validate.checkNotNull(messages);
 
         for (String message : messages)
@@ -45,8 +42,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
     }
 
     @Override
-    public boolean hasPermission(String permission)
-    {
+    public boolean hasPermission(String permission) {
         return permissionManagement.hasPermission(this.permissionUser, permission);
     }
 }

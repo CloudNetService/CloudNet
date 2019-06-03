@@ -69,7 +69,7 @@ Every service template that can be configured has a storage, ie the service from
 The prefix is to set the namespace of the template in order to combine several templates within one namespace.
 The name is the actual name of the template.
 
-```javascript
+```json
         {
           "prefix": "Lobby",
           "name": "default",

@@ -10,8 +10,7 @@ public class DefaultAsyncLoggerTest {
     private boolean closed = false;
 
     @Test
-    public void testLogging() throws Exception
-    {
+    public void testLogging() throws Exception {
 
         ILogger logger = new DefaultAsyncLogger();
 
@@ -36,16 +35,14 @@ public class DefaultAsyncLoggerTest {
     private class LogHandler implements ILogHandler {
 
         @Override
-        public void handle(LogEntry logEntry)
-        {
+        public void handle(LogEntry logEntry) {
             data = logEntry.getMessages()[0];
 
             Assert.assertNotNull("data transfer", data);
         }
 
         @Override
-        public void close()
-        {
+        public void close() {
             closed = true;
         }
     }

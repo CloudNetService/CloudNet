@@ -29,24 +29,19 @@ import java.util.UUID;
 public final class PacketClientAuthorizationListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("authorization") && packet.getHeader().contains("credentials"))
-        {
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+        if (packet.getHeader().contains("authorization") && packet.getHeader().contains("credentials")) {
             JsonDocument credentials = packet.getHeader().getDocument("credentials");
 
-            switch (packet.getHeader().get("authorization", PacketClientAuthorization.PacketAuthorizationType.class))
-            {
+            switch (packet.getHeader().get("authorization", PacketClientAuthorization.PacketAuthorizationType.class)) {
                 case NODE_TO_NODE:
                     if (credentials.contains("clusterId") && credentials.contains("clusterNode") &&
-                        getCloudNet().getConfig().getClusterConfig().getClusterId().equals(credentials.get("clusterId", UUID.class)))
-                    {
+                            getCloudNet().getConfig().getClusterConfig().getClusterId().equals(credentials.get("clusterId", UUID.class))) {
                         NetworkClusterNode clusterNode = credentials.get("clusterNode", new TypeToken<NetworkClusterNode>() {
                         }.getType());
 
                         for (IClusterNodeServer clusterNodeServer : getCloudNet().getClusterNodeServerProvider().getNodeServers())
-                            if (clusterNodeServer.isAcceptableConnection(channel, clusterNode.getUniqueId()))
-                            {
+                            if (clusterNodeServer.isAcceptableConnection(channel, clusterNode.getUniqueId())) {
                                 //- packet channel registry
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageNodeListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
@@ -77,30 +72,28 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(clusterNodeServer, channel));
 
                                 getCloudNet().getLogger().info(
-                                    LanguageManager.getMessage("cluster-server-networking-connected")
-                                        .replace("%id%", clusterNode.getUniqueId() + "")
-                                        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-                                        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+                                        LanguageManager.getMessage("cluster-server-networking-connected")
+                                                .replace("%id%", clusterNode.getUniqueId() + "")
+                                                .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+                                                .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                                 );
 
                                 this.sendSetupInformationPackets(channel,
-                                    credentials.contains("secondNodeConnection") && credentials.getBoolean("secondNodeConnection"));
+                                        credentials.contains("secondNodeConnection") && credentials.getBoolean("secondNodeConnection"));
                                 return;
                             }
                     }
                     break;
                 case WRAPPER_TO_NODE:
-                    if (credentials.contains("connectionKey") && credentials.contains("serviceId"))
-                    {
+                    if (credentials.contains("connectionKey") && credentials.contains("serviceId")) {
                         String connectionKey = credentials.getString("connectionKey");
                         ServiceId serviceId = credentials.get("serviceId", ServiceId.class);
 
                         ICloudService cloudService = getCloudNet().getCloudServiceManager().getCloudService(serviceId.getUniqueId());
 
                         if (connectionKey != null && cloudService != null && cloudService.getConnectionKey().equals(connectionKey) &&
-                            cloudService.getServiceId().getTaskServiceId() == serviceId.getTaskServiceId() &&
-                            cloudService.getServiceId().getNodeUniqueId().equals(serviceId.getNodeUniqueId()))
-                        {
+                                cloudService.getServiceId().getTaskServiceId() == serviceId.getTaskServiceId() &&
+                                cloudService.getServiceId().getNodeUniqueId().equals(serviceId.getNodeUniqueId())) {
                             //- packet channel registry
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageWrapperListener());
                             //*= ------------------------------------
@@ -118,16 +111,16 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                             CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthCloudServiceSuccessEvent(cloudService, channel));
 
                             getCloudNet().getLogger().info(LanguageManager.getMessage("cloud-service-networking-connected")
-                                .replace("%id%", cloudService.getServiceId().getUniqueId().toString() + "")
-                                .replace("%task%", cloudService.getServiceId().getTaskName() + "")
-                                .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-                                .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+                                    .replace("%id%", cloudService.getServiceId().getUniqueId().toString() + "")
+                                    .replace("%task%", cloudService.getServiceId().getTaskName() + "")
+                                    .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+                                    .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                             );
 
                             getCloudNet().getNetworkClient().sendPacket(
-                                new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
+                                    new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
                             getCloudNet().getNetworkServer().sendPacket(
-                                new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
+                                    new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
                             return;
                         }
                     }
@@ -139,31 +132,28 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
         }
     }
 
-    private void sendSetupInformationPackets(INetworkChannel channel, boolean secondNodeConnection)
-    {
+    private void sendSetupInformationPackets(INetworkChannel channel, boolean secondNodeConnection) {
         channel.sendPacket(new PacketServerSetGlobalServiceInfoList(getCloudNet().getCloudServiceManager().getGlobalServiceInfoSnapshots().values()));
 
-        if (!secondNodeConnection)
-        {
+        if (!secondNodeConnection) {
             channel.sendPacket(new PacketServerSetGroupConfigurationList(getCloudNet().getGroupConfigurations()));
             channel.sendPacket(new PacketServerSetServiceTaskList(getCloudNet().getPermanentServiceTasks()));
 
             if (getCloudNet().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement)
                 channel.sendPacket(new PacketServerSetJsonFilePermissions(
-                    getCloudNet().getPermissionManagement().getUsers(),
-                    getCloudNet().getPermissionManagement().getGroups()
+                        getCloudNet().getPermissionManagement().getUsers(),
+                        getCloudNet().getPermissionManagement().getGroups()
                 ));
 
             if (getCloudNet().getPermissionManagement() instanceof DefaultDatabasePermissionManagement)
                 channel.sendPacket(new PacketServerSetDatabaseGroupFilePermissions(
-                    getCloudNet().getPermissionManagement().getGroups()
+                        getCloudNet().getPermissionManagement().getGroups()
                 ));
 
             ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
             byte[] bytes;
-            for (ServiceTemplate serviceTemplate : templateStorage.getTemplates())
-            {
+            for (ServiceTemplate serviceTemplate : templateStorage.getTemplates()) {
                 bytes = templateStorage.toZipByteArray(serviceTemplate);
                 channel.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, bytes));
             }
@@ -173,8 +163,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
         }
     }
 
-    private CloudNet getCloudNet()
-    {
+    private CloudNet getCloudNet() {
         return CloudNet.getInstance();
     }
 }

@@ -18,37 +18,29 @@ import java.util.function.Predicate;
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("access"))
-        {
-            if (packet.getHeader().getBoolean("access"))
-            {
-                for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes())
-                {
-                    for (HostAndPort hostAndPort : node.getListeners())
-                    {
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+        if (packet.getHeader().contains("access")) {
+            if (packet.getHeader().getBoolean("access")) {
+                for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
+                    for (HostAndPort hostAndPort : node.getListeners()) {
                         if (hostAndPort.getPort() == channel.getServerAddress().getPort() &&
-                            hostAndPort.getHost().equals(channel.getServerAddress().getHost()))
-                        {
+                                hostAndPort.getHost().equals(channel.getServerAddress().getHost())) {
                             IClusterNodeServer nodeServer = Iterables.first(CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers(), new Predicate<IClusterNodeServer>() {
                                 @Override
-                                public boolean test(IClusterNodeServer clusterNodeServer)
-                                {
+                                public boolean test(IClusterNodeServer clusterNodeServer) {
                                     return clusterNodeServer.getNodeInfo().getUniqueId().equals(node.getUniqueId());
                                 }
                             });
 
-                            if (nodeServer != null && nodeServer.isAcceptableConnection(channel, node.getUniqueId()))
-                            {
+                            if (nodeServer != null && nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
                                 nodeServer.setChannel(channel);
                                 CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(nodeServer, channel));
 
                                 CloudNet.getInstance().getLogger().info(
-                                    LanguageManager.getMessage("cluster-server-networking-connected")
-                                        .replace("%id%", node.getUniqueId() + "")
-                                        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-                                        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+                                        LanguageManager.getMessage("cluster-server-networking-connected")
+                                                .replace("%id%", node.getUniqueId() + "")
+                                                .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+                                                .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                                 );
                                 break;
                             }

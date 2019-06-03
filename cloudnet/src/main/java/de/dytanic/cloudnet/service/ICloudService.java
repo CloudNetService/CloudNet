@@ -35,13 +35,13 @@ public interface ICloudService {
 
     File getDirectory();
 
-    void setNetworkChannel(INetworkChannel channel);
-
     INetworkChannel getNetworkChannel();
 
-    void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot);
+    void setNetworkChannel(INetworkChannel channel);
 
     ServiceInfoSnapshot getServiceInfoSnapshot();
+
+    void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot);
 
     ServiceInfoSnapshot getLastServiceInfoSnapshot();
 

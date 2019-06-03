@@ -16,8 +16,8 @@ public interface IConsole extends AutoCloseable {
 
     void resetPrompt();
 
-    void setScreenName(String name);
-
     String getScreenName();
+
+    void setScreenName(String name);
 
 }

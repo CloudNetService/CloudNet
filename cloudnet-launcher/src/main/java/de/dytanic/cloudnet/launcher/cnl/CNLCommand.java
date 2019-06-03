@@ -9,8 +9,7 @@ public abstract class CNLCommand {
 
     protected String name;
 
-    public CNLCommand(String name)
-    {
+    public CNLCommand(String name) {
         this.name = name;
     }
 

@@ -11,16 +11,11 @@ import java.util.UUID;
 @AllArgsConstructor
 final class NukkitCloudNetPlayerInfo {
 
-    private UUID uniqueId;
-
-    private String name;
-
     protected double health, maxHealth, saturation;
-
     protected int level, ping;
-
     protected WorldPosition location;
-
     protected HostAndPort address;
+    private UUID uniqueId;
+    private String name;
 
 }

@@ -41,7 +41,7 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable {
 
     void setLastNetworkConnectionInfo(NetworkConnectionInfo lastNetworkConnectionInfo);
 
-    void setProperties(JsonDocument properties);
-
     JsonDocument getProperties();
+
+    void setProperties(JsonDocument properties);
 }

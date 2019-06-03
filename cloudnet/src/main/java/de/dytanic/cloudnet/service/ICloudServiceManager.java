@@ -25,6 +25,8 @@ public interface ICloudServiceManager {
 
     List<ServiceTask> getServiceTasks();
 
+    void setServiceTasks(Collection<ServiceTask> tasks);
+
     void addPermanentServiceTask(ServiceTask task);
 
     void removePermanentServiceTask(ServiceTask task);
@@ -37,11 +39,11 @@ public interface ICloudServiceManager {
 
     boolean isTaskPresent(String name);
 
-    void setServiceTasks(Collection<ServiceTask> tasks);
-
     //-
 
     List<GroupConfiguration> getGroupConfigurations();
+
+    void setGroupConfigurations(Collection<GroupConfiguration> groupConfigurations);
 
     GroupConfiguration getGroupConfiguration(String name);
 
@@ -53,8 +55,6 @@ public interface ICloudServiceManager {
 
     boolean isGroupConfigurationPresent(String group);
 
-    void setGroupConfigurations(Collection<GroupConfiguration> groupConfigurations);
-
     //-
 
     ICloudService runTask(ServiceTask serviceTask);
@@ -62,16 +62,16 @@ public interface ICloudServiceManager {
     ICloudService runTask(ServiceConfiguration serviceConfiguration);
 
     ICloudService runTask(
-        String name,
-        String runtime,
-        boolean autoDeleteOnStop,
-        boolean staticService,
-        Collection<ServiceRemoteInclusion> includes,
-        Collection<ServiceTemplate> templates,
-        Collection<ServiceDeployment> deployments,
-        Collection<String> groups,
-        ProcessConfiguration processConfiguration,
-        Integer port
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
     );
 
     void startAllCloudServices();

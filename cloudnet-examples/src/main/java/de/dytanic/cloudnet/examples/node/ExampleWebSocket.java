@@ -20,34 +20,28 @@ public class ExampleWebSocket {
     private final Collection<IWebSocketChannel> channels = Iterables.newCopyOnWriteArrayList();
 
     @EventListener
-    public void handlePostEventsToWebSocketChannels(Event event)
-    {
+    public void handlePostEventsToWebSocketChannels(Event event) {
         for (IWebSocketChannel channel : channels)
             channel.sendWebSocketFrame(WebSocketFrameType.TEXT, GsonUtil.GSON.toJson(event));
     }
 
-    public void invokeWebSocketChannel()
-    {
+    public void invokeWebSocketChannel() {
         CloudNet.getInstance().getHttpServer().registerHandler("/http_websocket_example_path", new IHttpHandler() {
             @Override
-            public void handle(String path, IHttpContext context) throws Exception
-            {
+            public void handle(String path, IHttpContext context) throws Exception {
                 IWebSocketChannel channel = context.upgrade(); //upgraded context to WebSocket
 
                 channels.add(channel);
 
                 channel.addListener(new IWebSocketListener() { //Add a listener for received WebSocket channel messages and closing
                     @Override
-                    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception
-                    {
-                        switch (type)
-                        {
+                    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
+                        switch (type) {
                             case PONG:
                                 channel.sendWebSocketFrame(WebSocketFrameType.TEXT, new JsonDocument("message", "Hello, world!").toString());
                                 break;
                             case TEXT:
-                                switch (new String(bytes))
-                                {
+                                switch (new String(bytes)) {
                                     case "handleClose":
                                         channel.close(200, "invoked close");
                                         break;

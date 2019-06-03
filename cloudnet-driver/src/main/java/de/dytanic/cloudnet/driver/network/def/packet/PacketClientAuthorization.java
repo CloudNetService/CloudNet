@@ -9,8 +9,7 @@ import lombok.Getter;
 
 public final class PacketClientAuthorization extends Packet {
 
-    public PacketClientAuthorization(PacketAuthorizationType packetAuthorizationType, JsonDocument credentials)
-    {
+    public PacketClientAuthorization(PacketAuthorizationType packetAuthorizationType, JsonDocument credentials) {
         super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument(), null);
 
         Validate.checkNotNull(packetAuthorizationType);

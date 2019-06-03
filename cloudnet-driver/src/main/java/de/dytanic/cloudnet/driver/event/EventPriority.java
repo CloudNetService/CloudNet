@@ -18,8 +18,7 @@ public enum EventPriority implements Comparator<EventPriority> {
     private int value;
 
     @Override
-    public int compare(EventPriority o1, EventPriority o2)
-    {
+    public int compare(EventPriority o1, EventPriority o2) {
         return o1.value - o2.value;
     }
 }

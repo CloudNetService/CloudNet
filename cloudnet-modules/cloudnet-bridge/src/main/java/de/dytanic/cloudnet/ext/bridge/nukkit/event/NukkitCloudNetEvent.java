@@ -6,13 +6,11 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 abstract class NukkitCloudNetEvent extends Event {
 
-    public final CloudNetDriver getDriver()
-    {
+    public final CloudNetDriver getDriver() {
         return CloudNetDriver.getInstance();
     }
 
-    public final Wrapper getWrapper()
-    {
+    public final Wrapper getWrapper() {
         return Wrapper.getInstance();
     }
 

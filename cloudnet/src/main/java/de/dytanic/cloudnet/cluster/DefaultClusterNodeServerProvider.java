@@ -21,22 +21,19 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     protected final Map<String, IClusterNodeServer> servers = Maps.newConcurrentHashMap();
 
     @Override
-    public Collection<IClusterNodeServer> getNodeServers()
-    {
+    public Collection<IClusterNodeServer> getNodeServers() {
         return this.servers.values();
     }
 
     @Override
-    public IClusterNodeServer getNodeServer(String uniqueId)
-    {
+    public IClusterNodeServer getNodeServer(String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.servers.get(uniqueId);
     }
 
     @Override
-    public IClusterNodeServer getNodeServer(INetworkChannel channel)
-    {
+    public IClusterNodeServer getNodeServer(INetworkChannel channel) {
         Validate.checkNotNull(channel);
 
         for (IClusterNodeServer clusterNodeServer : this.servers.values())
@@ -47,20 +44,17 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void setClusterServers(NetworkCluster networkCluster)
-    {
+    public void setClusterServers(NetworkCluster networkCluster) {
         for (NetworkClusterNode clusterNode : networkCluster.getNodes())
             if (this.servers.containsKey(clusterNode.getUniqueId()))
                 this.servers.get(clusterNode.getUniqueId()).setNodeInfo(clusterNode);
             else
                 this.servers.put(clusterNode.getUniqueId(), new DefaultClusterNodeServer(this, clusterNode));
 
-        for (IClusterNodeServer clusterNodeServer : this.servers.values())
-        {
+        for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
             NetworkClusterNode node = Iterables.first(networkCluster.getNodes(), new Predicate<NetworkClusterNode>() {
                 @Override
-                public boolean test(NetworkClusterNode networkClusterNode)
-                {
+                public boolean test(NetworkClusterNode networkClusterNode) {
                     return networkClusterNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId());
                 }
             });
@@ -70,8 +64,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void sendPacket(IPacket packet)
-    {
+    public void sendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
         for (IClusterNodeServer nodeServer : this.servers.values())
@@ -79,8 +72,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void sendPacket(IPacket... packets)
-    {
+    public void sendPacket(IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (IPacket packet : packets)
@@ -88,14 +80,12 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource)
-    {
+    public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
         this.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource));
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         for (IClusterNodeServer clusterNodeServer : servers.values())
             clusterNodeServer.close();
 

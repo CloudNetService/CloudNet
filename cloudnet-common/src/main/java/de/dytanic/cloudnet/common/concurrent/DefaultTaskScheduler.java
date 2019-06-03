@@ -38,38 +38,32 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     @Setter
     protected volatile long threadPauseDelayMillis;
 
-    public DefaultTaskScheduler()
-    {
+    public DefaultTaskScheduler() {
         this(Runtime.getRuntime().availableProcessors() * 2, DEFAULT_THREAD_LIFE_MILLIS, DEFAULT_THREAD_PAUSE_MILLIS);
     }
 
-    public DefaultTaskScheduler(int maxThreadSize)
-    {
+    public DefaultTaskScheduler(int maxThreadSize) {
         this(maxThreadSize, DEFAULT_THREAD_LIFE_MILLIS, DEFAULT_THREAD_PAUSE_MILLIS);
     }
 
-    public DefaultTaskScheduler(int maxThreadSize, long threadLifeMillis, long threadPauseDelayMillis)
-    {
+    public DefaultTaskScheduler(int maxThreadSize, long threadLifeMillis, long threadPauseDelayMillis) {
         this.maxThreadSize = maxThreadSize <= 0 ? Runtime.getRuntime().availableProcessors() : maxThreadSize;
         this.threadLifeMillis = threadLifeMillis;
         this.threadPauseDelayMillis = threadPauseDelayMillis;
     }
 
     @Override
-    public int getCurrentWorkerCount()
-    {
+    public int getCurrentWorkerCount() {
         return this.workers.size();
     }
 
     @Override
-    public IWorkableThread createWorker()
-    {
+    public IWorkableThread createWorker() {
         return new Worker();
     }
 
     @Override
-    public IWorkableThread hasFreeWorker()
-    {
+    public IWorkableThread hasFreeWorker() {
         for (IWorkableThread workableThread : this.workers)
             if (workableThread.isEmpty())
                 return workableThread;
@@ -78,104 +72,86 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
     @Override
-    public Collection<IWorkableThread> getWorkers()
-    {
+    public Collection<IWorkableThread> getWorkers() {
         return this.workers;
     }
 
     @Override
-    public <V> IScheduledTask<V> schedule(Callable<V> callable)
-    {
+    public <V> IScheduledTask<V> schedule(Callable<V> callable) {
         return schedule(callable, 0);
     }
 
     @Override
-    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay)
-    {
+    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay) {
         return schedule(callable, delay, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, TimeUnit timeUnit)
-    {
+    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, TimeUnit timeUnit) {
         return schedule(callable, delay, 0, timeUnit);
     }
 
     @Override
-    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat)
-    {
+    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat) {
         return schedule(callable, delay, repeat, 1);
     }
 
     @Override
-    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat, TimeUnit timeUnit)
-    {
+    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat, TimeUnit timeUnit) {
         return schedule(callable, delay, repeat, -1, timeUnit);
     }
 
     @Override
-    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat, long repeats)
-    {
+    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat, long repeats) {
         return schedule(callable, delay, repeat, repeats, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat, long repeats, TimeUnit timeUnit)
-    {
+    public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat, long repeats, TimeUnit timeUnit) {
         return offerTask(new DefaultScheduledTask<>(callable, delay, repeat, repeats, timeUnit));
     }
 
     @Override
-    public IScheduledTask<Void> schedule(Runnable runnable)
-    {
+    public IScheduledTask<Void> schedule(Runnable runnable) {
         return schedule(runnable, 0);
     }
 
     @Override
-    public IScheduledTask<Void> schedule(Runnable runnable, long delay)
-    {
+    public IScheduledTask<Void> schedule(Runnable runnable, long delay) {
         return schedule(runnable, delay, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public IScheduledTask<Void> schedule(Runnable runnable, long delay, TimeUnit timeUnit)
-    {
+    public IScheduledTask<Void> schedule(Runnable runnable, long delay, TimeUnit timeUnit) {
         return schedule(runnable, delay, 0, timeUnit);
     }
 
     @Override
-    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat)
-    {
+    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat) {
         return schedule(runnable, delay, repeat, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat, TimeUnit timeUnit)
-    {
+    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat, TimeUnit timeUnit) {
         return schedule(runnable, delay, repeat, -1, timeUnit);
     }
 
     @Override
-    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat, long repeats)
-    {
+    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat, long repeats) {
         return schedule(runnable, delay, repeat, repeats, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat, long repeats, TimeUnit timeUnit)
-    {
+    public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat, long repeats, TimeUnit timeUnit) {
         return schedule(new VoidCallable(runnable), delay, repeat, repeats, timeUnit);
     }
 
     @Override
-    public void shutdown()
-    {
+    public void shutdown() {
         for (IWorkableThread worker : this.workers)
-            try
-            {
+            try {
                 worker.stop();
-            } catch (ThreadDeath th)
-            {
+            } catch (ThreadDeath th) {
                 workers.remove(worker);
             }
 
@@ -184,16 +160,13 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
     @Override
-    public void execute(Runnable command)
-    {
+    public void execute(Runnable command) {
         schedule(command);
     }
 
     @Override
-    public <V> IScheduledTask<V> offerTask(IScheduledTask<V> scheduledTask)
-    {
-        if (scheduledTask != null)
-        {
+    public <V> IScheduledTask<V> offerTask(IScheduledTask<V> scheduledTask) {
+        if (scheduledTask != null) {
             this.taskEntries.offer(scheduledTask);
             this.checkEnoughThreads();
         }
@@ -202,15 +175,12 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
     @Override
-    public ITaskScheduler cancelAll()
-    {
+    public ITaskScheduler cancelAll() {
         for (IWorkableThread worker : this.workers)
-            try
-            {
+            try {
                 worker.interrupt();
                 worker.stop();
-            } catch (ThreadDeath th)
-            {
+            } catch (ThreadDeath th) {
                 workers.remove(worker);
             }
 
@@ -219,8 +189,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         return this;
     }
 
-    private void checkEnoughThreads()
-    {
+    private void checkEnoughThreads() {
         IWorkableThread workableThread = hasFreeWorker();
 
         if (workableThread == null && this.getCurrentWorkerCount() < maxThreadSize)
@@ -235,8 +204,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         private final Runnable runnable;
 
         @Override
-        public Void call() throws Exception
-        {
+        public Void call() throws Exception {
             runnable.run();
             return null;
         }
@@ -248,8 +216,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
         protected long lifeMillis = System.currentTimeMillis();
 
-        public Worker()
-        {
+        public Worker() {
             super(threadGroup, threadGroup.getName() + "#" + THREAD_COUNT.incrementAndGet());
 
             workers.add(this);
@@ -260,10 +227,8 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         }
 
         @Override
-        public void run()
-        {
-            while (!isInterrupted() && (lifeMillis + threadLifeMillis) > System.currentTimeMillis())
-            {
+        public void run() {
+            while (!isInterrupted() && (lifeMillis + threadLifeMillis) > System.currentTimeMillis()) {
                 this.run0();
                 this.sleep0(threadPauseDelayMillis);
             }
@@ -271,10 +236,8 @@ public class DefaultTaskScheduler implements ITaskScheduler {
             workers.remove(this);
         }
 
-        private synchronized void run0()
-        {
-            while (!taskEntries.isEmpty() && !isInterrupted())
-            {
+        private synchronized void run0() {
+            while (!taskEntries.isEmpty() && !isInterrupted()) {
                 scheduledTask = taskEntries.poll();
 
                 if (scheduledTask == null) continue;
@@ -283,8 +246,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
                 long difference = scheduledTask.getDelayedTimeStamp() - System.currentTimeMillis();
 
-                if (difference > threadPauseDelayMillis)
-                {
+                if (difference > threadPauseDelayMillis) {
                     sleep0(threadPauseDelayMillis - 1);
                     offerEntry(scheduledTask);
                     continue;
@@ -292,21 +254,17 @@ public class DefaultTaskScheduler implements ITaskScheduler {
                 } else if (difference > 0)
                     sleep0(difference);
 
-                try
-                {
+                try {
                     scheduledTask.call();
-                } catch (Throwable ignored)
-                {
+                } catch (Throwable ignored) {
                 }
 
                 if (checkScheduledTask()) scheduledTask = null;
             }
         }
 
-        private boolean checkScheduledTask()
-        {
-            if (scheduledTask.isRepeatable())
-            {
+        private boolean checkScheduledTask() {
+            if (scheduledTask.isRepeatable()) {
                 this.offerEntry(scheduledTask);
                 return false;
             }
@@ -314,50 +272,41 @@ public class DefaultTaskScheduler implements ITaskScheduler {
             return true;
         }
 
-        private void sleep0(long value)
-        {
-            try
-            {
+        private void sleep0(long value) {
+            try {
                 Thread.sleep(value);
-            } catch (InterruptedException ignored)
-            {
+            } catch (InterruptedException ignored) {
             }
         }
 
-        private void offerEntry(IScheduledTask<?> scheduledTask)
-        {
+        private void offerEntry(IScheduledTask<?> scheduledTask) {
             taskEntries.offer(scheduledTask);
             this.scheduledTask = null;
         }
 
         @Override
-        public <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask)
-        {
+        public <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask) {
             this.scheduledTask = scheduledTask;
             return this;
         }
 
         @Override
-        public IScheduledTask<?> getTask()
-        {
+        public IScheduledTask<?> getTask() {
             return this.scheduledTask;
         }
 
         @Override
-        public boolean isEmpty()
-        {
+        public boolean isEmpty() {
             return this.scheduledTask == null;
         }
 
         @Override
-        public int getTasksCount()
-        {
+        public int getTasksCount() {
             return 0;
         }
 
         @Override
-        public void close() throws Exception
-        {
+        public void close() throws Exception {
             this.stop();
         }
     }

@@ -20,8 +20,7 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
 
     private final UUID uniqueId;
 
-    public LoginPendingConnectionCommandSender(LoginEvent loginEvent, UUID uniqueId)
-    {
+    public LoginPendingConnectionCommandSender(LoginEvent loginEvent, UUID uniqueId) {
         this.loginEvent = loginEvent;
         this.uniqueId = uniqueId;
 
@@ -33,50 +32,43 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return loginEvent.getConnection().getName();
     }
 
     @Override
-    public void sendMessage(String message)
-    {
+    public void sendMessage(String message) {
         //Not supported
     }
 
     @Override
-    public void sendMessages(String... messages)
-    {
+    public void sendMessages(String... messages) {
         //Not supported
     }
 
     @Override
-    public void addGroups(String... groups)
-    {
+    public void addGroups(String... groups) {
         //Not supported
     }
 
     @Override
-    public void removeGroups(String... groups)
-    {
+    public void removeGroups(String... groups) {
         //Not supported
     }
 
     @Override
-    public boolean hasPermission(String permission)
-    {
+    public boolean hasPermission(String permission) {
         Validate.checkNotNull(permission);
 
         return ProxyServer.getInstance().getPluginManager().callEvent(new PermissionCheckEvent(
-            this,
-            permission,
-            this.permissions.contains(permission.toLowerCase()))
+                this,
+                permission,
+                this.permissions.contains(permission.toLowerCase()))
         ).hasPermission();
     }
 
     @Override
-    public void setPermission(String permission, boolean value)
-    {
+    public void setPermission(String permission, boolean value) {
         Validate.checkNotNull(permission);
 
         if (value)

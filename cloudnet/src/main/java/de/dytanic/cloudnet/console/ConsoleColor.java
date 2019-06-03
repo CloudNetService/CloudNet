@@ -25,15 +25,13 @@ public enum ConsoleColor {
 
     private final char index;
 
-    ConsoleColor(String name, char index, String ansiCode)
-    {
+    ConsoleColor(String name, char index, String ansiCode) {
         this.name = name;
         this.index = index;
         this.ansiCode = ansiCode;
     }
 
-    public static String toColouredString(char triggerChar, String text)
-    {
+    public static String toColouredString(char triggerChar, String text) {
         if (text == null) throw new NullPointerException();
 
         for (ConsoleColor consoleColour : values())
@@ -43,8 +41,7 @@ public enum ConsoleColor {
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return ansiCode;
     }
 }

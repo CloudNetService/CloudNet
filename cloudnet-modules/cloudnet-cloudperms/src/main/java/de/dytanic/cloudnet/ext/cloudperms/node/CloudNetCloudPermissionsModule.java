@@ -21,29 +21,25 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
     private static CloudNetCloudPermissionsModule instance;
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
-    public void init()
-    {
+    public void init() {
         instance = this;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
-    public void initConfig()
-    {
+    public void initConfig() {
         getConfig().getBoolean("enabled", true);
         getConfig().get("excludedGroups", LIST_STRING, Collections.EMPTY_LIST);
         saveConfig();
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
-    public void registerListeners()
-    {
+    public void registerListeners() {
         registerListeners(new IncludePluginListener(), new ConfigurationUpdateListener());
     }
 
     /*= ------------------------------------------------- =*/
 
-    public List<String> getExcludedGroups()
-    {
+    public List<String> getExcludedGroups() {
         return getConfig().get("excludedGroups", LIST_STRING);
     }
 }

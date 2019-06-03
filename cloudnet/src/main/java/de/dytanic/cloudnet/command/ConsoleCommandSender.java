@@ -20,20 +20,17 @@ public final class ConsoleCommandSender implements ICommandSender {
      * The console name is the first codename from CloudNet 3.0: "Tsunami"
      */
     @Override
-    public String getName()
-    {
+    public String getName() {
         return "Tsunami";
     }
 
     @Override
-    public void sendMessage(String message)
-    {
+    public void sendMessage(String message) {
         this.logger.log(CONSOLE_LEVEL, message);
     }
 
     @Override
-    public void sendMessage(String... messages)
-    {
+    public void sendMessage(String... messages) {
         Validate.checkNotNull(messages);
 
         for (String message : messages)
@@ -44,8 +41,7 @@ public final class ConsoleCommandSender implements ICommandSender {
      * The console as always the permission for by every request
      */
     @Override
-    public boolean hasPermission(String permission)
-    {
+    public boolean hasPermission(String permission) {
         return true;
     }
 }

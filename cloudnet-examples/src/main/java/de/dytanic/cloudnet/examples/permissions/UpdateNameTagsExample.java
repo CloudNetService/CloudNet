@@ -22,8 +22,7 @@ public final class UpdateNameTagsExample {
     private final Collection<UUID> nickedPlayers = Iterables.newArrayList();
 
     @EventHandler
-    public void executeBukkitExampleOnPlayerJoinEvent(PlayerJoinEvent event)
-    {
+    public void executeBukkitExampleOnPlayerJoinEvent(PlayerJoinEvent event) {
         BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(event.getPlayer());
         //Sets the nametags and don't overwrite the scoreboard rather the scoreboard will updated
     }
@@ -37,14 +36,11 @@ public final class UpdateNameTagsExample {
     }
 
     //For developers with a NickAPI or something like this
-    public void nickExample(Player player)
-    {
+    public void nickExample(Player player) {
         BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player, new Function<Player, IPermissionGroup>() {
             @Override
-            public IPermissionGroup apply(Player player)
-            {
-                if (isNicked(player))
-                {
+            public IPermissionGroup apply(Player player) {
+                if (isNicked(player)) {
                     return CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().get("Default");
                 }
 
@@ -55,8 +51,7 @@ public final class UpdateNameTagsExample {
         });
     }
 
-    public boolean isNicked(Player player)
-    {
+    public boolean isNicked(Player player) {
         return nickedPlayers.contains(player.getUniqueId());
     }
 }

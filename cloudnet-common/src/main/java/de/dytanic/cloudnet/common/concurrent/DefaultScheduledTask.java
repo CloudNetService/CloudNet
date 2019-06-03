@@ -28,8 +28,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     @Getter
     private Callable<V> callable;
 
-    public DefaultScheduledTask(Callable<V> callable, long delay, long repeat, long repeats, TimeUnit timeUnit)
-    {
+    public DefaultScheduledTask(Callable<V> callable, long delay, long repeat, long repeats, TimeUnit timeUnit) {
         this.callable = callable;
 
         this.delay = delay > 0 ? timeUnit.toMillis(delay) : -1;
@@ -41,8 +40,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @SafeVarargs
     @Override
-    public final ITask<V> addListener(ITaskListener<V>... listeners)
-    {
+    public final ITask<V> addListener(ITaskListener<V>... listeners) {
         if (listeners == null) return this;
 
         initListenersCollectionIfNotExists();
@@ -55,62 +53,50 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public ITask<V> clearListeners()
-    {
+    public ITask<V> clearListeners() {
         this.listeners.clear();
         return this;
     }
 
     @Override
-    public synchronized V getDef(V def)
-    {
+    public synchronized V getDef(V def) {
         return get(5, TimeUnit.SECONDS, def);
     }
 
     @Override
-    public synchronized V get(long time, TimeUnit timeUnit, V def)
-    {
+    public synchronized V get(long time, TimeUnit timeUnit, V def) {
         Validate.checkNotNull(timeUnit);
 
-        try
-        {
+        try {
             return get(time, timeUnit);
-        } catch (Throwable ignored)
-        {
+        } catch (Throwable ignored) {
         }
 
         return def;
     }
 
     @Override
-    public V call() throws Exception
-    {
+    public V call() throws Exception {
         if (callable == null || done) return this.value;
 
-        if (!isCancelled())
-        {
-            try
-            {
+        if (!isCancelled()) {
+            try {
                 this.value = this.callable.call();
-            } catch (Throwable throwable)
-            {
+            } catch (Throwable throwable) {
                 this.invokeFailure(throwable);
             }
         }
 
         if (repeats > 0) repeats--;
 
-        if ((repeats > 0 || repeats == -1) && !cancelled)
-        {
+        if ((repeats > 0 || repeats == -1) && !cancelled) {
             this.delayedTimeStamp = System.currentTimeMillis() + repeat;
-        } else
-        {
+        } else {
             this.done = true;
             this.invokeTaskListener();
 
             if (this.wait)
-                synchronized (this)
-                {
+                synchronized (this) {
                     this.notifyAll();
                 }
         }
@@ -119,10 +105,8 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public boolean cancel(boolean mayInterruptIfRunning)
-    {
-        if (mayInterruptIfRunning)
-        {
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        if (mayInterruptIfRunning) {
             callable = null;
             repeats = 0;
         }
@@ -131,8 +115,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public synchronized V get() throws InterruptedException, ExecutionException
-    {
+    public synchronized V get() throws InterruptedException, ExecutionException {
         wait = true;
         while (!isDone()) this.wait();
 
@@ -140,8 +123,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public synchronized V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
-    {
+    public synchronized V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         wait = true;
         if (!isDone()) this.wait(unit.toMillis(timeout));
 
@@ -150,76 +132,63 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     /*= ---------------------------------------------------------------------------------- =*/
 
-    private void initListenersCollectionIfNotExists()
-    {
+    private void initListenersCollectionIfNotExists() {
         if (this.listeners == null)
             this.listeners = new ConcurrentLinkedQueue<>();
     }
 
-    private void invokeTaskListener()
-    {
+    private void invokeTaskListener() {
         if (this.listeners != null)
             for (ITaskListener<V> listener : this.listeners)
-                try
-                {
+                try {
                     if (this.cancelled)
                         listener.onCancelled(this);
                     else
                         listener.onComplete(this, this.value);
-                } catch (Exception exception)
-                {
+                } catch (Exception exception) {
                     exception.printStackTrace();
                 }
     }
 
-    private void invokeFailure(Throwable throwable)
-    {
+    private void invokeFailure(Throwable throwable) {
         if (this.listeners != null)
             for (ITaskListener<V> listener : this.listeners)
-                try
-                {
+                try {
                     listener.onFailure(this, throwable);
-                } catch (Exception exception)
-                {
+                } catch (Exception exception) {
                     exception.printStackTrace();
                 }
     }
 
     @Override
-    public boolean isRepeatable()
-    {
+    public boolean isRepeatable() {
         return repeats > 0 || repeats == -1;
     }
 
     @Override
-    public IScheduledTask<V> setDelayMillis(long delayMillis)
-    {
+    public IScheduledTask<V> setDelayMillis(long delayMillis) {
         this.delay = delayMillis;
         return this;
     }
 
     @Override
-    public long getDelayMillis()
-    {
+    public long getDelayMillis() {
         return this.delay;
     }
 
     @Override
-    public IScheduledTask<V> setRepeatMillis(long repeatMillis)
-    {
+    public IScheduledTask<V> setRepeatMillis(long repeatMillis) {
         this.repeat = repeatMillis;
         return this;
     }
 
     @Override
-    public long getRepeatMillis()
-    {
+    public long getRepeatMillis() {
         return this.repeat;
     }
 
     @Override
-    public IScheduledTask<V> cancel()
-    {
+    public IScheduledTask<V> cancel() {
         this.cancel(true);
         return this;
     }

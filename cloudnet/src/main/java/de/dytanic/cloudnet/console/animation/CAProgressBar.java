@@ -46,8 +46,7 @@ public class CAProgressBar {
 
     protected char progressChar;
 
-    public CAProgressBar(char progressChar, String prefix, String suffix, long updateInterval, long targetGoal, boolean doExpand)
-    {
+    public CAProgressBar(char progressChar, String prefix, String suffix, long updateInterval, long targetGoal, boolean doExpand) {
         this.progressChar = progressChar;
         this.prefix = prefix;
         this.suffix = suffix;
@@ -56,32 +55,26 @@ public class CAProgressBar {
         this.expand = doExpand;
     }
 
-    public void start(IConsole console)
-    {
+    public void start(IConsole console) {
         execute(console);
 
         this.barStart = System.currentTimeMillis();
-        while (progressValue < targetGoal)
-        {
+        while (progressValue < targetGoal) {
             execute(console);
-            try
-            {
+            try {
                 Thread.sleep(updateInterval);
-            } catch (InterruptedException ignored)
-            {
+            } catch (InterruptedException ignored) {
             }
         }
 
         execute(console);
     }
 
-    protected void execute(IConsole console)
-    {
+    protected void execute(IConsole console) {
         int percent = (int) ((progressValue * 100) / targetGoal);
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (expand)
-        {
+        if (expand) {
             for (int i = 0; i < percent; i++)
                 if (i % 2 == 0) stringBuilder.append(progressChar);
         } else
@@ -89,26 +82,25 @@ public class CAProgressBar {
                 if (i % 2 == 0) stringBuilder.append(i < percent ? progressChar : " ");
 
         console.write(
-            Ansi
-                .ansi()
-                .saveCursorPosition()
-                .cursorUp(1)
-                .eraseLine(Ansi.Erase.ALL)
-                .a(insertPatterns(prefix, percent))
-                .a(stringBuilder.toString())
-                .a(insertPatterns(suffix, percent))
-                .restoreCursorPosition()
-                .toString()
+                Ansi
+                        .ansi()
+                        .saveCursorPosition()
+                        .cursorUp(1)
+                        .eraseLine(Ansi.Erase.ALL)
+                        .a(insertPatterns(prefix, percent))
+                        .a(stringBuilder.toString())
+                        .a(insertPatterns(suffix, percent))
+                        .restoreCursorPosition()
+                        .toString()
         );
     }
 
-    protected String insertPatterns(String value, int percent)
-    {
+    protected String insertPatterns(String value, int percent) {
         return value
-            .replace("%percent%", percent + "")
-            .replace("%time%", new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - barStart))
-            .replace("%target%", targetGoal + "")
-            .replace("%value%", this.progressValue + "");
+                .replace("%percent%", percent + "")
+                .replace("%time%", new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - barStart))
+                .replace("%target%", targetGoal + "")
+                .replace("%value%", this.progressValue + "");
     }
 
 }

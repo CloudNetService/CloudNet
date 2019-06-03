@@ -22,9 +22,15 @@ public interface IConfiguration {
 
     NetworkCluster getClusterConfig();
 
+    void setClusterConfig(NetworkCluster clusterConfig);
+
     Collection<String> getIpWhitelist();
 
+    void setIpWhitelist(Collection<String> whitelist);
+
     Collection<HostAndPort> getHttpListeners();
+
+    void setHttpListeners(Collection<HostAndPort> httpListeners);
 
     ConfigurationOptionSSL getClientSslConfig();
 
@@ -32,15 +38,9 @@ public interface IConfiguration {
 
     ConfigurationOptionSSL getWebSslConfig();
 
-    void setIpWhitelist(Collection<String> whitelist);
-
-    void setClusterConfig(NetworkCluster clusterConfig);
-
     double getMaxCPUUsageToStartServices();
 
     void setMaxCPUUsageToStartServices(double value);
-
-    void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
 
     int getMaxMemory();
 
@@ -48,24 +48,24 @@ public interface IConfiguration {
 
     int getMaxServiceConsoleLogCacheSize();
 
+    void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
+
     boolean isPrintErrorStreamLinesFromServices();
 
-    void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
+    void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
 
     boolean isParallelServiceStartSequence();
 
+    void setParallelServiceStartSequence(boolean value);
+
     boolean isRunBlockedServiceStartTryLaterAutomatic();
+
+    void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
 
     boolean isDefaultJVMOptionParameters();
 
     void setDefaultJVMOptionParameters(boolean value);
 
     String getJVMCommand();
-
-    void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
-
-    void setParallelServiceStartSequence(boolean value);
-
-    void setHttpListeners(Collection<HostAndPort> httpListeners);
 
 }

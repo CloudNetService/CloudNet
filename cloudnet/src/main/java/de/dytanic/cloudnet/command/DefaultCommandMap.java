@@ -13,11 +13,9 @@ public final class DefaultCommandMap implements ICommandMap {
     private final Map<String, Command> registeredCommands = Maps.newConcurrentHashMap();
 
     @Override
-    public void registerCommand(Command command)
-    {
+    public void registerCommand(Command command) {
         if (command != null && command.isValid())
-            for (String name : command.getNames())
-            {
+            for (String name : command.getNames()) {
                 this.registeredCommands.put(name.toLowerCase(), command);
 
                 if (command.getPrefix() != null && !command.getPrefix().isEmpty())
@@ -26,20 +24,17 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     @Override
-    public void unregisterCommand(String command)
-    {
+    public void unregisterCommand(String command) {
         this.registeredCommands.remove(command);
     }
 
     @Override
-    public void unregisterCommand(Class<? extends Command> command)
-    {
+    public void unregisterCommand(Class<? extends Command> command) {
         Validate.checkNotNull(command);
 
         for (Command commandEntry : this.registeredCommands.values())
             if (commandEntry.getClass().equals(command))
-                for (String commandName : commandEntry.getNames())
-                {
+                for (String commandName : commandEntry.getNames()) {
                     this.registeredCommands.remove(commandName.toLowerCase());
 
                     if (commandEntry.getPrefix() != null && !commandEntry.getPrefix().isEmpty())
@@ -48,14 +43,12 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     @Override
-    public void unregisterCommands(ClassLoader classLoader)
-    {
+    public void unregisterCommands(ClassLoader classLoader) {
         Validate.checkNotNull(classLoader);
 
         for (Command commandEntry : this.registeredCommands.values())
             if (commandEntry.getClass().getClassLoader().equals(classLoader))
-                for (String commandName : commandEntry.getNames())
-                {
+                for (String commandName : commandEntry.getNames()) {
                     this.registeredCommands.remove(commandName.toLowerCase());
 
                     if (commandEntry.getPrefix() != null && !commandEntry.getPrefix().isEmpty())
@@ -64,14 +57,12 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     @Override
-    public void unregisterCommands()
-    {
+    public void unregisterCommands() {
         this.registeredCommands.clear();
     }
 
     @Override
-    public Collection<CommandInfo> getCommandInfos()
-    {
+    public Collection<CommandInfo> getCommandInfos() {
         Collection<Command> commands = Iterables.newArrayList();
 
         for (Command command : this.registeredCommands.values())
@@ -82,16 +73,14 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     @Override
-    public Command getCommand(String name)
-    {
+    public Command getCommand(String name) {
         if (name == null) return null;
 
         return this.registeredCommands.get(name.toLowerCase());
     }
 
     @Override
-    public Command getCommandFromLine(String commandLine)
-    {
+    public Command getCommandFromLine(String commandLine) {
         if (commandLine == null || commandLine.isEmpty()) return null;
 
         String[] a = commandLine.split(" ");
@@ -99,14 +88,12 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     @Override
-    public Collection<String> getCommandNames()
-    {
+    public Collection<String> getCommandNames() {
         return this.registeredCommands.keySet();
     }
 
     @Override
-    public boolean dispatchCommand(ICommandSender commandSender, String commandLine)
-    {
+    public boolean dispatchCommand(ICommandSender commandSender, String commandLine) {
         if (commandSender == null || commandLine == null || commandLine.trim().isEmpty()) return false;
 
         boolean response = true;
@@ -118,8 +105,7 @@ public final class DefaultCommandMap implements ICommandMap {
         return response;
     }
 
-    public boolean dispatchCommand0(ICommandSender commandSender, String commandLine)
-    {
+    public boolean dispatchCommand0(ICommandSender commandSender, String commandLine) {
         String[] args = commandLine.split(" ");
 
         if (!this.registeredCommands.containsKey(args[0].toLowerCase()))
@@ -132,13 +118,11 @@ public final class DefaultCommandMap implements ICommandMap {
 
         args = args.length > 1 ? commandLine.replaceFirst(args[0] + " ", "").split(" ") : new String[0];
 
-        try
-        {
+        try {
             command.execute(commandSender, commandName, args, commandLine, Properties.parseLine(args));
             return true;
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return false;
@@ -146,8 +130,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     /*= ---------------------------------------------------------------------------- =*/
 
-    private CommandInfo commandInfoFilter(Command command)
-    {
+    private CommandInfo commandInfoFilter(Command command) {
         return command.getInfo();
     }
 

@@ -10,16 +10,13 @@ import org.bukkit.event.HandlerList;
 @RequiredArgsConstructor
 public final class BukkitBridgeProxyPlayerServerSwitchEvent extends BukkitBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
-
-    private final NetworkServiceInfo networkServiceInfo;
-
     @Getter
     private static HandlerList handlerList = new HandlerList();
+    private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkServiceInfo networkServiceInfo;
 
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 

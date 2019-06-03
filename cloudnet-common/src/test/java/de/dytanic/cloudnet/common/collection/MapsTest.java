@@ -9,8 +9,7 @@ import java.util.function.Function;
 public final class MapsTest {
 
     @Test
-    public void testNotNull()
-    {
+    public void testNotNull() {
         Assert.assertNotNull(Maps.newConcurrentHashMap());
         Assert.assertNotNull(Maps.newHashMap());
         Assert.assertNotNull(Maps.newLinkedHashMap());
@@ -19,20 +18,17 @@ public final class MapsTest {
     }
 
     @Test
-    public void testMisc()
-    {
+    public void testMisc() {
         Assert.assertEquals(3, Maps.newMapByValues(Arrays.asList("test", "test1", "test_3"), new Function<String, Integer>() {
             @Override
-            public Integer apply(String v)
-            {
+            public Integer apply(String v) {
                 return v.length();
             }
         }).size());
 
         Assert.assertEquals(3, Maps.newMapByKeys(Arrays.asList(4, 3, 2), new Function<Integer, String>() {
             @Override
-            public String apply(Integer v)
-            {
+            public String apply(Integer v) {
                 return v.toString();
             }
         }).size());

@@ -18,8 +18,7 @@ public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent 
     private final JsonDocument data;
 
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 }

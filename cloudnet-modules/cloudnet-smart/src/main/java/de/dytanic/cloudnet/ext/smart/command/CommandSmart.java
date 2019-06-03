@@ -11,8 +11,7 @@ import de.dytanic.cloudnet.ext.smart.CloudNetSmartModule;
 
 public final class CommandSmart extends Command {
 
-    public CommandSmart()
-    {
+    public CommandSmart() {
         super("smart");
 
         this.permission = "cloudnet.console.command.smart";
@@ -21,25 +20,22 @@ public final class CommandSmart extends Command {
     }
 
     @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-    {
-        if (args.length == 0)
-        {
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
+        if (args.length == 0) {
             sender.sendMessage(
-                "smart reload"
+                    "smart reload"
             );
             return;
         }
 
-        if (args[0].equalsIgnoreCase("reload"))
-        {
+        if (args[0].equalsIgnoreCase("reload")) {
             CloudNetSmartModule.getInstance().load();
             sender.sendMessage(LanguageManager.getMessage("module-smart-command-reload-success"));
 
             CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(new PacketClientServerChannelMessage(
-                "cloudnet_smart_module",
-                "update_configuration",
-                new JsonDocument("smartServiceTaskConfiguration", CloudNetSmartModule.getInstance().getSmartServiceTaskConfigurations())
+                    "cloudnet_smart_module",
+                    "update_configuration",
+                    new JsonDocument("smartServiceTaskConfiguration", CloudNetSmartModule.getInstance().getSmartServiceTaskConfigurations())
             ));
         }
     }

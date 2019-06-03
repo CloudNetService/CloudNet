@@ -11,16 +11,15 @@ import org.junit.Test;
 public class NettyNetworkClientServerTest {
 
     private boolean
-        connectedClient = false,
-        connectedServer = false;
+            connectedClient = false,
+            connectedServer = false;
 
     private volatile String
-        cliPacketServerReceive = null,
-        cliPacketClientReceive = null;
+            cliPacketServerReceive = null,
+            cliPacketClientReceive = null;
 
     @Test
-    public void testNettyConnectorServer() throws Throwable
-    {
+    public void testNettyConnectorServer() throws Throwable {
         INetworkServer networkServer = new NettyNetworkServer(NetworkChannelServerHandler::new);
         INetworkClient networkClient = new NettyNetworkClient(NetworkChannelClientHandler::new);
 
@@ -60,22 +59,19 @@ public class NettyNetworkClientServerTest {
     private final class NetworkChannelClientHandler implements INetworkChannelHandler {
 
         @Override
-        public void handleChannelInitialize(INetworkChannel channel)
-        {
+        public void handleChannelInitialize(INetworkChannel channel) {
             connectedClient = true;
         }
 
         @Override
-        public boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-        {
+        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
             cliPacketServerReceive = new String(packet.getBody());
 
             return true;
         }
 
         @Override
-        public void handleChannelClose(INetworkChannel channel)
-        {
+        public void handleChannelClose(INetworkChannel channel) {
 
         }
     }
@@ -83,20 +79,17 @@ public class NettyNetworkClientServerTest {
     private final class NetworkChannelServerHandler implements INetworkChannelHandler {
 
         @Override
-        public void handleChannelInitialize(INetworkChannel channel)
-        {
+        public void handleChannelInitialize(INetworkChannel channel) {
             connectedServer = true;
         }
 
         @Override
-        public boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-        {
+        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
             return true;
         }
 
         @Override
-        public void handleChannelClose(INetworkChannel channel)
-        {
+        public void handleChannelClose(INetworkChannel channel) {
 
         }
     }
@@ -104,8 +97,7 @@ public class NettyNetworkClientServerTest {
     private final class PacketListenerImpl implements IPacketListener {
 
         @Override
-        public void handle(INetworkChannel channel, IPacket packet)
-        {
+        public void handle(INetworkChannel channel, IPacket packet) {
             cliPacketClientReceive = new String(packet.getBody());
         }
     }

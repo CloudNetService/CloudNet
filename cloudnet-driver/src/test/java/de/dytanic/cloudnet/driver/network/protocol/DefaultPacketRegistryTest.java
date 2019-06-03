@@ -12,8 +12,7 @@ public class DefaultPacketRegistryTest {
     private int property = 0;
 
     @Test
-    public void testPacketRegistry() throws Throwable
-    {
+    public void testPacketRegistry() throws Throwable {
         final int channelId = 4;
 
         IPacketListener listener = new PacketListenerImpl();
@@ -41,8 +40,7 @@ public class DefaultPacketRegistryTest {
     private final class PacketListenerImpl implements IPacketListener {
 
         @Override
-        public void handle(INetworkChannel channel, IPacket packet)
-        {
+        public void handle(INetworkChannel channel, IPacket packet) {
             testValue = new String(packet.getBody());
             property = packet.getHeader().getInt("testProperty");
         }

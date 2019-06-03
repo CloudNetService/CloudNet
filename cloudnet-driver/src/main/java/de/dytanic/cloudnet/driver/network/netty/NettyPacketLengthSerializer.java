@@ -11,8 +11,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 public final class NettyPacketLengthSerializer extends MessageToByteEncoder<ByteBuf> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
-    {
+    protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception {
         int readableBytes = in.readableBytes(), lengthByteSpace = getVarIntSize(readableBytes);
 
         if (lengthByteSpace > 5) throw new IllegalArgumentException();
@@ -22,8 +21,7 @@ public final class NettyPacketLengthSerializer extends MessageToByteEncoder<Byte
         out.writeBytes(in, in.readerIndex(), readableBytes);
     }
 
-    private int getVarIntSize(int value)
-    {
+    private int getVarIntSize(int value) {
         if ((value & -128) == 0)
             return 1;
         else if ((value & -16384) == 0)

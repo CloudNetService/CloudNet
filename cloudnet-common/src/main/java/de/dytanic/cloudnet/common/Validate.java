@@ -5,8 +5,7 @@ package de.dytanic.cloudnet.common;
  */
 public final class Validate {
 
-    private Validate()
-    {
+    private Validate() {
         throw new UnsupportedOperationException();
     }
 
@@ -17,8 +16,7 @@ public final class Validate {
      * @param <T>    the generic type of the input argument
      * @return the same instance which you add into the first parameter
      */
-    public static <T> T checkNotNull(T object)
-    {
+    public static <T> T checkNotNull(T object) {
         checkNotNull(object, null);
 
         return object;
@@ -32,8 +30,7 @@ public final class Validate {
      * @param <T>     the generic type of the input argument
      * @return the same instance which you add into the first parameter
      */
-    public static <T> T checkNotNull(T object, String message)
-    {
+    public static <T> T checkNotNull(T object, String message) {
         if (object == null)
             throw new NullPointerException(message == null ? "The input object is null. Please check the parameters!" : message);
 
@@ -47,8 +44,7 @@ public final class Validate {
      * @param value the following condition which should checked
      * @return true
      */
-    public static boolean assertTrue(boolean value)
-    {
+    public static boolean assertTrue(boolean value) {
         assertTrue(value, null);
 
         return value;
@@ -62,8 +58,7 @@ public final class Validate {
      * @param message the message which should throw, when the condition is false
      * @return true
      */
-    public static boolean assertTrue(boolean value, String message)
-    {
+    public static boolean assertTrue(boolean value, String message) {
         if (!value)
             throw new IllegalArgumentException(message == null ? "input condition is false. Expected true" : message);
 
@@ -77,8 +72,7 @@ public final class Validate {
      * @param value the following condition which should checked
      * @return false
      */
-    public static boolean assertFalse(boolean value)
-    {
+    public static boolean assertFalse(boolean value) {
         assertFalse(value, "value is true");
 
         return value;
@@ -92,8 +86,7 @@ public final class Validate {
      * @param message the message which should throw, when the condition is true
      * @return false
      */
-    public static boolean assertFalse(boolean value, String message)
-    {
+    public static boolean assertFalse(boolean value, String message) {
         if (value) throw new IllegalArgumentException(message);
 
         return value;
@@ -106,17 +99,14 @@ public final class Validate {
      * @param input the following test string
      * @return true if the string can parse to int
      */
-    public static boolean testStringParseToInt(String input)
-    {
+    public static boolean testStringParseToInt(String input) {
         boolean value = false;
 
-        try
-        {
+        try {
             Integer.parseInt(input);
             value = true;
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return value;
@@ -129,17 +119,14 @@ public final class Validate {
      * @param input the following test string
      * @return true if the string can parse to double
      */
-    public static boolean testStringParseToDouble(String input)
-    {
+    public static boolean testStringParseToDouble(String input) {
         boolean value = false;
 
-        try
-        {
+        try {
             Double.parseDouble(input);
             value = true;
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return value;
@@ -152,17 +139,14 @@ public final class Validate {
      * @param input the following test string
      * @return true if the string can parse to long
      */
-    public static boolean testStringParseToLong(String input)
-    {
+    public static boolean testStringParseToLong(String input) {
         boolean value = false;
 
-        try
-        {
+        try {
             Long.parseLong(input);
             value = true;
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
         return value;

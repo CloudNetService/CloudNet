@@ -26,14 +26,12 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
     private static GoMintCloudNetCloudPermissionsPlugin instance;
 
     @Override
-    public void onInstall()
-    {
+    public void onInstall() {
         instance = this;
     }
 
     @Override
-    public void onStartup()
-    {
+    public void onStartup() {
         new CloudPermissionsPermissionManagement();
         injectEntityPlayersCloudPermissionManager();
 
@@ -41,26 +39,22 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
     }
 
     @Override
-    public void onUninstall()
-    {
+    public void onUninstall() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
     /*= ------------------------------------------------------------------------------- =*/
 
-    private void injectEntityPlayersCloudPermissionManager()
-    {
+    private void injectEntityPlayersCloudPermissionManager() {
         for (EntityPlayer entityPlayer : GoMint.instance().getPlayers())
             injectPermissionManager(entityPlayer);
     }
 
-    public void injectPermissionManager(EntityPlayer entityPlayer)
-    {
+    public void injectPermissionManager(EntityPlayer entityPlayer) {
         Validate.checkNotNull(entityPlayer);
 
-        try
-        {
+        try {
             Field field = entityPlayer.getClass().getDeclaredField("permissionManager");
             field.setAccessible(true);
 
@@ -68,8 +62,7 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
 
             AccessController.doPrivileged(new PrivilegedAction() {
                 @Override
-                public Object run()
-                {
+                public Object run() {
                     modifiersField.setAccessible(true);
                     return null;
                 }
@@ -78,8 +71,7 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
             modifiersField.setInt(field, modifiersField.getModifiers() & ~Modifier.FINAL);
             field.set(entityPlayer, new GoMintCloudNetCloudPermissionsPermissionManager((io.gomint.server.entity.EntityPlayer) entityPlayer, entityPlayer.getPermissionManager()));
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
             ignored.printStackTrace();
         }
     }

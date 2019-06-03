@@ -16,33 +16,28 @@ import java.util.List;
 public final class PacketServerSetJsonFilePermissionsListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("permissionUsers") && packet.getHeader().contains("permissionGroups") && packet.getHeader().contains("set_json_file"))
-        {
-            if (CloudNet.getInstance().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement)
-            {
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+        if (packet.getHeader().contains("permissionUsers") && packet.getHeader().contains("permissionGroups") && packet.getHeader().contains("set_json_file")) {
+            if (CloudNet.getInstance().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement) {
                 List<PermissionUser> permissionUsers = packet.getHeader().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
                 }.getType());
 
                 List<PermissionGroup> permissionGroups = packet.getHeader().get("permissionGroups", new TypeToken<List<PermissionGroup>>() {
                 }.getType());
 
-                if (permissionUsers != null || permissionGroups != null)
-                {
+                if (permissionUsers != null || permissionGroups != null) {
                     NetworkChannelReceiveJsonFilePermissionsUpdateEvent event = new NetworkChannelReceiveJsonFilePermissionsUpdateEvent(channel, permissionUsers, permissionGroups);
                     CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
-                    if (!event.isCancelled())
-                    {
+                    if (!event.isCancelled()) {
                         if (permissionUsers != null)
                             ((DefaultJsonFilePermissionManagement) CloudNet.getInstance().getPermissionManagement()).setUsers0(
-                                event.getPermissionUsers() != null ? event.getPermissionUsers() : permissionUsers
+                                    event.getPermissionUsers() != null ? event.getPermissionUsers() : permissionUsers
                             );
 
                         if (permissionGroups != null)
                             ((DefaultJsonFilePermissionManagement) CloudNet.getInstance().getPermissionManagement()).setGroups0(
-                                event.getPermissionGroups() != null ? event.getPermissionGroups() : permissionGroups
+                                    event.getPermissionGroups() != null ? event.getPermissionGroups() : permissionGroups
                             );
                     }
                 }

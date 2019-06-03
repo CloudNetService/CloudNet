@@ -11,8 +11,7 @@ public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
     @Getter
     private final ClassLoader cloudNetClassLoader, spongeAppClassLoader;
 
-    public SpongeCloudNetAdapterClassLoader(ClassLoader cloudNetClassLoader, ClassLoader spongeAppClassLoader, ClassLoader parent)
-    {
+    public SpongeCloudNetAdapterClassLoader(ClassLoader cloudNetClassLoader, ClassLoader spongeAppClassLoader, ClassLoader parent) {
         super(new URL[0], parent);
 
         this.cloudNetClassLoader = cloudNetClassLoader;
@@ -20,47 +19,40 @@ public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
-    {
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> target = findClass0(name);
 
         if (target != null) return target;
 
-        try
-        {
+        try {
             Class<?> loaded = this.findLoadedClass(name);
             if (loaded != null)
                 return loaded;
             else
                 return super.loadClass(name, resolve);
 
-        } catch (Throwable ex)
-        {
+        } catch (Throwable ex) {
             if (name.startsWith("io.netty") || name.startsWith("com.google.gson"))
                 throw new ClassNotFoundException(name);
             return cloudNetClassLoader.loadClass(name);
         }
     }
 
-    private Class<?> findClass0(String name)
-    {
-        try
-        {
+    private Class<?> findClass0(String name) {
+        try {
 
             Method method = URLClassLoader.class.getMethod("findClass", String.class);
             method.setAccessible(true);
 
             return (Class<?>) method.invoke(spongeAppClassLoader, name);
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return null;
         }
     }
 
     @Override
-    public URL getResource(String name)
-    {
+    public URL getResource(String name) {
         URL url = super.getResource(name);
 
         if (url == null)

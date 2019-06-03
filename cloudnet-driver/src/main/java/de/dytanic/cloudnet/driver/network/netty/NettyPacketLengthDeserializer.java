@@ -14,38 +14,31 @@ import java.util.List;
 public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
-    {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         in.markReaderIndex();
         byte[] lengthBytes = new byte[5];
 
-        for (int i = 0; i < 5; i++)
-        {
-            if (!in.isReadable())
-            {
+        for (int i = 0; i < 5; i++) {
+            if (!in.isReadable()) {
                 in.resetReaderIndex();
                 return;
             }
 
             lengthBytes[i] = in.readByte();
 
-            if (lengthBytes[i] >= 0)
-            {
+            if (lengthBytes[i] >= 0) {
                 ByteBuf buffer = Unpooled.wrappedBuffer(lengthBytes);
 
-                try
-                {
+                try {
                     int packetLength = NettyUtils.readVarInt(buffer);
 
-                    if (in.readableBytes() < packetLength)
-                    {
+                    if (in.readableBytes() < packetLength) {
                         in.resetReaderIndex();
                         return;
                     }
 
                     out.add(in.readBytes(packetLength));
-                } finally
-                {
+                } finally {
                     buffer.release();
                 }
 

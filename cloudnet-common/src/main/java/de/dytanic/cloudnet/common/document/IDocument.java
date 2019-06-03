@@ -88,8 +88,7 @@ public interface IDocument<T extends IDocument> extends IJsonDocPropertyable, Se
 
     /*= --------------------------------------------------- =*/
 
-    default boolean isEmpty()
-    {
+    default boolean isEmpty() {
         return this.size() == 0;
     }
 }

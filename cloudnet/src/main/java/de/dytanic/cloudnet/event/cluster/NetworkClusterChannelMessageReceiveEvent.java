@@ -15,8 +15,7 @@ public class NetworkClusterChannelMessageReceiveEvent extends NetworkEvent {
     private final byte[] body;
 
     public NetworkClusterChannelMessageReceiveEvent(INetworkChannel networkChannel,
-                                                    String channel, String message, JsonDocument header, byte[] body)
-    {
+                                                    String channel, String message, JsonDocument header, byte[] body) {
         super(networkChannel);
 
         this.messageChannel = channel;

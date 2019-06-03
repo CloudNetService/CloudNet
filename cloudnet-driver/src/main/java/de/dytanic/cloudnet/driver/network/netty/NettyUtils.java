@@ -25,61 +25,51 @@ import java.util.concurrent.ThreadFactory;
 
 public final class NettyUtils {
 
-    static
-    {
+    static {
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     }
 
-    private NettyUtils()
-    {
+    private NettyUtils() {
         throw new UnsupportedOperationException();
     }
 
-    public static EventLoopGroup newEventLoopGroup()
-    {
+    public static EventLoopGroup newEventLoopGroup() {
         return Epoll.isAvailable() ?
-            new EpollEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory()) :
-            KQueue.isAvailable() ?
-                new KQueueEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory()) :
-                new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory());
+                new EpollEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory()) :
+                KQueue.isAvailable() ?
+                        new KQueueEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory()) :
+                        new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory());
     }
 
-    public static Class<? extends SocketChannel> getSocketChannelClass()
-    {
+    public static Class<? extends SocketChannel> getSocketChannelClass() {
         return Epoll.isAvailable() ? EpollSocketChannel.class : KQueue.isAvailable() ? KQueueSocketChannel.class : NioSocketChannel.class;
     }
 
-    public static Class<? extends ServerSocketChannel> getServerSocketChannelClass()
-    {
+    public static Class<? extends ServerSocketChannel> getServerSocketChannelClass() {
         return Epoll.isAvailable() ? EpollServerSocketChannel.class : KQueue.isAvailable() ? KQueueServerSocketChannel.class : NioServerSocketChannel.class;
     }
 
-    public static ThreadFactory threadFactory()
-    {
+    public static ThreadFactory threadFactory() {
         return new DefaultThreadFactory(MultithreadEventExecutorGroup.class, true, Thread.MIN_PRIORITY);
     }
 
-    public static byte[] toByteArray(ByteBuf byteBuf, int size)
-    {
+    public static byte[] toByteArray(ByteBuf byteBuf, int size) {
         byte[] data = new byte[size];
         byteBuf.readBytes(data);
         return data;
     }
 
-    public static int readVarInt(ByteBuf byteBuf)
-    {
+    public static int readVarInt(ByteBuf byteBuf) {
         int numRead = 0;
         int result = 0;
         byte read;
-        do
-        {
+        do {
             read = byteBuf.readByte();
             int value = (read & 0b01111111);
             result |= (value << (7 * numRead));
 
             numRead++;
-            if (numRead > 5)
-            {
+            if (numRead > 5) {
                 throw new RuntimeException("VarInt is too big");
             }
         } while ((read & 0b10000000) != 0);
@@ -87,20 +77,17 @@ public final class NettyUtils {
         return result;
     }
 
-    public static long readVarLong(ByteBuf byteBuf)
-    {
+    public static long readVarLong(ByteBuf byteBuf) {
         int numRead = 0;
         long result = 0;
         byte read;
-        do
-        {
+        do {
             read = byteBuf.readByte();
             int value = (read & 0b01111111);
             result |= (value << (7 * numRead));
 
             numRead++;
-            if (numRead > 10)
-            {
+            if (numRead > 10) {
                 throw new RuntimeException("VarLong is too big");
             }
         } while ((read & 0b10000000) != 0);
@@ -108,14 +95,11 @@ public final class NettyUtils {
         return result;
     }
 
-    public static ByteBuf writeVarInt(ByteBuf byteBuf, int value)
-    {
-        do
-        {
+    public static ByteBuf writeVarInt(ByteBuf byteBuf, int value) {
+        do {
             byte temp = (byte) (value & 0b01111111);
             value >>>= 7;
-            if (value != 0)
-            {
+            if (value != 0) {
                 temp |= 0b10000000;
             }
             byteBuf.writeByte(temp);
@@ -124,14 +108,11 @@ public final class NettyUtils {
         return byteBuf;
     }
 
-    public static ByteBuf writeVarLong(ByteBuf byteBuf, long value)
-    {
-        do
-        {
+    public static ByteBuf writeVarLong(ByteBuf byteBuf, long value) {
+        do {
             byte temp = (byte) (value & 0b01111111);
             value >>>= 7;
-            if (value != 0)
-            {
+            if (value != 0) {
                 temp |= 0b10000000;
             }
             byteBuf.writeByte(temp);
@@ -140,16 +121,14 @@ public final class NettyUtils {
         return byteBuf;
     }
 
-    public static ByteBuf writeString(ByteBuf byteBuf, String string)
-    {
+    public static ByteBuf writeString(ByteBuf byteBuf, String string) {
         byte[] values = string.getBytes(StandardCharsets.UTF_8);
         writeVarInt(byteBuf, values.length);
         byteBuf.writeBytes(values);
         return byteBuf;
     }
 
-    public static String readString(ByteBuf byteBuf)
-    {
+    public static String readString(ByteBuf byteBuf) {
         int integer = readVarInt(byteBuf);
         byte[] buffer = new byte[integer];
         byteBuf.readBytes(buffer, 0, integer);

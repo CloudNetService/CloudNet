@@ -13,17 +13,13 @@ import java.util.List;
 public final class PacketServerSetDatabaseGroupFilePermissionsListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("permissionGroups") && packet.getHeader().contains("set_json_database"))
-        {
-            if (CloudNet.getInstance().getPermissionManagement() instanceof DefaultDatabasePermissionManagement)
-            {
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+        if (packet.getHeader().contains("permissionGroups") && packet.getHeader().contains("set_json_database")) {
+            if (CloudNet.getInstance().getPermissionManagement() instanceof DefaultDatabasePermissionManagement) {
                 List<PermissionGroup> permissionGroups = packet.getHeader().get("permissionGroups", new TypeToken<List<PermissionGroup>>() {
                 }.getType());
 
-                if (permissionGroups != null)
-                {
+                if (permissionGroups != null) {
                     if (permissionGroups != null)
                         ((DefaultDatabasePermissionManagement) CloudNet.getInstance().getPermissionManagement()).setGroups0(permissionGroups);
                 }

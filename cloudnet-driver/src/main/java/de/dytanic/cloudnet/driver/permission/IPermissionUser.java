@@ -21,28 +21,24 @@ public interface IPermissionUser extends IPermissible {
 
     /*= ------------------------------------------------------- =*/
 
-    default IPermissionUser addGroup(String group)
-    {
+    default IPermissionUser addGroup(String group) {
         if (group == null) return this;
 
         return addGroup(group, 0L);
     }
 
-    default IPermissionUser addGroup(String group, long time, TimeUnit timeUnit)
-    {
+    default IPermissionUser addGroup(String group, long time, TimeUnit timeUnit) {
         if (group == null) return this;
 
         return addGroup(group, (System.currentTimeMillis() + timeUnit.toMillis(time)));
     }
 
-    default IPermissionUser addGroup(String group, long timeOutMillis)
-    {
+    default IPermissionUser addGroup(String group, long timeOutMillis) {
         if (group == null) return this;
 
         PermissionUserGroupInfo groupInfo = Iterables.first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
             @Override
-            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo)
-            {
+            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
                 return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
             }
         });
@@ -55,14 +51,12 @@ public interface IPermissionUser extends IPermissible {
         return this;
     }
 
-    default IPermissionUser removeGroup(String group)
-    {
+    default IPermissionUser removeGroup(String group) {
         if (group == null) return this;
 
         Collection<PermissionUserGroupInfo> groupInfo = Iterables.filter(getGroups(), new Predicate<PermissionUserGroupInfo>() {
             @Override
-            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo)
-            {
+            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
                 return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
             }
         });
@@ -72,14 +66,12 @@ public interface IPermissionUser extends IPermissible {
         return this;
     }
 
-    default boolean inGroup(String group)
-    {
+    default boolean inGroup(String group) {
         if (group == null) return false;
 
         return Iterables.first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
             @Override
-            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo)
-            {
+            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
                 return permissionUserGroupInfo.getGroup() != null && permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
             }
         }) != null;

@@ -26,8 +26,7 @@ public class LogOutputStream extends ByteArrayOutputStream {
     protected final LogLevel logLevel;
 
     @Override
-    public void flush() throws IOException
-    {
+    public void flush() throws IOException {
         String input = toString(StandardCharsets.UTF_8.name());
         this.reset();
 

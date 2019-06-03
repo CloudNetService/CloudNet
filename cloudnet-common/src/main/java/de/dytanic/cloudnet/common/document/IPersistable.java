@@ -15,51 +15,43 @@ public interface IPersistable {
 
     /*= --------------------------------------------------------------- =*/
 
-    default IPersistable write(Path path)
-    {
-        try (OutputStream outputStream = new FileOutputStream(path.toFile()))
-        {
+    default IPersistable write(Path path) {
+        try (OutputStream outputStream = new FileOutputStream(path.toFile())) {
             this.write(outputStream);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         return this;
     }
 
-    default IPersistable write(String path)
-    {
+    default IPersistable write(String path) {
         if (path == null) return this;
 
         return this.write(Paths.get(path));
     }
 
-    default IPersistable write(String... paths)
-    {
+    default IPersistable write(String... paths) {
         if (paths == null) return this;
         for (String path : paths) this.write(path);
 
         return this;
     }
 
-    default IPersistable write(File file)
-    {
+    default IPersistable write(File file) {
         if (file == null) return this;
 
         return this.write(file.toPath());
     }
 
-    default IPersistable write(File... files)
-    {
+    default IPersistable write(File... files) {
         if (files == null) return this;
         for (File file : files) this.write(file);
 
         return this;
     }
 
-    default IPersistable write(Path... paths)
-    {
+    default IPersistable write(Path... paths) {
         if (paths == null) return this;
         for (Path path : paths) this.write(path);
 

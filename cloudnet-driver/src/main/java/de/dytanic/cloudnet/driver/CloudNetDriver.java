@@ -48,10 +48,8 @@ public abstract class CloudNetDriver {
     protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
 
     protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
-
-    protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
-
     protected final ILogger logger;
+    protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
     /*= ------------------------------------------------- =*/
 
@@ -74,31 +72,31 @@ public abstract class CloudNetDriver {
     public abstract ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
 
     public abstract ServiceInfoSnapshot createCloudService(
-        String name,
-        String runtime,
-        boolean autoDeleteOnStop,
-        boolean staticService,
-        Collection<ServiceRemoteInclusion> includes,
-        Collection<ServiceTemplate> templates,
-        Collection<ServiceDeployment> deployments,
-        Collection<String> groups,
-        ProcessConfiguration processConfiguration,
-        Integer port
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
     );
 
     public abstract Collection<ServiceInfoSnapshot> createCloudService(
-        String nodeUniqueId,
-        int amount,
-        String name,
-        String runtime,
-        boolean autoDeleteOnStop,
-        boolean staticService,
-        Collection<ServiceRemoteInclusion> includes,
-        Collection<ServiceTemplate> templates,
-        Collection<ServiceDeployment> deployments,
-        Collection<String> groups,
-        ProcessConfiguration processConfiguration,
-        Integer port
+            String nodeUniqueId,
+            int amount,
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
     );
 
     public abstract ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine);
@@ -111,22 +109,19 @@ public abstract class CloudNetDriver {
 
     public abstract Queue<String> getCachedLogMessagesFromService(UUID uniqueId);
 
-    public void stopCloudService(ServiceInfoSnapshot serviceInfoSnapshot)
-    {
+    public void stopCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
     }
 
-    public void startCloudService(ServiceInfoSnapshot serviceInfoSnapshot)
-    {
+    public void startCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
     }
 
-    public void deleteCloudService(ServiceInfoSnapshot serviceInfoSnapshot)
-    {
+    public void deleteCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
@@ -249,31 +244,31 @@ public abstract class CloudNetDriver {
     public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration);
 
     public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(
-        String name,
-        String runtime,
-        boolean autoDeleteOnStop,
-        boolean staticService,
-        Collection<ServiceRemoteInclusion> includes,
-        Collection<ServiceTemplate> templates,
-        Collection<ServiceDeployment> deployments,
-        Collection<String> groups,
-        ProcessConfiguration processConfiguration,
-        Integer port
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
     );
 
     public abstract ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
-        String nodeUniqueId,
-        int amount,
-        String name,
-        String runtime,
-        boolean autoDeleteOnStop,
-        boolean staticService,
-        Collection<ServiceRemoteInclusion> includes,
-        Collection<ServiceTemplate> templates,
-        Collection<ServiceDeployment> deployments,
-        Collection<String> groups,
-        ProcessConfiguration processConfiguration,
-        Integer port
+            String nodeUniqueId,
+            int amount,
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
     );
 
     public abstract ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine);
@@ -362,8 +357,7 @@ public abstract class CloudNetDriver {
 
     /*= ------------------------------------------------------------------------------------------------ =*/
 
-    public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function)
-    {
+    public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
         Validate.checkNotNull(networkChannel);
         Validate.checkNotNull(channel);
         Validate.checkNotNull(id);
@@ -372,38 +366,32 @@ public abstract class CloudNetDriver {
 
         return this.sendCallablePacket(networkChannel, channel, data.append(PacketConstants.SYNC_PACKET_ID_PROPERTY, id), null, new Function<Pair<JsonDocument, byte[]>, R>() {
             @Override
-            public R apply(Pair<JsonDocument, byte[]> jsonDocumentPair)
-            {
+            public R apply(Pair<JsonDocument, byte[]> jsonDocumentPair) {
                 return function.apply(jsonDocumentPair.getFirst());
             }
         });
     }
 
-    public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function)
-    {
+    public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.sendCallablePacketWithAsDriverSyncAPI(this.getNetworkClient().getChannels().iterator().next(), header, body, function);
     }
 
-    public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPI(INetworkChannel channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function)
-    {
+    public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPI(INetworkChannel channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.sendCallablePacket(channel, "cloudnet_driver_sync_api", header, body, function);
     }
 
-    public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function)
-    {
+    public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return sendCallablePacket0(networkChannel, channel, header, body, function);
     }
 
-    private <R> ITask<R> sendCallablePacket0(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function)
-    {
+    private <R> ITask<R> sendCallablePacket0(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         header.append(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY, channel);
 
         Value<R> value = new Value<>();
 
         ITask<R> listenableTask = new ListenableTask<>(new Callable<R>() {
             @Override
-            public R call() throws Exception
-            {
+            public R call() throws Exception {
                 return value.getValue();
             }
         });
@@ -411,21 +399,17 @@ public abstract class CloudNetDriver {
         InternalSyncPacketChannel.sendCallablePacket(networkChannel, header, body, new ITaskListener<Pair<JsonDocument, byte[]>>() {
 
             @Override
-            public void onComplete(ITask<Pair<JsonDocument, byte[]>> task, Pair<JsonDocument, byte[]> result)
-            {
+            public void onComplete(ITask<Pair<JsonDocument, byte[]>> task, Pair<JsonDocument, byte[]> result) {
                 value.setValue(function.apply(result));
-                try
-                {
+                try {
                     listenableTask.call();
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure(ITask<Pair<JsonDocument, byte[]>> task, Throwable th)
-            {
+            public void onFailure(ITask<Pair<JsonDocument, byte[]>> task, Throwable th) {
                 th.printStackTrace();
             }
         });

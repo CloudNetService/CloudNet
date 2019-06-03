@@ -43,75 +43,67 @@ public abstract class AbstractSignManagement {
 
     public abstract void onSignRemove(Sign sign);
 
-    public void sendSignAddUpdate(Sign sign)
-    {
+    public void sendSignAddUpdate(Sign sign) {
         Validate.checkNotNull(sign);
 
         CloudNetDriver.getInstance()
-            .sendChannelMessage(
-                SignConstants.SIGN_CHANNEL_NAME,
-                SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE,
-                new JsonDocument("sign", sign)
-            );
+                .sendChannelMessage(
+                        SignConstants.SIGN_CHANNEL_NAME,
+                        SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE,
+                        new JsonDocument("sign", sign)
+                );
     }
 
-    public void sendSignRemoveUpdate(Sign sign)
-    {
+    public void sendSignRemoveUpdate(Sign sign) {
         Validate.checkNotNull(sign);
 
         CloudNetDriver.getInstance()
-            .sendChannelMessage(
-                SignConstants.SIGN_CHANNEL_NAME,
-                SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE,
-                new JsonDocument("sign", sign)
-            );
+                .sendChannelMessage(
+                        SignConstants.SIGN_CHANNEL_NAME,
+                        SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE,
+                        new JsonDocument("sign", sign)
+                );
     }
 
-    public Collection<Sign> getSignsFromNode()
-    {
+    public Collection<Sign> getSignsFromNode() {
         ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().sendCallablePacket(
-            CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-            SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
-            new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
-            new byte[0],
-            new Function<Pair<JsonDocument, byte[]>, Collection<Sign>>() {
-                @Override
-                public Collection<Sign> apply(Pair<JsonDocument, byte[]> documentPair)
-                {
-                    return documentPair.getFirst().get("signs", SignConstants.COLLECTION_SIGNS);
+                CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
+                new byte[0],
+                new Function<Pair<JsonDocument, byte[]>, Collection<Sign>>() {
+                    @Override
+                    public Collection<Sign> apply(Pair<JsonDocument, byte[]> documentPair) {
+                        return documentPair.getFirst().get("signs", SignConstants.COLLECTION_SIGNS);
+                    }
                 }
-            }
         );
 
-        try
-        {
+        try {
             return signs.get(5, TimeUnit.SECONDS);
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
         return null;
     }
 
-    public void updateSignConfiguration(SignConfiguration signConfiguration)
-    {
+    public void updateSignConfiguration(SignConfiguration signConfiguration) {
         Validate.checkNotNull(signConfiguration);
 
         CloudNetDriver.getInstance().sendChannelMessage(
-            SignConstants.SIGN_CHANNEL_NAME,
-            SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-            new JsonDocument("signConfiguration", signConfiguration)
+                SignConstants.SIGN_CHANNEL_NAME,
+                SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
+                new JsonDocument("signConfiguration", signConfiguration)
         );
     }
 
-    public boolean isImportantCloudService(ServiceInfoSnapshot serviceInfoSnapshot)
-    {
+    public boolean isImportantCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         return serviceInfoSnapshot != null &&
-            (
-                serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER ||
-                    serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.GLOWSTONE
-            )
-            ;
+                (
+                        serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER ||
+                                serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.GLOWSTONE
+                )
+                ;
     }
 }

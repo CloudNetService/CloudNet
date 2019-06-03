@@ -15,16 +15,15 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
     private final HostAndPort hostAndPort;
 
     @Override
-    protected void initChannel(Channel ch) throws Exception
-    {
+    protected void initChannel(Channel ch) throws Exception {
         if (nettyHttpServer.sslContext != null)
             ch.pipeline()
-                .addLast(nettyHttpServer.sslContext.newHandler(ch.alloc()));
+                    .addLast(nettyHttpServer.sslContext.newHandler(ch.alloc()));
 
         ch.pipeline()
-            .addLast("http-server-codec", new HttpServerCodec())
-            .addLast("http-object-aggregator", new HttpObjectAggregator(Short.MAX_VALUE))
-            .addLast("http-server-handler", new NettyHttpServerHandler(nettyHttpServer, hostAndPort))
+                .addLast("http-server-codec", new HttpServerCodec())
+                .addLast("http-object-aggregator", new HttpObjectAggregator(Short.MAX_VALUE))
+                .addLast("http-server-handler", new NettyHttpServerHandler(nettyHttpServer, hostAndPort))
         ;
     }
 }

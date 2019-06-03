@@ -16,8 +16,7 @@ public final class DefaultModuleTaskEntry implements IModuleTaskEntry {
     private Method handler;
 
     @Override
-    public IModule getModule()
-    {
+    public IModule getModule() {
         return this.moduleWrapper.getModule();
     }
 }

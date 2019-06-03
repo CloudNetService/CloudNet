@@ -6,8 +6,7 @@ import org.junit.Test;
 public final class PairTest {
 
     @Test
-    public void testPair()
-    {
+    public void testPair() {
         Pair<String, Integer> pair = new Pair<>();
 
         Assert.assertNull(pair.getFirst());

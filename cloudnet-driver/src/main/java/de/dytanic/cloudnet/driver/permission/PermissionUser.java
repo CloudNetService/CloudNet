@@ -31,8 +31,7 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
     @Getter
     private String hashedPassword;
 
-    public PermissionUser(UUID uniqueId, String name, String password, int potency)
-    {
+    public PermissionUser(UUID uniqueId, String name, String password, int potency) {
         this.uniqueId = uniqueId;
         this.name = name;
         this.hashedPassword = password == null ? null : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
@@ -40,13 +39,11 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
         this.groups = Iterables.newArrayList();
     }
 
-    public void changePassword(String password)
-    {
+    public void changePassword(String password) {
         this.hashedPassword = password == null ? null : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
     }
 
-    public boolean checkPassword(String password)
-    {
+    public boolean checkPassword(String password) {
         return this.hashedPassword != null && password != null && this.hashedPassword.equals(Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password)));
     }
 }

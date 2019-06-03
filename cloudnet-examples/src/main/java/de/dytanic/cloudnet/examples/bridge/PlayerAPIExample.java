@@ -21,8 +21,7 @@ import java.util.function.Consumer;
 public final class PlayerAPIExample {
 
     //Returns the player online count from a task synchronized
-    public int countServiceInfoSnapshotPlayerCount()
-    {
+    public int countServiceInfoSnapshotPlayerCount() {
         int counter = 0;
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby"))
@@ -32,12 +31,10 @@ public final class PlayerAPIExample {
     }
 
     //Asynchronous variant of count the player count from a task
-    public void countServiceInfoSnapshotPlayerCount(Consumer<Integer> consumer)
-    {
+    public void countServiceInfoSnapshotPlayerCount(Consumer<Integer> consumer) {
         CloudNetDriver.getInstance().getCloudServicesAsync("Lobby").addListener(new ITaskListener<Collection<ServiceInfoSnapshot>>() {
             @Override
-            public void onComplete(ITask<Collection<ServiceInfoSnapshot>> task, Collection<ServiceInfoSnapshot> serviceInfoSnapshots)
-            {
+            public void onComplete(ITask<Collection<ServiceInfoSnapshot>> task, Collection<ServiceInfoSnapshot> serviceInfoSnapshots) {
                 int counter = 0;
 
                 if (serviceInfoSnapshots != null)
@@ -91,10 +88,9 @@ public final class PlayerAPIExample {
     {
         ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId());
 
-        if (cloudPlayer != null)
-        {
+        if (cloudPlayer != null) {
             cloudPlayer.getProperties()
-                .append("my custom property", 42)
+                    .append("my custom property", 42)
             ;
 
             BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
@@ -103,8 +99,7 @@ public final class PlayerAPIExample {
 
     //Handles an online player update only
     @EventListener
-    public void handle(BridgeUpdateCloudPlayerEvent event)
-    {
+    public void handle(BridgeUpdateCloudPlayerEvent event) {
         ICloudPlayer cloudPlayer = event.getCloudPlayer();
 
         int myCustomProperty = cloudPlayer.getProperties().getInt("my custom property"); //42
@@ -112,8 +107,7 @@ public final class PlayerAPIExample {
 
     //Handles an offline player update only
     @EventListener
-    public void handle(BridgeUpdateCloudOfflinePlayerEvent event)
-    {
+    public void handle(BridgeUpdateCloudOfflinePlayerEvent event) {
         ICloudOfflinePlayer cloudPlayer = event.getCloudOfflinePlayer();
 
         /* ... */ //do something

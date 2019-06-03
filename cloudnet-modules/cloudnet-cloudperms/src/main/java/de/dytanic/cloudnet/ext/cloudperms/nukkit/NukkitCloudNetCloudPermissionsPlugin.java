@@ -19,14 +19,12 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
     private static NukkitCloudNetCloudPermissionsPlugin instance;
 
     @Override
-    public void onLoad()
-    {
+    public void onLoad() {
         instance = this;
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         new CloudPermissionsPermissionManagement();
         injectPlayersCloudPermissible();
 
@@ -34,32 +32,27 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
     /*= ----------------------------------------------------------------- =*/
 
-    private void injectPlayersCloudPermissible()
-    {
+    private void injectPlayersCloudPermissible() {
         for (Player player : Server.getInstance().getOnlinePlayers().values())
             injectCloudPermissible(player);
     }
 
-    public void injectCloudPermissible(Player player)
-    {
+    public void injectCloudPermissible(Player player) {
         Validate.checkNotNull(player);
 
-        try
-        {
+        try {
             Field field = Player.class.getDeclaredField("perm");
             field.setAccessible(true);
             field.set(player, new NukkitCloudNetCloudPermissionsPermissible(player));
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
     }
 }

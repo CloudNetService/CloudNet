@@ -20,23 +20,19 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     private final File storageDirectory;
 
-    public LocalTemplateStorage(File storageDirectory)
-    {
+    public LocalTemplateStorage(File storageDirectory) {
         this.storageDirectory = storageDirectory;
         this.storageDirectory.mkdirs();
     }
 
     @Override
-    public boolean deploy(byte[] zipInput, ServiceTemplate target)
-    {
+    public boolean deploy(byte[] zipInput, ServiceTemplate target) {
         Validate.checkNotNull(target);
 
-        try
-        {
+        try {
             FileUtils.extract(zipInput, new File(this.storageDirectory, target.getTemplatePath()).toPath());
             return true;
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -44,19 +40,16 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(File directory, ServiceTemplate target)
-    {
+    public boolean deploy(File directory, ServiceTemplate target) {
         Validate.checkNotNull(directory);
         Validate.checkNotNull(target);
 
         if (!directory.isDirectory()) return false;
 
-        try
-        {
+        try {
             FileUtils.copyFilesToDirectory(directory, new File(this.storageDirectory, target.getTemplatePath()));
             return true;
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -64,23 +57,20 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(Path[] paths, ServiceTemplate target)
-    {
+    public boolean deploy(Path[] paths, ServiceTemplate target) {
         Validate.checkNotNull(paths);
         Validate.checkNotNull(target);
 
         return this.deploy(Iterables.map(Arrays.asList(paths), new Function<Path, File>() {
             @Override
-            public File apply(Path t)
-            {
+            public File apply(Path t) {
                 return t.toFile();
             }
         }).toArray(new File[0]), target);
     }
 
     @Override
-    public boolean deploy(File[] files, ServiceTemplate target)
-    {
+    public boolean deploy(File[] files, ServiceTemplate target) {
         Validate.checkNotNull(files);
         Validate.checkNotNull(target);
 
@@ -91,15 +81,13 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         boolean value = true;
 
         for (File entry : files)
-            try
-            {
+            try {
                 if (entry.isDirectory())
                     FileUtils.copyFilesToDirectory(entry, new File(templateDirectory, entry.getName()), buffer);
                 else
                     FileUtils.copy(entry, new File(templateDirectory, entry.getName()), buffer);
 
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 ex.printStackTrace();
 
                 value = false;
@@ -109,8 +97,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, File directory)
-    {
+    public boolean copy(ServiceTemplate template, File directory) {
         Validate.checkNotNull(template);
         Validate.checkNotNull(directory);
 
@@ -118,11 +105,9 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         File templateDirectory = new File(this.storageDirectory, template.getTemplatePath());
         boolean value = true;
 
-        try
-        {
+        try {
             FileUtils.copyFilesToDirectory(templateDirectory, directory, buffer);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
             value = false;
         }
@@ -131,8 +116,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, Path directory)
-    {
+    public boolean copy(ServiceTemplate template, Path directory) {
         Validate.checkNotNull(template);
         Validate.checkNotNull(directory);
 
@@ -140,14 +124,12 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, File[] directories)
-    {
+    public boolean copy(ServiceTemplate template, File[] directories) {
         Validate.checkNotNull(directories);
         boolean value = true;
 
         for (File directory : directories)
-            if (!this.copy(template, directory))
-            {
+            if (!this.copy(template, directory)) {
                 value = false;
             }
 
@@ -155,8 +137,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, Path[] directories)
-    {
+    public boolean copy(ServiceTemplate template, Path[] directories) {
         Validate.checkNotNull(directories);
         boolean value = true;
 
@@ -168,15 +149,13 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public byte[] toZipByteArray(ServiceTemplate template)
-    {
+    public byte[] toZipByteArray(ServiceTemplate template) {
         File directory = new File(storageDirectory, template.getTemplatePath());
         return directory.exists() ? FileUtils.convert(new Path[]{directory.toPath()}) : null;
     }
 
     @Override
-    public boolean delete(ServiceTemplate template)
-    {
+    public boolean delete(ServiceTemplate template) {
         Validate.checkNotNull(template);
 
         FileUtils.delete(new File(this.storageDirectory, template.getTemplatePath()));
@@ -184,24 +163,21 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean has(ServiceTemplate template)
-    {
+    public boolean has(ServiceTemplate template) {
         Validate.checkNotNull(template);
 
         return new File(this.storageDirectory, template.getTemplatePath()).exists();
     }
 
     @Override
-    public Collection<ServiceTemplate> getTemplates()
-    {
+    public Collection<ServiceTemplate> getTemplates() {
         Collection<ServiceTemplate> templates = Iterables.newArrayList();
 
         File[] files = this.storageDirectory.listFiles();
 
         if (files != null)
             for (File entry : files)
-                if (entry.isDirectory())
-                {
+                if (entry.isDirectory()) {
                     File[] subPathEntries = entry.listFiles();
 
                     if (subPathEntries != null)
@@ -214,7 +190,6 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
     }
 }

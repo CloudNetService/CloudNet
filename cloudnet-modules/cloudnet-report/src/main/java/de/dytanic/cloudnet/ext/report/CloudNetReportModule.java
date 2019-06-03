@@ -35,14 +35,12 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     private File savingRecordsDirectory;
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
-    public void init()
-    {
+    public void init() {
         instance = this;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
-    public void initConfig()
-    {
+    public void initConfig() {
         getConfig().getBoolean("savingRecords", true);
         getConfig().getString("recordDestinationDirectory", "records");
         getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
@@ -52,33 +50,28 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
-    public void initSavingRecordsDirectory()
-    {
+    public void initSavingRecordsDirectory() {
         this.savingRecordsDirectory = new File(getModuleWrapper().getDataFolder(), getConfig().getString("recordDestinationDirectory"));
         this.savingRecordsDirectory.mkdirs();
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
-    public void registerListeners()
-    {
+    public void registerListeners() {
         registerListener(new CloudNetReportListener());
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
-    public void registerCommands()
-    {
+    public void registerCommands() {
         registerCommand(new CommandReport());
         registerCommand(new CommandPaste());
     }
 
     /*= --------------------------------------------------------------------------------------------------------- =*/
 
-    public String executePaste(String context)
-    {
+    public String executePaste(String context) {
         Validate.checkNotNull(context);
 
-        try
-        {
+        try {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(getConfig().getString("pasteServerUrl") + "/documents").openConnection();
 
             httpURLConnection.setRequestMethod("POST");
@@ -87,12 +80,9 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             httpURLConnection.setDoOutput(true);
             httpURLConnection.connect();
 
-            switch (getConfig().get("pasteServerType", PasteServerType.class))
-            {
-                case HASTE:
-                {
-                    try (DataOutputStream writer = new DataOutputStream(httpURLConnection.getOutputStream()))
-                    {
+            switch (getConfig().get("pasteServerType", PasteServerType.class)) {
+                case HASTE: {
+                    try (DataOutputStream writer = new DataOutputStream(httpURLConnection.getOutputStream())) {
                         writer.writeBytes(context);
                         writer.flush();
                     }
@@ -101,8 +91,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             }
 
             String input;
-            try (InputStream inputStream = httpURLConnection.getInputStream())
-            {
+            try (InputStream inputStream = httpURLConnection.getInputStream()) {
                 input = new String(FileUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
             }
 
@@ -111,10 +100,9 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             JsonDocument jsonDocument = JsonDocument.newDocument(input);
 
             return getConfig().getString("pasteServerUrl") + "/" + jsonDocument.getString("key") +
-                (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");
+                    (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");
 
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

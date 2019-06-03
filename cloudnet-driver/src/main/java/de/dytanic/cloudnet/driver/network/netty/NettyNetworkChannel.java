@@ -19,8 +19,7 @@ final class NettyNetworkChannel implements INetworkChannel {
 
     private static final Callable<Void> EMPTY_TASK = new Callable<Void>() {
         @Override
-        public Void call() throws Exception
-        {
+        public Void call() throws Exception {
             return null;
         }
     };
@@ -43,8 +42,7 @@ final class NettyNetworkChannel implements INetworkChannel {
     private INetworkChannelHandler handler;
 
     public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
-                               HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel)
-    {
+                               HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
         this.channel = channel;
         this.handler = handler;
 
@@ -56,8 +54,7 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public void sendPacket(IPacket packet)
-    {
+    public void sendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
         if (this.channel.eventLoop().inEventLoop())
@@ -65,29 +62,25 @@ final class NettyNetworkChannel implements INetworkChannel {
         else
             this.channel.eventLoop().execute(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     sendPacket0(packet);
                 }
             });
     }
 
-    private void sendPacket0(IPacket packet)
-    {
+    private void sendPacket0(IPacket packet) {
         this.channel.writeAndFlush(packet, this.channel.voidPromise());
     }
 
     @Override
-    public void sendPacket(IPacket... packets)
-    {
+    public void sendPacket(IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (IPacket packet : packets) this.sendPacket(packet);
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         this.channel.close();
     }
 

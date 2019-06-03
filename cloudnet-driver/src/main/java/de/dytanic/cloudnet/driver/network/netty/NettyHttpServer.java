@@ -31,13 +31,11 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup(), workerGroup = NettyUtils.newEventLoopGroup();
 
-    public NettyHttpServer() throws Exception
-    {
+    public NettyHttpServer() throws Exception {
         this(null);
     }
 
-    public NettyHttpServer(SSLConfiguration sslConfiguration) throws Exception
-    {
+    public NettyHttpServer(SSLConfiguration sslConfiguration) throws Exception {
         super(sslConfiguration);
 
         this.init();
@@ -46,44 +44,39 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
-    public boolean isSslEnabled()
-    {
+    public boolean isSslEnabled() {
         return sslContext != null;
     }
 
     @Override
-    public boolean addListener(int port)
-    {
+    public boolean addListener(int port) {
         return this.addListener(new HostAndPort("0.0.0.0", port));
     }
 
     @Override
-    public boolean addListener(HostAndPort hostAndPort)
-    {
+    public boolean addListener(HostAndPort hostAndPort) {
         Validate.checkNotNull(hostAndPort);
         Validate.checkNotNull(hostAndPort.getHost());
 
         if (!channelFutures.containsKey(hostAndPort.getPort()))
-            try
-            {
+            try {
                 this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-                    .group(bossGroup, workerGroup)
-                    .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childOption(ChannelOption.IP_TOS, 24)
-                    .childOption(ChannelOption.AUTO_READ, true)
-                    .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
-                    .channel(NettyUtils.getServerSocketChannelClass())
-                    .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
-                    .bind(hostAndPort.getHost(), hostAndPort.getPort())
-                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-                    .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-                    .sync()
-                    .channel()
-                    .closeFuture()));
+                        .group(bossGroup, workerGroup)
+                        .childOption(ChannelOption.TCP_NODELAY, true)
+                        .childOption(ChannelOption.IP_TOS, 24)
+                        .childOption(ChannelOption.AUTO_READ, true)
+                        .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
+                        .channel(NettyUtils.getServerSocketChannelClass())
+                        .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
+                        .bind(hostAndPort.getHost(), hostAndPort.getPort())
+                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+                        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+                        .sync()
+                        .channel()
+                        .closeFuture()));
 
                 return true;
-            } catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
@@ -91,20 +84,17 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     }
 
     @Override
-    public IHttpServer registerHandler(String path, IHttpHandler... handlers)
-    {
+    public IHttpServer registerHandler(String path, IHttpHandler... handlers) {
         return this.registerHandler(path, IHttpHandler.PRIORITY_NORMAL, handlers);
     }
 
     @Override
-    public IHttpServer registerHandler(String path, int priority, IHttpHandler... handlers)
-    {
+    public IHttpServer registerHandler(String path, int priority, IHttpHandler... handlers) {
         return this.registerHandler(path, null, priority, handlers);
     }
 
     @Override
-    public IHttpServer registerHandler(String path, Integer port, int priority, IHttpHandler... handlers)
-    {
+    public IHttpServer registerHandler(String path, Integer port, int priority, IHttpHandler... handlers) {
         Validate.checkNotNull(path);
         Validate.checkNotNull(handlers);
 
@@ -112,13 +102,11 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         if (path.endsWith("/") && !path.equals("/")) path = path.substring(0, path.length() - 1);
 
         for (IHttpHandler httpHandler : handlers)
-            if (httpHandler != null)
-            {
+            if (httpHandler != null) {
                 boolean value = true;
 
                 for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
-                    if (registeredHandler.path.equals(path) && registeredHandler.httpHandler.getClass().equals(httpHandler.getClass()))
-                    {
+                    if (registeredHandler.path.equals(path) && registeredHandler.httpHandler.getClass().equals(httpHandler.getClass())) {
                         value = false;
                         break;
                     }
@@ -130,8 +118,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     }
 
     @Override
-    public IHttpServer removeHandler(IHttpHandler handler)
-    {
+    public IHttpServer removeHandler(IHttpHandler handler) {
         Validate.checkNotNull(handler);
 
         for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
@@ -142,8 +129,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     }
 
     @Override
-    public IHttpServer removeHandler(Class<? extends IHttpHandler> handler)
-    {
+    public IHttpServer removeHandler(Class<? extends IHttpHandler> handler) {
         Validate.checkNotNull(handler);
 
         for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
@@ -154,8 +140,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     }
 
     @Override
-    public IHttpServer removeHandler(ClassLoader classLoader)
-    {
+    public IHttpServer removeHandler(ClassLoader classLoader) {
         Validate.checkNotNull(classLoader);
 
         for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
@@ -166,27 +151,23 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     }
 
     @Override
-    public Collection<IHttpHandler> getHttpHandlers()
-    {
+    public Collection<IHttpHandler> getHttpHandlers() {
         return Iterables.map(this.registeredHandlers, new Function<HttpHandlerEntry, IHttpHandler>() {
             @Override
-            public IHttpHandler apply(HttpHandlerEntry httpHandlerEntry)
-            {
+            public IHttpHandler apply(HttpHandlerEntry httpHandlerEntry) {
                 return httpHandlerEntry.httpHandler;
             }
         });
     }
 
     @Override
-    public IHttpServer clearHandlers()
-    {
+    public IHttpServer clearHandlers() {
         this.registeredHandlers.clear();
         return this;
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values())
             entry.getSecond().cancel(true);
 
@@ -211,8 +192,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         public final int priority;
 
         @Override
-        public int compareTo(HttpHandlerEntry httpHandlerEntry)
-        {
+        public int compareTo(HttpHandlerEntry httpHandlerEntry) {
             Validate.checkNotNull(httpHandlerEntry);
 
             return this.priority + httpHandlerEntry.priority;

@@ -18,32 +18,30 @@ public class NettyHttpServerTest {
     private static final String TEST_STRING = "Response Text", TEST_STRING_2 = "Bernd", TEST_STRING_2_MESSAGE = "Eine Test Nachricht";
 
     @Test
-    public void testHttpServerWithParameters() throws Exception
-    {
+    public void testHttpServerWithParameters() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
         Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", new IHttpHandler() {
             @Override
-            public void handle(String path, IHttpContext context) throws Exception
-            {
+            public void handle(String path, IHttpContext context) throws Exception {
                 if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
-                    context.request().pathParameters().get("id").equals("64") && context.request().pathParameters().get("name").equals("Albert") &&
-                    context.request().method().toUpperCase().equals("GET"))
+                        context.request().pathParameters().get("id").equals("64") && context.request().pathParameters().get("name").equals("Albert") &&
+                        context.request().method().toUpperCase().equals("GET"))
                     context
-                        .response()
-                        .header("Content-Type", "text/plain")
-                        .header("Custom-Header", "true")
-                        .body(TEST_STRING)
-                        .statusCode(200)
-                        .context()
-                        .cancelNext()
-                        ;
+                            .response()
+                            .header("Content-Type", "text/plain")
+                            .header("Custom-Header", "true")
+                            .body(TEST_STRING)
+                            .statusCode(200)
+                            .context()
+                            .cancelNext()
+                            ;
                 else
                     context.response()
-                        .statusCode(404)
-                        .context()
-                        .cancelNext()
-                        ;
+                            .statusCode(404)
+                            .context()
+                            .cancelNext()
+                            ;
             }
         }));
 
@@ -60,9 +58,8 @@ public class NettyHttpServerTest {
         Assert.assertEquals("true", httpURLConnection.getHeaderField("Custom-Header"));
 
         try (InputStream inputStream = httpURLConnection.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-            inputStream
-        )))
-        {
+                inputStream
+        ))) {
             Assert.assertEquals(TEST_STRING, bufferedReader.readLine());
         }
 
@@ -73,24 +70,22 @@ public class NettyHttpServerTest {
     }
 
     @Test
-    public void testHttpServerWithWildCard() throws Exception
-    {
+    public void testHttpServerWithWildCard() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
         Assert.assertNotNull(httpServer.registerHandler("/person/*/test", new IHttpHandler() {
             @Override
-            public void handle(String path, IHttpContext context) throws Exception
-            {
+            public void handle(String path, IHttpContext context) throws Exception {
                 if (context.request().method().toUpperCase().equals("POST"))
                     context
-                        .response()
-                        .header("Content-Type", "text/plain")
-                        .header("Request-Text-Example", path.split("/")[2])
-                        .body(context.request().body())
-                        .statusCode(200)
-                        .context()
-                        .cancelNext()
-                        ;
+                            .response()
+                            .header("Content-Type", "text/plain")
+                            .header("Request-Text-Example", path.split("/")[2])
+                            .body(context.request().body())
+                            .statusCode(200)
+                            .context()
+                            .cancelNext()
+                            ;
             }
         }));
 
@@ -103,8 +98,7 @@ public class NettyHttpServerTest {
         httpURLConnection.setUseCaches(false);
         httpURLConnection.connect();
 
-        try (OutputStream outputStream = httpURLConnection.getOutputStream())
-        {
+        try (OutputStream outputStream = httpURLConnection.getOutputStream()) {
             outputStream.write(TEST_STRING_2_MESSAGE.getBytes());
             outputStream.flush();
         }
@@ -113,9 +107,8 @@ public class NettyHttpServerTest {
         Assert.assertEquals(TEST_STRING_2, httpURLConnection.getHeaderField("Request-Text-Example"));
 
         try (InputStream inputStream = httpURLConnection.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-            inputStream
-        )))
-        {
+                inputStream
+        ))) {
             Assert.assertEquals(TEST_STRING_2_MESSAGE, bufferedReader.readLine());
         }
 

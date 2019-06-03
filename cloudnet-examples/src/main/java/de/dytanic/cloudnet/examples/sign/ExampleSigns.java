@@ -8,53 +8,49 @@ import org.bukkit.Material;
 
 public final class ExampleSigns {
 
-    public void updateSigns()
-    {
+    public void updateSigns() {
         BukkitSignManagement.getInstance().updateSigns();
     }
 
-    public void foreachSigns()
-    {
-        for (Sign sign : BukkitSignManagement.getInstance().getSigns())
-        {
+    public void foreachSigns() {
+        for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
             // ...
         }
     }
 
-    public void customizeSignLayout()
-    {
+    public void customizeSignLayout() {
         BukkitSignManagement.getInstance().getOwnSignConfigurationEntry().getTaskLayouts().add(new SignConfigurationTaskEntry(
-            "Lobby",
-            new SignLayout(
-                new String[]{
-                    "Lobby-1",
-                    "%online_count% / %max_players%",
-                    "A minecraft server",
-                    "LOBBY"
-                },
-                Material.BED.name(),
-                0
-            ),
-            new SignLayout(
-                new String[]{
-                    "Lobby-1",
-                    "%online_count% / %max_players%",
-                    "A minecraft server",
-                    "LOBBY"
-                },
-                Material.BED.name(),
-                0
-            ),
-            new SignLayout(
-                new String[]{
-                    "Lobby-1",
-                    "%online_count% / %max_players%",
-                    "A minecraft server",
-                    "LOBBY"
-                },
-                Material.BED.name(),
-                0
-            )
+                "Lobby",
+                new SignLayout(
+                        new String[]{
+                                "Lobby-1",
+                                "%online_count% / %max_players%",
+                                "A minecraft server",
+                                "LOBBY"
+                        },
+                        Material.BED.name(),
+                        0
+                ),
+                new SignLayout(
+                        new String[]{
+                                "Lobby-1",
+                                "%online_count% / %max_players%",
+                                "A minecraft server",
+                                "LOBBY"
+                        },
+                        Material.BED.name(),
+                        0
+                ),
+                new SignLayout(
+                        new String[]{
+                                "Lobby-1",
+                                "%online_count% / %max_players%",
+                                "A minecraft server",
+                                "LOBBY"
+                        },
+                        Material.BED.name(),
+                        0
+                )
         ));
     }
 }

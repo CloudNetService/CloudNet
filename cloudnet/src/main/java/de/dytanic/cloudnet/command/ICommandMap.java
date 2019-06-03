@@ -84,8 +84,7 @@ public interface ICommandMap {
      *
      * @param commands the commands that should registered
      */
-    default void registerCommand(Command... commands)
-    {
+    default void registerCommand(Command... commands) {
         if (commands != null)
             for (Command command : commands)
                 if (command != null)
@@ -97,8 +96,7 @@ public interface ICommandMap {
      *
      * @param commands the command names that should remove from the map
      */
-    default void unregisterCommand(String... commands)
-    {
+    default void unregisterCommand(String... commands) {
         if (commands != null)
             for (String command : commands)
                 if (command != null)
@@ -110,8 +108,7 @@ public interface ICommandMap {
      *
      * @param commands the class references that should remove from the map
      */
-    default void unregisterCommand(Class<? extends Command>... commands)
-    {
+    default void unregisterCommand(Class<? extends Command>... commands) {
         if (commands != null)
             for (Class<? extends Command> c : commands)
                 if (c != null)

@@ -12,20 +12,13 @@ import java.util.UUID;
 @AllArgsConstructor
 final class GoMintCloudNetPlayerInfo {
 
-    private UUID uniqueId;
-
-    private boolean online;
-
-    private String name, deviceName, xBoxId, gamemode;
-
     protected double health, maxHealth, saturation;
-
     protected int level, ping;
-
     protected Locale locale;
-
     protected WorldPosition location;
-
     protected HostAndPort address;
+    private UUID uniqueId;
+    private boolean online;
+    private String name, deviceName, xBoxId, gamemode;
 
 }

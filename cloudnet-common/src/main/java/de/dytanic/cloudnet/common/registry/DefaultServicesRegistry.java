@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.common.registry;
 
-import de.dytanic.cloudnet.common.Validate;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -21,8 +19,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T, E extends T> IServicesRegistry registerService(Class<T> clazz, String name, E service)
-    {
+    public <T, E extends T> IServicesRegistry registerService(Class<T> clazz, String name, E service) {
         if (clazz == null || name == null || service == null) return this;
 
         if (!this.providedServices.containsKey(clazz))
@@ -38,14 +35,12 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz, Class<E> serviceClazz)
-    {
+    public <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz, Class<E> serviceClazz) {
         if (clazz == null || serviceClazz == null) return this;
 
         if (this.providedServices.containsKey(clazz))
             for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz))
-                if (registryEntry.service.getClass().equals(serviceClazz))
-                {
+                if (registryEntry.service.getClass().equals(serviceClazz)) {
                     this.providedServices.get(clazz).remove(registryEntry);
 
                     if (this.providedServices.get(clazz).isEmpty())
@@ -61,14 +56,12 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz, E service)
-    {
+    public <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz, E service) {
         if (clazz == null || service == null) return this;
 
         if (this.providedServices.containsKey(clazz))
             for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz))
-                if (registryEntry.service.equals(service))
-                {
+                if (registryEntry.service.equals(service)) {
                     this.providedServices.get(clazz).remove(registryEntry);
 
                     if (this.providedServices.get(clazz).isEmpty())
@@ -86,8 +79,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T> boolean containsService(Class<T> clazz, String name)
-    {
+    public <T> boolean containsService(Class<T> clazz, String name) {
         if (clazz == null || name == null) return false;
 
         if (this.providedServices.containsKey(clazz))
@@ -104,13 +96,11 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T> IServicesRegistry unregisterService(Class<T> clazz, String name)
-    {
+    public <T> IServicesRegistry unregisterService(Class<T> clazz, String name) {
 
         if (this.providedServices.containsKey(clazz))
             for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz))
-                if (registryEntry.name.equals(name))
-                {
+                if (registryEntry.name.equals(name)) {
                     this.providedServices.get(clazz).remove(registryEntry);
 
                     if (this.providedServices.get(clazz).isEmpty())
@@ -128,10 +118,8 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T> IServicesRegistry unregisterServices(Class<T> clazz)
-    {
-        if (this.providedServices.containsKey(clazz))
-        {
+    public <T> IServicesRegistry unregisterServices(Class<T> clazz) {
+        if (this.providedServices.containsKey(clazz)) {
             this.providedServices.get(clazz).clear();
             this.providedServices.remove(clazz);
         }
@@ -145,8 +133,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public IServicesRegistry unregisterAll()
-    {
+    public IServicesRegistry unregisterAll() {
         this.providedServices.clear();
         return this;
     }
@@ -157,8 +144,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public IServicesRegistry unregisterAll(ClassLoader classLoader)
-    {
+    public IServicesRegistry unregisterAll(ClassLoader classLoader) {
         for (List<RegistryEntry<?>> item : providedServices.values())
             for (RegistryEntry<?> entry : item)
                 if (entry.service.getClass().getClassLoader().equals(classLoader))
@@ -173,8 +159,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public Collection<Class<?>> getProvidedServices()
-    {
+    public Collection<Class<?>> getProvidedServices() {
         return Collections.unmodifiableCollection(this.providedServices.keySet());
     }
 
@@ -184,16 +169,14 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T> T getService(Class<T> clazz, String name)
-    {
+    public <T> T getService(Class<T> clazz, String name) {
         if (clazz == null || name == null) return null;
 
         T value = null;
 
         if (this.containsService(clazz, name))
             for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz))
-                if (registryEntry.name.equals(name))
-                {
+                if (registryEntry.name.equals(name)) {
                     value = (T) registryEntry.service;
                     break;
                 }
@@ -207,8 +190,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      * @see IServicesRegistry
      */
     @Override
-    public <T> Collection<T> getServices(Class<T> clazz)
-    {
+    public <T> Collection<T> getServices(Class<T> clazz) {
         Collection<T> collection = new ArrayList<>();
 
         if (clazz == null) return collection;
@@ -228,8 +210,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
         final T service;
 
 
-        public RegistryEntry(String name, T service)
-        {
+        public RegistryEntry(String name, T service) {
             this.name = name;
             this.service = service;
         }

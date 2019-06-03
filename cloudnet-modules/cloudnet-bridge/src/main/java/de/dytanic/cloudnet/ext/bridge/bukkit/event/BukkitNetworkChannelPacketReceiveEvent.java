@@ -19,8 +19,7 @@ public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNet
     private final IPacket packet;
 
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 }

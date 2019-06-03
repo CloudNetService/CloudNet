@@ -6,8 +6,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public final class PacketServerAuthorizationResponse extends Packet {
 
-    public PacketServerAuthorizationResponse(boolean access, String text)
-    {
+    public PacketServerAuthorizationResponse(boolean access, String text) {
         super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument("access", access).append("text", text), Packet.EMPTY_PACKET_BYTE_ARRAY);
     }
 }

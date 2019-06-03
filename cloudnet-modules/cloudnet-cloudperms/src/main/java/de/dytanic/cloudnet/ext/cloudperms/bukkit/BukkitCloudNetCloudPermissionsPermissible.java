@@ -15,49 +15,42 @@ import java.util.Collection;
 public final class BukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private static final Collection<String> DEFAULT_ALLOWED_PERMISSION_COLLECTION = Iterables.newArrayList(Arrays.asList(
-        "bukkit.broadcast.user"
+            "bukkit.broadcast.user"
     ));
 
     private final Player player;
 
-    public BukkitCloudNetCloudPermissionsPermissible(Player player)
-    {
+    public BukkitCloudNetCloudPermissionsPermissible(Player player) {
         super(player);
 
         this.player = player;
     }
 
     @Override
-    public boolean isPermissionSet(String name)
-    {
+    public boolean isPermissionSet(String name) {
         return hasPermission(name);
     }
 
     @Override
-    public boolean isPermissionSet(Permission perm)
-    {
+    public boolean isPermissionSet(Permission perm) {
         return isPermissionSet(perm.getName());
     }
 
     @Override
-    public boolean hasPermission(Permission perm)
-    {
+    public boolean hasPermission(Permission perm) {
         return hasPermission(perm.getName());
     }
 
     @Override
-    public boolean hasPermission(String inName)
-    {
+    public boolean hasPermission(String inName) {
         if (inName == null) return false;
 
         if (DEFAULT_ALLOWED_PERMISSION_COLLECTION.contains(inName.toLowerCase())) return true;
 
-        try
-        {
+        try {
             IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
             return permissionUser != null && CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, inName);
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return false;
         }

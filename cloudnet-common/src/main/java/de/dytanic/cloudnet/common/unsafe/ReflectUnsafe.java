@@ -22,15 +22,12 @@ public final class ReflectUnsafe {
     @Getter
     private static Unsafe unsafe;
 
-    static
-    {
-        try
-        {
+    static {
+        try {
             Field field = Unsafe.class.getDeclaredField("theUnsafe");
             field.setAccessible(true);
             unsafe = (Unsafe) field.get(null);
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

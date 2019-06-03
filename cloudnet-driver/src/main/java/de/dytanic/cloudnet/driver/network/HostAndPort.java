@@ -27,16 +27,14 @@ public class HostAndPort {
      */
     protected int port;
 
-    public HostAndPort(InetSocketAddress socketAddress)
-    {
+    public HostAndPort(InetSocketAddress socketAddress) {
         if (socketAddress == null) return;
 
         this.host = socketAddress.getAddress().getHostAddress();
         this.port = socketAddress.getPort();
     }
 
-    public HostAndPort(SocketAddress socketAddress)
-    {
+    public HostAndPort(SocketAddress socketAddress) {
         if (socketAddress == null) return;
 
         String[] address = socketAddress.toString().split(":");
@@ -46,8 +44,7 @@ public class HostAndPort {
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return host + ":" + port;
     }
 }

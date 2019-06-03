@@ -6,8 +6,7 @@ import org.junit.Test;
 public final class DefaultModuleProviderTest {
 
     @Test
-    public void testModule() throws Throwable
-    {
+    public void testModule() throws Throwable {
         IModuleProvider moduleProvider = new DefaultModuleProvider();
 
         IModuleWrapper moduleWrapper = moduleProvider.loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar"));

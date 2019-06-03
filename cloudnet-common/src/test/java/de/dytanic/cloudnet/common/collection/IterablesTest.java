@@ -12,8 +12,7 @@ import java.util.function.Predicate;
 public class IterablesTest {
 
     @Test
-    public void testIterables()
-    {
+    public void testIterables() {
         Assert.assertNotNull(Iterables.newArrayList());
         Assert.assertNotNull(Iterables.newArrayList(Collections.singletonList(" ")));
         Assert.assertNotNull(Iterables.newConcurrentLinkedDeque());
@@ -23,21 +22,21 @@ public class IterablesTest {
         Assert.assertNotNull(Iterables.newCopyOnWriteArrayList());
 
         Collection<String> collection = Iterables.newArrayList(Arrays.asList(
-            "Ask",
-            "Question",
-            "Task",
-            "Live",
-            "Work",
-            "Home",
-            "Stairs",
-            "Tables",
-            "Horse",
-            "Streams",
-            "Cache",
-            "Cloud",
-            "Sky",
-            "Bird",
-            "Life"
+                "Ask",
+                "Question",
+                "Task",
+                "Live",
+                "Work",
+                "Home",
+                "Stairs",
+                "Tables",
+                "Horse",
+                "Streams",
+                "Cache",
+                "Cloud",
+                "Sky",
+                "Bird",
+                "Life"
         ));
 
         Assert.assertNotNull(collection);
@@ -45,8 +44,7 @@ public class IterablesTest {
 
         Collection<Integer> integerCollection = Iterables.map(collection, new Function<String, Integer>() {
             @Override
-            public Integer apply(String s)
-            {
+            public Integer apply(String s) {
                 return s.getBytes().length;
             }
         });
@@ -58,24 +56,21 @@ public class IterablesTest {
         Assert.assertTrue(Iterables.contains("Stairs", collection.toArray(new String[0])));
         Assert.assertEquals("Home", Iterables.first(collection.toArray(new String[0]), new Predicate<String>() {
             @Override
-            public boolean test(String s)
-            {
+            public boolean test(String s) {
                 return s.startsWith("H");
             }
         }));
 
         Assert.assertEquals("Work", Iterables.first(collection, new Predicate<String>() {
             @Override
-            public boolean test(String s)
-            {
+            public boolean test(String s) {
                 return s.startsWith("W");
             }
         }));
 
         Assert.assertEquals(1, Iterables.filter(collection, new Predicate<String>() {
             @Override
-            public boolean test(String s)
-            {
+            public boolean test(String s) {
                 return s.equals("Home");
             }
         }).size());

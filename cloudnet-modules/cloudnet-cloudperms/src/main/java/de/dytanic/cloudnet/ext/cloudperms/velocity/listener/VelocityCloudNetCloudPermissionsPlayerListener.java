@@ -13,24 +13,21 @@ import de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissi
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe(order = PostOrder.FIRST)
-    public void handle(LoginEvent event)
-    {
+    public void handle(LoginEvent event) {
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUniqueId());
 
-        if (permissionUser == null)
-        {
+        if (permissionUser == null) {
             CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                event.getPlayer().getUniqueId(),
-                event.getPlayer().getUsername(),
-                null,
-                0
+                    event.getPlayer().getUniqueId(),
+                    event.getPlayer().getUsername(),
+                    null,
+                    0
             ));
 
             permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUniqueId());
         }
 
-        if (permissionUser != null)
-        {
+        if (permissionUser != null) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
             permissionUser.setName(event.getPlayer().getUsername());
             CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
@@ -38,14 +35,12 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
     }
 
     @Subscribe
-    public void handle(PermissionsSetupEvent event)
-    {
+    public void handle(PermissionsSetupEvent event) {
         event.setProvider(VelocityCloudNetCloudPermissionsPlugin.getInstance().getPermissionProvider());
     }
 
     @Subscribe
-    public void handle(DisconnectEvent event)
-    {
+    public void handle(DisconnectEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
 }

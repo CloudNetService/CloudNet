@@ -12,8 +12,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
 
     protected String name;
 
-    public GroupConfiguration(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments, String name)
-    {
+    public GroupConfiguration(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments, String name) {
         super(includes, templates, deployments);
         this.name = name;
     }

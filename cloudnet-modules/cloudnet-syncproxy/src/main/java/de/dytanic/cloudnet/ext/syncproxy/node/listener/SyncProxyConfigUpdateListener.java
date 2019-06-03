@@ -14,14 +14,11 @@ import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 public final class SyncProxyConfigUpdateListener {
 
     @EventListener
-    public void handle(NetworkChannelReceiveCallablePacketEvent event)
-    {
+    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
         if (!event.getChannelName().equalsIgnoreCase(SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY)) return;
 
-        switch (event.getId())
-        {
-            case SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY:
-            {
+        switch (event.getId()) {
+            case SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY: {
                 event.setCallbackPacket(new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration()));
             }
             break;
@@ -29,24 +26,20 @@ public final class SyncProxyConfigUpdateListener {
     }
 
     @EventListener
-    public void handle(NetworkChannelAuthClusterNodeSuccessEvent event)
-    {
+    public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
         CloudNetDriver.getInstance().sendChannelMessage(
-            SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-            SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-            new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
+                SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
+                SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
+                new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
         );
     }
 
     @EventListener
-    public void handle(ChannelMessageReceiveEvent event)
-    {
+    public void handle(ChannelMessageReceiveEvent event) {
         if (!event.getChannel().equalsIgnoreCase(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) return;
 
-        switch (event.getMessage().toLowerCase())
-        {
-            case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION:
-            {
+        switch (event.getMessage().toLowerCase()) {
+            case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
                 SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
                 if (syncProxyConfiguration != null)

@@ -15,20 +15,17 @@ final class NettyHttpChannel implements IHttpChannel {
     protected final HostAndPort serverAddress, clientAddress;
 
     @Override
-    public HostAndPort serverAddress()
-    {
+    public HostAndPort serverAddress() {
         return serverAddress;
     }
 
     @Override
-    public HostAndPort clientAddress()
-    {
+    public HostAndPort clientAddress() {
         return clientAddress;
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() throws Exception {
         channel.close();
     }
 }
