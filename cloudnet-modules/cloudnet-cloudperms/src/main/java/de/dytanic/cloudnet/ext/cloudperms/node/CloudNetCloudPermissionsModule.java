@@ -34,7 +34,7 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
     registerListeners(new IncludePluginListener(),
-      new ConfigurationUpdateListener());
+        new ConfigurationUpdateListener());
   }
 
   /*= ------------------------------------------------- =*/

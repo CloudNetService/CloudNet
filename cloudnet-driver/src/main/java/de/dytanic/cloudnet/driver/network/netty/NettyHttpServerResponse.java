@@ -19,12 +19,12 @@ final class NettyHttpServerResponse implements IHttpResponse {
   protected final DefaultFullHttpResponse httpResponse;
 
   public NettyHttpServerResponse(NettyHttpServerContext context,
-    HttpRequest httpRequest) {
+      HttpRequest httpRequest) {
     this.context = context;
     this.httpResponse = new DefaultFullHttpResponse(
-      httpRequest.protocolVersion(),
-      HttpResponseStatus.NOT_FOUND,
-      Unpooled.buffer()
+        httpRequest.protocolVersion(),
+        HttpResponseStatus.NOT_FOUND,
+        Unpooled.buffer()
     );
   }
 
@@ -93,7 +93,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
   @Override
   public Map<String, String> headers() {
     Map<String, String> maps = Maps
-      .newHashMap(this.httpResponse.headers().size());
+        .newHashMap(this.httpResponse.headers().size());
 
     for (String key : this.httpResponse.headers().names()) {
       maps.put(key, this.httpResponse.headers().get(key));
@@ -140,12 +140,12 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     this.httpResponse.content().clear();
     this.httpResponse.content()
-      .writeBytes(text.getBytes(StandardCharsets.UTF_8));
+        .writeBytes(text.getBytes(StandardCharsets.UTF_8));
     return this;
   }
 
   private HttpVersion getCloudNetHttpVersion(
-    io.netty.handler.codec.http.HttpVersion httpVersion) {
+      io.netty.handler.codec.http.HttpVersion httpVersion) {
     if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0) {
       return HttpVersion.HTTP_1_0;
     }
@@ -158,7 +158,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
   }
 
   private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(
-    HttpVersion httpVersion) {
+      HttpVersion httpVersion) {
     if (httpVersion == HttpVersion.HTTP_1_0) {
       return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
     }

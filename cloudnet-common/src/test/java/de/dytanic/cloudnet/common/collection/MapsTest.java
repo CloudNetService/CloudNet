@@ -19,24 +19,24 @@ public final class MapsTest {
   @Test
   public void testMisc() {
     Assert.assertEquals(3,
-      Maps.newMapByValues(Arrays.asList("test", "test1", "test_3"),
-        new Function<String, Integer>() {
+        Maps.newMapByValues(Arrays.asList("test", "test1", "test_3"),
+            new Function<String, Integer>() {
+              @Override
+              public Integer apply(String v) {
+                return v.length();
+              }
+            }).size());
+
+    Assert.assertEquals(3, Maps.newMapByKeys(Arrays.asList(4, 3, 2),
+        new Function<Integer, String>() {
           @Override
-          public Integer apply(String v) {
-            return v.length();
+          public String apply(Integer v) {
+            return v.toString();
           }
         }).size());
 
-    Assert.assertEquals(3, Maps.newMapByKeys(Arrays.asList(4, 3, 2),
-      new Function<Integer, String>() {
-        @Override
-        public String apply(Integer v) {
-          return v.toString();
-        }
-      }).size());
-
     Assert.assertEquals(3,
-      Maps.of(new Pair<>("foo", "bar"), new Pair<>("hello", "world"),
-        new Pair<>("nico", "sascha")).size());
+        Maps.of(new Pair<>("foo", "bar"), new Pair<>("hello", "world"),
+            new Pair<>("nico", "sascha")).size());
   }
 }

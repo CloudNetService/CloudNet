@@ -27,7 +27,7 @@ public class LogLevel implements ILevelable {
    * Allows asynchronously ILogHandler invocation
    */
   public static final LogLevel INFO = new LogLevel("information", "INFO", 0,
-    true);
+      true);
 
   /**
    * The IMPORTANT level is for important messages like "Oh, a bird has hit
@@ -36,7 +36,7 @@ public class LogLevel implements ILevelable {
    * Allows asynchronously ILogHandler invocation
    */
   public static final LogLevel IMPORTANT = new LogLevel("important",
-    "IMPORTANT", 1, true);
+      "IMPORTANT", 1, true);
 
   /**
    * The COMMAND level is for the console messages by handling a command from
@@ -45,7 +45,7 @@ public class LogLevel implements ILevelable {
    * Disallows asynchronously ILogHandler invocation
    */
   public static final LogLevel COMMAND = new LogLevel("command", "COMMAND", 1,
-    false);
+      false);
 
   /**
    * The WARNING level is for important messages like "WARNING! Your program may
@@ -54,7 +54,7 @@ public class LogLevel implements ILevelable {
    * Allows asynchronously ILogHandler invocation
    */
   public static final LogLevel WARNING = new LogLevel("warning", "WARNING", 125,
-    true);
+      true);
 
   /**
    * The ERROR level is for important messages like a StackTrace or a error
@@ -63,7 +63,7 @@ public class LogLevel implements ILevelable {
    * Allows asynchronously ILogHandler invocation
    */
   public static final LogLevel ERROR = new LogLevel("error", "ERROR", 126,
-    true);
+      true);
 
   /**
    * The FATAL level is for crashing messages or messages that are so important,
@@ -72,7 +72,7 @@ public class LogLevel implements ILevelable {
    * Disallows asynchronously ILogHandler invocation
    */
   public static final LogLevel FATAL = new LogLevel("fatal", "FATAL", 127,
-    false);
+      false);
 
   /**
    * The DEBUG level is for crashing messages or messages that are so important,
@@ -81,14 +81,14 @@ public class LogLevel implements ILevelable {
    * Disallows asynchronously ILogHandler invocation
    */
   public static final LogLevel DEBUG = new LogLevel("debug", "DEBUG", 128,
-    false);
+      false);
 
   /**
    * A wildcard that all messages can be handle from the Logger, if the logger
    * invokes the setLevel(LogLevel.ALL) method.
    */
   public static final LogLevel ALL = new LogLevel("all", "ALL",
-    Integer.MAX_VALUE, true);
+      Integer.MAX_VALUE, true);
 
   /**
    * The level name in lower and upper case form. It is important fort the

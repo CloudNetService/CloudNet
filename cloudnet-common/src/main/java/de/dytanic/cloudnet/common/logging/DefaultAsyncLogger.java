@@ -89,7 +89,7 @@ public class DefaultAsyncLogger implements ILogger {
 
   @Override
   public synchronized ILogger addLogHandlers(
-    Iterable<ILogHandler> logHandlers) {
+      Iterable<ILogHandler> logHandlers) {
 
     for (ILogHandler logHandler : logHandlers) {
       addLogHandler(logHandler);
@@ -115,7 +115,7 @@ public class DefaultAsyncLogger implements ILogger {
 
   @Override
   public synchronized ILogger removeLogHandlers(
-    Iterable<ILogHandler> logHandlers) {
+      Iterable<ILogHandler> logHandlers) {
 
     for (ILogHandler logHandler : logHandlers) {
       removeLogHandler(logHandler);
@@ -159,7 +159,7 @@ public class DefaultAsyncLogger implements ILogger {
 
   private void handleLogEntry(LogEntry logEntry) {
     if (logEntry != null && (level == -1
-      || logEntry.getLogLevel().getLevel() <= level)) {
+        || logEntry.getLogLevel().getLevel() <= level)) {
       if (logEntry.getLogLevel().isAsync()) {
         entries.offer(new LogHandlerRunnable(logEntry));
       } else {

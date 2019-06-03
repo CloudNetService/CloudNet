@@ -14,7 +14,7 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)
-    throws Exception {
+      throws Exception {
     in.markReaderIndex();
     byte[] lengthBytes = new byte[5];
 

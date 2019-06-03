@@ -1,9 +1,9 @@
 jar {
-  archiveName = cloudnetCommonFile
+    archiveName = cloudnetCommonFile
 }
 
 dependencies {
-  compile group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
+    compile group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
 
-  testCompile group: 'junit', name: 'junit', version: testJunitVersion
+    testCompile group: 'junit', name: 'junit', version: testJunitVersion
 }

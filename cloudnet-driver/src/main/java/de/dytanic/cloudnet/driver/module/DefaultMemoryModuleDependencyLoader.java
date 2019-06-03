@@ -4,27 +4,27 @@ import java.net.URL;
 import java.util.Map;
 
 public class DefaultMemoryModuleDependencyLoader implements
-  IModuleDependencyLoader {
+    IModuleDependencyLoader {
 
   @Override
   public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration,
-    ModuleDependency moduleDependency,
-    Map<String, String> moduleRepositoriesUrls) throws Exception {
+      ModuleDependency moduleDependency,
+      Map<String, String> moduleRepositoriesUrls) throws Exception {
     return new URL(moduleDependency.getUrl());
   }
 
   @Override
   public URL loadModuleDependencyByRepository(
-    ModuleConfiguration moduleConfiguration,
-    ModuleDependency moduleDependency,
-    Map<String, String> moduleRepositoriesUrls) throws Exception {
+      ModuleConfiguration moduleConfiguration,
+      ModuleDependency moduleDependency,
+      Map<String, String> moduleRepositoriesUrls) throws Exception {
     return new URL(
-      moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
-        moduleDependency.getGroup().replace(".", "/") + "/" +
-        moduleDependency.getName() + "/" + moduleDependency.getVersion()
-        + "/" +
-        moduleDependency.getName() + "-" + moduleDependency.getVersion()
-        + ".jar"
+        moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
+            moduleDependency.getGroup().replace(".", "/") + "/" +
+            moduleDependency.getName() + "/" + moduleDependency.getVersion()
+            + "/" +
+            moduleDependency.getName() + "-" + moduleDependency.getVersion()
+            + ".jar"
     );
   }
 }

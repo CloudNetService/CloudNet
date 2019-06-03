@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class VelocityCloudNetCloudPermissionsPermissionFunction implements
-  PermissionFunction {
+    PermissionFunction {
 
   private final UUID uniqueId;
 
@@ -22,9 +22,9 @@ public final class VelocityCloudNetCloudPermissionsPermissionFunction implements
     }
 
     IPermissionUser permissionUser = CloudPermissionsPermissionManagement
-      .getInstance().getUser(uniqueId);
+        .getInstance().getUser(uniqueId);
     return (permissionUser != null && CloudPermissionsPermissionManagement
-      .getInstance().hasPlayerPermission(permissionUser, permission)) ?
-      Tristate.TRUE : Tristate.FALSE;
+        .getInstance().hasPlayerPermission(permissionUser, permission)) ?
+        Tristate.TRUE : Tristate.FALSE;
   }
 }

@@ -11,10 +11,10 @@ public final class JLine2Console implements IConsole {
   private final ConsoleReader consoleReader;
 
   private final String
-    user = System.getProperty("user.name"),
-    version = System.getProperty("cloudnet.launcher.select.version"),
-    prompt = System.getProperty("cloudnet.console.prompt",
-      "&3%user%&0@&9%screen% &1=> ");
+      user = System.getProperty("user.name"),
+      version = System.getProperty("cloudnet.launcher.select.version"),
+      prompt = System.getProperty("cloudnet.console.prompt",
+          "&3%user%&0@&9%screen% &1=> ");
 
   @Setter
   private String screenName = version;
@@ -30,11 +30,11 @@ public final class JLine2Console implements IConsole {
   public String readLine() throws Exception {
     this.resetPrompt();
     String input = this.consoleReader.readLine(
-      ConsoleColor.toColouredString('&', prompt)
-        .replace("%version%", version)
-        .replace("%screen%", screenName + "")
-        .replace("%user%", user)
-        + ConsoleColor.DEFAULT
+        ConsoleColor.toColouredString('&', prompt)
+            .replace("%version%", version)
+            .replace("%screen%", screenName + "")
+            .replace("%user%", user)
+            + ConsoleColor.DEFAULT
     );
 
     this.resetPrompt();
@@ -57,7 +57,7 @@ public final class JLine2Console implements IConsole {
 
     try {
       this.consoleReader
-        .print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
+          .print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
       this.consoleReader.flush();
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -80,7 +80,7 @@ public final class JLine2Console implements IConsole {
 
     try {
       this.consoleReader
-        .print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
+          .print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
       this.consoleReader.drawLine();
       this.consoleReader.flush();
     } catch (Exception ignored) {
@@ -92,7 +92,7 @@ public final class JLine2Console implements IConsole {
   @Override
   public boolean hasColorSupport() {
     return !(this.consoleReader
-      .getTerminal() instanceof jline.UnsupportedTerminal);
+        .getTerminal() instanceof jline.UnsupportedTerminal);
   }
 
   @Override

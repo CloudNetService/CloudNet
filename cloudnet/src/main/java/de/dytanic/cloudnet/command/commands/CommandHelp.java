@@ -17,31 +17,31 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-    String commandLine, Properties properties) {
+      String commandLine, Properties properties) {
     switch (args.length) {
       case 0:
 
         for (CommandInfo commandInfo : getCloudNet().getCommandMap()
-          .getCommandInfos()) {
+            .getCommandInfos()) {
           sender.sendMessage(
-            "Aliases: " + Arrays.toString(commandInfo.getNames()) + " - "
-              + commandInfo.getDescription());
+              "Aliases: " + Arrays.toString(commandInfo.getNames()) + " - "
+                  + commandInfo.getDescription());
         }
 
         break;
       case 1:
 
         if (getCloudNet().getCommandMap().getCommandNames()
-          .contains(args[0].toLowerCase())) {
+            .contains(args[0].toLowerCase())) {
           Command commandInfo = getCloudNet().getCommandMap()
-            .getCommand(args[0].toLowerCase());
+              .getCommand(args[0].toLowerCase());
 
           if (commandInfo != null) {
             sender.sendMessage(
-              " ",
-              "Aliases: " + Arrays.toString(commandInfo.getNames()),
-              "Description: " + commandInfo.getDescription(),
-              "Usage: " + commandInfo.getUsage()
+                " ",
+                "Aliases: " + Arrays.toString(commandInfo.getNames()),
+                "Description: " + commandInfo.getDescription(),
+                "Usage: " + commandInfo.getUsage()
             );
           }
         }
@@ -52,11 +52,11 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
 
   @Override
   public Collection<String> complete(String commandLine, String[] args,
-    Properties properties) {
+      Properties properties) {
     Collection<String> x = Iterables.newArrayList();
 
     for (CommandInfo commandInfo : getCloudNet().getCommandMap()
-      .getCommandInfos()) {
+        .getCommandInfos()) {
       x.addAll(Arrays.asList(commandInfo.getNames()));
     }
 

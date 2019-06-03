@@ -16,8 +16,8 @@ public final class CommandCloudNet extends Command {
   public void execute(CommandSender sender, String[] args) {
     if (args.length == 0) {
       sender.sendMessages(ChatColor.translateAlternateColorCodes('&',
-        BridgeConfigurationProvider.load().getPrefix())
-        + "/cloudnet <command>");
+          BridgeConfigurationProvider.load().getPrefix())
+          + "/cloudnet <command>");
       return;
     }
 
@@ -27,14 +27,14 @@ public final class CommandCloudNet extends Command {
     }
 
     String[] messages = CloudNetDriver.getInstance()
-      .sendCommandLine(stringBuilder.toString());
+        .sendCommandLine(stringBuilder.toString());
 
     if (messages != null) {
       for (String message : messages) {
         if (message != null) {
           sender.sendMessages(
-            ChatColor.translateAlternateColorCodes('&',
-              BridgeConfigurationProvider.load().getPrefix() + message)
+              ChatColor.translateAlternateColorCodes('&',
+                  BridgeConfigurationProvider.load().getPrefix() + message)
           );
         }
       }

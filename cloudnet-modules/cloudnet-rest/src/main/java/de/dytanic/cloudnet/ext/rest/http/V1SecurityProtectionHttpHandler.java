@@ -18,13 +18,13 @@ public final class V1SecurityProtectionHttpHandler extends V1HttpHandler {
 
     if (!HTTP_SESSION.isAuthorized(context)) {
       context
-        .response()
-        .statusCode(HttpResponseCode.HTTP_MOVED_TEMP)
-        .header("Location",
-          "/api/v1/auth?redirect=" + context.request().uri())
-        .context()
-        .closeAfter(true)
-        .cancelNext()
+          .response()
+          .statusCode(HttpResponseCode.HTTP_MOVED_TEMP)
+          .header("Location",
+              "/api/v1/auth?redirect=" + context.request().uri())
+          .context()
+          .closeAfter(true)
+          .cancelNext()
       ;
     }
   }

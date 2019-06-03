@@ -19,8 +19,8 @@ public interface IModuleProviderHandler {
   void handlePostModuleUnload(IModuleWrapper moduleWrapper);
 
   void handlePreInstallDependency(IModuleWrapper moduleWrapper,
-    ModuleDependency dependency);
+      ModuleDependency dependency);
 
   void handlePostInstallDependency(IModuleWrapper moduleWrapper,
-    ModuleDependency dependency);
+      ModuleDependency dependency);
 }

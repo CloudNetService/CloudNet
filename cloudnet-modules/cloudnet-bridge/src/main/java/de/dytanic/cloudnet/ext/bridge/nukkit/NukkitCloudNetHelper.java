@@ -33,9 +33,9 @@ public final class NukkitCloudNetHelper {
   @Getter
   @Setter
   private static volatile String
-    apiMotd = Server.getInstance().getMotd(),
-    extra = "",
-    state = "LOBBY";
+      apiMotd = Server.getInstance().getMotd(),
+      extra = "",
+      state = "LOBBY";
 
   @Getter
   @Setter
@@ -55,133 +55,133 @@ public final class NukkitCloudNetHelper {
 
     if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
       CloudNetDriver.getInstance().getServiceTaskAsync(task)
-        .addListener(new ITaskListener<ServiceTask>() {
+          .addListener(new ITaskListener<ServiceTask>() {
 
-          @Override
-          public void onComplete(ITask<ServiceTask> task,
-            ServiceTask serviceTask) {
-            if (serviceTask != null) {
-              CloudNetDriver.getInstance()
-                .createCloudServiceAsync(serviceTask)
-                .addListener(new ITaskListener<ServiceInfoSnapshot>() {
+            @Override
+            public void onComplete(ITask<ServiceTask> task,
+                ServiceTask serviceTask) {
+              if (serviceTask != null) {
+                CloudNetDriver.getInstance()
+                    .createCloudServiceAsync(serviceTask)
+                    .addListener(new ITaskListener<ServiceInfoSnapshot>() {
 
-                  @Override
-                  public void onComplete(ITask<ServiceInfoSnapshot> task,
-                    ServiceInfoSnapshot serviceInfoSnapshot) {
-                    if (serviceInfoSnapshot != null) {
-                      CloudNetDriver.getInstance()
-                        .startCloudService(serviceInfoSnapshot);
-                    }
-                  }
-                });
+                      @Override
+                      public void onComplete(ITask<ServiceInfoSnapshot> task,
+                          ServiceInfoSnapshot serviceInfoSnapshot) {
+                        if (serviceInfoSnapshot != null) {
+                          CloudNetDriver.getInstance()
+                              .startCloudService(serviceInfoSnapshot);
+                        }
+                      }
+                    });
+              }
             }
-          }
-        });
+          });
     }
   }
 
   public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
     serviceInfoSnapshot.getProperties()
-      .append("Online", true)
-      .append("Version", Server.getInstance().getVersion())
-      .append("Codename", Server.getInstance().getCodename())
-      .append("Nukkit-Version", Server.getInstance().getApiVersion())
-      .append("Online-Count", Server.getInstance().getOnlinePlayers().size())
-      .append("Max-Players", maxPlayers)
-      .append("Motd", apiMotd)
-      .append("Extra", extra)
-      .append("State", state)
-      .append("Allow-Nether", Server.getInstance().isNetherAllowed())
-      .append("Allow-Flight", Server.getInstance().getAllowFlight())
-      .append("Players", Iterables
-        .map(Server.getInstance().getOnlinePlayers().values(),
-          new Function<Player, NukkitCloudNetPlayerInfo>() {
-            @Override
-            public NukkitCloudNetPlayerInfo apply(Player player) {
-              return new NukkitCloudNetPlayerInfo(
-                player.getUniqueId(),
-                player.getName(),
-                player.getHealth(),
-                player.getMaxHealth(),
-                player.getFoodData().getLevel(),
-                player.getExperienceLevel(),
-                player.getPing(),
-                new WorldPosition(
-                  player.getX(),
-                  player.getY(),
-                  player.getZ(),
-                  player.getYaw(),
-                  player.getPitch(),
-                  player.getLevel().getName()
-                ),
-                new HostAndPort(player.getAddress(), player.getPort())
-              );
-            }
-          }))
-      .append("Plugins", Iterables
-        .map(Server.getInstance().getPluginManager().getPlugins().values(),
-          new Function<Plugin, PluginInfo>() {
-            @Override
-            public PluginInfo apply(Plugin plugin) {
-              PluginInfo pluginInfo = new PluginInfo(plugin.getName(),
-                plugin.getDescription().getVersion());
+        .append("Online", true)
+        .append("Version", Server.getInstance().getVersion())
+        .append("Codename", Server.getInstance().getCodename())
+        .append("Nukkit-Version", Server.getInstance().getApiVersion())
+        .append("Online-Count", Server.getInstance().getOnlinePlayers().size())
+        .append("Max-Players", maxPlayers)
+        .append("Motd", apiMotd)
+        .append("Extra", extra)
+        .append("State", state)
+        .append("Allow-Nether", Server.getInstance().isNetherAllowed())
+        .append("Allow-Flight", Server.getInstance().getAllowFlight())
+        .append("Players", Iterables
+            .map(Server.getInstance().getOnlinePlayers().values(),
+                new Function<Player, NukkitCloudNetPlayerInfo>() {
+                  @Override
+                  public NukkitCloudNetPlayerInfo apply(Player player) {
+                    return new NukkitCloudNetPlayerInfo(
+                        player.getUniqueId(),
+                        player.getName(),
+                        player.getHealth(),
+                        player.getMaxHealth(),
+                        player.getFoodData().getLevel(),
+                        player.getExperienceLevel(),
+                        player.getPing(),
+                        new WorldPosition(
+                            player.getX(),
+                            player.getY(),
+                            player.getZ(),
+                            player.getYaw(),
+                            player.getPitch(),
+                            player.getLevel().getName()
+                        ),
+                        new HostAndPort(player.getAddress(), player.getPort())
+                    );
+                  }
+                }))
+        .append("Plugins", Iterables
+            .map(Server.getInstance().getPluginManager().getPlugins().values(),
+                new Function<Plugin, PluginInfo>() {
+                  @Override
+                  public PluginInfo apply(Plugin plugin) {
+                    PluginInfo pluginInfo = new PluginInfo(plugin.getName(),
+                        plugin.getDescription().getVersion());
 
-              pluginInfo.getProperties()
-                .append("authors", plugin.getDescription().getAuthors())
-                .append("dependencies",
-                  plugin.getDescription().getDepend())
-                .append("load-before",
-                  plugin.getDescription().getLoadBefore())
-                .append("description",
-                  plugin.getDescription().getDescription())
-                .append("commands",
-                  plugin.getDescription().getCommands())
-                .append("soft-dependencies",
-                  plugin.getDescription().getSoftDepend())
-                .append("website", plugin.getDescription().getWebsite())
-                .append("main-class", plugin.getClass().getName())
-                .append("prefix", plugin.getDescription().getPrefix())
-              ;
+                    pluginInfo.getProperties()
+                        .append("authors", plugin.getDescription().getAuthors())
+                        .append("dependencies",
+                            plugin.getDescription().getDepend())
+                        .append("load-before",
+                            plugin.getDescription().getLoadBefore())
+                        .append("description",
+                            plugin.getDescription().getDescription())
+                        .append("commands",
+                            plugin.getDescription().getCommands())
+                        .append("soft-dependencies",
+                            plugin.getDescription().getSoftDepend())
+                        .append("website", plugin.getDescription().getWebsite())
+                        .append("main-class", plugin.getClass().getName())
+                        .append("prefix", plugin.getDescription().getPrefix())
+                    ;
 
-              return pluginInfo;
-            }
-          }))
-      .append("Worlds", Iterables
-        .map(Server.getInstance().getLevels().values(),
-          new Function<Level, WorldInfo>() {
-            @Override
-            public WorldInfo apply(Level level) {
-              Map<String, String> gameRules = Maps.newHashMap();
+                    return pluginInfo;
+                  }
+                }))
+        .append("Worlds", Iterables
+            .map(Server.getInstance().getLevels().values(),
+                new Function<Level, WorldInfo>() {
+                  @Override
+                  public WorldInfo apply(Level level) {
+                    Map<String, String> gameRules = Maps.newHashMap();
 
-              for (GameRule gameRule : level.getGameRules().getRules()) {
-                GameRules.Value type = level.getGameRules().getGameRules()
-                  .get(gameRule);
+                    for (GameRule gameRule : level.getGameRules().getRules()) {
+                      GameRules.Value type = level.getGameRules().getGameRules()
+                          .get(gameRule);
 
-                switch (type.getType()) {
-                  case FLOAT:
-                    gameRules.put(gameRule.getName(),
-                      level.getGameRules().getFloat(gameRule) + "");
-                    break;
-                  case BOOLEAN:
-                    gameRules.put(gameRule.getName(),
-                      level.getGameRules().getBoolean(gameRule) + "");
-                    break;
-                  case INTEGER:
-                    gameRules.put(gameRule.getName(),
-                      level.getGameRules().getInteger(gameRule) + "");
-                    break;
-                  default:
-                    gameRules.put(gameRule.getName(),
-                      level.getGameRules().getString(gameRule) + "");
-                    break;
-                }
-              }
+                      switch (type.getType()) {
+                        case FLOAT:
+                          gameRules.put(gameRule.getName(),
+                              level.getGameRules().getFloat(gameRule) + "");
+                          break;
+                        case BOOLEAN:
+                          gameRules.put(gameRule.getName(),
+                              level.getGameRules().getBoolean(gameRule) + "");
+                          break;
+                        case INTEGER:
+                          gameRules.put(gameRule.getName(),
+                              level.getGameRules().getInteger(gameRule) + "");
+                          break;
+                        default:
+                          gameRules.put(gameRule.getName(),
+                              level.getGameRules().getString(gameRule) + "");
+                          break;
+                      }
+                    }
 
-              return new WorldInfo(null, level.getName(),
-                getDifficultyToString(
-                  Server.getInstance().getDifficulty()), gameRules);
-            }
-          }))
+                    return new WorldInfo(null, level.getName(),
+                        getDifficultyToString(
+                            Server.getInstance().getDifficulty()), gameRules);
+                  }
+                }))
     ;
   }
 
@@ -199,55 +199,55 @@ public final class NukkitCloudNetHelper {
   }
 
   public static NetworkConnectionInfo createNetworkConnectionInfo(
-    Player player) {
+      Player player) {
     return BridgeHelper.createNetworkConnectionInfo(
-      player.getUniqueId(),
-      player.getName(),
-      -1,
-      new HostAndPort(player.getAddress(), player.getPort()),
-      new HostAndPort("0.0.0.0", Server.getInstance().getPort()),
-      true,
-      false,
-      new NetworkServiceInfo(
-        ServiceEnvironmentType.NUKKIT,
-        Wrapper.getInstance().getServiceId().getUniqueId(),
-        Wrapper.getInstance().getServiceId().getName()
-      )
+        player.getUniqueId(),
+        player.getName(),
+        -1,
+        new HostAndPort(player.getAddress(), player.getPort()),
+        new HostAndPort("0.0.0.0", Server.getInstance().getPort()),
+        true,
+        false,
+        new NetworkServiceInfo(
+            ServiceEnvironmentType.NUKKIT,
+            Wrapper.getInstance().getServiceId().getUniqueId(),
+            Wrapper.getInstance().getServiceId().getName()
+        )
     );
   }
 
   public static NetworkPlayerServerInfo createNetworkPlayerServerInfo(
-    Player player, boolean login) {
+      Player player, boolean login) {
     WorldPosition worldPosition;
 
     if (login) {
       worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
     } else {
       worldPosition = new WorldPosition(
-        player.getX(),
-        player.getY(),
-        player.getZ(),
-        player.getYaw(),
-        player.getPitch(),
-        player.getLevel().getName()
+          player.getX(),
+          player.getY(),
+          player.getZ(),
+          player.getYaw(),
+          player.getPitch(),
+          player.getLevel().getName()
       );
     }
 
     return new NetworkPlayerServerInfo(
-      player.getUniqueId(),
-      player.getName(),
-      null,
-      player.getHealth(),
-      player.getMaxHealth(),
-      player.getFoodData().getLevel(),
-      player.getExperienceLevel(),
-      worldPosition,
-      new HostAndPort(player.getAddress(), player.getPort()),
-      new NetworkServiceInfo(
-        ServiceEnvironmentType.NUKKIT,
-        Wrapper.getInstance().getServiceId().getUniqueId(),
-        Wrapper.getInstance().getServiceId().getName()
-      )
+        player.getUniqueId(),
+        player.getName(),
+        null,
+        player.getHealth(),
+        player.getMaxHealth(),
+        player.getFoodData().getLevel(),
+        player.getExperienceLevel(),
+        worldPosition,
+        new HostAndPort(player.getAddress(), player.getPort()),
+        new NetworkServiceInfo(
+            ServiceEnvironmentType.NUKKIT,
+            Wrapper.getInstance().getServiceId().getUniqueId(),
+            Wrapper.getInstance().getServiceId().getName()
+        )
     );
   }
 }

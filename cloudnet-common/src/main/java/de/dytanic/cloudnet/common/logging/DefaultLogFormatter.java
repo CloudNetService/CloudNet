@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 public final class DefaultLogFormatter implements IFormatter {
 
   private final DateFormat dateFormat = new SimpleDateFormat(
-    "dd.MM HH:mm:ss.SSS");
+      "dd.MM HH:mm:ss.SSS");
 
   @Override
   public String format(LogEntry logEntry) {
@@ -33,13 +33,13 @@ public final class DefaultLogFormatter implements IFormatter {
     for (String message : logEntry.getMessages()) {
       if (message != null) {
         stringBuilder
-          .append("[")
-          .append(dateFormat.format(logEntry.getTimeStamp()))
-          .append("] ")
-          .append(logEntry.getLogLevel().getUpperName())
-          .append(": ")
-          .append(message)
-          .append(System.lineSeparator());
+            .append("[")
+            .append(dateFormat.format(logEntry.getTimeStamp()))
+            .append("] ")
+            .append(logEntry.getLogLevel().getUpperName())
+            .append(": ")
+            .append(message)
+            .append(System.lineSeparator());
       }
     }
 

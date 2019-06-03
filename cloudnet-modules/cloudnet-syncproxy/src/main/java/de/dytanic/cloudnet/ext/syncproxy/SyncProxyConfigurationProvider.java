@@ -33,19 +33,19 @@ public final class SyncProxyConfigurationProvider {
 
   private static SyncProxyConfiguration load0() {
     ITask<SyncProxyConfiguration> task = CloudNetDriver.getInstance()
-      .sendCallablePacket(
-        CloudNetDriver.getInstance().getNetworkClient().getChannels()
-          .iterator().next(),
-        SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY,
-        SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY,
-        new JsonDocument(),
-        new Function<JsonDocument, SyncProxyConfiguration>() {
-          @Override
-          public SyncProxyConfiguration apply(JsonDocument documentPair) {
-            return documentPair
-              .get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
-          }
-        });
+        .sendCallablePacket(
+            CloudNetDriver.getInstance().getNetworkClient().getChannels()
+                .iterator().next(),
+            SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY,
+            SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY,
+            new JsonDocument(),
+            new Function<JsonDocument, SyncProxyConfiguration>() {
+              @Override
+              public SyncProxyConfiguration apply(JsonDocument documentPair) {
+                return documentPair
+                    .get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+              }
+            });
 
     try {
       return task.get(5, TimeUnit.SECONDS);

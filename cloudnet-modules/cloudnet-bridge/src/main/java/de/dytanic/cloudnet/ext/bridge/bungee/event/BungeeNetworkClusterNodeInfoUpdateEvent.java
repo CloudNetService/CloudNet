@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class BungeeNetworkClusterNodeInfoUpdateEvent extends
-  BungeeCloudNetEvent {
+    BungeeCloudNetEvent {
 
   @Getter
   private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;

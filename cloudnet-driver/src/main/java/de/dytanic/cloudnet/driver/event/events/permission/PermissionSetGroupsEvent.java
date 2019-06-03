@@ -11,7 +11,7 @@ public final class PermissionSetGroupsEvent extends PermissionEvent {
   private final Collection<? extends IPermissionGroup> groups;
 
   public PermissionSetGroupsEvent(IPermissionManagement permissionManagement,
-    Collection<? extends IPermissionGroup> groups) {
+      Collection<? extends IPermissionGroup> groups) {
     super(permissionManagement);
 
     this.groups = groups;

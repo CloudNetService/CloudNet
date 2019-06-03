@@ -6,8 +6,8 @@ final class JVMCloudServiceFactory implements ICloudServiceFactory {
 
   @Override
   public ICloudService createCloudService(
-    ICloudServiceManager cloudServiceManager,
-    ServiceConfiguration serviceConfiguration) {
+      ICloudServiceManager cloudServiceManager,
+      ServiceConfiguration serviceConfiguration) {
     return new JVMCloudService(cloudServiceManager, serviceConfiguration);
   }
 }

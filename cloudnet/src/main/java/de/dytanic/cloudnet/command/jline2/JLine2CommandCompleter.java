@@ -21,19 +21,19 @@ public final class JLine2CommandCompleter implements Completer {
 
   @Override
   public int complete(String buffer, int cursor,
-    List<CharSequence> candidates) {
+      List<CharSequence> candidates) {
     List<String> responses = Iterables.newArrayList();
 
     if (buffer.isEmpty() || buffer.indexOf(' ') == -1) {
       responses.addAll(Iterables
-        .filter(commandMap.getCommandNames(), new Predicate<String>() {
+          .filter(commandMap.getCommandNames(), new Predicate<String>() {
 
-          @Override
-          public boolean test(String s) {
-            return s != null && s.toLowerCase()
-              .startsWith(buffer.toLowerCase());
-          }
-        }));
+            @Override
+            public boolean test(String s) {
+              return s != null && s.toLowerCase()
+                  .startsWith(buffer.toLowerCase());
+            }
+          }));
     } else {
       Command command = commandMap.getCommandFromLine(buffer);
 
@@ -43,15 +43,15 @@ public final class JLine2CommandCompleter implements Completer {
         args = buffer.replaceFirst(args[0] + " ", "").split(" ");
 
         responses.addAll(Iterables.filter(((ITabCompleter) command)
-            .complete(buffer, args, Properties.parseLine(args)),
-          new Predicate<String>() {
+                .complete(buffer, args, Properties.parseLine(args)),
+            new Predicate<String>() {
 
-            @Override
-            public boolean test(String s) {
-              return s != null && (testString.isEmpty() || s.toLowerCase()
-                .startsWith(testString.toLowerCase()));
-            }
-          }));
+              @Override
+              public boolean test(String s) {
+                return s != null && (testString.isEmpty() || s.toLowerCase()
+                    .startsWith(testString.toLowerCase()));
+              }
+            }));
       }
     }
 
@@ -61,6 +61,6 @@ public final class JLine2CommandCompleter implements Completer {
     int lastSpace = buffer.lastIndexOf(' ');
 
     return (lastSpace == -1) ? cursor - buffer.length()
-      : cursor - (buffer.length() - lastSpace - 1);
+        : cursor - (buffer.length() - lastSpace - 1);
   }
 }

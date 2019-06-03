@@ -12,14 +12,14 @@ public final class ExampleListener {
   @EventListener
   public void handleServiceStart(CloudServiceStartEvent event) {
     event.getDriver().getLogger().log(LogLevel.INFO,
-      "Service " + event.getServiceInfo().getServiceId().getName()
-        + " is starting...");
+        "Service " + event.getServiceInfo().getServiceId().getName()
+            + " is starting...");
   }
 
   @EventListener
   public void handleServiceConnected(CloudServiceConnectNetworkEvent event) {
     ServiceInfoSnapshot serviceInfoSnapshot = event
-      .getServiceInfo(); //The serviceInfoSnapshot with all important information from a service
+        .getServiceInfo(); //The serviceInfoSnapshot with all important information from a service
 
     ServiceId serviceId = serviceInfoSnapshot.getServiceId();
     serviceId.getName();
@@ -60,7 +60,7 @@ public final class ExampleListener {
     serviceInfoSnapshot.getCreationTime(); //Snapshot creation time in millis
 
     ServiceConfiguration serviceConfiguration = serviceInfoSnapshot
-      .getConfiguration();
+        .getConfiguration();
 
     serviceConfiguration.getPort();
     serviceConfiguration.getGroups();
@@ -68,21 +68,21 @@ public final class ExampleListener {
     serviceConfiguration.getServiceId();
 
     for (ServiceTemplate serviceTemplate : serviceConfiguration
-      .getTemplates()) {
+        .getTemplates()) {
       serviceTemplate.getStorage();
       serviceTemplate.getPrefix();
       serviceTemplate.getName();
     }
 
     for (ServiceDeployment serviceDeployment : serviceConfiguration
-      .getDeployments()) {
+        .getDeployments()) {
       serviceDeployment.getExcludes();
 
       ServiceTemplate serviceTemplate = serviceDeployment.getTemplate();
     }
 
     for (ServiceRemoteInclusion serviceRemoteInclusion : serviceConfiguration
-      .getIncludes()) {
+        .getIncludes()) {
       serviceRemoteInclusion.getUrl();
       serviceRemoteInclusion.getDestination();
     }
@@ -95,12 +95,12 @@ public final class ExampleListener {
   //listen the ExampleOwnEvent, which called on "test_channel"
   public void handleExampleOwnEvent(ExampleOwnEvent event) {
     System.out.println(
-      event.getModuleWrapper().getModule().getName()); //print the module name
+        event.getModuleWrapper().getModule().getName()); //print the module name
   }
 
   @EventListener
   public void handleNotCalledEvent(
-    ExampleOwnEvent event) //On this example module, this listener won't called
+      ExampleOwnEvent event) //On this example module, this listener won't called
   {
     System.out.println("No event listening on public channel");
   }
@@ -108,7 +108,7 @@ public final class ExampleListener {
   @EventListener
   public void handleServiceStop(CloudServiceStopEvent event) {
     event.getDriver().getLogger().log(LogLevel.INFO,
-      "Service " + event.getServiceInfo().getServiceId().getName()
-        + " is stopped...");
+        "Service " + event.getServiceInfo().getServiceId().getName()
+            + " is stopped...");
   }
 }

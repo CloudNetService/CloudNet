@@ -11,7 +11,7 @@ public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
   private final ClassLoader cloudNetClassLoader, spongeAppClassLoader;
 
   public SpongeCloudNetAdapterClassLoader(ClassLoader cloudNetClassLoader,
-    ClassLoader spongeAppClassLoader, ClassLoader parent) {
+      ClassLoader spongeAppClassLoader, ClassLoader parent) {
     super(new URL[0], parent);
 
     this.cloudNetClassLoader = cloudNetClassLoader;
@@ -20,7 +20,7 @@ public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
 
   @Override
   protected Class<?> loadClass(String name, boolean resolve)
-    throws ClassNotFoundException {
+      throws ClassNotFoundException {
     Class<?> target = findClass0(name);
 
     if (target != null) {

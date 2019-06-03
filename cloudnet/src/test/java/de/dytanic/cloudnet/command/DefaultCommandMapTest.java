@@ -47,7 +47,7 @@ public final class DefaultCommandMapTest {
 
       @Override
       public void execute(ICommandSender sender, String command, String[] args,
-        String commandLine, Properties properties) {
+          String commandLine, Properties properties) {
         Assert.assertEquals(2, args.length);
         Assert.assertEquals("val", args[1]);
 
@@ -63,7 +63,7 @@ public final class DefaultCommandMapTest {
     Assert.assertNotNull(commandMap.getCommand("test:test"));
     Assert.assertEquals(2, commandMap.getCommandNames().size());
     Assert.assertTrue(
-      commandMap.dispatchCommand(commandSender, "test:test Dytanic val"));
+        commandMap.dispatchCommand(commandSender, "test:test Dytanic val"));
 
     commandMap.unregisterCommand(command.getClass());
     Assert.assertEquals(0, commandMap.getCommandNames().size());

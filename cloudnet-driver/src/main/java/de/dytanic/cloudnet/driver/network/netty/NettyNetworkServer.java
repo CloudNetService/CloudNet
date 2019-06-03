@@ -26,20 +26,20 @@ import java.util.concurrent.Callable;
 import lombok.Getter;
 
 public final class NettyNetworkServer extends NettySSLServer implements
-  INetworkServer {
+    INetworkServer {
 
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   protected final Collection<INetworkChannel> channels = Iterables
-    .newConcurrentLinkedQueue();
+      .newConcurrentLinkedQueue();
 
   @Getter
   protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final EventLoopGroup bossEventLoopGroup = NettyUtils
-    .newEventLoopGroup(), workerEventLoopGroup = NettyUtils
-    .newEventLoopGroup();
+      .newEventLoopGroup(), workerEventLoopGroup = NettyUtils
+      .newEventLoopGroup();
 
   protected final ITaskScheduler taskScheduler;
 
@@ -48,24 +48,24 @@ public final class NettyNetworkServer extends NettySSLServer implements
   protected final Callable<INetworkChannelHandler> networkChannelHandler;
 
   public NettyNetworkServer(
-    Callable<INetworkChannelHandler> networkChannelHandler) {
+      Callable<INetworkChannelHandler> networkChannelHandler) {
     this(networkChannelHandler, null, null);
   }
 
   public NettyNetworkServer(
-    Callable<INetworkChannelHandler> networkChannelHandler,
-    ITaskScheduler taskScheduler) {
+      Callable<INetworkChannelHandler> networkChannelHandler,
+      ITaskScheduler taskScheduler) {
     this(networkChannelHandler, null, taskScheduler);
   }
 
   public NettyNetworkServer(
-    Callable<INetworkChannelHandler> networkChannelHandler,
-    SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+      Callable<INetworkChannelHandler> networkChannelHandler,
+      SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
     super(sslConfiguration);
     this.networkChannelHandler = networkChannelHandler;
     this.taskSchedulerFromConstructor = taskScheduler != null;
     this.taskScheduler = taskScheduler == null ? new DefaultTaskScheduler(
-      Runtime.getRuntime().availableProcessors()) : taskScheduler;
+        Runtime.getRuntime().availableProcessors()) : taskScheduler;
 
     try {
       this.init();
@@ -94,20 +94,20 @@ public final class NettyNetworkServer extends NettySSLServer implements
     if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
       try {
         this.channelFutures.put(hostAndPort.getPort(),
-          new Pair<>(hostAndPort, new ServerBootstrap()
-            .group(bossEventLoopGroup, workerEventLoopGroup)
-            .childOption(ChannelOption.TCP_NODELAY, true)
-            .childOption(ChannelOption.IP_TOS, 24)
-            .childOption(ChannelOption.AUTO_READ, true)
-            .channel(NettyUtils.getServerSocketChannelClass())
-            .childHandler(
-              new NettyNetworkServerInitializer(this, hostAndPort))
-            .bind(hostAndPort.getHost(), hostAndPort.getPort())
-            .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-            .sync()
-            .channel()
-            .closeFuture()));
+            new Pair<>(hostAndPort, new ServerBootstrap()
+                .group(bossEventLoopGroup, workerEventLoopGroup)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.IP_TOS, 24)
+                .childOption(ChannelOption.AUTO_READ, true)
+                .channel(NettyUtils.getServerSocketChannelClass())
+                .childHandler(
+                    new NettyNetworkServerInitializer(this, hostAndPort))
+                .bind(hostAndPort.getHost(), hostAndPort.getPort())
+                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+                .sync()
+                .channel()
+                .closeFuture()));
 
         return true;
       } catch (InterruptedException e) {
@@ -124,7 +124,7 @@ public final class NettyNetworkServer extends NettySSLServer implements
     this.closeChannels();
 
     for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures
-      .values()) {
+        .values()) {
       entry.getSecond().cancel(true);
     }
 

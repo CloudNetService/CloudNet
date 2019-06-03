@@ -10,8 +10,8 @@ public final class ServicesRegistryTest {
     DefaultServicesRegistry registry = new DefaultServicesRegistry();
 
     registry
-      .registerService(A.class, "b", new B())
-      .registerService(A.class, "c", new C());
+        .registerService(A.class, "b", new B())
+        .registerService(A.class, "c", new C());
 
     Assert.assertEquals(2, registry.getServices(A.class).size());
     Assert.assertEquals(10, registry.getService(A.class, "b").getValue());

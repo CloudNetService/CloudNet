@@ -19,29 +19,29 @@ public abstract class NodeCloudNetModule extends DriverModule {
   }
 
   public final <T extends ITemplateStorage> T registerTemplateStorage(
-    String serviceName, T templateStorage) {
+      String serviceName, T templateStorage) {
     Validate.checkNotNull(serviceName);
     Validate.checkNotNull(templateStorage);
 
     getRegistry()
-      .registerService(ITemplateStorage.class, serviceName, templateStorage);
+        .registerService(ITemplateStorage.class, serviceName, templateStorage);
 
     return templateStorage;
   }
 
   public final <T extends AbstractDatabaseProvider> T registerDatabaseProvider(
-    String serviceName, T databaseProvider) {
+      String serviceName, T databaseProvider) {
     Validate.checkNotNull(serviceName);
     Validate.checkNotNull(databaseProvider);
 
     getRegistry().registerService(AbstractDatabaseProvider.class, serviceName,
-      databaseProvider);
+        databaseProvider);
 
     return databaseProvider;
   }
 
   public final IHttpServer registerHttpHandler(String path,
-    IHttpHandler... httpHandlers) {
+      IHttpHandler... httpHandlers) {
     Validate.checkNotNull(path);
     Validate.checkNotNull(httpHandlers);
 

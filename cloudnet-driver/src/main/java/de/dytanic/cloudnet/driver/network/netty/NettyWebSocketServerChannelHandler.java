@@ -16,13 +16,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 final class NettyWebSocketServerChannelHandler extends
-  SimpleChannelInboundHandler<WebSocketFrame> {
+    SimpleChannelInboundHandler<WebSocketFrame> {
 
   private final NettyWebSocketServerChannel webSocketServerChannel;
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx,
-    WebSocketFrame webSocketFrame) throws Exception {
+      WebSocketFrame webSocketFrame) throws Exception {
     if (webSocketFrame instanceof PingWebSocketFrame) {
       invoke0(WebSocketFrameType.PING, webSocketFrame);
     }

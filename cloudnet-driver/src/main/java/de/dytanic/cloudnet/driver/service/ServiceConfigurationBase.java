@@ -18,8 +18,8 @@ abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable {
   protected Collection<ServiceDeployment> deployments;
 
   public ServiceConfigurationBase(Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments) {
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments) {
     this.includes = includes;
     this.templates = templates;
     this.deployments = deployments;

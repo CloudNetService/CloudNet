@@ -19,9 +19,9 @@ public class NettyPacketEncoderDecoderTest {
 
     ByteBuf byteBuf = Unpooled.buffer();
     Packet packet = new Packet(4, new JsonDocument().append("val", true),
-      Packet.EMPTY_PACKET_BYTE_ARRAY);
+        Packet.EMPTY_PACKET_BYTE_ARRAY);
     Packet packet2 = new Packet(2, new JsonDocument(),
-      "Test_Nachricht".getBytes());
+        "Test_Nachricht".getBytes());
     Packet packet3 = new Packet(3, new JsonDocument(), new byte[0]);
 
     nettyPacketEncoder.encode(null, packet, byteBuf);
@@ -42,7 +42,7 @@ public class NettyPacketEncoderDecoderTest {
     Assert.assertTrue(packet.getHeader().getBoolean("val"));
 
     Assert.assertEquals("Test_Nachricht",
-      new String(((Packet) packets.get(1)).getBody(),
-        StandardCharsets.UTF_8));
+        new String(((Packet) packets.get(1)).getBody(),
+            StandardCharsets.UTF_8));
   }
 }

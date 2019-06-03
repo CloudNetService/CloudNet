@@ -1,15 +1,15 @@
 jar {
 
-  archiveName cloudnetWrapperFile
+    archiveName cloudnetWrapperFile
 
-  manifest {
-    attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
-    attributes 'Premain-Class': 'de.dytanic.cloudnet.wrapper.runtime.RuntimeAgent'
-    attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
-    attributes 'Implementation-Title': cloudNetCodeName
-  }
+    manifest {
+        attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
+        attributes 'Premain-Class': 'de.dytanic.cloudnet.wrapper.runtime.RuntimeAgent'
+        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Title': cloudNetCodeName
+    }
 }
 
 dependencies {
-  compileOnly project(':cloudnet-driver')
+    compileOnly project(':cloudnet-driver')
 }

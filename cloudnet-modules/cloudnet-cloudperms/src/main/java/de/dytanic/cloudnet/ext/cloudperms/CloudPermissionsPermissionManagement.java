@@ -16,16 +16,16 @@ import lombok.Getter;
 
 @Getter
 public final class CloudPermissionsPermissionManagement implements
-  IPermissionManagement {
+    IPermissionManagement {
 
   @Getter
   private static CloudPermissionsPermissionManagement instance;
 
   private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   private final Map<UUID, IPermissionUser> cachedPermissionUsers = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   public CloudPermissionsPermissionManagement() {
     instance = this;
@@ -39,15 +39,15 @@ public final class CloudPermissionsPermissionManagement implements
     }
 
     getDriver().getEventManager()
-      .registerListener(new PermissionsUpdateListener());
+        .registerListener(new PermissionsUpdateListener());
   }
 
   public boolean hasPlayerPermission(IPermissionUser permissionUser,
-    String perm) {
+      String perm) {
     Permission permission = new Permission(perm, 0);
 
     for (String group : Wrapper.getInstance().getServiceConfiguration()
-      .getGroups()) {
+        .getGroups()) {
       if (hasPermission(permissionUser, group, permission)) {
         return true;
       }
@@ -61,14 +61,14 @@ public final class CloudPermissionsPermissionManagement implements
   @Override
   public IPermissionManagementHandler getPermissionManagementHandler() {
     throw new UnsupportedOperationException(
-      "PermissionManagementHandler is not on this implementation");
+        "PermissionManagementHandler is not on this implementation");
   }
 
   @Override
   public void setPermissionManagementHandler(
-    IPermissionManagementHandler permissionManagementHandler) {
+      IPermissionManagementHandler permissionManagementHandler) {
     throw new UnsupportedOperationException(
-      "PermissionManagementHandler is not on this implementation");
+        "PermissionManagementHandler is not on this implementation");
   }
 
   @Override
@@ -110,7 +110,7 @@ public final class CloudPermissionsPermissionManagement implements
     Validate.checkNotNull(uniqueId);
 
     return cachedPermissionUsers.containsKey(uniqueId) || getDriver()
-      .containsUser(uniqueId);
+        .containsUser(uniqueId);
   }
 
   @Override
@@ -125,7 +125,7 @@ public final class CloudPermissionsPermissionManagement implements
     Validate.checkNotNull(uniqueId);
 
     return cachedPermissionUsers.containsKey(uniqueId) ? cachedPermissionUsers
-      .get(uniqueId) : getDriver().getUser(uniqueId);
+        .get(uniqueId) : getDriver().getUser(uniqueId);
   }
 
   @Override

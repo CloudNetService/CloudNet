@@ -24,7 +24,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 public final class PacketServerUpdatePermissionsListener implements
-  IPacketListener {
+    IPacketListener {
 
   private static final Type PERMISSION_USERS_TYPE = new TypeToken<Collection<PermissionUser>>() {
   }.getType(), PERMISSION_GROUPS_TYPE = new TypeToken<Collection<PermissionGroup>>() {
@@ -33,42 +33,42 @@ public final class PacketServerUpdatePermissionsListener implements
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("permissions_event") && packet.getHeader()
-      .contains("updateType")) {
+        .contains("updateType")) {
       switch (packet.getHeader()
-        .get("updateType", PacketServerUpdatePermissions.UpdateType.class)) {
+          .get("updateType", PacketServerUpdatePermissions.UpdateType.class)) {
         case ADD_USER:
           invoke0(new PermissionAddUserEvent(getPermissionManagement(),
-            packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
+              packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
           break;
         case ADD_GROUP:
           invoke0(new PermissionAddGroupEvent(getPermissionManagement(),
-            packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
+              packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
           break;
         case SET_USERS:
           invoke0(new PermissionSetUsersEvent(getPermissionManagement(),
-            packet.getHeader()
-              .get("permissionUsers", PERMISSION_USERS_TYPE)));
+              packet.getHeader()
+                  .get("permissionUsers", PERMISSION_USERS_TYPE)));
           break;
         case SET_GROUPS:
           invoke0(new PermissionSetGroupsEvent(getPermissionManagement(),
-            packet.getHeader()
-              .get("permissionGroups", PERMISSION_GROUPS_TYPE)));
+              packet.getHeader()
+                  .get("permissionGroups", PERMISSION_GROUPS_TYPE)));
           break;
         case DELETE_USER:
           invoke0(new PermissionUpdateUserEvent(getPermissionManagement(),
-            packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
+              packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
           break;
         case UPDATE_USER:
           invoke0(new PermissionDeleteUserEvent(getPermissionManagement(),
-            packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
+              packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
           break;
         case DELETE_GROUP:
           invoke0(new PermissionDeleteGroupEvent(getPermissionManagement(),
-            packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
+              packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
           break;
         case UPDATE_GROUP:
           invoke0(new PermissionUpdateGroupEvent(getPermissionManagement(),
-            packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
+              packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
           break;
       }
 
@@ -86,7 +86,7 @@ public final class PacketServerUpdatePermissionsListener implements
 
   private void sendUpdateToAllServices(IPacket packet) {
     for (ICloudService cloudService : CloudNet.getInstance()
-      .getCloudServiceManager().getCloudServices().values()) {
+        .getCloudServiceManager().getCloudServices().values()) {
       if (cloudService.getNetworkChannel() != null) {
         cloudService.getNetworkChannel().sendPacket(packet);
       }

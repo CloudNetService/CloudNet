@@ -10,11 +10,11 @@ import java.util.Collection;
 public final class PacketServerSetJsonFilePermissions extends Packet {
 
   public PacketServerSetJsonFilePermissions(
-    Collection<IPermissionUser> permissionUsers,
-    Collection<IPermissionGroup> permissionGroups) {
+      Collection<IPermissionUser> permissionUsers,
+      Collection<IPermissionGroup> permissionGroups) {
     super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument()
-      .append("permissionUsers", permissionUsers)
-      .append("permissionGroups", permissionGroups)
-      .append("set_json_file", true), null);
+        .append("permissionUsers", permissionUsers)
+        .append("permissionGroups", permissionGroups)
+        .append("set_json_file", true), null);
   }
 }

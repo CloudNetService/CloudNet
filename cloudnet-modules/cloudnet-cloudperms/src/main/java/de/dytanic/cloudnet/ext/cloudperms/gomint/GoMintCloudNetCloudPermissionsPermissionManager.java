@@ -11,15 +11,15 @@ import lombok.Getter;
 
 @Getter
 public final class GoMintCloudNetCloudPermissionsPermissionManager extends
-  PermissionManager {
+    PermissionManager {
 
   private final EntityPlayer player;
 
   private final io.gomint.permission.PermissionManager defaultPermissionManager;
 
   public GoMintCloudNetCloudPermissionsPermissionManager(
-    io.gomint.server.entity.EntityPlayer player,
-    io.gomint.permission.PermissionManager permissionManager) {
+      io.gomint.server.entity.EntityPlayer player,
+      io.gomint.permission.PermissionManager permissionManager) {
     super(player);
 
     this.player = player;
@@ -34,7 +34,7 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends
 
     IPermissionUser permissionUser = getUser();
     return permissionUser != null && CloudPermissionsPermissionManagement
-      .getInstance().hasPlayerPermission(permissionUser, s);
+        .getInstance().hasPlayerPermission(permissionUser, s);
   }
 
   @Override
@@ -58,7 +58,7 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends
     IPermissionUser permissionUser = getUser();
     permissionUser.addPermission(new Permission(s, b ? 1 : -1));
     CloudPermissionsPermissionManagement.getInstance()
-      .updateUser(permissionUser);
+        .updateUser(permissionUser);
   }
 
   @Override
@@ -68,13 +68,13 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends
     IPermissionUser permissionUser = getUser();
     permissionUser.removePermission(s);
     CloudPermissionsPermissionManagement.getInstance()
-      .updateUser(permissionUser);
+        .updateUser(permissionUser);
   }
 
   /*= ----------------------------------------------- =*/
 
   private IPermissionUser getUser() {
     return CloudPermissionsPermissionManagement.getInstance()
-      .getUser(player.getUUID());
+        .getUser(player.getUUID());
   }
 }

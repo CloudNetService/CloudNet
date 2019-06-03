@@ -40,13 +40,13 @@ import java.util.Properties;
 public class JsonDocument implements IDocument<JsonDocument> {
 
   public static Gson GSON = new GsonBuilder()
-    .serializeNulls()
-    .disableHtmlEscaping()
-    .setPrettyPrinting()
-    .registerTypeAdapterFactory(TypeAdapters
-      .newTypeHierarchyFactory(JsonDocument.class,
-        new JsonDocumentTypeAdapter()))
-    .create();
+      .serializeNulls()
+      .disableHtmlEscaping()
+      .setPrettyPrinting()
+      .registerTypeAdapterFactory(TypeAdapters
+          .newTypeHierarchyFactory(JsonDocument.class,
+              new JsonDocumentTypeAdapter()))
+      .create();
 
   protected static final JsonParser PARSER = new JsonParser();
 
@@ -68,7 +68,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
   public JsonDocument(JsonElement jsonElement) {
     this(jsonElement.isJsonObject() ? jsonElement.getAsJsonObject()
-      : new JsonObject());
+        : new JsonObject());
   }
 
   public JsonDocument(Properties properties) {
@@ -132,7 +132,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
   @Override
   public JsonDocument clear() {
     for (Map.Entry<String, JsonElement> elementEntry : this.jsonObject
-      .entrySet()) {
+        .entrySet()) {
       this.jsonObject.remove(elementEntry.getKey());
     }
 
@@ -253,7 +253,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
     Enumeration enumeration = properties.keys();
 
     while (enumeration.hasMoreElements()
-      && (entry = enumeration.nextElement()) != null) {
+        && (entry = enumeration.nextElement()) != null) {
       append(entry.toString(), properties.getProperty(entry.toString()));
     }
 
@@ -290,7 +290,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
   @Override
   public JsonDocument append(InputStream inputStream) {
     try (InputStreamReader reader = new InputStreamReader(inputStream,
-      StandardCharsets.UTF_8)) {
+        StandardCharsets.UTF_8)) {
       return append(reader);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -718,7 +718,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
   @Override
   public JsonDocument write(OutputStream outputStream) {
     try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-      outputStream, StandardCharsets.UTF_8)) {
+        outputStream, StandardCharsets.UTF_8)) {
       this.write(outputStreamWriter);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -735,7 +735,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
   @Override
   public JsonDocument read(InputStream inputStream) {
     try (InputStreamReader inputStreamReader = new InputStreamReader(
-      inputStream, StandardCharsets.UTF_8)) {
+        inputStream, StandardCharsets.UTF_8)) {
       return this.read(inputStreamReader);
     } catch (IOException e) {
       e.printStackTrace();
@@ -756,14 +756,14 @@ public class JsonDocument implements IDocument<JsonDocument> {
   @Override
   public IReadable read(byte[] bytes) {
     this.append(PARSER.parse(new String(bytes, StandardCharsets.UTF_8))
-      .getAsJsonObject());
+        .getAsJsonObject());
     return this;
   }
 
   public JsonDocument read(String input) {
     try {
       this.append(PARSER.parse(new BufferedReader(new StringReader(input)))
-        .getAsJsonObject());
+          .getAsJsonObject());
     } catch (Exception ex) {
       ex.printStackTrace();
     }

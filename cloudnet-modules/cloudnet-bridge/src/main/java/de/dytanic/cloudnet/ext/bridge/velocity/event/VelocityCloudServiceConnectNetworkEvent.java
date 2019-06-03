@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class VelocityCloudServiceConnectNetworkEvent extends
-  VelocityCloudNetEvent {
+    VelocityCloudNetEvent {
 
   @Getter
   private final ServiceInfoSnapshot serviceInfoSnapshot;

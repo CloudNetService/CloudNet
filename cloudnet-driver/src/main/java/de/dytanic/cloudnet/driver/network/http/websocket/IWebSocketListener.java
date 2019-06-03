@@ -5,10 +5,10 @@ import de.dytanic.cloudnet.common.Value;
 public interface IWebSocketListener {
 
   void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes)
-    throws Exception;
+      throws Exception;
 
   default void handleClose(IWebSocketChannel channel, Value<Integer> statusCode,
-    Value<String> reasonText) {
+      Value<String> reasonText) {
 
   }
 }

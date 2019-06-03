@@ -13,10 +13,10 @@ public final class CommandClear extends CommandDefault {
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-    String commandLine, Properties properties) {
+      String commandLine, Properties properties) {
     try {
       ((JLine2Console) getCloudNet().getConsole()).getConsoleReader()
-        .clearScreen();
+          .clearScreen();
     } catch (IOException ignored) {
     }
   }

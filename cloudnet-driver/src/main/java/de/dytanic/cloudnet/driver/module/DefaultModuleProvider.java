@@ -15,7 +15,7 @@ import lombok.Setter;
 public final class DefaultModuleProvider implements IModuleProvider {
 
   protected Collection<DefaultModuleWrapper> moduleWrappers = Iterables
-    .newCopyOnWriteArrayList();
+      .newCopyOnWriteArrayList();
 
   @Getter
   @Setter
@@ -38,7 +38,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
       @Override
       public boolean test(IModuleWrapper defaultModuleWrapper) {
         return defaultModuleWrapper.getModuleConfiguration().group
-          .equals(group);
+            .equals(group);
       }
     });
   }
@@ -48,13 +48,13 @@ public final class DefaultModuleProvider implements IModuleProvider {
     Validate.checkNotNull(name);
 
     return Iterables
-      .first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
-        @Override
-        public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
-          return defaultModuleWrapper.getModuleConfiguration().getName()
-            .equals(name);
-        }
-      });
+        .first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
+          @Override
+          public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
+            return defaultModuleWrapper.getModuleConfiguration().getName()
+                .equals(name);
+          }
+        });
   }
 
   @Override
@@ -64,20 +64,20 @@ public final class DefaultModuleProvider implements IModuleProvider {
     DefaultModuleWrapper moduleWrapper = null;
 
     if (Iterables
-      .first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
-        @Override
-        public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
-          return defaultModuleWrapper.getUrl().toString()
-            .equalsIgnoreCase(url.toString());
-        }
-      }) != null) {
+        .first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
+          @Override
+          public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
+            return defaultModuleWrapper.getUrl().toString()
+                .equalsIgnoreCase(url.toString());
+          }
+        }) != null) {
       return null;
     }
 
     try {
 
       this.moduleWrappers
-        .add(moduleWrapper = new DefaultModuleWrapper(this, url));
+          .add(moduleWrapper = new DefaultModuleWrapper(this, url));
       moduleWrapper.loadModule();
 
     } catch (Throwable throwable) {

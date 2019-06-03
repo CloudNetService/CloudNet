@@ -12,12 +12,12 @@ import org.bukkit.permissions.Permission;
 
 @Getter
 public final class BukkitCloudNetCloudPermissionsPermissible extends
-  PermissibleBase {
+    PermissibleBase {
 
   private static final Collection<String> DEFAULT_ALLOWED_PERMISSION_COLLECTION = Iterables
-    .newArrayList(Arrays.asList(
-      "bukkit.broadcast.user"
-    ));
+      .newArrayList(Arrays.asList(
+          "bukkit.broadcast.user"
+      ));
 
   private final Player player;
 
@@ -54,9 +54,9 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends
 
     try {
       IPermissionUser permissionUser = CloudPermissionsPermissionManagement
-        .getInstance().getUser(player.getUniqueId());
+          .getInstance().getUser(player.getUniqueId());
       return permissionUser != null && CloudPermissionsPermissionManagement
-        .getInstance().hasPlayerPermission(permissionUser, inName);
+          .getInstance().hasPlayerPermission(permissionUser, inName);
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;

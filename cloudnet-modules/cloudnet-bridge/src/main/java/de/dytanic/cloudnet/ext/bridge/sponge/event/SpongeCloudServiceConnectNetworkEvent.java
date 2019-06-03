@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class SpongeCloudServiceConnectNetworkEvent extends
-  SpongeCloudNetEvent {
+    SpongeCloudNetEvent {
 
   @Getter
   private final ServiceInfoSnapshot serviceInfoSnapshot;

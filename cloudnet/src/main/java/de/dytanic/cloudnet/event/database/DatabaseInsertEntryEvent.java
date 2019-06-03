@@ -14,7 +14,7 @@ public class DatabaseInsertEntryEvent extends DatabaseEvent {
   private JsonDocument document;
 
   public DatabaseInsertEntryEvent(IDatabase database, String key,
-    JsonDocument document) {
+      JsonDocument document) {
     super(database);
 
     this.key = key;

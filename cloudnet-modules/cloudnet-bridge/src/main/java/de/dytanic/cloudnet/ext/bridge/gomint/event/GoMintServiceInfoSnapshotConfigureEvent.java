@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class GoMintServiceInfoSnapshotConfigureEvent extends
-  GoMintCloudNetEvent {
+    GoMintCloudNetEvent {
 
   @Getter
   private final ServiceInfoSnapshot serviceInfoSnapshot;

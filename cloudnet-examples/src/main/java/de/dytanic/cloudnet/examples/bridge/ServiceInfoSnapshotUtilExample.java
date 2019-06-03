@@ -13,26 +13,26 @@ public final class ServiceInfoSnapshotUtilExample {
   @EventListener
   public void handle(CloudServiceInfoUpdateEvent event) {
     int onlineCount = ServiceInfoSnapshotUtil
-      .getOnlineCount(event.getServiceInfo()); //The online players count
+        .getOnlineCount(event.getServiceInfo()); //The online players count
 
     int maxPlayers = ServiceInfoSnapshotUtil
-      .getMaxPlayers(event.getServiceInfo()); //The API set PlayerLimit
+        .getMaxPlayers(event.getServiceInfo()); //The API set PlayerLimit
 
     String version = ServiceInfoSnapshotUtil
-      .getVersion(event.getServiceInfo()); //The version of the service
+        .getVersion(event.getServiceInfo()); //The version of the service
 
     String motd = ServiceInfoSnapshotUtil
-      .getMotd(event.getServiceInfo()); //State motd or null
+        .getMotd(event.getServiceInfo()); //State motd or null
 
     String extra = ServiceInfoSnapshotUtil
-      .getExtra(event.getServiceInfo()); //Extra string or null
+        .getExtra(event.getServiceInfo()); //Extra string or null
 
     String state = ServiceInfoSnapshotUtil
-      .getState(event.getServiceInfo()); //State string or null
+        .getState(event.getServiceInfo()); //State string or null
 
     Collection<PluginInfo> pluginInfos = ServiceInfoSnapshotUtil.getPlugins(
-      event
-        .getServiceInfo()); //The pluginInfo items with the important information about the plugin or null
+        event
+            .getServiceInfo()); //The pluginInfo items with the important information about the plugin or null
 
     if (pluginInfos != null) {
       for (PluginInfo pluginInfo : pluginInfos) {
@@ -43,7 +43,7 @@ public final class ServiceInfoSnapshotUtilExample {
     }
 
     Collection<JsonDocument> players = ServiceInfoSnapshotUtil
-      .getPlayers(event.getServiceInfo());
+        .getPlayers(event.getServiceInfo());
 
     if (players != null) {
       for (JsonDocument player : players) {

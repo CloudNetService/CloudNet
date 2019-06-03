@@ -17,10 +17,10 @@ public class ConfigurationOptionSSL {
 
   public SSLConfiguration toSslConfiguration() {
     return new SSLConfiguration(
-      clientAuth,
-      trustCertificatePath == null ? null : new File(trustCertificatePath),
-      certificatePath == null ? null : new File(certificatePath),
-      privateKeyPath == null ? null : new File(privateKeyPath)
+        clientAuth,
+        trustCertificatePath == null ? null : new File(trustCertificatePath),
+        certificatePath == null ? null : new File(certificatePath),
+        privateKeyPath == null ? null : new File(privateKeyPath)
     );
   }
 }

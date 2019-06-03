@@ -40,9 +40,9 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
   @Override
   public void onUninstall() {
     CloudNetDriver.getInstance().getEventManager()
-      .unregisterListeners(this.getClass().getClassLoader());
+        .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-      this.getClass().getClassLoader());
+        this.getClass().getClassLoader());
   }
 
   /*= ------------------------------------------------------------------------------- =*/
@@ -58,7 +58,7 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
 
     try {
       Field field = entityPlayer.getClass()
-        .getDeclaredField("permissionManager");
+          .getDeclaredField("permissionManager");
       field.setAccessible(true);
 
       Field modifiersField = Field.class.getDeclaredField("modifiers");
@@ -72,11 +72,11 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
       });
 
       modifiersField
-        .setInt(field, modifiersField.getModifiers() & ~Modifier.FINAL);
+          .setInt(field, modifiersField.getModifiers() & ~Modifier.FINAL);
       field.set(entityPlayer,
-        new GoMintCloudNetCloudPermissionsPermissionManager(
-          (io.gomint.server.entity.EntityPlayer) entityPlayer,
-          entityPlayer.getPermissionManager()));
+          new GoMintCloudNetCloudPermissionsPermissionManager(
+              (io.gomint.server.entity.EntityPlayer) entityPlayer,
+              entityPlayer.getPermissionManager()));
 
     } catch (Exception ignored) {
       ignored.printStackTrace();

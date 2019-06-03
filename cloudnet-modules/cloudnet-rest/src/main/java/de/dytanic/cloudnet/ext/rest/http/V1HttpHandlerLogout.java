@@ -12,7 +12,7 @@ public class V1HttpHandlerLogout extends V1HttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-    throws Exception {
+      throws Exception {
     this.sendOptions(context, "OPTIONS");
   }
 
@@ -27,10 +27,10 @@ public class V1HttpHandlerLogout extends V1HttpHandler {
     HTTP_SESSION.logout(context);
 
     context
-      .response()
-      .statusCode(HttpResponseCode.HTTP_OK)
-      .context()
-      .closeAfter(true)
-      .cancelNext();
+        .response()
+        .statusCode(HttpResponseCode.HTTP_OK)
+        .context()
+        .closeAfter(true)
+        .cancelNext();
   }
 }

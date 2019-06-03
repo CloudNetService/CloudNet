@@ -18,15 +18,15 @@ public final class HeaderReader {
     String codename = HeaderReader.class.getPackage().getImplementationTitle();
 
     try (InputStream inputStream = HeaderReader.class.getClassLoader()
-      .getResourceAsStream("header.txt");
-      InputStreamReader inputStreamReader = new InputStreamReader(inputStream,
-        StandardCharsets.UTF_8);
-      BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+        .getResourceAsStream("header.txt");
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream,
+            StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
       String input;
       while ((input = bufferedReader.readLine()) != null) {
         console.writeLine(input.replace("%codename%", codename + "")
-          .replace("%version%", version + ""));
+            .replace("%version%", version + ""));
       }
 
     } catch (IOException e) {

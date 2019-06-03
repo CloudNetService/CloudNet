@@ -15,9 +15,9 @@ public class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
 
   @Override
   public void write(JsonWriter jsonWriter, JsonDocument document)
-    throws IOException {
+      throws IOException {
     TypeAdapters.JSON_ELEMENT.write(jsonWriter,
-      document == null ? new JsonObject() : document.jsonObject);
+        document == null ? new JsonObject() : document.jsonObject);
   }
 
   @Override

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class ProxProxBridgeProxyPlayerServerSwitchEvent extends
-  ProxProxBridgeEvent {
+    ProxProxBridgeEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

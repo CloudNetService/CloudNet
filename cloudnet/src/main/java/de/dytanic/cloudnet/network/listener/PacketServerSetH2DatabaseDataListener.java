@@ -12,7 +12,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 public final class PacketServerSetH2DatabaseDataListener implements
-  IPacketListener {
+    IPacketListener {
 
   private static final Type TYPE = new TypeToken<Map<String, Map<String, JsonDocument>>>() {
   }.getType();
@@ -20,10 +20,10 @@ public final class PacketServerSetH2DatabaseDataListener implements
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (CloudNet.getInstance()
-      .getDatabaseProvider() instanceof H2DatabaseProvider && packet
-      .getHeader().contains("set_h2db")) {
+        .getDatabaseProvider() instanceof H2DatabaseProvider && packet
+        .getHeader().contains("set_h2db")) {
       Map<String, Map<String, JsonDocument>> documents = packet.getHeader()
-        .get("documents", TYPE);
+          .get("documents", TYPE);
 
       H2DatabaseProvider databaseProvider = getH2DatabaseProvider();
 
@@ -42,17 +42,17 @@ public final class PacketServerSetH2DatabaseDataListener implements
       }
 
       for (Map.Entry<String, Map<String, JsonDocument>> db : documents
-        .entrySet()) {
+          .entrySet()) {
         H2Database database = databaseProvider.getDatabase(db.getKey());
 
         for (Map.Entry<String, JsonDocument> entry : documents.get(db.getKey())
-          .entrySet()) {
+            .entrySet()) {
           database.insert0(entry.getKey(), entry.getValue());
         }
       }
 
       for (Map.Entry<String, Map<String, JsonDocument>> entry : documents
-        .entrySet()) {
+          .entrySet()) {
         entry.getValue().clear();
       }
 

@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 public class DefaultDNSRecord extends DNSRecord {
 
   public DefaultDNSRecord(DNSType type, String name, String content,
-    JsonObject data) {
+      JsonObject data) {
     super(type.name(), name, content, 1, false, data);
   }
 }

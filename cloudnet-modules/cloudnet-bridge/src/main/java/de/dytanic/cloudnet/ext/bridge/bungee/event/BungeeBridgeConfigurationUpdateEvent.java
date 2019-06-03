@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class BungeeBridgeConfigurationUpdateEvent extends
-  BungeeBridgeEvent {
+    BungeeBridgeEvent {
 
   private final BridgeConfiguration bridgeConfiguration;
 

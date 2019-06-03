@@ -1,29 +1,29 @@
 jar {
 
-  dependsOn ':cloudnet-wrapper-jvm:jar'
+    dependsOn ':cloudnet-wrapper-jvm:jar'
 
-  manifest {
-    attributes 'Main-Class': 'de.dytanic.cloudnet.Main'
-    attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
-    attributes 'Implementation-Title': cloudNetCodeName
-  }
+    manifest {
+        attributes 'Main-Class': 'de.dytanic.cloudnet.Main'
+        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Title': cloudNetCodeName
+    }
 
-  archiveName = cloudnetRunnableOutFileName
+    archiveName = cloudnetRunnableOutFileName
 
-  manifest = jar.manifest
+    manifest = jar.manifest
 
-  from('../cloudnet-wrapper-jvm/build/libs') {
-    include cloudnetWrapperFile
-  }
+    from('../cloudnet-wrapper-jvm/build/libs') {
+        include cloudnetWrapperFile
+    }
 
-  doLast {
-    createCnlFile(project, cloudnetRunnableOutCNLFileName)
-  }
+    doLast {
+        createCnlFile(project, cloudnetRunnableOutCNLFileName)
+    }
 }
 
 dependencies {
-  compile project(':cloudnet-driver')
-  compile group: 'jline', name: 'jline', version: dependencyJLine2Version
-  compile group: 'org.fusesource.jansi', name: 'jansi', version: dependencyJAnsiVersion
-  compile group: 'com.h2database', name: 'h2', version: dependencyH2Version
+    compile project(':cloudnet-driver')
+    compile group: 'jline', name: 'jline', version: dependencyJLine2Version
+    compile group: 'org.fusesource.jansi', name: 'jansi', version: dependencyJAnsiVersion
+    compile group: 'com.h2database', name: 'h2', version: dependencyH2Version
 }

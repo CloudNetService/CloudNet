@@ -12,39 +12,39 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 
 public final class PacketClientServiceInfoUpdateListener implements
-  IPacketListener {
+    IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("message") && packet.getHeader()
-      .getString("message").equals("update_serviceInfo") && packet.getHeader()
-      .contains("serviceInfoSnapshot")) {
+        .getString("message").equals("update_serviceInfo") && packet.getHeader()
+        .contains("serviceInfoSnapshot")) {
       ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader()
-        .get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
+          .get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
 
       ICloudServiceManager cloudServiceManager = CloudNet.getInstance()
-        .getCloudServiceManager();
+          .getCloudServiceManager();
 
       ICloudService cloudService = cloudServiceManager
-        .getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
+          .getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
 
       if (cloudService != null) {
         cloudService.setServiceInfoSnapshot(serviceInfoSnapshot);
         cloudServiceManager.getGlobalServiceInfoSnapshots()
-          .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-            serviceInfoSnapshot);
+            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+                serviceInfoSnapshot);
 
         CloudNetDriver.getInstance().getEventManager()
-          .callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
+            .callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
 
         CloudNet.getInstance().getNetworkClient()
-          .sendPacket(
-            new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot,
-              PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
+            .sendPacket(
+                new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot,
+                    PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
         CloudNet.getInstance().getNetworkServer()
-          .sendPacket(
-            new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot,
-              PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
+            .sendPacket(
+                new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot,
+                    PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
       }
     }
   }

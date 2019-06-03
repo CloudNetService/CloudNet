@@ -9,7 +9,7 @@ public final class BukkitCloudNetSignListener {
   @EventListener
   public void handle(CloudServiceRegisterEvent event) {
     AbstractSignManagement.getInstance()
-      .onRegisterService(event.getServiceInfo());
+        .onRegisterService(event.getServiceInfo());
   }
 
   @EventListener
@@ -20,25 +20,25 @@ public final class BukkitCloudNetSignListener {
   @EventListener
   public void handle(CloudServiceConnectNetworkEvent event) {
     AbstractSignManagement.getInstance()
-      .onConnectService(event.getServiceInfo());
+        .onConnectService(event.getServiceInfo());
   }
 
   @EventListener
   public void handle(CloudServiceDisconnectNetworkEvent event) {
     AbstractSignManagement.getInstance()
-      .onDisconnectService(event.getServiceInfo());
+        .onDisconnectService(event.getServiceInfo());
   }
 
   @EventListener
   public void handle(CloudServiceInfoUpdateEvent event) {
     AbstractSignManagement.getInstance()
-      .onUpdateServiceInfo(event.getServiceInfo());
+        .onUpdateServiceInfo(event.getServiceInfo());
   }
 
   @EventListener
   public void handle(CloudServiceUnregisterEvent event) {
     AbstractSignManagement.getInstance()
-      .onUnregisterService(event.getServiceInfo());
+        .onUnregisterService(event.getServiceInfo());
   }
 
   @EventListener
@@ -55,7 +55,7 @@ public final class BukkitCloudNetSignListener {
     switch (event.getMessage().toLowerCase()) {
       case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
         SignConfiguration signConfiguration = event.getData()
-          .get("signConfiguration", SignConfiguration.TYPE);
+            .get("signConfiguration", SignConfiguration.TYPE);
         SignConfigurationProvider.setLocal(signConfiguration);
       }
       break;

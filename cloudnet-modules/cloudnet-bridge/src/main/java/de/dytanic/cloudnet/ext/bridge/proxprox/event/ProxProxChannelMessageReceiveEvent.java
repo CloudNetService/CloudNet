@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class ProxProxChannelMessageReceiveEvent extends
-  ProxProxCloudNetEvent {
+    ProxProxCloudNetEvent {
 
   @Getter
   private final String channel, message;

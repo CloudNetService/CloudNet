@@ -25,8 +25,8 @@ public final class ExampleCallbackSyncAPI {
     switch (event.getId()) {
       case "get_node_count":
         event.setCallbackPacket(new JsonDocument("nodeCount",
-          CloudNet.getInstance().getClusterNodeServerProvider()
-            .getNodeServers().size()));
+            CloudNet.getInstance().getClusterNodeServerProvider()
+                .getNodeServers().size()));
         //Set the callback packet data for the node
         break;
     }
@@ -37,20 +37,20 @@ public final class ExampleCallbackSyncAPI {
 
   public ITask<Integer> getNodeCountAsync() {
     return CloudNetDriver.getInstance().sendCallablePacket(
-      //Send a packet, which has to get a message back async.
-      CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator()
-        .next(),
-      "test_channel",
-      "get_node_count",
-      new JsonDocument(),
-      new Function<JsonDocument, Integer>() {
-        @Override
-        public Integer apply(
-          JsonDocument jsonDocument) //The callback information from node and the map to an Integer value
-        {
-          return jsonDocument.getInt("nodeCount");
+        //Send a packet, which has to get a message back async.
+        CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator()
+            .next(),
+        "test_channel",
+        "get_node_count",
+        new JsonDocument(),
+        new Function<JsonDocument, Integer>() {
+          @Override
+          public Integer apply(
+              JsonDocument jsonDocument) //The callback information from node and the map to an Integer value
+          {
+            return jsonDocument.getInt("nodeCount");
+          }
         }
-      }
     );
   }
 
@@ -62,7 +62,7 @@ public final class ExampleCallbackSyncAPI {
       @Override
       public void onComplete(ITask<Integer> task, Integer integer) {
         System.out
-          .println("Current Node count with async callback: " + integer);
+            .println("Current Node count with async callback: " + integer);
       }
     });
 

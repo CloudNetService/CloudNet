@@ -34,30 +34,30 @@ public final class NettyUtils {
 
   public static EventLoopGroup newEventLoopGroup() {
     return Epoll.isAvailable() ?
-      new EpollEventLoopGroup(Runtime.getRuntime().availableProcessors(),
-        threadFactory()) :
-      KQueue.isAvailable() ?
-        new KQueueEventLoopGroup(Runtime.getRuntime().availableProcessors(),
-          threadFactory()) :
-        new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),
-          threadFactory());
+        new EpollEventLoopGroup(Runtime.getRuntime().availableProcessors(),
+            threadFactory()) :
+        KQueue.isAvailable() ?
+            new KQueueEventLoopGroup(Runtime.getRuntime().availableProcessors(),
+                threadFactory()) :
+            new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),
+                threadFactory());
   }
 
   public static Class<? extends SocketChannel> getSocketChannelClass() {
     return Epoll.isAvailable() ? EpollSocketChannel.class
-      : KQueue.isAvailable() ? KQueueSocketChannel.class
-        : NioSocketChannel.class;
+        : KQueue.isAvailable() ? KQueueSocketChannel.class
+            : NioSocketChannel.class;
   }
 
   public static Class<? extends ServerSocketChannel> getServerSocketChannelClass() {
     return Epoll.isAvailable() ? EpollServerSocketChannel.class
-      : KQueue.isAvailable() ? KQueueServerSocketChannel.class
-        : NioServerSocketChannel.class;
+        : KQueue.isAvailable() ? KQueueServerSocketChannel.class
+            : NioServerSocketChannel.class;
   }
 
   public static ThreadFactory threadFactory() {
     return new DefaultThreadFactory(MultithreadEventExecutorGroup.class, true,
-      Thread.MIN_PRIORITY);
+        Thread.MIN_PRIORITY);
   }
 
   public static byte[] toByteArray(ByteBuf byteBuf, int size) {

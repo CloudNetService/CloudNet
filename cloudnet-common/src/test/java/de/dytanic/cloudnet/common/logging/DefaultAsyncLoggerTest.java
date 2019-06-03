@@ -21,7 +21,7 @@ public class DefaultAsyncLoggerTest {
     Assert.assertTrue(logger.hasAsyncSupport());
 
     logger.log(LogLevel.INFO, DefaultAsyncLoggerTest.class, "My log message!",
-      "foo", "bar");
+        "foo", "bar");
 
     Assert.assertNull(data);
 

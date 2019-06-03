@@ -16,6 +16,6 @@ public class LanguageManagerTest {
 
     Assert.assertNotNull(LanguageManager.getMessage("test_message"));
     Assert.assertEquals("Test_Message",
-      LanguageManager.getMessage("test_message"));
+        LanguageManager.getMessage("test_message"));
   }
 }

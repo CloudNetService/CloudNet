@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class GoMintNetworkChannelPacketReceiveEvent extends
-  GoMintCloudNetEvent {
+    GoMintCloudNetEvent {
 
   @Getter
   private final INetworkChannel channel;

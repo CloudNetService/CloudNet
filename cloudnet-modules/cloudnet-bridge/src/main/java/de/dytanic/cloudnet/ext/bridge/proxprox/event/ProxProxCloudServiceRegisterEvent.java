@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class ProxProxCloudServiceRegisterEvent extends
-  ProxProxCloudNetEvent {
+    ProxProxCloudNetEvent {
 
   @Getter
   private final ServiceInfoSnapshot serviceInfoSnapshot;

@@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
 @Getter
 @RequiredArgsConstructor
 public final class BukkitBridgeServerPlayerLoginRequestEvent extends
-  BukkitBridgeEvent {
+    BukkitBridgeEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

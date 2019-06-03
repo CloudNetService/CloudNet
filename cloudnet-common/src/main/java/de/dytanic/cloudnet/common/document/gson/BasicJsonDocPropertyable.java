@@ -9,7 +9,7 @@ public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
 
   @Override
   public <E> IJsonDocPropertyable setProperty(JsonDocProperty<E> docProperty,
-    E val) {
+      E val) {
     properties.setProperty(docProperty, val);
     return this;
   }
@@ -21,7 +21,7 @@ public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
 
   @Override
   public <E> IJsonDocPropertyable removeProperty(
-    JsonDocProperty<E> docProperty) {
+      JsonDocProperty<E> docProperty) {
     properties.removeProperty(docProperty);
     return this;
   }

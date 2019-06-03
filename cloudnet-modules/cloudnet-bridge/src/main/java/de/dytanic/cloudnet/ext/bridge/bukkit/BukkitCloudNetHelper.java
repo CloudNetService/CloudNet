@@ -37,14 +37,14 @@ public final class BukkitCloudNetHelper {
   @Getter
   @Setter
   private static volatile String
-    apiMotd = Bukkit.getMotd(),
-    extra = "",
-    state = "LOBBY";
+      apiMotd = Bukkit.getMotd(),
+      extra = "",
+      state = "LOBBY";
 
   @Getter
   @Setter
   private static volatile int
-    maxPlayers = Bukkit.getMaxPlayers();
+      maxPlayers = Bukkit.getMaxPlayers();
 
   @Setter
   @Getter
@@ -64,28 +64,28 @@ public final class BukkitCloudNetHelper {
 
     if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
       CloudNetDriver.getInstance().getServiceTaskAsync(task)
-        .addListener(new ITaskListener<ServiceTask>() {
+          .addListener(new ITaskListener<ServiceTask>() {
 
-          @Override
-          public void onComplete(ITask<ServiceTask> task,
-            ServiceTask serviceTask) {
-            if (serviceTask != null) {
-              CloudNetDriver.getInstance()
-                .createCloudServiceAsync(serviceTask)
-                .addListener(new ITaskListener<ServiceInfoSnapshot>() {
+            @Override
+            public void onComplete(ITask<ServiceTask> task,
+                ServiceTask serviceTask) {
+              if (serviceTask != null) {
+                CloudNetDriver.getInstance()
+                    .createCloudServiceAsync(serviceTask)
+                    .addListener(new ITaskListener<ServiceInfoSnapshot>() {
 
-                  @Override
-                  public void onComplete(ITask<ServiceInfoSnapshot> task,
-                    ServiceInfoSnapshot serviceInfoSnapshot) {
-                    if (serviceInfoSnapshot != null) {
-                      CloudNetDriver.getInstance()
-                        .startCloudService(serviceInfoSnapshot);
-                    }
-                  }
-                });
+                      @Override
+                      public void onComplete(ITask<ServiceInfoSnapshot> task,
+                          ServiceInfoSnapshot serviceInfoSnapshot) {
+                        if (serviceInfoSnapshot != null) {
+                          CloudNetDriver.getInstance()
+                              .startCloudService(serviceInfoSnapshot);
+                        }
+                      }
+                    });
+              }
             }
-          }
-        });
+          });
     }
   }
 
@@ -99,92 +99,92 @@ public final class BukkitCloudNetHelper {
         Location location = player.getLocation();
 
         players.add(new BukkitCloudNetPlayerInfo(
-          player.getUniqueId(),
-          player.getName(),
-          getHealthOfPlayer(player),
-          getMaxHealthOfPlayer(player),
-          player.getFoodLevel(),
-          player.getLevel(),
-          new WorldPosition(
-            location.getX(),
-            location.getY(),
-            location.getZ(),
-            location.getYaw(),
-            location.getPitch(),
-            location.getWorld().getName()
-          ),
-          new HostAndPort(player.getAddress())
+            player.getUniqueId(),
+            player.getName(),
+            getHealthOfPlayer(player),
+            getMaxHealthOfPlayer(player),
+            player.getFoodLevel(),
+            player.getLevel(),
+            new WorldPosition(
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch(),
+                location.getWorld().getName()
+            ),
+            new HostAndPort(player.getAddress())
         ));
       }
     });
 
     serviceInfoSnapshot.getProperties()
-      .append("Online", true)
-      .append("Version", Bukkit.getVersion())
-      .append("Bukkit-Version", Bukkit.getBukkitVersion())
-      .append("Online-Count", getOnlineCount())
-      .append("Max-Players", maxPlayers)
-      .append("Motd", apiMotd)
-      .append("Extra", extra)
-      .append("State", state)
-      .append("Outgoing-Channels",
-        Bukkit.getMessenger().getOutgoingChannels())
-      .append("Incoming-Channels",
-        Bukkit.getMessenger().getIncomingChannels())
-      .append("Online-Mode", Bukkit.getOnlineMode())
-      .append("Whitelist-Enabled", Bukkit.hasWhitelist())
-      .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(),
-        new Function<OfflinePlayer, String>() {
-          @Override
-          public String apply(OfflinePlayer offlinePlayer) {
-            return offlinePlayer.getName();
-          }
-        }))
-      .append("Allow-Nether", Bukkit.getAllowNether())
-      .append("Allow-End", Bukkit.getAllowEnd())
-      .append("Players", players)
-      .append("Plugins", Iterables
-        .map(Arrays.asList(Bukkit.getPluginManager().getPlugins()),
-          new Function<Plugin, PluginInfo>() {
-            @Override
-            public PluginInfo apply(Plugin plugin) {
-              PluginInfo pluginInfo = new PluginInfo(plugin.getName(),
-                plugin.getDescription().getVersion());
+        .append("Online", true)
+        .append("Version", Bukkit.getVersion())
+        .append("Bukkit-Version", Bukkit.getBukkitVersion())
+        .append("Online-Count", getOnlineCount())
+        .append("Max-Players", maxPlayers)
+        .append("Motd", apiMotd)
+        .append("Extra", extra)
+        .append("State", state)
+        .append("Outgoing-Channels",
+            Bukkit.getMessenger().getOutgoingChannels())
+        .append("Incoming-Channels",
+            Bukkit.getMessenger().getIncomingChannels())
+        .append("Online-Mode", Bukkit.getOnlineMode())
+        .append("Whitelist-Enabled", Bukkit.hasWhitelist())
+        .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(),
+            new Function<OfflinePlayer, String>() {
+              @Override
+              public String apply(OfflinePlayer offlinePlayer) {
+                return offlinePlayer.getName();
+              }
+            }))
+        .append("Allow-Nether", Bukkit.getAllowNether())
+        .append("Allow-End", Bukkit.getAllowEnd())
+        .append("Players", players)
+        .append("Plugins", Iterables
+            .map(Arrays.asList(Bukkit.getPluginManager().getPlugins()),
+                new Function<Plugin, PluginInfo>() {
+                  @Override
+                  public PluginInfo apply(Plugin plugin) {
+                    PluginInfo pluginInfo = new PluginInfo(plugin.getName(),
+                        plugin.getDescription().getVersion());
 
-              pluginInfo.getProperties()
-                .append("authors", plugin.getDescription().getAuthors())
-                .append("dependencies",
-                  plugin.getDescription().getDepend())
-                .append("load-before",
-                  plugin.getDescription().getLoadBefore())
-                .append("description",
-                  plugin.getDescription().getDescription())
-                .append("commands",
-                  plugin.getDescription().getCommands())
-                .append("soft-dependencies",
-                  plugin.getDescription().getSoftDepend())
-                .append("website", plugin.getDescription().getWebsite())
-                .append("main-class", plugin.getDescription().getMain())
-                .append("prefix", plugin.getDescription().getPrefix())
-              ;
+                    pluginInfo.getProperties()
+                        .append("authors", plugin.getDescription().getAuthors())
+                        .append("dependencies",
+                            plugin.getDescription().getDepend())
+                        .append("load-before",
+                            plugin.getDescription().getLoadBefore())
+                        .append("description",
+                            plugin.getDescription().getDescription())
+                        .append("commands",
+                            plugin.getDescription().getCommands())
+                        .append("soft-dependencies",
+                            plugin.getDescription().getSoftDepend())
+                        .append("website", plugin.getDescription().getWebsite())
+                        .append("main-class", plugin.getDescription().getMain())
+                        .append("prefix", plugin.getDescription().getPrefix())
+                    ;
 
-              return pluginInfo;
-            }
-          }))
-      .append("Worlds",
-        Iterables.map(Bukkit.getWorlds(), new Function<World, WorldInfo>() {
-          @Override
-          public WorldInfo apply(World world) {
-            Map<String, String> gameRules = Maps.newHashMap();
+                    return pluginInfo;
+                  }
+                }))
+        .append("Worlds",
+            Iterables.map(Bukkit.getWorlds(), new Function<World, WorldInfo>() {
+              @Override
+              public WorldInfo apply(World world) {
+                Map<String, String> gameRules = Maps.newHashMap();
 
-            for (String entry : world.getGameRules()) {
-              gameRules.put(entry, world.getGameRuleValue(entry));
-            }
+                for (String entry : world.getGameRules()) {
+                  gameRules.put(entry, world.getGameRuleValue(entry));
+                }
 
-            return new WorldInfo(world.getUID(), world.getName(),
-              world.getDifficulty().name(), gameRules);
-          }
-        }))
+                return new WorldInfo(world.getUID(), world.getName(),
+                    world.getDifficulty().name(), gameRules);
+              }
+            }))
     ;
   }
 
@@ -212,30 +212,30 @@ public final class BukkitCloudNetHelper {
   }
 
   public static NetworkConnectionInfo createNetworkConnectionInfo(
-    Player player) {
+      Player player) {
     Boolean onlineMode = Bukkit.getServer().getOnlineMode();
     if (onlineMode == null) {
       onlineMode = true;
     }
 
     return BridgeHelper.createNetworkConnectionInfo(
-      player.getUniqueId(),
-      player.getName(),
-      -1,
-      new HostAndPort(player.getAddress()),
-      new HostAndPort("0.0.0.0", Bukkit.getServer().getPort()),
-      onlineMode,
-      false,
-      new NetworkServiceInfo(
-        ServiceEnvironmentType.MINECRAFT_SERVER,
-        Wrapper.getInstance().getServiceId().getUniqueId(),
-        Wrapper.getInstance().getServiceId().getName()
-      )
+        player.getUniqueId(),
+        player.getName(),
+        -1,
+        new HostAndPort(player.getAddress()),
+        new HostAndPort("0.0.0.0", Bukkit.getServer().getPort()),
+        onlineMode,
+        false,
+        new NetworkServiceInfo(
+            ServiceEnvironmentType.MINECRAFT_SERVER,
+            Wrapper.getInstance().getServiceId().getUniqueId(),
+            Wrapper.getInstance().getServiceId().getName()
+        )
     );
   }
 
   public static NetworkPlayerServerInfo createNetworkPlayerServerInfo(
-    Player player, boolean login) {
+      Player player, boolean login) {
     WorldPosition worldPosition;
 
     if (login) {
@@ -243,30 +243,30 @@ public final class BukkitCloudNetHelper {
     } else {
       Location location = player.getLocation();
       worldPosition = new WorldPosition(
-        location.getX(),
-        location.getY(),
-        location.getZ(),
-        location.getYaw(),
-        location.getPitch(),
-        location.getWorld().getName()
+          location.getX(),
+          location.getY(),
+          location.getZ(),
+          location.getYaw(),
+          location.getPitch(),
+          location.getWorld().getName()
       );
     }
 
     return new NetworkPlayerServerInfo(
-      player.getUniqueId(),
-      player.getName(),
-      null,
-      getHealthOfPlayer(player),
-      getMaxHealthOfPlayer(player),
-      player.getSaturation(),
-      player.getLevel(),
-      worldPosition,
-      new HostAndPort(player.getAddress()),
-      new NetworkServiceInfo(
-        ServiceEnvironmentType.MINECRAFT_SERVER,
-        Wrapper.getInstance().getServiceId().getUniqueId(),
-        Wrapper.getInstance().getServiceId().getName()
-      )
+        player.getUniqueId(),
+        player.getName(),
+        null,
+        getHealthOfPlayer(player),
+        getMaxHealthOfPlayer(player),
+        player.getSaturation(),
+        player.getLevel(),
+        worldPosition,
+        new HostAndPort(player.getAddress()),
+        new NetworkServiceInfo(
+            ServiceEnvironmentType.MINECRAFT_SERVER,
+            Wrapper.getInstance().getServiceId().getUniqueId(),
+            Wrapper.getInstance().getServiceId().getName()
+        )
     );
   }
 

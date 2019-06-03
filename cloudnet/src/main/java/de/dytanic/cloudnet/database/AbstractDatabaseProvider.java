@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public abstract class AbstractDatabaseProvider implements INameable,
-  AutoCloseable {
+    AutoCloseable {
 
   @Getter
   @Setter

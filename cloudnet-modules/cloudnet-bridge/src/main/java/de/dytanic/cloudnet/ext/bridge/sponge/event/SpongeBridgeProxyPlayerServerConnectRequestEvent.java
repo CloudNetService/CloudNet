@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class SpongeBridgeProxyPlayerServerConnectRequestEvent extends
-  SpongeBridgeEvent {
+    SpongeBridgeEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

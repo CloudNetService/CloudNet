@@ -17,18 +17,18 @@ import lombok.Getter;
 final class DefaultCloudServiceManagerConfiguration {
 
   private static final Type
-    COLL_SERVICE_TASK = new TypeToken<Collection<ServiceTask>>() {
+      COLL_SERVICE_TASK = new TypeToken<Collection<ServiceTask>>() {
   }.getType(),
-    COLL_GROUP_CONFIGURATION = new TypeToken<Collection<GroupConfiguration>>() {
-    }.getType();
+      COLL_GROUP_CONFIGURATION = new TypeToken<Collection<GroupConfiguration>>() {
+      }.getType();
 
   private static final Path TASK_CONFIG_FILE = Paths
-    .get(System.getProperty("cloudnet.config.task.path", "local/tasks.json"));
+      .get(System.getProperty("cloudnet.config.task.path", "local/tasks.json"));
 
   private final List<ServiceTask> tasks = Iterables.newCopyOnWriteArrayList();
 
   private final List<GroupConfiguration> groups = Iterables
-    .newCopyOnWriteArrayList();
+      .newCopyOnWriteArrayList();
 
   public DefaultCloudServiceManagerConfiguration() {
     if (!Files.exists(TASK_CONFIG_FILE)) {
@@ -50,6 +50,6 @@ final class DefaultCloudServiceManagerConfiguration {
 
   public void save() {
     new JsonDocument("groups", groups).append("tasks", tasks)
-      .write(TASK_CONFIG_FILE);
+        .write(TASK_CONFIG_FILE);
   }
 }

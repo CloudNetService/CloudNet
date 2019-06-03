@@ -11,17 +11,17 @@ public final class CNLCommandEcho extends CNLCommand {
 
   @Override
   public void execute(Map<String, String> variables, String commandLine,
-    String... args) {
+      String... args) {
 
     StringBuilder stringBuilder = new StringBuilder();
 
     for (int i = 0; i < args.length;
-      stringBuilder.append(args[i++]).append(" ")) {
+        stringBuilder.append(args[i++]).append(" ")) {
       ;
     }
 
     System.out.println(stringBuilder.substring(0,
-      stringBuilder.length() == 0 ? stringBuilder.length()
-        : stringBuilder.length() - 1));
+        stringBuilder.length() == 0 ? stringBuilder.length()
+            : stringBuilder.length() - 1));
   }
 }

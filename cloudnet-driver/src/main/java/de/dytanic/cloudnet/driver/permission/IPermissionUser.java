@@ -34,7 +34,7 @@ public interface IPermissionUser extends IPermissible {
     }
 
     return addGroup(group,
-      (System.currentTimeMillis() + timeUnit.toMillis(time)));
+        (System.currentTimeMillis() + timeUnit.toMillis(time)));
   }
 
   default IPermissionUser addGroup(String group, long timeOutMillis) {
@@ -43,12 +43,12 @@ public interface IPermissionUser extends IPermissible {
     }
 
     PermissionUserGroupInfo groupInfo = Iterables
-      .first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
-        @Override
-        public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
-          return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
-        }
-      });
+        .first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
+          @Override
+          public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
+            return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
+          }
+        });
 
     if (groupInfo != null) {
       removeGroup(groupInfo.getGroup());
@@ -66,12 +66,12 @@ public interface IPermissionUser extends IPermissible {
     }
 
     Collection<PermissionUserGroupInfo> groupInfo = Iterables
-      .filter(getGroups(), new Predicate<PermissionUserGroupInfo>() {
-        @Override
-        public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
-          return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
-        }
-      });
+        .filter(getGroups(), new Predicate<PermissionUserGroupInfo>() {
+          @Override
+          public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
+            return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
+          }
+        });
 
     getGroups().removeAll(groupInfo);
 
@@ -84,12 +84,12 @@ public interface IPermissionUser extends IPermissible {
     }
 
     return
-      Iterables.first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
-        @Override
-        public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
-          return permissionUserGroupInfo.getGroup() != null
-            && permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
-        }
-      }) != null;
+        Iterables.first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
+          @Override
+          public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
+            return permissionUserGroupInfo.getGroup() != null
+                && permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
+          }
+        }) != null;
   }
 }

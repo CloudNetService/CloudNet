@@ -23,7 +23,7 @@ public interface IServicesRegistry {
    * this method
    */
   <T, E extends T> IServicesRegistry registerService(Class<T> clazz,
-    String name, E service);
+      String name, E service);
 
   /**
    * Unregister a all services which class equals the E type of the registered
@@ -37,7 +37,7 @@ public interface IServicesRegistry {
    * @return the current instance of the ServiceRegistry
    */
   <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz,
-    Class<E> serviceClazz);
+      Class<E> serviceClazz);
 
   /**
    * Unregister a all services which instance is equals one of this services
@@ -51,7 +51,7 @@ public interface IServicesRegistry {
    * @return the current instance of the ServiceRegistry
    */
   <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz,
-    E service);
+      E service);
 
   /**
    * Request of a service with a specific name is already exists or not

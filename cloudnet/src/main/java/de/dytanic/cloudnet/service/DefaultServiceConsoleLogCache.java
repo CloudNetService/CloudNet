@@ -17,10 +17,10 @@ import lombok.Setter;
 @Getter
 @RequiredArgsConstructor
 public final class DefaultServiceConsoleLogCache implements
-  IServiceConsoleLogCache {
+    IServiceConsoleLogCache {
 
   private final Queue<String> cachedLogMessages = Iterables
-    .newConcurrentLinkedQueue();
+      .newConcurrentLinkedQueue();
 
   private final byte[] buffer = new byte[1024];
 
@@ -43,20 +43,20 @@ public final class DefaultServiceConsoleLogCache implements
   @Override
   public synchronized IServiceConsoleLogCache update() {
     if (cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING && cloudService
-      .isAlive() && cloudService.getProcess() != null) {
+        .isAlive() && cloudService.getProcess() != null) {
       readStream(cloudService.getProcess().getInputStream(), false);
       readStream(cloudService.getProcess().getErrorStream(),
-        CloudNet.getInstance().getConfig()
-          .isPrintErrorStreamLinesFromServices());
+          CloudNet.getInstance().getConfig()
+              .isPrintErrorStreamLinesFromServices());
     }
     return this;
   }
 
   private synchronized void readStream(InputStream inputStream,
-    boolean printErrorIntoConsole) {
+      boolean printErrorIntoConsole) {
     try {
       while (inputStream.available() > 0
-        && (len = inputStream.read(buffer, 0, buffer.length)) != -1) {
+          && (len = inputStream.read(buffer, 0, buffer.length)) != -1) {
         stringBuffer.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
       }
 
@@ -86,25 +86,25 @@ public final class DefaultServiceConsoleLogCache implements
     }
 
     while (cachedLogMessages.size() >= CloudNet.getInstance().getConfig()
-      .getMaxServiceConsoleLogCacheSize()) {
+        .getMaxServiceConsoleLogCacheSize()) {
       cachedLogMessages.poll();
     }
 
     cachedLogMessages.offer(text);
 
     CloudNetDriver.getInstance().getEventManager().callEvent(
-      new CloudServiceConsoleLogReceiveEntryEvent(
-        cloudService.getServiceInfoSnapshot(), text,
-        printErrorIntoConsole));
+        new CloudServiceConsoleLogReceiveEntryEvent(
+            cloudService.getServiceInfoSnapshot(), text,
+            printErrorIntoConsole));
     CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
-      new PacketServerConsoleLogEntryReceive(
-        cloudService.getServiceInfoSnapshot(), text,
-        printErrorIntoConsole));
+        new PacketServerConsoleLogEntryReceive(
+            cloudService.getServiceInfoSnapshot(), text,
+            printErrorIntoConsole));
 
     if (this.autoPrintReceivedInput || printErrorIntoConsole) {
       CloudNetDriver.getInstance().getLogger()
-        .log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO),
-          "[" + cloudService.getServiceId().getName() + "] " + text);
+          .log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO),
+              "[" + cloudService.getServiceId().getName() + "] " + text);
     }
   }
 }

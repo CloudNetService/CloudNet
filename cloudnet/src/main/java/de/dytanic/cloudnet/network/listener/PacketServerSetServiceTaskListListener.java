@@ -11,25 +11,25 @@ import de.dytanic.cloudnet.event.network.NetworkChannelReceiveServiceTasksUpdate
 import java.util.List;
 
 public final class PacketServerSetServiceTaskListListener implements
-  IPacketListener {
+    IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("taskList") && packet.getHeader()
-      .contains("set")) {
+        .contains("set")) {
       List<ServiceTask> serviceTasks = packet.getHeader()
-        .get("taskList", new TypeToken<List<ServiceTask>>() {
-        }.getType());
+          .get("taskList", new TypeToken<List<ServiceTask>>() {
+          }.getType());
 
       if (serviceTasks != null) {
         NetworkChannelReceiveServiceTasksUpdateEvent event = new NetworkChannelReceiveServiceTasksUpdateEvent(
-          channel, serviceTasks);
+            channel, serviceTasks);
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
         if (!event.isCancelled()) {
           CloudNet.getInstance().getCloudServiceManager().setServiceTasks(
-            event.getServiceTasks() != null ? event.getServiceTasks()
-              : serviceTasks
+              event.getServiceTasks() != null ? event.getServiceTasks()
+                  : serviceTasks
           );
         }
       }

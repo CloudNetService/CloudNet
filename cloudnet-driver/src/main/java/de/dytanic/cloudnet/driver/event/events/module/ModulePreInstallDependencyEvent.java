@@ -11,7 +11,7 @@ public final class ModulePreInstallDependencyEvent extends ModuleEvent {
   private final ModuleDependency moduleDependency;
 
   public ModulePreInstallDependencyEvent(IModuleProvider moduleProvider,
-    IModuleWrapper module, ModuleDependency moduleDependency) {
+      IModuleWrapper module, ModuleDependency moduleDependency) {
     super(moduleProvider, module);
 
     this.moduleDependency = moduleDependency;

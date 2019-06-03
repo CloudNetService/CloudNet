@@ -12,14 +12,14 @@ public final class ExampleDatabaseProviderHandling {
 
   public void testDatabaseProvider() throws Throwable {
     AbstractDatabaseProvider databaseProvider = CloudNet.getInstance()
-      .getDatabaseProvider();
+        .getDatabaseProvider();
 
     IDatabase database = databaseProvider.getDatabase("My custom Database");
     database.insert("Peter", new JsonDocument()
-      .append("name", "Peter")
-      .append("lastName", "Parker")
-      .append("age", 17)
-      .append("registered", System.currentTimeMillis())
+        .append("name", "Peter")
+        .append("lastName", "Parker")
+        .append("age", 17)
+        .append("registered", System.currentTimeMillis())
     );
 
     if (database.contains("Peter")) {
@@ -27,7 +27,7 @@ public final class ExampleDatabaseProviderHandling {
 
         @Override
         public void onComplete(ITask<JsonDocument> task,
-          JsonDocument document) {
+            JsonDocument document) {
           System.out.println(document.getString("name"));
           System.out.println(document.getString("lastName"));
           System.out.println(document.getInt("age"));
@@ -36,11 +36,11 @@ public final class ExampleDatabaseProviderHandling {
     }
 
     List<JsonDocument> responses = database
-      .get("name", "Peter"); //filter with a key/value pair in value
+        .get("name", "Peter"); //filter with a key/value pair in value
     System.out.println("Founded items: " + responses.size()); //Founded items: 1
 
     responses = database.get(new JsonDocument("age", 17)
-      .append("lastName", "Parker")); //Filter with JsonDocument properties
+        .append("lastName", "Parker")); //Filter with JsonDocument properties
     System.out.println("Founded items: " + responses.size()); //Founded items: 1
 
     database.clearAsync().get();

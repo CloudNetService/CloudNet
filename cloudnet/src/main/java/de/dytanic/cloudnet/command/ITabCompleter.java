@@ -21,5 +21,5 @@ public interface ITabCompleter {
    * input, which is already given
    */
   Collection<String> complete(String commandLine, String[] args,
-    Properties properties);
+      Properties properties);
 }

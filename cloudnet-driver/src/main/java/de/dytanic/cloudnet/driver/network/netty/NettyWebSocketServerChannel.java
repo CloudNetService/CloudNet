@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
   private final List<IWebSocketListener> webSocketListeners = Iterables
-    .newCopyOnWriteArrayList();
+      .newCopyOnWriteArrayList();
 
   private final IHttpChannel httpChannel;
 
@@ -59,7 +59,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
         @Override
         public boolean test(IWebSocketListener webSocketListener) {
           return webSocketListener != null && webSocketListener
-            .equals(listener);
+              .equals(listener);
         }
       }) != null) {
         webSocketListeners.remove(listener);
@@ -71,7 +71,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
   @Override
   public IWebSocketChannel removeListener(
-    Collection<Class<? extends IWebSocketListener>> classes) {
+      Collection<Class<? extends IWebSocketListener>> classes) {
     Validate.checkNotNull(classes);
 
     for (IWebSocketListener listener : webSocketListeners) {
@@ -107,17 +107,17 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
   @Override
   public IWebSocketChannel sendWebSocketFrame(
-    WebSocketFrameType webSocketFrameType, String text) {
+      WebSocketFrameType webSocketFrameType, String text) {
     Validate.checkNotNull(webSocketFrameType);
     Validate.checkNotNull(text);
 
     return this.sendWebSocketFrame(webSocketFrameType,
-      text.getBytes(StandardCharsets.UTF_8));
+        text.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
   public IWebSocketChannel sendWebSocketFrame(
-    WebSocketFrameType webSocketFrameType, byte[] bytes) {
+      WebSocketFrameType webSocketFrameType, byte[] bytes) {
     Validate.checkNotNull(webSocketFrameType);
     Validate.checkNotNull(bytes);
 
@@ -126,24 +126,24 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     switch (webSocketFrameType) {
       case PING:
         webSocketFrame = new PingWebSocketFrame(
-          Unpooled.buffer(bytes.length).writeBytes(bytes));
+            Unpooled.buffer(bytes.length).writeBytes(bytes));
         break;
       case PONG:
         webSocketFrame = new PongWebSocketFrame(
-          Unpooled.buffer(bytes.length).writeBytes(bytes));
+            Unpooled.buffer(bytes.length).writeBytes(bytes));
         break;
       case TEXT:
         webSocketFrame = new TextWebSocketFrame(
-          Unpooled.buffer(bytes.length).writeBytes(bytes));
+            Unpooled.buffer(bytes.length).writeBytes(bytes));
         break;
       default:
         webSocketFrame = new BinaryWebSocketFrame(
-          Unpooled.buffer(bytes.length).writeBytes(bytes));
+            Unpooled.buffer(bytes.length).writeBytes(bytes));
         break;
     }
 
     channel.writeAndFlush(webSocketFrame)
-      .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     return this;
   }
 
@@ -164,9 +164,9 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     this.channel.writeAndFlush(
-      new CloseWebSocketFrame(statusCodeWrapper.getValue(),
-        reasonTextWrapper.getValue()))
-      .addListener(ChannelFutureListener.CLOSE);
+        new CloseWebSocketFrame(statusCodeWrapper.getValue(),
+            reasonTextWrapper.getValue()))
+        .addListener(ChannelFutureListener.CLOSE);
   }
 
   @Override

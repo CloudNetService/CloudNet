@@ -12,7 +12,7 @@ public interface IPlayerManager {
   List<? extends ICloudPlayer> getOnlinePlayer(String name);
 
   List<? extends ICloudPlayer> getOnlinePlayers(
-    ServiceEnvironmentType environment);
+      ServiceEnvironmentType environment);
 
   List<? extends ICloudPlayer> getOnlinePlayers();
 
@@ -29,7 +29,7 @@ public interface IPlayerManager {
   ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(String name);
 
   ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(
-    ServiceEnvironmentType environment);
+      ServiceEnvironmentType environment);
 
   ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync();
 

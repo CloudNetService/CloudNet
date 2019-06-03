@@ -35,12 +35,12 @@ public final class Maps {
   }
 
   public static <K, V> ConcurrentHashMap<K, V> newConcurrentHashMap(
-    int initialSize) {
+      int initialSize) {
     return new ConcurrentHashMap<>(initialSize);
   }
 
   public static <K, V> ConcurrentHashMap<K, V> newConcurrentHashMap(
-    Map<K, V> map) {
+      Map<K, V> map) {
     return new ConcurrentHashMap<>(map);
   }
 
@@ -61,7 +61,7 @@ public final class Maps {
   }
 
   public static <K, V> ConcurrentSkipListMap<K, V> newConcurrentSkipListMap(
-    Map<K, V> map) {
+      Map<K, V> map) {
     return new ConcurrentSkipListMap<>(map);
   }
 
@@ -82,7 +82,7 @@ public final class Maps {
   }
 
   public static <K, V> IdentityHashMap<K, V> newIdentityHashMap(
-    int initialSize) {
+      int initialSize) {
     return new IdentityHashMap<>(initialSize);
   }
 
@@ -99,14 +99,14 @@ public final class Maps {
   }
 
   public static <K extends Enum<K>, V> EnumMap<K, V> newEnumMap(
-    Class<K> clazz) {
+      Class<K> clazz) {
     return new EnumMap<>(clazz);
   }
 
   /*= --------------------------------------------------------------------------- =*/
 
   public static <K, V> Map<K, V> newMapByValues(Collection<V> collection,
-    Function<V, K> function) {
+      Function<V, K> function) {
     if (collection == null || function == null) {
       return null;
     }
@@ -121,7 +121,7 @@ public final class Maps {
   }
 
   public static <K, V> Map<K, V> newMapByKeys(Collection<K> collection,
-    Function<K, V> function) {
+      Function<K, V> function) {
     if (collection == null || function == null) {
       return null;
     }

@@ -20,14 +20,14 @@ public class CNLInterpreterTest {
     CNLInterpreter.registerCommand(new CNLCommandCNL());
 
     CNLInterpreter.runInterpreter(
-      CNLInterpreter.class.getClassLoader().getResourceAsStream("test.cnl"),
-      variables);
+        CNLInterpreter.class.getClassLoader().getResourceAsStream("test.cnl"),
+        variables);
 
     Assert.assertEquals(3, variables.size());
     Assert.assertTrue(variables.containsKey("test_val"));
     Assert.assertTrue(variables.containsKey("val"));
     Assert.assertTrue(variables.containsKey("signature_value"));
     Assert.assertEquals("This is our signature",
-      variables.get("signature_value"));
+        variables.get("signature_value"));
   }
 }

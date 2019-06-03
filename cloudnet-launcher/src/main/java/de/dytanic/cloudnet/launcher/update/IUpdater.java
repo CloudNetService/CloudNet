@@ -9,6 +9,6 @@ public interface IUpdater {
   String getCurrentVersion();
 
   boolean installUpdate(String destinationBaseDirectory,
-    String moduleDestinationBaseDirectory);
+      String moduleDestinationBaseDirectory);
 
 }

@@ -11,7 +11,7 @@ abstract class CommandDefault extends Command {
     this.prefix = "cloudnet";
     this.permission = "cloudnet.command." + names[0];
     this.description = LanguageManager
-      .getMessage("command-description-" + names[0]);
+        .getMessage("command-description-" + names[0]);
     this.usage = names[0];
   }
 

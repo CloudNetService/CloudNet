@@ -39,13 +39,13 @@ public class MethodHttpHandlerAdapter implements IMethodHttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-    throws Exception {
+      throws Exception {
 
   }
 
   @Override
   public void handleConnect(String path, IHttpContext context)
-    throws Exception {
+      throws Exception {
 
   }
 }

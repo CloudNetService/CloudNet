@@ -19,24 +19,24 @@ public final class CommandReloadBridge extends Command {
     this.prefix = "cloudnet-bridge";
     this.usage = "reload-bridge";
     this.description = LanguageManager
-      .getMessage("module-bridge-command-bridge-description");
+        .getMessage("module-bridge-command-bridge-description");
   }
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-    String commandLine, Properties properties) {
+      String commandLine, Properties properties) {
     BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance()
-      .reloadConfig().get("config", BridgeConfiguration.TYPE);
+        .reloadConfig().get("config", BridgeConfiguration.TYPE);
     CloudNetBridgeModule.getInstance()
-      .setBridgeConfiguration(bridgeConfiguration);
+        .setBridgeConfiguration(bridgeConfiguration);
 
     CloudNetDriver.getInstance().sendChannelMessage(
-      BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-      "update_bridge_configuration",
-      new JsonDocument("bridgeConfiguration", bridgeConfiguration)
+        BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+        "update_bridge_configuration",
+        new JsonDocument("bridgeConfiguration", bridgeConfiguration)
     );
 
     sender.sendMessage(LanguageManager
-      .getMessage("module-bridge-command-bridge-execute-success"));
+        .getMessage("module-bridge-command-bridge-execute-success"));
   }
 }

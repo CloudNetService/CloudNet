@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public final class CloudNetServiceSmartProfile extends
-  BasicJsonDocPropertyable {
+    BasicJsonDocPropertyable {
 
   private final UUID uniqueId;
 

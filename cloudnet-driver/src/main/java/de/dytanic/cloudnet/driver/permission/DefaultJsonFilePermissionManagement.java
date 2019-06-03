@@ -15,15 +15,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 public final class DefaultJsonFilePermissionManagement implements
-  IPermissionManagement {
+    IPermissionManagement {
 
   private final File file;
 
   private final Map<UUID, IPermissionUser> permissionUsers = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   private final Map<String, IPermissionGroup> permissionGroups = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   @Getter
   @Setter
@@ -71,13 +71,13 @@ public final class DefaultJsonFilePermissionManagement implements
     Validate.checkNotNull(name);
 
     for (IPermissionUser permissionUser : Iterables
-      .filter(this.permissionUsers.values(),
-        new Predicate<IPermissionUser>() {
-          @Override
-          public boolean test(IPermissionUser permissionUser) {
-            return permissionUser.getName().equals(name);
-          }
-        })) {
+        .filter(this.permissionUsers.values(),
+            new Predicate<IPermissionUser>() {
+              @Override
+              public boolean test(IPermissionUser permissionUser) {
+                return permissionUser.getName().equals(name);
+              }
+            })) {
       if (permissionManagementHandler != null) {
         permissionManagementHandler.handleDeleteUser(this, permissionUser);
       }
@@ -112,12 +112,12 @@ public final class DefaultJsonFilePermissionManagement implements
     Validate.checkNotNull(name);
 
     return Iterables
-      .first(permissionUsers.values(), new Predicate<IPermissionUser>() {
-        @Override
-        public boolean test(IPermissionUser permissionUser) {
-          return permissionUser.getName().equalsIgnoreCase(name);
-        }
-      }) != null;
+        .first(permissionUsers.values(), new Predicate<IPermissionUser>() {
+          @Override
+          public boolean test(IPermissionUser permissionUser) {
+            return permissionUser.getName().equalsIgnoreCase(name);
+          }
+        }) != null;
   }
 
   @Override
@@ -137,13 +137,13 @@ public final class DefaultJsonFilePermissionManagement implements
     Validate.checkNotNull(name);
 
     List<IPermissionUser> permissionUsers = Iterables
-      .filter(this.permissionUsers.values(),
-        new Predicate<IPermissionUser>() {
-          @Override
-          public boolean test(IPermissionUser permissionUser) {
-            return permissionUser.getName().equals(name);
-          }
-        });
+        .filter(this.permissionUsers.values(),
+            new Predicate<IPermissionUser>() {
+              @Override
+              public boolean test(IPermissionUser permissionUser) {
+                return permissionUser.getName().equals(name);
+              }
+            });
 
     for (IPermissionUser user : permissionUsers) {
       if (testPermissionUser(user)) {
@@ -156,7 +156,7 @@ public final class DefaultJsonFilePermissionManagement implements
 
   @Override
   public void setGroups(
-    Collection<? extends IPermissionGroup> permissionGroups) {
+      Collection<? extends IPermissionGroup> permissionGroups) {
     if (permissionGroups == null) {
       return;
     }
@@ -179,7 +179,7 @@ public final class DefaultJsonFilePermissionManagement implements
   }
 
   public void setGroups0(
-    Collection<? extends IPermissionGroup> permissionGroups) {
+      Collection<? extends IPermissionGroup> permissionGroups) {
     Validate.checkNotNull(permissionGroups);
 
     this.permissionGroups.clear();
@@ -213,7 +213,7 @@ public final class DefaultJsonFilePermissionManagement implements
 
     if (permissionManagementHandler != null) {
       permissionManagementHandler
-        .handleSetUsers(this, permissionUsers.values());
+          .handleSetUsers(this, permissionUsers.values());
     }
 
     setUsers0(users);
@@ -237,12 +237,12 @@ public final class DefaultJsonFilePermissionManagement implements
     Validate.checkNotNull(group);
 
     return Iterables.filter(this.permissionUsers.values(),
-      new Predicate<IPermissionUser>() {
-        @Override
-        public boolean test(IPermissionUser permissionUser) {
-          return permissionUser.inGroup(group);
-        }
-      });
+        new Predicate<IPermissionUser>() {
+          @Override
+          public boolean test(IPermissionUser permissionUser) {
+            return permissionUser.inGroup(group);
+          }
+        });
   }
 
   @Override
@@ -319,7 +319,7 @@ public final class DefaultJsonFilePermissionManagement implements
   @Override
   public Collection<IPermissionGroup> getGroups() {
     Collection<IPermissionGroup> permissionGroups = this.permissionGroups
-      .values();
+        .values();
 
     for (IPermissionGroup permissionGroup : permissionGroups) {
       if (testPermissionGroup(permissionGroup)) {
@@ -332,9 +332,9 @@ public final class DefaultJsonFilePermissionManagement implements
 
   private void save() {
     new JsonDocument()
-      .append("groups", this.permissionGroups.values())
-      .append("users", this.permissionUsers.values())
-      .write(this.file);
+        .append("groups", this.permissionGroups.values())
+        .append("users", this.permissionUsers.values())
+        .write(this.file);
   }
 
   private void load() {
@@ -344,7 +344,7 @@ public final class DefaultJsonFilePermissionManagement implements
     }.getType()));
 
     setGroups(
-      document.get("groups", new TypeToken<Collection<PermissionGroup>>() {
-      }.getType()));
+        document.get("groups", new TypeToken<Collection<PermissionGroup>>() {
+        }.getType()));
   }
 }

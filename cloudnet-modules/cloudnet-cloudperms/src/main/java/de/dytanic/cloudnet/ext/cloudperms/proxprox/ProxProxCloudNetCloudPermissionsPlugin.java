@@ -24,8 +24,8 @@ public final class ProxProxCloudNetCloudPermissionsPlugin extends Plugin {
   @Override
   public void onUninstall() {
     CloudNetDriver.getInstance().getEventManager()
-      .unregisterListeners(this.getClass().getClassLoader());
+        .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-      this.getClass().getClassLoader());
+        this.getClass().getClassLoader());
   }
 }

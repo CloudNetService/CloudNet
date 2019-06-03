@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class SmartServiceTaskConfig implements
-  Comparable<SmartServiceTaskConfig> {
+    Comparable<SmartServiceTaskConfig> {
 
   protected String task;
 

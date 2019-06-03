@@ -16,10 +16,10 @@ import lombok.Getter;
 
 @Getter
 public final class DefaultClusterNodeServerProvider implements
-  IClusterNodeServerProvider {
+    IClusterNodeServerProvider {
 
   protected final Map<String, IClusterNodeServer> servers = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   @Override
   public Collection<IClusterNodeServer> getNodeServers() {
@@ -39,8 +39,8 @@ public final class DefaultClusterNodeServerProvider implements
 
     for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
       if (clusterNodeServer.getChannel() != null
-        && clusterNodeServer.getChannel().getChannelId() == channel
-        .getChannelId()) {
+          && clusterNodeServer.getChannel().getChannelId() == channel
+          .getChannelId()) {
         return clusterNodeServer;
       }
     }
@@ -55,19 +55,19 @@ public final class DefaultClusterNodeServerProvider implements
         this.servers.get(clusterNode.getUniqueId()).setNodeInfo(clusterNode);
       } else {
         this.servers.put(clusterNode.getUniqueId(),
-          new DefaultClusterNodeServer(this, clusterNode));
+            new DefaultClusterNodeServer(this, clusterNode));
       }
     }
 
     for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
       NetworkClusterNode node = Iterables.first(networkCluster.getNodes(),
-        new Predicate<NetworkClusterNode>() {
-          @Override
-          public boolean test(NetworkClusterNode networkClusterNode) {
-            return networkClusterNode.getUniqueId().equalsIgnoreCase(
-              clusterNodeServer.getNodeInfo().getUniqueId());
-          }
-        });
+          new Predicate<NetworkClusterNode>() {
+            @Override
+            public boolean test(NetworkClusterNode networkClusterNode) {
+              return networkClusterNode.getUniqueId().equalsIgnoreCase(
+                  clusterNodeServer.getNodeInfo().getUniqueId());
+            }
+          });
 
       if (node == null) {
         this.servers.remove(clusterNodeServer.getNodeInfo().getUniqueId());
@@ -95,9 +95,9 @@ public final class DefaultClusterNodeServerProvider implements
 
   @Override
   public void deployTemplateInCluster(ServiceTemplate serviceTemplate,
-    byte[] zipResource) {
+      byte[] zipResource) {
     this.sendPacket(
-      new PacketServerDeployLocalTemplate(serviceTemplate, zipResource));
+        new PacketServerDeployLocalTemplate(serviceTemplate, zipResource));
   }
 
   @Override

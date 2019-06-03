@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class DefaultRegisteredEventListener implements
-  IRegisteredEventListener {
+    IRegisteredEventListener {
 
   protected EventListener eventListener;
 

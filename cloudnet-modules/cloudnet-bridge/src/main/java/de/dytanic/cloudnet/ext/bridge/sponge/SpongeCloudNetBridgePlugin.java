@@ -16,11 +16,11 @@ import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 @Plugin(
-  id = "cloudnet_bridge",
-  name = "CloudNet-Bridge",
-  version = "1.0",
-  description = "Sponge extension for the CloudNet runtime, which optimize some features",
-  url = "https://cloudnetservice.eu"
+    id = "cloudnet_bridge",
+    name = "CloudNet-Bridge",
+    version = "1.0",
+    description = "Sponge extension for the CloudNet runtime, which optimize some features",
+    url = "https://cloudnetservice.eu"
 )
 public final class SpongeCloudNetBridgePlugin {
 
@@ -28,13 +28,13 @@ public final class SpongeCloudNetBridgePlugin {
   public synchronized void handle(GameStartedServerEvent event) {
     try {
       Method method = ClassLoader.getSystemClassLoader().getClass()
-        .getMethod("getCloudNetWrapperClassLoader");
+          .getMethod("getCloudNetWrapperClassLoader");
       method.setAccessible(true);
 
       ClassLoader classLoader = new SpongeCloudNetAdapterClassLoader(
-        (ClassLoader) method.invoke(ClassLoader.getSystemClassLoader()),
-        Thread.currentThread().getContextClassLoader(),
-        ClassLoader.getSystemClassLoader().getParent()
+          (ClassLoader) method.invoke(ClassLoader.getSystemClassLoader()),
+          Thread.currentThread().getContextClassLoader(),
+          ClassLoader.getSystemClassLoader().getParent()
       );
 
       Field field = ClassLoader.class.getDeclaredField("parent");
@@ -60,20 +60,20 @@ public final class SpongeCloudNetBridgePlugin {
   public synchronized void handle(GameStoppingServerEvent event) {
     Sponge.getEventManager().unregisterListeners(this);
     CloudNetDriver.getInstance().getEventManager()
-      .unregisterListeners(this.getClass().getClassLoader());
+        .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-      this.getClass().getClassLoader());
+        this.getClass().getClassLoader());
   }
 
   private void initListeners() {
     //Sponge API
     Sponge.getEventManager()
-      .registerListeners(this, new SpongePlayerListener());
+        .registerListeners(this, new SpongePlayerListener());
 
     //CloudNet
     CloudNetDriver.getInstance().getEventManager()
-      .registerListener(new SpongeCloudNetListener());
+        .registerListener(new SpongeCloudNetListener());
     CloudNetDriver.getInstance().getEventManager()
-      .registerListener(new BridgeCustomChannelMessageListener());
+        .registerListener(new BridgeCustomChannelMessageListener());
   }
 }

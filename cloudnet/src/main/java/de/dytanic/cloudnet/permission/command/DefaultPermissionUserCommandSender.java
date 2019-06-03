@@ -11,14 +11,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class DefaultPermissionUserCommandSender implements
-  IPermissionUserCommandSender {
+    IPermissionUserCommandSender {
 
   protected final IPermissionUser permissionUser;
 
   protected final IPermissionManagement permissionManagement;
 
   protected final Queue<String> writtenMessages = Iterables
-    .newConcurrentLinkedQueue();
+      .newConcurrentLinkedQueue();
 
   @Override
   public String getName() {

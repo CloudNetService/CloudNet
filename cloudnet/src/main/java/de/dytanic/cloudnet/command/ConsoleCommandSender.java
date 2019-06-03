@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 public final class ConsoleCommandSender implements ICommandSender {
 
   private static final LogLevel CONSOLE_LEVEL = new LogLevel("console",
-    "CONSOLE", 6, true);
+      "CONSOLE", 6, true);
 
   private final ILogger logger;
 

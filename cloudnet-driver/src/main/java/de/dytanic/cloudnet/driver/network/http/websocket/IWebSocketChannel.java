@@ -10,7 +10,7 @@ public interface IWebSocketChannel extends AutoCloseable {
   IWebSocketChannel removeListener(IWebSocketListener... listeners);
 
   IWebSocketChannel removeListener(
-    Collection<Class<? extends IWebSocketListener>> classes);
+      Collection<Class<? extends IWebSocketListener>> classes);
 
   IWebSocketChannel removeListener(ClassLoader classLoader);
 
@@ -19,10 +19,10 @@ public interface IWebSocketChannel extends AutoCloseable {
   Collection<IWebSocketListener> getListeners();
 
   IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType,
-    String text);
+      String text);
 
   IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType,
-    byte[] bytes);
+      byte[] bytes);
 
   void close(int statusCode, String reasonText);
 

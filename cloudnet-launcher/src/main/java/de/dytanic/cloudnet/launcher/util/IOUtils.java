@@ -12,7 +12,7 @@ public final class IOUtils {
   }
 
   public static void copy(byte[] buffer, InputStream inputStream, Path path)
-    throws Exception {
+      throws Exception {
     if (Files.exists(path)) {
       Files.delete(path);
     }
@@ -25,7 +25,7 @@ public final class IOUtils {
   }
 
   public static void copy(byte[] buffer, InputStream inputStream,
-    OutputStream outputStream) throws Exception {
+      OutputStream outputStream) throws Exception {
     int len;
     while ((len = inputStream.read(buffer, 0, buffer.length)) != -1) {
       outputStream.write(buffer, 0, len);

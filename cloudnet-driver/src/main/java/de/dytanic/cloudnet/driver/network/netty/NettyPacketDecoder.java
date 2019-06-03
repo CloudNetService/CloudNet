@@ -12,17 +12,17 @@ final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf,
-    List<Object> out) {
+      List<Object> out) {
     if (byteBuf.readableBytes() == 0) {
       return;
     }
 
     try {
       out.add(new Packet(
-        NettyUtils.readVarInt(byteBuf),
-        UUID.fromString(NettyUtils.readString(byteBuf)),
-        JsonDocument.newDocument(NettyUtils.readString(byteBuf)),
-        NettyUtils.toByteArray(byteBuf, NettyUtils.readVarInt(byteBuf))
+          NettyUtils.readVarInt(byteBuf),
+          UUID.fromString(NettyUtils.readString(byteBuf)),
+          JsonDocument.newDocument(NettyUtils.readString(byteBuf)),
+          NettyUtils.toByteArray(byteBuf, NettyUtils.readVarInt(byteBuf))
       ));
     } catch (Exception ex) {
       ex.printStackTrace();

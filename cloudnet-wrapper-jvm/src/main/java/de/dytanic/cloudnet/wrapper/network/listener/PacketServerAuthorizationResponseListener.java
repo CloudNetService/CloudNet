@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class PacketServerAuthorizationResponseListener implements
-  IPacketListener {
+    IPacketListener {
 
   private final ReentrantLock lock;
 
@@ -22,7 +22,7 @@ public final class PacketServerAuthorizationResponseListener implements
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("access") && packet.getHeader()
-      .contains("text")) {
+        .contains("text")) {
       result = packet.getHeader().getBoolean("access");
 
       try {

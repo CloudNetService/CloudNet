@@ -15,7 +15,7 @@ public final class V1HttpHandlerCommand extends V1HttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-    throws Exception {
+      throws Exception {
     this.sendOptions(context, "OPTIONS, POST");
   }
 
@@ -31,25 +31,25 @@ public final class V1HttpHandlerCommand extends V1HttpHandler {
 
     if (permissionUser != null) {
       IPermissionUserCommandSender commandSender = new DefaultPermissionUserCommandSender(
-        permissionUser, getCloudNet().getPermissionManagement());
+          permissionUser, getCloudNet().getPermissionManagement());
 
       if (getCloudNet().getCommandMap()
-        .dispatchCommand(commandSender, commandLine)) {
+          .dispatchCommand(commandSender, commandLine)) {
         context
-          .response()
-          .body(new JsonDocument("receivedMessages",
-            commandSender.getWrittenMessages().toArray(new String[0]))
-            .toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext()
+            .response()
+            .body(new JsonDocument("receivedMessages",
+                commandSender.getWrittenMessages().toArray(new String[0]))
+                .toByteArray())
+            .context()
+            .closeAfter(true)
+            .cancelNext()
         ;
         return;
       }
     }
 
     this.send400Response(context,
-      "userUniqueId not found or command not exists").closeAfter(true)
-      .cancelNext();
+        "userUniqueId not found or command not exists").closeAfter(true)
+        .cancelNext();
   }
 }

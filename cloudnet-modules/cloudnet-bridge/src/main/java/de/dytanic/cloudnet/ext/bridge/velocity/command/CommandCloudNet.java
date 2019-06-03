@@ -12,15 +12,15 @@ public final class CommandCloudNet implements Command {
 
   @Override
   public void execute(@MaybePresent CommandSource source,
-    @NonNull @MaybePresent String[] args) {
+      @NonNull @MaybePresent String[] args) {
     if (!source.hasPermission("cloudnet.command.cloudnet")) {
       return;
     }
 
     if (args.length == 0) {
       source.sendMessage(TextComponent
-        .of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§")
-          + "/cloudnet <command>"));
+          .of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§")
+              + "/cloudnet <command>"));
       return;
     }
 
@@ -30,14 +30,14 @@ public final class CommandCloudNet implements Command {
     }
 
     String[] messages = CloudNetDriver.getInstance()
-      .sendCommandLine(stringBuilder.toString());
+        .sendCommandLine(stringBuilder.toString());
 
     if (messages != null) {
       for (String message : messages) {
         if (message != null) {
           source.sendMessage(TextComponent
-            .of(BridgeConfigurationProvider.load().getPrefix()
-              .replace("&", "§") + message));
+              .of(BridgeConfigurationProvider.load().getPrefix()
+                  .replace("&", "§") + message));
         }
       }
     }

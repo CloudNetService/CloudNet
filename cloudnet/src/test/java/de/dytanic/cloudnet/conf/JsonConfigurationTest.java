@@ -25,7 +25,7 @@ public class JsonConfigurationTest {
     configuration.setMaxCPUUsageToStartServices(45);
     configuration.setDefaultJVMOptionParameters(true);
     configuration.setHttpListeners(
-      Collections.singletonList(new HostAndPort("127.0.1.1", 444)));
+        Collections.singletonList(new HostAndPort("127.0.1.1", 444)));
     configuration.setParallelServiceStartSequence(true);
     configuration.setRunBlockedServiceStartTryLaterAutomatic(false);
 
@@ -37,9 +37,9 @@ public class JsonConfigurationTest {
 
     Assert.assertTrue(configuration.isDefaultJVMOptionParameters());
     Assert.assertTrue(configuration.getHttpListeners()
-      .contains(new HostAndPort("127.0.1.1", 444)));
+        .contains(new HostAndPort("127.0.1.1", 444)));
     Assert.assertTrue(configuration.isParallelServiceStartSequence());
     Assert
-      .assertFalse(configuration.isRunBlockedServiceStartTryLaterAutomatic());
+        .assertFalse(configuration.isRunBlockedServiceStartTryLaterAutomatic());
   }
 }

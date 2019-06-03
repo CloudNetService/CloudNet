@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 public final class ModulePostStartEvent extends ModuleEvent {
 
   public ModulePostStartEvent(IModuleProvider moduleProvider,
-    IModuleWrapper module) {
+      IModuleWrapper module) {
     super(moduleProvider, module);
   }
 }

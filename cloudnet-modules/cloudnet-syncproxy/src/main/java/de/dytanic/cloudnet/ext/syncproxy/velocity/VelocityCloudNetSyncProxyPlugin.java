@@ -34,19 +34,19 @@ import net.kyori.text.TextComponent;
 
 @Getter
 @Plugin(
-  id = "cloudnet_syncproxy_velocity",
-  name = "CloudNet-SyncProxy",
-  version = "1.0",
-  description = "CloudNet extension, which implement the multi proxy synchronization bridge technology and some small features",
-  url = "https://cloudnetservice.eu",
-  authors = {
-    "Dytanic"
-  }
+    id = "cloudnet_syncproxy_velocity",
+    name = "CloudNet-SyncProxy",
+    version = "1.0",
+    description = "CloudNet extension, which implement the multi proxy synchronization bridge technology and some small features",
+    url = "https://cloudnetservice.eu",
+    authors = {
+        "Dytanic"
+    }
 )
 public final class VelocityCloudNetSyncProxyPlugin {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-    "HH:mm:ss");
+      "HH:mm:ss");
 
   @Getter
   private static VelocityCloudNetSyncProxyPlugin instance;
@@ -56,7 +56,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
   /*= ---------------------------------------------------------------------- =*/
 
   private final Map<UUID, Integer> onlineCountOfProxies = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   /*= ---------------------------------------------------------------------- =*/
 
@@ -81,9 +81,9 @@ public final class VelocityCloudNetSyncProxyPlugin {
   @Subscribe
   public void handleProxyShutdown(ProxyShutdownEvent event) {
     CloudNetDriver.getInstance().getEventManager()
-      .unregisterListeners(getClass().getClassLoader());
+        .unregisterListeners(getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-      this.getClass().getClassLoader());
+        this.getClass().getClassLoader());
   }
 
   /*= ------------------------------------------------------------ =*/
@@ -93,7 +93,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
     for (Map.Entry<UUID, Integer> entry : onlineCountOfProxies.entrySet()) {
       if (!Wrapper.getInstance().getServiceId().getUniqueId()
-        .equals(entry.getKey())) {
+          .equals(entry.getKey())) {
         onlinePlayers += entry.getValue();
       }
     }
@@ -102,32 +102,32 @@ public final class VelocityCloudNetSyncProxyPlugin {
   }
 
   public void updateSyncProxyConfigurationInNetwork(
-    SyncProxyConfiguration syncProxyConfiguration) {
+      SyncProxyConfiguration syncProxyConfiguration) {
     CloudNetDriver.getInstance().sendChannelMessage(
-      SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-      SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-      new JsonDocument(
-        "syncProxyConfiguration",
-        syncProxyConfiguration
-      )
+        SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
+        SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
+        new JsonDocument(
+            "syncProxyConfiguration",
+            syncProxyConfiguration
+        )
     );
   }
 
   public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot,
-    SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
+      SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
     Validate.checkNotNull(serviceInfoSnapshot);
     Validate.checkNotNull(syncProxyProxyLoginConfiguration);
 
     return Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(),
-      serviceInfoSnapshot.getConfiguration().getGroups());
+        serviceInfoSnapshot.getConfiguration().getGroups());
   }
 
   public SyncProxyProxyLoginConfiguration getProxyLoginConfiguration() {
     for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration :
-      SyncProxyConfigurationProvider.load().getLoginConfigurations()) {
+        SyncProxyConfigurationProvider.load().getLoginConfigurations()) {
       if (syncProxyProxyLoginConfiguration.getTargetGroup() != null &&
-        Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(),
-          Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+          Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(),
+              Wrapper.getInstance().getServiceConfiguration().getGroups())) {
         return syncProxyProxyLoginConfiguration;
       }
     }
@@ -137,10 +137,10 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
   public SyncProxyTabListConfiguration getTabListConfiguration() {
     for (SyncProxyTabListConfiguration syncProxyTabListConfiguration :
-      SyncProxyConfigurationProvider.load().getTabListConfigurations()) {
+        SyncProxyConfigurationProvider.load().getTabListConfigurations()) {
       if (syncProxyTabListConfiguration.getTargetGroup() != null &&
-        Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(),
-          Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+          Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(),
+              Wrapper.getInstance().getServiceConfiguration().getGroups())) {
         return syncProxyTabListConfiguration;
       }
     }
@@ -156,40 +156,40 @@ public final class VelocityCloudNetSyncProxyPlugin {
     SyncProxyProxyLoginConfiguration proxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
     player.getTabList().setHeaderAndFooter(
-      TextComponent.of(tabListHeader != null ? replaceTabListItem(player,
-        proxyProxyLoginConfiguration, tabListHeader) : ""),
-      TextComponent.of(tabListFooter != null ? replaceTabListItem(player,
-        proxyProxyLoginConfiguration, tabListFooter) : "")
+        TextComponent.of(tabListHeader != null ? replaceTabListItem(player,
+            proxyProxyLoginConfiguration, tabListHeader) : ""),
+        TextComponent.of(tabListFooter != null ? replaceTabListItem(player,
+            proxyProxyLoginConfiguration, tabListFooter) : "")
     );
   }
 
   private String replaceTabListItem(Player player,
-    SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration,
-    String input) {
+      SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration,
+      String input) {
     return input
-      .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-      .replace("%proxy_uniqueId%",
-        Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
-      .replace("%server%",
-        player.getCurrentServer().isPresent() ? player.getCurrentServer()
-          .get().getServerInfo().getName() : "")
-      .replace("%online_players%",
-        (
-          syncProxyProxyLoginConfiguration != null
-            ? getSyncProxyOnlineCount() : proxyServer.getPlayerCount()
-        ) + "")
-      .replace("%max_players%",
-        (
-          syncProxyProxyLoginConfiguration != null
-            ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
-            proxyServer.getConfiguration().getShowMaxPlayers()
-        ) + "")
-      .replace("%proxy_task_name%",
-        Wrapper.getInstance().getServiceId().getTaskName() + "")
-      .replace("%name%", player.getUsername() + "")
-      .replace("%ping%", player.getPing() + "")
-      .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "")
-      .replace("&", "§");
+        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
+        .replace("%proxy_uniqueId%",
+            Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
+        .replace("%server%",
+            player.getCurrentServer().isPresent() ? player.getCurrentServer()
+                .get().getServerInfo().getName() : "")
+        .replace("%online_players%",
+            (
+                syncProxyProxyLoginConfiguration != null
+                    ? getSyncProxyOnlineCount() : proxyServer.getPlayerCount()
+            ) + "")
+        .replace("%max_players%",
+            (
+                syncProxyProxyLoginConfiguration != null
+                    ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
+                    proxyServer.getConfiguration().getShowMaxPlayers()
+            ) + "")
+        .replace("%proxy_task_name%",
+            Wrapper.getInstance().getServiceId().getTaskName() + "")
+        .replace("%name%", player.getUsername() + "")
+        .replace("%ping%", player.getPing() + "")
+        .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "")
+        .replace("&", "§");
   }
 
   /*= ------------------------------------------------------- =*/
@@ -197,49 +197,49 @@ public final class VelocityCloudNetSyncProxyPlugin {
   private void initListeners() {
     //Velocity
     proxyServer.getEventManager()
-      .register(this, new VelocityProxyLoginConfigurationImplListener());
+        .register(this, new VelocityProxyLoginConfigurationImplListener());
     proxyServer.getEventManager()
-      .register(this, new VelocityProxyTabListConfigurationImplListener());
+        .register(this, new VelocityProxyTabListConfigurationImplListener());
 
     //CloudNet
     CloudNetDriver.getInstance().getEventManager()
-      .registerListener(new VelocitySyncProxyCloudNetListener());
+        .registerListener(new VelocitySyncProxyCloudNetListener());
   }
 
   private void scheduleTabList() {
     SyncProxyTabListConfiguration syncProxyTabListConfiguration = getTabListConfiguration();
 
     if (syncProxyTabListConfiguration != null
-      && syncProxyTabListConfiguration.getEntries() != null &&
-      !syncProxyTabListConfiguration.getEntries().isEmpty()) {
+        && syncProxyTabListConfiguration.getEntries() != null &&
+        !syncProxyTabListConfiguration.getEntries().isEmpty()) {
       if (tabListEntryIndex.get() == -1) {
         tabListEntryIndex.set(0);
       }
 
       if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration
-        .getEntries().size()) {
+          .getEntries().size()) {
         tabListEntryIndex.incrementAndGet();
       } else {
         tabListEntryIndex.set(0);
       }
 
       SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries()
-        .get(tabListEntryIndex.get());
+          .get(tabListEntryIndex.get());
 
       tabListHeader = tabList.getHeader();
       tabListFooter = tabList.getFooter();
 
       proxyServer.getScheduler()
-        .buildTask(this, this::scheduleTabList)
-        .delay(1000 / syncProxyTabListConfiguration.getAnimationsPerSecond(),
-          TimeUnit.MILLISECONDS)
-        .schedule();
+          .buildTask(this, this::scheduleTabList)
+          .delay(1000 / syncProxyTabListConfiguration.getAnimationsPerSecond(),
+              TimeUnit.MILLISECONDS)
+          .schedule();
     } else {
       tabListEntryIndex.set(-1);
       proxyServer.getScheduler()
-        .buildTask(this, this::scheduleTabList)
-        .delay(500, TimeUnit.MILLISECONDS)
-        .schedule();
+          .buildTask(this, this::scheduleTabList)
+          .delay(500, TimeUnit.MILLISECONDS)
+          .schedule();
     }
 
     for (Player player : proxyServer.getAllPlayers()) {
@@ -253,20 +253,20 @@ public final class VelocityCloudNetSyncProxyPlugin {
     SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
     if (syncProxyProxyLoginConfiguration != null
-      && syncProxyProxyLoginConfiguration.getTargetGroup() != null) {
+        && syncProxyProxyLoginConfiguration.getTargetGroup() != null) {
       for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver
-        .getInstance().getCloudServiceByGroup(
-          syncProxyProxyLoginConfiguration.getTargetGroup())) {
+          .getInstance().getCloudServiceByGroup(
+              syncProxyProxyLoginConfiguration.getTargetGroup())) {
         if ((serviceInfoSnapshot.getServiceId().getEnvironment()
-          .isMinecraftBedrockProxy() ||
-          serviceInfoSnapshot.getServiceId().getEnvironment()
-            .isMinecraftJavaProxy()) &&
-          serviceInfoSnapshot.getProperties().contains(
-            SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
+            .isMinecraftBedrockProxy() ||
+            serviceInfoSnapshot.getServiceId().getEnvironment()
+                .isMinecraftJavaProxy()) &&
+            serviceInfoSnapshot.getProperties().contains(
+                SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
           getOnlineCountOfProxies()
-            .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-              serviceInfoSnapshot.getProperties().getInt(
-                SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
+              .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+                  serviceInfoSnapshot.getProperties().getInt(
+                      SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
         }
       }
     }

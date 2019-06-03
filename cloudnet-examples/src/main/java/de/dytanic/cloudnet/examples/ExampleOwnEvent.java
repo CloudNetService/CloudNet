@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 //Generates a constructor with the moduleWrapper as parameter
 public final class ExampleOwnEvent extends
-  Event { //Create a own event based of the Event class
+    Event { //Create a own event based of the Event class
 
   private final IModuleWrapper moduleWrapper;
 

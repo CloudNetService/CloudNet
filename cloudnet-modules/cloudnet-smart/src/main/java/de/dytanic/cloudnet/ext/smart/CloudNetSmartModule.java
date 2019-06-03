@@ -43,10 +43,10 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
   private static CloudNetSmartModule instance;
 
   private final Map<UUID, CloudNetServiceSmartProfile> providedSmartServices = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   private final Collection<SmartServiceTaskConfig> smartServiceTaskConfigurations = Iterables
-    .newCopyOnWriteArrayList();
+      .newCopyOnWriteArrayList();
 
   /*= ------------------------------------------------------------------------------------------------ =*/
 
@@ -73,42 +73,42 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
   public int getPercentOfFreeMemory(ServiceTask serviceTask) {
     NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet
-      .getInstance().searchLogicNode(serviceTask);
+        .getInstance().searchLogicNode(serviceTask);
 
     if (networkClusterNodeInfoSnapshot != null
-      && !networkClusterNodeInfoSnapshot.getNode()
-      .getUniqueId()
-      .equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
+        && !networkClusterNodeInfoSnapshot.getNode()
+        .getUniqueId()
+        .equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
       return (((networkClusterNodeInfoSnapshot.getMaxMemory()
-        - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100) /
-        networkClusterNodeInfoSnapshot.getMaxMemory());
+          - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100) /
+          networkClusterNodeInfoSnapshot.getMaxMemory());
     } else {
       return (((getCloudNet().getConfig().getMaxMemory() - getCloudNet()
-        .getCloudServiceManager().getCurrentUsedHeapMemory()) * 100) /
-        getCloudNet().getConfig().getMaxMemory());
+          .getCloudServiceManager().getCurrentUsedHeapMemory()) * 100) /
+          getCloudNet().getConfig().getMaxMemory());
     }
   }
 
   public ServiceInfoSnapshot getFreeNonStartedService(String taskName) {
     return Iterables.first(CloudNet.getInstance().getCloudServiceManager()
-        .getGlobalServiceInfoSnapshots().values(),
-      new Predicate<ServiceInfoSnapshot>() {
-        @Override
-        public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-          return serviceInfoSnapshot.getServiceId().getTaskName()
-            .equalsIgnoreCase(taskName) &&
-            (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED
-              || serviceInfoSnapshot.getLifeCycle()
-              == ServiceLifeCycle.DEFINED);
-        }
-      });
+            .getGlobalServiceInfoSnapshots().values(),
+        new Predicate<ServiceInfoSnapshot>() {
+          @Override
+          public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
+            return serviceInfoSnapshot.getServiceId().getTaskName()
+                .equalsIgnoreCase(taskName) &&
+                (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED
+                    || serviceInfoSnapshot.getLifeCycle()
+                    == ServiceLifeCycle.DEFINED);
+          }
+        });
   }
 
   public ServiceInfoSnapshot createSmartCloudService(ServiceTask serviceTask,
-    SmartServiceTaskConfig serviceTaskConfig) {
+      SmartServiceTaskConfig serviceTaskConfig) {
     List<ServiceTemplate> serviceTemplates = Iterables
-      .newArrayList(serviceTask.getTemplates()), outTemplates = Iterables
-      .newArrayList();
+        .newArrayList(serviceTask.getTemplates()), outTemplates = Iterables
+        .newArrayList();
 
     if (!serviceTemplates.isEmpty()) {
       switch (serviceTaskConfig.getTemplateInstaller()) {
@@ -123,7 +123,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
           for (int i = 0; i < size; ++i) {
             ServiceTemplate item = serviceTemplates
-              .get(random.nextInt(serviceTemplates.size()));
+                .get(random.nextInt(serviceTemplates.size()));
             serviceTemplates.remove(item);
             outTemplates.add(item);
           }
@@ -131,7 +131,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         break;
         case INSTALL_RANDOM_ONCE: {
           ServiceTemplate item = serviceTemplates
-            .get(new Random().nextInt(serviceTemplates.size()));
+              .get(new Random().nextInt(serviceTemplates.size()));
           serviceTemplates.remove(item);
           outTemplates.add(item);
         }
@@ -140,58 +140,58 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     int maxMemory = serviceTask.getProcessConfiguration()
-      .getMaxHeapMemorySize();
+        .getMaxHeapMemorySize();
 
     if (serviceTaskConfig.isDynamicMemoryAllocation()) {
       int percent = getPercentOfFreeMemory(serviceTask);
 
       if (percent > 50) {
         maxMemory = maxMemory - (
-          (percent * serviceTaskConfig.getDynamicMemoryAllocationRange())
-            / 100);
+            (percent * serviceTaskConfig.getDynamicMemoryAllocationRange())
+                / 100);
       } else {
         maxMemory = maxMemory + (
-          (percent * serviceTaskConfig.getDynamicMemoryAllocationRange())
-            / 100);
+            (percent * serviceTaskConfig.getDynamicMemoryAllocationRange())
+                / 100);
       }
     }
 
     ServiceInfoSnapshot serviceInfoSnapshot = getDriver().createCloudService(
-      new ServiceTask(
-        serviceTask.getIncludes(),
-        outTemplates,
-        serviceTask.getDeployments(),
-        serviceTask.getName(),
-        serviceTask.getRuntime(),
-        true,
-        serviceTask.isStaticServices(),
-        serviceTask.getAssociatedNodes(),
-        serviceTask.getGroups(),
-        new ProcessConfiguration(
-          serviceTask.getProcessConfiguration().getEnvironment(),
-          maxMemory,
-          serviceTask.getProcessConfiguration().getJvmOptions()
-        ),
-        serviceTask.getStartPort(),
-        1
-      )
+        new ServiceTask(
+            serviceTask.getIncludes(),
+            outTemplates,
+            serviceTask.getDeployments(),
+            serviceTask.getName(),
+            serviceTask.getRuntime(),
+            true,
+            serviceTask.isStaticServices(),
+            serviceTask.getAssociatedNodes(),
+            serviceTask.getGroups(),
+            new ProcessConfiguration(
+                serviceTask.getProcessConfiguration().getEnvironment(),
+                maxMemory,
+                serviceTask.getProcessConfiguration().getJvmOptions()
+            ),
+            serviceTask.getStartPort(),
+            1
+        )
     );
 
     if (serviceInfoSnapshot != null) {
       if (serviceTaskConfig.isDirectTemplatesAndInclusionsSetup()) {
         CloudNetDriver.getInstance().includeWaitingServiceTemplates(
-          serviceInfoSnapshot.getServiceId().getUniqueId());
+            serviceInfoSnapshot.getServiceId().getUniqueId());
         CloudNetDriver.getInstance().includeWaitingServiceInclusions(
-          serviceInfoSnapshot.getServiceId().getUniqueId());
+            serviceInfoSnapshot.getServiceId().getUniqueId());
       }
 
       providedSmartServices
-        .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
-          new CloudNetServiceSmartProfile(
-            serviceInfoSnapshot.getServiceId().getUniqueId(),
-            new AtomicInteger(serviceTaskConfig
-              .getAutoStopTimeByUnusedServiceInSeconds())
-          ));
+          .put(serviceInfoSnapshot.getServiceId().getUniqueId(),
+              new CloudNetServiceSmartProfile(
+                  serviceInfoSnapshot.getServiceId().getUniqueId(),
+                  new AtomicInteger(serviceTaskConfig
+                      .getAutoStopTimeByUnusedServiceInSeconds())
+              ));
     }
 
     return serviceInfoSnapshot;
@@ -202,39 +202,39 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     smartServiceTaskConfigurations.clear();
     smartServiceTaskConfigurations.addAll(
-      getConfig().get("smartTasks", SMART_SERVICE_TASKS_CONFIGURATIONS,
-        Collections.singletonList(
-          new SmartServiceTaskConfig(
-            "Lobby",
-            10,
-            true,
-            0,
-            0,
-            true,
-            128,
-            0,
-            180,
-            false,
-            100,
-            300,
-            TemplateInstaller.INSTALL_ALL
-          )
-        )));
+        getConfig().get("smartTasks", SMART_SERVICE_TASKS_CONFIGURATIONS,
+            Collections.singletonList(
+                new SmartServiceTaskConfig(
+                    "Lobby",
+                    10,
+                    true,
+                    0,
+                    0,
+                    true,
+                    128,
+                    0,
+                    180,
+                    false,
+                    100,
+                    300,
+                    TemplateInstaller.INSTALL_ALL
+                )
+            )));
 
     saveConfig();
   }
 
   public void publishUpdateConfiguration(IPacketSender packetSender) {
     packetSender.sendPacket(new PacketClientServerChannelMessage(
-      "cloudnet_smart_module",
-      "update_configuration",
-      new JsonDocument("smartServiceTaskConfiguration",
-        getSmartServiceTaskConfigurations())
+        "cloudnet_smart_module",
+        "update_configuration",
+        new JsonDocument("smartServiceTaskConfiguration",
+            getSmartServiceTaskConfigurations())
     ));
   }
 
   public void setSmartServiceTaskConfigurations(
-    Collection<SmartServiceTaskConfig> configs) {
+      Collection<SmartServiceTaskConfig> configs) {
     smartServiceTaskConfigurations.clear();
     smartServiceTaskConfigurations.addAll(configs);
 

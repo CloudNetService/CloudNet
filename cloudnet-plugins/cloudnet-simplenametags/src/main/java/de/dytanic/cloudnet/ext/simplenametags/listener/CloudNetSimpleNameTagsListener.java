@@ -21,14 +21,14 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
   @EventHandler
   public void handle(PlayerJoinEvent event) {
     Bukkit.getScheduler().runTaskLaterAsynchronously(
-      Bukkit.getPluginManager().getPlugin("CloudNet-SimpleNameTags"),
-      new Runnable() {
-        @Override
-        public void run() {
-          BukkitCloudNetCloudPermissionsPlugin.getInstance()
-            .updateNameTags(event.getPlayer());
-        }
-      }, 4L);
+        Bukkit.getPluginManager().getPlugin("CloudNet-SimpleNameTags"),
+        new Runnable() {
+          @Override
+          public void run() {
+            BukkitCloudNetCloudPermissionsPlugin.getInstance()
+                .updateNameTags(event.getPlayer());
+          }
+        }, 4L);
   }
 
   @EventListener
@@ -49,7 +49,7 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
 
     if (player.getValue() != null) {
       BukkitCloudNetCloudPermissionsPlugin.getInstance()
-        .updateNameTags(player.getValue());
+          .updateNameTags(player.getValue());
     }
   }
 
@@ -59,12 +59,12 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
       @Override
       public boolean test(Player player) {
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement
-          .getInstance().getUser(player.getUniqueId());
+            .getInstance().getUser(player.getUniqueId());
 
         if (permissionUser != null && permissionUser
-          .inGroup(event.getPermissionGroup().getName())) {
+            .inGroup(event.getPermissionGroup().getName())) {
           BukkitCloudNetCloudPermissionsPlugin.getInstance()
-            .updateNameTags(player);
+              .updateNameTags(player);
         }
 
         return false;

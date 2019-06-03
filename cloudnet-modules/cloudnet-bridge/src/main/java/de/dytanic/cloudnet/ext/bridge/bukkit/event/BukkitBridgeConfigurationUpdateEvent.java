@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 @Getter
 @RequiredArgsConstructor
 public final class BukkitBridgeConfigurationUpdateEvent extends
-  BukkitBridgeEvent {
+    BukkitBridgeEvent {
 
   private final BridgeConfiguration bridgeConfiguration;
 

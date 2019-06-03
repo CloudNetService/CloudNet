@@ -17,13 +17,13 @@ public class ModuleConfiguration {
   protected boolean runtimeModule;
 
   protected String
-    group,
-    name,
-    version,
-    main,
-    description,
-    author,
-    website;
+      group,
+      name,
+      version,
+      main,
+      description,
+      author,
+      website;
 
   //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
 

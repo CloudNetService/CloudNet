@@ -7,7 +7,7 @@ package de.dytanic.cloudnet.common.logging;
  * implementation
  */
 public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
-  AutoCloseable {
+    AutoCloseable {
 
   /**
    * Set the LogLevel notification level. If the level higher or same than the
@@ -122,7 +122,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
    */
   default ILogger log(LogLevel level, String[] messages, Throwable throwable) {
     return log(level, Thread.currentThread().getContextClassLoader().getClass(),
-      messages, throwable);
+        messages, throwable);
   }
 
   /**
@@ -133,7 +133,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
    * @see ILogHandler
    */
   default ILogger log(LogLevel level, Class<?> clazz, String message,
-    Throwable throwable) {
+      Throwable throwable) {
     return log(level, clazz, new String[]{message}, throwable);
   }
 
@@ -145,9 +145,9 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
    * @see ILogHandler
    */
   default ILogger log(LogLevel level, Class<?> clazz, String[] messages,
-    Throwable throwable) {
+      Throwable throwable) {
     return log(new LogEntry(System.currentTimeMillis(), clazz, messages, level,
-      throwable, Thread.currentThread()));
+        throwable, Thread.currentThread()));
   }
 
   /*= ------------------------------------------------------ =*/
@@ -331,7 +331,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
    * @see ILogHandler
    */
   default ILogger warning(String[] messages, Class<?> clazz,
-    Throwable throwable) {
+      Throwable throwable) {
     return log(LogLevel.WARNING, clazz, messages, throwable);
   }
 
@@ -454,7 +454,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
    * @see ILogHandler
    */
   default ILogger fatal(String[] messages, Class<?> clazz,
-    Throwable throwable) {
+      Throwable throwable) {
     return log(LogLevel.FATAL, clazz, messages, throwable);
   }
 
@@ -577,7 +577,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
    * @see ILogHandler
    */
   default ILogger error(String[] messages, Class<?> clazz,
-    Throwable throwable) {
+      Throwable throwable) {
     return log(LogLevel.ERROR, clazz, messages, throwable);
   }
 
@@ -700,7 +700,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable,
    * @see ILogHandler
    */
   default ILogger debug(String[] messages, Class<?> clazz,
-    Throwable throwable) {
+      Throwable throwable) {
     return log(LogLevel.DEBUG, clazz, messages, throwable);
   }
 }

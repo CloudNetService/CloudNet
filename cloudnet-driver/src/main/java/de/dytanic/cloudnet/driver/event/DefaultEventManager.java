@@ -27,9 +27,9 @@ public final class DefaultEventManager implements IEventManager {
     Validate.checkNotNull(listener);
 
     for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners
-      .entrySet()) {
+        .entrySet()) {
       for (IRegisteredEventListener registeredEventListener : listeners
-        .getValue()) {
+          .getValue()) {
         if (registeredEventListener.getInstance().equals(listener)) {
           listeners.getValue().remove(registeredEventListener);
         }
@@ -44,9 +44,9 @@ public final class DefaultEventManager implements IEventManager {
     Validate.checkNotNull(listener);
 
     for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners
-      .entrySet()) {
+        .entrySet()) {
       for (IRegisteredEventListener registeredEventListener : listeners
-        .getValue()) {
+          .getValue()) {
         if (registeredEventListener.getInstance().getClass().equals(listener)) {
           listeners.getValue().remove(registeredEventListener);
         }
@@ -61,11 +61,11 @@ public final class DefaultEventManager implements IEventManager {
     Validate.checkNotNull(classLoader);
 
     for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners
-      .entrySet()) {
+        .entrySet()) {
       for (IRegisteredEventListener registeredEventListener : listeners
-        .getValue()) {
+          .getValue()) {
         if (registeredEventListener.getInstance().getClass().getClassLoader()
-          .equals(classLoader)) {
+            .equals(classLoader)) {
           listeners.getValue().remove(registeredEventListener);
         }
       }
@@ -120,7 +120,7 @@ public final class DefaultEventManager implements IEventManager {
       List<IRegisteredEventListener> listeners = new ArrayList<>();
 
       for (List<IRegisteredEventListener> entry : this.registeredListeners
-        .values()) {
+          .values()) {
         listeners.addAll(entry);
       }
 
@@ -132,7 +132,7 @@ public final class DefaultEventManager implements IEventManager {
   }
 
   private void fireEvent0(List<IRegisteredEventListener> listeners,
-    Event event) {
+      Event event) {
     Collections.sort(listeners);
 
     for (IRegisteredEventListener listener : listeners) {
@@ -143,27 +143,27 @@ public final class DefaultEventManager implements IEventManager {
   private void registerListener0(Object listener) {
     for (Method method : listener.getClass().getDeclaredMethods()) {
       if (
-        method.getParameterCount() == 1 &&
-          method.isAnnotationPresent(EventListener.class) &&
-          Event.class
-            .isAssignableFrom(method.getParameters()[0].getType())) {
+          method.getParameterCount() == 1 &&
+              method.isAnnotationPresent(EventListener.class) &&
+              Event.class
+                  .isAssignableFrom(method.getParameters()[0].getType())) {
         EventListener eventListener = method.getAnnotation(EventListener.class);
 
         IRegisteredEventListener registeredEventListener = new DefaultRegisteredEventListener(
-          eventListener,
-          eventListener.priority(),
-          listener,
-          method,
-          (Class<? extends Event>) method.getParameters()[0].getType()
+            eventListener,
+            eventListener.priority(),
+            listener,
+            method,
+            (Class<? extends Event>) method.getParameters()[0].getType()
         );
 
         if (!this.registeredListeners.containsKey(eventListener.channel())) {
           this.registeredListeners
-            .put(eventListener.channel(), new CopyOnWriteArrayList<>());
+              .put(eventListener.channel(), new CopyOnWriteArrayList<>());
         }
 
         this.registeredListeners.get(eventListener.channel())
-          .add(registeredEventListener);
+            .add(registeredEventListener);
       }
     }
   }

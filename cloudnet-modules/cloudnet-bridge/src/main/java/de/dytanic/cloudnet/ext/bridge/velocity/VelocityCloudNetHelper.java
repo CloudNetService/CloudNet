@@ -25,7 +25,7 @@ import lombok.Setter;
 public final class VelocityCloudNetHelper {
 
   public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   @Getter
   @Setter
@@ -36,7 +36,7 @@ public final class VelocityCloudNetHelper {
   }
 
   public static void addServerToVelocityPrioritySystemConfiguration(
-    ServiceInfoSnapshot serviceInfoSnapshot, String name) {
+      ServiceInfoSnapshot serviceInfoSnapshot, String name) {
     Validate.checkNotNull(name);
     Validate.checkNotNull(serviceInfoSnapshot);
 
@@ -44,16 +44,16 @@ public final class VelocityCloudNetHelper {
       @Override
       public void accept(Collection<String> collection) {
         for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider
-          .load().getBungeeFallbackConfigurations()) {
+            .load().getBungeeFallbackConfigurations()) {
           if (bungeeFallbackConfiguration != null
-            && bungeeFallbackConfiguration.getFallbacks() != null &&
-            bungeeFallbackConfiguration.getTargetGroup() != null && Iterables
-            .contains(bungeeFallbackConfiguration.getTargetGroup(),
-              Wrapper.getInstance().getCurrentServiceInfoSnapshot()
-                .getConfiguration().getGroups())) {
+              && bungeeFallbackConfiguration.getFallbacks() != null &&
+              bungeeFallbackConfiguration.getTargetGroup() != null && Iterables
+              .contains(bungeeFallbackConfiguration.getTargetGroup(),
+                  Wrapper.getInstance().getCurrentServiceInfoSnapshot()
+                      .getConfiguration().getGroups())) {
             if (!collection.contains(name) && bungeeFallbackConfiguration
-              .getDefaultFallbackTask()
-              .equals(serviceInfoSnapshot.getServiceId().getTaskName())) {
+                .getDefaultFallbackTask()
+                .equals(serviceInfoSnapshot.getServiceId().getTaskName())) {
               collection.add(name);
             }
           }
@@ -63,7 +63,7 @@ public final class VelocityCloudNetHelper {
   }
 
   public static void removeServerToVelocityPrioritySystemConfiguration(
-    ServiceInfoSnapshot serviceInfoSnapshot, String name) {
+      ServiceInfoSnapshot serviceInfoSnapshot, String name) {
     Validate.checkNotNull(name);
 
     handleWithListenerInfoServerPriority(new Consumer<Collection<String>>() {
@@ -75,9 +75,9 @@ public final class VelocityCloudNetHelper {
   }
 
   public static void handleWithListenerInfoServerPriority(
-    Consumer<Collection<String>> listenerInfoConsumer) {
+      Consumer<Collection<String>> listenerInfoConsumer) {
     listenerInfoConsumer
-      .accept(proxyServer.getConfiguration().getAttemptConnectionOrder());
+        .accept(proxyServer.getConfiguration().getAttemptConnectionOrder());
   }
 
   public static void updateServiceInfo() {
@@ -85,35 +85,35 @@ public final class VelocityCloudNetHelper {
   }
 
   public static NetworkConnectionInfo createNetworkConnectionInfo(
-    Player player) {
+      Player player) {
     return new NetworkConnectionInfo(
-      player.getUniqueId(),
-      player.getUsername(),
-      player.getProtocolVersion().getProtocol(),
-      new HostAndPort(player.getRemoteAddress()),
-      new HostAndPort(proxyServer.getBoundAddress()),
-      proxyServer.getConfiguration().isOnlineMode(),
-      true,
-      new NetworkServiceInfo(
-        ServiceEnvironmentType.VELOCITY,
-        Wrapper.getInstance().getServiceId().getUniqueId(),
-        Wrapper.getInstance().getServiceId().getName()
-      )
+        player.getUniqueId(),
+        player.getUsername(),
+        player.getProtocolVersion().getProtocol(),
+        new HostAndPort(player.getRemoteAddress()),
+        new HostAndPort(proxyServer.getBoundAddress()),
+        proxyServer.getConfiguration().isOnlineMode(),
+        true,
+        new NetworkServiceInfo(
+            ServiceEnvironmentType.VELOCITY,
+            Wrapper.getInstance().getServiceId().getUniqueId(),
+            Wrapper.getInstance().getServiceId().getName()
+        )
     );
   }
 
   public static String filterServiceForPlayer(Player player,
-    String currentServer) {
+      String currentServer) {
     for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider
-      .load().getBungeeFallbackConfigurations()) {
+        .load().getBungeeFallbackConfigurations()) {
       if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables
-        .contains(
-          proxyFallbackConfiguration.getTargetGroup(),
-          Wrapper.getInstance().getCurrentServiceInfoSnapshot()
-            .getConfiguration().getGroups()
-        )) {
+          .contains(
+              proxyFallbackConfiguration.getTargetGroup(),
+              Wrapper.getInstance().getCurrentServiceInfoSnapshot()
+                  .getConfiguration().getGroups()
+          )) {
         List<ProxyFallback> proxyFallbacks = Iterables
-          .newArrayList(proxyFallbackConfiguration.getFallbacks());
+            .newArrayList(proxyFallbackConfiguration.getFallbacks());
         Collections.sort(proxyFallbacks);
 
         String server = null;
@@ -123,12 +123,12 @@ public final class VelocityCloudNetHelper {
             continue;
           }
           if (proxyFallback.getPermission() != null && !player
-            .hasPermission(proxyFallback.getPermission())) {
+              .hasPermission(proxyFallback.getPermission())) {
             continue;
           }
 
           List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(
-            proxyFallback.getTask(), currentServer);
+              proxyFallback.getTask(), currentServer);
 
           if (entries.size() == 0) {
             continue;
@@ -139,8 +139,8 @@ public final class VelocityCloudNetHelper {
 
         if (server == null) {
           List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(
-            proxyFallbackConfiguration.getDefaultFallbackTask(),
-            currentServer);
+              proxyFallbackConfiguration.getDefaultFallbackTask(),
+              currentServer);
 
           if (entries.size() > 0) {
             server = entries.get(new Random().nextInt(entries.size())).getKey();
@@ -155,28 +155,28 @@ public final class VelocityCloudNetHelper {
   }
 
   public static boolean isServiceEnvironmentTypeProvidedForVelocity(
-    ServiceInfoSnapshot serviceInfoSnapshot) {
+      ServiceInfoSnapshot serviceInfoSnapshot) {
     Validate.checkNotNull(serviceInfoSnapshot);
     return serviceInfoSnapshot.getServiceId().getEnvironment()
-      .isMinecraftJavaServer();
+        .isMinecraftJavaServer();
   }
 
   public static boolean isOnAFallbackInstance(Player player) {
     ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION
-      .get(player.getCurrentServer().get().getServerInfo().getName());
+        .get(player.getCurrentServer().get().getServerInfo().getName());
 
     for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider
-      .load().getBungeeFallbackConfigurations()) {
+        .load().getBungeeFallbackConfigurations()) {
       if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables
-        .contains(
-          bungeeFallbackConfiguration.getTargetGroup(),
-          Wrapper.getInstance().getCurrentServiceInfoSnapshot()
-            .getConfiguration().getGroups()
-        )) {
+          .contains(
+              bungeeFallbackConfiguration.getTargetGroup(),
+              Wrapper.getInstance().getCurrentServiceInfoSnapshot()
+                  .getConfiguration().getGroups()
+          )) {
         for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration
-          .getFallbacks()) {
+            .getFallbacks()) {
           if (bungeeFallback.getTask() != null && serviceInfoSnapshot
-            .getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
+              .getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
             return true;
           }
         }
@@ -187,73 +187,73 @@ public final class VelocityCloudNetHelper {
   }
 
   private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(
-    String task, String currentServer) {
+      String task, String currentServer) {
     return Iterables.filter(
-      SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(),
-      new Predicate<Map.Entry<String, ServiceInfoSnapshot>>() {
+        SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(),
+        new Predicate<Map.Entry<String, ServiceInfoSnapshot>>() {
 
-        @Override
-        public boolean test(
-          Map.Entry<String, ServiceInfoSnapshot> stringServiceInfoSnapshotEntry) {
-          if (currentServer != null && currentServer
-            .equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey())) {
-            return false;
+          @Override
+          public boolean test(
+              Map.Entry<String, ServiceInfoSnapshot> stringServiceInfoSnapshotEntry) {
+            if (currentServer != null && currentServer
+                .equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey())) {
+              return false;
+            }
+
+            return task.equals(
+                stringServiceInfoSnapshotEntry.getValue().getServiceId()
+                    .getTaskName());
           }
-
-          return task.equals(
-            stringServiceInfoSnapshotEntry.getValue().getServiceId()
-              .getTaskName());
-        }
-      });
+        });
   }
 
   public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
     serviceInfoSnapshot.getProperties()
-      .append("Online", true)
-      .append("Version", proxyServer.getVersion().getVersion())
-      .append("Version-Vendor", proxyServer.getVersion().getVendor())
-      .append("Velocity-Name", proxyServer.getVersion().getName())
-      .append("Online-Count", proxyServer.getPlayerCount())
-      .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
-      .append("Compression-Level",
-        proxyServer.getConfiguration().getCompressionLevel())
-      .append("Connection-Timeout",
-        proxyServer.getConfiguration().getConnectTimeout())
-      .append("Players", Iterables.map(proxyServer.getAllPlayers(),
-        new Function<Player, VelocityCloudNetPlayerInfo>() {
-          @Override
-          public VelocityCloudNetPlayerInfo apply(Player player) {
-            return new VelocityCloudNetPlayerInfo(
-              player.getUniqueId(),
-              player.getUsername(),
-              player.getCurrentServer().isPresent() ? player
-                .getCurrentServer().get().getServerInfo().getName()
-                : null,
-              (int) player.getPing(),
-              new HostAndPort(player.getRemoteAddress())
-            );
-          }
-        }))
-      .append("Plugins", Iterables
-        .map(proxyServer.getPluginManager().getPlugins(),
-          new Function<PluginContainer, PluginInfo>() {
-            @Override
-            public PluginInfo apply(PluginContainer pluginContainer) {
-              PluginInfo pluginInfo = new PluginInfo(
-                pluginContainer.getDescription().getName().get(),
-                pluginContainer.getDescription().getVersion().get()
-              );
+        .append("Online", true)
+        .append("Version", proxyServer.getVersion().getVersion())
+        .append("Version-Vendor", proxyServer.getVersion().getVendor())
+        .append("Velocity-Name", proxyServer.getVersion().getName())
+        .append("Online-Count", proxyServer.getPlayerCount())
+        .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
+        .append("Compression-Level",
+            proxyServer.getConfiguration().getCompressionLevel())
+        .append("Connection-Timeout",
+            proxyServer.getConfiguration().getConnectTimeout())
+        .append("Players", Iterables.map(proxyServer.getAllPlayers(),
+            new Function<Player, VelocityCloudNetPlayerInfo>() {
+              @Override
+              public VelocityCloudNetPlayerInfo apply(Player player) {
+                return new VelocityCloudNetPlayerInfo(
+                    player.getUniqueId(),
+                    player.getUsername(),
+                    player.getCurrentServer().isPresent() ? player
+                        .getCurrentServer().get().getServerInfo().getName()
+                        : null,
+                    (int) player.getPing(),
+                    new HostAndPort(player.getRemoteAddress())
+                );
+              }
+            }))
+        .append("Plugins", Iterables
+            .map(proxyServer.getPluginManager().getPlugins(),
+                new Function<PluginContainer, PluginInfo>() {
+                  @Override
+                  public PluginInfo apply(PluginContainer pluginContainer) {
+                    PluginInfo pluginInfo = new PluginInfo(
+                        pluginContainer.getDescription().getName().get(),
+                        pluginContainer.getDescription().getVersion().get()
+                    );
 
-              pluginInfo.getProperties()
-                .append("authors",
-                  pluginContainer.getDescription().getAuthors())
-                .append("depends",
-                  pluginContainer.getDescription().getDependencies())
-              ;
+                    pluginInfo.getProperties()
+                        .append("authors",
+                            pluginContainer.getDescription().getAuthors())
+                        .append("depends",
+                            pluginContainer.getDescription().getDependencies())
+                    ;
 
-              return pluginInfo;
-            }
-          }))
+                    return pluginInfo;
+                  }
+                }))
     ;
   }
 }

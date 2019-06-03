@@ -28,7 +28,7 @@ public class TaskEntry<T> {
   private final TaskEntryFuture<T> future;
 
   public TaskEntry(Callable<T> task, IVoidCallback<T> complete, long delay,
-    long repeat) {
+      long repeat) {
 
     this.task = task;
     this.callback = complete;

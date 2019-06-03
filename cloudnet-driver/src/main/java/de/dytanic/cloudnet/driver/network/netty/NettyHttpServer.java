@@ -23,16 +23,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 public final class NettyHttpServer extends NettySSLServer implements
-  IHttpServer {
+    IHttpServer {
 
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = Maps
-    .newConcurrentHashMap();
+      .newConcurrentHashMap();
 
   protected final List<HttpHandlerEntry> registeredHandlers = Iterables
-    .newCopyOnWriteArrayList();
+      .newCopyOnWriteArrayList();
 
   protected final EventLoopGroup bossGroup = NettyUtils
-    .newEventLoopGroup(), workerGroup = NettyUtils.newEventLoopGroup();
+      .newEventLoopGroup(), workerGroup = NettyUtils.newEventLoopGroup();
 
   public NettyHttpServer() throws Exception {
     this(null);
@@ -64,20 +64,20 @@ public final class NettyHttpServer extends NettySSLServer implements
     if (!channelFutures.containsKey(hostAndPort.getPort())) {
       try {
         this.channelFutures.put(hostAndPort.getPort(),
-          new Pair<>(hostAndPort, new ServerBootstrap()
-            .group(bossGroup, workerGroup)
-            .childOption(ChannelOption.TCP_NODELAY, true)
-            .childOption(ChannelOption.IP_TOS, 24)
-            .childOption(ChannelOption.AUTO_READ, true)
-            .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
-            .channel(NettyUtils.getServerSocketChannelClass())
-            .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
-            .bind(hostAndPort.getHost(), hostAndPort.getPort())
-            .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-            .sync()
-            .channel()
-            .closeFuture()));
+            new Pair<>(hostAndPort, new ServerBootstrap()
+                .group(bossGroup, workerGroup)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.IP_TOS, 24)
+                .childOption(ChannelOption.AUTO_READ, true)
+                .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
+                .channel(NettyUtils.getServerSocketChannelClass())
+                .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
+                .bind(hostAndPort.getHost(), hostAndPort.getPort())
+                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+                .sync()
+                .channel()
+                .closeFuture()));
 
         return true;
       } catch (InterruptedException e) {
@@ -95,13 +95,13 @@ public final class NettyHttpServer extends NettySSLServer implements
 
   @Override
   public IHttpServer registerHandler(String path, int priority,
-    IHttpHandler... handlers) {
+      IHttpHandler... handlers) {
     return this.registerHandler(path, null, priority, handlers);
   }
 
   @Override
   public IHttpServer registerHandler(String path, Integer port, int priority,
-    IHttpHandler... handlers) {
+      IHttpHandler... handlers) {
     Validate.checkNotNull(path);
     Validate.checkNotNull(handlers);
 
@@ -118,8 +118,8 @@ public final class NettyHttpServer extends NettySSLServer implements
 
         for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
           if (registeredHandler.path.equals(path)
-            && registeredHandler.httpHandler.getClass()
-            .equals(httpHandler.getClass())) {
+              && registeredHandler.httpHandler.getClass()
+              .equals(httpHandler.getClass())) {
             value = false;
             break;
           }
@@ -127,7 +127,7 @@ public final class NettyHttpServer extends NettySSLServer implements
 
         if (value) {
           this.registeredHandlers
-            .add(new HttpHandlerEntry(path, httpHandler, port, priority));
+              .add(new HttpHandlerEntry(path, httpHandler, port, priority));
         }
       }
     }
@@ -167,7 +167,7 @@ public final class NettyHttpServer extends NettySSLServer implements
 
     for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
       if (registeredHandler.httpHandler.getClass().getClassLoader()
-        .equals(classLoader)) {
+          .equals(classLoader)) {
         this.registeredHandlers.remove(registeredHandler);
       }
     }
@@ -178,12 +178,12 @@ public final class NettyHttpServer extends NettySSLServer implements
   @Override
   public Collection<IHttpHandler> getHttpHandlers() {
     return Iterables.map(this.registeredHandlers,
-      new Function<HttpHandlerEntry, IHttpHandler>() {
-        @Override
-        public IHttpHandler apply(HttpHandlerEntry httpHandlerEntry) {
-          return httpHandlerEntry.httpHandler;
-        }
-      });
+        new Function<HttpHandlerEntry, IHttpHandler>() {
+          @Override
+          public IHttpHandler apply(HttpHandlerEntry httpHandlerEntry) {
+            return httpHandlerEntry.httpHandler;
+          }
+        });
   }
 
   @Override
@@ -195,7 +195,7 @@ public final class NettyHttpServer extends NettySSLServer implements
   @Override
   public void close() throws Exception {
     for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures
-      .values()) {
+        .values()) {
       entry.getSecond().cancel(true);
     }
 

@@ -11,32 +11,32 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.service.ICloudService;
 
 public final class PacketServerChannelMessageNodeListener implements
-  IPacketListener {
+    IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("channel") && packet.getHeader()
-      .contains("message") && packet.getHeader().contains("data")) {
+        .contains("message") && packet.getHeader().contains("data")) {
       Packet packetClientServerChannelMessage = new PacketClientServerChannelMessage(
-        packet.getHeader().getString("channel"),
-        packet.getHeader().getString("message"),
-        packet.getHeader().getDocument("data")
+          packet.getHeader().getString("channel"),
+          packet.getHeader().getString("message"),
+          packet.getHeader().getDocument("data")
       );
 
       for (ICloudService cloudService : CloudNet.getInstance()
-        .getCloudServiceManager().getCloudServices().values()) {
+          .getCloudServiceManager().getCloudServices().values()) {
         if (cloudService.getNetworkChannel() != null) {
           cloudService.getNetworkChannel()
-            .sendPacket(packetClientServerChannelMessage);
+              .sendPacket(packetClientServerChannelMessage);
         }
       }
 
       CloudNetDriver.getInstance().getEventManager().callEvent(
-        new ChannelMessageReceiveEvent(
-          packet.getHeader().getString("channel"),
-          packet.getHeader().getString("message"),
-          packet.getHeader().getDocument("data")
-        ));
+          new ChannelMessageReceiveEvent(
+              packet.getHeader().getString("channel"),
+              packet.getHeader().getString("message"),
+              packet.getHeader().getDocument("data")
+          ));
     }
   }
 }

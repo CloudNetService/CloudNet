@@ -44,13 +44,13 @@ public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
 
   @Override
   public void handlePreInstallDependency(IModuleWrapper moduleWrapper,
-    ModuleDependency dependency) {
+      ModuleDependency dependency) {
 
   }
 
   @Override
   public void handlePostInstallDependency(IModuleWrapper moduleWrapper,
-    ModuleDependency dependency) {
+      ModuleDependency dependency) {
 
   }
 }

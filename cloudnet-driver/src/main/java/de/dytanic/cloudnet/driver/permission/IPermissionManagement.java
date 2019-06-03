@@ -13,7 +13,7 @@ public interface IPermissionManagement {
   IPermissionManagementHandler getPermissionManagementHandler();
 
   void setPermissionManagementHandler(
-    IPermissionManagementHandler permissionManagementHandler);
+      IPermissionManagementHandler permissionManagementHandler);
 
   IPermissionUser addUser(IPermissionUser permissionUser);
 
@@ -58,7 +58,7 @@ public interface IPermissionManagement {
   /*= ----------------------------------------------------------------------------------- =*/
 
   default IPermissionGroup getHighestPermissionGroup(
-    IPermissionUser permissionUser) {
+      IPermissionUser permissionUser) {
     IPermissionGroup permissionGroup = null;
 
     for (IPermissionGroup group : getGroups(permissionUser)) {
@@ -104,7 +104,7 @@ public interface IPermissionManagement {
 
     for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
       if (groupInfo.getTimeOutMillis() > 0
-        && groupInfo.getTimeOutMillis() < System.currentTimeMillis()) {
+          && groupInfo.getTimeOutMillis() < System.currentTimeMillis()) {
         if (groupsToRemove != null) {
           groupsToRemove = Iterables.newArrayList();
         }
@@ -134,7 +134,7 @@ public interface IPermissionManagement {
 
     for (Permission permission : permissible.getPermissions()) {
       if (permission.getTimeOutMillis() > 0
-        && permission.getTimeOutMillis() < System.currentTimeMillis()) {
+          && permission.getTimeOutMillis() < System.currentTimeMillis()) {
         haveToRemove.add(permission.getName());
       }
     }
@@ -149,10 +149,10 @@ public interface IPermissionManagement {
     }
 
     for (Map.Entry<String, Collection<Permission>> entry : permissible
-      .getGroupPermissions().entrySet()) {
+        .getGroupPermissions().entrySet()) {
       for (Permission permission : entry.getValue()) {
         if (permission.getTimeOutMillis() > 0
-          && permission.getTimeOutMillis() < System.currentTimeMillis()) {
+            && permission.getTimeOutMillis() < System.currentTimeMillis()) {
           haveToRemove.add(permission.getName());
         }
       }
@@ -172,7 +172,7 @@ public interface IPermissionManagement {
 
   default IPermissionUser addUser(String name, String password, int potency) {
     return this.addUser(
-      new PermissionUser(UUID.randomUUID(), name, password, potency));
+        new PermissionUser(UUID.randomUUID(), name, password, potency));
   }
 
   default IPermissionGroup addGroup(String role, int potency) {
@@ -180,7 +180,7 @@ public interface IPermissionManagement {
   }
 
   default Collection<IPermissionGroup> getGroups(
-    IPermissionUser permissionUser) {
+      IPermissionUser permissionUser) {
     Collection<IPermissionGroup> permissionGroups = Iterables.newArrayList();
 
     if (permissionUser == null) {
@@ -199,25 +199,25 @@ public interface IPermissionManagement {
   }
 
   default Collection<IPermissionGroup> getExtendedGroups(
-    IPermissionGroup group) {
+      IPermissionGroup group) {
     return group == null ? Collections.EMPTY_LIST
-      : Iterables.filter(this.getGroups(), new Predicate<IPermissionGroup>() {
-        @Override
-        public boolean test(IPermissionGroup permissionGroup) {
-          return group.getGroups().contains(permissionGroup.getName());
-        }
-      });
+        : Iterables.filter(this.getGroups(), new Predicate<IPermissionGroup>() {
+          @Override
+          public boolean test(IPermissionGroup permissionGroup) {
+            return group.getGroups().contains(permissionGroup.getName());
+          }
+        });
   }
 
   default boolean hasPermission(IPermissionUser permissionUser,
-    String permission) {
+      String permission) {
     return this.hasPermission(permissionUser, new Permission(permission));
   }
 
   default boolean hasPermission(IPermissionUser permissionUser,
-    Permission permission) {
+      Permission permission) {
     if (permissionUser == null || permission == null
-      || permission.getName() == null) {
+        || permission.getName() == null) {
       return false;
     }
 
@@ -239,9 +239,9 @@ public interface IPermissionManagement {
   }
 
   default boolean hasPermission(IPermissionUser permissionUser, String group,
-    Permission permission) {
+      Permission permission) {
     if (permissionUser == null || group == null || permission == null
-      || permission.getName() == null) {
+        || permission.getName() == null) {
       return false;
     }
 
@@ -263,7 +263,7 @@ public interface IPermissionManagement {
   }
 
   default boolean tryExtendedGroups(IPermissionGroup permissionGroup,
-    Permission permission) {
+      Permission permission) {
     if (permissionGroup == null) {
       return false;
     }
@@ -286,7 +286,7 @@ public interface IPermissionManagement {
   }
 
   default boolean tryExtendedGroups(IPermissionGroup permissionGroup,
-    String group, Permission permission) {
+      String group, Permission permission) {
     if (permissionGroup == null) {
       return false;
     }

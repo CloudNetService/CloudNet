@@ -19,21 +19,21 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
 
   @Override
   public void handleOptions(String path, IHttpContext context)
-    throws Exception {
+      throws Exception {
     this.sendOptions(context, "GET, POST");
   }
 
   @Override
   public void handleGet(String path, IHttpContext context) throws Exception {
     context
-      .response()
-      .statusCode(HttpResponseCode.HTTP_OK)
-      .header("Content-Type", "application/json")
-      .body(GSON.toJson(
-        CloudNetBridgeModule.getInstance().getBridgeConfiguration()))
-      .context()
-      .closeAfter(true)
-      .cancelNext()
+        .response()
+        .statusCode(HttpResponseCode.HTTP_OK)
+        .header("Content-Type", "application/json")
+        .body(GSON.toJson(
+            CloudNetBridgeModule.getInstance().getBridgeConfiguration()))
+        .context()
+        .closeAfter(true)
+        .cancelNext()
     ;
   }
 
@@ -42,29 +42,29 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
     try {
       if (context.request().body().length > 0) {
         BridgeConfiguration bridgeConfiguration = GSON
-          .fromJson(context.request().bodyAsString(),
-            BridgeConfiguration.TYPE);
+            .fromJson(context.request().bodyAsString(),
+                BridgeConfiguration.TYPE);
 
         if (bridgeConfiguration != null) {
           CloudNetBridgeModule.getInstance()
-            .setBridgeConfiguration(bridgeConfiguration);
+              .setBridgeConfiguration(bridgeConfiguration);
           CloudNetBridgeModule.getInstance()
-            .writeConfiguration(bridgeConfiguration);
+              .writeConfiguration(bridgeConfiguration);
 
           CloudNetDriver.getInstance().sendChannelMessage(
-            BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-            "update_bridge_configuration",
-            new JsonDocument("bridgeConfiguration", bridgeConfiguration)
+              BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+              "update_bridge_configuration",
+              new JsonDocument("bridgeConfiguration", bridgeConfiguration)
           );
 
           context
-            .response()
-            .statusCode(HttpResponseCode.HTTP_OK)
-            .header("Content-Type", "application")
-            .body(new JsonDocument("success", true).toByteArray())
-            .context()
-            .closeAfter(true)
-            .cancelNext()
+              .response()
+              .statusCode(HttpResponseCode.HTTP_OK)
+              .header("Content-Type", "application")
+              .body(new JsonDocument("success", true).toByteArray())
+              .context()
+              .closeAfter(true)
+              .cancelNext()
           ;
         }
       }
@@ -72,7 +72,7 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
     } catch (Exception ex) {
 
       try (StringWriter writer = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(writer)) {
+          PrintWriter printWriter = new PrintWriter(writer)) {
         ex.printStackTrace(printWriter);
         this.send400Response(context, writer.getBuffer().toString());
       }

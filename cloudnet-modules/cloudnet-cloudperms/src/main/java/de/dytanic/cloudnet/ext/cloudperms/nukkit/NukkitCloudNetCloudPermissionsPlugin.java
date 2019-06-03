@@ -28,16 +28,16 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
     injectPlayersCloudPermissible();
 
     getServer().getPluginManager()
-      .registerEvents(new NukkitCloudNetCloudPermissionsPlayerListener(),
-        this);
+        .registerEvents(new NukkitCloudNetCloudPermissionsPlayerListener(),
+            this);
   }
 
   @Override
   public void onDisable() {
     CloudNetDriver.getInstance().getEventManager()
-      .unregisterListeners(this.getClass().getClassLoader());
+        .unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-      this.getClass().getClassLoader());
+        this.getClass().getClassLoader());
   }
 
   /*= ----------------------------------------------------------------- =*/

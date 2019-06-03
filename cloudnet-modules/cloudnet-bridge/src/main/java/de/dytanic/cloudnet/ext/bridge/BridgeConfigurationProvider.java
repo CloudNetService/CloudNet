@@ -23,13 +23,13 @@ public final class BridgeConfigurationProvider {
   }
 
   public static BridgeConfiguration update(
-    BridgeConfiguration bridgeConfiguration) {
+      BridgeConfiguration bridgeConfiguration) {
     Validate.checkNotNull(bridgeConfiguration);
 
     CloudNetDriver.getInstance().sendChannelMessage(
-      BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-      "update_bridge_configuration",
-      new JsonDocument("bridgeConfiguration", bridgeConfiguration)
+        BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+        "update_bridge_configuration",
+        new JsonDocument("bridgeConfiguration", bridgeConfiguration)
     );
     loadedConfiguration = bridgeConfiguration;
 
@@ -52,18 +52,18 @@ public final class BridgeConfigurationProvider {
 
   private static BridgeConfiguration load0() {
     ITask<BridgeConfiguration> task = CloudNetDriver.getInstance()
-      .sendCallablePacket(
-        CloudNetDriver.getInstance().getNetworkClient().getChannels()
-          .iterator().next(),
-        BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME,
-        BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION,
-        new JsonDocument(),
-        new Function<JsonDocument, BridgeConfiguration>() {
-          @Override
-          public BridgeConfiguration apply(JsonDocument documentPair) {
-            return documentPair.get("bridgeConfig", TYPE);
-          }
-        });
+        .sendCallablePacket(
+            CloudNetDriver.getInstance().getNetworkClient().getChannels()
+                .iterator().next(),
+            BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME,
+            BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION,
+            new JsonDocument(),
+            new Function<JsonDocument, BridgeConfiguration>() {
+              @Override
+              public BridgeConfiguration apply(JsonDocument documentPair) {
+                return documentPair.get("bridgeConfig", TYPE);
+              }
+            });
 
     try {
       return task.get(5, TimeUnit.SECONDS);

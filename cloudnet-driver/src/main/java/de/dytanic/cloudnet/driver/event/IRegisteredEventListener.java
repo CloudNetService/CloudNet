@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.common.Validate;
 import java.lang.reflect.Method;
 
 public interface IRegisteredEventListener extends
-  Comparable<IRegisteredEventListener> {
+    Comparable<IRegisteredEventListener> {
 
   EventListener getEventListener();
 
@@ -25,8 +25,8 @@ public interface IRegisteredEventListener extends
         getHandlerMethod().invoke(getInstance(), event);
       } catch (Exception ex) {
         throw new EventListenerException(
-          "An error on offerTask method " + getHandlerMethod().getName()
-            + " in class " + getInstance().getClass(), ex);
+            "An error on offerTask method " + getHandlerMethod().getName()
+                + " in class " + getInstance().getClass(), ex);
       }
     }
 

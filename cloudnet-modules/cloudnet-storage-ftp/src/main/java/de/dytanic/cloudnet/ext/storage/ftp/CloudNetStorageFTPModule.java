@@ -11,7 +11,7 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
   public void initConfiguration() {
     getConfig().getBoolean("ssl", true);
     getConfig()
-      .get("address", HostAndPort.class, new HostAndPort("127.0.0.1", 21));
+        .get("address", HostAndPort.class, new HostAndPort("127.0.0.1", 21));
 
     getConfig().getString("storage", "ftp");
     getConfig().getString("username", "root");
@@ -25,6 +25,6 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void registerStorage() {
     registerTemplateStorage(getConfig().getString("storage"),
-      new FTPTemplateStorage(this.getConfig()));
+        new FTPTemplateStorage(this.getConfig()));
   }
 }

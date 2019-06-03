@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 public final class PermissionDeleteUserEvent extends PermissionUserEvent {
 
   public PermissionDeleteUserEvent(IPermissionManagement permissionManagement,
-    IPermissionUser permissionUser) {
+      IPermissionUser permissionUser) {
     super(permissionManagement, permissionUser);
   }
 }

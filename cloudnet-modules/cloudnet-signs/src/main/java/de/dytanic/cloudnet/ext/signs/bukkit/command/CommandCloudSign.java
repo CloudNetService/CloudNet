@@ -16,13 +16,13 @@ public final class CommandCloudSign implements CommandExecutor {
 
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label,
-    String[] args) {
+      String[] args) {
     if (!(sender instanceof Player)) {
       return false;
     }
 
     SignConfigurationEntry entry = BukkitSignManagement.getInstance()
-      .getOwnSignConfigurationEntry();
+        .getOwnSignConfigurationEntry();
 
     if (entry == null) {
       return false;
@@ -39,23 +39,23 @@ public final class CommandCloudSign implements CommandExecutor {
 
     if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       Block block = BukkitSignManagement.getInstance()
-        .getLivingEntityTargetBlock(player, 15);
+          .getLivingEntityTargetBlock(player, 15);
 
       if (block.getState() instanceof org.bukkit.block.Sign) {
         for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
           if (!Iterables.contains(sign.getProvidedGroup(),
-            Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+              Wrapper.getInstance().getServiceConfiguration().getGroups())) {
             continue;
           }
 
           Location location = BukkitSignManagement.getInstance()
-            .toLocation(sign.getWorldPosition());
+              .toLocation(sign.getWorldPosition());
 
           if (location != null && location.equals(block.getLocation())) {
             BukkitSignManagement.getInstance().sendSignRemoveUpdate(sign);
 
             org.bukkit.block.Sign blockSign = (org.bukkit.block.Sign) block
-              .getState();
+                .getState();
             blockSign.setLine(0, "");
             blockSign.setLine(1, "");
             blockSign.setLine(2, "");
@@ -63,10 +63,10 @@ public final class CommandCloudSign implements CommandExecutor {
             blockSign.update();
 
             sender.sendMessage(
-              ChatColor.translateAlternateColorCodes('&',
-                SignConfigurationProvider.load().getMessages()
-                  .get("command-cloudsign-remove-success")
-              )
+                ChatColor.translateAlternateColorCodes('&',
+                    SignConfigurationProvider.load().getMessages()
+                        .get("command-cloudsign-remove-success")
+                )
             );
             return true;
           }
@@ -76,46 +76,46 @@ public final class CommandCloudSign implements CommandExecutor {
 
     if (args.length >= 2 && args[0].equalsIgnoreCase("create")) {
       Block block = BukkitSignManagement.getInstance()
-        .getLivingEntityTargetBlock(player, 15);
+          .getLivingEntityTargetBlock(player, 15);
 
       if (block.getState() instanceof org.bukkit.block.Sign) {
         for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
           if (!Iterables.contains(sign.getProvidedGroup(),
-            Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+              Wrapper.getInstance().getServiceConfiguration().getGroups())) {
             continue;
           }
 
           Location location = BukkitSignManagement.getInstance()
-            .toLocation(sign.getWorldPosition());
+              .toLocation(sign.getWorldPosition());
 
           if (location != null && location.equals(block.getLocation())) {
             sender.sendMessage(
-              ChatColor.translateAlternateColorCodes('&',
-                SignConfigurationProvider.load().getMessages()
-                  .getOrDefault("command-cloudsign-sign-already-exist",
-                    "&7The sign is already set. If you want to remove that, use the /cloudsign remove command")
-                  .replace("%group%", sign.getTargetGroup())
-              )
+                ChatColor.translateAlternateColorCodes('&',
+                    SignConfigurationProvider.load().getMessages()
+                        .getOrDefault("command-cloudsign-sign-already-exist",
+                            "&7The sign is already set. If you want to remove that, use the /cloudsign remove command")
+                        .replace("%group%", sign.getTargetGroup())
+                )
             );
             return true;
           }
         }
 
         Sign sign = new Sign(
-          entry.getTargetGroup(),
-          args[1],
-          new SignPosition(block.getX(), block.getY(), block.getZ(), 0, 0,
-            entry.getTargetGroup(), block.getWorld().getName()),
-          args.length == 3 ? args[2] : null
+            entry.getTargetGroup(),
+            args[1],
+            new SignPosition(block.getX(), block.getY(), block.getZ(), 0, 0,
+                entry.getTargetGroup(), block.getWorld().getName()),
+            args.length == 3 ? args[2] : null
         );
 
         AbstractSignManagement.getInstance().sendSignAddUpdate(sign);
         sender.sendMessage(
-          ChatColor.translateAlternateColorCodes('&',
-            SignConfigurationProvider.load().getMessages()
-              .get("command-cloudsign-create-success")
-              .replace("%group%", sign.getTargetGroup())
-          )
+            ChatColor.translateAlternateColorCodes('&',
+                SignConfigurationProvider.load().getMessages()
+                    .get("command-cloudsign-create-success")
+                    .replace("%group%", sign.getTargetGroup())
+            )
         );
       }
     }

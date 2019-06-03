@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class GoMintBridgeServerPlayerLoginSuccessEvent extends
-  GoMintBridgeEvent {
+    GoMintBridgeEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

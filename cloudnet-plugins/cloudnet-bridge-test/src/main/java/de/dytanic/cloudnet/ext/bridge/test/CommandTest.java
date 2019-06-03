@@ -12,7 +12,7 @@ final class CommandTest implements CommandExecutor {
 
   @Override
   public boolean onCommand(CommandSender commandSender, Command command,
-    String s, String[] args) {
+      String s, String[] args) {
     if (!command.testPermission(commandSender)) {
       return false;
     }
@@ -22,26 +22,26 @@ final class CommandTest implements CommandExecutor {
         if (args[0].equalsIgnoreCase("test1")) {
           int counter = 0;
           for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver
-            .getInstance().getCloudServices()) {
+              .getInstance().getCloudServices()) {
             commandSender.sendMessage(
-              counter++ + ": " + serviceInfoSnapshot.getServiceId()
-                .getName());
+                counter++ + ": " + serviceInfoSnapshot.getServiceId()
+                    .getName());
 
             ServiceInfoSnapshot snapshot = CloudNetDriver.getInstance()
-              .getCloudServiceByName(
-                serviceInfoSnapshot.getServiceId().getName());
+                .getCloudServiceByName(
+                    serviceInfoSnapshot.getServiceId().getName());
             commandSender.sendMessage(
-              "Snapshot by Name: " + serviceInfoSnapshot.getServiceId()
-                .getName() +
-                " : " + (snapshot != null ? snapshot.getServiceId()
-                .getName() : "null"));
+                "Snapshot by Name: " + serviceInfoSnapshot.getServiceId()
+                    .getName() +
+                    " : " + (snapshot != null ? snapshot.getServiceId()
+                    .getName() : "null"));
           }
 
           counter = 0;
           for (GroupConfiguration groupConfiguration : CloudNetDriver
-            .getInstance().getGroupConfigurations()) {
+              .getInstance().getGroupConfigurations()) {
             commandSender
-              .sendMessage(counter++ + ": " + groupConfiguration.getName());
+                .sendMessage(counter++ + ": " + groupConfiguration.getName());
           }
 
           return true;
@@ -49,13 +49,13 @@ final class CommandTest implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("test2")) {
           ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance()
-            .createCloudService(CloudNetDriver.getInstance().getServiceTask(
-              Wrapper.getInstance().getServiceConfiguration().getServiceId()
-                .getTaskName()
-            ));
+              .createCloudService(CloudNetDriver.getInstance().getServiceTask(
+                  Wrapper.getInstance().getServiceConfiguration().getServiceId()
+                      .getTaskName()
+              ));
 
           commandSender.sendMessage(
-            "New Service -> " + serviceInfoSnapshot.getServiceId().getName());
+              "New Service -> " + serviceInfoSnapshot.getServiceId().getName());
 
           CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
           return true;
@@ -63,7 +63,7 @@ final class CommandTest implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("test3")) {
           ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance()
-            .getCloudServiceByName("Lobby-54632");
+              .getCloudServiceByName("Lobby-54632");
 
           if (serviceInfoSnapshot != null) {
             commandSender.sendMessage("ServiceInfoSnapshot exist");

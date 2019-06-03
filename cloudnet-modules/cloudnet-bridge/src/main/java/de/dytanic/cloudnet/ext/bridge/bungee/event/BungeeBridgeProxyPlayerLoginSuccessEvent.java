@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class BungeeBridgeProxyPlayerLoginSuccessEvent extends
-  BungeeBridgeEvent {
+    BungeeBridgeEvent {
 
   private final NetworkConnectionInfo networkConnectionInfo;
 

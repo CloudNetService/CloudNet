@@ -26,12 +26,12 @@ public final class CommandPaste extends Command {
     this.permission = "cloudnet.console.command.paste";
     this.prefix = "cloudnet-report";
     this.description = LanguageManager
-      .getMessage("module-report-command-paste-description");
+        .getMessage("module-report-command-paste-description");
   }
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args,
-    String commandLine, Properties properties) {
+      String commandLine, Properties properties) {
     if (args.length == 0) {
       sender.sendMessage("paste <name : uniqueId>");
       return;
@@ -41,11 +41,11 @@ public final class CommandPaste extends Command {
 
     if (serviceInfoSnapshot != null) {
       try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        PrintWriter printWriter = new PrintWriter(byteArrayOutputStream,
-          true)) {
+          PrintWriter printWriter = new PrintWriter(byteArrayOutputStream,
+              true)) {
         for (String line : CloudNetDriver.getInstance()
-          .getCachedLogMessagesFromService(
-            serviceInfoSnapshot.getServiceId().getUniqueId())) {
+            .getCachedLogMessagesFromService(
+                serviceInfoSnapshot.getServiceId().getUniqueId())) {
           printWriter.println(line);
         }
 
@@ -54,14 +54,14 @@ public final class CommandPaste extends Command {
         printWriter.println();
 
         printWriter
-          .println(new JsonDocument(serviceInfoSnapshot).toPrettyJson());
+            .println(new JsonDocument(serviceInfoSnapshot).toPrettyJson());
 
         sender.sendMessage(
-          LanguageManager.getMessage("module-report-command-paste-success")
-            .replace("%url%", CloudNetReportModule.getInstance()
-              .executePaste(
-                new String(byteArrayOutputStream.toByteArray(),
-                  StandardCharsets.UTF_8)) + "")
+            LanguageManager.getMessage("module-report-command-paste-success")
+                .replace("%url%", CloudNetReportModule.getInstance()
+                    .executePaste(
+                        new String(byteArrayOutputStream.toByteArray(),
+                            StandardCharsets.UTF_8)) + "")
         );
 
       } catch (IOException e) {
@@ -74,36 +74,36 @@ public final class CommandPaste extends Command {
     Validate.checkNotNull(argument);
 
     ServiceInfoSnapshot serviceInfoSnapshot = Iterables
-      .first(CloudNetDriver.getInstance().getCloudServices(),
-        new Predicate<ServiceInfoSnapshot>() {
-          @Override
-          public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-            return serviceInfoSnapshot.getServiceId().getUniqueId()
-              .toString().toLowerCase().contains(argument.toLowerCase());
-          }
-        });
+        .first(CloudNetDriver.getInstance().getCloudServices(),
+            new Predicate<ServiceInfoSnapshot>() {
+              @Override
+              public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
+                return serviceInfoSnapshot.getServiceId().getUniqueId()
+                    .toString().toLowerCase().contains(argument.toLowerCase());
+              }
+            });
 
     if (serviceInfoSnapshot == null) {
       List<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables
-        .filter(CloudNetDriver.getInstance().getCloudServices(),
-          new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-              return serviceInfoSnapshot.getServiceId().getName()
-                .toLowerCase().contains(argument.toLowerCase());
-            }
-          });
+          .filter(CloudNetDriver.getInstance().getCloudServices(),
+              new Predicate<ServiceInfoSnapshot>() {
+                @Override
+                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
+                  return serviceInfoSnapshot.getServiceId().getName()
+                      .toLowerCase().contains(argument.toLowerCase());
+                }
+              });
 
       if (!serviceInfoSnapshots.isEmpty()) {
         if (serviceInfoSnapshots.size() > 1) {
           serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots,
-            new Predicate<ServiceInfoSnapshot>() {
-              @Override
-              public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return serviceInfoSnapshot.getServiceId().getName()
-                  .equalsIgnoreCase(argument);
-              }
-            });
+              new Predicate<ServiceInfoSnapshot>() {
+                @Override
+                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
+                  return serviceInfoSnapshot.getServiceId().getName()
+                      .equalsIgnoreCase(argument);
+                }
+              });
         } else {
           serviceInfoSnapshot = serviceInfoSnapshots.get(0);
         }

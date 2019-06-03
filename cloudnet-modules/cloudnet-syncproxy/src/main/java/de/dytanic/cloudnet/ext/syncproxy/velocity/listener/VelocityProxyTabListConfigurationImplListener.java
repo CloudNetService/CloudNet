@@ -13,11 +13,11 @@ public final class VelocityProxyTabListConfigurationImplListener {
   @Subscribe
   public void handle(PostLoginEvent event) {
     SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin
-      .getInstance().getTabListConfiguration();
+        .getInstance().getTabListConfiguration();
 
     if (syncProxyTabListConfiguration != null
-      && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
-      .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null) {
+        && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
+        .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null) {
       Wrapper.getInstance().publishServiceInfoUpdate();
     }
   }
@@ -25,22 +25,22 @@ public final class VelocityProxyTabListConfigurationImplListener {
   @Subscribe
   public void handle(ServerConnectedEvent event) {
     SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin
-      .getInstance().getTabListConfiguration();
+        .getInstance().getTabListConfiguration();
 
     if (syncProxyTabListConfiguration != null) {
       VelocityCloudNetSyncProxyPlugin.getInstance()
-        .setTabList(event.getPlayer());
+          .setTabList(event.getPlayer());
     }
   }
 
   @Subscribe
   public void handle(DisconnectEvent event) {
     SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin
-      .getInstance().getTabListConfiguration();
+        .getInstance().getTabListConfiguration();
 
     if (syncProxyTabListConfiguration != null
-      && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
-      .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null) {
+        && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
+        .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null) {
       Wrapper.getInstance().publishServiceInfoUpdate();
     }
   }

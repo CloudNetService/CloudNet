@@ -60,7 +60,7 @@ public interface IDatabase extends INameable, AutoCloseable {
   ITask<Map<String, JsonDocument>> entriesAsync();
 
   ITask<Map<String, JsonDocument>> filterAsync(
-    BiPredicate<String, JsonDocument> predicate);
+      BiPredicate<String, JsonDocument> predicate);
 
   ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer);
 
