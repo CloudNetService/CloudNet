@@ -8,39 +8,34 @@ import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEven
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
+
 import java.io.File;
 
 public final class NetworkListenerRegisterListener {
 
-  @EventListener
-  public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-    event.getNode().sendCustomChannelMessage(
-      BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-      BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER,
-      new JsonDocument("bridgeConfiguration",
-        CloudNetBridgeModule.getInstance().getBridgeConfiguration())
-    );
-  }
-
-  @EventListener
-  public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-    if (!event.getChannelName().equalsIgnoreCase(
-      BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME)) {
-      return;
-    }
-
-    switch (event.getId()) {
-      case BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION: {
-        event.setCallbackPacket(
-          new JsonDocument().append("bridgeConfig",
-            (BridgeConfiguration) JsonDocument.newDocument(
-              new File(CloudNetDriver.getInstance().getModuleProvider()
-                .getModule("CloudNet-Bridge").getDataFolder(),
-                "config.json")
-            ).get("config", BridgeConfiguration.TYPE))
+    @EventListener
+    public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
+        event.getNode().sendCustomChannelMessage(
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+                BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER,
+                new JsonDocument("bridgeConfiguration", CloudNetBridgeModule.getInstance().getBridgeConfiguration())
         );
-      }
-      break;
     }
-  }
+
+    @EventListener
+    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
+        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME))
+            return;
+
+        switch (event.getId()) {
+            case BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION: {
+                event.setCallbackPacket(
+                        new JsonDocument().append("bridgeConfig", (BridgeConfiguration) JsonDocument.newDocument(
+                                new File(CloudNetDriver.getInstance().getModuleProvider().getModule("CloudNet-Bridge").getDataFolder(), "config.json")
+                        ).get("config", BridgeConfiguration.TYPE))
+                );
+            }
+            break;
+        }
+    }
 }

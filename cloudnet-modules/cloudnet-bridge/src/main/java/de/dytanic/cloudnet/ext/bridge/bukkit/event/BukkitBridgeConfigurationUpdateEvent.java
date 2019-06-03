@@ -7,16 +7,14 @@ import org.bukkit.event.HandlerList;
 
 @Getter
 @RequiredArgsConstructor
-public final class BukkitBridgeConfigurationUpdateEvent extends
-  BukkitBridgeEvent {
+public final class BukkitBridgeConfigurationUpdateEvent extends BukkitBridgeEvent {
 
-  private final BridgeConfiguration bridgeConfiguration;
+    @Getter
+    private static HandlerList handlerList = new HandlerList();
+    private final BridgeConfiguration bridgeConfiguration;
 
-  @Getter
-  private static HandlerList handlerList = new HandlerList();
-
-  @Override
-  public HandlerList getHandlers() {
-    return handlerList;
-  }
+    @Override
+    public HandlerList getHandlers() {
+        return handlerList;
+    }
 }

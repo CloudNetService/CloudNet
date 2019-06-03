@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 public final class CloudServiceConnectNetworkEvent extends CloudServiceEvent {
 
-  public CloudServiceConnectNetworkEvent(ServiceInfoSnapshot serviceInfo) {
-    super(serviceInfo);
-  }
+    public CloudServiceConnectNetworkEvent(ServiceInfoSnapshot serviceInfo) {
+        super(serviceInfo);
+    }
 }

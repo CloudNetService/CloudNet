@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SyncProxyTabList {
 
-  protected String header;
+    protected String header;
 
-  protected String footer;
+    protected String footer;
 
 }

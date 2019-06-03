@@ -2,16 +2,16 @@ package de.dytanic.cloudnet.common.concurrent;
 
 public interface IWorkableThread extends AutoCloseable {
 
-  <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask);
+    <V> IScheduledTask<V> getTask();
 
-  <V> IScheduledTask<V> getTask();
+    <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask);
 
-  boolean isEmpty();
+    boolean isEmpty();
 
-  int getTasksCount();
+    int getTasksCount();
 
-  void stop();
+    void stop();
 
-  void interrupt();
+    void interrupt();
 
 }

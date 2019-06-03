@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 public final class CloudServiceInfoUpdateEvent extends CloudServiceEvent {
 
-  public CloudServiceInfoUpdateEvent(ServiceInfoSnapshot serviceInfo) {
-    super(serviceInfo);
-  }
+    public CloudServiceInfoUpdateEvent(ServiceInfoSnapshot serviceInfo) {
+        super(serviceInfo);
+    }
 }

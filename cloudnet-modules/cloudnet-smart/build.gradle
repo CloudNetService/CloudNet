@@ -1,12 +1,12 @@
 jar {
-  archiveName = cloudnetModuleSmartFileName
+    archiveName = cloudnetModuleSmartFileName
 
-  manifest {
-    attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
-    attributes 'Implementation-Title': cloudNetCodeName
-  }
+    manifest {
+        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Title': cloudNetCodeName
+    }
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
+    compileOnly project(':cloudnet')
 }

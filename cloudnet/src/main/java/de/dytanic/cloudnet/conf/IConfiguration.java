@@ -3,70 +3,69 @@ package de.dytanic.cloudnet.conf;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+
 import java.util.Collection;
 
 public interface IConfiguration {
 
-  boolean isFileExists();
+    boolean isFileExists();
 
-  void load();
+    void load();
 
-  void save();
+    void save();
 
-  void setDefaultHostAddress(String hostAddress);
+    void setDefaultHostAddress(String hostAddress);
 
-  String getHostAddress();
+    String getHostAddress();
 
-  NetworkClusterNode getIdentity();
+    NetworkClusterNode getIdentity();
 
-  NetworkCluster getClusterConfig();
+    NetworkCluster getClusterConfig();
 
-  Collection<String> getIpWhitelist();
+    void setClusterConfig(NetworkCluster clusterConfig);
 
-  Collection<HostAndPort> getHttpListeners();
+    Collection<String> getIpWhitelist();
 
-  ConfigurationOptionSSL getClientSslConfig();
+    void setIpWhitelist(Collection<String> whitelist);
 
-  ConfigurationOptionSSL getServerSslConfig();
+    Collection<HostAndPort> getHttpListeners();
 
-  ConfigurationOptionSSL getWebSslConfig();
+    void setHttpListeners(Collection<HostAndPort> httpListeners);
 
-  void setIpWhitelist(Collection<String> whitelist);
+    ConfigurationOptionSSL getClientSslConfig();
 
-  void setClusterConfig(NetworkCluster clusterConfig);
+    ConfigurationOptionSSL getServerSslConfig();
 
-  double getMaxCPUUsageToStartServices();
+    ConfigurationOptionSSL getWebSslConfig();
 
-  void setMaxCPUUsageToStartServices(double value);
+    double getMaxCPUUsageToStartServices();
 
-  void setPrintErrorStreamLinesFromServices(
-    boolean printErrorStreamLinesFromServices);
+    void setMaxCPUUsageToStartServices(double value);
 
-  int getMaxMemory();
+    int getMaxMemory();
 
-  void setMaxMemory(int memory);
+    void setMaxMemory(int memory);
 
-  int getMaxServiceConsoleLogCacheSize();
+    int getMaxServiceConsoleLogCacheSize();
 
-  boolean isPrintErrorStreamLinesFromServices();
+    void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
 
-  void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
+    boolean isPrintErrorStreamLinesFromServices();
 
-  boolean isParallelServiceStartSequence();
+    void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
 
-  boolean isRunBlockedServiceStartTryLaterAutomatic();
+    boolean isParallelServiceStartSequence();
 
-  boolean isDefaultJVMOptionParameters();
+    void setParallelServiceStartSequence(boolean value);
 
-  void setDefaultJVMOptionParameters(boolean value);
+    boolean isRunBlockedServiceStartTryLaterAutomatic();
 
-  String getJVMCommand();
+    void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
 
-  void setRunBlockedServiceStartTryLaterAutomatic(
-    boolean runBlockedServiceStartTryLaterAutomatic);
+    boolean isDefaultJVMOptionParameters();
 
-  void setParallelServiceStartSequence(boolean value);
+    void setDefaultJVMOptionParameters(boolean value);
 
-  void setHttpListeners(Collection<HostAndPort> httpListeners);
+    String getJVMCommand();
 
 }

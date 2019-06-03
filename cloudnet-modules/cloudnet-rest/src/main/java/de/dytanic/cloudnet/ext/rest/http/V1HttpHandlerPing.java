@@ -6,25 +6,24 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 
 public final class V1HttpHandlerPing extends V1HttpHandler {
 
-  public V1HttpHandlerPing(String permission) {
-    super(permission);
-  }
+    public V1HttpHandlerPing(String permission) {
+        super(permission);
+    }
 
-  @Override
-  public void handleOptions(String path, IHttpContext context)
-    throws Exception {
-    this.sendOptions(context, "OPTIONS, GET");
-  }
+    @Override
+    public void handleOptions(String path, IHttpContext context) throws Exception {
+        this.sendOptions(context, "OPTIONS, GET");
+    }
 
-  @Override
-  public void handleGet(String path, IHttpContext context) throws Exception {
-    context
-      .response()
-      .header("Content-Type", "application/json")
-      .body(new JsonDocument("success", true).toByteArray())
-      .statusCode(200)
-      .context()
-      .closeAfter(true)
-      .cancelNext();
-  }
+    @Override
+    public void handleGet(String path, IHttpContext context) throws Exception {
+        context
+                .response()
+                .header("Content-Type", "application/json")
+                .body(new JsonDocument("success", true).toByteArray())
+                .statusCode(200)
+                .context()
+                .closeAfter(true)
+                .cancelNext();
+    }
 }

@@ -4,23 +4,23 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.service.ICloudService;
-import java.net.URLConnection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.net.URLConnection;
+
 @Getter
 @RequiredArgsConstructor
-public final class CloudServicePreLoadInclusionEvent extends
-  DriverEvent implements ICancelable {
+public final class CloudServicePreLoadInclusionEvent extends DriverEvent implements ICancelable {
 
-  private final ICloudService cloudService;
+    private final ICloudService cloudService;
 
-  private final ServiceRemoteInclusion serviceRemoteInclusion;
+    private final ServiceRemoteInclusion serviceRemoteInclusion;
 
-  private final URLConnection connection;
+    private final URLConnection connection;
 
-  @Setter
-  private boolean cancelled;
+    @Setter
+    private boolean cancelled;
 
 }

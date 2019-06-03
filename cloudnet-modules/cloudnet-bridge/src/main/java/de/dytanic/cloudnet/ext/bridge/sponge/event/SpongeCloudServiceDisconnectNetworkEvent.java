@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class SpongeCloudServiceDisconnectNetworkEvent extends
-  SpongeCloudNetEvent {
+public final class SpongeCloudServiceDisconnectNetworkEvent extends SpongeCloudNetEvent {
 
-  @Getter
-  private final ServiceInfoSnapshot serviceInfoSnapshot;
+    @Getter
+    private final ServiceInfoSnapshot serviceInfoSnapshot;
 }

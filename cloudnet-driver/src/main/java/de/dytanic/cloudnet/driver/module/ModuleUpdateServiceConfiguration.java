@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ModuleUpdateServiceConfiguration {
 
-  protected boolean autoInstall;
+    protected boolean autoInstall;
 
-  protected String url, currentVersion, infoMessage;
+    protected String url, currentVersion, infoMessage;
 
 }

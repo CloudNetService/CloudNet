@@ -8,84 +8,80 @@ import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Getter
 final class NettyNetworkChannel implements INetworkChannel {
 
-  private static final Callable<Void> EMPTY_TASK = new Callable<Void>() {
-    @Override
-    public Void call() throws Exception {
-      return null;
-    }
-  };
-
-  private static final AtomicLong CHANNEL_ID_COUNTER = new AtomicLong();
-
-  private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
-
-  /*= ------------------------------------------------------------------------------ =*/
-
-  private final Channel channel;
-
-  private final IPacketListenerRegistry packetRegistry;
-
-  private final HostAndPort serverAddress, clientAddress;
-
-  private final boolean clientProvidedChannel;
-
-  @Setter
-  private INetworkChannelHandler handler;
-
-  public NettyNetworkChannel(Channel channel,
-    IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
-    HostAndPort serverAddress, HostAndPort clientAddress,
-    boolean clientProvidedChannel) {
-    this.channel = channel;
-    this.handler = handler;
-
-    this.serverAddress = serverAddress;
-    this.clientAddress = clientAddress;
-    this.clientProvidedChannel = clientProvidedChannel;
-
-    this.packetRegistry = new DefaultPacketListenerRegistry(packetRegistry);
-  }
-
-  @Override
-  public void sendPacket(IPacket packet) {
-    Validate.checkNotNull(packet);
-
-    if (this.channel.eventLoop().inEventLoop()) {
-      sendPacket0(packet);
-    } else {
-      this.channel.eventLoop().execute(new Runnable() {
+    private static final Callable<Void> EMPTY_TASK = new Callable<Void>() {
         @Override
-        public void run() {
-          sendPacket0(packet);
+        public Void call() throws Exception {
+            return null;
         }
-      });
+    };
+
+    private static final AtomicLong CHANNEL_ID_COUNTER = new AtomicLong();
+
+    private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
+
+    /*= ------------------------------------------------------------------------------ =*/
+
+    private final Channel channel;
+
+    private final IPacketListenerRegistry packetRegistry;
+
+    private final HostAndPort serverAddress, clientAddress;
+
+    private final boolean clientProvidedChannel;
+
+    @Setter
+    private INetworkChannelHandler handler;
+
+    public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
+                               HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
+        this.channel = channel;
+        this.handler = handler;
+
+        this.serverAddress = serverAddress;
+        this.clientAddress = clientAddress;
+        this.clientProvidedChannel = clientProvidedChannel;
+
+        this.packetRegistry = new DefaultPacketListenerRegistry(packetRegistry);
     }
-  }
 
-  private void sendPacket0(IPacket packet) {
-    this.channel.writeAndFlush(packet, this.channel.voidPromise());
-  }
+    @Override
+    public void sendPacket(IPacket packet) {
+        Validate.checkNotNull(packet);
 
-  @Override
-  public void sendPacket(IPacket... packets) {
-    Validate.checkNotNull(packets);
-
-    for (IPacket packet : packets) {
-      this.sendPacket(packet);
+        if (this.channel.eventLoop().inEventLoop())
+            sendPacket0(packet);
+        else
+            this.channel.eventLoop().execute(new Runnable() {
+                @Override
+                public void run() {
+                    sendPacket0(packet);
+                }
+            });
     }
-  }
 
-  @Override
-  public void close() throws Exception {
-    this.channel.close();
-  }
+    private void sendPacket0(IPacket packet) {
+        this.channel.writeAndFlush(packet, this.channel.voidPromise());
+    }
+
+    @Override
+    public void sendPacket(IPacket... packets) {
+        Validate.checkNotNull(packets);
+
+        for (IPacket packet : packets) this.sendPacket(packet);
+    }
+
+    @Override
+    public void close() throws Exception {
+        this.channel.close();
+    }
 
 }

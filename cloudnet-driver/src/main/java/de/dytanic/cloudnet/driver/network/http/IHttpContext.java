@@ -1,42 +1,43 @@
 package de.dytanic.cloudnet.driver.network.http;
 
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
+
 import java.util.Collection;
 
 public interface IHttpContext {
 
-  IWebSocketChannel upgrade();
+    IWebSocketChannel upgrade();
 
-  IWebSocketChannel webSocketChanel();
+    IWebSocketChannel webSocketChanel();
 
-  IHttpChannel channel();
+    IHttpChannel channel();
 
-  IHttpRequest request();
+    IHttpRequest request();
 
-  IHttpResponse response();
+    IHttpResponse response();
 
-  IHttpHandler peekLast();
+    IHttpHandler peekLast();
 
-  boolean cancelNext();
+    boolean cancelNext();
 
-  IHttpComponent<?> component();
+    IHttpComponent<?> component();
 
-  IHttpContext closeAfter(boolean value);
+    IHttpContext closeAfter(boolean value);
 
-  boolean closeAfter();
+    boolean closeAfter();
 
-  HttpCookie cookie(String name);
+    HttpCookie cookie(String name);
 
-  Collection<HttpCookie> cookies();
+    Collection<HttpCookie> cookies();
 
-  boolean hasCookie(String name);
+    boolean hasCookie(String name);
 
-  IHttpContext setCookies(Collection<HttpCookie> cookies);
+    IHttpContext setCookies(Collection<HttpCookie> cookies);
 
-  IHttpContext addCookie(HttpCookie httpCookie);
+    IHttpContext addCookie(HttpCookie httpCookie);
 
-  IHttpContext removeCookie(String name);
+    IHttpContext removeCookie(String name);
 
-  IHttpContext clearCookies();
+    IHttpContext clearCookies();
 
 }

@@ -1,7 +1,7 @@
 jar {
-  archiveName = cloudnetModuleRestFileName
+    archiveName = cloudnetModuleRestFileName
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
+    compileOnly project(':cloudnet')
 }

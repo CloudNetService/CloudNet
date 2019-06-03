@@ -1,15 +1,15 @@
 repositories {
-  maven {
-    name 'spigotmc'
-    url 'https://repo.md-5.net/service/local/repositories/repobo-rel/content/'
-  }
+    maven {
+        name 'spigotmc'
+        url 'https://repo.md-5.net/service/local/repositories/repobo-rel/content/'
+    }
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
-  compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly project(':cloudnet-modules').project('cloudnet-bridge')
-  compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
-  compileOnly project(':cloudnet-modules').project('cloudnet-signs')
-  compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
+    compileOnly project(':cloudnet')
+    compileOnly project(':cloudnet-wrapper-jvm')
+    compileOnly project(':cloudnet-modules').project('cloudnet-bridge')
+    compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
+    compileOnly project(':cloudnet-modules').project('cloudnet-signs')
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
 }

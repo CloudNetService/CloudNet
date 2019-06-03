@@ -4,14 +4,14 @@ import java.util.Queue;
 
 public interface IServiceConsoleLogCache {
 
-  ICloudService getCloudService();
+    ICloudService getCloudService();
 
-  Queue<String> getCachedLogMessages();
+    Queue<String> getCachedLogMessages();
 
-  IServiceConsoleLogCache update();
+    IServiceConsoleLogCache update();
 
-  boolean isAutoPrintReceivedInput();
+    boolean isAutoPrintReceivedInput();
 
-  void setAutoPrintReceivedInput(boolean value);
+    void setAutoPrintReceivedInput(boolean value);
 
 }

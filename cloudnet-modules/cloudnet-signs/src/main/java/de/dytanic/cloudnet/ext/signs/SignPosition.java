@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignPosition {
 
-  protected double x, y, z, yaw, pitch;
+    protected double x, y, z, yaw, pitch;
 
-  protected String group, world;
+    protected String group, world;
 
 }

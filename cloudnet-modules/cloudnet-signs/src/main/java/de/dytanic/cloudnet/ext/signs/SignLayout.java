@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignLayout {
 
-  protected String[] lines;
+    protected String[] lines;
 
-  protected String blockType;
+    protected String blockType;
 
-  protected int subId;
+    protected int subId;
 
 }

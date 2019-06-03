@@ -6,9 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * The event is called when a new ServiceInfoSnapshot has been created to update
- * this service. With the getProperties() Method by ServiceInfoSnapshot you can
- * added optional properties.
+ * The event is called when a new ServiceInfoSnapshot has been created to update this service.
+ * With the getProperties() Method by ServiceInfoSnapshot you can added optional properties.
  * <p>
  * This Event will called every update with the Wrapper API
  *
@@ -19,10 +18,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ServiceInfoSnapshotConfigureEvent extends Event {
 
-  /**
-   * The new created serviceInfoSnapshot, which was created with the
-   * Wrapper.getInstance().publishServiceInfoUpdate() Method.
-   */
-  private final ServiceInfoSnapshot serviceInfoSnapshot;
+    /**
+     * The new created serviceInfoSnapshot, which was created with the Wrapper.getInstance().publishServiceInfoUpdate()
+     * Method.
+     */
+    private final ServiceInfoSnapshot serviceInfoSnapshot;
 
 }

@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNodeExtensionSnapshot extends
-  BasicJsonDocPropertyable {
+public class NetworkClusterNodeExtensionSnapshot extends BasicJsonDocPropertyable {
 
-  protected String group, name, version, author, website, description;
+    protected String group, name, version, author, website, description;
 
 }

@@ -3,93 +3,80 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
-public final class NettySSLNetworkClientServerTest implements
-  INetworkChannelHandler {
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
-  @Test
-  public void testSslNetworking() throws Exception {
-    SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
+public final class NettySSLNetworkClientServerTest implements INetworkChannelHandler {
 
-    INetworkServer server = new NettyNetworkServer(() -> this,
-      new SSLConfiguration(
-        true,
-        null,
-        selfSignedCertificate.certificate(),
-        selfSignedCertificate.privateKey()
-      ), null);
+    @Test
+    public void testSslNetworking() throws Exception {
+        SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
 
-    INetworkClient client = new NettyNetworkClient(() -> this,
-      new SSLConfiguration(
-        false,
-        null,
-        selfSignedCertificate.certificate(),
-        selfSignedCertificate.privateKey()
-      ), null);
+        INetworkServer server = new NettyNetworkServer(() -> this, new SSLConfiguration(
+                true,
+                null,
+                selfSignedCertificate.certificate(),
+                selfSignedCertificate.privateKey()
+        ), null);
 
-    Assert.assertTrue(server.isSslEnabled());
-    Assert.assertTrue(client.isSslEnabled());
+        INetworkClient client = new NettyNetworkClient(() -> this, new SSLConfiguration(
+                false,
+                null,
+                selfSignedCertificate.certificate(),
+                selfSignedCertificate.privateKey()
+        ), null);
 
-    ITask<String> task = new ListenableTask<>(new Callable<String>() {
-      @Override
-      public String call() throws Exception {
-        return "Hello, world!";
-      }
-    });
+        Assert.assertTrue(server.isSslEnabled());
+        Assert.assertTrue(client.isSslEnabled());
 
-    server.getPacketRegistry().addListener(1, new IPacketListener() {
-      @Override
-      public void handle(INetworkChannel channel, IPacket packet)
-        throws Exception {
-        if (packet.getHeader().contains("hello") && packet.getHeader()
-          .getString("hello").equalsIgnoreCase("Unit test") &&
-          new String(packet.getBody())
-            .equalsIgnoreCase("Test Test Test 1 2 4")) {
-          task.call();
-        }
-      }
-    });
+        ITask<String> task = new ListenableTask<>(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return "Hello, world!";
+            }
+        });
 
-    HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 34052);
+        server.getPacketRegistry().addListener(1, new IPacketListener() {
+            @Override
+            public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+                if (packet.getHeader().contains("hello") && packet.getHeader().getString("hello").equalsIgnoreCase("Unit test") &&
+                        new String(packet.getBody()).equalsIgnoreCase("Test Test Test 1 2 4"))
+                    task.call();
+            }
+        });
 
-    Assert.assertTrue(server.addListener(hostAndPort));
-    Assert.assertTrue(client.connect(hostAndPort));
+        HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 34052);
 
-    Assert.assertEquals("Hello, world!", task.get(5, TimeUnit.SECONDS));
+        Assert.assertTrue(server.addListener(hostAndPort));
+        Assert.assertTrue(client.connect(hostAndPort));
 
-    server.close();
-    client.close();
-  }
+        Assert.assertEquals("Hello, world!", task.get(5, TimeUnit.SECONDS));
 
-  @Override
-  public void handleChannelInitialize(INetworkChannel channel)
-    throws Exception {
-    channel.sendPacket(new Packet(1, new JsonDocument("hello", "Unit test"),
-      "Test Test Test 1 2 4".getBytes()));
-  }
+        server.close();
+        client.close();
+    }
 
-  @Override
-  public boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-    throws Exception {
-    return true;
-  }
+    @Override
+    public void handleChannelInitialize(INetworkChannel channel) throws Exception {
+        channel.sendPacket(new Packet(1, new JsonDocument("hello", "Unit test"), "Test Test Test 1 2 4".getBytes()));
+    }
 
-  @Override
-  public void handleChannelClose(INetworkChannel channel) throws Exception {
+    @Override
+    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) throws Exception {
+        return true;
+    }
 
-  }
+    @Override
+    public void handleChannelClose(INetworkChannel channel) throws Exception {
+
+    }
 }

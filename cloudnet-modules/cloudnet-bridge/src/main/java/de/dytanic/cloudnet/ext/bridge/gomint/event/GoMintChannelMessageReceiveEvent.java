@@ -5,12 +5,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class GoMintChannelMessageReceiveEvent extends
-  GoMintCloudNetEvent {
+public final class GoMintChannelMessageReceiveEvent extends GoMintCloudNetEvent {
 
-  @Getter
-  private final String channel, message;
+    @Getter
+    private final String channel, message;
 
-  @Getter
-  private final JsonDocument data;
+    @Getter
+    private final JsonDocument data;
 }

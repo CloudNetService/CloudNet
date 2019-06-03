@@ -9,8 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class NetworkClusterNode extends BasicJsonDocPropertyable {
 
-  private final String uniqueId;
+    private final String uniqueId;
 
-  private final HostAndPort[] listeners;
+    private final HostAndPort[] listeners;
 
 }

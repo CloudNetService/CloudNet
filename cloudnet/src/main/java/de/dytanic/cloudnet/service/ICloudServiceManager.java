@@ -1,14 +1,7 @@
 package de.dytanic.cloudnet.service;
 
-import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceDeployment;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.service.*;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -18,112 +11,107 @@ import java.util.function.Predicate;
 
 public interface ICloudServiceManager {
 
-  File getTempDirectory();
+    File getTempDirectory();
 
-  File getPersistenceServicesDirectory();
+    File getPersistenceServicesDirectory();
 
-  Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
+    Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
 
-  Map<UUID, ICloudService> getCloudServices();
+    Map<UUID, ICloudService> getCloudServices();
 
-  Map<String, ICloudServiceFactory> getCloudServiceFactories();
+    Map<String, ICloudServiceFactory> getCloudServiceFactories();
 
-  /*= -------------------------------------------------- =*/
+    /*= -------------------------------------------------- =*/
 
-  List<ServiceTask> getServiceTasks();
+    List<ServiceTask> getServiceTasks();
 
-  void addPermanentServiceTask(ServiceTask task);
+    void setServiceTasks(Collection<ServiceTask> tasks);
 
-  void removePermanentServiceTask(ServiceTask task);
+    void addPermanentServiceTask(ServiceTask task);
 
-  void removePermanentServiceTask(String name);
+    void removePermanentServiceTask(ServiceTask task);
 
-  void removeAllPermanentServiceTasks();
+    void removePermanentServiceTask(String name);
 
-  ServiceTask getServiceTask(String name);
+    void removeAllPermanentServiceTasks();
 
-  boolean isTaskPresent(String name);
+    ServiceTask getServiceTask(String name);
 
-  void setServiceTasks(Collection<ServiceTask> tasks);
+    boolean isTaskPresent(String name);
 
-  //-
+    //-
 
-  List<GroupConfiguration> getGroupConfigurations();
+    List<GroupConfiguration> getGroupConfigurations();
 
-  GroupConfiguration getGroupConfiguration(String name);
+    void setGroupConfigurations(Collection<GroupConfiguration> groupConfigurations);
 
-  void addGroupConfiguration(GroupConfiguration groupConfiguration);
+    GroupConfiguration getGroupConfiguration(String name);
 
-  void removeGroupConfiguration(GroupConfiguration groupConfiguration);
+    void addGroupConfiguration(GroupConfiguration groupConfiguration);
 
-  void removeGroupConfiguration(String name);
+    void removeGroupConfiguration(GroupConfiguration groupConfiguration);
 
-  boolean isGroupConfigurationPresent(String group);
+    void removeGroupConfiguration(String name);
 
-  void setGroupConfigurations(
-    Collection<GroupConfiguration> groupConfigurations);
+    boolean isGroupConfigurationPresent(String group);
 
-  //-
+    //-
 
-  ICloudService runTask(ServiceTask serviceTask);
+    ICloudService runTask(ServiceTask serviceTask);
 
-  ICloudService runTask(ServiceConfiguration serviceConfiguration);
+    ICloudService runTask(ServiceConfiguration serviceConfiguration);
 
-  ICloudService runTask(
-    String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    Integer port
-  );
+    ICloudService runTask(
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
+    );
 
-  void startAllCloudServices();
+    void startAllCloudServices();
 
-  void stopAllCloudServices();
+    void stopAllCloudServices();
 
-  void deleteAllCloudServices();
+    void deleteAllCloudServices();
 
-  //-
+    //-
 
-  ICloudService getCloudService(UUID uniqueId);
+    ICloudService getCloudService(UUID uniqueId);
 
-  ICloudService getCloudService(Predicate<ICloudService> predicate);
+    ICloudService getCloudService(Predicate<ICloudService> predicate);
 
-  Collection<ICloudService> getCloudServices(String taskName);
+    Collection<ICloudService> getCloudServices(String taskName);
 
-  Collection<ICloudService> getCloudServices(
-    Predicate<ICloudService> predicate);
+    Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate);
 
-  Collection<ICloudService> getServices();
+    Collection<ICloudService> getServices();
 
-  ServiceInfoSnapshot getServiceInfoSnapshot(UUID uniqueId);
+    ServiceInfoSnapshot getServiceInfoSnapshot(UUID uniqueId);
 
-  ServiceInfoSnapshot getServiceInfoSnapshot(
-    Predicate<ServiceInfoSnapshot> predicate);
+    ServiceInfoSnapshot getServiceInfoSnapshot(Predicate<ServiceInfoSnapshot> predicate);
 
-  Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(String taskName);
+    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(String taskName);
 
-  Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(
-    ServiceEnvironmentType environment);
+    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(ServiceEnvironmentType environment);
 
-  Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(
-    Predicate<ServiceInfoSnapshot> predicate);
+    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(Predicate<ServiceInfoSnapshot> predicate);
 
-  Collection<ServiceInfoSnapshot> getServiceInfoSnapshots();
+    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots();
 
-  Collection<Integer> getReservedTaskIds(String task);
+    Collection<Integer> getReservedTaskIds(String task);
 
-  //-
+    //-
 
-  void reload();
+    void reload();
 
-  int getCurrentUsedHeapMemory();
+    int getCurrentUsedHeapMemory();
 
-  int getCurrentReservedMemory();
+    int getCurrentReservedMemory();
 
 }

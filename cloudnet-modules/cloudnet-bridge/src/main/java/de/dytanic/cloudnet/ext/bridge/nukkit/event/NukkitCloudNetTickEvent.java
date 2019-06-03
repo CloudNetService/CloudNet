@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public final class NukkitCloudNetTickEvent extends NukkitCloudNetEvent {
 
-  @Getter
-  private static final HandlerList handlers = new HandlerList();
+    @Getter
+    private static final HandlerList handlers = new HandlerList();
 
 }

@@ -11,8 +11,8 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public final class CloudNetModule {
 
-  protected final String name;
+    protected final String name;
 
-  protected final String fileName;
+    protected final String fileName;
 
 }

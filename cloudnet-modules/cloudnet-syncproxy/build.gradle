@@ -1,11 +1,11 @@
 jar {
-  archiveName = cloudnetModuleSyncProxyFileName
+    archiveName = cloudnetModuleSyncProxyFileName
 }
 
 dependencies {
-  compile project(':cloudnet')
-  compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly files('../libs/proxprox-1.0-SNAPSHOT.jar')
-  compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
-  compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
+    compile project(':cloudnet')
+    compileOnly project(':cloudnet-wrapper-jvm')
+    compileOnly files('../libs/proxprox-1.0-SNAPSHOT.jar')
+    compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
+    compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
 }

@@ -7,20 +7,19 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.event.HandlerList;
 
 @RequiredArgsConstructor
-public final class BukkitNetworkChannelPacketReceiveEvent extends
-  BukkitCloudNetEvent {
+public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNetEvent {
 
-  @Getter
-  private static HandlerList handlerList = new HandlerList();
+    @Getter
+    private static HandlerList handlerList = new HandlerList();
 
-  @Getter
-  private final INetworkChannel channel;
+    @Getter
+    private final INetworkChannel channel;
 
-  @Getter
-  private final IPacket packet;
+    @Getter
+    private final IPacket packet;
 
-  @Override
-  public HandlerList getHandlers() {
-    return handlerList;
-  }
+    @Override
+    public HandlerList getHandlers() {
+        return handlerList;
+    }
 }

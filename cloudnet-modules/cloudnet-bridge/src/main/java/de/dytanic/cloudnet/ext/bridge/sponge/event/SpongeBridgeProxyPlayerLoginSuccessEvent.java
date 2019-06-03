@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class SpongeBridgeProxyPlayerLoginSuccessEvent extends
-  SpongeBridgeEvent {
+public final class SpongeBridgeProxyPlayerLoginSuccessEvent extends SpongeBridgeEvent {
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkConnectionInfo networkConnectionInfo;
 
 }

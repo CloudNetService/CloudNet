@@ -6,11 +6,10 @@ import lombok.Getter;
 @Getter
 public final class NetworkChannelCloseEvent extends NetworkEvent {
 
-  private final ChannelType channelType;
+    private final ChannelType channelType;
 
-  public NetworkChannelCloseEvent(INetworkChannel channel,
-    ChannelType channelType) {
-    super(channel);
-    this.channelType = channelType;
-  }
+    public NetworkChannelCloseEvent(INetworkChannel channel, ChannelType channelType) {
+        super(channel);
+        this.channelType = channelType;
+    }
 }

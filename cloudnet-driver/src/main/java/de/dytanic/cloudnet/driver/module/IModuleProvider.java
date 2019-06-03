@@ -7,37 +7,36 @@ import java.util.Collection;
 
 public interface IModuleProvider {
 
-  void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
+    IModuleProviderHandler getModuleProviderHandler();
 
-  IModuleProviderHandler getModuleProviderHandler();
+    void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
 
-  void setModuleDependencyLoader(
-    IModuleDependencyLoader moduleDependencyLoader);
+    IModuleDependencyLoader getModuleDependencyLoader();
 
-  IModuleDependencyLoader getModuleDependencyLoader();
+    void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader);
 
-  Collection<IModuleWrapper> getModules();
+    Collection<IModuleWrapper> getModules();
 
-  Collection<IModuleWrapper> getModules(String group);
+    Collection<IModuleWrapper> getModules(String group);
 
-  IModuleWrapper getModule(String name);
+    IModuleWrapper getModule(String name);
 
-  IModuleWrapper loadModule(URL url);
+    IModuleWrapper loadModule(URL url);
 
-  IModuleWrapper loadModule(File file);
+    IModuleWrapper loadModule(File file);
 
-  IModuleWrapper loadModule(Path path);
+    IModuleWrapper loadModule(Path path);
 
-  IModuleProvider loadModule(URL... urls);
+    IModuleProvider loadModule(URL... urls);
 
-  IModuleProvider loadModule(File... files);
+    IModuleProvider loadModule(File... files);
 
-  IModuleProvider loadModule(Path... paths);
+    IModuleProvider loadModule(Path... paths);
 
-  IModuleProvider startAll();
+    IModuleProvider startAll();
 
-  IModuleProvider stopAll();
+    IModuleProvider stopAll();
 
-  IModuleProvider unloadAll();
+    IModuleProvider unloadAll();
 
 }

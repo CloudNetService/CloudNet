@@ -7,17 +7,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements
-  ICancelable {
+public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements ICancelable {
 
-  @Setter
-  private boolean cancelled;
+    private final IPacket packet;
+    @Setter
+    private boolean cancelled;
 
-  private final IPacket packet;
-
-  public NetworkChannelPacketReceiveEvent(INetworkChannel channel,
-    IPacket packet) {
-    super(channel);
-    this.packet = packet;
-  }
+    public NetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+        super(channel);
+        this.packet = packet;
+    }
 }

@@ -4,12 +4,12 @@ import java.lang.reflect.Method;
 
 public interface IModuleTaskEntry {
 
-  IModuleWrapper getModuleWrapper();
+    IModuleWrapper getModuleWrapper();
 
-  IModule getModule();
+    IModule getModule();
 
-  ModuleTask getTaskInfo();
+    ModuleTask getTaskInfo();
 
-  Method getHandler();
+    Method getHandler();
 
 }

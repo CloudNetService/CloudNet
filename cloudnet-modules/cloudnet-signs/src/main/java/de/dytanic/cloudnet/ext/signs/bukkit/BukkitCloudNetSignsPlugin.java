@@ -11,43 +11,38 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
 
-  @Getter
-  private static BukkitCloudNetSignsPlugin instance;
+    @Getter
+    private static BukkitCloudNetSignsPlugin instance;
 
-  public BukkitCloudNetSignsPlugin() {
-    instance = this;
-  }
+    public BukkitCloudNetSignsPlugin() {
+        instance = this;
+    }
 
-  @Override
-  public void onEnable() {
-    new BukkitSignManagement(this);
+    @Override
+    public void onEnable() {
+        new BukkitSignManagement(this);
 
-    Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-    this.initListeners();
-  }
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        this.initListeners();
+    }
 
-  @Override
-  public void onDisable() {
-    CloudNetDriver.getInstance().getEventManager()
-      .unregisterListeners(getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(
-      this.getClass().getClassLoader());
-  }
+    @Override
+    public void onDisable() {
+        CloudNetDriver.getInstance().getEventManager().unregisterListeners(getClassLoader());
+        Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    }
 
-  private void initListeners() {
-    //Commands
-    getCommand("cloudsign").setExecutor(new CommandCloudSign());
-    getCommand("cloudsign").setPermission("cloudnet.command.cloudsign");
-    getCommand("cloudsign").setUsage("/cloudsign create <targetGroup>");
-    getCommand("cloudsign").setDescription(
-      "Add or Removes signs from the provided Group configuration");
+    private void initListeners() {
+        //Commands
+        getCommand("cloudsign").setExecutor(new CommandCloudSign());
+        getCommand("cloudsign").setPermission("cloudnet.command.cloudsign");
+        getCommand("cloudsign").setUsage("/cloudsign create <targetGroup>");
+        getCommand("cloudsign").setDescription("Add or Removes signs from the provided Group configuration");
 
-    //CloudNet listeners
-    CloudNetDriver.getInstance().getEventManager()
-      .registerListener(new BukkitCloudNetSignListener());
+        //CloudNet listeners
+        CloudNetDriver.getInstance().getEventManager().registerListener(new BukkitCloudNetSignListener());
 
-    //Bukkit listeners
-    Bukkit.getPluginManager()
-      .registerEvents(new BukkitSignInteractionListener(), this);
-  }
+        //Bukkit listeners
+        Bukkit.getPluginManager().registerEvents(new BukkitSignInteractionListener(), this);
+    }
 }

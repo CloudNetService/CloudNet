@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 /**
  * The default simple implementation of the IPacket interface. You can create
@@ -22,27 +23,28 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Packet implements IPacket {
 
-  /**
-   * An one length size byte[] for empty packet bodies
-   */
-  public static final byte[] EMPTY_PACKET_BYTE_ARRAY = new byte[]{0};
+    /**
+     * An one length size byte[] for empty packet bodies
+     */
+    public static final byte[] EMPTY_PACKET_BYTE_ARRAY = new byte[]{0};
 
-  protected int channel;
+    protected int channel;
 
-  protected UUID uniqueId;
+    protected UUID uniqueId;
 
-  protected JsonDocument header;
+    protected JsonDocument header;
 
-  protected byte[] body;
+    protected byte[] body;
 
-  public Packet(int channel, JsonDocument header) {
-    this(channel, header, null);
-  }
+    public Packet(int channel, JsonDocument header) {
+        this(channel, header, null);
+    }
 
-  public Packet(int channel, JsonDocument header, byte[] body) {
-    this.channel = channel;
-    this.header = header;
-    this.body = body;
-    this.uniqueId = UUID.randomUUID();
-  }
+    public Packet(int channel, JsonDocument header, byte[] body) {
+        this.channel = channel;
+        this.header = header;
+        this.body = body;
+        this.uniqueId = UUID.randomUUID();
+    }
+
 }

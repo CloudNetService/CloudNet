@@ -8,12 +8,11 @@ import lombok.Getter;
 @Getter
 public final class ModulePreInstallDependencyEvent extends ModuleEvent {
 
-  private final ModuleDependency moduleDependency;
+    private final ModuleDependency moduleDependency;
 
-  public ModulePreInstallDependencyEvent(IModuleProvider moduleProvider,
-    IModuleWrapper module, ModuleDependency moduleDependency) {
-    super(moduleProvider, module);
+    public ModulePreInstallDependencyEvent(IModuleProvider moduleProvider, IModuleWrapper module, ModuleDependency moduleDependency) {
+        super(moduleProvider, module);
 
-    this.moduleDependency = moduleDependency;
-  }
+        this.moduleDependency = moduleDependency;
+    }
 }

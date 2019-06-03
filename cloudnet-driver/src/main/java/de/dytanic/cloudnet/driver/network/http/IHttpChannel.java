@@ -4,8 +4,8 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 
 public interface IHttpChannel extends AutoCloseable {
 
-  HostAndPort serverAddress();
+    HostAndPort serverAddress();
 
-  HostAndPort clientAddress();
+    HostAndPort clientAddress();
 
 }

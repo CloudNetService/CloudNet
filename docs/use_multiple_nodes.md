@@ -23,7 +23,7 @@ cluster add e760a2c3 127.0.0.1 1411
 
 or in config.json
 
-```javascript
+```json
   "cluster": {
     "clusterId": "d5e96e6d-ce98-43fc-a33d-a456eeb43561",
     "nodes": [

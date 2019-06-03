@@ -8,14 +8,13 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class NukkitBridgeProxyPlayerServerSwitchEvent extends
-  NukkitBridgeEvent {
+public final class NukkitBridgeProxyPlayerServerSwitchEvent extends NukkitBridgeEvent {
 
-  @Getter
-  private static final HandlerList handlers = new HandlerList();
+    @Getter
+    private static final HandlerList handlers = new HandlerList();
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkConnectionInfo networkConnectionInfo;
 
-  private final NetworkServiceInfo networkServiceInfo;
+    private final NetworkServiceInfo networkServiceInfo;
 
 }

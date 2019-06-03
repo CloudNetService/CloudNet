@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class ProxProxNetworkClusterNodeInfoUpdateEvent extends
-  ProxProxCloudNetEvent {
+public final class ProxProxNetworkClusterNodeInfoUpdateEvent extends ProxProxCloudNetEvent {
 
-  @Getter
-  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+    @Getter
+    private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 }

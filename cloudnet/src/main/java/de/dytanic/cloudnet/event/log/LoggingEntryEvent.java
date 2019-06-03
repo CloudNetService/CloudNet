@@ -9,5 +9,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class LoggingEntryEvent extends DriverEvent {
 
-  private final LogEntry logEntry;
+    private final LogEntry logEntry;
 }

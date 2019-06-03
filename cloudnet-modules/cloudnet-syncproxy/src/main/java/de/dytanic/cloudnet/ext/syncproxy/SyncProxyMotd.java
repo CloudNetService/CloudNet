@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SyncProxyMotd {
 
-  protected String firstLine, secondLine;
+    protected String firstLine, secondLine;
 
-  protected boolean autoSlot;
+    protected boolean autoSlot;
 
-  protected int autoSlotMaxPlayersDistance;
+    protected int autoSlotMaxPlayersDistance;
 
-  protected String[] playerInfo;
+    protected String[] playerInfo;
 
-  protected String protocolText;
+    protected String protocolText;
 
 }

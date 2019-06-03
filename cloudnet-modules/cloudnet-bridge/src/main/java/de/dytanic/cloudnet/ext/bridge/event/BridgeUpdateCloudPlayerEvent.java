@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class BridgeUpdateCloudPlayerEvent extends DriverEvent {
 
-  private final ICloudPlayer cloudPlayer;
+    private final ICloudPlayer cloudPlayer;
 
 }

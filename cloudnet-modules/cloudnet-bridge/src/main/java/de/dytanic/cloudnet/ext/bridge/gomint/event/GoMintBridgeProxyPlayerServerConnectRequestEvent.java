@@ -7,11 +7,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class GoMintBridgeProxyPlayerServerConnectRequestEvent extends
-  GoMintBridgeEvent {
+public class GoMintBridgeProxyPlayerServerConnectRequestEvent extends GoMintBridgeEvent {
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkConnectionInfo networkConnectionInfo;
 
-  private final NetworkServiceInfo networkServiceInfo;
+    private final NetworkServiceInfo networkServiceInfo;
 
 }

@@ -4,29 +4,21 @@ import java.util.Collection;
 
 public interface IPermissionManagementHandler {
 
-  void handleAddUser(IPermissionManagement permissionManagement,
-    IPermissionUser permissionUser);
+    void handleAddUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser);
 
-  void handleUpdateUser(IPermissionManagement permissionManagement,
-    IPermissionUser permissionUser);
+    void handleUpdateUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser);
 
-  void handleDeleteUser(IPermissionManagement permissionManagement,
-    IPermissionUser permissionUser);
+    void handleDeleteUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser);
 
-  void handleSetUsers(IPermissionManagement permissionManagement,
-    Collection<? extends IPermissionUser> users);
+    void handleSetUsers(IPermissionManagement permissionManagement, Collection<? extends IPermissionUser> users);
 
-  void handleAddGroup(IPermissionManagement permissionManagement,
-    IPermissionGroup permissionGroup);
+    void handleAddGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup);
 
-  void handleUpdateGroup(IPermissionManagement permissionManagement,
-    IPermissionGroup permissionGroup);
+    void handleUpdateGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup);
 
-  void handleDeleteGroup(IPermissionManagement permissionManagement,
-    IPermissionGroup permissionGroup);
+    void handleDeleteGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup);
 
-  void handleSetGroups(IPermissionManagement permissionManagement,
-    Collection<? extends IPermissionGroup> groups);
+    void handleSetGroups(IPermissionManagement permissionManagement, Collection<? extends IPermissionGroup> groups);
 
-  void handleReloaded(IPermissionManagement permissionManagement);
+    void handleReloaded(IPermissionManagement permissionManagement);
 }
