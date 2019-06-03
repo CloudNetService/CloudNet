@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class NetworkClusterNodeInfoConfigureEvent extends DriverEvent {
 
-  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+    private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
 }

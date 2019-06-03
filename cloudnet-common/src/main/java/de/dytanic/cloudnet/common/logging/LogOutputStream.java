@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.common.logging;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Defines a new ByteArrayOutputStream that convert the bytes into a message and
@@ -14,24 +15,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LogOutputStream extends ByteArrayOutputStream {
 
-  /**
-   * The logger for this outputStream
-   */
-  protected final ILogger logger;
+    /**
+     * The logger for this outputStream
+     */
+    protected final ILogger logger;
 
-  /**
-   * The LogLevel in that the logger should log the incoming message
-   */
-  protected final LogLevel logLevel;
+    /**
+     * The LogLevel in that the logger should log the incoming message
+     */
+    protected final LogLevel logLevel;
 
-  @Override
-  public void flush() throws IOException {
-    String input = toString(StandardCharsets.UTF_8.name());
-    this.reset();
+    @Override
+    public void flush() throws IOException
+    {
+        String input = toString(StandardCharsets.UTF_8.name());
+        this.reset();
 
-    if (input != null && !input.isEmpty() && !input
-        .equals(System.lineSeparator())) {
-      logger.log(logLevel, input);
+        if (input != null && !input.isEmpty() && !input.equals(System.lineSeparator()))
+            logger.log(logLevel, input);
     }
-  }
 }

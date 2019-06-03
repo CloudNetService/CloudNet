@@ -11,10 +11,10 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class CommandPreProcessEvent extends Event implements ICancelable {
 
-  private final String commandLine;
+    private final String commandLine;
 
-  private final ICommandSender commandSender;
+    private final ICommandSender commandSender;
 
-  @Setter
-  private boolean cancelled = false;
+    @Setter
+    private boolean cancelled = false;
 }

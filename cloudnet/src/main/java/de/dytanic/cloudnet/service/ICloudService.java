@@ -1,80 +1,75 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceDeployment;
-import de.dytanic.cloudnet.driver.service.ServiceId;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.service.*;
+
 import java.io.File;
 import java.util.List;
 import java.util.Queue;
 
 public interface ICloudService {
 
-  String getRuntime();
+    String getRuntime();
 
-  List<ServiceRemoteInclusion> getIncludes();
+    List<ServiceRemoteInclusion> getIncludes();
 
-  List<ServiceTemplate> getTemplates();
+    List<ServiceTemplate> getTemplates();
 
-  List<ServiceDeployment> getDeployments();
+    List<ServiceDeployment> getDeployments();
 
-  Queue<ServiceRemoteInclusion> getWaitingIncludes();
+    Queue<ServiceRemoteInclusion> getWaitingIncludes();
 
-  Queue<ServiceTemplate> getWaitingTemplates();
+    Queue<ServiceTemplate> getWaitingTemplates();
 
-  List<String> getGroups();
+    List<String> getGroups();
 
-  ServiceLifeCycle getLifeCycle();
+    ServiceLifeCycle getLifeCycle();
 
-  ICloudServiceManager getCloudServiceManager();
+    ICloudServiceManager getCloudServiceManager();
 
-  ServiceConfiguration getServiceConfiguration();
+    ServiceConfiguration getServiceConfiguration();
 
-  ServiceId getServiceId();
+    ServiceId getServiceId();
 
-  String getConnectionKey();
+    String getConnectionKey();
 
-  File getDirectory();
+    File getDirectory();
 
-  void setNetworkChannel(INetworkChannel channel);
+    void setNetworkChannel(INetworkChannel channel);
 
-  INetworkChannel getNetworkChannel();
+    INetworkChannel getNetworkChannel();
 
-  void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot);
+    void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot);
 
-  ServiceInfoSnapshot getServiceInfoSnapshot();
+    ServiceInfoSnapshot getServiceInfoSnapshot();
 
-  ServiceInfoSnapshot getLastServiceInfoSnapshot();
+    ServiceInfoSnapshot getLastServiceInfoSnapshot();
 
-  Process getProcess();
+    Process getProcess();
 
-  void runCommand(String commandLine);
+    void runCommand(String commandLine);
 
-  int getConfiguredMaxHeapMemory();
+    int getConfiguredMaxHeapMemory();
 
-  IServiceConsoleLogCache getServiceConsoleLogCache();
+    IServiceConsoleLogCache getServiceConsoleLogCache();
 
-  /*= ------------------------------------------------------------------- =*/
+    /*= ------------------------------------------------------------------- =*/
 
-  void start() throws Exception;
+    void start() throws Exception;
 
-  void restart() throws Exception;
+    void restart() throws Exception;
 
-  int stop();
+    int stop();
 
-  int kill();
+    int kill();
 
-  void delete();
+    void delete();
 
-  boolean isAlive();
+    boolean isAlive();
 
-  void includeInclusions();
+    void includeInclusions();
 
-  void includeTemplates();
+    void includeTemplates();
 
-  void deployResources();
+    void deployResources();
 }

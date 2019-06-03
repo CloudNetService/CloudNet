@@ -4,7 +4,8 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 public final class CloudServiceUnregisterEvent extends CloudServiceEvent {
 
-  public CloudServiceUnregisterEvent(ServiceInfoSnapshot serviceInfo) {
-    super(serviceInfo);
-  }
+    public CloudServiceUnregisterEvent(ServiceInfoSnapshot serviceInfo)
+    {
+        super(serviceInfo);
+    }
 }

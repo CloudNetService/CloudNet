@@ -12,71 +12,63 @@ import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
+
 import java.util.Collection;
 
 public class ExampleWebSocket {
 
-  private final Collection<IWebSocketChannel> channels = Iterables
-      .newCopyOnWriteArrayList();
+    private final Collection<IWebSocketChannel> channels = Iterables.newCopyOnWriteArrayList();
 
-  @EventListener
-  public void handlePostEventsToWebSocketChannels(Event event) {
-    for (IWebSocketChannel channel : channels) {
-      channel.sendWebSocketFrame(WebSocketFrameType.TEXT,
-          GsonUtil.GSON.toJson(event));
+    @EventListener
+    public void handlePostEventsToWebSocketChannels(Event event)
+    {
+        for (IWebSocketChannel channel : channels)
+            channel.sendWebSocketFrame(WebSocketFrameType.TEXT, GsonUtil.GSON.toJson(event));
     }
-  }
 
-  public void invokeWebSocketChannel() {
-    CloudNet.getInstance().getHttpServer()
-        .registerHandler("/http_websocket_example_path", new IHttpHandler() {
-          @Override
-          public void handle(String path, IHttpContext context)
-              throws Exception {
-            IWebSocketChannel channel = context
-                .upgrade(); //upgraded context to WebSocket
+    public void invokeWebSocketChannel()
+    {
+        CloudNet.getInstance().getHttpServer().registerHandler("/http_websocket_example_path", new IHttpHandler() {
+            @Override
+            public void handle(String path, IHttpContext context) throws Exception
+            {
+                IWebSocketChannel channel = context.upgrade(); //upgraded context to WebSocket
 
-            channels.add(channel);
+                channels.add(channel);
 
-            channel.addListener(
-                new IWebSocketListener() { //Add a listener for received WebSocket channel messages and closing
-                  @Override
-                  public void handle(IWebSocketChannel channel,
-                      WebSocketFrameType type, byte[] bytes) throws Exception {
-                    switch (type) {
-                      case PONG:
-                        channel.sendWebSocketFrame(WebSocketFrameType.TEXT,
-                            new JsonDocument("message", "Hello, world!")
-                                .toString());
-                        break;
-                      case TEXT:
-                        switch (new String(bytes)) {
-                          case "handleClose":
-                            channel.close(200, "invoked close");
-                            break;
+                channel.addListener(new IWebSocketListener() { //Add a listener for received WebSocket channel messages and closing
+                    @Override
+                    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception
+                    {
+                        switch (type)
+                        {
+                            case PONG:
+                                channel.sendWebSocketFrame(WebSocketFrameType.TEXT, new JsonDocument("message", "Hello, world!").toString());
+                                break;
+                            case TEXT:
+                                switch (new String(bytes))
+                                {
+                                    case "handleClose":
+                                        channel.close(200, "invoked close");
+                                        break;
+                                }
+                                break;
                         }
-                        break;
-                    }
-                  }
-
-                  @Override
-                  public void handleClose(IWebSocketChannel channel,
-                      Value<Integer> statusCode,
-                      Value<String> reasonText) //handle the closing output
-                  {
-                    if (!channels.contains(channel)) {
-                      statusCode.setValue(500);
                     }
 
-                    channels.remove(channel);
+                    @Override
+                    public void handleClose(IWebSocketChannel channel, Value<Integer> statusCode, Value<String> reasonText) //handle the closing output
+                    {
+                        if (!channels.contains(channel)) statusCode.setValue(500);
 
-                    System.out.println("I close");
-                  }
+                        channels.remove(channel);
+
+                        System.out.println("I close");
+                    }
                 });
 
-            channel
-                .sendWebSocketFrame(WebSocketFrameType.PING, "Websocket Ping");
-          }
+                channel.sendWebSocketFrame(WebSocketFrameType.PING, "Websocket Ping");
+            }
         });
-  }
+    }
 }

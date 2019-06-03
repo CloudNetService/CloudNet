@@ -12,11 +12,11 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public final class ServiceTaskAddEvent extends Event implements ICancelable {
 
-  private final ICloudServiceManager cloudServiceManager;
+    private final ICloudServiceManager cloudServiceManager;
 
-  private final ServiceTask task;
+    private final ServiceTask task;
 
-  @Setter
-  private boolean cancelled;
+    @Setter
+    private boolean cancelled;
 
 }

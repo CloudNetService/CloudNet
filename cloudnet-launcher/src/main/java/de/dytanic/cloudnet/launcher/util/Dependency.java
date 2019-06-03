@@ -11,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Dependency {
 
-  private final String repository, group, name, version;
+    private final String repository, group, name, version;
 
-  private String classifier;
+    private String classifier;
 
 
 }

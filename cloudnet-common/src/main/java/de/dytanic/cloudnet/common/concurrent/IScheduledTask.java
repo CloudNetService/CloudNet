@@ -2,20 +2,20 @@ package de.dytanic.cloudnet.common.concurrent;
 
 public interface IScheduledTask<V> extends ITask<V> {
 
-  long getTaskId();
+    long getTaskId();
 
-  boolean isRepeatable();
+    boolean isRepeatable();
 
-  long getDelayedTimeStamp();
+    long getDelayedTimeStamp();
 
-  IScheduledTask<V> setDelayMillis(long delayMillis);
+    IScheduledTask<V> setDelayMillis(long delayMillis);
 
-  long getDelayMillis();
+    long getDelayMillis();
 
-  IScheduledTask<V> setRepeatMillis(long repeatMillis);
+    IScheduledTask<V> setRepeatMillis(long repeatMillis);
 
-  long getRepeatMillis();
+    long getRepeatMillis();
 
-  IScheduledTask<V> cancel();
+    IScheduledTask<V> cancel();
 
 }

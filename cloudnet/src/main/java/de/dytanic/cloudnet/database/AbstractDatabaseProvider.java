@@ -1,25 +1,25 @@
 package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.INameable;
-import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class AbstractDatabaseProvider implements INameable,
-    AutoCloseable {
+import java.util.Collection;
 
-  @Getter
-  @Setter
-  protected IDatabaseHandler databaseHandler;
+public abstract class AbstractDatabaseProvider implements INameable, AutoCloseable {
 
-  public abstract boolean init() throws Exception;
+    @Getter
+    @Setter
+    protected IDatabaseHandler databaseHandler;
 
-  public abstract IDatabase getDatabase(String name);
+    public abstract boolean init() throws Exception;
 
-  public abstract boolean containsDatabase(String name);
+    public abstract IDatabase getDatabase(String name);
 
-  public abstract boolean deleteDatabase(String name);
+    public abstract boolean containsDatabase(String name);
 
-  public abstract Collection<String> getDatabaseNames();
+    public abstract boolean deleteDatabase(String name);
+
+    public abstract Collection<String> getDatabaseNames();
 
 }

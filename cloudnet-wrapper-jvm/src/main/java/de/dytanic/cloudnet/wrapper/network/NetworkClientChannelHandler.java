@@ -15,50 +15,43 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
-  @Override
-  public void handleChannelInitialize(INetworkChannel channel)
-      throws Exception {
-    NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(
-        channel, ChannelType.SERVER_CHANNEL);
-    CloudNetDriver.getInstance().getEventManager()
-        .callEvent(networkChannelInitEvent);
+    @Override
+    public void handleChannelInitialize(INetworkChannel channel) throws Exception
+    {
+        NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
+        CloudNetDriver.getInstance().getEventManager().callEvent(networkChannelInitEvent);
 
-    if (networkChannelInitEvent.isCancelled()) {
-      try {
-        channel.close();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      return;
-    }
+        if (networkChannelInitEvent.isCancelled())
+        {
+            try
+            {
+                channel.close();
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            return;
+        }
 
-    networkChannelInitEvent.getChannel()
-        .sendPacket(new PacketClientAuthorization(
+        networkChannelInitEvent.getChannel().sendPacket(new PacketClientAuthorization(
             PacketClientAuthorization.PacketAuthorizationType.WRAPPER_TO_NODE,
             new JsonDocument()
-                .append("connectionKey",
-                    Wrapper.getInstance().getConfig().getConnectionKey())
-                .append("serviceId",
-                    Wrapper.getInstance().getConfig().getServiceConfiguration()
-                        .getServiceId())
+                .append("connectionKey", Wrapper.getInstance().getConfig().getConnectionKey())
+                .append("serviceId", Wrapper.getInstance().getConfig().getServiceConfiguration().getServiceId())
         ));
-  }
-
-  @Override
-  public boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-      throws Exception {
-    if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
-      return false;
     }
 
-    return !CloudNetDriver.getInstance().getEventManager()
-        .callEvent(new NetworkChannelPacketReceiveEvent(channel, packet))
-        .isCancelled();
-  }
+    @Override
+    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) throws Exception
+    {
+        if (InternalSyncPacketChannel.handleIncomingChannel(packet)) return false;
 
-  @Override
-  public void handleChannelClose(INetworkChannel channel) throws Exception {
-    CloudNetDriver.getInstance().getEventManager().callEvent(
-        new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
-  }
+        return !CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+    }
+
+    @Override
+    public void handleChannelClose(INetworkChannel channel) throws Exception
+    {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
+    }
 }

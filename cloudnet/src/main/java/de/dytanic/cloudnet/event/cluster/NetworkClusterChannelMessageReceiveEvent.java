@@ -8,20 +8,20 @@ import lombok.Getter;
 @Getter
 public class NetworkClusterChannelMessageReceiveEvent extends NetworkEvent {
 
-  private final String messageChannel, message;
+    private final String messageChannel, message;
 
-  private final JsonDocument header;
+    private final JsonDocument header;
 
-  private final byte[] body;
+    private final byte[] body;
 
-  public NetworkClusterChannelMessageReceiveEvent(
-      INetworkChannel networkChannel,
-      String channel, String message, JsonDocument header, byte[] body) {
-    super(networkChannel);
+    public NetworkClusterChannelMessageReceiveEvent(INetworkChannel networkChannel,
+                                                    String channel, String message, JsonDocument header, byte[] body)
+    {
+        super(networkChannel);
 
-    this.messageChannel = channel;
-    this.message = message;
-    this.header = header;
-    this.body = body;
-  }
+        this.messageChannel = channel;
+        this.message = message;
+        this.header = header;
+        this.body = body;
+    }
 }

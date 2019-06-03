@@ -1,42 +1,43 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+
 import java.io.File;
 import java.util.EnumMap;
 import java.util.List;
 
 public interface IModuleWrapper {
 
-  EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
+    EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
 
-  IModule getModule();
+    IModule getModule();
 
-  ModuleLifeCycle getModuleLifeCycle();
+    ModuleLifeCycle getModuleLifeCycle();
 
-  IModuleProvider getModuleProvider();
+    IModuleProvider getModuleProvider();
 
-  ModuleConfiguration getModuleConfiguration();
+    ModuleConfiguration getModuleConfiguration();
 
-  JsonDocument getModuleConfigurationSource();
+    JsonDocument getModuleConfigurationSource();
 
-  ClassLoader getClassLoader();
+    ClassLoader getClassLoader();
 
-  IModuleWrapper loadModule();
+    IModuleWrapper loadModule();
 
-  IModuleWrapper startModule();
+    IModuleWrapper startModule();
 
-  IModuleWrapper stopModule();
+    IModuleWrapper stopModule();
 
-  IModuleWrapper unloadModule();
+    IModuleWrapper unloadModule();
 
-  /*= ------------------------------------------------- =*/
+    /*= ------------------------------------------------- =*/
 
-  default File getDataFolder() {
-    return this.getModuleConfigurationSource() != null && this
-        .getModuleConfigurationSource().contains("dataFolder") ?
-        new File(this.getModuleConfigurationSource().getString("dataFolder"))
-        :
+    default File getDataFolder()
+    {
+        return this.getModuleConfigurationSource() != null && this.getModuleConfigurationSource().contains("dataFolder") ?
+            new File(this.getModuleConfigurationSource().getString("dataFolder"))
+            :
             new File("modules/" + this.getModuleConfiguration().getName()
             );
-  }
+    }
 }

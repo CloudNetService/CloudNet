@@ -7,20 +7,18 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.event.service.CloudServiceConsoleLogReceiveEntryEvent;
 
-public final class PacketServerConsoleLogEntryReceiveListener implements
-    IPacketListener {
+public final class PacketServerConsoleLogEntryReceiveListener implements IPacketListener {
 
-  @Override
-  public void handle(INetworkChannel channel, IPacket packet) throws Exception {
-    if (packet.getHeader().contains("command") && packet.getHeader()
-        .getString("command").equals("log_entry_receive")) {
-      CloudNetDriver.getInstance().getEventManager()
-          .callEvent(new CloudServiceConsoleLogReceiveEntryEvent(
-              packet.getHeader()
-                  .get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE),
-              packet.getHeader().getString("messageEntry"),
-              packet.getHeader().getBoolean("errorMessage")
-          ));
+    @Override
+    public void handle(INetworkChannel channel, IPacket packet) throws Exception
+    {
+        if (packet.getHeader().contains("command") && packet.getHeader().getString("command").equals("log_entry_receive"))
+        {
+            CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(
+                packet.getHeader().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE),
+                packet.getHeader().getString("messageEntry"),
+                packet.getHeader().getBoolean("errorMessage")
+            ));
+        }
     }
-  }
 }

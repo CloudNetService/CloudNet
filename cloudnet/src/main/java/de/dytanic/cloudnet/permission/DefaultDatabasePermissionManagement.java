@@ -7,348 +7,336 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import de.dytanic.cloudnet.driver.permission.*;
 import lombok.Getter;
 import lombok.Setter;
 
-public final class DefaultDatabasePermissionManagement implements
-    IPermissionManagement {
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-  private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
+public final class DefaultDatabasePermissionManagement implements IPermissionManagement {
 
-  private final File file = new File(System
-      .getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
+    private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 
-  @Getter
-  private final Map<String, IPermissionGroup> permissionGroupsMap = Maps
-      .newConcurrentHashMap();
+    private final File file = new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
-  @Getter
-  @Setter
-  private IPermissionManagementHandler permissionManagementHandler;
+    @Getter
+    private final Map<String, IPermissionGroup> permissionGroupsMap = Maps.newConcurrentHashMap();
 
-  @Getter
-  private final Callable<AbstractDatabaseProvider> databaseProviderCallable;
+    @Getter
+    @Setter
+    private IPermissionManagementHandler permissionManagementHandler;
 
-  public DefaultDatabasePermissionManagement(
-      Callable<AbstractDatabaseProvider> databaseProviderCallable) {
-    this.databaseProviderCallable = databaseProviderCallable;
+    @Getter
+    private final Callable<AbstractDatabaseProvider> databaseProviderCallable;
 
-    file.getParentFile().mkdirs();
-    loadGroups();
-  }
+    public DefaultDatabasePermissionManagement(Callable<AbstractDatabaseProvider> databaseProviderCallable)
+    {
+        this.databaseProviderCallable = databaseProviderCallable;
 
-  @Override
-  public IPermissionUser addUser(IPermissionUser permissionUser) {
-    Validate.checkNotNull(permissionUser);
-
-    getDatabase().insert(permissionUser.getUniqueId().toString(),
-        new JsonDocument(permissionUser));
-    return permissionUser;
-  }
-
-  @Override
-  public void updateUser(IPermissionUser permissionUser) {
-    Validate.checkNotNull(permissionUser);
-
-    if (permissionManagementHandler != null) {
-      permissionManagementHandler.handleUpdateUser(this, permissionUser);
+        file.getParentFile().mkdirs();
+        loadGroups();
     }
 
-    getDatabase().update(permissionUser.getUniqueId().toString(),
-        new JsonDocument(permissionUser));
-  }
+    @Override
+    public IPermissionUser addUser(IPermissionUser permissionUser)
+    {
+        Validate.checkNotNull(permissionUser);
 
-  @Override
-  public void deleteUser(String name) {
-    Validate.checkNotNull(name);
-
-    for (IPermissionUser permissionUser : getUser(name)) {
-      getDatabase().delete(permissionUser.getUniqueId().toString());
+        getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+        return permissionUser;
     }
-  }
 
-  @Override
-  public void deleteUser(IPermissionUser permissionUser) {
-    Validate.checkNotNull(permissionUser);
+    @Override
+    public void updateUser(IPermissionUser permissionUser)
+    {
+        Validate.checkNotNull(permissionUser);
 
-    getDatabase().delete(permissionUser.getUniqueId().toString());
-  }
+        if (permissionManagementHandler != null) permissionManagementHandler.handleUpdateUser(this, permissionUser);
 
-  @Override
-  public boolean containsUser(UUID uniqueId) {
-    Validate.checkNotNull(uniqueId);
-
-    return getDatabase().contains(uniqueId.toString());
-  }
-
-  @Override
-  public boolean containsUser(String name) {
-    Validate.checkNotNull(name);
-
-    return getUser(name).size() > 0;
-  }
-
-  @Override
-  public IPermissionUser getUser(UUID uniqueId) {
-    Validate.checkNotNull(uniqueId);
-
-    JsonDocument jsonDocument = getDatabase().get(uniqueId.toString());
-
-    if (jsonDocument != null) {
-      IPermissionUser permissionUser = jsonDocument
-          .toInstanceOf(PermissionUser.TYPE);
-
-      if (testPermissionUser(permissionUser)) {
-        updateUser(permissionUser);
-      }
-
-      return permissionUser;
-    } else {
-      return null;
+        getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
     }
-  }
 
-  @Override
-  public List<IPermissionUser> getUser(String name) {
-    Validate.checkNotNull(name);
+    @Override
+    public void deleteUser(String name)
+    {
+        Validate.checkNotNull(name);
 
-    return Iterables.map(getDatabase().get("name", name),
-        new Function<JsonDocument, IPermissionUser>() {
-          @Override
-          public IPermissionUser apply(JsonDocument strings) {
-            IPermissionUser permissionUser = strings
-                .toInstanceOf(PermissionUser.TYPE);
+        for (IPermissionUser permissionUser : getUser(name))
+            getDatabase().delete(permissionUser.getUniqueId().toString());
+    }
 
-            if (testPermissionUser(permissionUser)) {
-              updateUser(permissionUser);
-            }
+    @Override
+    public void deleteUser(IPermissionUser permissionUser)
+    {
+        Validate.checkNotNull(permissionUser);
+
+        getDatabase().delete(permissionUser.getUniqueId().toString());
+    }
+
+    @Override
+    public boolean containsUser(UUID uniqueId)
+    {
+        Validate.checkNotNull(uniqueId);
+
+        return getDatabase().contains(uniqueId.toString());
+    }
+
+    @Override
+    public boolean containsUser(String name)
+    {
+        Validate.checkNotNull(name);
+
+        return getUser(name).size() > 0;
+    }
+
+    @Override
+    public IPermissionUser getUser(UUID uniqueId)
+    {
+        Validate.checkNotNull(uniqueId);
+
+        JsonDocument jsonDocument = getDatabase().get(uniqueId.toString());
+
+        if (jsonDocument != null)
+        {
+            IPermissionUser permissionUser = jsonDocument.toInstanceOf(PermissionUser.TYPE);
+
+            if (testPermissionUser(permissionUser))
+                updateUser(permissionUser);
 
             return permissionUser;
-          }
+        } else
+            return null;
+    }
+
+    @Override
+    public List<IPermissionUser> getUser(String name)
+    {
+        Validate.checkNotNull(name);
+
+        return Iterables.map(getDatabase().get("name", name), new Function<JsonDocument, IPermissionUser>() {
+            @Override
+            public IPermissionUser apply(JsonDocument strings)
+            {
+                IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
+
+                if (testPermissionUser(permissionUser))
+                    updateUser(permissionUser);
+
+                return permissionUser;
+            }
         });
-  }
-
-  @Override
-  public Collection<IPermissionUser> getUsers() {
-    Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
-
-    getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
-      @Override
-      public void accept(String s, JsonDocument strings) {
-        IPermissionUser permissionUser = strings
-            .toInstanceOf(PermissionUser.TYPE);
-        testPermissionUser(permissionUser);
-
-        permissionUsers.add(permissionUser);
-      }
-    });
-
-    return permissionUsers;
-  }
-
-  @Override
-  public void setUsers(Collection<? extends IPermissionUser> users) {
-    Validate.checkNotNull(users);
-
-    getDatabase().clear();
-
-    for (IPermissionUser permissionUser : users) {
-      if (permissionUser != null) {
-        getDatabase().insert(permissionUser.getUniqueId().toString(),
-            new JsonDocument(permissionUser));
-      }
     }
-  }
 
-  @Override
-  public Collection<IPermissionUser> getUserByGroup(String group) {
-    Validate.checkNotNull(group);
+    @Override
+    public Collection<IPermissionUser> getUsers()
+    {
+        Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
 
-    Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
+        getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
+            @Override
+            public void accept(String s, JsonDocument strings)
+            {
+                IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
+                testPermissionUser(permissionUser);
 
-    getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
-      @Override
-      public void accept(String s, JsonDocument strings) {
-        IPermissionUser permissionUser = strings
-            .toInstanceOf(PermissionUser.TYPE);
+                permissionUsers.add(permissionUser);
+            }
+        });
 
-        testPermissionUser(permissionUser);
-        if (permissionUser.inGroup(group)) {
-          permissionUsers.add(permissionUser);
+        return permissionUsers;
+    }
+
+    @Override
+    public void setUsers(Collection<? extends IPermissionUser> users)
+    {
+        Validate.checkNotNull(users);
+
+        getDatabase().clear();
+
+        for (IPermissionUser permissionUser : users)
+            if (permissionUser != null)
+                getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+    }
+
+    @Override
+    public Collection<IPermissionUser> getUserByGroup(String group)
+    {
+        Validate.checkNotNull(group);
+
+        Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
+
+        getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
+            @Override
+            public void accept(String s, JsonDocument strings)
+            {
+                IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
+
+                testPermissionUser(permissionUser);
+                if (permissionUser.inGroup(group)) permissionUsers.add(permissionUser);
+            }
+        });
+
+        return permissionUsers;
+    }
+
+    /*= ------------------------------------------------------------------------ =*/
+
+    @Override
+    public IPermissionGroup addGroup(IPermissionGroup permissionGroup)
+    {
+        Validate.checkNotNull(permissionGroup);
+
+        if (permissionManagementHandler != null) permissionManagementHandler.handleAddGroup(this, permissionGroup);
+
+        testPermissionGroup(permissionGroup);
+        deleteGroup(permissionGroup.getName());
+        permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
+        saveGroups();
+
+        return permissionGroup;
+    }
+
+    @Override
+    public void updateGroup(IPermissionGroup permissionGroup)
+    {
+        Validate.checkNotNull(permissionGroup);
+
+        if (permissionManagementHandler != null) permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
+
+        testPermissionGroup(permissionGroup);
+        permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
+
+        saveGroups();
+    }
+
+    @Override
+    public void deleteGroup(String group)
+    {
+        Validate.checkNotNull(group);
+
+        IPermissionGroup permissionGroup = permissionGroupsMap.remove(group);
+        if (permissionManagementHandler != null) permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+
+        saveGroups();
+    }
+
+    @Override
+    public void deleteGroup(IPermissionGroup group)
+    {
+        Validate.checkNotNull(group);
+
+        deleteGroup(group.getName());
+    }
+
+    @Override
+    public boolean containsGroup(String name)
+    {
+        Validate.checkNotNull(name);
+
+        return this.permissionGroupsMap.containsKey(name);
+    }
+
+    @Override
+    public IPermissionGroup getGroup(String name)
+    {
+        Validate.checkNotNull(name);
+
+        IPermissionGroup permissionGroup = permissionGroupsMap.get(name);
+
+        if (testPermissionGroup(permissionGroup))
+            updateGroup(permissionGroup);
+
+        return permissionGroup;
+    }
+
+    @Override
+    public Collection<IPermissionGroup> getGroups()
+    {
+        for (IPermissionGroup permissionGroup : permissionGroupsMap.values())
+            if (testPermissionGroup(permissionGroup))
+                updateGroup(permissionGroup);
+
+        return permissionGroupsMap.values();
+    }
+
+    @Override
+    public void setGroups(Collection<? extends IPermissionGroup> groups)
+    {
+        Validate.checkNotNull(groups);
+
+        if (permissionManagementHandler != null) permissionManagementHandler.handleSetGroups(this, groups);
+
+        setGroups0(groups);
+    }
+
+    @Override
+    public boolean reload()
+    {
+        loadGroups();
+
+        if (permissionManagementHandler != null) permissionManagementHandler.handleReloaded(this);
+
+        return true;
+    }
+
+    public void setGroups0(Collection<? extends IPermissionGroup> groups)
+    {
+        permissionGroupsMap.clear();
+
+        for (IPermissionGroup group : groups)
+        {
+            testPermissionGroup(group);
+            permissionGroupsMap.put(group.getName(), group);
         }
-      }
-    });
 
-    return permissionUsers;
-  }
-
-  /*= ------------------------------------------------------------------------ =*/
-
-  @Override
-  public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
-    Validate.checkNotNull(permissionGroup);
-
-    if (permissionManagementHandler != null) {
-      permissionManagementHandler.handleAddGroup(this, permissionGroup);
+        saveGroups();
     }
 
-    testPermissionGroup(permissionGroup);
-    deleteGroup(permissionGroup.getName());
-    permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
-    saveGroups();
+    /*= ---------------------------------------------------------------------------- =*/
 
-    return permissionGroup;
-  }
+    private void saveGroups()
+    {
+        List<IPermissionGroup> permissionGroups = Iterables.newArrayList(permissionGroupsMap.values());
+        Collections.sort(permissionGroups);
 
-  @Override
-  public void updateGroup(IPermissionGroup permissionGroup) {
-    Validate.checkNotNull(permissionGroup);
-
-    if (permissionManagementHandler != null) {
-      permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
+        new JsonDocument("groups", permissionGroups).write(file);
     }
 
-    testPermissionGroup(permissionGroup);
-    permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
+    private void loadGroups()
+    {
+        JsonDocument document = JsonDocument.newDocument(file);
 
-    saveGroups();
-  }
+        if (document.contains("groups"))
+        {
+            Collection<PermissionGroup> permissionGroups = document.get("groups", new TypeToken<Collection<PermissionGroup>>() {
+            }.getType());
 
-  @Override
-  public void deleteGroup(String group) {
-    Validate.checkNotNull(group);
+            this.permissionGroupsMap.clear();
 
-    IPermissionGroup permissionGroup = permissionGroupsMap.remove(group);
-    if (permissionManagementHandler != null) {
-      permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+            for (PermissionGroup group : permissionGroups)
+                this.permissionGroupsMap.put(group.getName(), group);
+        }
     }
 
-    saveGroups();
-  }
-
-  @Override
-  public void deleteGroup(IPermissionGroup group) {
-    Validate.checkNotNull(group);
-
-    deleteGroup(group.getName());
-  }
-
-  @Override
-  public boolean containsGroup(String name) {
-    Validate.checkNotNull(name);
-
-    return this.permissionGroupsMap.containsKey(name);
-  }
-
-  @Override
-  public IPermissionGroup getGroup(String name) {
-    Validate.checkNotNull(name);
-
-    IPermissionGroup permissionGroup = permissionGroupsMap.get(name);
-
-    if (testPermissionGroup(permissionGroup)) {
-      updateGroup(permissionGroup);
+    public IDatabase getDatabase()
+    {
+        return getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
     }
 
-    return permissionGroup;
-  }
+    private AbstractDatabaseProvider getDatabaseProvider()
+    {
+        try
+        {
+            return databaseProviderCallable.call();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-  @Override
-  public Collection<IPermissionGroup> getGroups() {
-    for (IPermissionGroup permissionGroup : permissionGroupsMap.values()) {
-      if (testPermissionGroup(permissionGroup)) {
-        updateGroup(permissionGroup);
-      }
+        return null;
     }
-
-    return permissionGroupsMap.values();
-  }
-
-  @Override
-  public void setGroups(Collection<? extends IPermissionGroup> groups) {
-    Validate.checkNotNull(groups);
-
-    if (permissionManagementHandler != null) {
-      permissionManagementHandler.handleSetGroups(this, groups);
-    }
-
-    setGroups0(groups);
-  }
-
-  @Override
-  public boolean reload() {
-    loadGroups();
-
-    if (permissionManagementHandler != null) {
-      permissionManagementHandler.handleReloaded(this);
-    }
-
-    return true;
-  }
-
-  public void setGroups0(Collection<? extends IPermissionGroup> groups) {
-    permissionGroupsMap.clear();
-
-    for (IPermissionGroup group : groups) {
-      testPermissionGroup(group);
-      permissionGroupsMap.put(group.getName(), group);
-    }
-
-    saveGroups();
-  }
-
-  /*= ---------------------------------------------------------------------------- =*/
-
-  private void saveGroups() {
-    List<IPermissionGroup> permissionGroups = Iterables
-        .newArrayList(permissionGroupsMap.values());
-    Collections.sort(permissionGroups);
-
-    new JsonDocument("groups", permissionGroups).write(file);
-  }
-
-  private void loadGroups() {
-    JsonDocument document = JsonDocument.newDocument(file);
-
-    if (document.contains("groups")) {
-      Collection<PermissionGroup> permissionGroups = document
-          .get("groups", new TypeToken<Collection<PermissionGroup>>() {
-          }.getType());
-
-      this.permissionGroupsMap.clear();
-
-      for (PermissionGroup group : permissionGroups) {
-        this.permissionGroupsMap.put(group.getName(), group);
-      }
-    }
-  }
-
-  public IDatabase getDatabase() {
-    return getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
-  }
-
-  private AbstractDatabaseProvider getDatabaseProvider() {
-    try {
-      return databaseProviderCallable.call();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    return null;
-  }
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class HttpCookie {
 
-  protected String name, value, domain, path;
+    protected String name, value, domain, path;
 
-  protected long maxAge;
+    protected long maxAge;
 }

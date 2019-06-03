@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class CloudServicePostStopEvent extends DriverEvent {
 
-  private final ICloudService cloudService;
+    private final ICloudService cloudService;
 
-  private final int exitValue;
+    private final int exitValue;
 
 }

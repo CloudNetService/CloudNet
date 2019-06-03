@@ -5,9 +5,10 @@ import org.junit.Test;
 
 public class ReflectUnsafeTest {
 
-  @Test
-  public void testReflectiveUnsafe() {
-    Assert.assertNotNull(ReflectUnsafe.getUnsafe());
-  }
+    @Test
+    public void testReflectiveUnsafe()
+    {
+        Assert.assertNotNull(ReflectUnsafe.getUnsafe());
+    }
 
 }

@@ -2,22 +2,22 @@ package de.dytanic.cloudnet.console;
 
 public interface IConsole extends AutoCloseable {
 
-  String readLine() throws Exception;
+    String readLine() throws Exception;
 
-  String readLineNoPrompt() throws Exception;
+    String readLineNoPrompt() throws Exception;
 
-  IConsole write(String text);
+    IConsole write(String text);
 
-  IConsole writeLine(String text);
+    IConsole writeLine(String text);
 
-  boolean hasColorSupport();
+    boolean hasColorSupport();
 
-  void setPrompt(String prompt);
+    void setPrompt(String prompt);
 
-  void resetPrompt();
+    void resetPrompt();
 
-  void setScreenName(String name);
+    void setScreenName(String name);
 
-  String getScreenName();
+    String getScreenName();
 
 }

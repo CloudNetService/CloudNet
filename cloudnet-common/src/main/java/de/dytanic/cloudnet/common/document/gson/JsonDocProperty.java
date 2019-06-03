@@ -1,11 +1,12 @@
 package de.dytanic.cloudnet.common.document.gson;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * Created by Tareko on 20.12.2017.
@@ -14,12 +15,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public class JsonDocProperty<E> {
 
-  protected final BiConsumer<E, JsonDocument> appender;
+    protected final BiConsumer<E, JsonDocument> appender;
 
-  protected final Function<JsonDocument, E> resolver;
+    protected final Function<JsonDocument, E> resolver;
 
-  protected final Consumer<JsonDocument> remover;
+    protected final Consumer<JsonDocument> remover;
 
-  protected final Predicate<JsonDocument> tester;
+    protected final Predicate<JsonDocument> tester;
 
 }
