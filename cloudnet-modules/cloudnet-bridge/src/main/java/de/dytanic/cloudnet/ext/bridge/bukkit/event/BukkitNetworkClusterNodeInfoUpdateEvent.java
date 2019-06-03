@@ -6,17 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.event.HandlerList;
 
 @RequiredArgsConstructor
-public final class BukkitNetworkClusterNodeInfoUpdateEvent extends
-    BukkitCloudNetEvent {
+public final class BukkitNetworkClusterNodeInfoUpdateEvent extends BukkitCloudNetEvent {
 
-  @Getter
-  private static HandlerList handlerList = new HandlerList();
+    @Getter
+    private static HandlerList handlerList = new HandlerList();
 
-  @Getter
-  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+    @Getter
+    private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
-  @Override
-  public HandlerList getHandlers() {
-    return handlerList;
-  }
+    @Override
+    public HandlerList getHandlers()
+    {
+        return handlerList;
+    }
 }

@@ -10,36 +10,25 @@ import org.checkerframework.checker.optional.qual.MaybePresent;
 
 public final class CommandCloudNet implements Command {
 
-  @Override
-  public void execute(@MaybePresent CommandSource source,
-      @NonNull @MaybePresent String[] args) {
-    if (!source.hasPermission("cloudnet.command.cloudnet")) {
-      return;
-    }
+    @Override
+    public void execute(@MaybePresent CommandSource source, @NonNull @MaybePresent String[] args)
+    {
+        if (!source.hasPermission("cloudnet.command.cloudnet")) return;
 
-    if (args.length == 0) {
-      source.sendMessage(TextComponent
-          .of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§")
-              + "/cloudnet <command>"));
-      return;
-    }
-
-    StringBuilder stringBuilder = new StringBuilder();
-    for (String arg : args) {
-      stringBuilder.append(arg).append(" ");
-    }
-
-    String[] messages = CloudNetDriver.getInstance()
-        .sendCommandLine(stringBuilder.toString());
-
-    if (messages != null) {
-      for (String message : messages) {
-        if (message != null) {
-          source.sendMessage(TextComponent
-              .of(BridgeConfigurationProvider.load().getPrefix()
-                  .replace("&", "§") + message));
+        if (args.length == 0)
+        {
+            source.sendMessage(TextComponent.of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + "/cloudnet <command>"));
+            return;
         }
-      }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String arg : args) stringBuilder.append(arg).append(" ");
+
+        String[] messages = CloudNetDriver.getInstance().sendCommandLine(stringBuilder.toString());
+
+        if (messages != null)
+            for (String message : messages)
+                if (message != null)
+                    source.sendMessage(TextComponent.of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + message));
     }
-  }
 }

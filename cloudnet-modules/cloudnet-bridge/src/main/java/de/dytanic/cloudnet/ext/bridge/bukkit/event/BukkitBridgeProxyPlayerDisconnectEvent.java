@@ -7,17 +7,17 @@ import org.bukkit.event.HandlerList;
 
 @Getter
 @RequiredArgsConstructor
-public final class BukkitBridgeProxyPlayerDisconnectEvent extends
-    BukkitBridgeEvent {
+public final class BukkitBridgeProxyPlayerDisconnectEvent extends BukkitBridgeEvent {
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkConnectionInfo networkConnectionInfo;
 
-  @Getter
-  private static HandlerList handlerList = new HandlerList();
+    @Getter
+    private static HandlerList handlerList = new HandlerList();
 
-  @Override
-  public HandlerList getHandlers() {
-    return handlerList;
-  }
+    @Override
+    public HandlerList getHandlers()
+    {
+        return handlerList;
+    }
 
 }

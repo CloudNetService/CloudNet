@@ -7,12 +7,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class NukkitBridgeConfigurationUpdateEvent extends
-    NukkitBridgeEvent {
+public final class NukkitBridgeConfigurationUpdateEvent extends NukkitBridgeEvent {
 
-  @Getter
-  private static final HandlerList handlers = new HandlerList();
+    @Getter
+    private static final HandlerList handlers = new HandlerList();
 
-  private final BridgeConfiguration bridgeConfiguration;
+    private final BridgeConfiguration bridgeConfiguration;
 
 }

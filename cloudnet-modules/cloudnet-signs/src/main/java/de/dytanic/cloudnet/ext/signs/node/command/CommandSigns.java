@@ -12,42 +12,41 @@ import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 
 public final class CommandSigns extends Command {
 
-  public CommandSigns() {
-    super("signs", "sign", "cloud-signs");
+    public CommandSigns()
+    {
+        super("signs", "sign", "cloud-signs");
 
-    this.usage = "signs reload";
-    this.permission = "cloudnet.console.command.signs";
-    this.prefix = "cloudnet-signs";
-    this.description = LanguageManager
-        .getMessage("module-signs-command-signs-description");
-  }
-
-  @Override
-  public void execute(ICommandSender sender, String command, String[] args,
-      String commandLine, Properties properties) {
-    if (args.length == 0) {
-      sender.sendMessage(
-          "signs reload"
-      );
-
-      return;
+        this.usage = "signs reload";
+        this.permission = "cloudnet.console.command.signs";
+        this.prefix = "cloudnet-signs";
+        this.description = LanguageManager.getMessage("module-signs-command-signs-description");
     }
 
-    if (args[0].equalsIgnoreCase("reload")) {
-      CloudNetSignsModule.getInstance()
-          .setSignConfiguration(SignConfigurationReaderAndWriter.read(
-              CloudNetSignsModule.getInstance().getConfigurationFile()
-          ));
+    @Override
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
+    {
+        if (args.length == 0)
+        {
+            sender.sendMessage(
+                "signs reload"
+            );
 
-      CloudNetDriver.getInstance().sendChannelMessage(
-          SignConstants.SIGN_CHANNEL_NAME,
-          SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-          new JsonDocument("signConfiguration",
-              CloudNetSignsModule.getInstance().getSignConfiguration())
-      );
+            return;
+        }
 
-      sender.sendMessage(
-          LanguageManager.getMessage("module-signs-command-reload-success"));
+        if (args[0].equalsIgnoreCase("reload"))
+        {
+            CloudNetSignsModule.getInstance().setSignConfiguration(SignConfigurationReaderAndWriter.read(
+                CloudNetSignsModule.getInstance().getConfigurationFile()
+            ));
+
+            CloudNetDriver.getInstance().sendChannelMessage(
+                SignConstants.SIGN_CHANNEL_NAME,
+                SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
+                new JsonDocument("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration())
+            );
+
+            sender.sendMessage(LanguageManager.getMessage("module-signs-command-reload-success"));
+        }
     }
-  }
 }

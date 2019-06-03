@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class VelocityBridgeProxyPlayerLoginSuccessEvent extends
-    VelocityBridgeEvent {
+public final class VelocityBridgeProxyPlayerLoginSuccessEvent extends VelocityBridgeEvent {
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkConnectionInfo networkConnectionInfo;
 
 }

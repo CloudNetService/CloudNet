@@ -6,14 +6,11 @@ import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import org.checkerframework.checker.optional.qual.MaybePresent;
 
-public class VelocityCloudNetCloudPermissionsPermissionProvider implements
-    PermissionProvider {
+public class VelocityCloudNetCloudPermissionsPermissionProvider implements PermissionProvider {
 
-  @Override
-  public @MaybePresent
-  PermissionFunction createFunction(@MaybePresent PermissionSubject subject) {
-    return subject instanceof Player
-        ? new VelocityCloudNetCloudPermissionsPermissionFunction(
-        ((Player) subject).getUniqueId()) : null;
-  }
+    @Override
+    public @MaybePresent PermissionFunction createFunction(@MaybePresent PermissionSubject subject)
+    {
+        return subject instanceof Player ? new VelocityCloudNetCloudPermissionsPermissionFunction(((Player) subject).getUniqueId()) : null;
+    }
 }

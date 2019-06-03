@@ -6,12 +6,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class NukkitCloudServiceDisconnectNetworkEvent extends
-    NukkitCloudNetEvent {
+public final class NukkitCloudServiceDisconnectNetworkEvent extends NukkitCloudNetEvent {
 
-  @Getter
-  private static final HandlerList handlers = new HandlerList();
+    @Getter
+    private static final HandlerList handlers = new HandlerList();
 
-  @Getter
-  private final ServiceInfoSnapshot serviceInfoSnapshot;
+    @Getter
+    private final ServiceInfoSnapshot serviceInfoSnapshot;
 }

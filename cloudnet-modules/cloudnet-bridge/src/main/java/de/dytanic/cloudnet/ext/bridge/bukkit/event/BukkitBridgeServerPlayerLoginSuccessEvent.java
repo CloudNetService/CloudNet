@@ -8,19 +8,19 @@ import org.bukkit.event.HandlerList;
 
 @Getter
 @RequiredArgsConstructor
-public final class BukkitBridgeServerPlayerLoginSuccessEvent extends
-    BukkitBridgeEvent {
+public final class BukkitBridgeServerPlayerLoginSuccessEvent extends BukkitBridgeEvent {
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkConnectionInfo networkConnectionInfo;
 
-  private final NetworkPlayerServerInfo networkPlayerServerInfo;
+    private final NetworkPlayerServerInfo networkPlayerServerInfo;
 
-  @Getter
-  private static HandlerList handlerList = new HandlerList();
+    @Getter
+    private static HandlerList handlerList = new HandlerList();
 
-  @Override
-  public HandlerList getHandlers() {
-    return handlerList;
-  }
+    @Override
+    public HandlerList getHandlers()
+    {
+        return handlerList;
+    }
 
 }

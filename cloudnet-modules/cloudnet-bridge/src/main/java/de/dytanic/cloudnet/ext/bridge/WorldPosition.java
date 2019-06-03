@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WorldPosition {
 
-  protected double x, y, z, yaw, pitch;
+    protected double x, y, z, yaw, pitch;
 
-  protected String world;
+    protected String world;
 
 }

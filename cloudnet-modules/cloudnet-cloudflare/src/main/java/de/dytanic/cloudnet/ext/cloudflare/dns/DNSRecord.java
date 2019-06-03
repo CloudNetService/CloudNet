@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DNSRecord {
 
-  protected String type, name, content;
+    protected String type, name, content;
 
-  protected int ttl;
+    protected int ttl;
 
-  protected boolean proxied;
+    protected boolean proxied;
 
-  protected JsonObject data;
+    protected JsonObject data;
 
 }

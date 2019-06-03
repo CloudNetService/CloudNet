@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class BridgeUpdateCloudOfflinePlayerEvent extends DriverEvent {
 
-  private final ICloudOfflinePlayer cloudOfflinePlayer;
+    private final ICloudOfflinePlayer cloudOfflinePlayer;
 
 }

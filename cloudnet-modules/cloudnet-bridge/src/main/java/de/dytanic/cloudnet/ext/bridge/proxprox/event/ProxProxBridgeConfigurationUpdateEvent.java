@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public final class ProxProxBridgeConfigurationUpdateEvent extends
-    ProxProxBridgeEvent {
+public final class ProxProxBridgeConfigurationUpdateEvent extends ProxProxBridgeEvent {
 
-  private final BridgeConfiguration bridgeConfiguration;
+    private final BridgeConfiguration bridgeConfiguration;
 
 }

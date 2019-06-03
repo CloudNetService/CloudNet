@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class BridgeServerPlayerLoginSuccessEvent extends DriverEvent {
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+    private final NetworkConnectionInfo networkConnectionInfo;
 
-  private final NetworkPlayerServerInfo networkPlayerServerInfo;
+    private final NetworkPlayerServerInfo networkPlayerServerInfo;
 
 }

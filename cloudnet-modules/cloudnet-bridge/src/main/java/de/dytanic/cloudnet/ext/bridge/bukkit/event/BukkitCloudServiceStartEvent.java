@@ -8,14 +8,15 @@ import org.bukkit.event.HandlerList;
 @RequiredArgsConstructor
 public final class BukkitCloudServiceStartEvent extends BukkitCloudNetEvent {
 
-  @Getter
-  private static HandlerList handlerList = new HandlerList();
+    @Getter
+    private static HandlerList handlerList = new HandlerList();
 
-  @Getter
-  private final ServiceInfoSnapshot serviceInfoSnapshot;
+    @Getter
+    private final ServiceInfoSnapshot serviceInfoSnapshot;
 
-  @Override
-  public HandlerList getHandlers() {
-    return handlerList;
-  }
+    @Override
+    public HandlerList getHandlers()
+    {
+        return handlerList;
+    }
 }

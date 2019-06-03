@@ -8,6 +8,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PluginInfo extends BasicJsonDocPropertyable {
 
-  private final String name, version;
+    private final String name, version;
 
 }
