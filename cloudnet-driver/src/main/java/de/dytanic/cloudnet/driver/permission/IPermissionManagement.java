@@ -245,4 +245,29 @@ public interface IPermissionManagement {
 
         return false;
     }
+
+    default Collection<Permission> getAllPermissions(IPermissible permissible) {
+        return this.getAllPermissions(permissible, null);
+    }
+
+    default Collection<Permission> getAllPermissions(IPermissible permissible, String group) {
+        if (permissible == null)
+            return Collections.emptyList();
+
+        Collection<Permission> permissions = new ArrayList<>(permissible.getPermissions());
+        if (group != null && permissible.getGroupPermissions().containsKey(group))
+            permissions.addAll(permissible.getGroupPermissions().get(group));
+        if (permissible instanceof IPermissionGroup) {
+            for (IPermissionGroup extendedGroup : this.getExtendedGroups((IPermissionGroup) permissible)) {
+                permissions.addAll(this.getAllPermissions(extendedGroup, group));
+            }
+        }
+        if (permissible instanceof IPermissionUser) {
+            for (IPermissionGroup permissionGroup : this.getGroups((IPermissionUser) permissible)) {
+                permissions.addAll(this.getAllPermissions(permissionGroup, group));
+            }
+        }
+        return permissions;
+    }
+
 }
