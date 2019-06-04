@@ -55,7 +55,8 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                         new Pair<>("command-hub-already-in-hub", "&cYou are already connected"),
                         new Pair<>("command-hub-no-server-found", "&7Hub server cannot be found"),
                         new Pair<>("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server")
-                )
+                ),
+                true
         ));
 
         if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null)
