@@ -24,6 +24,6 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     private Map<String, String> messages;
 
-    private Boolean logPlayerConnections;
-    
+    private boolean logPlayerConnections;
+
 }

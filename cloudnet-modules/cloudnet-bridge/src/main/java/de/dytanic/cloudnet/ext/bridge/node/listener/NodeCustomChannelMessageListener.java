@@ -18,6 +18,11 @@ import java.io.File;
 import java.util.function.Predicate;
 
 public final class NodeCustomChannelMessageListener {
+    private BridgeConfiguration bridgeConfiguration;
+
+    public NodeCustomChannelMessageListener() {
+        bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
+    }
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event)
@@ -47,8 +52,7 @@ public final class NodeCustomChannelMessageListener {
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeProxyPlayerLoginRequestEvent(networkConnectionInfo));
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-login-request")
                             .replace("%uniqueId%", networkConnectionInfo.getUniqueId() + "")
                             .replace("%name%", networkConnectionInfo.getName() + "")
@@ -62,8 +66,7 @@ public final class NodeCustomChannelMessageListener {
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeProxyPlayerLoginSuccessEvent(networkConnectionInfo));
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-login-success")
                             .replace("%uniqueId%", networkConnectionInfo.getUniqueId() + "")
                             .replace("%name%", networkConnectionInfo.getName() + "")
@@ -81,8 +84,7 @@ public final class NodeCustomChannelMessageListener {
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
                 NetworkServiceInfo networkServiceInfo = event.getData().get("networkServiceInfo", NetworkServiceInfo.class);
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-server-connect-request")
                             .replace("%uniqueId%", networkConnectionInfo.getUniqueId() + "")
                             .replace("%name%", networkConnectionInfo.getName() + "")
@@ -99,8 +101,7 @@ public final class NodeCustomChannelMessageListener {
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
                 NetworkServiceInfo networkServiceInfo = event.getData().get("networkServiceInfo", NetworkServiceInfo.class);
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-server-switch")
                             .replace("%uniqueId%", networkConnectionInfo.getUniqueId() + "")
                             .replace("%name%", networkConnectionInfo.getName() + "")
@@ -116,8 +117,7 @@ public final class NodeCustomChannelMessageListener {
             {
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-disconnect")
                             .replace("%uniqueId%", networkConnectionInfo.getUniqueId() + "")
                             .replace("%name%", networkConnectionInfo.getName() + "")
@@ -134,8 +134,7 @@ public final class NodeCustomChannelMessageListener {
                 NetworkPlayerServerInfo networkPlayerServerInfo = event.getData().get("networkPlayerServerInfo", NetworkPlayerServerInfo.TYPE);
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-request")
                             .replace("%uniqueId%", networkPlayerServerInfo.getUniqueId() + "")
                             .replace("%name%", networkPlayerServerInfo.getName() + "")
@@ -151,8 +150,7 @@ public final class NodeCustomChannelMessageListener {
                 NetworkPlayerServerInfo networkPlayerServerInfo = event.getData().get("networkPlayerServerInfo", NetworkPlayerServerInfo.TYPE);
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-success")
                             .replace("%uniqueId%", networkPlayerServerInfo.getUniqueId() + "")
                             .replace("%name%", networkPlayerServerInfo.getName() + "")
@@ -169,8 +167,7 @@ public final class NodeCustomChannelMessageListener {
                 NetworkPlayerServerInfo networkPlayerServerInfo = event.getData().get("networkPlayerServerInfo", NetworkPlayerServerInfo.TYPE);
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
 
-                BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
-                if(bridgeConfiguration.getLogPlayerConnections() == true) {
+                if(bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-disconnect")
                             .replace("%uniqueId%", networkPlayerServerInfo.getUniqueId() + "")
                             .replace("%name%", networkPlayerServerInfo.getName() + "")
