@@ -31,34 +31,32 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     @Setter
     private BridgeConfiguration bridgeConfiguration;
 
-    public CloudNetBridgeModule()
-    {
+    public CloudNetBridgeModule() {
         instance = this;
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
-    public void createConfiguration()
-    {
+    public void createConfiguration() {
         this.getModuleWrapper().getDataFolder().mkdirs();
 
         this.bridgeConfiguration = getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
-            "&7Cloud &8| &b",
-            Iterables.newArrayList(),
-            Iterables.newArrayList(),
-            Collections.singletonList(
-                new ProxyFallbackConfiguration(
-                    "Proxy",
-                    "Lobby",
-                    Collections.singletonList(new ProxyFallback(1, "Lobby", null))
-                )
-            ),
-            Maps.of(
-                new Pair<>("command-hub-success-connect", "&7You did successfully connect to %server%"),
-                new Pair<>("command-hub-already-in-hub", "&cYou are already connected"),
-                new Pair<>("command-hub-no-server-found", "&7Hub server cannot be found"),
-                new Pair<>("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server")
-            ),
-            true
+                "&7Cloud &8| &b",
+                Iterables.newArrayList(),
+                Iterables.newArrayList(),
+                Collections.singletonList(
+                        new ProxyFallbackConfiguration(
+                                "Proxy",
+                                "Lobby",
+                                Collections.singletonList(new ProxyFallback("Lobby", null, 1))
+                        )
+                ),
+                Maps.of(
+                        new Pair<>("command-hub-success-connect", "&7You did successfully connect to %server%"),
+                        new Pair<>("command-hub-already-in-hub", "&cYou are already connected"),
+                        new Pair<>("command-hub-no-server-found", "&7Hub server cannot be found"),
+                        new Pair<>("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server")
+                ),
+                true
         ));
 
         if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null)
@@ -67,37 +65,32 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
         saveConfig();
     }
 
-    public void writeConfiguration(BridgeConfiguration bridgeConfiguration)
-    {
+    public void writeConfiguration(BridgeConfiguration bridgeConfiguration) {
         getConfig().append("config", bridgeConfiguration);
         saveConfig();
     }
 
     @ModuleTask(order = 36, event = ModuleLifeCycle.STARTED)
-    public void initNodePlayerManager()
-    {
+    public void initNodePlayerManager() {
         new NodePlayerManager("cloudnet_cloud_players");
 
         registerListener(new PlayerManagerListener());
     }
 
     @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
-    public void registerHandlers()
-    {
+    public void registerHandlers() {
         getHttpServer().registerHandler("/api/v1/modules/bridge/config",
-            new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
+                new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
-    public void registerCommands()
-    {
+    public void registerCommands() {
         registerCommand(new CommandReloadBridge());
         registerCommand(new CommandPlayers());
     }
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
-    public void initListeners()
-    {
+    public void initListeners() {
         registerListeners(new NetworkListenerRegisterListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener());
     }
 }
