@@ -30,7 +30,7 @@ public class TaskEntry<T> {
         this.delay = delay;
         this.delayTimeOut = System.currentTimeMillis() + delay;
         this.repeat = repeat;
-        this.future = new TaskEntryFuture<>(this, false);
+        this.future = new TaskEntryFuture<>(false, this);
     }
 
 

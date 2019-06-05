@@ -105,9 +105,12 @@ public final class BungeeCloudNetHelper {
                 String server = null;
 
                 for (ProxyFallback proxyFallback : proxyFallbacks) {
-                    if (proxyFallback.getTask() != null) continue;
-                    if (proxyFallback.getPermission() != null && !proxiedPlayer.hasPermission(proxyFallback.getPermission()))
+                    if (proxyFallback.getTask() == null)
                         continue;
+                    if (proxyFallback.getPermission() != null) {
+                        if (!proxiedPlayer.hasPermission(proxyFallback.getPermission()))
+                            continue;
+                    }
 
                     List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallback.getTask(), currentServer);
 

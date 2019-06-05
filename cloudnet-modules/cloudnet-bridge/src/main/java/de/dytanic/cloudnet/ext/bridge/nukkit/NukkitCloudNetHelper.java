@@ -91,8 +91,6 @@ public final class NukkitCloudNetHelper {
                     @Override
                     public NukkitCloudNetPlayerInfo apply(Player player) {
                         return new NukkitCloudNetPlayerInfo(
-                                player.getUniqueId(),
-                                player.getName(),
                                 player.getHealth(),
                                 player.getMaxHealth(),
                                 player.getFoodData().getLevel(),
@@ -106,7 +104,9 @@ public final class NukkitCloudNetHelper {
                                         player.getPitch(),
                                         player.getLevel().getName()
                                 ),
-                                new HostAndPort(player.getAddress(), player.getPort())
+                                new HostAndPort(player.getAddress(), player.getPort()),
+                                player.getUniqueId(),
+                                player.getName()
                         );
                     }
                 }))

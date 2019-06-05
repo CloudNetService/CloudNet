@@ -31,7 +31,7 @@ public class NettyNetworkClientServerTest {
         Assert.assertTrue(networkServer.addListener(address));
         Assert.assertTrue(networkClient.connect(address));
 
-        Thread.sleep(5);
+        Thread.sleep(50);
         Assert.assertTrue(connectedClient);
         Assert.assertTrue(connectedServer);
 
@@ -41,7 +41,7 @@ public class NettyNetworkClientServerTest {
         networkServer.sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
         networkClient.sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
 
-        Thread.sleep(50);
+        Thread.sleep(500);
 
         Assert.assertNotNull(cliPacketClientReceive);
         Assert.assertNotNull(cliPacketServerReceive);

@@ -116,12 +116,6 @@ public final class GoMintCloudNetHelper {
                             io.gomint.server.entity.EntityPlayer player = (io.gomint.server.entity.EntityPlayer) entityPlayer;
 
                             return new GoMintCloudNetPlayerInfo(
-                                    entityPlayer.getUUID(),
-                                    entityPlayer.isOnline(),
-                                    entityPlayer.getName(),
-                                    entityPlayer.getDeviceInfo().getDeviceName(),
-                                    entityPlayer.getXboxID(),
-                                    entityPlayer.getGamemode().name(),
                                     entityPlayer.getHealth(),
                                     entityPlayer.getMaxHealth(),
                                     entityPlayer.getSaturation(),
@@ -136,7 +130,13 @@ public final class GoMintCloudNetHelper {
                                             location.getPitch(),
                                             location.getWorld().getWorldName()
                                     ),
-                                    new HostAndPort(player.getConnection().getConnection().getAddress())
+                                    new HostAndPort(player.getConnection().getConnection().getAddress()),
+                                    entityPlayer.getUUID(),
+                                    entityPlayer.isOnline(),
+                                    entityPlayer.getName(),
+                                    entityPlayer.getDeviceInfo().getDeviceName(),
+                                    entityPlayer.getXboxID(),
+                                    entityPlayer.getGamemode().name()
                             );
                         }
                     }))

@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -35,8 +36,9 @@ public final class BungeePlayerListener implements Listener {
 
     @EventHandler
     public void handle(ServerConnectEvent event) {
-        if (event.getPlayer().getServer() == null) {
-            String server = BungeeCloudNetHelper.filterServiceForProxiedPlayer(event.getPlayer(), null);
+        ProxiedPlayer proxiedPlayer = event.getPlayer();
+        if (proxiedPlayer.getServer() == null) {
+            String server = BungeeCloudNetHelper.filterServiceForProxiedPlayer(proxiedPlayer, null);
 
             if (server != null && ProxyServer.getInstance().getServers().containsKey(server))
                 event.setTarget(ProxyServer.getInstance().getServerInfo(server));
@@ -45,12 +47,12 @@ public final class BungeePlayerListener implements Listener {
         ServiceInfoSnapshot serviceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getTarget().getName());
 
         if (serviceInfoSnapshot != null) {
-            BridgeHelper.sendChannelMessageProxyServerConnectRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()),
+            BridgeHelper.sendChannelMessageProxyServerConnectRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(proxiedPlayer.getPendingConnection()),
                     new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getServiceId().getName()));
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(100);
             } catch (InterruptedException ignored) {
             }
         }
