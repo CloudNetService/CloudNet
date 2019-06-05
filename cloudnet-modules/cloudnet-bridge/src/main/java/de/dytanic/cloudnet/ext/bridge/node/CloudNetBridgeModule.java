@@ -47,7 +47,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                         new ProxyFallbackConfiguration(
                                 "Proxy",
                                 "Lobby",
-                                Collections.singletonList(new ProxyFallback(1, "Lobby", null))
+                                Collections.singletonList(new ProxyFallback("Lobby", null, 1))
                         )
                 ),
                 Maps.of(
