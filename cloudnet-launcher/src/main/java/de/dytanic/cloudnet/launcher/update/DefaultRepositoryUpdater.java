@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.launcher.update;
 import de.dytanic.cloudnet.launcher.Constants;
 import de.dytanic.cloudnet.launcher.util.CloudNetModule;
 import de.dytanic.cloudnet.launcher.util.IOUtils;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.InputStream;
@@ -11,7 +10,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
 
-@Getter
 public final class DefaultRepositoryUpdater implements IUpdater {
 
     private String url;
@@ -139,5 +137,13 @@ public final class DefaultRepositoryUpdater implements IUpdater {
         urlConnection.setDoOutput(false);
 
         urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public Properties getProperties() {
+        return this.properties;
     }
 }
