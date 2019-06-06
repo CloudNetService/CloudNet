@@ -5,7 +5,7 @@ about: Create an issue which describes a bug of CloudNet
 ---
 
 **Describe the bug**<br>
-<!-- A clear and concise description of what the bug is. Summerize the bug with a few words. -->
+<!-- A clear and concise description of what the bug is. Summarize the bug with a few words. -->
 
 
 **Steps for reproducing**<br>
