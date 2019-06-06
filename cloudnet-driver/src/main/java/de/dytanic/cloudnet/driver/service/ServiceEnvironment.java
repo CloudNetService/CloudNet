@@ -1,10 +1,5 @@
 package de.dytanic.cloudnet.driver.service;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
 public enum ServiceEnvironment {
 
     //Minecraft Server
@@ -43,4 +38,11 @@ public enum ServiceEnvironment {
 
     private final String name;
 
+    private ServiceEnvironment(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
 }

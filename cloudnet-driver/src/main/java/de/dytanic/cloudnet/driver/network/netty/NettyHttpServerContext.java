@@ -12,7 +12,6 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import lombok.Setter;
 
 import java.net.URI;
 import java.util.Collection;
@@ -40,7 +39,6 @@ final class NettyHttpServerContext implements IHttpContext {
 
     protected volatile NettyWebSocketServerChannel webSocketServerChannel;
 
-    @Setter
     protected IHttpHandler lastHandler;
 
     public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri, Map<String, String> pathParameters, HttpRequest httpRequest) {
@@ -226,5 +224,9 @@ final class NettyHttpServerContext implements IHttpContext {
                             return cookie;
                         }
                     })));
+    }
+
+    public void setLastHandler(IHttpHandler lastHandler) {
+        this.lastHandler = lastHandler;
     }
 }

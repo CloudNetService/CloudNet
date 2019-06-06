@@ -1,10 +1,5 @@
 package de.dytanic.cloudnet.driver.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public class ThreadSnapshot {
 
     private long id;
@@ -17,4 +12,31 @@ public class ThreadSnapshot {
 
     private int priority;
 
+    public ThreadSnapshot(long id, String name, Thread.State threadState, boolean daemon, int priority) {
+        this.id = id;
+        this.name = name;
+        this.threadState = threadState;
+        this.daemon = daemon;
+        this.priority = priority;
+    }
+
+    public long getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public Thread.State getThreadState() {
+        return this.threadState;
+    }
+
+    public boolean isDaemon() {
+        return this.daemon;
+    }
+
+    public int getPriority() {
+        return this.priority;
+    }
 }

@@ -19,7 +19,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import lombok.Getter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +31,6 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
 
-    @Getter
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
     protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup(), workerEventLoopGroup = NettyUtils.newEventLoopGroup();
@@ -147,5 +145,9 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
         for (INetworkChannel channel : this.channels)
             channel.sendPacket(packets);
+    }
+
+    public IPacketListenerRegistry getPacketRegistry() {
+        return this.packetRegistry;
     }
 }

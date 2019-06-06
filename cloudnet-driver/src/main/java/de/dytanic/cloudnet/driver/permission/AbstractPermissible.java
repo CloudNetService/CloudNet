@@ -3,23 +3,17 @@ package de.dytanic.cloudnet.driver.permission;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-@Getter
 public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
     protected final long createdTime;
-    @Setter
     protected String name;
-    @Setter
     protected int potency;
-    @Setter
     protected List<Permission> permissions;
 
     protected Map<String, Collection<Permission>> groupPermissions;
@@ -82,5 +76,37 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
         }
 
         return true;
+    }
+
+    public long getCreatedTime() {
+        return this.createdTime;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getPotency() {
+        return this.potency;
+    }
+
+    public List<Permission> getPermissions() {
+        return this.permissions;
+    }
+
+    public Map<String, Collection<Permission>> getGroupPermissions() {
+        return this.groupPermissions;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPotency(int potency) {
+        this.potency = potency;
+    }
+
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
     }
 }

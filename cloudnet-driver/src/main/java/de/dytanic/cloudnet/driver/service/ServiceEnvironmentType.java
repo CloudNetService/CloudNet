@@ -1,10 +1,5 @@
 package de.dytanic.cloudnet.driver.service;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
 public enum ServiceEnvironmentType {
 
     MINECRAFT_SERVER(new ServiceEnvironment[]{
@@ -48,4 +43,31 @@ public enum ServiceEnvironmentType {
 
     private final boolean minecraftJavaProxy, minecraftBedrockProxy, minecraftJavaServer, minecraftBedrockServer;
 
+    private ServiceEnvironmentType(ServiceEnvironment[] environments, boolean minecraftJavaProxy, boolean minecraftBedrockProxy, boolean minecraftJavaServer, boolean minecraftBedrockServer) {
+        this.environments = environments;
+        this.minecraftJavaProxy = minecraftJavaProxy;
+        this.minecraftBedrockProxy = minecraftBedrockProxy;
+        this.minecraftJavaServer = minecraftJavaServer;
+        this.minecraftBedrockServer = minecraftBedrockServer;
+    }
+
+    public ServiceEnvironment[] getEnvironments() {
+        return this.environments;
+    }
+
+    public boolean isMinecraftJavaProxy() {
+        return this.minecraftJavaProxy;
+    }
+
+    public boolean isMinecraftBedrockProxy() {
+        return this.minecraftBedrockProxy;
+    }
+
+    public boolean isMinecraftJavaServer() {
+        return this.minecraftJavaServer;
+    }
+
+    public boolean isMinecraftBedrockServer() {
+        return this.minecraftBedrockServer;
+    }
 }

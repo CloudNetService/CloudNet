@@ -3,14 +3,17 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 final class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
 
     private final NettyNetworkServer nettyNetworkServer;
 
     private final HostAndPort hostAndPort;
+
+    public NettyNetworkServerInitializer(NettyNetworkServer nettyNetworkServer, HostAndPort hostAndPort) {
+        this.nettyNetworkServer = nettyNetworkServer;
+        this.hostAndPort = hostAndPort;
+    }
 
     @Override
     protected void initChannel(Channel ch) throws Exception {

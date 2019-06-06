@@ -1,11 +1,8 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * A response, if a permissible has to check his permission that contains and allow and element
  */
-@RequiredArgsConstructor
 public enum PermissionCheckResult {
 
     /**
@@ -24,6 +21,10 @@ public enum PermissionCheckResult {
     FORBIDDEN(false);
 
     private final boolean value;
+
+    private PermissionCheckResult(boolean value) {
+        this.value = value;
+    }
 
     /**
      * Returns the result as boolean

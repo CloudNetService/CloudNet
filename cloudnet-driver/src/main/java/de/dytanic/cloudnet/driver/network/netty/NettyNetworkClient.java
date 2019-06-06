@@ -21,7 +21,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import lombok.Getter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +30,6 @@ public final class NettyNetworkClient implements INetworkClient {
 
     protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
 
-    @Getter
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
     protected final EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
@@ -161,5 +159,9 @@ public final class NettyNetworkClient implements INetworkClient {
 
         for (INetworkChannel channel : this.channels)
             channel.sendPacket(packets);
+    }
+
+    public IPacketListenerRegistry getPacketRegistry() {
+        return this.packetRegistry;
     }
 }

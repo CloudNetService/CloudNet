@@ -11,16 +11,12 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-@Getter
-@RequiredArgsConstructor
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     private final List<IWebSocketListener> webSocketListeners = Iterables.newCopyOnWriteArrayList();
@@ -30,6 +26,12 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     private final Channel channel;
 
     private final WebSocketServerHandshaker webSocketServerHandshaker;
+
+    public NettyWebSocketServerChannel(IHttpChannel httpChannel, Channel channel, WebSocketServerHandshaker webSocketServerHandshaker) {
+        this.httpChannel = httpChannel;
+        this.channel = channel;
+        this.webSocketServerHandshaker = webSocketServerHandshaker;
+    }
 
     @Override
     public IWebSocketChannel addListener(IWebSocketListener... listeners) {
@@ -145,5 +147,21 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     @Override
     public void close() throws Exception {
         this.close(200, "default closing");
+    }
+
+    public List<IWebSocketListener> getWebSocketListeners() {
+        return this.webSocketListeners;
+    }
+
+    public IHttpChannel getHttpChannel() {
+        return this.httpChannel;
+    }
+
+    public Channel getChannel() {
+        return this.channel;
+    }
+
+    public WebSocketServerHandshaker getWebSocketServerHandshaker() {
+        return this.webSocketServerHandshaker;
     }
 }

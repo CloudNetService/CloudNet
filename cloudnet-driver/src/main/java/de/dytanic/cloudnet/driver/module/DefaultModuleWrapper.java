@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.Getter;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,19 +36,12 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     private static final String MODULE_CONFIG_PATH = "module.json";
     private final EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks = Maps.newEnumMap(ModuleLifeCycle.class);
-    @Getter
     private ModuleLifeCycle moduleLifeCycle = ModuleLifeCycle.UNLOADED;
-    @Getter
     private URL url;
-    @Getter
     private DefaultModule module;
-    @Getter
     private DefaultModuleProvider moduleProvider;
-    @Getter
     private FinalizeURLClassLoader classLoader;
-    @Getter
     private ModuleConfiguration moduleConfiguration;
-    @Getter
     private JsonDocument moduleConfigurationSource;
 
     public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url) throws Exception {
@@ -250,5 +242,33 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                 th.printStackTrace();
             }
         }
+    }
+
+    public ModuleLifeCycle getModuleLifeCycle() {
+        return this.moduleLifeCycle;
+    }
+
+    public URL getUrl() {
+        return this.url;
+    }
+
+    public DefaultModule getModule() {
+        return this.module;
+    }
+
+    public DefaultModuleProvider getModuleProvider() {
+        return this.moduleProvider;
+    }
+
+    public FinalizeURLClassLoader getClassLoader() {
+        return this.classLoader;
+    }
+
+    public ModuleConfiguration getModuleConfiguration() {
+        return this.moduleConfiguration;
+    }
+
+    public JsonDocument getModuleConfigurationSource() {
+        return this.moduleConfigurationSource;
     }
 }

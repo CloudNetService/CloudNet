@@ -14,9 +14,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.util.Collection;
 import java.util.List;
@@ -178,9 +175,6 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     /*= ---------------------------------------------------------- =*/
 
-    @ToString
-    @EqualsAndHashCode
-    @RequiredArgsConstructor
     public class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
 
         public final String path;
@@ -191,11 +185,58 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
         public final int priority;
 
+        public HttpHandlerEntry(String path, IHttpHandler httpHandler, Integer port, int priority) {
+            this.path = path;
+            this.httpHandler = httpHandler;
+            this.port = port;
+            this.priority = priority;
+        }
+
         @Override
         public int compareTo(HttpHandlerEntry httpHandlerEntry) {
             Validate.checkNotNull(httpHandlerEntry);
 
             return this.priority + httpHandlerEntry.priority;
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) return true;
+            if (!(o instanceof HttpHandlerEntry)) return false;
+            final HttpHandlerEntry other = (HttpHandlerEntry) o;
+            if (!other.canEqual((Object) this)) return false;
+            final Object this$path = this.path;
+            final Object other$path = other.path;
+            if (this$path == null ? other$path != null : !this$path.equals(other$path)) return false;
+            final Object this$httpHandler = this.httpHandler;
+            final Object other$httpHandler = other.httpHandler;
+            if (this$httpHandler == null ? other$httpHandler != null : !this$httpHandler.equals(other$httpHandler))
+                return false;
+            final Object this$port = this.port;
+            final Object other$port = other.port;
+            if (this$port == null ? other$port != null : !this$port.equals(other$port)) return false;
+            if (this.priority != other.priority) return false;
+            return true;
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof HttpHandlerEntry;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            final Object $path = this.path;
+            result = result * PRIME + ($path == null ? 43 : $path.hashCode());
+            final Object $httpHandler = this.httpHandler;
+            result = result * PRIME + ($httpHandler == null ? 43 : $httpHandler.hashCode());
+            final Object $port = this.port;
+            result = result * PRIME + ($port == null ? 43 : $port.hashCode());
+            result = result * PRIME + this.priority;
+            return result;
+        }
+
+        public String toString() {
+            return "NettyHttpServer.HttpHandlerEntry(path=" + this.path + ", httpHandler=" + this.httpHandler + ", port=" + this.port + ", priority=" + this.priority + ")";
         }
     }
 }
