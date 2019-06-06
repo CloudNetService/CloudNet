@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
@@ -24,8 +23,11 @@ import java.util.function.Function;
 
 public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
-    @Getter
     private static BukkitCloudNetCloudPermissionsPlugin instance;
+
+    public static BukkitCloudNetCloudPermissionsPlugin getInstance() {
+        return BukkitCloudNetCloudPermissionsPlugin.instance;
+    }
 
     @Override
     public void onLoad() {

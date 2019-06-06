@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.common.logging;
 
-import lombok.Getter;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -10,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * A standard file logger for this LoggingAPI. All important configurations can be made in the constructor
  */
-@Getter
 public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     public static final long SIZE_8MB = 8000000L;
@@ -73,6 +70,34 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
         index = 0;
         printWriter.close();
+    }
+
+    public File getDirectory() {
+        return directory;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public long getMaxBytes() {
+        return maxBytes;
+    }
+
+    public File getEntry() {
+        return entry;
+    }
+
+    public PrintWriter getPrintWriter() {
+        return printWriter;
+    }
+
+    public long getWritternBytes() {
+        return writternBytes;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     private void selectLogFile() {

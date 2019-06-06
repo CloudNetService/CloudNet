@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.*;
-import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.function.Function;
 
 public final class BridgePlayerManager implements IPlayerManager {
 
-    @Getter
     private static final IPlayerManager instance = new BridgePlayerManager();
 
     private static final Type
@@ -28,6 +26,10 @@ public final class BridgePlayerManager implements IPlayerManager {
     }.getType(),
             TYPE_LIST_CLOUD_OFFLINE_PLAYERS = new TypeToken<List<CloudOfflinePlayer>>() {
             }.getType();
+
+    public static IPlayerManager getInstance() {
+        return BridgePlayerManager.instance;
+    }
 
     @Override
     public ICloudPlayer getOnlinePlayer(UUID uniqueId) {

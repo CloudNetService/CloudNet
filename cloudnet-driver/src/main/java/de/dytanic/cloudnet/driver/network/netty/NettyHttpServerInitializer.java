@@ -5,14 +5,17 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
     private final NettyHttpServer nettyHttpServer;
 
     private final HostAndPort hostAndPort;
+
+    public NettyHttpServerInitializer(NettyHttpServer nettyHttpServer, HostAndPort hostAndPort) {
+        this.nettyHttpServer = nettyHttpServer;
+        this.hostAndPort = hostAndPort;
+    }
 
     @Override
     protected void initChannel(Channel ch) throws Exception {

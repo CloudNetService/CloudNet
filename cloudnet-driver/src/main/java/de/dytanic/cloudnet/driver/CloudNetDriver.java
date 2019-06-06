@@ -21,10 +21,6 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,12 +29,8 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
-@Getter
-@RequiredArgsConstructor
 public abstract class CloudNetDriver {
 
-    @Getter
-    @Setter(AccessLevel.PROTECTED)
     private static CloudNetDriver instance;
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
@@ -50,6 +42,18 @@ public abstract class CloudNetDriver {
     protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
     protected final ILogger logger;
     protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
+
+    public CloudNetDriver(ILogger logger) {
+        this.logger = logger;
+    }
+
+    public static CloudNetDriver getInstance() {
+        return CloudNetDriver.instance;
+    }
+
+    protected static void setInstance(CloudNetDriver instance) {
+        CloudNetDriver.instance = instance;
+    }
 
     /*= ------------------------------------------------- =*/
 
@@ -415,5 +419,29 @@ public abstract class CloudNetDriver {
         });
 
         return listenableTask;
+    }
+
+    public IServicesRegistry getServicesRegistry() {
+        return this.servicesRegistry;
+    }
+
+    public IEventManager getEventManager() {
+        return this.eventManager;
+    }
+
+    public IModuleProvider getModuleProvider() {
+        return this.moduleProvider;
+    }
+
+    public ITaskScheduler getTaskScheduler() {
+        return this.taskScheduler;
+    }
+
+    public ILogger getLogger() {
+        return this.logger;
+    }
+
+    public DriverEnvironment getDriverEnvironment() {
+        return this.driverEnvironment;
     }
 }

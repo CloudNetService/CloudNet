@@ -18,20 +18,17 @@ import de.dytanic.cloudnet.ext.smart.listener.CloudServiceListener;
 import de.dytanic.cloudnet.ext.smart.template.TemplateInstaller;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-@Getter
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     private static final Type SMART_SERVICE_TASKS_CONFIGURATIONS = new TypeToken<Collection<SmartServiceTaskConfig>>() {
     }.getType();
 
-    @Getter
     private static CloudNetSmartModule instance;
 
     private final Map<UUID, CloudNetServiceSmartProfile> providedSmartServices = Maps.newConcurrentHashMap();
@@ -42,6 +39,10 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     public CloudNetSmartModule() {
         instance = this;
+    }
+
+    public static CloudNetSmartModule getInstance() {
+        return CloudNetSmartModule.instance;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
@@ -200,5 +201,13 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
         getConfig().append("smartTasks", configs);
         saveConfig();
+    }
+
+    public Map<UUID, CloudNetServiceSmartProfile> getProvidedSmartServices() {
+        return this.providedSmartServices;
+    }
+
+    public Collection<SmartServiceTaskConfig> getSmartServiceTaskConfigurations() {
+        return this.smartServiceTaskConfigurations;
     }
 }

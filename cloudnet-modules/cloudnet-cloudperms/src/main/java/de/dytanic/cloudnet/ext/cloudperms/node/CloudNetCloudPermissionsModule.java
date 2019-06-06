@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.ConfigurationUpdateListener;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -17,8 +16,11 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
     private static final Type LIST_STRING = new TypeToken<List<String>>() {
     }.getType();
 
-    @Getter
     private static CloudNetCloudPermissionsModule instance;
+
+    public static CloudNetCloudPermissionsModule getInstance() {
+        return CloudNetCloudPermissionsModule.instance;
+    }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
     public void init() {

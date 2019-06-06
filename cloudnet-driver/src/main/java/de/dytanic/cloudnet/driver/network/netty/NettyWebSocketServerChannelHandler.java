@@ -5,14 +5,14 @@ import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@Getter
-@RequiredArgsConstructor
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private final NettyWebSocketServerChannel webSocketServerChannel;
+
+    public NettyWebSocketServerChannelHandler(NettyWebSocketServerChannel webSocketServerChannel) {
+        this.webSocketServerChannel = webSocketServerChannel;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) throws Exception {
@@ -54,5 +54,9 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
             frame.content().getBytes(frame.content().readerIndex(), bytes);
             return bytes;
         }
+    }
+
+    public NettyWebSocketServerChannel getWebSocketServerChannel() {
+        return this.webSocketServerChannel;
     }
 }

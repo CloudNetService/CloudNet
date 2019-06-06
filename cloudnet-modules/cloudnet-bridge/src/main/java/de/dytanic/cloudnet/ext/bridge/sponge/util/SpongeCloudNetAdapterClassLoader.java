@@ -1,14 +1,11 @@
 package de.dytanic.cloudnet.ext.bridge.sponge.util;
 
-import lombok.Getter;
-
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
 public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
 
-    @Getter
     private final ClassLoader cloudNetClassLoader, spongeAppClassLoader;
 
     public SpongeCloudNetAdapterClassLoader(ClassLoader cloudNetClassLoader, ClassLoader spongeAppClassLoader, ClassLoader parent) {
@@ -61,4 +58,11 @@ public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
         return url;
     }
 
+    public ClassLoader getCloudNetClassLoader() {
+        return this.cloudNetClassLoader;
+    }
+
+    public ClassLoader getSpongeAppClassLoader() {
+        return this.spongeAppClassLoader;
+    }
 }

@@ -1,14 +1,12 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Collection;
 
-@Data
-@NoArgsConstructor
+@ToString
 @EqualsAndHashCode(callSuper = false)
 abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable {
 
@@ -23,4 +21,32 @@ abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable {
         this.templates = templates;
         this.deployments = deployments;
     }
+
+    public ServiceConfigurationBase() {
+    }
+
+    public Collection<ServiceRemoteInclusion> getIncludes() {
+        return this.includes;
+    }
+
+    public Collection<ServiceTemplate> getTemplates() {
+        return this.templates;
+    }
+
+    public Collection<ServiceDeployment> getDeployments() {
+        return this.deployments;
+    }
+
+    public void setIncludes(Collection<ServiceRemoteInclusion> includes) {
+        this.includes = includes;
+    }
+
+    public void setTemplates(Collection<ServiceTemplate> templates) {
+        this.templates = templates;
+    }
+
+    public void setDeployments(Collection<ServiceDeployment> deployments) {
+        this.deployments = deployments;
+    }
+
 }

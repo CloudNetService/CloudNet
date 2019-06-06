@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -17,12 +15,8 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     protected Collection<DefaultModuleWrapper> moduleWrappers = Iterables.newCopyOnWriteArrayList();
 
-    @Getter
-    @Setter
     protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
 
-    @Getter
-    @Setter
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
     @Override
@@ -154,5 +148,21 @@ public final class DefaultModuleProvider implements IModuleProvider {
             moduleWrapper.unloadModule();
 
         return this;
+    }
+
+    public IModuleProviderHandler getModuleProviderHandler() {
+        return this.moduleProviderHandler;
+    }
+
+    public IModuleDependencyLoader getModuleDependencyLoader() {
+        return this.moduleDependencyLoader;
+    }
+
+    public void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler) {
+        this.moduleProviderHandler = moduleProviderHandler;
+    }
+
+    public void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader) {
+        this.moduleDependencyLoader = moduleDependencyLoader;
     }
 }

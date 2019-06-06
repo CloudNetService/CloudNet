@@ -1,16 +1,38 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class SyncProxyTabList {
 
     protected String header;
 
     protected String footer;
+
+    public SyncProxyTabList(String header, String footer) {
+        this.header = header;
+        this.footer = footer;
+    }
+
+    public SyncProxyTabList() {
+    }
+
+    public String getHeader() {
+        return this.header;
+    }
+
+    public String getFooter() {
+        return this.footer;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public void setFooter(String footer) {
+        this.footer = footer;
+    }
 
 }

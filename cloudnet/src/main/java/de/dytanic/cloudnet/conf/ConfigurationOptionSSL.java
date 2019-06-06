@@ -1,20 +1,29 @@
 package de.dytanic.cloudnet.conf;
 
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.io.File;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class ConfigurationOptionSSL {
 
     private boolean enabled, clientAuth;
 
     private String trustCertificatePath, certificatePath, privateKeyPath;
+
+    public ConfigurationOptionSSL(boolean enabled, boolean clientAuth, String trustCertificatePath, String certificatePath, String privateKeyPath) {
+        this.enabled = enabled;
+        this.clientAuth = clientAuth;
+        this.trustCertificatePath = trustCertificatePath;
+        this.certificatePath = certificatePath;
+        this.privateKeyPath = privateKeyPath;
+    }
+
+    public ConfigurationOptionSSL() {
+    }
 
     public SSLConfiguration toSslConfiguration() {
         return new SSLConfiguration(
@@ -24,4 +33,45 @@ public class ConfigurationOptionSSL {
                 privateKeyPath == null ? null : new File(privateKeyPath)
         );
     }
+
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public boolean isClientAuth() {
+        return this.clientAuth;
+    }
+
+    public String getTrustCertificatePath() {
+        return this.trustCertificatePath;
+    }
+
+    public String getCertificatePath() {
+        return this.certificatePath;
+    }
+
+    public String getPrivateKeyPath() {
+        return this.privateKeyPath;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setClientAuth(boolean clientAuth) {
+        this.clientAuth = clientAuth;
+    }
+
+    public void setTrustCertificatePath(String trustCertificatePath) {
+        this.trustCertificatePath = trustCertificatePath;
+    }
+
+    public void setCertificatePath(String certificatePath) {
+        this.certificatePath = certificatePath;
+    }
+
+    public void setPrivateKeyPath(String privateKeyPath) {
+        this.privateKeyPath = privateKeyPath;
+    }
+
 }

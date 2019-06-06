@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.ext.cloudperms.listener.PermissionsUpdateListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,10 +15,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@Getter
 public final class CloudPermissionsPermissionManagement implements IPermissionManagement {
 
-    @Getter
     private static CloudPermissionsPermissionManagement instance;
 
     private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps.newConcurrentHashMap();
@@ -30,6 +27,10 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
         instance = this;
 
         init();
+    }
+
+    public static CloudPermissionsPermissionManagement getInstance() {
+        return CloudPermissionsPermissionManagement.instance;
     }
 
     private void init() {
@@ -214,5 +215,13 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
 
     private CloudNetDriver getDriver() {
         return CloudNetDriver.getInstance();
+    }
+
+    public Map<String, IPermissionGroup> getCachedPermissionGroups() {
+        return this.cachedPermissionGroups;
+    }
+
+    public Map<UUID, IPermissionUser> getCachedPermissionUsers() {
+        return this.cachedPermissionUsers;
     }
 }

@@ -1,16 +1,12 @@
 package de.dytanic.cloudnet.driver.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.Collection;
 
-@Data
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
 public final class ProcessConfiguration {
 
     protected ServiceEnvironmentType environment;
@@ -18,5 +14,35 @@ public final class ProcessConfiguration {
     protected int maxHeapMemorySize;
 
     protected Collection<String> jvmOptions;
+
+    public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize, Collection<String> jvmOptions) {
+        this.environment = environment;
+        this.maxHeapMemorySize = maxHeapMemorySize;
+        this.jvmOptions = jvmOptions;
+    }
+
+    public ServiceEnvironmentType getEnvironment() {
+        return this.environment;
+    }
+
+    public int getMaxHeapMemorySize() {
+        return this.maxHeapMemorySize;
+    }
+
+    public Collection<String> getJvmOptions() {
+        return this.jvmOptions;
+    }
+
+    public void setEnvironment(ServiceEnvironmentType environment) {
+        this.environment = environment;
+    }
+
+    public void setMaxHeapMemorySize(int maxHeapMemorySize) {
+        this.maxHeapMemorySize = maxHeapMemorySize;
+    }
+
+    public void setJvmOptions(Collection<String> jvmOptions) {
+        this.jvmOptions = jvmOptions;
+    }
 
 }

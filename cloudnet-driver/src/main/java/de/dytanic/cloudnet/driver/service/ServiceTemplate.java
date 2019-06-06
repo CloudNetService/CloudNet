@@ -2,9 +2,7 @@ package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.Validate;
-import lombok.Getter;
 
-@Getter
 public class ServiceTemplate implements INameable {
 
     private final String prefix, name, storage;
@@ -21,5 +19,17 @@ public class ServiceTemplate implements INameable {
 
     public String getTemplatePath() {
         return prefix + "/" + name;
+    }
+
+    public String getPrefix() {
+        return this.prefix;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getStorage() {
+        return this.storage;
     }
 }

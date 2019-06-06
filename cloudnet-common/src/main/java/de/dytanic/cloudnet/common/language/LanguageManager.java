@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.common.language;
 
 import de.dytanic.cloudnet.common.Properties;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,8 +19,6 @@ public final class LanguageManager {
     /**
      * The current language, which the getMessage() method will the message return
      */
-    @Getter
-    @Setter
     private static volatile String language;
 
     private LanguageManager() {
@@ -96,5 +92,13 @@ public final class LanguageManager {
         }
 
         addLanguageFile(language, properties);
+    }
+
+    public static String getLanguage() {
+        return LanguageManager.language;
+    }
+
+    public static void setLanguage(String language) {
+        LanguageManager.language = language;
     }
 }

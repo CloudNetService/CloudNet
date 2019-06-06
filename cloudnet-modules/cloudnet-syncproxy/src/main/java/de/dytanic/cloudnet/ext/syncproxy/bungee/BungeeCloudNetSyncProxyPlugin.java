@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.ext.syncproxy.bungee.listener.BungeeProxyLoginConfigu
 import de.dytanic.cloudnet.ext.syncproxy.bungee.listener.BungeeProxyTabListConfigurationImplListener;
 import de.dytanic.cloudnet.ext.syncproxy.bungee.listener.BungeeSyncProxyCloudNetListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -26,12 +25,10 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Getter
 public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-    @Getter
     private static BungeeCloudNetSyncProxyPlugin instance;
 
     /*= ---------------------------------------------------------------------- =*/
@@ -46,6 +43,10 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
 
     public BungeeCloudNetSyncProxyPlugin() {
         instance = this;
+    }
+
+    public static BungeeCloudNetSyncProxyPlugin getInstance() {
+        return BungeeCloudNetSyncProxyPlugin.instance;
     }
 
     @Override
@@ -216,5 +217,21 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                     getOnlineCountOfProxies().put(serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getProperties().getInt(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
         }
+    }
+
+    public Map<UUID, Integer> getOnlineCountOfProxies() {
+        return this.onlineCountOfProxies;
+    }
+
+    public AtomicInteger getTabListEntryIndex() {
+        return this.tabListEntryIndex;
+    }
+
+    public String getTabListHeader() {
+        return this.tabListHeader;
+    }
+
+    public String getTabListFooter() {
+        return this.tabListFooter;
     }
 }

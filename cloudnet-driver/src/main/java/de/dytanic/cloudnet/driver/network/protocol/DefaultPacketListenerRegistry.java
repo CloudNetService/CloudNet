@@ -4,24 +4,24 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.*;
 
 /**
  * Default IPacketListenerRegistry implementation
  */
-@RequiredArgsConstructor
 public final class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
 
     private final Map<Integer, List<IPacketListener>> listeners = Maps.newConcurrentHashMap();
 
-    @Getter
     private final IPacketListenerRegistry parent;
 
     public DefaultPacketListenerRegistry() {
         this.parent = null;
+    }
+
+    public DefaultPacketListenerRegistry(IPacketListenerRegistry parent) {
+        this.parent = parent;
     }
 
     @Override
@@ -108,5 +108,9 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+    }
+
+    public IPacketListenerRegistry getParent() {
+        return this.parent;
     }
 }

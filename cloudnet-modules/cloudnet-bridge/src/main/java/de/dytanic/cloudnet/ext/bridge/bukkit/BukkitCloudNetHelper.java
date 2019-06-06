@@ -18,8 +18,6 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,20 +33,14 @@ import java.util.function.Function;
 
 public final class BukkitCloudNetHelper {
 
-    @Getter
-    @Setter
     private static volatile String
             apiMotd = Bukkit.getMotd(),
             extra = "",
             state = "LOBBY";
 
-    @Getter
-    @Setter
     private static volatile int
             maxPlayers = Bukkit.getMaxPlayers();
 
-    @Setter
-    @Getter
     private static JavaPlugin plugin;
 
     //*= ----------------------------------------------------------------
@@ -289,5 +281,45 @@ public final class BukkitCloudNetHelper {
         }
 
         return 20D;
+    }
+
+    public static String getApiMotd() {
+        return BukkitCloudNetHelper.apiMotd;
+    }
+
+    public static String getExtra() {
+        return BukkitCloudNetHelper.extra;
+    }
+
+    public static String getState() {
+        return BukkitCloudNetHelper.state;
+    }
+
+    public static int getMaxPlayers() {
+        return BukkitCloudNetHelper.maxPlayers;
+    }
+
+    public static JavaPlugin getPlugin() {
+        return BukkitCloudNetHelper.plugin;
+    }
+
+    public static void setApiMotd(String apiMotd) {
+        BukkitCloudNetHelper.apiMotd = apiMotd;
+    }
+
+    public static void setExtra(String extra) {
+        BukkitCloudNetHelper.extra = extra;
+    }
+
+    public static void setState(String state) {
+        BukkitCloudNetHelper.state = state;
+    }
+
+    public static void setMaxPlayers(int maxPlayers) {
+        BukkitCloudNetHelper.maxPlayers = maxPlayers;
+    }
+
+    public static void setPlugin(JavaPlugin plugin) {
+        BukkitCloudNetHelper.plugin = plugin;
     }
 }

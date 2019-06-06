@@ -16,8 +16,6 @@ import de.dytanic.cloudnet.ext.signs.node.http.V1SignConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.signs.node.listener.CloudNetSignsModuleListener;
 import de.dytanic.cloudnet.ext.signs.node.listener.IncludePluginListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.util.Collection;
@@ -27,18 +25,18 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
 
     private static final String SIGN_STORE_DOCUMENT = "signs_store";
 
-    @Getter
     private static CloudNetSignsModule instance;
 
-    @Getter
-    @Setter
     private SignConfiguration signConfiguration;
 
-    @Getter
     private File configurationFile;
 
     public CloudNetSignsModule() {
         instance = this;
+    }
+
+    public static CloudNetSignsModule getInstance() {
+        return CloudNetSignsModule.instance;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
@@ -108,5 +106,17 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
             document = new JsonDocument();
 
         database.update(SIGN_STORE_DOCUMENT, document.append("signs", signs));
+    }
+
+    public SignConfiguration getSignConfiguration() {
+        return this.signConfiguration;
+    }
+
+    public File getConfigurationFile() {
+        return this.configurationFile;
+    }
+
+    public void setSignConfiguration(SignConfiguration signConfiguration) {
+        this.signConfiguration = signConfiguration;
     }
 }

@@ -1,14 +1,12 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class SyncProxyProxyLoginConfiguration {
 
     protected String targetGroup;
@@ -22,5 +20,65 @@ public class SyncProxyProxyLoginConfiguration {
     protected List<SyncProxyMotd> motds;
 
     protected List<SyncProxyMotd> maintenanceMotds;
+
+    public SyncProxyProxyLoginConfiguration(String targetGroup, boolean maintenance, int maxPlayers, List<String> whitelist, List<SyncProxyMotd> motds, List<SyncProxyMotd> maintenanceMotds) {
+        this.targetGroup = targetGroup;
+        this.maintenance = maintenance;
+        this.maxPlayers = maxPlayers;
+        this.whitelist = whitelist;
+        this.motds = motds;
+        this.maintenanceMotds = maintenanceMotds;
+    }
+
+    public SyncProxyProxyLoginConfiguration() {
+    }
+
+    public String getTargetGroup() {
+        return this.targetGroup;
+    }
+
+    public boolean isMaintenance() {
+        return this.maintenance;
+    }
+
+    public int getMaxPlayers() {
+        return this.maxPlayers;
+    }
+
+    public List<String> getWhitelist() {
+        return this.whitelist;
+    }
+
+    public List<SyncProxyMotd> getMotds() {
+        return this.motds;
+    }
+
+    public List<SyncProxyMotd> getMaintenanceMotds() {
+        return this.maintenanceMotds;
+    }
+
+    public void setTargetGroup(String targetGroup) {
+        this.targetGroup = targetGroup;
+    }
+
+    public void setMaintenance(boolean maintenance) {
+        this.maintenance = maintenance;
+    }
+
+    public void setMaxPlayers(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
+    }
+
+    public void setWhitelist(List<String> whitelist) {
+        this.whitelist = whitelist;
+    }
+
+    public void setMotds(List<SyncProxyMotd> motds) {
+        this.motds = motds;
+    }
+
+    public void setMaintenanceMotds(List<SyncProxyMotd> maintenanceMotds) {
+        this.maintenanceMotds = maintenanceMotds;
+    }
 
 }

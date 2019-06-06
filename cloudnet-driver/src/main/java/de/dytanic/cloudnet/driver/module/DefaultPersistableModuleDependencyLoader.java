@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,7 +9,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
-@Getter
 public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
 
     protected File baseDirectory;
@@ -55,5 +53,9 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
         }
 
         return destFile.toURI().toURL();
+    }
+
+    public File getBaseDirectory() {
+        return this.baseDirectory;
     }
 }

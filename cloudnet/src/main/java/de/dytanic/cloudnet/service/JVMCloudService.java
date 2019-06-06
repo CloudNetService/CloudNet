@@ -18,8 +18,6 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.service.*;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.*;
 import java.net.URL;
@@ -33,7 +31,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
 import java.util.jar.JarFile;
 
-@Getter
 final class JVMCloudService implements ICloudService {
 
     private static final String runtime = "jvm";
@@ -76,7 +73,6 @@ final class JVMCloudService implements ICloudService {
 
     /*= --------------------------------------------------------------------- =*/
 
-    @Setter
     private volatile INetworkChannel networkChannel;
 
     private volatile ServiceInfoSnapshot serviceInfoSnapshot, lastServiceInfoSnapshot;
@@ -894,5 +890,81 @@ final class JVMCloudService implements ICloudService {
             storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
         return storage;
+    }
+
+    public List<ServiceDeployment> getDeployments() {
+        return this.deployments;
+    }
+
+    public Queue<ServiceRemoteInclusion> getWaitingIncludes() {
+        return this.waitingIncludes;
+    }
+
+    public Queue<ServiceTemplate> getWaitingTemplates() {
+        return this.waitingTemplates;
+    }
+
+    public DefaultServiceConsoleLogCache getServiceConsoleLogCache() {
+        return this.serviceConsoleLogCache;
+    }
+
+    public List<String> getGroups() {
+        return this.groups;
+    }
+
+    public Lock getLifeCycleLock() {
+        return this.lifeCycleLock;
+    }
+
+    public ServiceLifeCycle getLifeCycle() {
+        return this.lifeCycle;
+    }
+
+    public ICloudServiceManager getCloudServiceManager() {
+        return this.cloudServiceManager;
+    }
+
+    public ServiceConfiguration getServiceConfiguration() {
+        return this.serviceConfiguration;
+    }
+
+    public ServiceId getServiceId() {
+        return this.serviceId;
+    }
+
+    public File getDirectory() {
+        return this.directory;
+    }
+
+    public String getConnectionKey() {
+        return this.connectionKey;
+    }
+
+    public int getConfiguredMaxHeapMemory() {
+        return this.configuredMaxHeapMemory;
+    }
+
+    public INetworkChannel getNetworkChannel() {
+        return this.networkChannel;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
+    }
+
+    public ServiceInfoSnapshot getLastServiceInfoSnapshot() {
+        return this.lastServiceInfoSnapshot;
+    }
+
+    public Process getProcess() {
+        return this.process;
+    }
+
+    public boolean isRestartState() {
+        return this.restartState;
+    }
+
+    public void setNetworkChannel(INetworkChannel networkChannel) {
+        this.networkChannel = networkChannel;
     }
 }

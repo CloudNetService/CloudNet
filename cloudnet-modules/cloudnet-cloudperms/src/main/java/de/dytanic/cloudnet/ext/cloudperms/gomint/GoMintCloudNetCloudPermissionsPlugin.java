@@ -10,20 +10,21 @@ import io.gomint.entity.EntityPlayer;
 import io.gomint.plugin.Plugin;
 import io.gomint.plugin.PluginName;
 import io.gomint.plugin.Version;
-import lombok.Getter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-@Getter
 @PluginName("CloudNet-CloudPerms")
 @Version(major = 1, minor = 0)
 public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
 
-    @Getter
     private static GoMintCloudNetCloudPermissionsPlugin instance;
+
+    public static GoMintCloudNetCloudPermissionsPlugin getInstance() {
+        return GoMintCloudNetCloudPermissionsPlugin.instance;
+    }
 
     @Override
     public void onInstall() {

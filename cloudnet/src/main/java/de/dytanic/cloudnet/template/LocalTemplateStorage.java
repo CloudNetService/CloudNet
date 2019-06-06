@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Function;
 
-@Getter
 public final class LocalTemplateStorage implements ITemplateStorage {
 
     public static final String LOCAL_TEMPLATE_STORAGE = "local";
@@ -191,5 +189,9 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public void close() throws Exception {
+    }
+
+    public File getStorageDirectory() {
+        return this.storageDirectory;
     }
 }

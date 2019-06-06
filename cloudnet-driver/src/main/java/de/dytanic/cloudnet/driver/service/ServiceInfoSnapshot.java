@@ -3,14 +3,13 @@ package de.dytanic.cloudnet.driver.service;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.lang.reflect.Type;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@ToString
+@EqualsAndHashCode
 public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
@@ -22,15 +21,64 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
 
     protected HostAndPort address;
 
-    @Setter
     protected boolean connected;
 
-    @Setter
     protected ServiceLifeCycle lifeCycle;
 
-    @Setter
     protected ProcessSnapshot processSnapshot;
 
     protected ServiceConfiguration configuration;
 
+    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+        this.creationTime = creationTime;
+        this.serviceId = serviceId;
+        this.address = address;
+        this.connected = connected;
+        this.lifeCycle = lifeCycle;
+        this.processSnapshot = processSnapshot;
+        this.configuration = configuration;
+    }
+
+    public ServiceInfoSnapshot() {
+    }
+
+    public long getCreationTime() {
+        return this.creationTime;
+    }
+
+    public ServiceId getServiceId() {
+        return this.serviceId;
+    }
+
+    public HostAndPort getAddress() {
+        return this.address;
+    }
+
+    public boolean isConnected() {
+        return this.connected;
+    }
+
+    public ServiceLifeCycle getLifeCycle() {
+        return this.lifeCycle;
+    }
+
+    public ProcessSnapshot getProcessSnapshot() {
+        return this.processSnapshot;
+    }
+
+    public ServiceConfiguration getConfiguration() {
+        return this.configuration;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
+    public void setLifeCycle(ServiceLifeCycle lifeCycle) {
+        this.lifeCycle = lifeCycle;
+    }
+
+    public void setProcessSnapshot(ProcessSnapshot processSnapshot) {
+        this.processSnapshot = processSnapshot;
+    }
 }

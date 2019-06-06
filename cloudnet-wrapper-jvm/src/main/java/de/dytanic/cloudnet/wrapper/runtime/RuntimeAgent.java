@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.wrapper.runtime;
 
-import lombok.Getter;
-
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -14,7 +12,6 @@ public final class RuntimeAgent {
      *
      * @see Instrumentation
      */
-    @Getter
     private static Instrumentation instrumentation;
 
     /**
@@ -22,5 +19,9 @@ public final class RuntimeAgent {
      */
     public static void premain(String string, Instrumentation inst) {
         instrumentation = inst;
+    }
+
+    public static Instrumentation getInstrumentation() {
+        return RuntimeAgent.instrumentation;
     }
 }

@@ -1,8 +1,5 @@
 package de.dytanic.cloudnet.common.logging;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 /**
  * Represents a full log record from the logger.
  * Important for the most loggers are the following information
@@ -13,8 +10,6 @@ import lombok.RequiredArgsConstructor;
  * <li>thread: the Thread in that the record was created</li>
  * </ol>
  */
-@Getter
-@RequiredArgsConstructor
 public class LogEntry {
 
     /**
@@ -54,4 +49,37 @@ public class LogEntry {
      * The Thread instance in that the LogEntry was created
      */
     protected final Thread thread;
+
+    public LogEntry(long timeStamp, Class<?> clazz, String[] messages, LogLevel logLevel, Throwable throwable, Thread thread) {
+        this.timeStamp = timeStamp;
+        this.clazz = clazz;
+        this.messages = messages;
+        this.logLevel = logLevel;
+        this.throwable = throwable;
+        this.thread = thread;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
+    public String[] getMessages() {
+        return messages;
+    }
+
+    public LogLevel getLogLevel() {
+        return logLevel;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    public Thread getThread() {
+        return thread;
+    }
 }

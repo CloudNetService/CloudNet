@@ -2,11 +2,7 @@ package de.dytanic.cloudnet.event.service;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@Getter
-@RequiredArgsConstructor
 public final class CloudServiceConsoleLogReceiveEntryEvent extends DriverEvent {
 
     private final ServiceInfoSnapshot serviceInfoSnapshot;
@@ -15,4 +11,21 @@ public final class CloudServiceConsoleLogReceiveEntryEvent extends DriverEvent {
 
     private final boolean errorMessage;
 
+    public CloudServiceConsoleLogReceiveEntryEvent(ServiceInfoSnapshot serviceInfoSnapshot, String message, boolean errorMessage) {
+        this.serviceInfoSnapshot = serviceInfoSnapshot;
+        this.message = message;
+        this.errorMessage = errorMessage;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
+    }
+
+    public String getMessage() {
+        return this.message;
+    }
+
+    public boolean isErrorMessage() {
+        return this.errorMessage;
+    }
 }

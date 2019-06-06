@@ -5,17 +5,19 @@ import de.dytanic.cloudnet.ext.signs.bukkit.command.CommandCloudSign;
 import de.dytanic.cloudnet.ext.signs.bukkit.listener.BukkitCloudNetSignListener;
 import de.dytanic.cloudnet.ext.signs.bukkit.listener.BukkitSignInteractionListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
 
-    @Getter
     private static BukkitCloudNetSignsPlugin instance;
 
     public BukkitCloudNetSignsPlugin() {
         instance = this;
+    }
+
+    public static BukkitCloudNetSignsPlugin getInstance() {
+        return BukkitCloudNetSignsPlugin.instance;
     }
 
     @Override

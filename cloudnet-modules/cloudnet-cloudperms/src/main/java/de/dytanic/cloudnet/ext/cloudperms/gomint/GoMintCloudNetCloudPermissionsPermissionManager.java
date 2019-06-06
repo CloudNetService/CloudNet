@@ -7,9 +7,7 @@ import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import io.gomint.entity.EntityPlayer;
 import io.gomint.permission.Group;
 import io.gomint.server.permission.PermissionManager;
-import lombok.Getter;
 
-@Getter
 public final class GoMintCloudNetCloudPermissionsPermissionManager extends PermissionManager {
 
     private final EntityPlayer player;
@@ -63,5 +61,13 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends Permi
 
     private IPermissionUser getUser() {
         return CloudPermissionsPermissionManagement.getInstance().getUser(player.getUUID());
+    }
+
+    public EntityPlayer getPlayer() {
+        return this.player;
+    }
+
+    public io.gomint.permission.PermissionManager getDefaultPermissionManager() {
+        return this.defaultPermissionManager;
     }
 }

@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
@@ -16,7 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Getter
 public final class BukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private static final Collection<String> DEFAULT_ALLOWED_PERMISSION_COLLECTION = Iterables.newArrayList(Arrays.asList(
@@ -78,5 +76,9 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public Player getPlayer() {
+        return this.player;
     }
 }

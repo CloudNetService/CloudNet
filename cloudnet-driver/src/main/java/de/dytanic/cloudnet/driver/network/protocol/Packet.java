@@ -1,9 +1,6 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
@@ -18,9 +15,6 @@ import java.util.UUID;
  * has the specify information or the data that is important The body has binary
  * packet information like for files, or zip compressed data
  */
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Packet implements IPacket {
 
     /**
@@ -47,4 +41,29 @@ public class Packet implements IPacket {
         this.uniqueId = UUID.randomUUID();
     }
 
+    public Packet(int channel, UUID uniqueId, JsonDocument header, byte[] body) {
+        this.channel = channel;
+        this.uniqueId = uniqueId;
+        this.header = header;
+        this.body = body;
+    }
+
+    public Packet() {
+    }
+
+    public int getChannel() {
+        return this.channel;
+    }
+
+    public UUID getUniqueId() {
+        return this.uniqueId;
+    }
+
+    public JsonDocument getHeader() {
+        return this.header;
+    }
+
+    public byte[] getBody() {
+        return this.body;
+    }
 }

@@ -1,21 +1,28 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.event.HandlerList;
 
-@RequiredArgsConstructor
 public final class BukkitCloudServiceDisconnectNetworkEvent extends BukkitCloudNetEvent {
 
-    @Getter
     private static HandlerList handlerList = new HandlerList();
 
-    @Getter
     private final ServiceInfoSnapshot serviceInfoSnapshot;
+
+    public BukkitCloudServiceDisconnectNetworkEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+
+    public static HandlerList getHandlerList() {
+        return BukkitCloudServiceDisconnectNetworkEvent.handlerList;
+    }
 
     @Override
     public HandlerList getHandlers() {
         return handlerList;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
     }
 }

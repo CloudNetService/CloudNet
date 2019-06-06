@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.console.animation;
 
 import de.dytanic.cloudnet.console.IConsole;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.fusesource.jansi.Ansi;
@@ -31,9 +30,8 @@ import java.text.SimpleDateFormat;
  * }, 5, -1);
  * consoleProvider.invokeConsoleAnimation(progressBar);
  */
-@Data
 @ToString
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 public class CAProgressBar {
 
     protected long updateInterval, targetGoal, barStart;
@@ -101,6 +99,70 @@ public class CAProgressBar {
                 .replace("%time%", new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - barStart))
                 .replace("%target%", targetGoal + "")
                 .replace("%value%", this.progressValue + "");
+    }
+
+    public long getUpdateInterval() {
+        return this.updateInterval;
+    }
+
+    public long getTargetGoal() {
+        return this.targetGoal;
+    }
+
+    public long getBarStart() {
+        return this.barStart;
+    }
+
+    public boolean isExpand() {
+        return this.expand;
+    }
+
+    public long getProgressValue() {
+        return this.progressValue;
+    }
+
+    public String getPrefix() {
+        return this.prefix;
+    }
+
+    public String getSuffix() {
+        return this.suffix;
+    }
+
+    public char getProgressChar() {
+        return this.progressChar;
+    }
+
+    public void setUpdateInterval(long updateInterval) {
+        this.updateInterval = updateInterval;
+    }
+
+    public void setTargetGoal(long targetGoal) {
+        this.targetGoal = targetGoal;
+    }
+
+    public void setBarStart(long barStart) {
+        this.barStart = barStart;
+    }
+
+    public void setExpand(boolean expand) {
+        this.expand = expand;
+    }
+
+    public void setProgressValue(long progressValue) {
+        this.progressValue = progressValue;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
+
+    public void setProgressChar(char progressChar) {
+        this.progressChar = progressChar;
     }
 
 }

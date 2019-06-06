@@ -1,14 +1,12 @@
 package de.dytanic.cloudnet.command;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.ToString;
 
 /**
  * The commandInfo class allows to easy serialize the command information
  */
-@Getter
-@AllArgsConstructor
+@ToString
 @EqualsAndHashCode
 public class CommandInfo {
 
@@ -31,4 +29,28 @@ public class CommandInfo {
      * The easiest and important usage for the command
      */
     protected String usage;
+
+    public CommandInfo(String[] names, String permission, String description, String usage) {
+        this.names = names;
+        this.permission = permission;
+        this.description = description;
+        this.usage = usage;
+    }
+
+    public String[] getNames() {
+        return this.names;
+    }
+
+    public String getPermission() {
+        return this.permission;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public String getUsage() {
+        return this.usage;
+    }
+
 }

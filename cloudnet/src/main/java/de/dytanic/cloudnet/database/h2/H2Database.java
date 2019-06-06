@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
-import lombok.Getter;
 
 import java.sql.ResultSet;
 import java.util.Collection;
@@ -18,7 +17,6 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
-@Getter
 public final class H2Database implements IDatabase {
 
     private static final String TABLE_COLUMN_KEY = "Name", TABLE_COLUMN_VALUE = "Document";
@@ -432,5 +430,13 @@ public final class H2Database implements IDatabase {
 
     private <T> ITask<T> schedule(Callable<T> callable) {
         return schedule(callable);
+    }
+
+    public H2DatabaseProvider getDatabaseProvider() {
+        return this.databaseProvider;
+    }
+
+    public String getName() {
+        return this.name;
     }
 }

@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import lombok.AllArgsConstructor;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -139,12 +138,18 @@ public final class V1HttpSession {
         ));
     }
 
-    @AllArgsConstructor
     public class SessionEntry {
 
         long creationTime, lastUsageMillis;
 
         String host, uniqueId, userUniqueId;
 
+        public SessionEntry(long creationTime, long lastUsageMillis, String host, String uniqueId, String userUniqueId) {
+            this.creationTime = creationTime;
+            this.lastUsageMillis = lastUsageMillis;
+            this.host = host;
+            this.uniqueId = uniqueId;
+            this.userUniqueId = userUniqueId;
+        }
     }
 }

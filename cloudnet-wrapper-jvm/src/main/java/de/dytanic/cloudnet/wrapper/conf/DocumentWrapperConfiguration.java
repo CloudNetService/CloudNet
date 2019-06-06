@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
@@ -17,7 +16,6 @@ import java.nio.file.Paths;
  *
  * @see IWrapperConfiguration
  */
-@Getter
 public final class DocumentWrapperConfiguration implements IWrapperConfiguration {
 
     private static final Path WRAPPER_CONFIG = Paths.get(System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
@@ -50,5 +48,25 @@ public final class DocumentWrapperConfiguration implements IWrapperConfiguration
         this.serviceConfiguration = document.get("serviceConfiguration", SERVICE_CFG_TYPE);
         this.serviceInfoSnapshot = document.get("serviceInfoSnapshot", SERVICE_INFO_TYPE);
         this.sslConfig = document.getDocument("sslConfig");
+    }
+
+    public String getConnectionKey() {
+        return this.connectionKey;
+    }
+
+    public HostAndPort getTargetListener() {
+        return this.targetListener;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
+    }
+
+    public ServiceConfiguration getServiceConfiguration() {
+        return this.serviceConfiguration;
+    }
+
+    public JsonDocument getSslConfig() {
+        return this.sslConfig;
     }
 }

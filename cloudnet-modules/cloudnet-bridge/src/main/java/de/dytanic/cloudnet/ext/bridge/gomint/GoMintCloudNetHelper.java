@@ -23,8 +23,6 @@ import io.gomint.server.GoMintServer;
 import io.gomint.server.network.Protocol;
 import io.gomint.world.Gamerule;
 import io.gomint.world.World;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -34,19 +32,13 @@ import java.util.function.Function;
 
 public final class GoMintCloudNetHelper {
 
-    @Getter
-    @Setter
     private static volatile String
             apiMotd,
             extra = "",
             state = "LOBBY";
 
-    @Getter
-    @Setter
     private static volatile int maxPlayers = GoMint.instance().getMaxPlayers();
 
-    @Getter
-    @Setter
     private static volatile GoMintCloudNetBridgePlugin plugin;
 
     static {
@@ -224,5 +216,45 @@ public final class GoMintCloudNetHelper {
                         Wrapper.getInstance().getServiceId().getName()
                 )
         );
+    }
+
+    public static String getApiMotd() {
+        return GoMintCloudNetHelper.apiMotd;
+    }
+
+    public static String getExtra() {
+        return GoMintCloudNetHelper.extra;
+    }
+
+    public static String getState() {
+        return GoMintCloudNetHelper.state;
+    }
+
+    public static int getMaxPlayers() {
+        return GoMintCloudNetHelper.maxPlayers;
+    }
+
+    public static GoMintCloudNetBridgePlugin getPlugin() {
+        return GoMintCloudNetHelper.plugin;
+    }
+
+    public static void setApiMotd(String apiMotd) {
+        GoMintCloudNetHelper.apiMotd = apiMotd;
+    }
+
+    public static void setExtra(String extra) {
+        GoMintCloudNetHelper.extra = extra;
+    }
+
+    public static void setState(String state) {
+        GoMintCloudNetHelper.state = state;
+    }
+
+    public static void setMaxPlayers(int maxPlayers) {
+        GoMintCloudNetHelper.maxPlayers = maxPlayers;
+    }
+
+    public static void setPlugin(GoMintCloudNetBridgePlugin plugin) {
+        GoMintCloudNetHelper.plugin = plugin;
     }
 }

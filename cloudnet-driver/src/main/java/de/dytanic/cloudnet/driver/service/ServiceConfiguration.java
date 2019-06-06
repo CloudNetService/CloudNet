@@ -1,12 +1,11 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-@Getter
 @ToString
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     private final ServiceId serviceId;
@@ -25,7 +24,62 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     private final ProcessConfiguration processConfig;
 
-    @Setter
     private int port;
 
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port) {
+        this.serviceId = serviceId;
+        this.runtime = runtime;
+        this.autoDeleteOnStop = autoDeleteOnStop;
+        this.staticService = staticService;
+        this.groups = groups;
+        this.includes = includes;
+        this.templates = templates;
+        this.deployments = deployments;
+        this.processConfig = processConfig;
+        this.port = port;
+    }
+
+    public ServiceId getServiceId() {
+        return this.serviceId;
+    }
+
+    public String getRuntime() {
+        return this.runtime;
+    }
+
+    public boolean isAutoDeleteOnStop() {
+        return this.autoDeleteOnStop;
+    }
+
+    public boolean isStaticService() {
+        return this.staticService;
+    }
+
+    public String[] getGroups() {
+        return this.groups;
+    }
+
+    public ServiceRemoteInclusion[] getIncludes() {
+        return this.includes;
+    }
+
+    public ServiceTemplate[] getTemplates() {
+        return this.templates;
+    }
+
+    public ServiceDeployment[] getDeployments() {
+        return this.deployments;
+    }
+
+    public ProcessConfiguration getProcessConfig() {
+        return this.processConfig;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 }

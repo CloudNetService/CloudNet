@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import io.netty.channel.*;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.HttpRequest;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
     private final NettyHttpServer nettyHttpServer;
@@ -22,6 +20,11 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     private final HostAndPort connectedAddress;
 
     private NettyHttpChannel channel;
+
+    public NettyHttpServerHandler(NettyHttpServer nettyHttpServer, HostAndPort connectedAddress) {
+        this.nettyHttpServer = nettyHttpServer;
+        this.connectedAddress = connectedAddress;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

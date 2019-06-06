@@ -1,21 +1,27 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.event.HandlerList;
 
-@Getter
-@RequiredArgsConstructor
 public final class BukkitBridgeProxyPlayerLoginSuccessEvent extends BukkitBridgeEvent {
 
-    @Getter
     private static HandlerList handlerList = new HandlerList();
     private final NetworkConnectionInfo networkConnectionInfo;
+
+    public BukkitBridgeProxyPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo) {
+        this.networkConnectionInfo = networkConnectionInfo;
+    }
+
+    public static HandlerList getHandlerList() {
+        return BukkitBridgeProxyPlayerLoginSuccessEvent.handlerList;
+    }
 
     @Override
     public HandlerList getHandlers() {
         return handlerList;
     }
 
+    public NetworkConnectionInfo getNetworkConnectionInfo() {
+        return this.networkConnectionInfo;
+    }
 }

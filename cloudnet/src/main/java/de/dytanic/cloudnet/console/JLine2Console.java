@@ -1,11 +1,8 @@
 package de.dytanic.cloudnet.console;
 
 import jline.console.ConsoleReader;
-import lombok.Getter;
-import lombok.Setter;
 import org.fusesource.jansi.AnsiConsole;
 
-@Getter
 public final class JLine2Console implements IConsole {
 
     private final ConsoleReader consoleReader;
@@ -15,7 +12,6 @@ public final class JLine2Console implements IConsole {
             version = System.getProperty("cloudnet.launcher.select.version"),
             prompt = System.getProperty("cloudnet.console.prompt", "&3%user%&0@&9%screen% &1=> ");
 
-    @Setter
     private String screenName = version;
 
     public JLine2Console() throws Exception {
@@ -99,5 +95,29 @@ public final class JLine2Console implements IConsole {
     @Override
     public void close() throws Exception {
         this.consoleReader.close();
+    }
+
+    public ConsoleReader getConsoleReader() {
+        return this.consoleReader;
+    }
+
+    public String getUser() {
+        return this.user;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public String getPrompt() {
+        return this.prompt;
+    }
+
+    public String getScreenName() {
+        return this.screenName;
+    }
+
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
     }
 }

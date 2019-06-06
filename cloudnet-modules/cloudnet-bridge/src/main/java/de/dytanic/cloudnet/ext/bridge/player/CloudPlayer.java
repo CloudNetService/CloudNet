@@ -2,17 +2,13 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
 
@@ -69,4 +65,47 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
         this.networkPlayerServerInfo = networkPlayerServerInfo;
         this.properties = properties;
     }
+
+    public CloudPlayer(NetworkServiceInfo loginService, NetworkServiceInfo connectedService, NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
+        this.loginService = loginService;
+        this.connectedService = connectedService;
+        this.networkConnectionInfo = networkConnectionInfo;
+        this.networkPlayerServerInfo = networkPlayerServerInfo;
+    }
+
+    public CloudPlayer() {
+    }
+
+    public NetworkServiceInfo getLoginService() {
+        return this.loginService;
+    }
+
+    public NetworkServiceInfo getConnectedService() {
+        return this.connectedService;
+    }
+
+    public NetworkConnectionInfo getNetworkConnectionInfo() {
+        return this.networkConnectionInfo;
+    }
+
+    public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
+        return this.networkPlayerServerInfo;
+    }
+
+    public void setLoginService(NetworkServiceInfo loginService) {
+        this.loginService = loginService;
+    }
+
+    public void setConnectedService(NetworkServiceInfo connectedService) {
+        this.connectedService = connectedService;
+    }
+
+    public void setNetworkConnectionInfo(NetworkConnectionInfo networkConnectionInfo) {
+        this.networkConnectionInfo = networkConnectionInfo;
+    }
+
+    public void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {
+        this.networkPlayerServerInfo = networkPlayerServerInfo;
+    }
+
 }

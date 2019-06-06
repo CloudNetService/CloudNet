@@ -8,13 +8,10 @@ import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Getter
 final class NettyNetworkChannel implements INetworkChannel {
 
     private static final Callable<Void> EMPTY_TASK = new Callable<Void>() {
@@ -38,7 +35,6 @@ final class NettyNetworkChannel implements INetworkChannel {
 
     private final boolean clientProvidedChannel;
 
-    @Setter
     private INetworkChannelHandler handler;
 
     public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
@@ -84,4 +80,35 @@ final class NettyNetworkChannel implements INetworkChannel {
         this.channel.close();
     }
 
+    public long getChannelId() {
+        return this.channelId;
+    }
+
+    public Channel getChannel() {
+        return this.channel;
+    }
+
+    public IPacketListenerRegistry getPacketRegistry() {
+        return this.packetRegistry;
+    }
+
+    public HostAndPort getServerAddress() {
+        return this.serverAddress;
+    }
+
+    public HostAndPort getClientAddress() {
+        return this.clientAddress;
+    }
+
+    public boolean isClientProvidedChannel() {
+        return this.clientProvidedChannel;
+    }
+
+    public INetworkChannelHandler getHandler() {
+        return this.handler;
+    }
+
+    public void setHandler(INetworkChannelHandler handler) {
+        this.handler = handler;
+    }
 }

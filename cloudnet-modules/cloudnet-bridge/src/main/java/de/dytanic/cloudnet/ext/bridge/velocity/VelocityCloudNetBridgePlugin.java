@@ -16,11 +16,9 @@ import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 
 import java.net.InetSocketAddress;
 
-@Getter
 @Plugin(
         id = "cloudnet_bridge_velocity",
         name = "CloudNet-Bridge",
@@ -33,7 +31,6 @@ import java.net.InetSocketAddress;
 )
 public final class VelocityCloudNetBridgePlugin {
 
-    @Getter
     private static VelocityCloudNetBridgePlugin instance;
 
     private final ProxyServer proxyServer;
@@ -44,6 +41,10 @@ public final class VelocityCloudNetBridgePlugin {
 
         this.proxyServer = proxyServer;
         VelocityCloudNetHelper.setProxyServer(proxyServer);
+    }
+
+    public static VelocityCloudNetBridgePlugin getInstance() {
+        return VelocityCloudNetBridgePlugin.instance;
     }
 
     @Subscribe
@@ -89,5 +90,9 @@ public final class VelocityCloudNetBridgePlugin {
                 VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
                 VelocityCloudNetHelper.addServerToVelocityPrioritySystemConfiguration(serviceInfoSnapshot, name);
             }
+    }
+
+    public ProxyServer getProxyServer() {
+        return this.proxyServer;
     }
 }

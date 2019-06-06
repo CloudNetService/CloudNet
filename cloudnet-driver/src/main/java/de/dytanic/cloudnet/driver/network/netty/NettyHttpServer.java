@@ -15,7 +15,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.util.Collection;
@@ -180,7 +179,6 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @ToString
     @EqualsAndHashCode
-    @RequiredArgsConstructor
     public class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
 
         public final String path;
@@ -190,6 +188,13 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         public final Integer port;
 
         public final int priority;
+
+        public HttpHandlerEntry(String path, IHttpHandler httpHandler, Integer port, int priority) {
+            this.path = path;
+            this.httpHandler = httpHandler;
+            this.port = port;
+            this.priority = priority;
+        }
 
         @Override
         public int compareTo(HttpHandlerEntry httpHandlerEntry) {

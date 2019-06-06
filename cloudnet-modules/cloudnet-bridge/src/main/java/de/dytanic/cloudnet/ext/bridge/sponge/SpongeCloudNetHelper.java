@@ -17,8 +17,6 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
-import lombok.Setter;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
@@ -32,14 +30,10 @@ import java.util.function.Function;
 
 public final class SpongeCloudNetHelper {
 
-    @Getter
-    @Setter
     private static volatile String
             apiMotd = Sponge.getServer().getMotd().toPlain(),
             extra = "",
             state = "LOBBY";
-    @Getter
-    @Setter
     private static volatile int maxPlayers = Sponge.getServer().getMaxPlayers();
 
     private SpongeCloudNetHelper() {
@@ -193,5 +187,37 @@ public final class SpongeCloudNetHelper {
                         Wrapper.getInstance().getServiceId().getName()
                 )
         );
+    }
+
+    public static String getApiMotd() {
+        return SpongeCloudNetHelper.apiMotd;
+    }
+
+    public static String getExtra() {
+        return SpongeCloudNetHelper.extra;
+    }
+
+    public static String getState() {
+        return SpongeCloudNetHelper.state;
+    }
+
+    public static int getMaxPlayers() {
+        return SpongeCloudNetHelper.maxPlayers;
+    }
+
+    public static void setApiMotd(String apiMotd) {
+        SpongeCloudNetHelper.apiMotd = apiMotd;
+    }
+
+    public static void setExtra(String extra) {
+        SpongeCloudNetHelper.extra = extra;
+    }
+
+    public static void setState(String state) {
+        SpongeCloudNetHelper.state = state;
+    }
+
+    public static void setMaxPlayers(int maxPlayers) {
+        SpongeCloudNetHelper.maxPlayers = maxPlayers;
     }
 }

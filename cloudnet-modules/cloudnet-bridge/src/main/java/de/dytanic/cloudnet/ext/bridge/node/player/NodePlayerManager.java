@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.player.*;
-import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
@@ -21,10 +20,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Getter
 public final class NodePlayerManager implements IPlayerManager {
 
-    @Getter
     private static NodePlayerManager instance;
 
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = Maps.newConcurrentHashMap();
@@ -37,6 +34,10 @@ public final class NodePlayerManager implements IPlayerManager {
         /*= --------------------------------- =*/
 
         instance = this;
+    }
+
+    public static NodePlayerManager getInstance() {
+        return NodePlayerManager.instance;
     }
 
     /*= ---------------------------------------------------------------- =*/
@@ -275,5 +276,13 @@ public final class NodePlayerManager implements IPlayerManager {
 
     private <T> ITask<T> schedule(Callable<T> callable) {
         return CloudNet.getInstance().getTaskScheduler().schedule(callable);
+    }
+
+    public Map<UUID, CloudPlayer> getOnlineCloudPlayers() {
+        return this.onlineCloudPlayers;
+    }
+
+    public String getDatabaseName() {
+        return this.databaseName;
     }
 }

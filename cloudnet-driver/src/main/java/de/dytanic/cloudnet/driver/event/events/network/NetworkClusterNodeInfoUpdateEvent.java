@@ -2,9 +2,7 @@ package de.dytanic.cloudnet.driver.event.events.network;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import lombok.Getter;
 
-@Getter
 public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
 
     private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
@@ -13,5 +11,9 @@ public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
         super(channel);
 
         this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
+    }
+
+    public NetworkClusterNodeInfoSnapshot getNetworkClusterNodeInfoSnapshot() {
+        return this.networkClusterNodeInfoSnapshot;
     }
 }

@@ -1,31 +1,37 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import de.dytanic.cloudnet.common.Validate;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collection;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Getter
 public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     private static final AtomicLong TASK_ID_COUNTER = new AtomicLong();
 
     private final long taskId = TASK_ID_COUNTER.incrementAndGet();
 
-    @Getter
     private Collection<ITaskListener<V>> listeners;
 
     private volatile V value;
 
-    @Setter
     private volatile boolean wait, done, cancelled;
+
+    public void setWait(boolean wait) {
+        this.wait = wait;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
 
     private long delay, repeat, repeats, delayedTimeStamp;
 
-    @Getter
     private Callable<V> callable;
 
     public DefaultScheduledTask(Callable<V> callable, long delay, long repeat, long repeats, TimeUnit timeUnit) {
@@ -50,6 +56,56 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
                 this.listeners.add(listener);
 
         return this;
+    }
+
+    @Override
+    public long getTaskId() {
+        return taskId;
+    }
+
+    @Override
+    public Collection<ITaskListener<V>> getListeners() {
+        return listeners;
+    }
+
+    public V getValue() {
+        return value;
+    }
+
+    public boolean isWait() {
+        return wait;
+    }
+
+    @Override
+    public boolean isDone() {
+        return done;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public long getDelay() {
+        return delay;
+    }
+
+    public long getRepeat() {
+        return repeat;
+    }
+
+    public long getRepeats() {
+        return repeats;
+    }
+
+    @Override
+    public long getDelayedTimeStamp() {
+        return delayedTimeStamp;
+    }
+
+    @Override
+    public Callable<V> getCallable() {
+        return callable;
     }
 
     @Override
@@ -103,6 +159,8 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
         return this.value;
     }
+
+
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {

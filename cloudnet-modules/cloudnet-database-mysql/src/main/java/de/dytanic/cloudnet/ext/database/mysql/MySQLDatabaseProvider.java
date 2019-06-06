@@ -10,8 +10,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-@Getter
-@RequiredArgsConstructor
 public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
     private static final long NEW_CREATION_DELAY = 600000;
@@ -37,6 +33,10 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     private final JsonDocument config;
 
     private List<MySQLConnectionEndpoint> addresses;
+
+    public MySQLDatabaseProvider(JsonDocument config) {
+        this.config = config;
+    }
 
     @Override
     public boolean init() throws Exception {
@@ -181,5 +181,21 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
     private Connection getConnection() throws SQLException {
         return hikariDataSource.getConnection();
+    }
+
+    public NetorHashMap<String, Long, MySQLDatabase> getCachedDatabaseInstances() {
+        return this.cachedDatabaseInstances;
+    }
+
+    public HikariDataSource getHikariDataSource() {
+        return this.hikariDataSource;
+    }
+
+    public JsonDocument getConfig() {
+        return this.config;
+    }
+
+    public List<MySQLConnectionEndpoint> getAddresses() {
+        return this.addresses;
     }
 }

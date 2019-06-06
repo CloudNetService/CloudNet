@@ -4,13 +4,13 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public final class NetworkChannelReceiveGroupConfigurationsUpdateEvent extends NetworkEvent implements ICancelable {
 
     private List<GroupConfiguration> groupConfigurations;
@@ -21,4 +21,21 @@ public final class NetworkChannelReceiveGroupConfigurationsUpdateEvent extends N
         super(channel);
         this.groupConfigurations = groupConfigurations;
     }
+
+    public List<GroupConfiguration> getGroupConfigurations() {
+        return this.groupConfigurations;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
+    public void setGroupConfigurations(List<GroupConfiguration> groupConfigurations) {
+        this.groupConfigurations = groupConfigurations;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
 }

@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.common.logging;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
+
+import java.util.Objects;
 
 /**
  * The LogLevel indicates how relevant and essential information is to be output.
@@ -14,10 +14,8 @@ import lombok.ToString;
  *
  * @see LogEntry
  */
-@Getter
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
 public class LogLevel implements ILevelable {
 
     /**
@@ -90,4 +88,29 @@ public class LogLevel implements ILevelable {
      * Defines the permission, to execute the LogEntries on this Level asynchronously or not.
      */
     protected boolean async;
+
+    public LogLevel(String lowerName, String upperName, int level, boolean async) {
+        this.lowerName = lowerName;
+        this.upperName = upperName;
+        this.level = level;
+        this.async = async;
+    }
+
+    public String getLowerName() {
+        return lowerName;
+    }
+
+    public String getUpperName() {
+        return upperName;
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
 }

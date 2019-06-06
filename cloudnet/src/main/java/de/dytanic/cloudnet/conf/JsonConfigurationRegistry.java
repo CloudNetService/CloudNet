@@ -3,14 +3,12 @@ package de.dytanic.cloudnet.conf;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Getter
 @ToString
 @EqualsAndHashCode
 public final class JsonConfigurationRegistry implements IConfigurationRegistry {
@@ -243,4 +241,21 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
         return this;
     }
+
+    public int getRegistryVersion() {
+        return this.registryVersion;
+    }
+
+    public int getLowestSupportedVersion() {
+        return this.lowestSupportedVersion;
+    }
+
+    public Path getPath() {
+        return this.path;
+    }
+
+    public JsonDocument getEntries() {
+        return this.entries;
+    }
+
 }

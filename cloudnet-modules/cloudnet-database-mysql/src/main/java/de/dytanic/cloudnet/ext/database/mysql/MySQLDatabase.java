@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import lombok.Getter;
 
 import java.sql.ResultSet;
 import java.util.Collection;
@@ -20,7 +19,6 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
-@Getter
 public final class MySQLDatabase implements IDatabase {
 
     private static final String TABLE_COLUMN_KEY = "Name", TABLE_COLUMN_VALUE = "Document";
@@ -419,5 +417,13 @@ public final class MySQLDatabase implements IDatabase {
 
     private ITaskScheduler getTaskScheduler() {
         return CloudNetDriver.getInstance().getTaskScheduler();
+    }
+
+    public MySQLDatabaseProvider getDatabaseProvider() {
+        return this.databaseProvider;
+    }
+
+    public String getName() {
+        return this.name;
     }
 }

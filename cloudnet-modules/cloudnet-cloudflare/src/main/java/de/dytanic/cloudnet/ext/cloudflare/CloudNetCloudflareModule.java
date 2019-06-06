@@ -13,23 +13,22 @@ import de.dytanic.cloudnet.ext.cloudflare.dns.DefaultDNSRecord;
 import de.dytanic.cloudnet.ext.cloudflare.http.V1CloudflareConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.cloudflare.listener.CloudflareStartAndStopListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.net.InetAddress;
 import java.util.Map;
 
-@Getter
 public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
-    @Getter
     private static CloudNetCloudflareModule instance;
 
-    @Setter
     private CloudflareConfiguration cloudflareConfiguration;
 
     public CloudNetCloudflareModule() {
         instance = this;
+    }
+
+    public static CloudNetCloudflareModule getInstance() {
+        return CloudNetCloudflareModule.instance;
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
@@ -142,4 +141,11 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
         }
     }
 
+    public CloudflareConfiguration getCloudflareConfiguration() {
+        return this.cloudflareConfiguration;
+    }
+
+    public void setCloudflareConfiguration(CloudflareConfiguration cloudflareConfiguration) {
+        this.cloudflareConfiguration = cloudflareConfiguration;
+    }
 }

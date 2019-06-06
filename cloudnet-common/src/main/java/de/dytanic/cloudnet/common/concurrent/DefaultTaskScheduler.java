@@ -1,9 +1,5 @@
 package de.dytanic.cloudnet.common.concurrent;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Queue;
@@ -14,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Getter
 public class DefaultTaskScheduler implements ITaskScheduler {
 
     protected static final long DEFAULT_THREAD_LIFE_MILLIS = 60000, DEFAULT_THREAD_PAUSE_MILLIS = 5;
@@ -29,14 +24,59 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     protected final AtomicLong THREAD_COUNT = new AtomicLong();
 
-    @Setter
     protected volatile int maxThreadSize;
 
-    @Setter
+    public void setMaxThreadSize(int maxThreadSize) {
+        this.maxThreadSize = maxThreadSize;
+    }
+
     protected volatile long threadLifeMillis;
 
-    @Setter
+    public void setThreadLifeMillis(long threadLifeMillis) {
+        this.threadLifeMillis = threadLifeMillis;
+    }
+
     protected volatile long threadPauseDelayMillis;
+
+    public void setThreadPauseDelayMillis(long threadPauseDelayMillis) {
+        this.threadPauseDelayMillis = threadPauseDelayMillis;
+    }
+
+    public static long getDefaultThreadLifeMillis() {
+        return DEFAULT_THREAD_LIFE_MILLIS;
+    }
+
+    public static long getDefaultThreadPauseMillis() {
+        return DEFAULT_THREAD_PAUSE_MILLIS;
+    }
+
+    public static AtomicInteger getGroupCount() {
+        return GROUP_COUNT;
+    }
+
+    public Deque<IScheduledTask<?>> getTaskEntries() {
+        return taskEntries;
+    }
+
+    public ThreadGroup getThreadGroup() {
+        return threadGroup;
+    }
+
+    public AtomicLong getTHREAD_COUNT() {
+        return THREAD_COUNT;
+    }
+
+    public int getMaxThreadSize() {
+        return maxThreadSize;
+    }
+
+    public long getThreadLifeMillis() {
+        return threadLifeMillis;
+    }
+
+    public long getThreadPauseDelayMillis() {
+        return threadPauseDelayMillis;
+    }
 
     public DefaultTaskScheduler() {
         this(Runtime.getRuntime().availableProcessors() * 2, DEFAULT_THREAD_LIFE_MILLIS, DEFAULT_THREAD_PAUSE_MILLIS);
@@ -198,10 +238,13 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     /*= ------------------------------------------------------------- =*/
 
-    @AllArgsConstructor
     private final class VoidCallable implements Callable<Void> {
 
         private final Runnable runnable;
+
+        public VoidCallable(Runnable runnable) {
+            this.runnable = runnable;
+        }
 
         @Override
         public Void call() throws Exception {

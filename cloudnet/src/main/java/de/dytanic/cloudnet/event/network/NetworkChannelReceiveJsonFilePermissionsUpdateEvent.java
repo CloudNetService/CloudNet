@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends NetworkEvent implements ICancelable {
 
     private List<PermissionUser> permissionUsers;
@@ -25,4 +25,29 @@ public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends N
         this.permissionUsers = permissionUsers;
         this.permissionGroups = permissionGroups;
     }
+
+    public List<PermissionUser> getPermissionUsers() {
+        return this.permissionUsers;
+    }
+
+    public List<PermissionGroup> getPermissionGroups() {
+        return this.permissionGroups;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
+    public void setPermissionUsers(List<PermissionUser> permissionUsers) {
+        this.permissionUsers = permissionUsers;
+    }
+
+    public void setPermissionGroups(List<PermissionGroup> permissionGroups) {
+        this.permissionGroups = permissionGroups;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
 }

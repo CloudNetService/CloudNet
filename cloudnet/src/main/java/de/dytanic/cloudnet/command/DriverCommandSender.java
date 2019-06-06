@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.common.Validate;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,10 +8,13 @@ import java.util.Collection;
 /**
  * The driverCommandSender
  */
-@RequiredArgsConstructor
 public final class DriverCommandSender implements ICommandSender {
 
     private final Collection<String> messages;
+
+    public DriverCommandSender(Collection<String> messages) {
+        this.messages = messages;
+    }
 
     @Override
     public String getName() {

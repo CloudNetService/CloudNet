@@ -8,8 +8,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,12 +16,13 @@ import java.util.function.Function;
 
 public abstract class AbstractSignManagement {
 
-    @Getter
     protected static AbstractSignManagement instance;
 
-    @Getter
-    @Setter
     protected List<Sign> signs;
+
+    public static AbstractSignManagement getInstance() {
+        return AbstractSignManagement.instance;
+    }
 
     public abstract void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot);
 
@@ -105,5 +104,13 @@ public abstract class AbstractSignManagement {
                                 serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.GLOWSTONE
                 )
                 ;
+    }
+
+    public List<Sign> getSigns() {
+        return this.signs;
+    }
+
+    public void setSigns(List<Sign> signs) {
+        this.signs = signs;
     }
 }

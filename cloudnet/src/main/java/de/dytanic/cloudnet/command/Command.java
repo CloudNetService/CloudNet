@@ -1,15 +1,13 @@
 package de.dytanic.cloudnet.command;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Represents a command that should be execute
  */
-@Getter
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@ToString
+@EqualsAndHashCode
 public abstract class Command implements ICommandExecutor {
 
     protected String[] names;
@@ -45,12 +43,35 @@ public abstract class Command implements ICommandExecutor {
         this.prefix = prefix;
     }
 
+    public Command() {
+    }
+
     public CommandInfo getInfo() {
         return new CommandInfo(this.names, permission, description, usage);
     }
 
     public final boolean isValid() {
         return this.names != null && this.names.length > 0 && this.names[0] != null && !this.names[0].isEmpty();
+    }
+
+    public String[] getNames() {
+        return this.names;
+    }
+
+    public String getPermission() {
+        return this.permission;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public String getUsage() {
+        return this.usage;
+    }
+
+    public String getPrefix() {
+        return this.prefix;
     }
 
 }

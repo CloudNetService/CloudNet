@@ -2,15 +2,23 @@ package de.dytanic.cloudnet.driver.network.cluster;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
 public class NetworkClusterNode extends BasicJsonDocPropertyable {
 
     private final String uniqueId;
 
     private final HostAndPort[] listeners;
 
+    public NetworkClusterNode(String uniqueId, HostAndPort[] listeners) {
+        this.uniqueId = uniqueId;
+        this.listeners = listeners;
+    }
+
+    public String getUniqueId() {
+        return this.uniqueId;
+    }
+
+    public HostAndPort[] getListeners() {
+        return this.listeners;
+    }
 }

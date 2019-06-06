@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.wrapper.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * This event is only interesting for wrapper modules.
@@ -11,8 +9,6 @@ import lombok.RequiredArgsConstructor;
  *
  * @see DriverEvent
  */
-@Getter
-@RequiredArgsConstructor
 public final class ApplicationPostStartEvent extends DriverEvent {
 
     /**
@@ -37,4 +33,26 @@ public final class ApplicationPostStartEvent extends DriverEvent {
      */
     private final ClassLoader classLoader;
 
+    public ApplicationPostStartEvent(Wrapper cloudNetWrapper, Class<?> clazz, Thread applicationThread, ClassLoader classLoader) {
+        this.cloudNetWrapper = cloudNetWrapper;
+        this.clazz = clazz;
+        this.applicationThread = applicationThread;
+        this.classLoader = classLoader;
+    }
+
+    public Wrapper getCloudNetWrapper() {
+        return this.cloudNetWrapper;
+    }
+
+    public Class<?> getClazz() {
+        return this.clazz;
+    }
+
+    public Thread getApplicationThread() {
+        return this.applicationThread;
+    }
+
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
+    }
 }

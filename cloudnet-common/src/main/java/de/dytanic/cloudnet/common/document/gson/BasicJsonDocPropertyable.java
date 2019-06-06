@@ -1,10 +1,7 @@
 package de.dytanic.cloudnet.common.document.gson;
 
-import lombok.Getter;
-
 public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
 
-    @Getter
     protected JsonDocument properties = new JsonDocument();
 
     @Override
@@ -27,5 +24,9 @@ public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
     @Override
     public <E> boolean hasProperty(JsonDocProperty<E> docProperty) {
         return docProperty.tester.test(properties);
+    }
+
+    public JsonDocument getProperties() {
+        return this.properties;
     }
 }

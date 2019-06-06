@@ -5,8 +5,6 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.util.Collection;
@@ -23,8 +21,6 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
 
     private final Map<String, IPermissionGroup> permissionGroups = Maps.newConcurrentHashMap();
 
-    @Getter
-    @Setter
     private IPermissionManagementHandler permissionManagementHandler;
 
     public DefaultJsonFilePermissionManagement(File file) {
@@ -300,5 +296,13 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
 
         setGroups(document.get("groups", new TypeToken<Collection<PermissionGroup>>() {
         }.getType()));
+    }
+
+    public IPermissionManagementHandler getPermissionManagementHandler() {
+        return this.permissionManagementHandler;
+    }
+
+    public void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler) {
+        this.permissionManagementHandler = permissionManagementHandler;
     }
 }

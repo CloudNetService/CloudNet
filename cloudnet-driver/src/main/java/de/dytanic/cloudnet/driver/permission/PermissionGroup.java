@@ -2,8 +2,8 @@ package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Iterables;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -12,8 +12,8 @@ import java.util.Collection;
  * The default implementation of the IPermissionGroup class. This class should use if you want to
  * add new PermissionGroups into the IPermissionManagement implementation
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
+@ToString
+@EqualsAndHashCode
 public class PermissionGroup extends AbstractPermissible implements IPermissionGroup {
 
     /**
@@ -55,4 +55,53 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         this.sortId = sortId;
         this.defaultGroup = defaultGroup;
     }
+
+    public Collection<String> getGroups() {
+        return this.groups;
+    }
+
+    public String getPrefix() {
+        return this.prefix;
+    }
+
+    public String getSuffix() {
+        return this.suffix;
+    }
+
+    public String getDisplay() {
+        return this.display;
+    }
+
+    public int getSortId() {
+        return this.sortId;
+    }
+
+    public boolean isDefaultGroup() {
+        return this.defaultGroup;
+    }
+
+    public void setGroups(Collection<String> groups) {
+        this.groups = groups;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
+
+    public void setDisplay(String display) {
+        this.display = display;
+    }
+
+    public void setSortId(int sortId) {
+        this.sortId = sortId;
+    }
+
+    public void setDefaultGroup(boolean defaultGroup) {
+        this.defaultGroup = defaultGroup;
+    }
+
 }

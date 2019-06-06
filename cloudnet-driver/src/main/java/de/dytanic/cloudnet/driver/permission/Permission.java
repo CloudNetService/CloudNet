@@ -1,14 +1,12 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.concurrent.TimeUnit;
 
-@Data
-@AllArgsConstructor
-@RequiredArgsConstructor
+@ToString
+@EqualsAndHashCode
 public final class Permission {
 
     private final String name;
@@ -27,4 +25,35 @@ public final class Permission {
         this.potency = potency;
         this.timeOutMillis = System.currentTimeMillis() + timeUnit.toMillis(time);
     }
+
+    public Permission(String name) {
+        this.name = name;
+    }
+
+    public Permission(String name, int potency, long timeOutMillis) {
+        this.name = name;
+        this.potency = potency;
+        this.timeOutMillis = timeOutMillis;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getPotency() {
+        return this.potency;
+    }
+
+    public long getTimeOutMillis() {
+        return this.timeOutMillis;
+    }
+
+    public void setPotency(int potency) {
+        this.potency = potency;
+    }
+
+    public void setTimeOutMillis(long timeOutMillis) {
+        this.timeOutMillis = timeOutMillis;
+    }
+
 }

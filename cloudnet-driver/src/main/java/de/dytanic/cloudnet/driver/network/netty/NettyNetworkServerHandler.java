@@ -4,13 +4,11 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.Callable;
 
-@RequiredArgsConstructor
 final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     private final NettyNetworkServer nettyNetworkServer;
@@ -18,6 +16,11 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
     private final HostAndPort connectedAddress;
 
     private NettyNetworkChannel channel;
+
+    public NettyNetworkServerHandler(NettyNetworkServer nettyNetworkServer, HostAndPort connectedAddress) {
+        this.nettyNetworkServer = nettyNetworkServer;
+        this.connectedAddress = connectedAddress;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

@@ -18,7 +18,6 @@ import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocityProxyLoginCon
 import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocityProxyTabListConfigurationImplListener;
 import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocitySyncProxyCloudNetListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 import net.kyori.text.TextComponent;
 
 import java.text.DateFormat;
@@ -28,7 +27,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Getter
 @Plugin(
         id = "cloudnet_syncproxy_velocity",
         name = "CloudNet-SyncProxy",
@@ -43,7 +41,6 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-    @Getter
     private static VelocityCloudNetSyncProxyPlugin instance;
 
     private final ProxyServer proxyServer;
@@ -63,6 +60,10 @@ public final class VelocityCloudNetSyncProxyPlugin {
         instance = this;
 
         this.proxyServer = proxyServer;
+    }
+
+    public static VelocityCloudNetSyncProxyPlugin getInstance() {
+        return VelocityCloudNetSyncProxyPlugin.instance;
     }
 
     @Subscribe
@@ -218,4 +219,23 @@ public final class VelocityCloudNetSyncProxyPlugin {
         }
     }
 
+    public ProxyServer getProxyServer() {
+        return this.proxyServer;
+    }
+
+    public Map<UUID, Integer> getOnlineCountOfProxies() {
+        return this.onlineCountOfProxies;
+    }
+
+    public AtomicInteger getTabListEntryIndex() {
+        return this.tabListEntryIndex;
+    }
+
+    public String getTabListHeader() {
+        return this.tabListHeader;
+    }
+
+    public String getTabListFooter() {
+        return this.tabListFooter;
+    }
 }

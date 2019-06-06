@@ -77,7 +77,6 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -102,59 +101,41 @@ public final class CloudNet extends CloudNetDriver {
 
     /*= --------------------------------------------------------------------------------------------------- =*/
 
-    @Getter
     private final ICommandMap commandMap = new DefaultCommandMap();
 
-    @Getter
     private final File moduleDirectory = new File(System.getProperty("cloudnet.modules.directory", "modules"));
 
-    @Getter
     private final IConfiguration config = new JsonConfiguration();
 
-    @Getter
     private final IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(Paths.get(System.getProperty("cloudnet.registry.global.path", "local/registry")));
 
-    @Getter
     private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
 
-    @Getter
     private final IClusterNodeServerProvider clusterNodeServerProvider = new DefaultClusterNodeServerProvider();
 
-    @Getter
     private final ITaskScheduler networkTaskScheduler = new DefaultTaskScheduler();
 
     /*= ----------------------------------------------------------- =*/
 
-    @Getter
     private final List<String> commandLineArguments;
 
-    @Getter
     private final Properties commandLineProperties;
 
-    @Getter
     private final IConsole console;
 
-    @Getter
     private final QueuedConsoleLogHandler queuedConsoleLogHandler;
 
-    @Getter
     private final ConsoleCommandSender consoleCommandSender;
 
     /*= ----------------------------------------------------------- =*/
     private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
-    @Getter
     private INetworkClient networkClient;
-    @Getter
     private INetworkServer networkServer;
-    @Getter
     private IHttpServer httpServer;
-    @Getter
     private IPermissionManagement permissionManagement;
 
     /*= ----------------------------------------------------------- =*/
-    @Getter
     private AbstractDatabaseProvider databaseProvider;
-    @Getter
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
 
     CloudNet(List<String> commandLineArguments, ILogger logger, IConsole console) {
@@ -2405,5 +2386,81 @@ public final class CloudNet extends CloudNetDriver {
         console.setPriority(Thread.MIN_PRIORITY);
         console.setDaemon(true);
         console.start();
+    }
+
+    public ICommandMap getCommandMap() {
+        return this.commandMap;
+    }
+
+    public File getModuleDirectory() {
+        return this.moduleDirectory;
+    }
+
+    public IConfiguration getConfig() {
+        return this.config;
+    }
+
+    public IConfigurationRegistry getConfigurationRegistry() {
+        return this.configurationRegistry;
+    }
+
+    public ICloudServiceManager getCloudServiceManager() {
+        return this.cloudServiceManager;
+    }
+
+    public IClusterNodeServerProvider getClusterNodeServerProvider() {
+        return this.clusterNodeServerProvider;
+    }
+
+    public ITaskScheduler getNetworkTaskScheduler() {
+        return this.networkTaskScheduler;
+    }
+
+    public List<String> getCommandLineArguments() {
+        return this.commandLineArguments;
+    }
+
+    public Properties getCommandLineProperties() {
+        return this.commandLineProperties;
+    }
+
+    public IConsole getConsole() {
+        return this.console;
+    }
+
+    public QueuedConsoleLogHandler getQueuedConsoleLogHandler() {
+        return this.queuedConsoleLogHandler;
+    }
+
+    public ConsoleCommandSender getConsoleCommandSender() {
+        return this.consoleCommandSender;
+    }
+
+    public INetworkClient getNetworkClient() {
+        return this.networkClient;
+    }
+
+    public INetworkServer getNetworkServer() {
+        return this.networkServer;
+    }
+
+    public IHttpServer getHttpServer() {
+        return this.httpServer;
+    }
+
+    public IPermissionManagement getPermissionManagement() {
+        return this.permissionManagement;
+    }
+
+    public AbstractDatabaseProvider getDatabaseProvider() {
+        return this.databaseProvider;
+    }
+
+    public NetworkClusterNodeInfoSnapshot getLastNetworkClusterNodeInfoSnapshot() {
+        return this.lastNetworkClusterNodeInfoSnapshot;
+    }
+
+    public NetworkClusterNodeInfoSnapshot getCurrentNetworkClusterNodeInfoSnapshot() {
+        return this.currentNetworkClusterNodeInfoSnapshot;
     }
 }

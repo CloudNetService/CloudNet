@@ -13,7 +13,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
-import lombok.Getter;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPSClient;
@@ -28,7 +27,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-@Getter
 public final class FTPTemplateStorage implements ITemplateStorage {
 
     private static final LogLevel LOG_LEVEL = new LogLevel("ftp/ftps", "FTP/FTPS", 1, true);
@@ -428,5 +426,9 @@ public final class FTPTemplateStorage implements ITemplateStorage {
             } catch (IOException ignored) {
             }
         }
+    }
+
+    public JsonDocument getDocument() {
+        return this.document;
     }
 }

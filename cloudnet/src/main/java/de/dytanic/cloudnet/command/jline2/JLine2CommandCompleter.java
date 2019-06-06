@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import jline.console.completer.Completer;
-import lombok.AllArgsConstructor;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,10 +14,13 @@ import java.util.function.Predicate;
 /**
  * JLine2 implementation of the completer for the JLine console
  */
-@AllArgsConstructor
 public final class JLine2CommandCompleter implements Completer {
 
     private final ICommandMap commandMap;
+
+    public JLine2CommandCompleter(ICommandMap commandMap) {
+        this.commandMap = commandMap;
+    }
 
     @Override
     public int complete(String buffer, int cursor, List<CharSequence> candidates) {

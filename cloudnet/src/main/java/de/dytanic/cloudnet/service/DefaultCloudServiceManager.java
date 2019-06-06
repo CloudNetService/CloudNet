@@ -12,14 +12,12 @@ import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
 import de.dytanic.cloudnet.event.service.task.ServiceTaskAddEvent;
 import de.dytanic.cloudnet.event.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.util.PortValidator;
-import lombok.Getter;
 
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Getter
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     protected static final ICloudServiceFactory DEFAULT_FACTORY = new JVMCloudServiceFactory();
@@ -475,5 +473,29 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             port++;
 
         return port;
+    }
+
+    public File getTempDirectory() {
+        return this.tempDirectory;
+    }
+
+    public File getPersistenceServicesDirectory() {
+        return this.persistenceServicesDirectory;
+    }
+
+    public Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots() {
+        return this.globalServiceInfoSnapshots;
+    }
+
+    public Map<UUID, ICloudService> getCloudServices() {
+        return this.cloudServices;
+    }
+
+    public Map<String, ICloudServiceFactory> getCloudServiceFactories() {
+        return this.cloudServiceFactories;
+    }
+
+    public DefaultCloudServiceManagerConfiguration getConfig() {
+        return this.config;
     }
 }
