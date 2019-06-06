@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.common.concurrent.scheduler;
 
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -18,12 +16,23 @@ import java.util.concurrent.TimeoutException;
  */
 @Deprecated
 @UnsafeClass
-@Getter
-@AllArgsConstructor
 public class TaskEntryFuture<T> implements Future<T> {
 
     protected volatile boolean waits;
     private TaskEntry<T> entry;
+
+    public TaskEntryFuture(boolean waits, TaskEntry<T> entry) {
+        this.waits = waits;
+        this.entry = entry;
+    }
+
+    public boolean isWaits() {
+        return waits;
+    }
+
+    public TaskEntry<T> getEntry() {
+        return entry;
+    }
 
     @Override
     public boolean cancel(boolean pMayInterruptIfRunning) {

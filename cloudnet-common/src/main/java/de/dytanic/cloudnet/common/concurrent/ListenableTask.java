@@ -1,17 +1,13 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import de.dytanic.cloudnet.common.Validate;
-import lombok.Getter;
 
 import java.util.Collection;
 import java.util.concurrent.*;
 
-@Getter
 public class ListenableTask<V> implements ITask<V> {
 
-    @Getter
     private final Callable<V> callable;
-    @Getter
     private Collection<ITaskListener<V>> listeners;
     private volatile V value;
     private volatile boolean done, cancelled;
@@ -26,6 +22,30 @@ public class ListenableTask<V> implements ITask<V> {
         this.callable = callable;
 
         if (listener != null) this.addListener(listener);
+    }
+
+    @Override
+    public Callable<V> getCallable() {
+        return callable;
+    }
+
+    @Override
+    public Collection<ITaskListener<V>> getListeners() {
+        return listeners;
+    }
+
+    public V getValue() {
+        return value;
+    }
+
+    @Override
+    public boolean isDone() {
+        return done;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
     }
 
     @Override

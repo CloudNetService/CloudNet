@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.common.concurrent;
 
-import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,9 +9,12 @@ public class WorkerThread extends Thread implements ExecutorService {
 
     protected final BlockingQueue<ITask<?>> tasks = new LinkedBlockingQueue<>();
     protected final long lifeMillis;
-    @Getter
     protected volatile boolean available = true;
     protected long destinationTime;
+
+    public boolean isAvailable() {
+        return available;
+    }
 
     public WorkerThread() {
         super();

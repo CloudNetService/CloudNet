@@ -4,8 +4,6 @@
 
 package de.dytanic.cloudnet.common.logging;
 
-import lombok.Getter;
-
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -21,10 +19,13 @@ import java.util.concurrent.LinkedBlockingQueue;
  * The actual console output is still executed in a thread where its priority
  * is as low as possible to affect the program even less
  */
-@Getter
 public class AsyncPrintStream extends PrintStream {
 
     static final BlockingQueue<Runnable> ASYNC_QUEUE = new LinkedBlockingQueue<>();
+
+    public static BlockingQueue<Runnable> getAsyncQueue() {
+        return ASYNC_QUEUE;
+    }
 
     private static final Thread worker = new Thread() {
 

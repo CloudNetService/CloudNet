@@ -1,9 +1,6 @@
 package de.dytanic.cloudnet.common.logging;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,9 +34,17 @@ public class DefaultAsyncLogger implements ILogger {
                 entries.poll().call();
         }
     };
-    @Getter
-    @Setter
     protected int level = -1;
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
     public DefaultAsyncLogger() {
         logThread.setPriority(Thread.MIN_PRIORITY);
@@ -146,10 +151,13 @@ public class DefaultAsyncLogger implements ILogger {
         }
     }
 
-    @AllArgsConstructor
     public class LogHandlerRunnable implements Callable<Void> {
 
         private final LogEntry logEntry;
+
+        public LogHandlerRunnable(LogEntry logEntry) {
+            this.logEntry = logEntry;
+        }
 
         @Override
         public Void call() {

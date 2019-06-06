@@ -1,9 +1,6 @@
 package de.dytanic.cloudnet.common.logging;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import java.util.Objects;
 
 /**
  * The LogLevel indicates how relevant and essential information is to be output.
@@ -14,10 +11,6 @@ import lombok.ToString;
  *
  * @see LogEntry
  */
-@Getter
-@ToString
-@EqualsAndHashCode
-@AllArgsConstructor
 public class LogLevel implements ILevelable {
 
     /**
@@ -90,4 +83,56 @@ public class LogLevel implements ILevelable {
      * Defines the permission, to execute the LogEntries on this Level asynchronously or not.
      */
     protected boolean async;
+
+    public LogLevel(String lowerName, String upperName, int level, boolean async) {
+        this.lowerName = lowerName;
+        this.upperName = upperName;
+        this.level = level;
+        this.async = async;
+    }
+
+    public String getLowerName() {
+        return lowerName;
+    }
+
+    public String getUpperName() {
+        return upperName;
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("LogLevel{");
+        sb.append("lowerName='").append(lowerName).append('\'');
+        sb.append(", upperName='").append(upperName).append('\'');
+        sb.append(", level=").append(level);
+        sb.append(", async=").append(async);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LogLevel logLevel = (LogLevel) o;
+        return level == logLevel.level &&
+                async == logLevel.async &&
+                Objects.equals(lowerName, logLevel.lowerName) &&
+                Objects.equals(upperName, logLevel.upperName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lowerName, upperName, level, async);
+    }
+
 }

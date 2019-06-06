@@ -1,8 +1,5 @@
 package de.dytanic.cloudnet.common.logging;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,8 +8,6 @@ import java.nio.charset.StandardCharsets;
  * Defines a new ByteArrayOutputStream that convert the bytes into a message and
  * invokes the in constructor exist logger
  */
-@Getter
-@RequiredArgsConstructor
 public class LogOutputStream extends ByteArrayOutputStream {
 
     /**
@@ -24,6 +19,25 @@ public class LogOutputStream extends ByteArrayOutputStream {
      * The LogLevel in that the logger should log the incoming message
      */
     protected final LogLevel logLevel;
+
+    public LogOutputStream(ILogger logger, LogLevel logLevel) {
+        this.logger = logger;
+        this.logLevel = logLevel;
+    }
+
+    public LogOutputStream(int size, ILogger logger, LogLevel logLevel) {
+        super(size);
+        this.logger = logger;
+        this.logLevel = logLevel;
+    }
+
+    public ILogger getLogger() {
+        return logger;
+    }
+
+    public LogLevel getLogLevel() {
+        return logLevel;
+    }
 
     @Override
     public void flush() throws IOException {
