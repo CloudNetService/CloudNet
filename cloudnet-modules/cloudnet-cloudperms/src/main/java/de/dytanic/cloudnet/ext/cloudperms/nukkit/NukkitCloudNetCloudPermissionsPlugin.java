@@ -8,15 +8,16 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 
 import java.lang.reflect.Field;
 
-@Getter
 public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
 
-    @Getter
     private static NukkitCloudNetCloudPermissionsPlugin instance;
+
+    public static NukkitCloudNetCloudPermissionsPlugin getInstance() {
+        return NukkitCloudNetCloudPermissionsPlugin.instance;
+    }
 
     @Override
     public void onLoad() {

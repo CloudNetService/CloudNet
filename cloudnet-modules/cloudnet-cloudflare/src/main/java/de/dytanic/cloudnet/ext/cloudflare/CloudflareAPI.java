@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
-import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -28,17 +27,14 @@ public final class CloudflareAPI implements AutoCloseable {
     private static final Type MAP_STRING_DOCUMENT = new TypeToken<Map<String, Pair<String, JsonDocument>>>() {
     }.getType();
 
-    @Getter
     private static CloudflareAPI instance;
 
     /*
     @Getter
     private final File file;
     */
-    @Getter
     private final IDatabase database;
 
-    @Getter
     private final Map<String, Pair<String, JsonDocument>> createdRecords = Maps.newConcurrentHashMap();
 
     protected CloudflareAPI(IDatabase database) {
@@ -48,6 +44,10 @@ public final class CloudflareAPI implements AutoCloseable {
         //this.file = file;
 
         this.read();
+    }
+
+    public static CloudflareAPI getInstance() {
+        return CloudflareAPI.instance;
     }
 
     public Pair<Integer, JsonDocument> createRecord(String serviceName, String email, String apiKey, String zoneId, DNSRecord dnsRecord) {
@@ -223,5 +223,13 @@ public final class CloudflareAPI implements AutoCloseable {
         }
 
         return null;
+    }
+
+    public IDatabase getDatabase() {
+        return this.database;
+    }
+
+    public Map<String, Pair<String, JsonDocument>> getCreatedRecords() {
+        return this.createdRecords;
     }
 }

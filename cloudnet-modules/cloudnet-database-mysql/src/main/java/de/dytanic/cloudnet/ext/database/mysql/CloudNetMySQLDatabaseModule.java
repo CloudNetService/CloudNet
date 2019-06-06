@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -18,8 +17,11 @@ public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
     public static final Type TYPE = new TypeToken<List<MySQLConnectionEndpoint>>() {
     }.getType();
 
-    @Getter
     private static CloudNetMySQLDatabaseModule instance;
+
+    public static CloudNetMySQLDatabaseModule getInstance() {
+        return CloudNetMySQLDatabaseModule.instance;
+    }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
     public void init() {

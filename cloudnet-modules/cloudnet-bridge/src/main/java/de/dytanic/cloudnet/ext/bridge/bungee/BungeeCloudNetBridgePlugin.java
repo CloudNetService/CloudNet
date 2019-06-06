@@ -10,13 +10,11 @@ import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeeCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
 
-@Getter
 public final class BungeeCloudNetBridgePlugin extends Plugin {
 
     @Override

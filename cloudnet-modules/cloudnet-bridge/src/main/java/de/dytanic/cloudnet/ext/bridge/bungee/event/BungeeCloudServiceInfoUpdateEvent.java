@@ -1,12 +1,16 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public final class BungeeCloudServiceInfoUpdateEvent extends BungeeCloudNetEvent {
 
-    @Getter
     private final ServiceInfoSnapshot serviceInfoSnapshot;
+
+    public BungeeCloudServiceInfoUpdateEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
+    }
 }

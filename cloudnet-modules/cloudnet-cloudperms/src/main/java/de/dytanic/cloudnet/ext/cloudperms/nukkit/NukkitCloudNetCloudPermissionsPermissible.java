@@ -7,14 +7,11 @@ import cn.nukkit.permission.PermissionAttachmentInfo;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Getter
 public final class NukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private final Player player;
@@ -65,5 +62,9 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
 
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
         return permissionUser != null && CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, inName);
+    }
+
+    public Player getPlayer() {
+        return this.player;
     }
 }

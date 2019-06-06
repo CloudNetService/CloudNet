@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee.util;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
-import lombok.Getter;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -11,7 +10,6 @@ import net.md_5.bungee.api.event.PermissionCheckEvent;
 import java.util.Collection;
 import java.util.UUID;
 
-@Getter
 public class LoginPendingConnectionCommandSender implements CommandSender {
 
     private final Collection<String> permissions = Iterables.newArrayList(), groups = Iterables.newArrayList();
@@ -75,5 +73,21 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
             this.permissions.add(permission.toLowerCase());
         else
             this.permissions.remove(permission.toLowerCase());
+    }
+
+    public Collection<String> getPermissions() {
+        return this.permissions;
+    }
+
+    public Collection<String> getGroups() {
+        return this.groups;
+    }
+
+    public LoginEvent getLoginEvent() {
+        return this.loginEvent;
+    }
+
+    public UUID getUniqueId() {
+        return this.uniqueId;
     }
 }

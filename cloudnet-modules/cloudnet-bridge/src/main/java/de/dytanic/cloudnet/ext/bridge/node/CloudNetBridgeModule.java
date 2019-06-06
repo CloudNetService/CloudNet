@@ -17,22 +17,21 @@ import de.dytanic.cloudnet.ext.bridge.node.listener.NodeCustomChannelMessageList
 import de.dytanic.cloudnet.ext.bridge.node.listener.PlayerManagerListener;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collections;
 
 public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
-    @Getter
     private static CloudNetBridgeModule instance;
 
-    @Getter
-    @Setter
     private BridgeConfiguration bridgeConfiguration;
 
     public CloudNetBridgeModule() {
         instance = this;
+    }
+
+    public static CloudNetBridgeModule getInstance() {
+        return CloudNetBridgeModule.instance;
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
@@ -92,5 +91,13 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
         registerListeners(new NetworkListenerRegisterListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener());
+    }
+
+    public BridgeConfiguration getBridgeConfiguration() {
+        return this.bridgeConfiguration;
+    }
+
+    public void setBridgeConfiguration(BridgeConfiguration bridgeConfiguration) {
+        this.bridgeConfiguration = bridgeConfiguration;
     }
 }

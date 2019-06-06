@@ -11,8 +11,6 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.signs.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -25,13 +23,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-@Getter
 public final class BukkitSignManagement extends AbstractSignManagement {
 
     private static final Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>>
             ENTRY_COMPARATOR = new ServiceInfoSnapshotEntryComparator(),
             ENTRY_COMPARATOR_2 = new ServiceInfoSnapshotEntryComparator2();
-    @Getter
     private static BukkitSignManagement instance;
     private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = Maps.newConcurrentHashMap();
 
@@ -51,6 +47,10 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         this.executeSearchingTask();
         this.executeStartingTask();
+    }
+
+    public static BukkitSignManagement getInstance() {
+        return BukkitSignManagement.instance;
     }
 
     @Override
@@ -588,8 +588,18 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
 
-    @Getter
-    @AllArgsConstructor
+    public Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> getServices() {
+        return this.services;
+    }
+
+    public BukkitCloudNetSignsPlugin getPlugin() {
+        return this.plugin;
+    }
+
+    public AtomicInteger[] getIndexes() {
+        return this.indexes;
+    }
+
     private enum ServiceInfoState {
         STOPPED(0),
         STARTING(1),
@@ -599,6 +609,13 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         private final int value;
 
+        private ServiceInfoState(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
     }
 
     private static final class ServiceInfoSnapshotEntryComparator implements Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> {

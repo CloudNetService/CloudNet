@@ -23,23 +23,17 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Map;
 import java.util.function.Function;
 
 public final class NukkitCloudNetHelper {
 
-    @Getter
-    @Setter
     private static volatile String
             apiMotd = Server.getInstance().getMotd(),
             extra = "",
             state = "LOBBY";
 
-    @Getter
-    @Setter
     private static volatile int maxPlayers = Server.getInstance().getMaxPlayers();
 
     //*= ----------------------------------------------------------------
@@ -222,5 +216,37 @@ public final class NukkitCloudNetHelper {
                         Wrapper.getInstance().getServiceId().getName()
                 )
         );
+    }
+
+    public static String getApiMotd() {
+        return NukkitCloudNetHelper.apiMotd;
+    }
+
+    public static String getExtra() {
+        return NukkitCloudNetHelper.extra;
+    }
+
+    public static String getState() {
+        return NukkitCloudNetHelper.state;
+    }
+
+    public static int getMaxPlayers() {
+        return NukkitCloudNetHelper.maxPlayers;
+    }
+
+    public static void setApiMotd(String apiMotd) {
+        NukkitCloudNetHelper.apiMotd = apiMotd;
+    }
+
+    public static void setExtra(String extra) {
+        NukkitCloudNetHelper.extra = extra;
+    }
+
+    public static void setState(String state) {
+        NukkitCloudNetHelper.state = state;
+    }
+
+    public static void setMaxPlayers(int maxPlayers) {
+        NukkitCloudNetHelper.maxPlayers = maxPlayers;
     }
 }

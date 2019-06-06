@@ -16,8 +16,6 @@ import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -28,8 +26,6 @@ public final class VelocityCloudNetHelper {
 
     public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = Maps.newConcurrentHashMap();
 
-    @Getter
-    @Setter
     private static ProxyServer proxyServer;
 
     private VelocityCloudNetHelper() {
@@ -199,5 +195,13 @@ public final class VelocityCloudNetHelper {
                     }
                 }))
         ;
+    }
+
+    public static ProxyServer getProxyServer() {
+        return VelocityCloudNetHelper.proxyServer;
+    }
+
+    public static void setProxyServer(ProxyServer proxyServer) {
+        VelocityCloudNetHelper.proxyServer = proxyServer;
     }
 }

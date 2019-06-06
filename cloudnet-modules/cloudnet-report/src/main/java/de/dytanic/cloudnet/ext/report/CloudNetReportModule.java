@@ -11,8 +11,6 @@ import de.dytanic.cloudnet.ext.report.command.CommandReport;
 import de.dytanic.cloudnet.ext.report.listener.CloudNetReportListener;
 import de.dytanic.cloudnet.ext.report.util.PasteServerType;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -22,17 +20,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-@Getter
 public final class CloudNetReportModule extends NodeCloudNetModule {
 
-    @Getter
     private static CloudNetReportModule instance;
 
-    @Setter
     private volatile Class<? extends Event> eventClass;
 
-    @Getter
     private File savingRecordsDirectory;
+
+    public static CloudNetReportModule getInstance() {
+        return CloudNetReportModule.instance;
+    }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
     public void init() {
@@ -107,5 +105,17 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         }
 
         return null;
+    }
+
+    public Class<? extends Event> getEventClass() {
+        return this.eventClass;
+    }
+
+    public File getSavingRecordsDirectory() {
+        return this.savingRecordsDirectory;
+    }
+
+    public void setEventClass(Class<? extends Event> eventClass) {
+        this.eventClass = eventClass;
     }
 }

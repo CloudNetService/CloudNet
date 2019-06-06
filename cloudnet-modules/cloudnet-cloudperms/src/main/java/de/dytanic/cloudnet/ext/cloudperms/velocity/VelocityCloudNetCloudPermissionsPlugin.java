@@ -13,11 +13,9 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 
 import java.lang.reflect.Field;
 
-@Getter
 @Plugin(
         id = "cloudnet_cloudperms_velocity",
         name = "CloudNet-CloudPerms",
@@ -30,7 +28,6 @@ import java.lang.reflect.Field;
 )
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
-    @Getter
     private static VelocityCloudNetCloudPermissionsPlugin instance;
 
     private final ProxyServer proxyServer;
@@ -42,6 +39,10 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
         instance = this;
 
         this.proxyServer = proxyServer;
+    }
+
+    public static VelocityCloudNetCloudPermissionsPlugin getInstance() {
+        return VelocityCloudNetCloudPermissionsPlugin.instance;
     }
 
     @Subscribe
@@ -76,5 +77,13 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
         } catch (Exception ignored) {
 
         }
+    }
+
+    public ProxyServer getProxyServer() {
+        return this.proxyServer;
+    }
+
+    public PermissionProvider getPermissionProvider() {
+        return this.permissionProvider;
     }
 }

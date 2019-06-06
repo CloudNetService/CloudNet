@@ -18,18 +18,15 @@ import io.gomint.proxprox.api.plugin.Plugin;
 import io.gomint.proxprox.api.plugin.annotation.Description;
 import io.gomint.proxprox.api.plugin.annotation.Name;
 import io.gomint.proxprox.api.plugin.annotation.Version;
-import lombok.Getter;
 
 import java.util.Map;
 import java.util.UUID;
 
-@Getter
 @Name("CloudNet-SyncProxy")
 @Version(major = 1, minor = 0)
 @Description("CloudNet extension, which implement the multi Proxy server synchronization bridge technology and some small features")
 public final class ProxProxCloudNetSyncProxyPlugin extends Plugin {
 
-    @Getter
     private static ProxProxCloudNetSyncProxyPlugin instance;
     private final Map<UUID, Integer> onlineCountOfProxies = Maps.newConcurrentHashMap();
 
@@ -43,6 +40,10 @@ public final class ProxProxCloudNetSyncProxyPlugin extends Plugin {
 
     public static ProxProx getProxyServer() {
         return ProxProx.instance;
+    }
+
+    public static ProxProxCloudNetSyncProxyPlugin getInstance() {
+        return ProxProxCloudNetSyncProxyPlugin.instance;
     }
 
     @Override
@@ -114,5 +115,9 @@ public final class ProxProxCloudNetSyncProxyPlugin extends Plugin {
                     getOnlineCountOfProxies().put(serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getProperties().getInt(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
         }
+    }
+
+    public Map<UUID, Integer> getOnlineCountOfProxies() {
+        return this.onlineCountOfProxies;
     }
 }

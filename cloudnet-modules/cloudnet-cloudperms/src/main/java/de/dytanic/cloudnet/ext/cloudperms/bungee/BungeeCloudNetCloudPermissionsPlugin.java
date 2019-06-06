@@ -4,14 +4,15 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bungee.listener.BungeeCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 import net.md_5.bungee.api.plugin.Plugin;
 
-@Getter
 public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
 
-    @Getter
     private static BungeeCloudNetCloudPermissionsPlugin instance;
+
+    public static BungeeCloudNetCloudPermissionsPlugin getInstance() {
+        return BungeeCloudNetCloudPermissionsPlugin.instance;
+    }
 
     @Override
     public void onLoad() {

@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerServerConnectRequestEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -21,7 +20,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Collection;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 public final class BukkitPlayerListener implements Listener {
 
     private final Collection<UUID> accessUniqueIds = Iterables.newCopyOnWriteArrayList();
@@ -29,6 +27,10 @@ public final class BukkitPlayerListener implements Listener {
     private final Collection<String> accessNames = Iterables.newCopyOnWriteArrayList();
 
     private final BukkitCloudNetBridgePlugin plugin;
+
+    public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void handle(BukkitBridgeProxyPlayerServerConnectRequestEvent event) {
