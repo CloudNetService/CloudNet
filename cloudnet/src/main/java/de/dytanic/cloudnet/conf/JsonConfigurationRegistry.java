@@ -2,11 +2,15 @@ package de.dytanic.cloudnet.conf;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@ToString
+@EqualsAndHashCode
 public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     private final int registryVersion = 1, lowestSupportedVersion = 1;
@@ -254,34 +258,4 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         return this.entries;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof JsonConfigurationRegistry)) return false;
-        final JsonConfigurationRegistry other = (JsonConfigurationRegistry) o;
-        if (this.getRegistryVersion() != other.getRegistryVersion()) return false;
-        if (this.getLowestSupportedVersion() != other.getLowestSupportedVersion()) return false;
-        final Object this$path = this.getPath();
-        final Object other$path = other.getPath();
-        if (this$path == null ? other$path != null : !this$path.equals(other$path)) return false;
-        final Object this$entries = this.getEntries();
-        final Object other$entries = other.getEntries();
-        if (this$entries == null ? other$entries != null : !this$entries.equals(other$entries)) return false;
-        return true;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        result = result * PRIME + this.getRegistryVersion();
-        result = result * PRIME + this.getLowestSupportedVersion();
-        final Object $path = this.getPath();
-        result = result * PRIME + ($path == null ? 43 : $path.hashCode());
-        final Object $entries = this.getEntries();
-        result = result * PRIME + ($entries == null ? 43 : $entries.hashCode());
-        return result;
-    }
-
-    public String toString() {
-        return "JsonConfigurationRegistry(registryVersion=" + this.getRegistryVersion() + ", lowestSupportedVersion=" + this.getLowestSupportedVersion() + ", path=" + this.getPath() + ", entries=" + this.getEntries() + ")";
-    }
 }

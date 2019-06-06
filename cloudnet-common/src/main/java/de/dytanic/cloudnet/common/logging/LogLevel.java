@@ -1,5 +1,8 @@
 package de.dytanic.cloudnet.common.logging;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.util.Objects;
 
 /**
@@ -11,6 +14,8 @@ import java.util.Objects;
  *
  * @see LogEntry
  */
+@ToString
+@EqualsAndHashCode
 public class LogLevel implements ILevelable {
 
     /**
@@ -106,33 +111,6 @@ public class LogLevel implements ILevelable {
 
     public boolean isAsync() {
         return async;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("LogLevel{");
-        sb.append("lowerName='").append(lowerName).append('\'');
-        sb.append(", upperName='").append(upperName).append('\'');
-        sb.append(", level=").append(level);
-        sb.append(", async=").append(async);
-        sb.append('}');
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LogLevel logLevel = (LogLevel) o;
-        return level == logLevel.level &&
-                async == logLevel.async &&
-                Objects.equals(lowerName, logLevel.lowerName) &&
-                Objects.equals(upperName, logLevel.upperName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(lowerName, upperName, level, async);
     }
 
 }

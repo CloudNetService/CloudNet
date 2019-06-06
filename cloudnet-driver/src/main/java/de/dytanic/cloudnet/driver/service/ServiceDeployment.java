@@ -1,9 +1,13 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Collection;
 
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public final class ServiceDeployment extends BasicJsonDocPropertyable {
 
     private final ServiceTemplate template;
@@ -23,7 +27,4 @@ public final class ServiceDeployment extends BasicJsonDocPropertyable {
         return this.excludes;
     }
 
-    public String toString() {
-        return "ServiceDeployment(template=" + this.getTemplate() + ", excludes=" + this.getExcludes() + ")";
-    }
 }

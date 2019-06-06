@@ -1,5 +1,10 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@ToString
+@EqualsAndHashCode
 public class CloudflareGroupConfiguration {
 
     protected String name, sub;
@@ -48,39 +53,4 @@ public class CloudflareGroupConfiguration {
         this.weight = weight;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof CloudflareGroupConfiguration)) return false;
-        final CloudflareGroupConfiguration other = (CloudflareGroupConfiguration) o;
-        if (!other.canEqual((Object) this)) return false;
-        final Object this$name = this.getName();
-        final Object other$name = other.getName();
-        if (this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
-        final Object this$sub = this.getSub();
-        final Object other$sub = other.getSub();
-        if (this$sub == null ? other$sub != null : !this$sub.equals(other$sub)) return false;
-        if (this.getPriority() != other.getPriority()) return false;
-        if (this.getWeight() != other.getWeight()) return false;
-        return true;
-    }
-
-    protected boolean canEqual(final Object other) {
-        return other instanceof CloudflareGroupConfiguration;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $name = this.getName();
-        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
-        final Object $sub = this.getSub();
-        result = result * PRIME + ($sub == null ? 43 : $sub.hashCode());
-        result = result * PRIME + this.getPriority();
-        result = result * PRIME + this.getWeight();
-        return result;
-    }
-
-    public String toString() {
-        return "CloudflareGroupConfiguration(name=" + this.getName() + ", sub=" + this.getSub() + ", priority=" + this.getPriority() + ", weight=" + this.getWeight() + ")";
-    }
 }

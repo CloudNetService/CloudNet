@@ -1,5 +1,10 @@
 package de.dytanic.cloudnet.ext.bridge;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@ToString
+@EqualsAndHashCode
 public class ProxyFallback implements Comparable<ProxyFallback> {
 
     protected String task, permission;
@@ -43,38 +48,4 @@ public class ProxyFallback implements Comparable<ProxyFallback> {
         this.priority = priority;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof ProxyFallback)) return false;
-        final ProxyFallback other = (ProxyFallback) o;
-        if (!other.canEqual((Object) this)) return false;
-        final Object this$task = this.getTask();
-        final Object other$task = other.getTask();
-        if (this$task == null ? other$task != null : !this$task.equals(other$task)) return false;
-        final Object this$permission = this.getPermission();
-        final Object other$permission = other.getPermission();
-        if (this$permission == null ? other$permission != null : !this$permission.equals(other$permission))
-            return false;
-        if (this.getPriority() != other.getPriority()) return false;
-        return true;
-    }
-
-    protected boolean canEqual(final Object other) {
-        return other instanceof ProxyFallback;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $task = this.getTask();
-        result = result * PRIME + ($task == null ? 43 : $task.hashCode());
-        final Object $permission = this.getPermission();
-        result = result * PRIME + ($permission == null ? 43 : $permission.hashCode());
-        result = result * PRIME + this.getPriority();
-        return result;
-    }
-
-    public String toString() {
-        return "ProxyFallback(task=" + this.getTask() + ", permission=" + this.getPermission() + ", priority=" + this.getPriority() + ")";
-    }
 }

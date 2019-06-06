@@ -2,11 +2,15 @@ package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     public static final Type TYPE = new TypeToken<BridgeConfiguration>() {
@@ -79,55 +83,4 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         this.logPlayerConnections = logPlayerConnections;
     }
 
-    public String toString() {
-        return "BridgeConfiguration(prefix=" + this.getPrefix() + ", excludedOnlyProxyWalkableGroups=" + this.getExcludedOnlyProxyWalkableGroups() + ", excludedGroups=" + this.getExcludedGroups() + ", bungeeFallbackConfigurations=" + this.getBungeeFallbackConfigurations() + ", messages=" + this.getMessages() + ", logPlayerConnections=" + this.isLogPlayerConnections() + ")";
-    }
-
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof BridgeConfiguration)) return false;
-        final BridgeConfiguration other = (BridgeConfiguration) o;
-        if (!other.canEqual((Object) this)) return false;
-        final Object this$prefix = this.getPrefix();
-        final Object other$prefix = other.getPrefix();
-        if (this$prefix == null ? other$prefix != null : !this$prefix.equals(other$prefix)) return false;
-        final Object this$excludedOnlyProxyWalkableGroups = this.getExcludedOnlyProxyWalkableGroups();
-        final Object other$excludedOnlyProxyWalkableGroups = other.getExcludedOnlyProxyWalkableGroups();
-        if (this$excludedOnlyProxyWalkableGroups == null ? other$excludedOnlyProxyWalkableGroups != null : !this$excludedOnlyProxyWalkableGroups.equals(other$excludedOnlyProxyWalkableGroups))
-            return false;
-        final Object this$excludedGroups = this.getExcludedGroups();
-        final Object other$excludedGroups = other.getExcludedGroups();
-        if (this$excludedGroups == null ? other$excludedGroups != null : !this$excludedGroups.equals(other$excludedGroups))
-            return false;
-        final Object this$bungeeFallbackConfigurations = this.getBungeeFallbackConfigurations();
-        final Object other$bungeeFallbackConfigurations = other.getBungeeFallbackConfigurations();
-        if (this$bungeeFallbackConfigurations == null ? other$bungeeFallbackConfigurations != null : !this$bungeeFallbackConfigurations.equals(other$bungeeFallbackConfigurations))
-            return false;
-        final Object this$messages = this.getMessages();
-        final Object other$messages = other.getMessages();
-        if (this$messages == null ? other$messages != null : !this$messages.equals(other$messages)) return false;
-        if (this.isLogPlayerConnections() != other.isLogPlayerConnections()) return false;
-        return true;
-    }
-
-    protected boolean canEqual(final Object other) {
-        return other instanceof BridgeConfiguration;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $prefix = this.getPrefix();
-        result = result * PRIME + ($prefix == null ? 43 : $prefix.hashCode());
-        final Object $excludedOnlyProxyWalkableGroups = this.getExcludedOnlyProxyWalkableGroups();
-        result = result * PRIME + ($excludedOnlyProxyWalkableGroups == null ? 43 : $excludedOnlyProxyWalkableGroups.hashCode());
-        final Object $excludedGroups = this.getExcludedGroups();
-        result = result * PRIME + ($excludedGroups == null ? 43 : $excludedGroups.hashCode());
-        final Object $bungeeFallbackConfigurations = this.getBungeeFallbackConfigurations();
-        result = result * PRIME + ($bungeeFallbackConfigurations == null ? 43 : $bungeeFallbackConfigurations.hashCode());
-        final Object $messages = this.getMessages();
-        result = result * PRIME + ($messages == null ? 43 : $messages.hashCode());
-        result = result * PRIME + (this.isLogPlayerConnections() ? 79 : 97);
-        return result;
-    }
 }

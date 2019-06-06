@@ -3,10 +3,14 @@ package de.dytanic.cloudnet.ext.bridge.player;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
 
+@ToString
+@EqualsAndHashCode
 public final class NetworkPlayerServerInfo {
 
     public static final Type TYPE = new TypeToken<NetworkPlayerServerInfo>() {
@@ -122,62 +126,4 @@ public final class NetworkPlayerServerInfo {
         this.networkService = networkService;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof NetworkPlayerServerInfo)) return false;
-        final NetworkPlayerServerInfo other = (NetworkPlayerServerInfo) o;
-        final Object this$uniqueId = this.getUniqueId();
-        final Object other$uniqueId = other.getUniqueId();
-        if (this$uniqueId == null ? other$uniqueId != null : !this$uniqueId.equals(other$uniqueId)) return false;
-        final Object this$name = this.getName();
-        final Object other$name = other.getName();
-        if (this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
-        final Object this$xBoxId = this.getXBoxId();
-        final Object other$xBoxId = other.getXBoxId();
-        if (this$xBoxId == null ? other$xBoxId != null : !this$xBoxId.equals(other$xBoxId)) return false;
-        if (Double.compare(this.getHealth(), other.getHealth()) != 0) return false;
-        if (Double.compare(this.getMaxHealth(), other.getMaxHealth()) != 0) return false;
-        if (Double.compare(this.getSaturation(), other.getSaturation()) != 0) return false;
-        if (this.getLevel() != other.getLevel()) return false;
-        final Object this$location = this.getLocation();
-        final Object other$location = other.getLocation();
-        if (this$location == null ? other$location != null : !this$location.equals(other$location)) return false;
-        final Object this$address = this.getAddress();
-        final Object other$address = other.getAddress();
-        if (this$address == null ? other$address != null : !this$address.equals(other$address)) return false;
-        final Object this$networkService = this.getNetworkService();
-        final Object other$networkService = other.getNetworkService();
-        if (this$networkService == null ? other$networkService != null : !this$networkService.equals(other$networkService))
-            return false;
-        return true;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $uniqueId = this.getUniqueId();
-        result = result * PRIME + ($uniqueId == null ? 43 : $uniqueId.hashCode());
-        final Object $name = this.getName();
-        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
-        final Object $xBoxId = this.getXBoxId();
-        result = result * PRIME + ($xBoxId == null ? 43 : $xBoxId.hashCode());
-        final long $health = Double.doubleToLongBits(this.getHealth());
-        result = result * PRIME + (int) ($health >>> 32 ^ $health);
-        final long $maxHealth = Double.doubleToLongBits(this.getMaxHealth());
-        result = result * PRIME + (int) ($maxHealth >>> 32 ^ $maxHealth);
-        final long $saturation = Double.doubleToLongBits(this.getSaturation());
-        result = result * PRIME + (int) ($saturation >>> 32 ^ $saturation);
-        result = result * PRIME + this.getLevel();
-        final Object $location = this.getLocation();
-        result = result * PRIME + ($location == null ? 43 : $location.hashCode());
-        final Object $address = this.getAddress();
-        result = result * PRIME + ($address == null ? 43 : $address.hashCode());
-        final Object $networkService = this.getNetworkService();
-        result = result * PRIME + ($networkService == null ? 43 : $networkService.hashCode());
-        return result;
-    }
-
-    public String toString() {
-        return "NetworkPlayerServerInfo(uniqueId=" + this.getUniqueId() + ", name=" + this.getName() + ", xBoxId=" + this.getXBoxId() + ", health=" + this.getHealth() + ", maxHealth=" + this.getMaxHealth() + ", saturation=" + this.getSaturation() + ", level=" + this.getLevel() + ", location=" + this.getLocation() + ", address=" + this.getAddress() + ", networkService=" + this.getNetworkService() + ")";
-    }
 }

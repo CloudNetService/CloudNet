@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.console.animation;
 
 import de.dytanic.cloudnet.console.IConsole;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.fusesource.jansi.Ansi;
 
 import java.text.SimpleDateFormat;
@@ -28,6 +30,8 @@ import java.text.SimpleDateFormat;
  * }, 5, -1);
  * consoleProvider.invokeConsoleAnimation(progressBar);
  */
+@ToString
+@EqualsAndHashCode
 public class CAProgressBar {
 
     protected long updateInterval, targetGoal, barStart;
@@ -161,51 +165,4 @@ public class CAProgressBar {
         this.progressChar = progressChar;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof CAProgressBar)) return false;
-        final CAProgressBar other = (CAProgressBar) o;
-        if (!other.canEqual((Object) this)) return false;
-        if (this.getUpdateInterval() != other.getUpdateInterval()) return false;
-        if (this.getTargetGoal() != other.getTargetGoal()) return false;
-        if (this.getBarStart() != other.getBarStart()) return false;
-        if (this.isExpand() != other.isExpand()) return false;
-        if (this.getProgressValue() != other.getProgressValue()) return false;
-        final Object this$prefix = this.getPrefix();
-        final Object other$prefix = other.getPrefix();
-        if (this$prefix == null ? other$prefix != null : !this$prefix.equals(other$prefix)) return false;
-        final Object this$suffix = this.getSuffix();
-        final Object other$suffix = other.getSuffix();
-        if (this$suffix == null ? other$suffix != null : !this$suffix.equals(other$suffix)) return false;
-        if (this.getProgressChar() != other.getProgressChar()) return false;
-        return true;
-    }
-
-    protected boolean canEqual(final Object other) {
-        return other instanceof CAProgressBar;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final long $updateInterval = this.getUpdateInterval();
-        result = result * PRIME + (int) ($updateInterval >>> 32 ^ $updateInterval);
-        final long $targetGoal = this.getTargetGoal();
-        result = result * PRIME + (int) ($targetGoal >>> 32 ^ $targetGoal);
-        final long $barStart = this.getBarStart();
-        result = result * PRIME + (int) ($barStart >>> 32 ^ $barStart);
-        result = result * PRIME + (this.isExpand() ? 79 : 97);
-        final long $progressValue = this.getProgressValue();
-        result = result * PRIME + (int) ($progressValue >>> 32 ^ $progressValue);
-        final Object $prefix = this.getPrefix();
-        result = result * PRIME + ($prefix == null ? 43 : $prefix.hashCode());
-        final Object $suffix = this.getSuffix();
-        result = result * PRIME + ($suffix == null ? 43 : $suffix.hashCode());
-        result = result * PRIME + this.getProgressChar();
-        return result;
-    }
-
-    public String toString() {
-        return "CAProgressBar(updateInterval=" + this.getUpdateInterval() + ", targetGoal=" + this.getTargetGoal() + ", barStart=" + this.getBarStart() + ", expand=" + this.isExpand() + ", progressValue=" + this.getProgressValue() + ", prefix=" + this.getPrefix() + ", suffix=" + this.getSuffix() + ", progressChar=" + this.getProgressChar() + ")";
-    }
 }

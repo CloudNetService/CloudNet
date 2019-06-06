@@ -5,9 +5,13 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends NetworkEvent implements ICancelable {
 
     private List<PermissionUser> permissionUsers;
@@ -46,41 +50,4 @@ public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends N
         this.cancelled = cancelled;
     }
 
-    public String toString() {
-        return "NetworkChannelReceiveJsonFilePermissionsUpdateEvent(permissionUsers=" + this.getPermissionUsers() + ", permissionGroups=" + this.getPermissionGroups() + ", cancelled=" + this.isCancelled() + ")";
-    }
-
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof NetworkChannelReceiveJsonFilePermissionsUpdateEvent))
-            return false;
-        final NetworkChannelReceiveJsonFilePermissionsUpdateEvent other = (NetworkChannelReceiveJsonFilePermissionsUpdateEvent) o;
-        if (!other.canEqual((Object) this)) return false;
-        if (!super.equals(o)) return false;
-        final Object this$permissionUsers = this.getPermissionUsers();
-        final Object other$permissionUsers = other.getPermissionUsers();
-        if (this$permissionUsers == null ? other$permissionUsers != null : !this$permissionUsers.equals(other$permissionUsers))
-            return false;
-        final Object this$permissionGroups = this.getPermissionGroups();
-        final Object other$permissionGroups = other.getPermissionGroups();
-        if (this$permissionGroups == null ? other$permissionGroups != null : !this$permissionGroups.equals(other$permissionGroups))
-            return false;
-        if (this.isCancelled() != other.isCancelled()) return false;
-        return true;
-    }
-
-    protected boolean canEqual(final Object other) {
-        return other instanceof NetworkChannelReceiveJsonFilePermissionsUpdateEvent;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $permissionUsers = this.getPermissionUsers();
-        result = result * PRIME + ($permissionUsers == null ? 43 : $permissionUsers.hashCode());
-        final Object $permissionGroups = this.getPermissionGroups();
-        result = result * PRIME + ($permissionGroups == null ? 43 : $permissionGroups.hashCode());
-        result = result * PRIME + (this.isCancelled() ? 79 : 97);
-        return result;
-    }
 }

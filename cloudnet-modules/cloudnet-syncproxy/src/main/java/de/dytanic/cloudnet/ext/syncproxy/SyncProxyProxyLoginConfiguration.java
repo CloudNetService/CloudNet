@@ -1,7 +1,12 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.util.List;
 
+@ToString
+@EqualsAndHashCode
 public class SyncProxyProxyLoginConfiguration {
 
     protected String targetGroup;
@@ -76,51 +81,4 @@ public class SyncProxyProxyLoginConfiguration {
         this.maintenanceMotds = maintenanceMotds;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof SyncProxyProxyLoginConfiguration)) return false;
-        final SyncProxyProxyLoginConfiguration other = (SyncProxyProxyLoginConfiguration) o;
-        if (!other.canEqual((Object) this)) return false;
-        final Object this$targetGroup = this.getTargetGroup();
-        final Object other$targetGroup = other.getTargetGroup();
-        if (this$targetGroup == null ? other$targetGroup != null : !this$targetGroup.equals(other$targetGroup))
-            return false;
-        if (this.isMaintenance() != other.isMaintenance()) return false;
-        if (this.getMaxPlayers() != other.getMaxPlayers()) return false;
-        final Object this$whitelist = this.getWhitelist();
-        final Object other$whitelist = other.getWhitelist();
-        if (this$whitelist == null ? other$whitelist != null : !this$whitelist.equals(other$whitelist)) return false;
-        final Object this$motds = this.getMotds();
-        final Object other$motds = other.getMotds();
-        if (this$motds == null ? other$motds != null : !this$motds.equals(other$motds)) return false;
-        final Object this$maintenanceMotds = this.getMaintenanceMotds();
-        final Object other$maintenanceMotds = other.getMaintenanceMotds();
-        if (this$maintenanceMotds == null ? other$maintenanceMotds != null : !this$maintenanceMotds.equals(other$maintenanceMotds))
-            return false;
-        return true;
-    }
-
-    protected boolean canEqual(final Object other) {
-        return other instanceof SyncProxyProxyLoginConfiguration;
-    }
-
-    public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $targetGroup = this.getTargetGroup();
-        result = result * PRIME + ($targetGroup == null ? 43 : $targetGroup.hashCode());
-        result = result * PRIME + (this.isMaintenance() ? 79 : 97);
-        result = result * PRIME + this.getMaxPlayers();
-        final Object $whitelist = this.getWhitelist();
-        result = result * PRIME + ($whitelist == null ? 43 : $whitelist.hashCode());
-        final Object $motds = this.getMotds();
-        result = result * PRIME + ($motds == null ? 43 : $motds.hashCode());
-        final Object $maintenanceMotds = this.getMaintenanceMotds();
-        result = result * PRIME + ($maintenanceMotds == null ? 43 : $maintenanceMotds.hashCode());
-        return result;
-    }
-
-    public String toString() {
-        return "SyncProxyProxyLoginConfiguration(targetGroup=" + this.getTargetGroup() + ", maintenance=" + this.isMaintenance() + ", maxPlayers=" + this.getMaxPlayers() + ", whitelist=" + this.getWhitelist() + ", motds=" + this.getMotds() + ", maintenanceMotds=" + this.getMaintenanceMotds() + ")";
-    }
 }
