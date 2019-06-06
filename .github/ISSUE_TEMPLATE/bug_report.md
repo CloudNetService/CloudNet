@@ -32,7 +32,7 @@ Steps to reproduce the exception:
 
 
 **Screenshots**<br>
-<!-- If applicable, add screenshots to help explain your problem. -->
+<!-- If applicable, add screenshots to help explaining your problem. -->
 
 
 **Please provide us information about your environment and used assets**
