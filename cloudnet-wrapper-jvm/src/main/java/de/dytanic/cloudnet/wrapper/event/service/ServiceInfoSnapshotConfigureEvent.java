@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.wrapper.event.service;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * The event is called when a new ServiceInfoSnapshot has been created to update this service.
@@ -14,8 +12,6 @@ import lombok.RequiredArgsConstructor;
  * @see ServiceInfoSnapshot
  * @see Event
  */
-@Getter
-@RequiredArgsConstructor
 public class ServiceInfoSnapshotConfigureEvent extends Event {
 
     /**
@@ -24,4 +20,11 @@ public class ServiceInfoSnapshotConfigureEvent extends Event {
      */
     private final ServiceInfoSnapshot serviceInfoSnapshot;
 
+    public ServiceInfoSnapshotConfigureEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
+    }
 }

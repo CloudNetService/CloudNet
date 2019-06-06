@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.wrapper.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.jar.Manifest;
@@ -14,8 +12,6 @@ import java.util.jar.Manifest;
  *
  * @see DriverEvent
  */
-@Getter
-@RequiredArgsConstructor
 public final class ApplicationPreStartEvent extends DriverEvent {
 
     /**
@@ -42,4 +38,26 @@ public final class ApplicationPreStartEvent extends DriverEvent {
      */
     private final Collection<String> arguments;
 
+    public ApplicationPreStartEvent(Wrapper cloudNetWrapper, Class<?> clazz, Manifest manifest, Collection<String> arguments) {
+        this.cloudNetWrapper = cloudNetWrapper;
+        this.clazz = clazz;
+        this.manifest = manifest;
+        this.arguments = arguments;
+    }
+
+    public Wrapper getCloudNetWrapper() {
+        return this.cloudNetWrapper;
+    }
+
+    public Class<?> getClazz() {
+        return this.clazz;
+    }
+
+    public Manifest getManifest() {
+        return this.manifest;
+    }
+
+    public Collection<String> getArguments() {
+        return this.arguments;
+    }
 }

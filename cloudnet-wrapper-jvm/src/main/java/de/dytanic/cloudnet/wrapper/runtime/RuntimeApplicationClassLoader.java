@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.wrapper.runtime;
 
-import lombok.Getter;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -16,7 +14,6 @@ public final class RuntimeApplicationClassLoader extends URLClassLoader {
         ClassLoader.registerAsParallelCapable();
     }
 
-    @Getter
     private final ClassLoader cloudNetWrapperClassLoader;
 
     public RuntimeApplicationClassLoader(ClassLoader cloudNetWrapperClassLoader, URL url, ClassLoader parent) {
@@ -52,5 +49,9 @@ public final class RuntimeApplicationClassLoader extends URLClassLoader {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj) || cloudNetWrapperClassLoader.equals(obj);
+    }
+
+    public ClassLoader getCloudNetWrapperClassLoader() {
+        return this.cloudNetWrapperClassLoader;
     }
 }

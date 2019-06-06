@@ -37,7 +37,6 @@ import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
 import de.dytanic.cloudnet.wrapper.runtime.RuntimeApplicationClassLoader;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -71,13 +70,11 @@ public final class Wrapper extends CloudNetDriver {
      *
      * @see IWrapperConfiguration
      */
-    @Getter
     private final IWrapperConfiguration config = new DocumentWrapperConfiguration();
 
     /**
      * The default workDirectory of this process as File instance
      */
-    @Getter
     private final File workDirectory = new File(".");
 
     /*= ----------------------------------------------------------- =*/
@@ -85,7 +82,6 @@ public final class Wrapper extends CloudNetDriver {
     /**
      * The commandline arguments from the main() method of Main class by the application wrapper
      */
-    @Getter
     private final List<String> commandLineArguments;
 
     /**
@@ -93,7 +89,6 @@ public final class Wrapper extends CloudNetDriver {
      *
      * @see CloudNetDriver
      */
-    @Getter
     private final INetworkClient networkClient;
 
     /*= ----------------------------------------------------------- =*/
@@ -105,7 +100,6 @@ public final class Wrapper extends CloudNetDriver {
     /**
      * The single task thread of the scheduler of the wrapper application
      */
-    @Getter
     private final Thread mainThread = Thread.currentThread();
     private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = new Function<Pair<JsonDocument, byte[]>, Void>() {
         @Override
@@ -119,7 +113,6 @@ public final class Wrapper extends CloudNetDriver {
      * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot
      * from this process. The lastServiceInfoSnapshot is the element which was send before.
      */
-    @Getter
     private ServiceInfoSnapshot
             lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot(),
             currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
@@ -2595,5 +2588,33 @@ public final class Wrapper extends CloudNetDriver {
 
         eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, appClassLoader));
         return true;
+    }
+
+    public IWrapperConfiguration getConfig() {
+        return this.config;
+    }
+
+    public File getWorkDirectory() {
+        return this.workDirectory;
+    }
+
+    public List<String> getCommandLineArguments() {
+        return this.commandLineArguments;
+    }
+
+    public INetworkClient getNetworkClient() {
+        return this.networkClient;
+    }
+
+    public Thread getMainThread() {
+        return this.mainThread;
+    }
+
+    public ServiceInfoSnapshot getLastServiceInfoSnapShot() {
+        return this.lastServiceInfoSnapShot;
+    }
+
+    public ServiceInfoSnapshot getCurrentServiceInfoSnapshot() {
+        return this.currentServiceInfoSnapshot;
     }
 }
