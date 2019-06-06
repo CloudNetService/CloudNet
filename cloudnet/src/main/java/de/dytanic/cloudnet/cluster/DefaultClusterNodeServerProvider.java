@@ -9,13 +9,11 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
-import lombok.Getter;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
 
-@Getter
 public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
 
     protected final Map<String, IClusterNodeServer> servers = Maps.newConcurrentHashMap();
@@ -90,5 +88,9 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
             clusterNodeServer.close();
 
         this.servers.clear();
+    }
+
+    public Map<String, IClusterNodeServer> getServers() {
+        return this.servers;
     }
 }

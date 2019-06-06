@@ -8,8 +8,6 @@ import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -25,7 +23,6 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-@Getter
 public final class JsonConfiguration implements IConfiguration {
 
     private static final Type
@@ -64,7 +61,6 @@ public final class JsonConfiguration implements IConfiguration {
 
     private String jVMCommand;
 
-    @Setter
     private String defaultHostAddress;
 
     @Override
@@ -251,5 +247,81 @@ public final class JsonConfiguration implements IConfiguration {
 
         this.httpListeners = httpListeners;
         this.save();
+    }
+
+    public JsonDocument getDocument() {
+        return this.document;
+    }
+
+    public NetworkClusterNode getIdentity() {
+        return this.identity;
+    }
+
+    public NetworkCluster getClusterConfig() {
+        return this.clusterConfig;
+    }
+
+    public Collection<String> getIpWhitelist() {
+        return this.ipWhitelist;
+    }
+
+    public double getMaxCPUUsageToStartServices() {
+        return this.maxCPUUsageToStartServices;
+    }
+
+    public boolean isParallelServiceStartSequence() {
+        return this.parallelServiceStartSequence;
+    }
+
+    public boolean isRunBlockedServiceStartTryLaterAutomatic() {
+        return this.runBlockedServiceStartTryLaterAutomatic;
+    }
+
+    public int getMaxMemory() {
+        return this.maxMemory;
+    }
+
+    public int getMaxServiceConsoleLogCacheSize() {
+        return this.maxServiceConsoleLogCacheSize;
+    }
+
+    public boolean isPrintErrorStreamLinesFromServices() {
+        return this.printErrorStreamLinesFromServices;
+    }
+
+    public boolean isDefaultJVMOptionParameters() {
+        return this.defaultJVMOptionParameters;
+    }
+
+    public String getHostAddress() {
+        return this.hostAddress;
+    }
+
+    public Collection<HostAndPort> getHttpListeners() {
+        return this.httpListeners;
+    }
+
+    public ConfigurationOptionSSL getClientSslConfig() {
+        return this.clientSslConfig;
+    }
+
+    public ConfigurationOptionSSL getServerSslConfig() {
+        return this.serverSslConfig;
+    }
+
+    public ConfigurationOptionSSL getWebSslConfig() {
+        return this.webSslConfig;
+    }
+
+    public String getJVMCommand() {
+        return this.jVMCommand;
+    }
+
+    public String getDefaultHostAddress() {
+        return this.defaultHostAddress;
+    }
+
+    public void setDefaultHostAddress(String defaultHostAddress) {
+        this.defaultHostAddress = defaultHostAddress;
     }
 }

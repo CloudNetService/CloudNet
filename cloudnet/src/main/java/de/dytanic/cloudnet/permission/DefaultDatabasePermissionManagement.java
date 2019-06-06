@@ -8,8 +8,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.permission.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.util.*;
@@ -23,12 +21,8 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
     private final File file = new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
-    @Getter
     private final Map<String, IPermissionGroup> permissionGroupsMap = Maps.newConcurrentHashMap();
-    @Getter
     private final Callable<AbstractDatabaseProvider> databaseProviderCallable;
-    @Getter
-    @Setter
     private IPermissionManagementHandler permissionManagementHandler;
 
     public DefaultDatabasePermissionManagement(Callable<AbstractDatabaseProvider> databaseProviderCallable) {
@@ -302,5 +296,21 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
         }
 
         return null;
+    }
+
+    public Map<String, IPermissionGroup> getPermissionGroupsMap() {
+        return this.permissionGroupsMap;
+    }
+
+    public Callable<AbstractDatabaseProvider> getDatabaseProviderCallable() {
+        return this.databaseProviderCallable;
+    }
+
+    public IPermissionManagementHandler getPermissionManagementHandler() {
+        return this.permissionManagementHandler;
+    }
+
+    public void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler) {
+        this.permissionManagementHandler = permissionManagementHandler;
     }
 }

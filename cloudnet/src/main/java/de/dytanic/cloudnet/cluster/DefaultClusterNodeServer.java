@@ -15,8 +15,6 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterChannelMessage;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -27,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-@Getter
 public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     private static final Type TYPE_COLLECTION_INTEGER = new TypeToken<Collection<Integer>>() {
@@ -37,13 +34,10 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     /*= -------------------------------------------------- =*/
 
-    @Setter
     private volatile NetworkClusterNodeInfoSnapshot nodeInfoSnapshot;
 
-    @Setter
     private NetworkClusterNode nodeInfo;
 
-    @Setter
     private INetworkChannel channel;
 
     DefaultClusterNodeServer(DefaultClusterNodeServerProvider provider, NetworkClusterNode nodeInfo) {
@@ -563,5 +557,33 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         this.nodeInfoSnapshot = null;
         this.channel = null;
+    }
+
+    public DefaultClusterNodeServerProvider getProvider() {
+        return this.provider;
+    }
+
+    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot() {
+        return this.nodeInfoSnapshot;
+    }
+
+    public NetworkClusterNode getNodeInfo() {
+        return this.nodeInfo;
+    }
+
+    public INetworkChannel getChannel() {
+        return this.channel;
+    }
+
+    public void setNodeInfoSnapshot(NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+        this.nodeInfoSnapshot = nodeInfoSnapshot;
+    }
+
+    public void setNodeInfo(NetworkClusterNode nodeInfo) {
+        this.nodeInfo = nodeInfo;
+    }
+
+    public void setChannel(INetworkChannel channel) {
+        this.channel = channel;
     }
 }

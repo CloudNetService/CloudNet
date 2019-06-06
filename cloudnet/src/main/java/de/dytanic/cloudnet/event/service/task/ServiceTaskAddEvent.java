@@ -4,19 +4,33 @@ import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@RequiredArgsConstructor
 public final class ServiceTaskAddEvent extends Event implements ICancelable {
 
     private final ICloudServiceManager cloudServiceManager;
 
     private final ServiceTask task;
 
-    @Setter
     private boolean cancelled;
 
+    public ServiceTaskAddEvent(ICloudServiceManager cloudServiceManager, ServiceTask task) {
+        this.cloudServiceManager = cloudServiceManager;
+        this.task = task;
+    }
+
+    public ICloudServiceManager getCloudServiceManager() {
+        return this.cloudServiceManager;
+    }
+
+    public ServiceTask getTask() {
+        return this.task;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
 }

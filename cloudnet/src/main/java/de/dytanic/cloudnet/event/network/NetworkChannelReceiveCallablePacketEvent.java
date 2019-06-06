@@ -6,11 +6,9 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter
 public final class NetworkChannelReceiveCallablePacketEvent extends NetworkEvent {
 
     private final String channelName;
@@ -34,5 +32,25 @@ public final class NetworkChannelReceiveCallablePacketEvent extends NetworkEvent
 
     public void setCallbackPacket(JsonDocument header) {
         this.callbackPacket = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, this.uniqueId, header, null);
+    }
+
+    public String getChannelName() {
+        return this.channelName;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public JsonDocument getHeader() {
+        return this.header;
+    }
+
+    public UUID getUniqueId() {
+        return this.uniqueId;
+    }
+
+    public IPacket getCallbackPacket() {
+        return this.callbackPacket;
     }
 }

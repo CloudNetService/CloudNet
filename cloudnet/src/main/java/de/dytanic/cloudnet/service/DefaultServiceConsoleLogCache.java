@@ -7,16 +7,11 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServiceConsoleLogReceiveEntryEvent;
 import de.dytanic.cloudnet.network.packet.PacketServerConsoleLogEntryReceive;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Queue;
 
-@Getter
-@RequiredArgsConstructor
 public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCache {
 
     private final Queue<String> cachedLogMessages = Iterables.newConcurrentLinkedQueue();
@@ -31,13 +26,15 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
     //*=====================================================================================
 
-    @Getter
-    @Setter
     private boolean autoPrintReceivedInput;
 
     //*=====================================================================================
 
     private int len;
+
+    public DefaultServiceConsoleLogCache(ICloudService cloudService) {
+        this.cloudService = cloudService;
+    }
 
     @Override
     public synchronized IServiceConsoleLogCache update() {
@@ -81,5 +78,33 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
         if (this.autoPrintReceivedInput || printErrorIntoConsole)
             CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO), "[" + cloudService.getServiceId().getName() + "] " + text);
+    }
+
+    public Queue<String> getCachedLogMessages() {
+        return this.cachedLogMessages;
+    }
+
+    public byte[] getBuffer() {
+        return this.buffer;
+    }
+
+    public StringBuffer getStringBuffer() {
+        return this.stringBuffer;
+    }
+
+    public ICloudService getCloudService() {
+        return this.cloudService;
+    }
+
+    public int getLen() {
+        return this.len;
+    }
+
+    public boolean isAutoPrintReceivedInput() {
+        return this.autoPrintReceivedInput;
+    }
+
+    public void setAutoPrintReceivedInput(boolean autoPrintReceivedInput) {
+        this.autoPrintReceivedInput = autoPrintReceivedInput;
     }
 }

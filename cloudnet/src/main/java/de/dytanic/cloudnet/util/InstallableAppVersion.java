@@ -4,16 +4,12 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.function.Predicate;
 
-@Getter
-@RequiredArgsConstructor
 public final class InstallableAppVersion {
 
     public static final Collection<InstallableAppVersion> VERSIONS = Iterables.newArrayList();
@@ -150,6 +146,13 @@ public final class InstallableAppVersion {
     private final ServiceEnvironment environmentType;
     private final String version, url;
 
+    public InstallableAppVersion(ServiceEnvironmentType serviceEnvironment, ServiceEnvironment environmentType, String version, String url) {
+        this.serviceEnvironment = serviceEnvironment;
+        this.environmentType = environmentType;
+        this.version = version;
+        this.url = url;
+    }
+
     public static InstallableAppVersion getVersion(ServiceEnvironmentType serviceEnvironment, String version) {
         Validate.checkNotNull(version);
 
@@ -159,6 +162,22 @@ public final class InstallableAppVersion {
                 return installableAppVersion.getServiceEnvironment() == serviceEnvironment && installableAppVersion.getVersion().equalsIgnoreCase(version);
             }
         });
+    }
+
+    public ServiceEnvironmentType getServiceEnvironment() {
+        return this.serviceEnvironment;
+    }
+
+    public ServiceEnvironment getEnvironmentType() {
+        return this.environmentType;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public String getUrl() {
+        return this.url;
     }
 
     /*= -------------------------------------------------- =*/

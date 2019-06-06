@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
 import de.dytanic.cloudnet.driver.permission.Permission;
-import lombok.Getter;
 
 import java.util.Collection;
 
@@ -24,7 +23,6 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
 
     protected static final V1HttpSession HTTP_SESSION = new V1HttpSession();
 
-    @Getter
     private final String permission;
 
     public V1HttpHandler(String permission) {
@@ -116,5 +114,9 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
 
     protected final CloudNet getCloudNet() {
         return CloudNet.getInstance();
+    }
+
+    public String getPermission() {
+        return this.permission;
     }
 }

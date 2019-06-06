@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -14,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
-@Getter
 final class DefaultCloudServiceManagerConfiguration {
 
     private static final Type
@@ -48,5 +46,13 @@ final class DefaultCloudServiceManagerConfiguration {
 
     public void save() {
         new JsonDocument("groups", groups).append("tasks", tasks).write(TASK_CONFIG_FILE);
+    }
+
+    public List<ServiceTask> getTasks() {
+        return this.tasks;
+    }
+
+    public List<GroupConfiguration> getGroups() {
+        return this.groups;
     }
 }

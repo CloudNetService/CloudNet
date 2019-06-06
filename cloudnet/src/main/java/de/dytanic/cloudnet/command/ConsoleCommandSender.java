@@ -3,18 +3,20 @@ package de.dytanic.cloudnet.command;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
-import lombok.AllArgsConstructor;
 
 /**
  * The ConsoleCommandSender represents the console of the application. The console has
  * all needed permissions.
  */
-@AllArgsConstructor
 public final class ConsoleCommandSender implements ICommandSender {
 
     private static final LogLevel CONSOLE_LEVEL = new LogLevel("console", "CONSOLE", 6, true);
 
     private final ILogger logger;
+
+    public ConsoleCommandSender(ILogger logger) {
+        this.logger = logger;
+    }
 
     /**
      * The console name is the first codename from CloudNet 3.0: "Tsunami"

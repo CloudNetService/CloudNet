@@ -1,9 +1,7 @@
 package de.dytanic.cloudnet.console;
 
-import lombok.Getter;
 import org.fusesource.jansi.Ansi;
 
-@Getter
 public enum ConsoleColor {
 
     DEFAULT("default", '0', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.DEFAULT).boldOff().toString()),
@@ -43,5 +41,17 @@ public enum ConsoleColor {
     @Override
     public String toString() {
         return ansiCode;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getAnsiCode() {
+        return this.ansiCode;
+    }
+
+    public char getIndex() {
+        return this.index;
     }
 }

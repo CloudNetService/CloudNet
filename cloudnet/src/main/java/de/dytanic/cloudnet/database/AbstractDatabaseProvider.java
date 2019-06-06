@@ -1,15 +1,11 @@
 package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.INameable;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collection;
 
 public abstract class AbstractDatabaseProvider implements INameable, AutoCloseable {
 
-    @Getter
-    @Setter
     protected IDatabaseHandler databaseHandler;
 
     public abstract boolean init() throws Exception;
@@ -22,4 +18,11 @@ public abstract class AbstractDatabaseProvider implements INameable, AutoCloseab
 
     public abstract Collection<String> getDatabaseNames();
 
+    public IDatabaseHandler getDatabaseHandler() {
+        return this.databaseHandler;
+    }
+
+    public void setDatabaseHandler(IDatabaseHandler databaseHandler) {
+        this.databaseHandler = databaseHandler;
+    }
 }
