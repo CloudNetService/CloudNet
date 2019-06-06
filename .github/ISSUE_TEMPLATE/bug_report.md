@@ -9,7 +9,7 @@ about: Create an issue which describes a bug of CloudNet
 
 
 **Steps for reproducing**<br>
-<!-- Here is a example how this could look like. The import thing is that you are describing the steps as specific as possible! -->
+<!-- Here is a example how this could look like. The important thing is that you are describing the steps as specific as possible! -->
 <!--
 ```
 Steps to reproduce the behavior:
