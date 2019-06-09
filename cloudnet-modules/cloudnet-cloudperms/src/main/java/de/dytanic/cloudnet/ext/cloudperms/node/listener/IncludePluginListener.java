@@ -19,7 +19,8 @@ public final class IncludePluginListener {
                 if (Iterables.contains(group, event.getCloudService().getServiceConfiguration().getGroups()))
                     return;
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         new File(event.getCloudService().getDirectory(), "plugins").mkdirs();

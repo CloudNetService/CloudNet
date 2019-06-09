@@ -126,7 +126,8 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
             try {
                 Thread.sleep(400);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
     }

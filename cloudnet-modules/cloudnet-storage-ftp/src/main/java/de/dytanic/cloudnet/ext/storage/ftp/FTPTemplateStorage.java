@@ -423,7 +423,8 @@ public final class FTPTemplateStorage implements ITemplateStorage {
             try {
                 logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-disconnect"));
                 ftpClient.disconnect();
-            } catch (IOException ignored) {
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         }
     }

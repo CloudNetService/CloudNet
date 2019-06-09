@@ -175,7 +175,8 @@ public final class BukkitCloudNetHelper {
                 for (Player player : ((Player[]) result))
                     consumer.accept(player);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -247,7 +248,8 @@ public final class BukkitCloudNetHelper {
             if (result instanceof Player[])
                 return ((Player[]) result).length;
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return 0;
@@ -262,7 +264,8 @@ public final class BukkitCloudNetHelper {
             method.setAccessible(true);
             return (double) method.invoke(player);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return 20D;
@@ -277,7 +280,8 @@ public final class BukkitCloudNetHelper {
             method.setAccessible(true);
             return (double) method.invoke(player);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return 20D;

@@ -140,7 +140,8 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             else field = Class.forName("net.glowstone.entity.GlowHumanEntity").getDeclaredField("permissions");
 
             injectCloudPermissible0(player, field);
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -171,9 +172,9 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             try {
                 return Class.forName("org.bukkit.craftbukkit." + suffix);
             } catch (ClassNotFoundException ignored) {
+                return null;
             }
         }
-        return null;
     }
 
     private void forEachPlayers(Consumer<Player> consumer) {
@@ -193,7 +194,8 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 for (Player player : ((Player[]) result))
                     consumer.accept(player);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 

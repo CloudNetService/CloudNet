@@ -81,10 +81,9 @@ public class ListenableTask<V> implements ITask<V> {
         try {
             return get(time, timeUnit);
         } catch (Throwable ignored) {
-            ignored.printStackTrace();
+            return def;
         }
 
-        return def;
     }
 
     @Override
@@ -128,7 +127,8 @@ public class ListenableTask<V> implements ITask<V> {
         synchronized (this) {
             try {
                 this.notifyAll();
-            } catch (Throwable ignored) {
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
         }
 

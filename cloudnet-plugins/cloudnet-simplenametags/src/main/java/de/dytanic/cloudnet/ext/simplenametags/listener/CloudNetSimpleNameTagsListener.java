@@ -83,7 +83,8 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
                     if (predicate.test(player))
                         return;
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 }

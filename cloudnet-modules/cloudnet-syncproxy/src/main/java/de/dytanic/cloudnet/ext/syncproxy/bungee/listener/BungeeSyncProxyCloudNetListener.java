@@ -108,7 +108,8 @@ public final class BungeeSyncProxyCloudNetListener {
 
             return (UUID) method.invoke(pendingConnection);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;

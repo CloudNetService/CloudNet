@@ -140,7 +140,8 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             return;
                         }
 
-                    } catch (Exception ignored) {
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
                 }
 
@@ -241,7 +242,8 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                     serviceTask.getProcessConfiguration().setEnvironment(ServiceEnvironmentType.valueOf(args[4].toUpperCase()));
                                     this.updateServiceTask(serviceTask);
                                     this.sendMessage0(sender, serviceTask.getName(), "environment", serviceTask.getProcessConfiguration().getEnvironment());
-                                } catch (Exception ignored) {
+                                } catch (Exception exception) {
+                                    exception.printStackTrace();
                                 }
                                 break;
                         }

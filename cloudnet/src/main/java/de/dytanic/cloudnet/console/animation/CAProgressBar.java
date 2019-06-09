@@ -61,7 +61,8 @@ public class CAProgressBar {
             execute(console);
             try {
                 Thread.sleep(updateInterval);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
 

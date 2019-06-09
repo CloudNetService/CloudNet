@@ -71,7 +71,8 @@ public final class JLine2Console implements IConsole {
             this.consoleReader.print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
             this.consoleReader.drawLine();
             this.consoleReader.flush();
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return this;

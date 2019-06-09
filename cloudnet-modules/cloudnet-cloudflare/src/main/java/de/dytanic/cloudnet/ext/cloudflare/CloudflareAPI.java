@@ -208,14 +208,16 @@ public final class CloudflareAPI implements AutoCloseable {
                 FileUtils.copy(inputStream, byteArrayOutputStream);
                 return byteArrayOutputStream.toByteArray();
 
-            } catch (Throwable ignored) {
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
 
             try (InputStream inputStream = httpURLConnection.getErrorStream()) {
                 FileUtils.copy(inputStream, byteArrayOutputStream);
                 return byteArrayOutputStream.toByteArray();
 
-            } catch (Throwable ignored) {
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
 
         } catch (Throwable e) {

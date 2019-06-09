@@ -24,7 +24,8 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
         if (!inWhitelist(channel)) {
             try {
                 channel.close();
-            } catch (Exception ignored) {
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
             return;
         }

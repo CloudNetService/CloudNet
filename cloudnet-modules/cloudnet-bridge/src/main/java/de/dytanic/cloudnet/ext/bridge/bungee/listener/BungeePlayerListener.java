@@ -53,7 +53,8 @@ public final class BungeePlayerListener implements Listener {
 
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
     }

@@ -299,7 +299,8 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
                 try {
                     scheduledTask.call();
-                } catch (Throwable ignored) {
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
                 }
 
                 if (checkScheduledTask()) scheduledTask = null;
@@ -318,7 +319,8 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         private void sleep0(long value) {
             try {
                 Thread.sleep(value);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
 

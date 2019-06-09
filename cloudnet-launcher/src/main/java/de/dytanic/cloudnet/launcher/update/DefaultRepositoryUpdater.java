@@ -102,7 +102,8 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
             return true;
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return false;

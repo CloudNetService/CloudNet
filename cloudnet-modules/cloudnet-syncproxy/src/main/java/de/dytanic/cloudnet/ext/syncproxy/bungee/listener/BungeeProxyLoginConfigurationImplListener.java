@@ -156,7 +156,8 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                             motd,
                             favicon
                     );
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         //old
@@ -168,7 +169,8 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
             Constructor<ServerPing> constructor = ServerPing.class.getConstructor(byte.class, String.class, String.class, int.class, int.class);
 
             return constructor.newInstance(method.invoke(event.getResponse()), ProxyServer.getInstance().getGameVersion(), motd, onlinePlayers, maxPlayers);
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -182,7 +184,8 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
 
             return (UUID) method.invoke(pendingConnection);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;

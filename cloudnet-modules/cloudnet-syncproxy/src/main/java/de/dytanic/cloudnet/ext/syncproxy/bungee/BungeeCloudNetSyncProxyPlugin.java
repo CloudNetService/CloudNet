@@ -142,7 +142,8 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                     )
             );
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 

@@ -34,7 +34,8 @@ public final class PacketServerSetH2DatabaseDataListener implements IPacketListe
 
                 try {
                     database.clear0();
-                } catch (Exception ignored) {
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
 

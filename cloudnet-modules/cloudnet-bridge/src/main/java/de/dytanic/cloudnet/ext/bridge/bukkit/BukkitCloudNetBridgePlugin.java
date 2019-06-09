@@ -78,7 +78,8 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
                 BridgeHelper.updateServiceInfo();
             }
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 }

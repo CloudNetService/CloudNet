@@ -75,7 +75,8 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
             method.setAccessible(true);
             uniqueId = (UUID) method.invoke(instance);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return uniqueId;

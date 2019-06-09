@@ -53,7 +53,8 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
             field.setAccessible(true);
             field.set(player, new NukkitCloudNetCloudPermissionsPermissible(player));
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 }

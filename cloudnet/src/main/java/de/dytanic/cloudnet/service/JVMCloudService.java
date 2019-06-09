@@ -33,7 +33,7 @@ import java.util.jar.JarFile;
 
 final class JVMCloudService implements ICloudService {
 
-    private static final String runtime = "jvm";
+    private static final String TEMP_NAME_SPLITTER = "_";
 
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
@@ -105,7 +105,7 @@ final class JVMCloudService implements ICloudService {
                 serviceConfiguration.isStaticService() ?
                         new File(cloudServiceManager.getPersistenceServicesDirectory(), this.serviceId.getName())
                         :
-                        new File(cloudServiceManager.getTempDirectory(), this.serviceId.getName() + "#" + this.serviceId.getUniqueId().toString());
+                        new File(cloudServiceManager.getTempDirectory(), this.serviceId.getName() + TEMP_NAME_SPLITTER + this.serviceId.getUniqueId().toString());
 
         this.directory.mkdirs();
 
@@ -207,7 +207,7 @@ final class JVMCloudService implements ICloudService {
 
     @Override
     public final String getRuntime() {
-        return runtime;
+        return "jvm";
     }
 
     @Override
@@ -799,7 +799,8 @@ final class JVMCloudService implements ICloudService {
             if (this.networkChannel != null) {
                 try {
                     this.networkChannel.close();
-                } catch (Exception ignored) {
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
 
@@ -829,7 +830,8 @@ final class JVMCloudService implements ICloudService {
                 outputStream.flush();
 
                 Thread.sleep(500);
-            } catch (Exception ignored) {
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
 
             if (!force) this.process.destroy();

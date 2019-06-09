@@ -74,8 +74,8 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
             field.setAccessible(true);
             field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId()));
 
-        } catch (Exception ignored) {
-
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 

@@ -200,7 +200,8 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                     throw new Exception();
                 }
 
-            } catch (Throwable ignored) {
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
 
             if (location == null || block == null) continue;
@@ -330,7 +331,8 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             method.setAccessible(true);
             return (Block) method.invoke(livingEntity, null, range);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         //old
@@ -340,7 +342,8 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             method.setAccessible(true);
             return (Block) method.invoke(livingEntity, null, range);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -428,7 +431,8 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 method.setAccessible(true);
                 method.invoke(location.getBlock().getRelative(sign.getAttachedFace()), material.getId(), (byte) subId, false);
                 return;
-            } catch (Exception ignored) {
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
 
             //modern
@@ -440,7 +444,8 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 method.setAccessible(true);
                 method.invoke(location.getBlock().getRelative(sign.getAttachedFace()), material);
 
-            } catch (Exception ignored) {
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -609,7 +614,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         private final int value;
 
-        private ServiceInfoState(int value) {
+        ServiceInfoState(int value) {
             this.value = value;
         }
 

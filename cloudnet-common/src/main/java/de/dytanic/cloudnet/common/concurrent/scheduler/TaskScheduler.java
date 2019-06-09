@@ -540,7 +540,8 @@ public class TaskScheduler {
         private synchronized void sleepUninterruptedly(long millis) {
             try {
                 Thread.sleep(millis);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
 

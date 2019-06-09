@@ -88,7 +88,8 @@ public final class JsonConfiguration implements IConfiguration {
                     });
                 }
             });
-        } catch (SocketException ignored) {
+        } catch (SocketException exception) {
+            exception.printStackTrace();
         }
 
         String address = defaultHostAddress;

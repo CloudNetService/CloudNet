@@ -16,7 +16,8 @@ public final class CommandClear extends CommandDefault {
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         try {
             ((JLine2Console) getCloudNet().getConsole()).getConsoleReader().clearScreen();
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 }

@@ -16,7 +16,8 @@ public final class IncludePluginListener {
             for (String group : CloudNetBridgeModule.getInstance().getBridgeConfiguration().getExcludedGroups())
                 if (Iterables.contains(group, event.getCloudService().getServiceConfiguration().getGroups()))
                     return;
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         new File(event.getCloudService().getDirectory(), "plugins").mkdirs();

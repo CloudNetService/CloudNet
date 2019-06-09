@@ -61,19 +61,16 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
 
             Field modifiersField = Field.class.getDeclaredField("modifiers");
 
-            AccessController.doPrivileged(new PrivilegedAction() {
-                @Override
-                public Object run() {
-                    modifiersField.setAccessible(true);
-                    return null;
-                }
+            AccessController.doPrivileged((PrivilegedAction) () -> {
+                modifiersField.setAccessible(true);
+                return null;
             });
 
             modifiersField.setInt(field, modifiersField.getModifiers() & ~Modifier.FINAL);
             field.set(entityPlayer, new GoMintCloudNetCloudPermissionsPermissionManager((io.gomint.server.entity.EntityPlayer) entityPlayer, entityPlayer.getPermissionManager()));
 
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 }

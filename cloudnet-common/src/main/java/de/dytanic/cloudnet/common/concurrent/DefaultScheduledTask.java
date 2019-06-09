@@ -125,10 +125,9 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
         try {
             return get(time, timeUnit);
-        } catch (Throwable ignored) {
+        } catch (Throwable throwable) {
+            return def;
         }
-
-        return def;
     }
 
     @Override

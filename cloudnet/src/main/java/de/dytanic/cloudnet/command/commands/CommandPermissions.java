@@ -101,7 +101,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                                 .replace("%name%", permissionUser.getName())
                                 );
 
-                            } catch (Exception ignored) {
+                            } catch (Exception exception) {
+                                exception.printStackTrace();
                             }
 
                             this.updateClusterNetwork();
@@ -123,7 +124,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                                 .replace("%name%", group.getName())
                                 );
 
-                            } catch (Exception ignored) {
+                            } catch (Exception exception) {
+                                exception.printStackTrace();
                             }
 
                             this.updateClusterNetwork();
@@ -274,8 +276,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 );
 
                                 this.updateClusterNetwork();
-                            } catch (Exception ignored) {
-
+                            } catch (Exception exception) {
+                                exception.printStackTrace();
                             }
                             return;
                         }
@@ -446,8 +448,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 );
 
                                 this.updateClusterNetwork();
-                            } catch (Exception ignored) {
-
+                            } catch (Exception exception) {
+                                exception.printStackTrace();
                             }
                             return;
                         }

@@ -384,7 +384,7 @@ public final class CloudNet extends CloudNetDriver {
                     return clusterNodeServer.createCloudService(serviceTask);
             }
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
         }
 
         return null;
@@ -1949,7 +1949,8 @@ public final class CloudNet extends CloudNetDriver {
                 if (diff < millis)
                     try {
                         Thread.sleep(millis - diff);
-                    } catch (Exception ignored) {
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
 
                 value = System.currentTimeMillis();

@@ -71,9 +71,8 @@ public final class BungeeCloudNetHelper {
                 listenerInfoConsumer.accept((Collection<String>) instance);
             }
 
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -223,7 +222,8 @@ public final class BungeeCloudNetHelper {
             method.setAccessible(true);
             uniqueId = (UUID) method.invoke(proxiedPlayer);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return uniqueId;
@@ -239,7 +239,8 @@ public final class BungeeCloudNetHelper {
             method.setAccessible(true);
             uniqueId = (UUID) method.invoke(connection);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return uniqueId;
@@ -255,7 +256,8 @@ public final class BungeeCloudNetHelper {
             method.setAccessible(true);
             bool = (Boolean) method.invoke(connection);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return bool;
@@ -271,7 +273,8 @@ public final class BungeeCloudNetHelper {
             method.setAccessible(true);
             bool = (Boolean) method.invoke(connection);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return bool;
@@ -286,7 +289,8 @@ public final class BungeeCloudNetHelper {
             method.setAccessible(true);
             return (int) method.invoke(pendingConnection);
 
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return -1;
@@ -304,7 +308,8 @@ public final class BungeeCloudNetHelper {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address);
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         try //with restricted
@@ -312,7 +317,8 @@ public final class BungeeCloudNetHelper {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, false);
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         try //with motd
@@ -320,7 +326,8 @@ public final class BungeeCloudNetHelper {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, String.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, "CloudNet provided serverInfo", false);
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;

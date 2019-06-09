@@ -59,7 +59,8 @@ public final class CommandLocalTemplate extends CommandDefault {
                         if (installableAppVersion.getServiceEnvironment() == environmentType)
                             sender.sendMessage("- " + installableAppVersion.getVersion() + " * Environment: " + installableAppVersion.getEnvironmentType());
 
-                } catch (Exception ignored) {
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
                 return;
             }
@@ -85,7 +86,8 @@ public final class CommandLocalTemplate extends CommandDefault {
                                     .replace("%version%", installableAppVersion.getVersion())
                             );
                     }
-                } catch (Exception ignored) {
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
 
                 getCloudNet().deployTemplateInCluster(serviceTemplate, storage.toZipByteArray(serviceTemplate));
@@ -104,7 +106,8 @@ public final class CommandLocalTemplate extends CommandDefault {
                 if (LocalTemplateStorageUtil.createAndPrepareTemplate(storage, args[1], args[2], environment))
                     sender.sendMessage(LanguageManager.getMessage("command-local-template-create-template-success"));
 
-            } catch (Exception ignored) {
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
