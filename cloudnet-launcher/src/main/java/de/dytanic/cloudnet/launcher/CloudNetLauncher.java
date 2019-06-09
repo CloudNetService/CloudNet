@@ -312,14 +312,11 @@ public final class CloudNetLauncher {
         field.setAccessible(true);
         field.set(null, classLoader);
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    method.invoke(null, new Object[]{args});
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
+        Thread thread = new Thread(() -> {
+            try {
+                method.invoke(null, new Object[]{args});
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
         }, "Application-Thread");
 

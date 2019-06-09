@@ -21,12 +21,12 @@ public class PermissionUserGroupInfo extends BasicJsonDocPropertyable {
         return this.group;
     }
 
-    public long getTimeOutMillis() {
-        return this.timeOutMillis;
-    }
-
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public long getTimeOutMillis() {
+        return this.timeOutMillis;
     }
 
     public void setTimeOutMillis(long timeOutMillis) {

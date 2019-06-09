@@ -54,11 +54,11 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
         return this.syncProxyConfiguration;
     }
 
-    public File getConfigurationFile() {
-        return this.configurationFile;
-    }
-
     public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {
         this.syncProxyConfiguration = syncProxyConfiguration;
+    }
+
+    public File getConfigurationFile() {
+        return this.configurationFile;
     }
 }

@@ -32,52 +32,52 @@ public class CloudflareConfigurationEntry {
         return this.enabled;
     }
 
-    public String getHostAddress() {
-        return this.hostAddress;
-    }
-
-    public String getEmail() {
-        return this.email;
-    }
-
-    public String getApiToken() {
-        return this.apiToken;
-    }
-
-    public String getZoneId() {
-        return this.zoneId;
-    }
-
-    public String getDomainName() {
-        return this.domainName;
-    }
-
-    public Collection<CloudflareGroupConfiguration> getGroups() {
-        return this.groups;
-    }
-
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getHostAddress() {
+        return this.hostAddress;
     }
 
     public void setHostAddress(String hostAddress) {
         this.hostAddress = hostAddress;
     }
 
+    public String getEmail() {
+        return this.email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getApiToken() {
+        return this.apiToken;
     }
 
     public void setApiToken(String apiToken) {
         this.apiToken = apiToken;
     }
 
+    public String getZoneId() {
+        return this.zoneId;
+    }
+
     public void setZoneId(String zoneId) {
         this.zoneId = zoneId;
     }
 
+    public String getDomainName() {
+        return this.domainName;
+    }
+
     public void setDomainName(String domainName) {
         this.domainName = domainName;
+    }
+
+    public Collection<CloudflareGroupConfiguration> getGroups() {
+        return this.groups;
     }
 
     public void setGroups(Collection<CloudflareGroupConfiguration> groups) {

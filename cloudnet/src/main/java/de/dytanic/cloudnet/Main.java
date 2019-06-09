@@ -44,16 +44,12 @@ public final class Main {
         System.setOut(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
         System.setErr(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    logger.close();
-                    console.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                logger.close();
+                console.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }));
     }

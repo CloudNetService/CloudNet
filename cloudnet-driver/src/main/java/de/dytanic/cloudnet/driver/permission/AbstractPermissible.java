@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
@@ -63,12 +62,7 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
         if (group == null || permission == null) return false;
 
         if (groupPermissions.containsKey(group)) {
-            Permission p = Iterables.first(groupPermissions.get(group), new Predicate<Permission>() {
-                @Override
-                public boolean test(Permission perm) {
-                    return perm.getName().equalsIgnoreCase(permission);
-                }
-            });
+            Permission p = Iterables.first(groupPermissions.get(group), perm -> perm.getName().equalsIgnoreCase(permission));
 
             if (p != null) groupPermissions.get(group).remove(p);
 
@@ -86,27 +80,27 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
         return this.name;
     }
 
-    public int getPotency() {
-        return this.potency;
-    }
-
-    public List<Permission> getPermissions() {
-        return this.permissions;
-    }
-
-    public Map<String, Collection<Permission>> getGroupPermissions() {
-        return this.groupPermissions;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getPotency() {
+        return this.potency;
     }
 
     public void setPotency(int potency) {
         this.potency = potency;
     }
 
+    public List<Permission> getPermissions() {
+        return this.permissions;
+    }
+
     public void setPermissions(List<Permission> permissions) {
         this.permissions = permissions;
+    }
+
+    public Map<String, Collection<Permission>> getGroupPermissions() {
+        return this.groupPermissions;
     }
 }

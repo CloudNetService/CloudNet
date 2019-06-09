@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 public final class SignConfigurationProvider {
 
@@ -37,12 +36,7 @@ public final class SignConfigurationProvider {
                 SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
                 SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_CONFIGURATION_PROPERTY,
                 new JsonDocument(),
-                new Function<JsonDocument, SignConfiguration>() {
-                    @Override
-                    public SignConfiguration apply(JsonDocument documentPair) {
-                        return documentPair.get("signConfiguration", SignConfiguration.TYPE);
-                    }
-                });
+                documentPair -> documentPair.get("signConfiguration", SignConfiguration.TYPE));
 
         try {
             return task.get(5, TimeUnit.SECONDS);

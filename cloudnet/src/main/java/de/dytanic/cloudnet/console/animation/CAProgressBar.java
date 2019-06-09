@@ -106,60 +106,60 @@ public class CAProgressBar {
         return this.updateInterval;
     }
 
-    public long getTargetGoal() {
-        return this.targetGoal;
-    }
-
-    public long getBarStart() {
-        return this.barStart;
-    }
-
-    public boolean isExpand() {
-        return this.expand;
-    }
-
-    public long getProgressValue() {
-        return this.progressValue;
-    }
-
-    public String getPrefix() {
-        return this.prefix;
-    }
-
-    public String getSuffix() {
-        return this.suffix;
-    }
-
-    public char getProgressChar() {
-        return this.progressChar;
-    }
-
     public void setUpdateInterval(long updateInterval) {
         this.updateInterval = updateInterval;
+    }
+
+    public long getTargetGoal() {
+        return this.targetGoal;
     }
 
     public void setTargetGoal(long targetGoal) {
         this.targetGoal = targetGoal;
     }
 
+    public long getBarStart() {
+        return this.barStart;
+    }
+
     public void setBarStart(long barStart) {
         this.barStart = barStart;
+    }
+
+    public boolean isExpand() {
+        return this.expand;
     }
 
     public void setExpand(boolean expand) {
         this.expand = expand;
     }
 
+    public long getProgressValue() {
+        return this.progressValue;
+    }
+
     public void setProgressValue(long progressValue) {
         this.progressValue = progressValue;
+    }
+
+    public String getPrefix() {
+        return this.prefix;
     }
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
 
+    public String getSuffix() {
+        return this.suffix;
+    }
+
     public void setSuffix(String suffix) {
         this.suffix = suffix;
+    }
+
+    public char getProgressChar() {
+        return this.progressChar;
     }
 
     public void setProgressChar(char progressChar) {

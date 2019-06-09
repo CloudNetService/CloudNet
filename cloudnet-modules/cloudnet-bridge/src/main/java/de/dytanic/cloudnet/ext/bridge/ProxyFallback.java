@@ -28,20 +28,20 @@ public class ProxyFallback implements Comparable<ProxyFallback> {
         return this.task;
     }
 
-    public String getPermission() {
-        return this.permission;
-    }
-
-    public int getPriority() {
-        return this.priority;
-    }
-
     public void setTask(String task) {
         this.task = task;
     }
 
+    public String getPermission() {
+        return this.permission;
+    }
+
     public void setPermission(String permission) {
         this.permission = permission;
+    }
+
+    public int getPriority() {
+        return this.priority;
     }
 
     public void setPriority(int priority) {

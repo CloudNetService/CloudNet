@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 
 import java.io.File;
-import java.util.function.Predicate;
 
 public final class IncludePluginListener {
 
@@ -18,12 +17,7 @@ public final class IncludePluginListener {
             return;
 
         SignConfigurationEntry signConfigurationEntry = Iterables.first(CloudNetSignsModule.getInstance().getSignConfiguration().getConfigurations(),
-                new Predicate<SignConfigurationEntry>() {
-                    @Override
-                    public boolean test(SignConfigurationEntry signConfigurationEntry) {
-                        return Iterables.contains(signConfigurationEntry.getTargetGroup(), event.getCloudService().getServiceConfiguration().getGroups());
-                    }
-                });
+                signConfigurationEntry1 -> Iterables.contains(signConfigurationEntry1.getTargetGroup(), event.getCloudService().getServiceConfiguration().getGroups()));
 
         if (signConfigurationEntry == null) return;
 

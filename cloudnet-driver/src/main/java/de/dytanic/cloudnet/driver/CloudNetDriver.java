@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 public abstract class CloudNetDriver {
@@ -368,12 +367,7 @@ public abstract class CloudNetDriver {
         Validate.checkNotNull(data);
         Validate.checkNotNull(function);
 
-        return this.sendCallablePacket(networkChannel, channel, data.append(PacketConstants.SYNC_PACKET_ID_PROPERTY, id), null, new Function<Pair<JsonDocument, byte[]>, R>() {
-            @Override
-            public R apply(Pair<JsonDocument, byte[]> jsonDocumentPair) {
-                return function.apply(jsonDocumentPair.getFirst());
-            }
-        });
+        return this.sendCallablePacket(networkChannel, channel, data.append(PacketConstants.SYNC_PACKET_ID_PROPERTY, id), null, jsonDocumentPair -> function.apply(jsonDocumentPair.getFirst()));
     }
 
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
@@ -393,12 +387,7 @@ public abstract class CloudNetDriver {
 
         Value<R> value = new Value<>();
 
-        ITask<R> listenableTask = new ListenableTask<>(new Callable<R>() {
-            @Override
-            public R call() throws Exception {
-                return value.getValue();
-            }
-        });
+        ITask<R> listenableTask = new ListenableTask<>(() -> value.getValue());
 
         InternalSyncPacketChannel.sendCallablePacket(networkChannel, header, body, new ITaskListener<Pair<JsonDocument, byte[]>>() {
 

@@ -38,60 +38,60 @@ final class BukkitCloudNetPlayerInfo {
         return this.uniqueId;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public double getHealth() {
-        return this.health;
-    }
-
-    public double getMaxHealth() {
-        return this.maxHealth;
-    }
-
-    public double getSaturation() {
-        return this.saturation;
-    }
-
-    public int getLevel() {
-        return this.level;
-    }
-
-    public WorldPosition getLocation() {
-        return this.location;
-    }
-
-    public HostAndPort getAddress() {
-        return this.address;
-    }
-
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public double getHealth() {
+        return this.health;
+    }
+
     public void setHealth(double health) {
         this.health = health;
+    }
+
+    public double getMaxHealth() {
+        return this.maxHealth;
     }
 
     public void setMaxHealth(double maxHealth) {
         this.maxHealth = maxHealth;
     }
 
+    public double getSaturation() {
+        return this.saturation;
+    }
+
     public void setSaturation(double saturation) {
         this.saturation = saturation;
+    }
+
+    public int getLevel() {
+        return this.level;
     }
 
     public void setLevel(int level) {
         this.level = level;
     }
 
+    public WorldPosition getLocation() {
+        return this.location;
+    }
+
     public void setLocation(WorldPosition location) {
         this.location = location;
+    }
+
+    public HostAndPort getAddress() {
+        return this.address;
     }
 
     public void setAddress(HostAndPort address) {

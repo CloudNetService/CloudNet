@@ -29,20 +29,20 @@ abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable {
         return this.includes;
     }
 
-    public Collection<ServiceTemplate> getTemplates() {
-        return this.templates;
-    }
-
-    public Collection<ServiceDeployment> getDeployments() {
-        return this.deployments;
-    }
-
     public void setIncludes(Collection<ServiceRemoteInclusion> includes) {
         this.includes = includes;
     }
 
+    public Collection<ServiceTemplate> getTemplates() {
+        return this.templates;
+    }
+
     public void setTemplates(Collection<ServiceTemplate> templates) {
         this.templates = templates;
+    }
+
+    public Collection<ServiceDeployment> getDeployments() {
+        return this.deployments;
     }
 
     public void setDeployments(Collection<ServiceDeployment> deployments) {

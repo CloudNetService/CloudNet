@@ -60,44 +60,44 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         return this.groups;
     }
 
-    public String getPrefix() {
-        return this.prefix;
-    }
-
-    public String getSuffix() {
-        return this.suffix;
-    }
-
-    public String getDisplay() {
-        return this.display;
-    }
-
-    public int getSortId() {
-        return this.sortId;
-    }
-
-    public boolean isDefaultGroup() {
-        return this.defaultGroup;
-    }
-
     public void setGroups(Collection<String> groups) {
         this.groups = groups;
+    }
+
+    public String getPrefix() {
+        return this.prefix;
     }
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
 
+    public String getSuffix() {
+        return this.suffix;
+    }
+
     public void setSuffix(String suffix) {
         this.suffix = suffix;
+    }
+
+    public String getDisplay() {
+        return this.display;
     }
 
     public void setDisplay(String display) {
         this.display = display;
     }
 
+    public int getSortId() {
+        return this.sortId;
+    }
+
     public void setSortId(int sortId) {
         this.sortId = sortId;
+    }
+
+    public boolean isDefaultGroup() {
+        return this.defaultGroup;
     }
 
     public void setDefaultGroup(boolean defaultGroup) {

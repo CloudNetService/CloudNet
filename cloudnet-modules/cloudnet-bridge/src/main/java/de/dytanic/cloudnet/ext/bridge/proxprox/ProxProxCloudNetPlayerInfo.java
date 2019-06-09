@@ -35,52 +35,52 @@ final class ProxProxCloudNetPlayerInfo {
         return this.uniqueId;
     }
 
-    public Locale getLocale() {
-        return this.locale;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getXBoxId() {
-        return this.xBoxId;
-    }
-
-    public HostAndPort getAddress() {
-        return this.address;
-    }
-
-    public HostAndPort getConnectedServer() {
-        return this.connectedServer;
-    }
-
-    public long getPing() {
-        return this.ping;
-    }
-
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public Locale getLocale() {
+        return this.locale;
     }
 
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getXBoxId() {
+        return this.xBoxId;
     }
 
     public void setXBoxId(String xBoxId) {
         this.xBoxId = xBoxId;
     }
 
+    public HostAndPort getAddress() {
+        return this.address;
+    }
+
     public void setAddress(HostAndPort address) {
         this.address = address;
     }
 
+    public HostAndPort getConnectedServer() {
+        return this.connectedServer;
+    }
+
     public void setConnectedServer(HostAndPort connectedServer) {
         this.connectedServer = connectedServer;
+    }
+
+    public long getPing() {
+        return this.ping;
     }
 
     public void setPing(long ping) {

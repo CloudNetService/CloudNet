@@ -84,11 +84,6 @@ public final class JLine2Console implements IConsole {
     }
 
     @Override
-    public void setPrompt(String prompt) {
-        this.consoleReader.setPrompt(prompt);
-    }
-
-    @Override
     public void resetPrompt() {
         this.consoleReader.setPrompt("");
     }
@@ -112,6 +107,11 @@ public final class JLine2Console implements IConsole {
 
     public String getPrompt() {
         return this.prompt;
+    }
+
+    @Override
+    public void setPrompt(String prompt) {
+        this.consoleReader.setPrompt(prompt);
     }
 
     public String getScreenName() {

@@ -47,68 +47,68 @@ public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
         return this.creationTime;
     }
 
-    public NetworkClusterNode getNode() {
-        return this.node;
-    }
-
-    public String getVersion() {
-        return this.version;
-    }
-
-    public int getCurrentServicesCount() {
-        return this.currentServicesCount;
-    }
-
-    public int getUsedMemory() {
-        return this.usedMemory;
-    }
-
-    public int getReservedMemory() {
-        return this.reservedMemory;
-    }
-
-    public int getMaxMemory() {
-        return this.maxMemory;
-    }
-
-    public ProcessSnapshot getProcessSnapshot() {
-        return this.processSnapshot;
-    }
-
-    public Collection<NetworkClusterNodeExtensionSnapshot> getExtensions() {
-        return this.extensions;
-    }
-
     public void setCreationTime(long creationTime) {
         this.creationTime = creationTime;
+    }
+
+    public NetworkClusterNode getNode() {
+        return this.node;
     }
 
     public void setNode(NetworkClusterNode node) {
         this.node = node;
     }
 
+    public String getVersion() {
+        return this.version;
+    }
+
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public int getCurrentServicesCount() {
+        return this.currentServicesCount;
     }
 
     public void setCurrentServicesCount(int currentServicesCount) {
         this.currentServicesCount = currentServicesCount;
     }
 
+    public int getUsedMemory() {
+        return this.usedMemory;
+    }
+
     public void setUsedMemory(int usedMemory) {
         this.usedMemory = usedMemory;
+    }
+
+    public int getReservedMemory() {
+        return this.reservedMemory;
     }
 
     public void setReservedMemory(int reservedMemory) {
         this.reservedMemory = reservedMemory;
     }
 
+    public int getMaxMemory() {
+        return this.maxMemory;
+    }
+
     public void setMaxMemory(int maxMemory) {
         this.maxMemory = maxMemory;
     }
 
+    public ProcessSnapshot getProcessSnapshot() {
+        return this.processSnapshot;
+    }
+
     public void setProcessSnapshot(ProcessSnapshot processSnapshot) {
         this.processSnapshot = processSnapshot;
+    }
+
+    public Collection<NetworkClusterNodeExtensionSnapshot> getExtensions() {
+        return this.extensions;
     }
 
     public void setExtensions(Collection<NetworkClusterNodeExtensionSnapshot> extensions) {

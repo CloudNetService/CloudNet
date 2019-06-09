@@ -42,12 +42,12 @@ public class Pair<F, S> {
         return this.first;
     }
 
-    public S getSecond() {
-        return this.second;
-    }
-
     public void setFirst(F first) {
         this.first = first;
+    }
+
+    public S getSecond() {
+        return this.second;
     }
 
     public void setSecond(S second) {

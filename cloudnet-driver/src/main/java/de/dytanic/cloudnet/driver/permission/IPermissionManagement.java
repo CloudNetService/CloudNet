@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.driver.permission;
 import de.dytanic.cloudnet.common.collection.Iterables;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public interface IPermissionManagement {
 
@@ -162,12 +161,7 @@ public interface IPermissionManagement {
     }
 
     default Collection<IPermissionGroup> getExtendedGroups(IPermissionGroup group) {
-        return group == null ? Collections.EMPTY_LIST : Iterables.filter(this.getGroups(), new Predicate<IPermissionGroup>() {
-            @Override
-            public boolean test(IPermissionGroup permissionGroup) {
-                return group.getGroups().contains(permissionGroup.getName());
-            }
-        });
+        return group == null ? Collections.EMPTY_LIST : Iterables.filter(this.getGroups(), permissionGroup -> group.getGroups().contains(permissionGroup.getName()));
     }
 
     default boolean hasPermission(IPermissionUser permissionUser, String permission) {

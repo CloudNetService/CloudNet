@@ -21,7 +21,6 @@ import net.md_5.bungee.api.plugin.Event;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public final class BungeeCloudNetListener {
 
@@ -138,15 +137,12 @@ public final class BungeeCloudNetListener {
     }
 
     public ProxiedPlayer getPlayer(JsonDocument data) {
-        return Iterables.first(ProxyServer.getInstance().getPlayers(), new Predicate<ProxiedPlayer>() {
-            @Override
-            public boolean test(ProxiedPlayer proxiedPlayer) {
-                UUID uniqueId = BungeeCloudNetHelper.getUniqueIdOfPlayer(proxiedPlayer);
+        return Iterables.first(ProxyServer.getInstance().getPlayers(), proxiedPlayer -> {
+            UUID uniqueId = BungeeCloudNetHelper.getUniqueIdOfPlayer(proxiedPlayer);
 
-                return uniqueId != null ?
-                        data.contains("uniqueId") && uniqueId.equals(data.get("uniqueId", UUID.class)) :
-                        data.contains("name") && proxiedPlayer.getName().equalsIgnoreCase(data.getString("name"));
-            }
+            return uniqueId != null ?
+                    data.contains("uniqueId") && uniqueId.equals(data.get("uniqueId", UUID.class)) :
+                    data.contains("name") && proxiedPlayer.getName().equalsIgnoreCase(data.getString("name"));
         });
     }
 

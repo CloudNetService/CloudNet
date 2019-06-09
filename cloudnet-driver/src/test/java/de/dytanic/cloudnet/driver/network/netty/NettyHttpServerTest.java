@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import org.junit.Assert;
@@ -21,28 +20,25 @@ public class NettyHttpServerTest {
     public void testHttpServerWithParameters() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
-        Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", new IHttpHandler() {
-            @Override
-            public void handle(String path, IHttpContext context) throws Exception {
-                if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
-                        context.request().pathParameters().get("id").equals("64") && context.request().pathParameters().get("name").equals("Albert") &&
-                        context.request().method().toUpperCase().equals("GET"))
-                    context
-                            .response()
-                            .header("Content-Type", "text/plain")
-                            .header("Custom-Header", "true")
-                            .body(TEST_STRING)
-                            .statusCode(200)
-                            .context()
-                            .cancelNext()
-                            ;
-                else
-                    context.response()
-                            .statusCode(404)
-                            .context()
-                            .cancelNext()
-                            ;
-            }
+        Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", (IHttpHandler) (path, context) -> {
+            if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
+                    context.request().pathParameters().get("id").equals("64") && context.request().pathParameters().get("name").equals("Albert") &&
+                    context.request().method().toUpperCase().equals("GET"))
+                context
+                        .response()
+                        .header("Content-Type", "text/plain")
+                        .header("Custom-Header", "true")
+                        .body(TEST_STRING)
+                        .statusCode(200)
+                        .context()
+                        .cancelNext()
+                        ;
+            else
+                context.response()
+                        .statusCode(404)
+                        .context()
+                        .cancelNext()
+                        ;
         }));
 
         Assert.assertEquals(1, httpServer.getHttpHandlers().size());
@@ -73,20 +69,17 @@ public class NettyHttpServerTest {
     public void testHttpServerWithWildCard() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
-        Assert.assertNotNull(httpServer.registerHandler("/person/*/test", new IHttpHandler() {
-            @Override
-            public void handle(String path, IHttpContext context) throws Exception {
-                if (context.request().method().toUpperCase().equals("POST"))
-                    context
-                            .response()
-                            .header("Content-Type", "text/plain")
-                            .header("Request-Text-Example", path.split("/")[2])
-                            .body(context.request().body())
-                            .statusCode(200)
-                            .context()
-                            .cancelNext()
-                            ;
-            }
+        Assert.assertNotNull(httpServer.registerHandler("/person/*/test", (IHttpHandler) (path, context) -> {
+            if (context.request().method().toUpperCase().equals("POST"))
+                context
+                        .response()
+                        .header("Content-Type", "text/plain")
+                        .header("Request-Text-Example", path.split("/")[2])
+                        .body(context.request().body())
+                        .statusCode(200)
+                        .context()
+                        .cancelNext()
+                        ;
         }));
 
         Assert.assertEquals(1, httpServer.getHttpHandlers().size());

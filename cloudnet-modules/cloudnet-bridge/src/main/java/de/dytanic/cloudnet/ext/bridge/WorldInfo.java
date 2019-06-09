@@ -29,28 +29,28 @@ public class WorldInfo {
         return this.uniqueId;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public String getDifficulty() {
-        return this.difficulty;
-    }
-
-    public Map<String, String> getGameRules() {
-        return this.gameRules;
-    }
-
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getDifficulty() {
+        return this.difficulty;
+    }
+
     public void setDifficulty(String difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public Map<String, String> getGameRules() {
+        return this.gameRules;
     }
 
     public void setGameRules(Map<String, String> gameRules) {

@@ -34,68 +34,68 @@ final class NukkitCloudNetPlayerInfo {
         return this.health;
     }
 
-    public double getMaxHealth() {
-        return this.maxHealth;
-    }
-
-    public double getSaturation() {
-        return this.saturation;
-    }
-
-    public int getLevel() {
-        return this.level;
-    }
-
-    public int getPing() {
-        return this.ping;
-    }
-
-    public WorldPosition getLocation() {
-        return this.location;
-    }
-
-    public HostAndPort getAddress() {
-        return this.address;
-    }
-
-    public UUID getUniqueId() {
-        return this.uniqueId;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
     public void setHealth(double health) {
         this.health = health;
+    }
+
+    public double getMaxHealth() {
+        return this.maxHealth;
     }
 
     public void setMaxHealth(double maxHealth) {
         this.maxHealth = maxHealth;
     }
 
+    public double getSaturation() {
+        return this.saturation;
+    }
+
     public void setSaturation(double saturation) {
         this.saturation = saturation;
+    }
+
+    public int getLevel() {
+        return this.level;
     }
 
     public void setLevel(int level) {
         this.level = level;
     }
 
+    public int getPing() {
+        return this.ping;
+    }
+
     public void setPing(int ping) {
         this.ping = ping;
+    }
+
+    public WorldPosition getLocation() {
+        return this.location;
     }
 
     public void setLocation(WorldPosition location) {
         this.location = location;
     }
 
+    public HostAndPort getAddress() {
+        return this.address;
+    }
+
     public void setAddress(HostAndPort address) {
         this.address = address;
     }
 
+    public UUID getUniqueId() {
+        return this.uniqueId;
+    }
+
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {

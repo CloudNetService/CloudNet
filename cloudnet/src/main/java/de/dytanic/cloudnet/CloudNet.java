@@ -79,7 +79,6 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -90,8 +89,6 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public final class CloudNet extends CloudNetDriver {
 
@@ -324,12 +321,9 @@ public final class CloudNet extends CloudNetDriver {
             this.sendCommandLine0(collection, commandLine);
         else
             try {
-                runTask(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        sendCommandLine0(collection, commandLine);
-                        return null;
-                    }
+                runTask((Callable<Void>) () -> {
+                    sendCommandLine0(collection, commandLine);
+                    return null;
                 }).get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
@@ -385,6 +379,7 @@ public final class CloudNet extends CloudNetDriver {
             }
 
         } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -587,21 +582,15 @@ public final class CloudNet extends CloudNetDriver {
                     }
                     break;
                 case STOPPED:
-                    scheduleTask(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            cloudService.stop();
-                            return null;
-                        }
+                    scheduleTask((Callable<Void>) () -> {
+                        cloudService.stop();
+                        return null;
                     });
                     break;
                 case DELETED:
-                    scheduleTask(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            cloudService.delete();
-                            return null;
-                        }
+                    scheduleTask((Callable<Void>) () -> {
+                        cloudService.delete();
+                        return null;
                     });
                     break;
             }
@@ -692,12 +681,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ServiceInfoSnapshot getCloudServiceByName(String name) {
-        return Iterables.first(cloudServiceManager.getCloudServices().values(), new Predicate<ICloudService>() {
-            @Override
-            public boolean test(ICloudService cloudService) {
-                return cloudService.getServiceId().getName().equalsIgnoreCase(name);
-            }
-        }).getServiceInfoSnapshot();
+        return Iterables.first(cloudServiceManager.getCloudServices().values(), cloudService -> cloudService.getServiceId().getName().equalsIgnoreCase(name)).getServiceInfoSnapshot();
     }
 
     @Override
@@ -707,12 +691,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
-        return Iterables.filter(this.getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING;
-            }
-        });
+        return Iterables.filter(this.getCloudServices(), serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING);
     }
 
     @Override
@@ -726,12 +705,7 @@ public final class CloudNet extends CloudNetDriver {
     public Collection<ServiceInfoSnapshot> getCloudServiceByGroup(String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.filter(this.cloudServiceManager.getGlobalServiceInfoSnapshots().values(), new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return Iterables.contains(group, serviceInfoSnapshot.getConfiguration().getGroups());
-            }
-        });
+        return Iterables.filter(this.cloudServiceManager.getGlobalServiceInfoSnapshots().values(), serviceInfoSnapshot -> Iterables.contains(group, serviceInfoSnapshot.getConfiguration().getGroups()));
     }
 
     @Override
@@ -861,12 +835,7 @@ public final class CloudNet extends CloudNetDriver {
     public NetworkClusterNode getNode(String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return Iterables.first(this.config.getClusterConfig().getNodes(), new Predicate<NetworkClusterNode>() {
-            @Override
-            public boolean test(NetworkClusterNode networkClusterNode) {
-                return networkClusterNode.getUniqueId().equals(uniqueId);
-            }
-        });
+        return Iterables.first(this.config.getClusterConfig().getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId));
     }
 
     @Override
@@ -898,12 +867,7 @@ public final class CloudNet extends CloudNetDriver {
     public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return cloudServiceManager.getServiceInfoSnapshots(new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return serviceInfoSnapshot.getServiceId().getEnvironment() == environment;
-            }
-        });
+        return cloudServiceManager.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getEnvironment() == environment);
     }
 
     @Override
@@ -1064,42 +1028,22 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<String[]> sendCommandLineAsync(String commandLine) {
-        return scheduleTask(new Callable<String[]>() {
-            @Override
-            public String[] call() throws Exception {
-                return CloudNet.this.sendCommandLine(commandLine);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.sendCommandLine(commandLine));
     }
 
     @Override
     public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
-        return scheduleTask(new Callable<String[]>() {
-            @Override
-            public String[] call() throws Exception {
-                return CloudNet.this.sendCommandLine(nodeUniqueId, commandLine);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.sendCommandLine(nodeUniqueId, commandLine));
     }
 
     @Override
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.createCloudService(serviceTask);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.createCloudService(serviceTask));
     }
 
     @Override
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.createCloudService(serviceConfiguration);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.createCloudService(serviceConfiguration));
     }
 
     @Override
@@ -1114,12 +1058,7 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port));
     }
 
     @Override
@@ -1135,12 +1074,7 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        return scheduleTask(new Callable<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public Collection<ServiceInfoSnapshot> call() throws Exception {
-                return CloudNet.this.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port));
     }
 
     @Override
@@ -1148,12 +1082,7 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.sendCommandLineToCloudService(uniqueId, commandLine);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.sendCommandLineToCloudService(uniqueId, commandLine));
     }
 
     @Override
@@ -1161,12 +1090,7 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceTemplate);
 
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.addServiceTemplateToCloudService(uniqueId, serviceTemplate);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.addServiceTemplateToCloudService(uniqueId, serviceTemplate));
     }
 
     @Override
@@ -1174,12 +1098,7 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceRemoteInclusion);
 
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.addServiceRemoteInclusionToCloudService(uniqueId, serviceRemoteInclusion);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.addServiceRemoteInclusionToCloudService(uniqueId, serviceRemoteInclusion));
     }
 
     @Override
@@ -1187,24 +1106,14 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceDeployment);
 
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.addServiceDeploymentToCloudService(uniqueId, serviceDeployment);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.addServiceDeploymentToCloudService(uniqueId, serviceDeployment));
     }
 
     @Override
     public ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return scheduleTask(new Callable<Queue<String>>() {
-            @Override
-            public Queue<String> call() throws Exception {
-                return CloudNet.this.getCachedLogMessagesFromService(uniqueId);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getCachedLogMessagesFromService(uniqueId));
     }
 
     @Override
@@ -1281,258 +1190,143 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-        return scheduleTask(new Callable<Collection<UUID>>() {
-            @Override
-            public Collection<UUID> call() throws Exception {
-                return CloudNet.this.getServicesAsUniqueId();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getServicesAsUniqueId());
     }
 
     @Override
     public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.getCloudServiceByName(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getCloudServiceByName(name));
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-        return scheduleTask(new Callable<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public Collection<ServiceInfoSnapshot> call() throws Exception {
-                return CloudNet.this.getCloudServices();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getCloudServices());
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
-        return scheduleTask(new Callable<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public Collection<ServiceInfoSnapshot> call() throws Exception {
-                return CloudNet.this.getStartedCloudServices();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getStartedCloudServices());
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
         Validate.checkNotNull(taskName);
 
-        return scheduleTask(new Callable<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public Collection<ServiceInfoSnapshot> call() throws Exception {
-                return CloudNet.this.getCloudService(taskName);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getCloudService(taskName));
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
         Validate.checkNotNull(group);
 
-        return scheduleTask(new Callable<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public Collection<ServiceInfoSnapshot> call() throws Exception {
-                return CloudNet.this.getCloudServiceByGroup(group);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getCloudServiceByGroup(group));
     }
 
     @Override
     public ITask<Integer> getServicesCountAsync() {
-        return scheduleTask(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return CloudNet.this.getServicesCount();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getServicesCount());
     }
 
     @Override
     public ITask<Integer> getServicesCountByGroupAsync(String group) {
         Validate.checkNotNull(group);
 
-        return scheduleTask(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return CloudNet.this.getServicesCountByGroup(group);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getServicesCountByGroup(group));
     }
 
     @Override
     public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
         Validate.checkNotNull(taskName);
 
-        return scheduleTask(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return CloudNet.this.getServicesCountByTask(taskName);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getServicesCountByTask(taskName));
     }
 
     @Override
     public ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return scheduleTask(new Callable<ServiceInfoSnapshot>() {
-            @Override
-            public ServiceInfoSnapshot call() throws Exception {
-                return CloudNet.this.getCloudService(uniqueId);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getCloudService(uniqueId));
     }
 
     @Override
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-        return scheduleTask(new Callable<Collection<ServiceTask>>() {
-            @Override
-            public Collection<ServiceTask> call() throws Exception {
-                return CloudNet.this.getPermanentServiceTasks();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getPermanentServiceTasks());
     }
 
     @Override
     public ITask<ServiceTask> getServiceTaskAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<ServiceTask>() {
-            @Override
-            public ServiceTask call() throws Exception {
-                return CloudNet.this.getServiceTask(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getServiceTask(name));
     }
 
     @Override
     public ITask<Boolean> isServiceTaskPresentAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return CloudNet.this.isServiceTaskPresent(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.isServiceTaskPresent(name));
     }
 
     @Override
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-        return scheduleTask(new Callable<Collection<GroupConfiguration>>() {
-            @Override
-            public Collection<GroupConfiguration> call() throws Exception {
-                return CloudNet.this.getGroupConfigurations();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getGroupConfigurations());
     }
 
     @Override
     public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<GroupConfiguration>() {
-            @Override
-            public GroupConfiguration call() throws Exception {
-                return CloudNet.this.getGroupConfiguration(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getGroupConfiguration(name));
     }
 
     @Override
     public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return CloudNet.this.isGroupConfigurationPresent(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.isGroupConfigurationPresent(name));
     }
 
     @Override
     public ITask<NetworkClusterNode[]> getNodesAsync() {
-        return scheduleTask(new Callable<NetworkClusterNode[]>() {
-            @Override
-            public NetworkClusterNode[] call() throws Exception {
-                return CloudNet.this.getNodes();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getNodes());
     }
 
     @Override
     public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return scheduleTask(new Callable<NetworkClusterNode>() {
-            @Override
-            public NetworkClusterNode call() throws Exception {
-                return CloudNet.this.getNode(uniqueId);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getNode(uniqueId));
     }
 
     @Override
     public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-        return scheduleTask(new Callable<NetworkClusterNodeInfoSnapshot[]>() {
-            @Override
-            public NetworkClusterNodeInfoSnapshot[] call() throws Exception {
-                return CloudNet.this.getNodeInfoSnapshots();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getNodeInfoSnapshots());
     }
 
     @Override
     public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return scheduleTask(new Callable<NetworkClusterNodeInfoSnapshot>() {
-            @Override
-            public NetworkClusterNodeInfoSnapshot call() throws Exception {
-                return CloudNet.this.getNodeInfoSnapshot(uniqueId);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getNodeInfoSnapshot(uniqueId));
     }
 
     @Override
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return scheduleTask(new Callable<Collection<ServiceTemplate>>() {
-            @Override
-            public Collection<ServiceTemplate> call() throws Exception {
-                return CloudNet.this.getLocalTemplateStorageTemplates();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getLocalTemplateStorageTemplates());
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return scheduleTask(new Callable<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public Collection<ServiceInfoSnapshot> call() throws Exception {
-                return CloudNet.this.getCloudServices(environment);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getCloudServices(environment));
     }
 
     @Override
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName) {
         Validate.checkNotNull(serviceName);
 
-        return scheduleTask(new Callable<Collection<ServiceTemplate>>() {
-            @Override
-            public Collection<ServiceTemplate> call() throws Exception {
-                return CloudNet.this.getTemplateStorageTemplates(serviceName);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getTemplateStorageTemplates(serviceName));
     }
 
     @Override
@@ -1540,128 +1334,73 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
-        return scheduleTask(new Callable<Pair<Boolean, String[]>>() {
-            @Override
-            public Pair<Boolean, String[]> call() throws Exception {
-                return CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
     }
 
     @Override
     public ITask<Void> addUserAsync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        return scheduleTask(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                return null;
-            }
-        });
+        return scheduleTask(() -> null);
     }
 
     @Override
     public ITask<Boolean> containsUserAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return scheduleTask(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return CloudNet.this.containsUser(uniqueId);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.containsUser(uniqueId));
     }
 
     @Override
     public ITask<Boolean> containsUserAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return CloudNet.this.containsUser(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.containsUser(name));
     }
 
     @Override
     public ITask<IPermissionUser> getUserAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return scheduleTask(new Callable<IPermissionUser>() {
-            @Override
-            public IPermissionUser call() throws Exception {
-                return CloudNet.this.getUser(uniqueId);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getUser(uniqueId));
     }
 
     @Override
     public ITask<List<IPermissionUser>> getUserAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<List<IPermissionUser>>() {
-            @Override
-            public List<IPermissionUser> call() throws Exception {
-                return CloudNet.this.getUser(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getUser(name));
     }
 
     @Override
     public ITask<Collection<IPermissionUser>> getUsersAsync() {
-        return scheduleTask(new Callable<Collection<IPermissionUser>>() {
-            @Override
-            public Collection<IPermissionUser> call() throws Exception {
-                return CloudNet.this.getUsers();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getUsers());
     }
 
     @Override
     public ITask<Collection<IPermissionUser>> getUserByGroupAsync(String group) {
         Validate.checkNotNull(group);
 
-        return scheduleTask(new Callable<Collection<IPermissionUser>>() {
-            @Override
-            public Collection<IPermissionUser> call() throws Exception {
-                return CloudNet.this.getUserByGroup(group);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getUserByGroup(group));
     }
 
     @Override
     public ITask<Boolean> containsGroupAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return CloudNet.this.containsGroup(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.containsGroup(name));
     }
 
     @Override
     public ITask<IPermissionGroup> getGroupAsync(String name) {
         Validate.checkNotNull(name);
 
-        return scheduleTask(new Callable<IPermissionGroup>() {
-            @Override
-            public IPermissionGroup call() throws Exception {
-                return CloudNet.this.getGroup(name);
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getGroup(name));
     }
 
     @Override
     public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return scheduleTask(new Callable<Collection<IPermissionGroup>>() {
-            @Override
-            public Collection<IPermissionGroup> call() throws Exception {
-                return CloudNet.this.getGroups();
-            }
-        });
+        return scheduleTask(() -> CloudNet.this.getGroups());
     }
 
     public <T> ITask<T> runTask(Callable<T> runnable) {
@@ -1695,12 +1434,9 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public ITask<Void> sendAllAsync(IPacket packet) {
-        return scheduleTask(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                sendAll(packet);
-                return null;
-            }
+        return scheduleTask(() -> {
+            sendAll(packet);
+            return null;
         });
     }
 
@@ -1716,12 +1452,9 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public ITask<Void> sendAllAsync(IPacket... packets) {
-        return scheduleTask(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                sendAll(packets);
-                return null;
-            }
+        return scheduleTask(() -> {
+            sendAll(packets);
+            return null;
         });
     }
 
@@ -1756,39 +1489,24 @@ public final class CloudNet extends CloudNetDriver {
                         ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
-                        Iterables.map(Thread.getAllStackTraces().keySet(), new Function<Thread, ThreadSnapshot>() {
-                            @Override
-                            public ThreadSnapshot apply(Thread thread) {
-                                return new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority());
-                            }
-                        }),
+                        Iterables.map(Thread.getAllStackTraces().keySet(), thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority())),
                         CPUUsageResolver.getProcessCPUUsage()
                 ),
-                Iterables.map(this.moduleProvider.getModules(), new Function<IModuleWrapper, NetworkClusterNodeExtensionSnapshot>() {
-                    @Override
-                    public NetworkClusterNodeExtensionSnapshot apply(IModuleWrapper moduleWrapper) {
-                        return new NetworkClusterNodeExtensionSnapshot(
-                                moduleWrapper.getModuleConfiguration().getGroup(),
-                                moduleWrapper.getModuleConfiguration().getName(),
-                                moduleWrapper.getModuleConfiguration().getVersion(),
-                                moduleWrapper.getModuleConfiguration().getAuthor(),
-                                moduleWrapper.getModuleConfiguration().getWebsite(),
-                                moduleWrapper.getModuleConfiguration().getDescription()
-                        );
-                    }
-                })
+                Iterables.map(this.moduleProvider.getModules(), moduleWrapper -> new NetworkClusterNodeExtensionSnapshot(
+                        moduleWrapper.getModuleConfiguration().getGroup(),
+                        moduleWrapper.getModuleConfiguration().getName(),
+                        moduleWrapper.getModuleConfiguration().getVersion(),
+                        moduleWrapper.getModuleConfiguration().getAuthor(),
+                        moduleWrapper.getModuleConfiguration().getWebsite(),
+                        moduleWrapper.getModuleConfiguration().getDescription()
+                ))
         );
     }
 
     public Collection<IClusterNodeServer> getValidClusterNodeServers(ServiceTask serviceTask) {
-        return Iterables.filter(clusterNodeServerProvider.getNodeServers(), new Predicate<IClusterNodeServer>() {
-            @Override
-            public boolean test(IClusterNodeServer clusterNodeServer) {
-                return clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null && (
-                        serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(clusterNodeServer.getNodeInfo().getUniqueId())
-                );
-            }
-        });
+        return Iterables.filter(clusterNodeServerProvider.getNodeServers(), clusterNodeServer -> clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null && (
+                serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(clusterNodeServer.getNodeInfo().getUniqueId())
+        ));
     }
 
     public NetworkClusterNodeInfoSnapshot searchLogicNode(ServiceTask serviceTask) {
@@ -2296,14 +2014,11 @@ public final class CloudNet extends CloudNetDriver {
         this.moduleDirectory.mkdirs();
 
         this.logger.info(LanguageManager.getMessage("cloudnet-load-modules"));
-        for (File file : Objects.requireNonNull(this.moduleDirectory.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                String lowerName = pathname.getName().toLowerCase();
-                return !pathname.isDirectory() && lowerName.endsWith(".jar") ||
-                        lowerName.endsWith(".war") ||
-                        lowerName.endsWith(".zip");
-            }
+        for (File file : Objects.requireNonNull(this.moduleDirectory.listFiles(pathname -> {
+            String lowerName = pathname.getName().toLowerCase();
+            return !pathname.isDirectory() && lowerName.endsWith(".jar") ||
+                    lowerName.endsWith(".war") ||
+                    lowerName.endsWith(".zip");
         }))) {
             this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-found").replace("%file_name%", file.getName()));
             this.moduleProvider.loadModule(file);
@@ -2334,52 +2049,43 @@ public final class CloudNet extends CloudNetDriver {
                 new DefaultJsonFilePermissionManagement(new File(System.getProperty("cloudnet.permissions.json.path", "local/perms.json"))));
 
         this.servicesRegistry.registerService(IPermissionManagement.class, "json_database",
-                new DefaultDatabasePermissionManagement(new Callable<AbstractDatabaseProvider>() {
-
-                    @Override
-                    public AbstractDatabaseProvider call() throws Exception {
-                        return getDatabaseProvider();
-                    }
-                }));
+                new DefaultDatabasePermissionManagement(() -> getDatabaseProvider()));
 
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
                 new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"), taskScheduler));
     }
 
     private void runConsole() {
-        Thread console = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (!getCommandLineArguments().contains("--noconsole")) {
-                        logger.info(LanguageManager.getMessage("console-ready"));
+        Thread console = new Thread(() -> {
+            try {
+                if (!getCommandLineArguments().contains("--noconsole")) {
+                    logger.info(LanguageManager.getMessage("console-ready"));
 
-                        String input;
-                        while ((input = getConsole().readLine()) != null)
-                            try {
-                                if (input.trim().isEmpty()) continue;
+                    String input;
+                    while ((input = getConsole().readLine()) != null)
+                        try {
+                            if (input.trim().isEmpty()) continue;
 
-                                CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, getConsoleCommandSender());
-                                getEventManager().callEvent(commandPreProcessEvent);
+                            CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, getConsoleCommandSender());
+                            getEventManager().callEvent(commandPreProcessEvent);
 
-                                if (commandPreProcessEvent.isCancelled()) continue;
+                            if (commandPreProcessEvent.isCancelled()) continue;
 
-                                if (!getCommandMap().dispatchCommand(getConsoleCommandSender(), input)) {
-                                    getEventManager().callEvent(new CommandNotFoundEvent(input));
-                                    logger.warning(LanguageManager.getMessage("command-not-found"));
+                            if (!getCommandMap().dispatchCommand(getConsoleCommandSender(), input)) {
+                                getEventManager().callEvent(new CommandNotFoundEvent(input));
+                                logger.warning(LanguageManager.getMessage("command-not-found"));
 
-                                    continue;
-                                }
-
-                                getEventManager().callEvent(new CommandPostProcessEvent(input, getConsoleCommandSender()));
-
-                            } catch (Throwable ex) {
-                                ex.printStackTrace();
+                                continue;
                             }
-                    } else while (RUNNING) Thread.sleep(1000);
-                } catch (Throwable ex) {
-                    ex.printStackTrace();
-                }
+
+                            getEventManager().callEvent(new CommandPostProcessEvent(input, getConsoleCommandSender()));
+
+                        } catch (Throwable ex) {
+                            ex.printStackTrace();
+                        }
+                } else while (RUNNING) Thread.sleep(1000);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
             }
         });
 

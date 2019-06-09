@@ -73,29 +73,26 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
         initScoreboard(player);
 
-        forEachPlayers(new Consumer<Player>() {
-            @Override
-            public void accept(Player all) {
-                initScoreboard(all);
+        forEachPlayers(all -> {
+            initScoreboard(all);
 
-                if (playerPermissionGroup.getValue() != null) {
-                    addTeamEntry(player, all, playerPermissionGroup.getValue());
+            if (playerPermissionGroup.getValue() != null) {
+                addTeamEntry(player, all, playerPermissionGroup.getValue());
+            }
+
+            IPermissionUser targetPermissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(all.getUniqueId());
+            IPermissionGroup targetPermissionGroup = allOtherPlayerPermissionGroupFunction != null ? allOtherPlayerPermissionGroupFunction.apply(all) : null;
+
+            if (targetPermissionUser != null && targetPermissionGroup == null) {
+                targetPermissionGroup = CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(targetPermissionUser);
+
+                if (targetPermissionGroup == null) {
+                    targetPermissionGroup = CloudPermissionsPermissionManagement.getInstance().getDefaultPermissionGroup();
                 }
+            }
 
-                IPermissionUser targetPermissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(all.getUniqueId());
-                IPermissionGroup targetPermissionGroup = allOtherPlayerPermissionGroupFunction != null ? allOtherPlayerPermissionGroupFunction.apply(all) : null;
-
-                if (targetPermissionUser != null && targetPermissionGroup == null) {
-                    targetPermissionGroup = CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(targetPermissionUser);
-
-                    if (targetPermissionGroup == null) {
-                        targetPermissionGroup = CloudPermissionsPermissionManagement.getInstance().getDefaultPermissionGroup();
-                    }
-                }
-
-                if (targetPermissionGroup != null) {
-                    addTeamEntry(all, player, targetPermissionGroup);
-                }
+            if (targetPermissionGroup != null) {
+                addTeamEntry(all, player, targetPermissionGroup);
             }
         });
     }
@@ -200,11 +197,6 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     private void initPlayersCloudPermissible() {
-        forEachPlayers(new Consumer<Player>() {
-            @Override
-            public void accept(Player player) {
-                injectCloudPermissible(player);
-            }
-        });
+        forEachPlayers(player -> injectCloudPermissible(player));
     }
 }

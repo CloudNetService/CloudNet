@@ -25,20 +25,20 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     protected final AtomicLong THREAD_COUNT = new AtomicLong();
 
     protected volatile int maxThreadSize;
-
-    public void setMaxThreadSize(int maxThreadSize) {
-        this.maxThreadSize = maxThreadSize;
-    }
-
     protected volatile long threadLifeMillis;
-
-    public void setThreadLifeMillis(long threadLifeMillis) {
-        this.threadLifeMillis = threadLifeMillis;
-    }
-
     protected volatile long threadPauseDelayMillis;
 
-    public void setThreadPauseDelayMillis(long threadPauseDelayMillis) {
+    public DefaultTaskScheduler() {
+        this(Runtime.getRuntime().availableProcessors() * 2, DEFAULT_THREAD_LIFE_MILLIS, DEFAULT_THREAD_PAUSE_MILLIS);
+    }
+
+    public DefaultTaskScheduler(int maxThreadSize) {
+        this(maxThreadSize, DEFAULT_THREAD_LIFE_MILLIS, DEFAULT_THREAD_PAUSE_MILLIS);
+    }
+
+    public DefaultTaskScheduler(int maxThreadSize, long threadLifeMillis, long threadPauseDelayMillis) {
+        this.maxThreadSize = maxThreadSize <= 0 ? Runtime.getRuntime().availableProcessors() : maxThreadSize;
+        this.threadLifeMillis = threadLifeMillis;
         this.threadPauseDelayMillis = threadPauseDelayMillis;
     }
 
@@ -70,25 +70,23 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         return maxThreadSize;
     }
 
+    public void setMaxThreadSize(int maxThreadSize) {
+        this.maxThreadSize = maxThreadSize;
+    }
+
     public long getThreadLifeMillis() {
         return threadLifeMillis;
+    }
+
+    public void setThreadLifeMillis(long threadLifeMillis) {
+        this.threadLifeMillis = threadLifeMillis;
     }
 
     public long getThreadPauseDelayMillis() {
         return threadPauseDelayMillis;
     }
 
-    public DefaultTaskScheduler() {
-        this(Runtime.getRuntime().availableProcessors() * 2, DEFAULT_THREAD_LIFE_MILLIS, DEFAULT_THREAD_PAUSE_MILLIS);
-    }
-
-    public DefaultTaskScheduler(int maxThreadSize) {
-        this(maxThreadSize, DEFAULT_THREAD_LIFE_MILLIS, DEFAULT_THREAD_PAUSE_MILLIS);
-    }
-
-    public DefaultTaskScheduler(int maxThreadSize, long threadLifeMillis, long threadPauseDelayMillis) {
-        this.maxThreadSize = maxThreadSize <= 0 ? Runtime.getRuntime().availableProcessors() : maxThreadSize;
-        this.threadLifeMillis = threadLifeMillis;
+    public void setThreadPauseDelayMillis(long threadPauseDelayMillis) {
         this.threadPauseDelayMillis = threadPauseDelayMillis;
     }
 

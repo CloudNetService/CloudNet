@@ -26,12 +26,12 @@ public class NetworkCluster {
         return this.clusterId;
     }
 
-    public Collection<NetworkClusterNode> getNodes() {
-        return this.nodes;
-    }
-
     public void setClusterId(UUID clusterId) {
         this.clusterId = clusterId;
+    }
+
+    public Collection<NetworkClusterNode> getNodes() {
+        return this.nodes;
     }
 
     public void setNodes(Collection<NetworkClusterNode> nodes) {

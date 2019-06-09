@@ -26,20 +26,20 @@ public class SignLayout {
         return this.lines;
     }
 
-    public String getBlockType() {
-        return this.blockType;
-    }
-
-    public int getSubId() {
-        return this.subId;
-    }
-
     public void setLines(String[] lines) {
         this.lines = lines;
     }
 
+    public String getBlockType() {
+        return this.blockType;
+    }
+
     public void setBlockType(String blockType) {
         this.blockType = blockType;
+    }
+
+    public int getSubId() {
+        return this.subId;
     }
 
     public void setSubId(int subId) {

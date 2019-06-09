@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public final class CommandPermissions extends CommandDefault implements ITabCompleter {
 
@@ -73,12 +72,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                 break;
             case "users":
                 if (args.length >= 3) {
-                    if (args[1].equalsIgnoreCase("group")) {
-                        for (IPermissionUser permissionUser : permissionManagement.getUserByGroup(args[2]))
-                            this.displayUser(sender, permissionUser);
-                        return;
-                    }
-
                     if (args[1].equalsIgnoreCase("group")) {
                         for (IPermissionUser permissionUser : permissionManagement.getUserByGroup(args[2]))
                             this.displayUser(sender, permissionUser);
@@ -527,19 +520,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
         IPermissionManagement permissionManager = getCloudNet().getPermissionManagement();
 
         return args.length == 0 ? Arrays.asList("user", "group") : args[0].equalsIgnoreCase("group") ?
-                Iterables.map(permissionManager.getGroups(), new Function<IPermissionGroup, String>() {
-                    @Override
-                    public String apply(IPermissionGroup permissionGroup) {
-                        return permissionGroup.getName();
-                    }
-                })
+                Iterables.map(permissionManager.getGroups(), permissionGroup -> permissionGroup.getName())
                 :
-                Iterables.map(permissionManager.getUsers(), new Function<IPermissionUser, String>() {
-                    @Override
-                    public String apply(IPermissionUser permissionUser) {
-                        return permissionUser.getName();
-                    }
-                })
+                Iterables.map(permissionManager.getUsers(), permissionUser -> permissionUser.getName())
                 ;
     }
 }

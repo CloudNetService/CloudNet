@@ -15,7 +15,6 @@ import io.netty.handler.codec.http.websocketx.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
@@ -49,12 +48,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
         Validate.checkNotNull(listeners);
 
         for (IWebSocketListener listener : webSocketListeners)
-            if (Iterables.first(listeners, new Predicate<IWebSocketListener>() {
-                @Override
-                public boolean test(IWebSocketListener webSocketListener) {
-                    return webSocketListener != null && webSocketListener.equals(listener);
-                }
-            }) != null)
+            if (Iterables.first(listeners, webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)) != null)
                 webSocketListeners.remove(listener);
 
         return this;

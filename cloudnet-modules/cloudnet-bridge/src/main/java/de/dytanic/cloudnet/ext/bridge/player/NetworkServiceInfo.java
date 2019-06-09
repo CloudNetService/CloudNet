@@ -29,20 +29,20 @@ public class NetworkServiceInfo {
         return this.environment;
     }
 
-    public UUID getUniqueId() {
-        return this.uniqueId;
-    }
-
-    public String getServerName() {
-        return this.serverName;
-    }
-
     public void setEnvironment(ServiceEnvironmentType environment) {
         this.environment = environment;
     }
 
+    public UUID getUniqueId() {
+        return this.uniqueId;
+    }
+
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getServerName() {
+        return this.serverName;
     }
 
     public void setServerName(String serverName) {

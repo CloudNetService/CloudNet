@@ -65,44 +65,44 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
         return this.uniqueId;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public String getXBoxId() {
-        return this.xBoxId;
-    }
-
-    public long getFirstLoginTimeMillis() {
-        return this.firstLoginTimeMillis;
-    }
-
-    public long getLastLoginTimeMillis() {
-        return this.lastLoginTimeMillis;
-    }
-
-    public NetworkConnectionInfo getLastNetworkConnectionInfo() {
-        return this.lastNetworkConnectionInfo;
-    }
-
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getXBoxId() {
+        return this.xBoxId;
+    }
+
     public void setXBoxId(String xBoxId) {
         this.xBoxId = xBoxId;
+    }
+
+    public long getFirstLoginTimeMillis() {
+        return this.firstLoginTimeMillis;
     }
 
     public void setFirstLoginTimeMillis(long firstLoginTimeMillis) {
         this.firstLoginTimeMillis = firstLoginTimeMillis;
     }
 
+    public long getLastLoginTimeMillis() {
+        return this.lastLoginTimeMillis;
+    }
+
     public void setLastLoginTimeMillis(long lastLoginTimeMillis) {
         this.lastLoginTimeMillis = lastLoginTimeMillis;
+    }
+
+    public NetworkConnectionInfo getLastNetworkConnectionInfo() {
+        return this.lastNetworkConnectionInfo;
     }
 
     public void setLastNetworkConnectionInfo(NetworkConnectionInfo lastNetworkConnectionInfo) {

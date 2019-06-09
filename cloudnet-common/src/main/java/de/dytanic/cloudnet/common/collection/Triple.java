@@ -51,20 +51,20 @@ public class Triple<F, S, T> {
         return this.first;
     }
 
-    public S getSecond() {
-        return this.second;
-    }
-
-    public T getThird() {
-        return this.third;
-    }
-
     public void setFirst(F first) {
         this.first = first;
     }
 
+    public S getSecond() {
+        return this.second;
+    }
+
     public void setSecond(S second) {
         this.second = second;
+    }
+
+    public T getThird() {
+        return this.third;
     }
 
     public void setThird(T third) {

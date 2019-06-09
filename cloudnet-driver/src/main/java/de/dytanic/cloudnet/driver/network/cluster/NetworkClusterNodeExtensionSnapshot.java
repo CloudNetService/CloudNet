@@ -26,44 +26,44 @@ public class NetworkClusterNodeExtensionSnapshot extends BasicJsonDocPropertyabl
         return this.group;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public String getVersion() {
-        return this.version;
-    }
-
-    public String getAuthor() {
-        return this.author;
-    }
-
-    public String getWebsite() {
-        return this.website;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getVersion() {
+        return this.version;
+    }
+
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getAuthor() {
+        return this.author;
     }
 
     public void setAuthor(String author) {
         this.author = author;
     }
 
+    public String getWebsite() {
+        return this.website;
+    }
+
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    public String getDescription() {
+        return this.description;
     }
 
     public void setDescription(String description) {

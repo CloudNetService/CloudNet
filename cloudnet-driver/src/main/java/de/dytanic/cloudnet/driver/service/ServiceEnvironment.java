@@ -38,7 +38,7 @@ public enum ServiceEnvironment {
 
     private final String name;
 
-    private ServiceEnvironment(String name) {
+    ServiceEnvironment(String name) {
         this.name = name;
     }
 

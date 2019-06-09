@@ -9,7 +9,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.function.Predicate;
 
 public final class DefaultModuleProvider implements IModuleProvider {
 
@@ -28,24 +27,14 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public Collection<IModuleWrapper> getModules(String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.filter(this.getModules(), new Predicate<IModuleWrapper>() {
-            @Override
-            public boolean test(IModuleWrapper defaultModuleWrapper) {
-                return defaultModuleWrapper.getModuleConfiguration().group.equals(group);
-            }
-        });
+        return Iterables.filter(this.getModules(), defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group));
     }
 
     @Override
     public IModuleWrapper getModule(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
-            @Override
-            public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
-                return defaultModuleWrapper.getModuleConfiguration().getName().equals(name);
-            }
-        });
+        return Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getName().equals(name));
     }
 
     @Override
@@ -54,12 +43,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
         DefaultModuleWrapper moduleWrapper = null;
 
-        if (Iterables.first(this.moduleWrappers, new Predicate<DefaultModuleWrapper>() {
-            @Override
-            public boolean test(DefaultModuleWrapper defaultModuleWrapper) {
-                return defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString());
-            }
-        }) != null) return null;
+        if (Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString())) != null) return null;
 
         try {
 
@@ -154,12 +138,12 @@ public final class DefaultModuleProvider implements IModuleProvider {
         return this.moduleProviderHandler;
     }
 
-    public IModuleDependencyLoader getModuleDependencyLoader() {
-        return this.moduleDependencyLoader;
-    }
-
     public void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler) {
         this.moduleProviderHandler = moduleProviderHandler;
+    }
+
+    public IModuleDependencyLoader getModuleDependencyLoader() {
+        return this.moduleDependencyLoader;
     }
 
     public void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader) {

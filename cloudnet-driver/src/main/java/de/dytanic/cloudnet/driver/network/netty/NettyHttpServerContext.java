@@ -16,8 +16,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 final class NettyHttpServerContext implements IHttpContext {
 
@@ -51,18 +49,13 @@ final class NettyHttpServerContext implements IHttpContext {
         this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
         if (this.httpRequest.headers().contains("Cookie"))
-            this.cookies.addAll(Iterables.map(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")), new Function<Cookie, HttpCookie>() {
-                @Override
-                public HttpCookie apply(Cookie cookie) {
-                    return new HttpCookie(
-                            cookie.name(),
-                            cookie.value(),
-                            cookie.domain(),
-                            cookie.path(),
-                            cookie.maxAge()
-                    );
-                }
-            }));
+            this.cookies.addAll(Iterables.map(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")), cookie -> new HttpCookie(
+                    cookie.name(),
+                    cookie.value(),
+                    cookie.domain(),
+                    cookie.path(),
+                    cookie.maxAge()
+            )));
 
         this.updateHeaderResponse();
     }
@@ -141,12 +134,7 @@ final class NettyHttpServerContext implements IHttpContext {
     public HttpCookie cookie(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.cookies, new Predicate<HttpCookie>() {
-            @Override
-            public boolean test(HttpCookie httpCookie) {
-                return httpCookie.getName().equalsIgnoreCase(name);
-            }
-        });
+        return Iterables.first(this.cookies, httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
     }
 
     @Override
@@ -158,12 +146,7 @@ final class NettyHttpServerContext implements IHttpContext {
     public boolean hasCookie(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.cookies, new Predicate<HttpCookie>() {
-            @Override
-            public boolean test(HttpCookie httpCookie) {
-                return httpCookie.getName().equalsIgnoreCase(name);
-            }
-        }) != null;
+        return Iterables.first(this.cookies, httpCookie -> httpCookie.getName().equalsIgnoreCase(name)) != null;
     }
 
     @Override
@@ -213,16 +196,13 @@ final class NettyHttpServerContext implements IHttpContext {
             this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
         else
             this.httpServerResponse.httpResponse.headers()
-                    .set("Set-Cookie", ServerCookieEncoder.LAX.encode(Iterables.map(this.cookies, new Function<HttpCookie, Cookie>() {
-                        @Override
-                        public Cookie apply(HttpCookie httpCookie) {
-                            Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
-                            cookie.setDomain(httpCookie.getDomain());
-                            cookie.setMaxAge(httpCookie.getMaxAge());
-                            cookie.setPath(httpCookie.getPath());
+                    .set("Set-Cookie", ServerCookieEncoder.LAX.encode(Iterables.map(this.cookies, httpCookie -> {
+                        Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
+                        cookie.setDomain(httpCookie.getDomain());
+                        cookie.setMaxAge(httpCookie.getMaxAge());
+                        cookie.setPath(httpCookie.getPath());
 
-                            return cookie;
-                        }
+                        return cookie;
                     })));
     }
 

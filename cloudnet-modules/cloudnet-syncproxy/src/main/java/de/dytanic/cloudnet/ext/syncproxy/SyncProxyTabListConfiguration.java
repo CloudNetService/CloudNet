@@ -28,20 +28,20 @@ public class SyncProxyTabListConfiguration {
         return this.targetGroup;
     }
 
-    public List<SyncProxyTabList> getEntries() {
-        return this.entries;
-    }
-
-    public int getAnimationsPerSecond() {
-        return this.animationsPerSecond;
-    }
-
     public void setTargetGroup(String targetGroup) {
         this.targetGroup = targetGroup;
     }
 
+    public List<SyncProxyTabList> getEntries() {
+        return this.entries;
+    }
+
     public void setEntries(List<SyncProxyTabList> entries) {
         this.entries = entries;
+    }
+
+    public int getAnimationsPerSecond() {
+        return this.animationsPerSecond;
     }
 
     public void setAnimationsPerSecond(int animationsPerSecond) {

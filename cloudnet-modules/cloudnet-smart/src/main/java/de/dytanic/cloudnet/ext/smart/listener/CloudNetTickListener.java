@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 
 public final class CloudNetTickListener {
 
@@ -59,12 +58,7 @@ public final class CloudNetTickListener {
 
     private void handleMinOnlineCount(SmartServiceTaskConfig task, ServiceTask serviceTask) {
         Collection<ServiceInfoSnapshot> services = Iterables.filter(
-                CloudNetDriver.getInstance().getCloudService(serviceTask.getName()), new Predicate<ServiceInfoSnapshot>() {
-                    @Override
-                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING;
-                    }
-                });
+                CloudNetDriver.getInstance().getCloudService(serviceTask.getName()), serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING);
 
         if (task.getMinServiceOnlineCount() > 0 && services.size() < task.getMinServiceOnlineCount()) {
             if (services.size() < task.getMinServiceOnlineCount()) {
@@ -84,13 +78,8 @@ public final class CloudNetTickListener {
 
     private void autoGeneratePreparedServices(SmartServiceTaskConfig task, ServiceTask serviceTask) {
         Collection<ServiceInfoSnapshot> services = Iterables.filter(
-                CloudNetDriver.getInstance().getCloudService(serviceTask.getName()), new Predicate<ServiceInfoSnapshot>() {
-                    @Override
-                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED ||
-                                serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED;
-                    }
-                });
+                CloudNetDriver.getInstance().getCloudService(serviceTask.getName()), serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED ||
+                        serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED);
 
         if (task.getPreparedServices() > 0 && services.size() < task.getPreparedServices()) {
             if (services.size() < task.getPreparedServices()) {
@@ -102,15 +91,10 @@ public final class CloudNetTickListener {
     }
 
     private void handleAutoStop() {
-        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot cloudService) {
-                return CloudNetSmartModule.getInstance().getProvidedSmartServices().containsKey(cloudService.getServiceId().getUniqueId()) &&
-                        cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING &&
-                        cloudService.getProperties().contains("Online-Count") &&
-                        cloudService.getProperties().contains("Max-Players");
-            }
-        });
+        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), cloudService -> CloudNetSmartModule.getInstance().getProvidedSmartServices().containsKey(cloudService.getServiceId().getUniqueId()) &&
+                cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING &&
+                cloudService.getProperties().contains("Online-Count") &&
+                cloudService.getProperties().contains("Max-Players"));
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
             SmartServiceTaskConfig taskConfig = getSmartTaskConfig(serviceInfoSnapshot);
@@ -157,11 +141,8 @@ public final class CloudNetTickListener {
                         );
                     }
 
-                    CloudNetDriver.getInstance().getTaskScheduler().schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                            newInstanceDelay.remove(cloudService.getServiceId().getUniqueId());
-                        }
+                    CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
+                        newInstanceDelay.remove(cloudService.getServiceId().getUniqueId());
                     }, taskConfig.getForAnewInstanceDelayTimeInSeconds(), TimeUnit.SECONDS);
 
                     if (serviceInfoSnapshot != null) {
@@ -175,13 +156,7 @@ public final class CloudNetTickListener {
 
     private SmartServiceTaskConfig getSmartTaskConfig(ServiceInfoSnapshot serviceInfoSnapshot) {
         return Iterables.first(CloudNetSmartModule.getInstance()
-                .getSmartServiceTaskConfigurations(), new Predicate<SmartServiceTaskConfig>() {
-
-            @Override
-            public boolean test(SmartServiceTaskConfig serviceTaskConfig) {
-                return serviceTaskConfig.getTask().equals(serviceInfoSnapshot.getServiceId().getTaskName());
-            }
-        });
+                .getSmartServiceTaskConfigurations(), serviceTaskConfig -> serviceTaskConfig.getTask().equals(serviceInfoSnapshot.getServiceId().getTaskName()));
     }
 
     private double getPercentOf(double onlinePlayer, double maxPlayers) {

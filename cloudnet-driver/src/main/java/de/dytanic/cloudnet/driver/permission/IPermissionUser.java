@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 public interface IPermissionUser extends IPermissible {
 
@@ -36,12 +35,7 @@ public interface IPermissionUser extends IPermissible {
     default IPermissionUser addGroup(String group, long timeOutMillis) {
         if (group == null) return this;
 
-        PermissionUserGroupInfo groupInfo = Iterables.first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
-            @Override
-            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
-                return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
-            }
-        });
+        PermissionUserGroupInfo groupInfo = Iterables.first(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group));
 
         if (groupInfo != null) removeGroup(groupInfo.getGroup());
 
@@ -54,12 +48,7 @@ public interface IPermissionUser extends IPermissible {
     default IPermissionUser removeGroup(String group) {
         if (group == null) return this;
 
-        Collection<PermissionUserGroupInfo> groupInfo = Iterables.filter(getGroups(), new Predicate<PermissionUserGroupInfo>() {
-            @Override
-            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
-                return permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
-            }
-        });
+        Collection<PermissionUserGroupInfo> groupInfo = Iterables.filter(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group));
 
         getGroups().removeAll(groupInfo);
 
@@ -69,11 +58,6 @@ public interface IPermissionUser extends IPermissible {
     default boolean inGroup(String group) {
         if (group == null) return false;
 
-        return Iterables.first(getGroups(), new Predicate<PermissionUserGroupInfo>() {
-            @Override
-            public boolean test(PermissionUserGroupInfo permissionUserGroupInfo) {
-                return permissionUserGroupInfo.getGroup() != null && permissionUserGroupInfo.getGroup().equalsIgnoreCase(group);
-            }
-        }) != null;
+        return Iterables.first(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup() != null && permissionUserGroupInfo.getGroup().equalsIgnoreCase(group)) != null;
     }
 }

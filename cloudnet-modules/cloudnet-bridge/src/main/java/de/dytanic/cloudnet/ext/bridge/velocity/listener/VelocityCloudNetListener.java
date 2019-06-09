@@ -21,7 +21,6 @@ import net.kyori.text.TextComponent;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public final class VelocityCloudNetListener {
 
@@ -141,14 +140,8 @@ public final class VelocityCloudNetListener {
     }
 
     private Player getPlayer(JsonDocument data) {
-        return Iterables.first(VelocityCloudNetHelper.getProxyServer().getAllPlayers(), new Predicate<Player>() {
-            @Override
-            public boolean test(Player player) {
-                return
-                        data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class)) ||
-                                data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name"));
-            }
-        });
+        return Iterables.first(VelocityCloudNetHelper.getProxyServer().getAllPlayers(), player -> data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class)) ||
+                data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")));
     }
 
     @EventListener

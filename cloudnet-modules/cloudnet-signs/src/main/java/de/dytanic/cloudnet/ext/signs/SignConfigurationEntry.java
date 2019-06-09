@@ -37,60 +37,60 @@ public class SignConfigurationEntry {
         return this.targetGroup;
     }
 
-    public boolean isSwitchToSearchingWhenServiceIsFull() {
-        return this.switchToSearchingWhenServiceIsFull;
-    }
-
-    public Collection<SignConfigurationTaskEntry> getTaskLayouts() {
-        return this.taskLayouts;
-    }
-
-    public SignLayout getDefaultOnlineLayout() {
-        return this.defaultOnlineLayout;
-    }
-
-    public SignLayout getDefaultEmptyLayout() {
-        return this.defaultEmptyLayout;
-    }
-
-    public SignLayout getDefaultFullLayout() {
-        return this.defaultFullLayout;
-    }
-
-    public SignLayoutConfiguration getStartingLayouts() {
-        return this.startingLayouts;
-    }
-
-    public SignLayoutConfiguration getSearchLayouts() {
-        return this.searchLayouts;
-    }
-
     public void setTargetGroup(String targetGroup) {
         this.targetGroup = targetGroup;
+    }
+
+    public boolean isSwitchToSearchingWhenServiceIsFull() {
+        return this.switchToSearchingWhenServiceIsFull;
     }
 
     public void setSwitchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
         this.switchToSearchingWhenServiceIsFull = switchToSearchingWhenServiceIsFull;
     }
 
+    public Collection<SignConfigurationTaskEntry> getTaskLayouts() {
+        return this.taskLayouts;
+    }
+
     public void setTaskLayouts(Collection<SignConfigurationTaskEntry> taskLayouts) {
         this.taskLayouts = taskLayouts;
+    }
+
+    public SignLayout getDefaultOnlineLayout() {
+        return this.defaultOnlineLayout;
     }
 
     public void setDefaultOnlineLayout(SignLayout defaultOnlineLayout) {
         this.defaultOnlineLayout = defaultOnlineLayout;
     }
 
+    public SignLayout getDefaultEmptyLayout() {
+        return this.defaultEmptyLayout;
+    }
+
     public void setDefaultEmptyLayout(SignLayout defaultEmptyLayout) {
         this.defaultEmptyLayout = defaultEmptyLayout;
+    }
+
+    public SignLayout getDefaultFullLayout() {
+        return this.defaultFullLayout;
     }
 
     public void setDefaultFullLayout(SignLayout defaultFullLayout) {
         this.defaultFullLayout = defaultFullLayout;
     }
 
+    public SignLayoutConfiguration getStartingLayouts() {
+        return this.startingLayouts;
+    }
+
     public void setStartingLayouts(SignLayoutConfiguration startingLayouts) {
         this.startingLayouts = startingLayouts;
+    }
+
+    public SignLayoutConfiguration getSearchLayouts() {
+        return this.searchLayouts;
     }
 
     public void setSearchLayouts(SignLayoutConfiguration searchLayouts) {

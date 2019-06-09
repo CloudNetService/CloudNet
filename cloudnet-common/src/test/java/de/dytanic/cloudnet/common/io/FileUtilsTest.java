@@ -1,12 +1,10 @@
 package de.dytanic.cloudnet.common.io;
 
-import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,18 +33,15 @@ public final class FileUtilsTest {
             Assert.assertEquals("Hello, world! Hello Peter!", new String(FileUtils.toByteArray(byteArrayInputStream), StandardCharsets.UTF_8));
         }
 
-        FileUtils.openZipFileSystem(zip, new IVoidThrowableCallback<FileSystem>() {
-            @Override
-            public Void call(FileSystem fileSystem) throws Throwable {
-                Path zipEntryInfoFile = fileSystem.getPath("info.txt");
+        FileUtils.openZipFileSystem(zip, fileSystem -> {
+            Path zipEntryInfoFile = fileSystem.getPath("info.txt");
 
-                try (OutputStream outputStream = Files.newOutputStream(zipEntryInfoFile);
-                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("Info message :3".getBytes())) {
-                    FileUtils.copy(byteArrayInputStream, outputStream, buffer);
-                }
-
-                return null;
+            try (OutputStream outputStream = Files.newOutputStream(zipEntryInfoFile);
+                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("Info message :3".getBytes())) {
+                FileUtils.copy(byteArrayInputStream, outputStream, buffer);
             }
+
+            return null;
         });
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

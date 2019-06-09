@@ -4,8 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.GameRules;
-import cn.nukkit.level.Level;
-import cn.nukkit.plugin.Plugin;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -25,7 +23,6 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Map;
-import java.util.function.Function;
 
 public final class NukkitCloudNetHelper {
 
@@ -81,75 +78,64 @@ public final class NukkitCloudNetHelper {
                 .append("State", state)
                 .append("Allow-Nether", Server.getInstance().isNetherAllowed())
                 .append("Allow-Flight", Server.getInstance().getAllowFlight())
-                .append("Players", Iterables.map(Server.getInstance().getOnlinePlayers().values(), new Function<Player, NukkitCloudNetPlayerInfo>() {
-                    @Override
-                    public NukkitCloudNetPlayerInfo apply(Player player) {
-                        return new NukkitCloudNetPlayerInfo(
-                                player.getHealth(),
-                                player.getMaxHealth(),
-                                player.getFoodData().getLevel(),
-                                player.getExperienceLevel(),
-                                player.getPing(),
-                                new WorldPosition(
-                                        player.getX(),
-                                        player.getY(),
-                                        player.getZ(),
-                                        player.getYaw(),
-                                        player.getPitch(),
-                                        player.getLevel().getName()
-                                ),
-                                new HostAndPort(player.getAddress(), player.getPort()),
-                                player.getUniqueId(),
-                                player.getName()
-                        );
-                    }
+                .append("Players", Iterables.map(Server.getInstance().getOnlinePlayers().values(), player -> new NukkitCloudNetPlayerInfo(
+                        player.getHealth(),
+                        player.getMaxHealth(),
+                        player.getFoodData().getLevel(),
+                        player.getExperienceLevel(),
+                        player.getPing(),
+                        new WorldPosition(
+                                player.getX(),
+                                player.getY(),
+                                player.getZ(),
+                                player.getYaw(),
+                                player.getPitch(),
+                                player.getLevel().getName()
+                        ),
+                        new HostAndPort(player.getAddress(), player.getPort()),
+                        player.getUniqueId(),
+                        player.getName()
+                )))
+                .append("Plugins", Iterables.map(Server.getInstance().getPluginManager().getPlugins().values(), plugin -> {
+                    PluginInfo pluginInfo = new PluginInfo(plugin.getName(), plugin.getDescription().getVersion());
+
+                    pluginInfo.getProperties()
+                            .append("authors", plugin.getDescription().getAuthors())
+                            .append("dependencies", plugin.getDescription().getDepend())
+                            .append("load-before", plugin.getDescription().getLoadBefore())
+                            .append("description", plugin.getDescription().getDescription())
+                            .append("commands", plugin.getDescription().getCommands())
+                            .append("soft-dependencies", plugin.getDescription().getSoftDepend())
+                            .append("website", plugin.getDescription().getWebsite())
+                            .append("main-class", plugin.getClass().getName())
+                            .append("prefix", plugin.getDescription().getPrefix())
+                    ;
+
+                    return pluginInfo;
                 }))
-                .append("Plugins", Iterables.map(Server.getInstance().getPluginManager().getPlugins().values(), new Function<Plugin, PluginInfo>() {
-                    @Override
-                    public PluginInfo apply(Plugin plugin) {
-                        PluginInfo pluginInfo = new PluginInfo(plugin.getName(), plugin.getDescription().getVersion());
+                .append("Worlds", Iterables.map(Server.getInstance().getLevels().values(), level -> {
+                    Map<String, String> gameRules = Maps.newHashMap();
 
-                        pluginInfo.getProperties()
-                                .append("authors", plugin.getDescription().getAuthors())
-                                .append("dependencies", plugin.getDescription().getDepend())
-                                .append("load-before", plugin.getDescription().getLoadBefore())
-                                .append("description", plugin.getDescription().getDescription())
-                                .append("commands", plugin.getDescription().getCommands())
-                                .append("soft-dependencies", plugin.getDescription().getSoftDepend())
-                                .append("website", plugin.getDescription().getWebsite())
-                                .append("main-class", plugin.getClass().getName())
-                                .append("prefix", plugin.getDescription().getPrefix())
-                        ;
+                    for (GameRule gameRule : level.getGameRules().getRules()) {
+                        GameRules.Value type = level.getGameRules().getGameRules().get(gameRule);
 
-                        return pluginInfo;
-                    }
-                }))
-                .append("Worlds", Iterables.map(Server.getInstance().getLevels().values(), new Function<Level, WorldInfo>() {
-                    @Override
-                    public WorldInfo apply(Level level) {
-                        Map<String, String> gameRules = Maps.newHashMap();
-
-                        for (GameRule gameRule : level.getGameRules().getRules()) {
-                            GameRules.Value type = level.getGameRules().getGameRules().get(gameRule);
-
-                            switch (type.getType()) {
-                                case FLOAT:
-                                    gameRules.put(gameRule.getName(), level.getGameRules().getFloat(gameRule) + "");
-                                    break;
-                                case BOOLEAN:
-                                    gameRules.put(gameRule.getName(), level.getGameRules().getBoolean(gameRule) + "");
-                                    break;
-                                case INTEGER:
-                                    gameRules.put(gameRule.getName(), level.getGameRules().getInteger(gameRule) + "");
-                                    break;
-                                default:
-                                    gameRules.put(gameRule.getName(), level.getGameRules().getString(gameRule) + "");
-                                    break;
-                            }
+                        switch (type.getType()) {
+                            case FLOAT:
+                                gameRules.put(gameRule.getName(), level.getGameRules().getFloat(gameRule) + "");
+                                break;
+                            case BOOLEAN:
+                                gameRules.put(gameRule.getName(), level.getGameRules().getBoolean(gameRule) + "");
+                                break;
+                            case INTEGER:
+                                gameRules.put(gameRule.getName(), level.getGameRules().getInteger(gameRule) + "");
+                                break;
+                            default:
+                                gameRules.put(gameRule.getName(), level.getGameRules().getString(gameRule) + "");
+                                break;
                         }
-
-                        return new WorldInfo(null, level.getName(), getDifficultyToString(Server.getInstance().getDifficulty()), gameRules);
                     }
+
+                    return new WorldInfo(null, level.getName(), getDifficultyToString(Server.getInstance().getDifficulty()), gameRules);
                 }))
         ;
     }
@@ -222,28 +208,28 @@ public final class NukkitCloudNetHelper {
         return NukkitCloudNetHelper.apiMotd;
     }
 
-    public static String getExtra() {
-        return NukkitCloudNetHelper.extra;
-    }
-
-    public static String getState() {
-        return NukkitCloudNetHelper.state;
-    }
-
-    public static int getMaxPlayers() {
-        return NukkitCloudNetHelper.maxPlayers;
-    }
-
     public static void setApiMotd(String apiMotd) {
         NukkitCloudNetHelper.apiMotd = apiMotd;
+    }
+
+    public static String getExtra() {
+        return NukkitCloudNetHelper.extra;
     }
 
     public static void setExtra(String extra) {
         NukkitCloudNetHelper.extra = extra;
     }
 
+    public static String getState() {
+        return NukkitCloudNetHelper.state;
+    }
+
     public static void setState(String state) {
         NukkitCloudNetHelper.state = state;
+    }
+
+    public static int getMaxPlayers() {
+        return NukkitCloudNetHelper.maxPlayers;
     }
 
     public static void setMaxPlayers(int maxPlayers) {

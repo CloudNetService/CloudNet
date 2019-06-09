@@ -21,13 +21,10 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         AtomicInteger yTaskCount = new AtomicInteger();
 
-        IScheduledTask<String> y = scheduler.schedule(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                yTaskCount.incrementAndGet();
+        IScheduledTask<String> y = scheduler.schedule(() -> {
+            yTaskCount.incrementAndGet();
 
-                return "Hello, world";
-            }
+            return "Hello, world";
         });
 
         String result = x.get();
@@ -36,12 +33,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
         y.get();
         Assert.assertEquals(1, yTaskCount.get());
 
-        IScheduledTask<String> delayed = scheduler.schedule(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return "test_string";
-            }
-        }, 20, TimeUnit.MILLISECONDS);
+        IScheduledTask<String> delayed = scheduler.schedule(() -> "test_string", 20, TimeUnit.MILLISECONDS);
 
         long delayValue = System.currentTimeMillis();
         delayed.get();
@@ -49,12 +41,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         Assert.assertTrue(delayValue >= 20);
 
-        delayed = scheduler.schedule(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return null;
-            }
-        }, 1, TimeUnit.SECONDS);
+        delayed = scheduler.schedule(() -> null, 1, TimeUnit.SECONDS);
 
         long del = System.currentTimeMillis();
         delayed.get();

@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -77,17 +76,7 @@ public final class JsonConfiguration implements IConfiguration {
         addresses.add("127.0.1.1");
 
         try {
-            Iterables.forEach(NetworkInterface.getNetworkInterfaces(), new Consumer<NetworkInterface>() {
-                @Override
-                public void accept(NetworkInterface networkInterface) {
-                    Iterables.forEach(networkInterface.getInetAddresses(), new Consumer<InetAddress>() {
-                        @Override
-                        public void accept(InetAddress inetAddress) {
-                            addresses.add(inetAddress.getHostAddress());
-                        }
-                    });
-                }
-            });
+            Iterables.forEach(NetworkInterface.getNetworkInterfaces(), networkInterface -> Iterables.forEach(networkInterface.getInetAddresses(), inetAddress -> addresses.add(inetAddress.getHostAddress())));
         } catch (SocketException exception) {
             exception.printStackTrace();
         }
@@ -184,72 +173,6 @@ public final class JsonConfiguration implements IConfiguration {
                 .write(CONFIG_FILE_PATH);
     }
 
-    @Override
-    public void setIpWhitelist(Collection<String> whitelist) {
-        Validate.checkNotNull(whitelist);
-
-        this.ipWhitelist = whitelist;
-        this.save();
-    }
-
-    @Override
-    public void setClusterConfig(NetworkCluster clusterConfig) {
-        Validate.checkNotNull(clusterConfig);
-
-        this.clusterConfig = clusterConfig;
-        this.save();
-    }
-
-    @Override
-    public void setMaxCPUUsageToStartServices(double value) {
-        this.maxCPUUsageToStartServices = value;
-        this.save();
-    }
-
-    @Override
-    public void setDefaultJVMOptionParameters(boolean defaultJVMOptionParameters) {
-        this.defaultJVMOptionParameters = defaultJVMOptionParameters;
-        this.save();
-    }
-
-    @Override
-    public void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
-        this.printErrorStreamLinesFromServices = printErrorStreamLinesFromServices;
-        this.save();
-    }
-
-    @Override
-    public void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic) {
-        this.runBlockedServiceStartTryLaterAutomatic = runBlockedServiceStartTryLaterAutomatic;
-        this.save();
-    }
-
-    @Override
-    public void setParallelServiceStartSequence(boolean parallelServiceStartSequence) {
-        this.parallelServiceStartSequence = parallelServiceStartSequence;
-        this.save();
-    }
-
-    @Override
-    public void setMaxMemory(int memory) {
-        this.maxMemory = memory;
-        this.save();
-    }
-
-    @Override
-    public void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize) {
-        this.maxServiceConsoleLogCacheSize = maxServiceConsoleLogCacheSize;
-        this.save();
-    }
-
-    @Override
-    public void setHttpListeners(Collection<HostAndPort> httpListeners) {
-        Validate.checkNotNull(httpListeners);
-
-        this.httpListeners = httpListeners;
-        this.save();
-    }
-
     public JsonDocument getDocument() {
         return this.document;
     }
@@ -262,36 +185,94 @@ public final class JsonConfiguration implements IConfiguration {
         return this.clusterConfig;
     }
 
+    @Override
+    public void setClusterConfig(NetworkCluster clusterConfig) {
+        Validate.checkNotNull(clusterConfig);
+
+        this.clusterConfig = clusterConfig;
+        this.save();
+    }
+
     public Collection<String> getIpWhitelist() {
         return this.ipWhitelist;
+    }
+
+    @Override
+    public void setIpWhitelist(Collection<String> whitelist) {
+        Validate.checkNotNull(whitelist);
+
+        this.ipWhitelist = whitelist;
+        this.save();
     }
 
     public double getMaxCPUUsageToStartServices() {
         return this.maxCPUUsageToStartServices;
     }
 
+    @Override
+    public void setMaxCPUUsageToStartServices(double value) {
+        this.maxCPUUsageToStartServices = value;
+        this.save();
+    }
+
     public boolean isParallelServiceStartSequence() {
         return this.parallelServiceStartSequence;
+    }
+
+    @Override
+    public void setParallelServiceStartSequence(boolean parallelServiceStartSequence) {
+        this.parallelServiceStartSequence = parallelServiceStartSequence;
+        this.save();
     }
 
     public boolean isRunBlockedServiceStartTryLaterAutomatic() {
         return this.runBlockedServiceStartTryLaterAutomatic;
     }
 
+    @Override
+    public void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic) {
+        this.runBlockedServiceStartTryLaterAutomatic = runBlockedServiceStartTryLaterAutomatic;
+        this.save();
+    }
+
     public int getMaxMemory() {
         return this.maxMemory;
+    }
+
+    @Override
+    public void setMaxMemory(int memory) {
+        this.maxMemory = memory;
+        this.save();
     }
 
     public int getMaxServiceConsoleLogCacheSize() {
         return this.maxServiceConsoleLogCacheSize;
     }
 
+    @Override
+    public void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize) {
+        this.maxServiceConsoleLogCacheSize = maxServiceConsoleLogCacheSize;
+        this.save();
+    }
+
     public boolean isPrintErrorStreamLinesFromServices() {
         return this.printErrorStreamLinesFromServices;
     }
 
+    @Override
+    public void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
+        this.printErrorStreamLinesFromServices = printErrorStreamLinesFromServices;
+        this.save();
+    }
+
     public boolean isDefaultJVMOptionParameters() {
         return this.defaultJVMOptionParameters;
+    }
+
+    @Override
+    public void setDefaultJVMOptionParameters(boolean defaultJVMOptionParameters) {
+        this.defaultJVMOptionParameters = defaultJVMOptionParameters;
+        this.save();
     }
 
     public String getHostAddress() {
@@ -300,6 +281,14 @@ public final class JsonConfiguration implements IConfiguration {
 
     public Collection<HostAndPort> getHttpListeners() {
         return this.httpListeners;
+    }
+
+    @Override
+    public void setHttpListeners(Collection<HostAndPort> httpListeners) {
+        Validate.checkNotNull(httpListeners);
+
+        this.httpListeners = httpListeners;
+        this.save();
     }
 
     public ConfigurationOptionSSL getClientSslConfig() {

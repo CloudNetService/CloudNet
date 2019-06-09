@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
@@ -23,7 +22,6 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Callable;
 
 public final class NettyWebSocketServerExample {
 
@@ -33,42 +31,31 @@ public final class NettyWebSocketServerExample {
             TEXT_STRING = "text value",
             BINARY_STRING = "binary value";
 
-    private static final ITask<String> task = new ListenableTask<>(new Callable<String>() {
-        @Override
-        public String call() throws Exception {
-            return "Async_response_message";
-        }
-    });
+    private static final ITask<String> task = new ListenableTask<>(() -> "Async_response_message");
 
     @Test
     public void testWebSocket() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
-        httpServer.registerHandler("/test", new IHttpHandler() {
-            @Override
-            public void handle(String path, IHttpContext context) throws Exception {
-                IWebSocketChannel channel = context.upgrade();
-                channel.addListener(new IWebSocketListener() {
-                    @Override
-                    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
-                        switch (type) {
-                            case PING:
-                                if (new String(bytes, StandardCharsets.UTF_8).equals(PING_STRING))
-                                    channel.sendWebSocketFrame(WebSocketFrameType.PONG, PONG_STRING);
-                                break;
-                            case TEXT:
-                                if (new String(bytes, StandardCharsets.UTF_8).equals(TEXT_STRING))
-                                    channel.sendWebSocketFrame(WebSocketFrameType.BINARY, BINARY_STRING);
-                                break;
-                            case CLOSE:
-                                channel.close();
-                                break;
-                        }
-                    }
-                });
+        httpServer.registerHandler("/test", (IHttpHandler) (path, context) -> {
+            IWebSocketChannel channel = context.upgrade();
+            channel.addListener((IWebSocketListener) (channel1, type, bytes) -> {
+                switch (type) {
+                    case PING:
+                        if (new String(bytes, StandardCharsets.UTF_8).equals(PING_STRING))
+                            channel1.sendWebSocketFrame(WebSocketFrameType.PONG, PONG_STRING);
+                        break;
+                    case TEXT:
+                        if (new String(bytes, StandardCharsets.UTF_8).equals(TEXT_STRING))
+                            channel1.sendWebSocketFrame(WebSocketFrameType.BINARY, BINARY_STRING);
+                        break;
+                    case CLOSE:
+                        channel1.close();
+                        break;
+                }
+            });
 
-                context.cancelNext();
-            }
+            context.cancelNext();
         }).addListener(new HostAndPort("0.0.0.0", 4044));
 
         EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
@@ -108,12 +95,7 @@ public final class NettyWebSocketServerExample {
                                                 ex.printStackTrace();
                                             }
 
-                                            ctx.channel().eventLoop().execute(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    ctx.channel().writeAndFlush(new PingWebSocketFrame(Unpooled.buffer().writeBytes(PING_STRING.getBytes())));
-                                                }
-                                            });
+                                            ctx.channel().eventLoop().execute(() -> ctx.channel().writeAndFlush(new PingWebSocketFrame(Unpooled.buffer().writeBytes(PING_STRING.getBytes()))));
                                             return;
                                         }
 

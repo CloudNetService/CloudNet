@@ -48,12 +48,7 @@ public final class BukkitPlayerListener implements Listener {
             UUID uniqueId = event.getNetworkConnectionInfo().getUniqueId();
 
             accessUniqueIds.add(uniqueId);
-            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    accessUniqueIds.remove(uniqueId);
-                }
-            }, 40);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> accessUniqueIds.remove(uniqueId), 40);
             return;
         }
 
@@ -61,12 +56,7 @@ public final class BukkitPlayerListener implements Listener {
             String name = event.getNetworkConnectionInfo().getName();
 
             accessNames.add(name);
-            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    accessNames.remove(name);
-                }
-            }, 40);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> accessNames.remove(name), 40);
         }
     }
 
@@ -133,12 +123,7 @@ public final class BukkitPlayerListener implements Listener {
         BridgeHelper.sendChannelMessageServerDisconnect(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                 BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
-        Wrapper.getInstance().runTask(new Runnable() {
-            @Override
-            public void run() {
-                BridgeHelper.updateServiceInfo();
-            }
-        });
+        Wrapper.getInstance().runTask(() -> BridgeHelper.updateServiceInfo());
     }
 
     /*= ---------------------------------------------------------------------------------------------------- =*/

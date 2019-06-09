@@ -45,60 +45,60 @@ public class NetworkConnectionInfo {
         return this.uniqueId;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public int getVersion() {
-        return this.version;
-    }
-
-    public HostAndPort getAddress() {
-        return this.address;
-    }
-
-    public HostAndPort getListener() {
-        return this.listener;
-    }
-
-    public boolean isOnlineMode() {
-        return this.onlineMode;
-    }
-
-    public boolean isLegacy() {
-        return this.legacy;
-    }
-
-    public NetworkServiceInfo getNetworkService() {
-        return this.networkService;
-    }
-
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public int getVersion() {
+        return this.version;
+    }
+
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public HostAndPort getAddress() {
+        return this.address;
     }
 
     public void setAddress(HostAndPort address) {
         this.address = address;
     }
 
+    public HostAndPort getListener() {
+        return this.listener;
+    }
+
     public void setListener(HostAndPort listener) {
         this.listener = listener;
+    }
+
+    public boolean isOnlineMode() {
+        return this.onlineMode;
     }
 
     public void setOnlineMode(boolean onlineMode) {
         this.onlineMode = onlineMode;
     }
 
+    public boolean isLegacy() {
+        return this.legacy;
+    }
+
     public void setLegacy(boolean legacy) {
         this.legacy = legacy;
+    }
+
+    public NetworkServiceInfo getNetworkService() {
+        return this.networkService;
     }
 
     public void setNetworkService(NetworkServiceInfo networkService) {

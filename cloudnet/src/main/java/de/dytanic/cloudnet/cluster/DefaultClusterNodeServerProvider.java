@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Predicate;
 
 public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
 
@@ -50,12 +49,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
                 this.servers.put(clusterNode.getUniqueId(), new DefaultClusterNodeServer(this, clusterNode));
 
         for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
-            NetworkClusterNode node = Iterables.first(networkCluster.getNodes(), new Predicate<NetworkClusterNode>() {
-                @Override
-                public boolean test(NetworkClusterNode networkClusterNode) {
-                    return networkClusterNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId());
-                }
-            });
+            NetworkClusterNode node = Iterables.first(networkCluster.getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()));
 
             if (node == null) this.servers.remove(clusterNodeServer.getNodeInfo().getUniqueId());
         }

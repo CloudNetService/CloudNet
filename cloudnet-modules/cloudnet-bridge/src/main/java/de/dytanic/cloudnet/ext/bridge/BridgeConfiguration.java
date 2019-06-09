@@ -39,44 +39,44 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         return this.prefix;
     }
 
-    public Collection<String> getExcludedOnlyProxyWalkableGroups() {
-        return this.excludedOnlyProxyWalkableGroups;
-    }
-
-    public Collection<String> getExcludedGroups() {
-        return this.excludedGroups;
-    }
-
-    public Collection<ProxyFallbackConfiguration> getBungeeFallbackConfigurations() {
-        return this.bungeeFallbackConfigurations;
-    }
-
-    public Map<String, String> getMessages() {
-        return this.messages;
-    }
-
-    public boolean isLogPlayerConnections() {
-        return this.logPlayerConnections;
-    }
-
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public Collection<String> getExcludedOnlyProxyWalkableGroups() {
+        return this.excludedOnlyProxyWalkableGroups;
     }
 
     public void setExcludedOnlyProxyWalkableGroups(Collection<String> excludedOnlyProxyWalkableGroups) {
         this.excludedOnlyProxyWalkableGroups = excludedOnlyProxyWalkableGroups;
     }
 
+    public Collection<String> getExcludedGroups() {
+        return this.excludedGroups;
+    }
+
     public void setExcludedGroups(Collection<String> excludedGroups) {
         this.excludedGroups = excludedGroups;
+    }
+
+    public Collection<ProxyFallbackConfiguration> getBungeeFallbackConfigurations() {
+        return this.bungeeFallbackConfigurations;
     }
 
     public void setBungeeFallbackConfigurations(Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations) {
         this.bungeeFallbackConfigurations = bungeeFallbackConfigurations;
     }
 
+    public Map<String, String> getMessages() {
+        return this.messages;
+    }
+
     public void setMessages(Map<String, String> messages) {
         this.messages = messages;
+    }
+
+    public boolean isLogPlayerConnections() {
+        return this.logPlayerConnections;
     }
 
     public void setLogPlayerConnections(boolean logPlayerConnections) {

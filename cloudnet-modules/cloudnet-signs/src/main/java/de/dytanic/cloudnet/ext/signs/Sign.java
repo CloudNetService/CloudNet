@@ -42,44 +42,44 @@ public class Sign implements Comparable<Sign> {
         return this.signId;
     }
 
-    public String getProvidedGroup() {
-        return this.providedGroup;
-    }
-
-    public String getTargetGroup() {
-        return this.targetGroup;
-    }
-
-    public String getTemplatePath() {
-        return this.templatePath;
-    }
-
-    public SignPosition getWorldPosition() {
-        return this.worldPosition;
-    }
-
-    public ServiceInfoSnapshot getServiceInfoSnapshot() {
-        return this.serviceInfoSnapshot;
-    }
-
     public void setSignId(long signId) {
         this.signId = signId;
+    }
+
+    public String getProvidedGroup() {
+        return this.providedGroup;
     }
 
     public void setProvidedGroup(String providedGroup) {
         this.providedGroup = providedGroup;
     }
 
+    public String getTargetGroup() {
+        return this.targetGroup;
+    }
+
     public void setTargetGroup(String targetGroup) {
         this.targetGroup = targetGroup;
+    }
+
+    public String getTemplatePath() {
+        return this.templatePath;
     }
 
     public void setTemplatePath(String templatePath) {
         this.templatePath = templatePath;
     }
 
+    public SignPosition getWorldPosition() {
+        return this.worldPosition;
+    }
+
     public void setWorldPosition(SignPosition worldPosition) {
         this.worldPosition = worldPosition;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
     }
 
     public void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {

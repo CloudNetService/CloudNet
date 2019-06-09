@@ -28,7 +28,6 @@ public final class ExampleCommand extends Command {
             sender.sendMessage(
                     "Argument is " + properties.get("get")
             );
-            return;
         }
     }
 }

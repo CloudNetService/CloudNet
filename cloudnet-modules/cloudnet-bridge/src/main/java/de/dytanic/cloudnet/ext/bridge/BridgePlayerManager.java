@@ -121,12 +121,7 @@ public final class BridgePlayerManager implements IPlayerManager {
                 new JsonDocument()
                         .append("uniqueId", uniqueId)
                 ,
-                new Function<JsonDocument, CloudPlayer>() {
-                    @Override
-                    public CloudPlayer apply(JsonDocument jsonDocument) {
-                        return jsonDocument.get("cloudPlayer", CloudPlayer.TYPE);
-                    }
-                }
+                (Function<JsonDocument, CloudPlayer>) jsonDocument -> jsonDocument.get("cloudPlayer", CloudPlayer.TYPE)
         );
     }
 
@@ -141,12 +136,7 @@ public final class BridgePlayerManager implements IPlayerManager {
                 new JsonDocument()
                         .append("name", name)
                 ,
-                new Function<JsonDocument, List<? extends ICloudPlayer>>() {
-                    @Override
-                    public List<? extends ICloudPlayer> apply(JsonDocument jsonDocument) {
-                        return jsonDocument.get("cloudPlayers", TYPE_LIST_CLOUD_PLAYERS);
-                    }
-                }
+                jsonDocument -> jsonDocument.get("cloudPlayers", TYPE_LIST_CLOUD_PLAYERS)
         );
     }
 
@@ -161,12 +151,7 @@ public final class BridgePlayerManager implements IPlayerManager {
                 new JsonDocument()
                         .append("environment", environment)
                 ,
-                new Function<JsonDocument, List<? extends ICloudPlayer>>() {
-                    @Override
-                    public List<? extends ICloudPlayer> apply(JsonDocument jsonDocument) {
-                        return jsonDocument.get("cloudPlayers", TYPE_LIST_CLOUD_PLAYERS);
-                    }
-                }
+                jsonDocument -> jsonDocument.get("cloudPlayers", TYPE_LIST_CLOUD_PLAYERS)
         );
     }
 
@@ -177,12 +162,7 @@ public final class BridgePlayerManager implements IPlayerManager {
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_online_players_as_list",
                 new JsonDocument(),
-                new Function<JsonDocument, List<? extends ICloudPlayer>>() {
-                    @Override
-                    public List<? extends ICloudPlayer> apply(JsonDocument jsonDocument) {
-                        return jsonDocument.get("cloudPlayers", TYPE_LIST_CLOUD_PLAYERS);
-                    }
-                }
+                jsonDocument -> jsonDocument.get("cloudPlayers", TYPE_LIST_CLOUD_PLAYERS)
         );
     }
 
@@ -197,12 +177,7 @@ public final class BridgePlayerManager implements IPlayerManager {
                 new JsonDocument()
                         .append("uniqueId", uniqueId)
                 ,
-                new Function<JsonDocument, ICloudOfflinePlayer>() {
-                    @Override
-                    public ICloudOfflinePlayer apply(JsonDocument jsonDocument) {
-                        return jsonDocument.get("offlineCloudPlayer", CloudOfflinePlayer.TYPE);
-                    }
-                }
+                jsonDocument -> jsonDocument.get("offlineCloudPlayer", CloudOfflinePlayer.TYPE)
         );
     }
 
@@ -217,12 +192,7 @@ public final class BridgePlayerManager implements IPlayerManager {
                 new JsonDocument()
                         .append("name", name)
                 ,
-                new Function<JsonDocument, List<? extends ICloudOfflinePlayer>>() {
-                    @Override
-                    public List<? extends ICloudOfflinePlayer> apply(JsonDocument jsonDocument) {
-                        return jsonDocument.get("offlineCloudPlayers", TYPE_LIST_CLOUD_OFFLINE_PLAYERS);
-                    }
-                }
+                jsonDocument -> jsonDocument.get("offlineCloudPlayers", TYPE_LIST_CLOUD_OFFLINE_PLAYERS)
         );
     }
 
@@ -233,12 +203,7 @@ public final class BridgePlayerManager implements IPlayerManager {
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_registered_offline_players_as_list",
                 new JsonDocument(),
-                new Function<JsonDocument, List<? extends ICloudOfflinePlayer>>() {
-                    @Override
-                    public List<? extends ICloudOfflinePlayer> apply(JsonDocument jsonDocument) {
-                        return jsonDocument.get("offlineCloudPlayers", TYPE_LIST_CLOUD_OFFLINE_PLAYERS);
-                    }
-                }
+                jsonDocument -> jsonDocument.get("offlineCloudPlayers", TYPE_LIST_CLOUD_OFFLINE_PLAYERS)
         );
     }
 

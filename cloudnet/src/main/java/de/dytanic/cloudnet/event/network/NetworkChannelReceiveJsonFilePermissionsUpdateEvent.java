@@ -30,20 +30,20 @@ public final class NetworkChannelReceiveJsonFilePermissionsUpdateEvent extends N
         return this.permissionUsers;
     }
 
-    public List<PermissionGroup> getPermissionGroups() {
-        return this.permissionGroups;
-    }
-
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
-
     public void setPermissionUsers(List<PermissionUser> permissionUsers) {
         this.permissionUsers = permissionUsers;
     }
 
+    public List<PermissionGroup> getPermissionGroups() {
+        return this.permissionGroups;
+    }
+
     public void setPermissionGroups(List<PermissionGroup> permissionGroups) {
         this.permissionGroups = permissionGroups;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
     }
 
     public void setCancelled(boolean cancelled) {

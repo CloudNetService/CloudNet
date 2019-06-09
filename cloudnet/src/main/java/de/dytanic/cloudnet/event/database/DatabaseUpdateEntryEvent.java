@@ -20,12 +20,12 @@ public class DatabaseUpdateEntryEvent extends DatabaseEvent {
         return this.key;
     }
 
-    public JsonDocument getDocument() {
-        return this.document;
-    }
-
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public JsonDocument getDocument() {
+        return this.document;
     }
 
     public void setDocument(JsonDocument document) {

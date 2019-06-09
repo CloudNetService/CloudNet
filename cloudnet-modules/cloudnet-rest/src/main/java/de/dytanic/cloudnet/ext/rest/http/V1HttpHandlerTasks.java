@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Predicate;
 
 public final class V1HttpHandlerTasks extends V1HttpHandler {
 
@@ -34,12 +33,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(new JsonDocument("task", Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), new Predicate<ServiceTask>() {
-                        @Override
-                        public boolean test(ServiceTask serviceTask) {
-                            return serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name"));
-                        }
-                    })).toByteArray())
+                    .body(new JsonDocument("task", Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name")))).toByteArray())
                     .context()
                     .closeAfter(true)
                     .cancelNext()
@@ -49,13 +43,8 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getPermanentServiceTasks(), new Predicate<ServiceTask>() {
-                        @Override
-                        public boolean test(ServiceTask serviceTask) {
-                            return !context.request().queryParameters().containsKey("name") ||
-                                    containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName());
-                        }
-                    })))
+                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask -> !context.request().queryParameters().containsKey("name") ||
+                            containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName()))))
                     .context()
                     .closeAfter(true)
                     .cancelNext()

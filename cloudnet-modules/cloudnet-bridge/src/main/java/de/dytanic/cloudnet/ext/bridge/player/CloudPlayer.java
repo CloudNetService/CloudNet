@@ -80,28 +80,28 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
         return this.loginService;
     }
 
-    public NetworkServiceInfo getConnectedService() {
-        return this.connectedService;
-    }
-
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
-
-    public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
-        return this.networkPlayerServerInfo;
-    }
-
     public void setLoginService(NetworkServiceInfo loginService) {
         this.loginService = loginService;
+    }
+
+    public NetworkServiceInfo getConnectedService() {
+        return this.connectedService;
     }
 
     public void setConnectedService(NetworkServiceInfo connectedService) {
         this.connectedService = connectedService;
     }
 
+    public NetworkConnectionInfo getNetworkConnectionInfo() {
+        return this.networkConnectionInfo;
+    }
+
     public void setNetworkConnectionInfo(NetworkConnectionInfo networkConnectionInfo) {
         this.networkConnectionInfo = networkConnectionInfo;
+    }
+
+    public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
+        return this.networkPlayerServerInfo;
     }
 
     public void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {

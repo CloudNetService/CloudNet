@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Function;
 
 public final class LocalTemplateStorage implements ITemplateStorage {
 
@@ -59,12 +58,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(paths);
         Validate.checkNotNull(target);
 
-        return this.deploy(Iterables.map(Arrays.asList(paths), new Function<Path, File>() {
-            @Override
-            public File apply(Path t) {
-                return t.toFile();
-            }
-        }).toArray(new File[0]), target);
+        return this.deploy(Iterables.map(Arrays.asList(paths), t -> t.toFile()).toArray(new File[0]), target);
     }
 
     @Override

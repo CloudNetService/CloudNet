@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
@@ -21,8 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
-import java.util.function.Function;
 
 public final class CommandCluster extends CommandDefault implements ITabCompleter {
 
@@ -155,14 +152,9 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                     "Total loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getTotalLoadedClassCount(),
                     " ",
                     "Extensions: ",
-                    Iterables.map(node.getNodeInfoSnapshot().getExtensions(), new Function<NetworkClusterNodeExtensionSnapshot, String>() {
-                        @Override
-                        public String apply(NetworkClusterNodeExtensionSnapshot networkClusterNodeExtensionSnapshot) {
-                            return networkClusterNodeExtensionSnapshot.getGroup() + ":" +
-                                    networkClusterNodeExtensionSnapshot.getName() + ":" +
-                                    networkClusterNodeExtensionSnapshot.getVersion();
-                        }
-                    }).toString(),
+                    Iterables.map(node.getNodeInfoSnapshot().getExtensions(), networkClusterNodeExtensionSnapshot -> networkClusterNodeExtensionSnapshot.getGroup() + ":" +
+                            networkClusterNodeExtensionSnapshot.getName() + ":" +
+                            networkClusterNodeExtensionSnapshot.getVersion()).toString(),
                     " ",
                     "Properties:"
             ));
@@ -180,11 +172,6 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                 "nodes",
                 "services",
                 "push-local-templates"
-        ) : Iterables.map(getCloudNet().getCloudServiceManager().getCloudServices().keySet(), new Function<UUID, String>() {
-            @Override
-            public String apply(UUID uuid) {
-                return uuid.toString();
-            }
-        });
+        ) : Iterables.map(getCloudNet().getCloudServiceManager().getCloudServices().keySet(), uuid -> uuid.toString());
     }
 }

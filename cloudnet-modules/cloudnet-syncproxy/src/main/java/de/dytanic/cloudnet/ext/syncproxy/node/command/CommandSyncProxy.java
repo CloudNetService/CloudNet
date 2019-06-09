@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.ext.syncproxy.*;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 
 import java.util.Collection;
-import java.util.function.Predicate;
 
 public final class CommandSyncProxy extends Command {
 
@@ -137,12 +136,7 @@ public final class CommandSyncProxy extends Command {
 
     private SyncProxyProxyLoginConfiguration getSyncProxyLoginConfiguration(String group) {
         return Iterables.first(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration().getLoginConfigurations(),
-                new Predicate<SyncProxyProxyLoginConfiguration>() {
-                    @Override
-                    public boolean test(SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
-                        return syncProxyProxyLoginConfiguration.getTargetGroup().equalsIgnoreCase(group);
-                    }
-                });
+                syncProxyProxyLoginConfiguration -> syncProxyProxyLoginConfiguration.getTargetGroup().equalsIgnoreCase(group));
     }
 
     private void displayListConfiguration(ICommandSender sender, SyncProxyConfiguration syncProxyConfiguration) {

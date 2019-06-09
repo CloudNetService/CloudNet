@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public final class DefaultJsonFilePermissionManagement implements IPermissionManagement {
 
@@ -60,12 +59,7 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public void deleteUser(String name) {
         Validate.checkNotNull(name);
 
-        for (IPermissionUser permissionUser : Iterables.filter(this.permissionUsers.values(), new Predicate<IPermissionUser>() {
-            @Override
-            public boolean test(IPermissionUser permissionUser) {
-                return permissionUser.getName().equals(name);
-            }
-        })) {
+        for (IPermissionUser permissionUser : Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name))) {
             if (permissionManagementHandler != null) permissionManagementHandler.handleDeleteUser(this, permissionUser);
 
             this.permissionUsers.remove(permissionUser.getUniqueId());
@@ -95,12 +89,7 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public boolean containsUser(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(permissionUsers.values(), new Predicate<IPermissionUser>() {
-            @Override
-            public boolean test(IPermissionUser permissionUser) {
-                return permissionUser.getName().equalsIgnoreCase(name);
-            }
-        }) != null;
+        return Iterables.first(permissionUsers.values(), permissionUser -> permissionUser.getName().equalsIgnoreCase(name)) != null;
     }
 
     @Override
@@ -118,12 +107,7 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public List<IPermissionUser> getUser(String name) {
         Validate.checkNotNull(name);
 
-        List<IPermissionUser> permissionUsers = Iterables.filter(this.permissionUsers.values(), new Predicate<IPermissionUser>() {
-            @Override
-            public boolean test(IPermissionUser permissionUser) {
-                return permissionUser.getName().equals(name);
-            }
-        });
+        List<IPermissionUser> permissionUsers = Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name));
 
         for (IPermissionUser user : permissionUsers)
             if (testPermissionUser(user))
@@ -192,12 +176,7 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public Collection<IPermissionUser> getUserByGroup(String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.filter(this.permissionUsers.values(), new Predicate<IPermissionUser>() {
-            @Override
-            public boolean test(IPermissionUser permissionUser) {
-                return permissionUser.inGroup(group);
-            }
-        });
+        return Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.inGroup(group));
     }
 
     @Override

@@ -15,7 +15,6 @@ import net.kyori.text.TextComponent;
 import java.util.Collections;
 import java.util.Random;
 import java.util.UUID;
-import java.util.function.Function;
 
 public final class VelocityProxyLoginConfigurationImplListener {
 
@@ -59,15 +58,10 @@ public final class VelocityProxyLoginConfigurationImplListener {
                                 syncProxyMotd.getPlayerInfo() != null ?
                                         Iterables.map(
                                                 syncProxyMotd.getPlayerInfo(),
-                                                new Function<String, ServerPing.SamplePlayer>() {
-                                                    @Override
-                                                    public ServerPing.SamplePlayer apply(String s) {
-                                                        return new ServerPing.SamplePlayer(
-                                                                s.replace("&", "§"),
-                                                                UUID.randomUUID()
-                                                        );
-                                                    }
-                                                }
+                                                s -> new ServerPing.SamplePlayer(
+                                                        s.replace("&", "§"),
+                                                        UUID.randomUUID()
+                                                )
                                         )
                                         :
                                         Collections.EMPTY_LIST

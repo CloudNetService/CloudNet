@@ -4,11 +4,6 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 public class JsonDocumentTest {
 
     @Test
@@ -28,37 +23,21 @@ public class JsonDocumentTest {
 
     @Test
     public void testProperties() {
-        JsonDocProperty<Pair<String, String>> docProperty = new JsonDocProperty<Pair<String, String>>(
+        JsonDocProperty<Pair<String, String>> docProperty = new JsonDocProperty<>(
 
-                new BiConsumer<Pair<String, String>, JsonDocument>() {
-                    @Override
-                    public void accept(Pair<String, String> stringStringPair, JsonDocument document) {
-                        document
-                                .append("firstProp", stringStringPair.getFirst())
-                                .append("secondProp", stringStringPair.getSecond());
-                    }
-                },
-                new Function<JsonDocument, Pair<String, String>>() {
-                    @Override
-                    public Pair<String, String> apply(JsonDocument document) {
-                        if (!document.contains("firstProp") || !document.contains("secondProp")) return null;
+                (stringStringPair, document) -> document
+                        .append("firstProp", stringStringPair.getFirst())
+                        .append("secondProp", stringStringPair.getSecond()),
+                document -> {
+                    if (!document.contains("firstProp") || !document.contains("secondProp")) return null;
 
-                        return new Pair<>(document.getString("firstProp"), document.getString("secondProp"));
-                    }
+                    return new Pair<>(document.getString("firstProp"), document.getString("secondProp"));
                 },
-                new Consumer<JsonDocument>() {
-                    @Override
-                    public void accept(JsonDocument document) {
-                        document.remove("firstProp");
-                        document.remove("secondProp");
-                    }
+                document -> {
+                    document.remove("firstProp");
+                    document.remove("secondProp");
                 },
-                new Predicate<JsonDocument>() {
-                    @Override
-                    public boolean test(JsonDocument jsonDocument) {
-                        return jsonDocument.contains("firstProp") && jsonDocument.contains("secondProp");
-                    }
-                }
+                jsonDocument -> jsonDocument.contains("firstProp") && jsonDocument.contains("secondProp")
         );
 
         JsonDocument document = new JsonDocument();

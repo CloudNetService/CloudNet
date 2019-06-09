@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Predicate;
 
 public final class V1HttpHandlerGroups extends V1HttpHandler {
 
@@ -34,12 +33,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(new JsonDocument("group", GSON.toJson(Iterables.first(CloudNetDriver.getInstance().getGroupConfigurations(), new Predicate<GroupConfiguration>() {
-                        @Override
-                        public boolean test(GroupConfiguration groupConfiguration) {
-                            return groupConfiguration.getName().toLowerCase().contains(context.request().pathParameters().get("name"));
-                        }
-                    }))).toByteArray())
+                    .body(new JsonDocument("group", GSON.toJson(Iterables.first(CloudNetDriver.getInstance().getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName().toLowerCase().contains(context.request().pathParameters().get("name"))))).toByteArray())
                     .context()
                     .closeAfter(true)
                     .cancelNext()
@@ -49,13 +43,8 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getGroupConfigurations(), new Predicate<GroupConfiguration>() {
-                        @Override
-                        public boolean test(GroupConfiguration groupConfiguration) {
-                            return !context.request().queryParameters().containsKey("name") ||
-                                    containsStringElementInCollection(context.request().queryParameters().get("name"), groupConfiguration.getName());
-                        }
-                    })))
+                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getGroupConfigurations(), groupConfiguration -> !context.request().queryParameters().containsKey("name") ||
+                            containsStringElementInCollection(context.request().queryParameters().get("name"), groupConfiguration.getName()))))
                     .context()
                     .closeAfter(true)
                     .cancelNext()

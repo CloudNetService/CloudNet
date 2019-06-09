@@ -44,12 +44,12 @@ public final class Permission {
         return this.potency;
     }
 
-    public long getTimeOutMillis() {
-        return this.timeOutMillis;
-    }
-
     public void setPotency(int potency) {
         this.potency = potency;
+    }
+
+    public long getTimeOutMillis() {
+        return this.timeOutMillis;
     }
 
     public void setTimeOutMillis(long timeOutMillis) {

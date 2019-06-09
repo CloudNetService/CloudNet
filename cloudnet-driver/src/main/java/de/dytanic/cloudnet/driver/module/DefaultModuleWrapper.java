@@ -17,11 +17,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 public class DefaultModuleWrapper implements IModuleWrapper {
 
@@ -162,13 +160,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                     if (moduleDependency != null && moduleDependency.getGroup() != null && moduleDependency.getName() != null &&
                             moduleDependency.getVersion() != null && moduleDependency.getRepo() == null &&
                             moduleDependency.getUrl() == null) {
-                        IModuleWrapper moduleWrapper = Iterables.first(this.getModuleProvider().getModules(), new Predicate<IModuleWrapper>() {
-                            @Override
-                            public boolean test(IModuleWrapper module) {
-                                return module.getModuleConfiguration().getGroup().equals(moduleDependency.getGroup()) &&
-                                        module.getModuleConfiguration().getName().equals(moduleDependency.getName());
-                            }
-                        });
+                        IModuleWrapper moduleWrapper = Iterables.first(this.getModuleProvider().getModules(), module -> module.getModuleConfiguration().getGroup().equals(moduleDependency.getGroup()) &&
+                                module.getModuleConfiguration().getName().equals(moduleDependency.getName()));
 
                         if (moduleWrapper != null)
                             moduleWrapper.startModule();
@@ -227,12 +220,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     /*= ------------------------------------------------------------------------ =*/
 
     private void fireTasks(List<IModuleTaskEntry> entries) {
-        entries.sort(new Comparator<IModuleTaskEntry>() {
-            @Override
-            public int compare(IModuleTaskEntry o1, IModuleTaskEntry o2) {
-                return o2.getTaskInfo().order() - o1.getTaskInfo().order();
-            }
-        });
+        entries.sort((o1, o2) -> o2.getTaskInfo().order() - o1.getTaskInfo().order());
 
         for (IModuleTaskEntry entry : entries) {
             try {

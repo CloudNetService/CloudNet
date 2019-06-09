@@ -14,7 +14,6 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
  * This is the internal api channel for synchronized communication between driver api and cloudnet node.
@@ -64,14 +63,7 @@ public final class InternalSyncPacketChannel {
         checkCachedValidation();
 
         SynchronizedCallback syncEntry = new SynchronizedCallback();
-        syncEntry.task = new ListenableTask<>(new Callable<Pair<JsonDocument, byte[]>>() {
-
-            @Override
-            public Pair<JsonDocument, byte[]> call() throws Exception {
-                return syncEntry.response;
-            }
-
-        }, listener);
+        syncEntry.task = new ListenableTask<>(() -> syncEntry.response, listener);
 
         WAITING_PACKETS.put(packet.getUniqueId(), syncEntry);
         channel.sendPacket(packet);

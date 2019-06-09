@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public final class ExampleCreateCloudService {
 
@@ -25,14 +24,9 @@ public final class ExampleCreateCloudService {
         }
 
         //wrapper filter is more specific
-        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudService("Lobby"), new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING &&
-                        serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
-                        serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(name);
-            }
-        });
+        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudService("Lobby"), serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
+                serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
+                serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name));
 
         if (serviceInfoSnapshot != null) {
             //Service is online and exists
@@ -59,14 +53,9 @@ public final class ExampleCreateCloudService {
 
             @Override
             public void onComplete(ITask<Collection<ServiceInfoSnapshot>> task, Collection<ServiceInfoSnapshot> serviceInfoSnapshots) {
-                ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, new Predicate<ServiceInfoSnapshot>() {
-                    @Override
-                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING &&
-                                serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
-                                serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(name);
-                    }
-                });
+                ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
+                        serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
+                        serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name));
 
                 if (serviceInfoSnapshot != null) {
                     //Service is online and exists

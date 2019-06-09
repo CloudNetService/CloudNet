@@ -74,11 +74,6 @@ public final class BungeePlayerListener implements Listener {
     public void handle(PlayerDisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()));
 
-        Wrapper.getInstance().runTask(new Runnable() {
-            @Override
-            public void run() {
-                BridgeHelper.updateServiceInfo();
-            }
-        });
+        Wrapper.getInstance().runTask(() -> BridgeHelper.updateServiceInfo());
     }
 }

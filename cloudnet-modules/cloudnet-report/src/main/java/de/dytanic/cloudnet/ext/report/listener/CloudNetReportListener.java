@@ -10,10 +10,8 @@ import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.function.Consumer;
 
 public final class CloudNetReportListener {
 
@@ -55,12 +53,7 @@ public final class CloudNetReportListener {
         try {
             switch (cloudService.getServiceId().getEnvironment()) {
                 case BUNGEECORD: {
-                    File[] files = cloudService.getDirectory().listFiles(new FileFilter() {
-                        @Override
-                        public boolean accept(File pathname) {
-                            return !pathname.isDirectory() && pathname.getName().startsWith("proxy.log");
-                        }
-                    });
+                    File[] files = cloudService.getDirectory().listFiles(pathname -> !pathname.isDirectory() && pathname.getName().startsWith("proxy.log"));
 
                     if (files != null) {
                         File subDir = new File(directory, "logs");
@@ -87,14 +80,11 @@ public final class CloudNetReportListener {
 
     private void writeFileList(File directory, ICloudService cloudService) {
         try (FileWriter fileWriter = new FileWriter(new File(directory, "files.txt"))) {
-            FileUtils.workFileTree(cloudService.getDirectory(), new Consumer<File>() {
-                @Override
-                public void accept(File file) {
-                    try {
-                        fileWriter.write(file.getAbsolutePath() + " | " + file.length() + " Bytes\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            FileUtils.workFileTree(cloudService.getDirectory(), file -> {
+                try {
+                    fileWriter.write(file.getAbsolutePath() + " | " + file.length() + " Bytes\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
         } catch (IOException e) {

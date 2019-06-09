@@ -3,8 +3,6 @@ package de.dytanic.cloudnet.common.logging;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Objects;
-
 /**
  * The LogLevel indicates how relevant and essential information is to be output.
  * All LogEntry instances has a LogLevel, which describe his relevant

@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 
 public class CNLInterpreter {
 
@@ -88,17 +87,13 @@ public class CNLInterpreter {
                 args = new String[0];
             else {
                 List<String> list = Arrays.asList(commandLine.replaceFirst(name + " ", "").split(" "));
-                list.replaceAll(new UnaryOperator<String>() {
+                list.replaceAll(text -> {
 
-                    @Override
-                    public String apply(String text) {
+                    for (String variable : variables.keySet())
+                        if (text.contains("$" + variable))
+                            text = text.replace("$" + variable, variables.get(variable));
 
-                        for (String variable : variables.keySet())
-                            if (text.contains("$" + variable))
-                                text = text.replace("$" + variable, variables.get(variable));
-
-                        return text;
-                    }
+                    return text;
                 });
 
                 args = list.toArray(new String[0]);

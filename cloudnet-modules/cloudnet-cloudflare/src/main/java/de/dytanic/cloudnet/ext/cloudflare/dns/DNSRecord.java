@@ -36,44 +36,44 @@ public class DNSRecord {
         return this.type;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public String getContent() {
-        return this.content;
-    }
-
-    public int getTtl() {
-        return this.ttl;
-    }
-
-    public boolean isProxied() {
-        return this.proxied;
-    }
-
-    public JsonObject getData() {
-        return this.data;
-    }
-
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getContent() {
+        return this.content;
+    }
+
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public int getTtl() {
+        return this.ttl;
     }
 
     public void setTtl(int ttl) {
         this.ttl = ttl;
     }
 
+    public boolean isProxied() {
+        return this.proxied;
+    }
+
     public void setProxied(boolean proxied) {
         this.proxied = proxied;
+    }
+
+    public JsonObject getData() {
+        return this.data;
     }
 
     public void setData(JsonObject data) {

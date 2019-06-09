@@ -23,20 +23,20 @@ public class ProxyFallbackConfiguration {
         return this.targetGroup;
     }
 
-    public String getDefaultFallbackTask() {
-        return this.defaultFallbackTask;
-    }
-
-    public List<ProxyFallback> getFallbacks() {
-        return this.fallbacks;
-    }
-
     public void setTargetGroup(String targetGroup) {
         this.targetGroup = targetGroup;
     }
 
+    public String getDefaultFallbackTask() {
+        return this.defaultFallbackTask;
+    }
+
     public void setDefaultFallbackTask(String defaultFallbackTask) {
         this.defaultFallbackTask = defaultFallbackTask;
+    }
+
+    public List<ProxyFallback> getFallbacks() {
+        return this.fallbacks;
     }
 
     public void setFallbacks(List<ProxyFallback> fallbacks) {

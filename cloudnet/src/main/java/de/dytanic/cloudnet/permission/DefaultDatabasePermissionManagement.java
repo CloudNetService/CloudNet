@@ -12,8 +12,6 @@ import de.dytanic.cloudnet.driver.permission.*;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public final class DefaultDatabasePermissionManagement implements IPermissionManagement {
 
@@ -99,16 +97,13 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public List<IPermissionUser> getUser(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.map(getDatabase().get("name", name), new Function<JsonDocument, IPermissionUser>() {
-            @Override
-            public IPermissionUser apply(JsonDocument strings) {
-                IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
+        return Iterables.map(getDatabase().get("name", name), strings -> {
+            IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
-                if (testPermissionUser(permissionUser))
-                    updateUser(permissionUser);
+            if (testPermissionUser(permissionUser))
+                updateUser(permissionUser);
 
-                return permissionUser;
-            }
+            return permissionUser;
         });
     }
 
@@ -116,14 +111,11 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public Collection<IPermissionUser> getUsers() {
         Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
 
-        getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
-            @Override
-            public void accept(String s, JsonDocument strings) {
-                IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
-                testPermissionUser(permissionUser);
+        getDatabase().iterate((s, strings) -> {
+            IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
+            testPermissionUser(permissionUser);
 
-                permissionUsers.add(permissionUser);
-            }
+            permissionUsers.add(permissionUser);
         });
 
         return permissionUsers;
@@ -146,14 +138,11 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
         Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
 
-        getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
-            @Override
-            public void accept(String s, JsonDocument strings) {
-                IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
+        getDatabase().iterate((s, strings) -> {
+            IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
-                testPermissionUser(permissionUser);
-                if (permissionUser.inGroup(group)) permissionUsers.add(permissionUser);
-            }
+            testPermissionUser(permissionUser);
+            if (permissionUser.inGroup(group)) permissionUsers.add(permissionUser);
         });
 
         return permissionUsers;

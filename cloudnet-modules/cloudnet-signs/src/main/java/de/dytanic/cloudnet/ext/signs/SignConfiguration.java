@@ -31,12 +31,12 @@ public class SignConfiguration {
         return this.configurations;
     }
 
-    public Map<String, String> getMessages() {
-        return this.messages;
-    }
-
     public void setConfigurations(Collection<SignConfigurationEntry> configurations) {
         this.configurations = configurations;
+    }
+
+    public Map<String, String> getMessages() {
+        return this.messages;
     }
 
     public void setMessages(Map<String, String> messages) {

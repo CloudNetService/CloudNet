@@ -54,76 +54,76 @@ public class ServiceTask extends ServiceConfigurationBase {
         return this.name;
     }
 
-    public String getRuntime() {
-        return this.runtime;
-    }
-
-    public boolean isMaintenance() {
-        return this.maintenance;
-    }
-
-    public boolean isAutoDeleteOnStop() {
-        return this.autoDeleteOnStop;
-    }
-
-    public boolean isStaticServices() {
-        return this.staticServices;
-    }
-
-    public Collection<String> getAssociatedNodes() {
-        return this.associatedNodes;
-    }
-
-    public Collection<String> getGroups() {
-        return this.groups;
-    }
-
-    public ProcessConfiguration getProcessConfiguration() {
-        return this.processConfiguration;
-    }
-
-    public int getStartPort() {
-        return this.startPort;
-    }
-
-    public int getMinServiceCount() {
-        return this.minServiceCount;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getRuntime() {
+        return this.runtime;
     }
 
     public void setRuntime(String runtime) {
         this.runtime = runtime;
     }
 
+    public boolean isMaintenance() {
+        return this.maintenance;
+    }
+
     public void setMaintenance(boolean maintenance) {
         this.maintenance = maintenance;
+    }
+
+    public boolean isAutoDeleteOnStop() {
+        return this.autoDeleteOnStop;
     }
 
     public void setAutoDeleteOnStop(boolean autoDeleteOnStop) {
         this.autoDeleteOnStop = autoDeleteOnStop;
     }
 
+    public boolean isStaticServices() {
+        return this.staticServices;
+    }
+
     public void setStaticServices(boolean staticServices) {
         this.staticServices = staticServices;
+    }
+
+    public Collection<String> getAssociatedNodes() {
+        return this.associatedNodes;
     }
 
     public void setAssociatedNodes(Collection<String> associatedNodes) {
         this.associatedNodes = associatedNodes;
     }
 
+    public Collection<String> getGroups() {
+        return this.groups;
+    }
+
     public void setGroups(Collection<String> groups) {
         this.groups = groups;
+    }
+
+    public ProcessConfiguration getProcessConfiguration() {
+        return this.processConfiguration;
     }
 
     public void setProcessConfiguration(ProcessConfiguration processConfiguration) {
         this.processConfiguration = processConfiguration;
     }
 
+    public int getStartPort() {
+        return this.startPort;
+    }
+
     public void setStartPort(int startPort) {
         this.startPort = startPort;
+    }
+
+    public int getMinServiceCount() {
+        return this.minServiceCount;
     }
 
     public void setMinServiceCount(int minServiceCount) {

@@ -22,7 +22,7 @@ public enum PermissionCheckResult {
 
     private final boolean value;
 
-    private PermissionCheckResult(boolean value) {
+    PermissionCheckResult(boolean value) {
         this.value = value;
     }
 

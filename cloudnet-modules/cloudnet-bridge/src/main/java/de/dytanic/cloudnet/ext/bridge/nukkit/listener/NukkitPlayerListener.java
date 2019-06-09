@@ -30,11 +30,6 @@ public final class NukkitPlayerListener implements Listener {
         BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                 NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
-        Wrapper.getInstance().runTask(new Runnable() {
-            @Override
-            public void run() {
-                BridgeHelper.updateServiceInfo();
-            }
-        });
+        Wrapper.getInstance().runTask(() -> BridgeHelper.updateServiceInfo());
     }
 }

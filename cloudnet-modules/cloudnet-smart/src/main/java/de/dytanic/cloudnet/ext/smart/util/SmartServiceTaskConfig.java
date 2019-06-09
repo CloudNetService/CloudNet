@@ -59,100 +59,100 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
         return this.task;
     }
 
-    public int getPriority() {
-        return this.priority;
-    }
-
-    public boolean isDirectTemplatesAndInclusionsSetup() {
-        return this.directTemplatesAndInclusionsSetup;
-    }
-
-    public int getPreparedServices() {
-        return this.preparedServices;
-    }
-
-    public int getMinServiceOnlineCount() {
-        return this.minServiceOnlineCount;
-    }
-
-    public boolean isDynamicMemoryAllocation() {
-        return this.dynamicMemoryAllocation;
-    }
-
-    public int getDynamicMemoryAllocationRange() {
-        return this.dynamicMemoryAllocationRange;
-    }
-
-    public int getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture() {
-        return this.percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
-    }
-
-    public int getAutoStopTimeByUnusedServiceInSeconds() {
-        return this.autoStopTimeByUnusedServiceInSeconds;
-    }
-
-    public boolean isSwitchToPreparedServiceAfterAutoStopTimeByUnusedService() {
-        return this.switchToPreparedServiceAfterAutoStopTimeByUnusedService;
-    }
-
-    public int getPercentOfPlayersForANewServiceByInstance() {
-        return this.percentOfPlayersForANewServiceByInstance;
-    }
-
-    public int getForAnewInstanceDelayTimeInSeconds() {
-        return this.forAnewInstanceDelayTimeInSeconds;
-    }
-
-    public TemplateInstaller getTemplateInstaller() {
-        return this.templateInstaller;
-    }
-
     public void setTask(String task) {
         this.task = task;
+    }
+
+    public int getPriority() {
+        return this.priority;
     }
 
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
+    public boolean isDirectTemplatesAndInclusionsSetup() {
+        return this.directTemplatesAndInclusionsSetup;
+    }
+
     public void setDirectTemplatesAndInclusionsSetup(boolean directTemplatesAndInclusionsSetup) {
         this.directTemplatesAndInclusionsSetup = directTemplatesAndInclusionsSetup;
+    }
+
+    public int getPreparedServices() {
+        return this.preparedServices;
     }
 
     public void setPreparedServices(int preparedServices) {
         this.preparedServices = preparedServices;
     }
 
+    public int getMinServiceOnlineCount() {
+        return this.minServiceOnlineCount;
+    }
+
     public void setMinServiceOnlineCount(int minServiceOnlineCount) {
         this.minServiceOnlineCount = minServiceOnlineCount;
+    }
+
+    public boolean isDynamicMemoryAllocation() {
+        return this.dynamicMemoryAllocation;
     }
 
     public void setDynamicMemoryAllocation(boolean dynamicMemoryAllocation) {
         this.dynamicMemoryAllocation = dynamicMemoryAllocation;
     }
 
+    public int getDynamicMemoryAllocationRange() {
+        return this.dynamicMemoryAllocationRange;
+    }
+
     public void setDynamicMemoryAllocationRange(int dynamicMemoryAllocationRange) {
         this.dynamicMemoryAllocationRange = dynamicMemoryAllocationRange;
+    }
+
+    public int getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture() {
+        return this.percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
     }
 
     public void setPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture(int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture) {
         this.percentOfPlayersToCheckShouldAutoStopTheServiceInFuture = percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
     }
 
+    public int getAutoStopTimeByUnusedServiceInSeconds() {
+        return this.autoStopTimeByUnusedServiceInSeconds;
+    }
+
     public void setAutoStopTimeByUnusedServiceInSeconds(int autoStopTimeByUnusedServiceInSeconds) {
         this.autoStopTimeByUnusedServiceInSeconds = autoStopTimeByUnusedServiceInSeconds;
+    }
+
+    public boolean isSwitchToPreparedServiceAfterAutoStopTimeByUnusedService() {
+        return this.switchToPreparedServiceAfterAutoStopTimeByUnusedService;
     }
 
     public void setSwitchToPreparedServiceAfterAutoStopTimeByUnusedService(boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService) {
         this.switchToPreparedServiceAfterAutoStopTimeByUnusedService = switchToPreparedServiceAfterAutoStopTimeByUnusedService;
     }
 
+    public int getPercentOfPlayersForANewServiceByInstance() {
+        return this.percentOfPlayersForANewServiceByInstance;
+    }
+
     public void setPercentOfPlayersForANewServiceByInstance(int percentOfPlayersForANewServiceByInstance) {
         this.percentOfPlayersForANewServiceByInstance = percentOfPlayersForANewServiceByInstance;
     }
 
+    public int getForAnewInstanceDelayTimeInSeconds() {
+        return this.forAnewInstanceDelayTimeInSeconds;
+    }
+
     public void setForAnewInstanceDelayTimeInSeconds(int forAnewInstanceDelayTimeInSeconds) {
         this.forAnewInstanceDelayTimeInSeconds = forAnewInstanceDelayTimeInSeconds;
+    }
+
+    public TemplateInstaller getTemplateInstaller() {
+        return this.templateInstaller;
     }
 
     public void setTemplateInstaller(TemplateInstaller templateInstaller) {

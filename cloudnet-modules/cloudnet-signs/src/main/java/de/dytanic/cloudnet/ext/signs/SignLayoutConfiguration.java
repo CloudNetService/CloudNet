@@ -25,12 +25,12 @@ public class SignLayoutConfiguration {
         return this.signLayouts;
     }
 
-    public int getAnimationsPerSecond() {
-        return this.animationsPerSecond;
-    }
-
     public void setSignLayouts(List<SignLayout> signLayouts) {
         this.signLayouts = signLayouts;
+    }
+
+    public int getAnimationsPerSecond() {
+        return this.animationsPerSecond;
     }
 
     public void setAnimationsPerSecond(int animationsPerSecond) {

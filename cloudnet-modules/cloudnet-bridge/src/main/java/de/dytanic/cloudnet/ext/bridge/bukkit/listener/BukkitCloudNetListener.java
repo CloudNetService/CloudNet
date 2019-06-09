@@ -122,11 +122,6 @@ public final class BukkitCloudNetListener {
     }
 
     private void bukkitCall(Event event) {
-        Bukkit.getScheduler().runTask(BukkitCloudNetHelper.getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                Bukkit.getPluginManager().callEvent(event);
-            }
-        });
+        Bukkit.getScheduler().runTask(BukkitCloudNetHelper.getPlugin(), () -> Bukkit.getPluginManager().callEvent(event));
     }
 }

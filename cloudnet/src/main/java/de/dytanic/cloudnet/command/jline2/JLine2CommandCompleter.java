@@ -9,7 +9,6 @@ import jline.console.completer.Completer;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * JLine2 implementation of the completer for the JLine console
@@ -27,13 +26,7 @@ public final class JLine2CommandCompleter implements Completer {
         List<String> responses = Iterables.newArrayList();
 
         if (buffer.isEmpty() || buffer.indexOf(' ') == -1) {
-            responses.addAll(Iterables.filter(commandMap.getCommandNames(), new Predicate<String>() {
-
-                @Override
-                public boolean test(String s) {
-                    return s != null && s.toLowerCase().startsWith(buffer.toLowerCase());
-                }
-            }));
+            responses.addAll(Iterables.filter(commandMap.getCommandNames(), s -> s != null && s.toLowerCase().startsWith(buffer.toLowerCase())));
         } else {
             Command command = commandMap.getCommandFromLine(buffer);
 
@@ -42,13 +35,7 @@ public final class JLine2CommandCompleter implements Completer {
                 String testString = args[args.length - 1];
                 args = buffer.replaceFirst(args[0] + " ", "").split(" ");
 
-                responses.addAll(Iterables.filter(((ITabCompleter) command).complete(buffer, args, Properties.parseLine(args)), new Predicate<String>() {
-
-                    @Override
-                    public boolean test(String s) {
-                        return s != null && (testString.isEmpty() || s.toLowerCase().startsWith(testString.toLowerCase()));
-                    }
-                }));
+                responses.addAll(Iterables.filter(((ITabCompleter) command).complete(buffer, args, Properties.parseLine(args)), s -> s != null && (testString.isEmpty() || s.toLowerCase().startsWith(testString.toLowerCase()))));
             }
         }
 

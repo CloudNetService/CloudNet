@@ -11,19 +11,16 @@ public final class ExampleHttpHandler {
     public void registerHttpHandlerExample() {
         CloudNet.getInstance().getHttpServer().registerHandler( //register a default http handler, which receives all http message on the following path
                 "/helloworld",
-                new IHttpHandler() {
-                    @Override
-                    public void handle(String path, IHttpContext context) throws Exception {
-                        context
-                                .response()
-                                .statusCode(HttpResponseCode.HTTP_OK) //sets the response status code
-                                .header("Content-Type", "text/plain") //Sets the header
-                                .body("Hello, world!") //Sets the response http body
-                                .context() //switch to IHttpContext
-                                .closeAfter(true) //is not required. It closes automatic by default
-                                .cancelNext() //cancelled that no http handler will invoked after this on this path
-                        ;
-                    }
+                (IHttpHandler) (path, context) -> {
+                    context
+                            .response()
+                            .statusCode(HttpResponseCode.HTTP_OK) //sets the response status code
+                            .header("Content-Type", "text/plain") //Sets the header
+                            .body("Hello, world!") //Sets the response http body
+                            .context() //switch to IHttpContext
+                            .closeAfter(true) //is not required. It closes automatic by default
+                            .cancelNext() //cancelled that no http handler will invoked after this on this path
+                    ;
                 })
         ;
 

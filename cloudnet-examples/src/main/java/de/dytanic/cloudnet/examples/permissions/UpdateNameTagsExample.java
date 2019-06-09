@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.EventPriority;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
@@ -15,7 +14,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.function.Function;
 
 public final class UpdateNameTagsExample {
 
@@ -37,17 +35,14 @@ public final class UpdateNameTagsExample {
 
     //For developers with a NickAPI or something like this
     public void nickExample(Player player) {
-        BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player, new Function<Player, IPermissionGroup>() {
-            @Override
-            public IPermissionGroup apply(Player player) {
-                if (isNicked(player)) {
-                    return CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().get("Default");
-                }
-
-                IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
-
-                return permissionUser == null ? null : CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(permissionUser);
+        BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player, player1 -> {
+            if (isNicked(player1)) {
+                return CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().get("Default");
             }
+
+            IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player1.getUniqueId());
+
+            return permissionUser == null ? null : CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(permissionUser);
         });
     }
 

@@ -13,14 +13,15 @@ public abstract class AbstractLogHandler implements ILogHandler {
      */
     protected IFormatter formatter = new DefaultLogFormatter();
 
-    public IFormatter getFormatter() {
-        return formatter;
+    public AbstractLogHandler() {
     }
-
-    public AbstractLogHandler() {}
 
     public AbstractLogHandler(IFormatter formatter) {
         this.formatter = formatter;
+    }
+
+    public IFormatter getFormatter() {
+        return formatter;
     }
 
     /**

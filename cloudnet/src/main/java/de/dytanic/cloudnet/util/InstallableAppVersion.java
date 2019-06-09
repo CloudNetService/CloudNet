@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.function.Predicate;
 
 public final class InstallableAppVersion {
 
@@ -156,12 +155,7 @@ public final class InstallableAppVersion {
     public static InstallableAppVersion getVersion(ServiceEnvironmentType serviceEnvironment, String version) {
         Validate.checkNotNull(version);
 
-        return Iterables.first(VERSIONS, new Predicate<InstallableAppVersion>() {
-            @Override
-            public boolean test(InstallableAppVersion installableAppVersion) {
-                return installableAppVersion.getServiceEnvironment() == serviceEnvironment && installableAppVersion.getVersion().equalsIgnoreCase(version);
-            }
-        });
+        return Iterables.first(VERSIONS, installableAppVersion -> installableAppVersion.getServiceEnvironment() == serviceEnvironment && installableAppVersion.getVersion().equalsIgnoreCase(version));
     }
 
     public ServiceEnvironmentType getServiceEnvironment() {

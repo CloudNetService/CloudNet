@@ -12,7 +12,7 @@ public enum EventPriority implements Comparator<EventPriority> {
 
     private int value;
 
-    private EventPriority(int value) {
+    EventPriority(int value) {
         this.value = value;
     }
 

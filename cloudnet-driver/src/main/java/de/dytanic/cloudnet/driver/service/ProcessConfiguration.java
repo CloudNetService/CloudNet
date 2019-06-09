@@ -25,20 +25,20 @@ public final class ProcessConfiguration {
         return this.environment;
     }
 
-    public int getMaxHeapMemorySize() {
-        return this.maxHeapMemorySize;
-    }
-
-    public Collection<String> getJvmOptions() {
-        return this.jvmOptions;
-    }
-
     public void setEnvironment(ServiceEnvironmentType environment) {
         this.environment = environment;
     }
 
+    public int getMaxHeapMemorySize() {
+        return this.maxHeapMemorySize;
+    }
+
     public void setMaxHeapMemorySize(int maxHeapMemorySize) {
         this.maxHeapMemorySize = maxHeapMemorySize;
+    }
+
+    public Collection<String> getJvmOptions() {
+        return this.jvmOptions;
     }
 
     public void setJvmOptions(Collection<String> jvmOptions) {

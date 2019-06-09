@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 public final class SyncProxyConfigurationProvider {
 
@@ -37,12 +36,7 @@ public final class SyncProxyConfigurationProvider {
                 SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY,
                 SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY,
                 new JsonDocument(),
-                new Function<JsonDocument, SyncProxyConfiguration>() {
-                    @Override
-                    public SyncProxyConfiguration apply(JsonDocument documentPair) {
-                        return documentPair.get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
-                    }
-                });
+                documentPair -> documentPair.get("syncProxyConfiguration", SyncProxyConfiguration.TYPE));
 
         try {
             return task.get(5, TimeUnit.SECONDS);

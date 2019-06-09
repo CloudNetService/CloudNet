@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.util.Queue;
-import java.util.function.Predicate;
 
 public final class V1HttpHandlerServices extends V1HttpHandler {
 
@@ -25,20 +24,10 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
     @Override
     public void handleGet(String path, IHttpContext context) throws Exception {
         if (context.request().pathParameters().containsKey("uuid")) {
-            ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
-                @Override
-                public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                    return serviceInfoSnapshot.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid"));
-                }
-            });
+            ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid")));
 
             if (serviceInfoSnapshot == null) {
-                serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
-                    @Override
-                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                        return serviceInfoSnapshot.getServiceId().getName().contains(context.request().pathParameters().get("uuid"));
-                    }
-                });
+                serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().contains(context.request().pathParameters().get("uuid")));
             }
 
             if (serviceInfoSnapshot == null) {
@@ -131,20 +120,17 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
         context
                 .response()
                 .header("Content-Type", "application/json")
-                .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), new Predicate<ServiceInfoSnapshot>() {
-                    @Override
-                    public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                        if (context.request().queryParameters().containsKey("name") &&
-                                !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName()))
-                            return false;
+                .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot -> {
+                    if (context.request().queryParameters().containsKey("name") &&
+                            !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName()))
+                        return false;
 
-                        if (context.request().queryParameters().containsKey("task") &&
-                                !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName()))
-                            return false;
+                    if (context.request().queryParameters().containsKey("task") &&
+                            !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName()))
+                        return false;
 
-                        return !context.request().queryParameters().containsKey("node") ||
-                                context.request().queryParameters().get("node").contains(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-                    }
+                    return !context.request().queryParameters().containsKey("node") ||
+                            context.request().queryParameters().get("node").contains(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
                 })))
                 .statusCode(200)
                 .context()

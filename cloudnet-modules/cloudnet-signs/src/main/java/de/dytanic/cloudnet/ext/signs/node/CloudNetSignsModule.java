@@ -19,7 +19,6 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.function.Predicate;
 
 public final class CloudNetSignsModule extends NodeCloudNetModule {
 
@@ -75,12 +74,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
 
         Collection<Sign> signs = this.loadSigns();
 
-        Sign first = Iterables.first(signs, new Predicate<Sign>() {
-            @Override
-            public boolean test(Sign s) {
-                return sign.getSignId() == s.getSignId();
-            }
-        });
+        Sign first = Iterables.first(signs, s -> sign.getSignId() == s.getSignId());
 
         if (first != null)
             signs.remove(first);
@@ -112,11 +106,11 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
         return this.signConfiguration;
     }
 
-    public File getConfigurationFile() {
-        return this.configurationFile;
-    }
-
     public void setSignConfiguration(SignConfiguration signConfiguration) {
         this.signConfiguration = signConfiguration;
+    }
+
+    public File getConfigurationFile() {
+        return this.configurationFile;
     }
 }

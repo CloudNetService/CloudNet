@@ -7,8 +7,6 @@ import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible> {
 
@@ -35,21 +33,11 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
     default Permission getPermission(String name) {
         if (name == null) return null;
 
-        return Iterables.first(getPermissions(), new Predicate<Permission>() {
-            @Override
-            public boolean test(Permission permission) {
-                return permission.getName().equalsIgnoreCase(name);
-            }
-        });
+        return Iterables.first(getPermissions(), permission -> permission.getName().equalsIgnoreCase(name));
     }
 
     default boolean isPermissionSet(String name) {
-        return Iterables.first(getPermissions(), new Predicate<Permission>() {
-            @Override
-            public boolean test(Permission permission) {
-                return permission.getName().equalsIgnoreCase(name);
-            }
-        }) != null;
+        return Iterables.first(getPermissions(), permission -> permission.getName().equalsIgnoreCase(name)) != null;
     }
 
     default boolean addPermission(String permission) {
@@ -77,24 +65,14 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
     }
 
     default Collection<String> getPermissionNames() {
-        return Iterables.map(getPermissions(), new Function<Permission, String>() {
-            @Override
-            public String apply(Permission permission) {
-                return permission.getName();
-            }
-        });
+        return Iterables.map(getPermissions(), permission -> permission.getName());
     }
 
     default PermissionCheckResult hasPermission(Collection<Permission> permissions, Permission permission) {
         if (permissions == null || permission == null || permission.getName() == null)
             return PermissionCheckResult.DENIED;
 
-        Permission targetPerms = Iterables.first(permissions, new Predicate<Permission>() {
-            @Override
-            public boolean test(Permission perm) {
-                return perm.getName().equalsIgnoreCase(permission.getName());
-            }
-        });
+        Permission targetPerms = Iterables.first(permissions, perm -> perm.getName().equalsIgnoreCase(permission.getName()));
 
         if (targetPerms != null && permission.getName().equalsIgnoreCase(targetPerms.getName()) && targetPerms.getPotency() < 0)
             return PermissionCheckResult.FORBIDDEN;

@@ -38,36 +38,36 @@ public class ConfigurationOptionSSL {
         return this.enabled;
     }
 
-    public boolean isClientAuth() {
-        return this.clientAuth;
-    }
-
-    public String getTrustCertificatePath() {
-        return this.trustCertificatePath;
-    }
-
-    public String getCertificatePath() {
-        return this.certificatePath;
-    }
-
-    public String getPrivateKeyPath() {
-        return this.privateKeyPath;
-    }
-
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isClientAuth() {
+        return this.clientAuth;
     }
 
     public void setClientAuth(boolean clientAuth) {
         this.clientAuth = clientAuth;
     }
 
+    public String getTrustCertificatePath() {
+        return this.trustCertificatePath;
+    }
+
     public void setTrustCertificatePath(String trustCertificatePath) {
         this.trustCertificatePath = trustCertificatePath;
     }
 
+    public String getCertificatePath() {
+        return this.certificatePath;
+    }
+
     public void setCertificatePath(String certificatePath) {
         this.certificatePath = certificatePath;
+    }
+
+    public String getPrivateKeyPath() {
+        return this.privateKeyPath;
     }
 
     public void setPrivateKeyPath(String privateKeyPath) {

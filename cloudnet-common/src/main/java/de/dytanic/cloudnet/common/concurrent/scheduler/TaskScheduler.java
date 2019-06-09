@@ -355,7 +355,7 @@ public class TaskScheduler {
 
     public <V> Collection<TaskEntryFuture<V>> schedule(Collection<TaskEntry<V>> threadEntries) {
 
-        Collection<TaskEntryFuture<V>> TaskEntryFutures = new ArrayList<TaskEntryFuture<V>>();
+        Collection<TaskEntryFuture<V>> TaskEntryFutures = new ArrayList<>();
         for (TaskEntry<V> entry : threadEntries)
             TaskEntryFutures.add(offerEntry(entry));
 
@@ -555,16 +555,12 @@ public class TaskScheduler {
 
 
         public VoidTaskEntry(Runnable task, IVoidCallback<Void> complete, long delay, long repeat) {
-            super(new Callable<Void>() {
+            super(() -> {
 
-                @Override
-                public Void call() throws Exception {
+                if (task != null)
+                    task.run();
 
-                    if (task != null)
-                        task.run();
-
-                    return null;
-                }
+                return null;
             }, complete, delay, repeat);
         }
     }

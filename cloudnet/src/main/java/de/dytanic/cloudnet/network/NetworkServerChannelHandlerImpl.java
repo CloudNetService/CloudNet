@@ -14,8 +14,6 @@ import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceIn
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.service.ICloudService;
 
-import java.util.function.Predicate;
-
 public final class NetworkServerChannelHandlerImpl implements INetworkChannelHandler {
 
     @Override
@@ -54,12 +52,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         );
 
-        ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(new Predicate<ICloudService>() {
-            @Override
-            public boolean test(ICloudService iCloudService) {
-                return iCloudService.getNetworkChannel() != null && iCloudService.getNetworkChannel().equals(channel);
-            }
-        });
+        ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(iCloudService -> iCloudService.getNetworkChannel() != null && iCloudService.getNetworkChannel().equals(channel));
 
         if (cloudService != null) {
             closeAsCloudService(cloudService, channel);

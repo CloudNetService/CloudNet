@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public final class NodePlayerManager implements IPlayerManager {
 
@@ -57,25 +54,15 @@ public final class NodePlayerManager implements IPlayerManager {
     public List<? extends ICloudPlayer> getOnlinePlayer(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.filter(onlineCloudPlayers.values(), new Predicate<CloudPlayer>() {
-            @Override
-            public boolean test(CloudPlayer cloudPlayer) {
-                return cloudPlayer.getName().equalsIgnoreCase(name);
-            }
-        });
+        return Iterables.filter(onlineCloudPlayers.values(), cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name));
     }
 
     @Override
     public List<? extends ICloudPlayer> getOnlinePlayers(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return Iterables.filter(onlineCloudPlayers.values(), new Predicate<CloudPlayer>() {
-            @Override
-            public boolean test(CloudPlayer cloudPlayer) {
-                return (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
-                        (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment() == environment);
-            }
-        });
+        return Iterables.filter(onlineCloudPlayers.values(), cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
+                (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment() == environment));
     }
 
     @Override
@@ -96,24 +83,14 @@ public final class NodePlayerManager implements IPlayerManager {
     public List<? extends ICloudOfflinePlayer> getOfflinePlayer(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.map(getDatabase().get(new JsonDocument("name", name)), new Function<JsonDocument, ICloudOfflinePlayer>() {
-            @Override
-            public ICloudOfflinePlayer apply(JsonDocument jsonDocument) {
-                return jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE);
-            }
-        });
+        return Iterables.map(getDatabase().get(new JsonDocument("name", name)), jsonDocument -> jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
     }
 
     @Override
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
         List<? extends ICloudOfflinePlayer> cloudOfflinePlayers = Iterables.newArrayList();
 
-        getDatabase().iterate(new BiConsumer<String, JsonDocument>() {
-            @Override
-            public void accept(String s, JsonDocument jsonDocument) {
-                cloudOfflinePlayers.add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
-            }
-        });
+        getDatabase().iterate((s, jsonDocument) -> cloudOfflinePlayers.add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)));
 
         return cloudOfflinePlayers;
     }
@@ -122,72 +99,37 @@ public final class NodePlayerManager implements IPlayerManager {
 
     @Override
     public ITask<ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
-        return schedule(new Callable<ICloudPlayer>() {
-            @Override
-            public ICloudPlayer call() throws Exception {
-                return getOnlinePlayer(uniqueId);
-            }
-        });
+        return schedule(() -> getOnlinePlayer(uniqueId));
     }
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(String name) {
-        return schedule(new Callable<List<? extends ICloudPlayer>>() {
-            @Override
-            public List<? extends ICloudPlayer> call() throws Exception {
-                return getOnlinePlayer(name);
-            }
-        });
+        return schedule(() -> getOnlinePlayer(name));
     }
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(ServiceEnvironmentType environment) {
-        return schedule(new Callable<List<? extends ICloudPlayer>>() {
-            @Override
-            public List<? extends ICloudPlayer> call() throws Exception {
-                return getOnlinePlayers(environment);
-            }
-        });
+        return schedule(() -> getOnlinePlayers(environment));
     }
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-        return schedule(new Callable<List<? extends ICloudPlayer>>() {
-            @Override
-            public List<? extends ICloudPlayer> call() throws Exception {
-                return getOnlinePlayers();
-            }
-        });
+        return schedule(() -> getOnlinePlayers());
     }
 
     @Override
     public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(UUID uniqueId) {
-        return schedule(new Callable<ICloudOfflinePlayer>() {
-            @Override
-            public ICloudOfflinePlayer call() throws Exception {
-                return getOfflinePlayer(uniqueId);
-            }
-        });
+        return schedule(() -> getOfflinePlayer(uniqueId));
     }
 
     @Override
     public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(String name) {
-        return schedule(new Callable<List<? extends ICloudOfflinePlayer>>() {
-            @Override
-            public List<? extends ICloudOfflinePlayer> call() throws Exception {
-                return getOfflinePlayer(name);
-            }
-        });
+        return schedule(() -> getOfflinePlayer(name));
     }
 
     @Override
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
-        return schedule(new Callable<List<? extends ICloudOfflinePlayer>>() {
-            @Override
-            public List<? extends ICloudOfflinePlayer> call() throws Exception {
-                return getRegisteredPlayers();
-            }
-        });
+        return schedule(() -> getRegisteredPlayers());
     }
 
     /*= -------------------------------------------------------------------------------------- =*/

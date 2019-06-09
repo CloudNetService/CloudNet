@@ -25,28 +25,28 @@ public class SignConfigurationTaskEntry {
         return this.task;
     }
 
-    public SignLayout getOnlineLayout() {
-        return this.onlineLayout;
-    }
-
-    public SignLayout getEmptyLayout() {
-        return this.emptyLayout;
-    }
-
-    public SignLayout getFullLayout() {
-        return this.fullLayout;
-    }
-
     public void setTask(String task) {
         this.task = task;
+    }
+
+    public SignLayout getOnlineLayout() {
+        return this.onlineLayout;
     }
 
     public void setOnlineLayout(SignLayout onlineLayout) {
         this.onlineLayout = onlineLayout;
     }
 
+    public SignLayout getEmptyLayout() {
+        return this.emptyLayout;
+    }
+
     public void setEmptyLayout(SignLayout emptyLayout) {
         this.emptyLayout = emptyLayout;
+    }
+
+    public SignLayout getFullLayout() {
+        return this.fullLayout;
     }
 
     public void setFullLayout(SignLayout fullLayout) {

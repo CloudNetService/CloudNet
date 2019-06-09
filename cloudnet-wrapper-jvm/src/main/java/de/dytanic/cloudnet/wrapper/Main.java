@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.wrapper.log.WrapperLogFormatter;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public final class Main {
@@ -36,18 +37,14 @@ public final class Main {
             logger.addLogHandler(logHandler.setFormatter(new WrapperLogFormatter()));
         }
 
-        System.setOut(new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true, "UTF-8"));
-        System.setErr(new PrintStream(new LogOutputStream(logger, LogLevel.WARNING), true, "UTF-8"));
+        System.setOut(new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true, StandardCharsets.UTF_8));
+        System.setErr(new PrintStream(new LogOutputStream(logger, LogLevel.WARNING), true, StandardCharsets.UTF_8));
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    logger.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                logger.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }));
     }

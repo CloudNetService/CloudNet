@@ -18,10 +18,11 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Server;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
@@ -29,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public final class BukkitCloudNetHelper {
 
@@ -79,29 +79,26 @@ public final class BukkitCloudNetHelper {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         Collection<BukkitCloudNetPlayerInfo> players = Iterables.newArrayList();
-        forEachPlayers(new Consumer<Player>() {
-            @Override
-            public void accept(Player player) {
-                Location location = player.getLocation();
+        forEachPlayers(player -> {
+            Location location = player.getLocation();
 
-                players.add(new BukkitCloudNetPlayerInfo(
-                        player.getUniqueId(),
-                        player.getName(),
-                        getHealthOfPlayer(player),
-                        getMaxHealthOfPlayer(player),
-                        player.getFoodLevel(),
-                        player.getLevel(),
-                        new WorldPosition(
-                                location.getX(),
-                                location.getY(),
-                                location.getZ(),
-                                location.getYaw(),
-                                location.getPitch(),
-                                location.getWorld().getName()
-                        ),
-                        new HostAndPort(player.getAddress())
-                ));
-            }
+            players.add(new BukkitCloudNetPlayerInfo(
+                    player.getUniqueId(),
+                    player.getName(),
+                    getHealthOfPlayer(player),
+                    getMaxHealthOfPlayer(player),
+                    player.getFoodLevel(),
+                    player.getLevel(),
+                    new WorldPosition(
+                            location.getX(),
+                            location.getY(),
+                            location.getZ(),
+                            location.getYaw(),
+                            location.getPitch(),
+                            location.getWorld().getName()
+                    ),
+                    new HostAndPort(player.getAddress())
+            ));
         });
 
         serviceInfoSnapshot.getProperties()
@@ -117,45 +114,34 @@ public final class BukkitCloudNetHelper {
                 .append("Incoming-Channels", Bukkit.getMessenger().getIncomingChannels())
                 .append("Online-Mode", Bukkit.getOnlineMode())
                 .append("Whitelist-Enabled", Bukkit.hasWhitelist())
-                .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(), new Function<OfflinePlayer, String>() {
-                    @Override
-                    public String apply(OfflinePlayer offlinePlayer) {
-                        return offlinePlayer.getName();
-                    }
-                }))
+                .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(), offlinePlayer -> offlinePlayer.getName()))
                 .append("Allow-Nether", Bukkit.getAllowNether())
                 .append("Allow-End", Bukkit.getAllowEnd())
                 .append("Players", players)
-                .append("Plugins", Iterables.map(Arrays.asList(Bukkit.getPluginManager().getPlugins()), new Function<Plugin, PluginInfo>() {
-                    @Override
-                    public PluginInfo apply(Plugin plugin) {
-                        PluginInfo pluginInfo = new PluginInfo(plugin.getName(), plugin.getDescription().getVersion());
+                .append("Plugins", Iterables.map(Arrays.asList(Bukkit.getPluginManager().getPlugins()), plugin -> {
+                    PluginInfo pluginInfo = new PluginInfo(plugin.getName(), plugin.getDescription().getVersion());
 
-                        pluginInfo.getProperties()
-                                .append("authors", plugin.getDescription().getAuthors())
-                                .append("dependencies", plugin.getDescription().getDepend())
-                                .append("load-before", plugin.getDescription().getLoadBefore())
-                                .append("description", plugin.getDescription().getDescription())
-                                .append("commands", plugin.getDescription().getCommands())
-                                .append("soft-dependencies", plugin.getDescription().getSoftDepend())
-                                .append("website", plugin.getDescription().getWebsite())
-                                .append("main-class", plugin.getDescription().getMain())
-                                .append("prefix", plugin.getDescription().getPrefix())
-                        ;
+                    pluginInfo.getProperties()
+                            .append("authors", plugin.getDescription().getAuthors())
+                            .append("dependencies", plugin.getDescription().getDepend())
+                            .append("load-before", plugin.getDescription().getLoadBefore())
+                            .append("description", plugin.getDescription().getDescription())
+                            .append("commands", plugin.getDescription().getCommands())
+                            .append("soft-dependencies", plugin.getDescription().getSoftDepend())
+                            .append("website", plugin.getDescription().getWebsite())
+                            .append("main-class", plugin.getDescription().getMain())
+                            .append("prefix", plugin.getDescription().getPrefix())
+                    ;
 
-                        return pluginInfo;
-                    }
+                    return pluginInfo;
                 }))
-                .append("Worlds", Iterables.map(Bukkit.getWorlds(), new Function<World, WorldInfo>() {
-                    @Override
-                    public WorldInfo apply(World world) {
-                        Map<String, String> gameRules = Maps.newHashMap();
+                .append("Worlds", Iterables.map(Bukkit.getWorlds(), world -> {
+                    Map<String, String> gameRules = Maps.newHashMap();
 
-                        for (String entry : world.getGameRules())
-                            gameRules.put(entry, world.getGameRuleValue(entry));
+                    for (String entry : world.getGameRules())
+                        gameRules.put(entry, world.getGameRuleValue(entry));
 
-                        return new WorldInfo(world.getUID(), world.getName(), world.getDifficulty().name(), gameRules);
-                    }
+                    return new WorldInfo(world.getUID(), world.getName(), world.getDifficulty().name(), gameRules);
                 }))
         ;
     }
@@ -291,36 +277,36 @@ public final class BukkitCloudNetHelper {
         return BukkitCloudNetHelper.apiMotd;
     }
 
-    public static String getExtra() {
-        return BukkitCloudNetHelper.extra;
-    }
-
-    public static String getState() {
-        return BukkitCloudNetHelper.state;
-    }
-
-    public static int getMaxPlayers() {
-        return BukkitCloudNetHelper.maxPlayers;
-    }
-
-    public static JavaPlugin getPlugin() {
-        return BukkitCloudNetHelper.plugin;
-    }
-
     public static void setApiMotd(String apiMotd) {
         BukkitCloudNetHelper.apiMotd = apiMotd;
+    }
+
+    public static String getExtra() {
+        return BukkitCloudNetHelper.extra;
     }
 
     public static void setExtra(String extra) {
         BukkitCloudNetHelper.extra = extra;
     }
 
+    public static String getState() {
+        return BukkitCloudNetHelper.state;
+    }
+
     public static void setState(String state) {
         BukkitCloudNetHelper.state = state;
     }
 
+    public static int getMaxPlayers() {
+        return BukkitCloudNetHelper.maxPlayers;
+    }
+
     public static void setMaxPlayers(int maxPlayers) {
         BukkitCloudNetHelper.maxPlayers = maxPlayers;
+    }
+
+    public static JavaPlugin getPlugin() {
+        return BukkitCloudNetHelper.plugin;
     }
 
     public static void setPlugin(JavaPlugin plugin) {

@@ -26,12 +26,12 @@ public final class NetworkChannelReceiveGroupConfigurationsUpdateEvent extends N
         return this.groupConfigurations;
     }
 
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
-
     public void setGroupConfigurations(List<GroupConfiguration> groupConfigurations) {
         this.groupConfigurations = groupConfigurations;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
     }
 
     public void setCancelled(boolean cancelled) {

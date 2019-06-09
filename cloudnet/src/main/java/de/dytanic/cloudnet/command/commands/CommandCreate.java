@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.driver.service.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Predicate;
 
 public final class CommandCreate extends CommandDefault implements ITabCompleter {
 
@@ -45,12 +44,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         if (args[0].equalsIgnoreCase("by") && args.length > 2 && Validate.testStringParseToInt(args[2])) {
-            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), new Predicate<ServiceTask>() {
-                @Override
-                public boolean test(ServiceTask serviceTask) {
-                    return serviceTask.getName().equalsIgnoreCase(args[1]);
-                }
-            });
+            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
 
             if (serviceTask != null) {
                 int count = Integer.parseInt(args[2]);
@@ -77,13 +71,10 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
                 if (properties.containsKey("start"))
                     try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots)
-                                    CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
+                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots)
+                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
 
-                            }
                         }).get();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
@@ -130,12 +121,9 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
                 if (properties.containsKey("start"))
                     try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots)
-                                    CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                            }
+                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
+                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots)
+                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
                         }).get();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();

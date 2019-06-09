@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultDatabasePermissionManagementTest {
@@ -22,12 +21,7 @@ public class DefaultDatabasePermissionManagementTest {
 
         System.setProperty("cloudnet.permissions.json.path", "build/group_permissions.json");
 
-        IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(new Callable<AbstractDatabaseProvider>() {
-            @Override
-            public AbstractDatabaseProvider call() throws Exception {
-                return databaseProvider;
-            }
-        });
+        IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(() -> databaseProvider);
 
         IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", (byte) 5);
         Assert.assertNotNull(permissionUser);

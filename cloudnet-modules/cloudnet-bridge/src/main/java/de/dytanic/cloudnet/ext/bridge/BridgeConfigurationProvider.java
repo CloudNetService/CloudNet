@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 public final class BridgeConfigurationProvider {
 
@@ -55,12 +54,7 @@ public final class BridgeConfigurationProvider {
                 BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME,
                 BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION,
                 new JsonDocument(),
-                new Function<JsonDocument, BridgeConfiguration>() {
-                    @Override
-                    public BridgeConfiguration apply(JsonDocument documentPair) {
-                        return documentPair.get("bridgeConfig", TYPE);
-                    }
-                });
+                documentPair -> documentPair.get("bridgeConfig", TYPE));
 
         try {
             return task.get(5, TimeUnit.SECONDS);

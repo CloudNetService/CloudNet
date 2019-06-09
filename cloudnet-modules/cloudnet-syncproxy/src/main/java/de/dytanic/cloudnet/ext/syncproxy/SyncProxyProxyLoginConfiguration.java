@@ -37,44 +37,44 @@ public class SyncProxyProxyLoginConfiguration {
         return this.targetGroup;
     }
 
-    public boolean isMaintenance() {
-        return this.maintenance;
-    }
-
-    public int getMaxPlayers() {
-        return this.maxPlayers;
-    }
-
-    public List<String> getWhitelist() {
-        return this.whitelist;
-    }
-
-    public List<SyncProxyMotd> getMotds() {
-        return this.motds;
-    }
-
-    public List<SyncProxyMotd> getMaintenanceMotds() {
-        return this.maintenanceMotds;
-    }
-
     public void setTargetGroup(String targetGroup) {
         this.targetGroup = targetGroup;
+    }
+
+    public boolean isMaintenance() {
+        return this.maintenance;
     }
 
     public void setMaintenance(boolean maintenance) {
         this.maintenance = maintenance;
     }
 
+    public int getMaxPlayers() {
+        return this.maxPlayers;
+    }
+
     public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
+    }
+
+    public List<String> getWhitelist() {
+        return this.whitelist;
     }
 
     public void setWhitelist(List<String> whitelist) {
         this.whitelist = whitelist;
     }
 
+    public List<SyncProxyMotd> getMotds() {
+        return this.motds;
+    }
+
     public void setMotds(List<SyncProxyMotd> motds) {
         this.motds = motds;
+    }
+
+    public List<SyncProxyMotd> getMaintenanceMotds() {
+        return this.maintenanceMotds;
     }
 
     public void setMaintenanceMotds(List<SyncProxyMotd> maintenanceMotds) {

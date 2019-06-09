@@ -23,12 +23,12 @@ public class SyncProxyTabList {
         return this.header;
     }
 
-    public String getFooter() {
-        return this.footer;
-    }
-
     public void setHeader(String header) {
         this.header = header;
+    }
+
+    public String getFooter() {
+        return this.footer;
     }
 
     public void setFooter(String footer) {

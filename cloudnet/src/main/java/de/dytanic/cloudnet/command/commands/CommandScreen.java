@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 public final class CommandScreen extends CommandDefault {
 
@@ -59,29 +58,14 @@ public final class CommandScreen extends CommandDefault {
     private ICloudService getCloudService(String argument) {
         Validate.checkNotNull(argument);
 
-        ICloudService cloudService = Iterables.first(CloudNet.getInstance().getCloudServiceManager().getCloudServices().values(), new Predicate<ICloudService>() {
-            @Override
-            public boolean test(ICloudService cloudService) {
-                return cloudService.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase());
-            }
-        });
+        ICloudService cloudService = Iterables.first(CloudNet.getInstance().getCloudServiceManager().getCloudServices().values(), cloudService13 -> cloudService13.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()));
 
         if (cloudService == null) {
-            List<ICloudService> cloudServices = Iterables.filter(CloudNet.getInstance().getCloudServiceManager().getCloudServices().values(), new Predicate<ICloudService>() {
-                @Override
-                public boolean test(ICloudService cloudService) {
-                    return cloudService.getServiceId().getName().toLowerCase().contains(argument.toLowerCase());
-                }
-            });
+            List<ICloudService> cloudServices = Iterables.filter(CloudNet.getInstance().getCloudServiceManager().getCloudServices().values(), cloudService12 -> cloudService12.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()));
 
             if (!cloudServices.isEmpty()) {
                 if (cloudServices.size() > 1)
-                    cloudService = Iterables.first(cloudServices, new Predicate<ICloudService>() {
-                        @Override
-                        public boolean test(ICloudService cloudService) {
-                            return cloudService.getServiceId().getName().equalsIgnoreCase(argument);
-                        }
-                    });
+                    cloudService = Iterables.first(cloudServices, cloudService1 -> cloudService1.getServiceId().getName().equalsIgnoreCase(argument));
                 else
                     cloudService = cloudServices.get(0);
             }

@@ -43,7 +43,7 @@ public enum ServiceEnvironmentType {
 
     private final boolean minecraftJavaProxy, minecraftBedrockProxy, minecraftJavaServer, minecraftBedrockServer;
 
-    private ServiceEnvironmentType(ServiceEnvironment[] environments, boolean minecraftJavaProxy, boolean minecraftBedrockProxy, boolean minecraftJavaServer, boolean minecraftBedrockServer) {
+    ServiceEnvironmentType(ServiceEnvironment[] environments, boolean minecraftJavaProxy, boolean minecraftBedrockProxy, boolean minecraftJavaServer, boolean minecraftBedrockServer) {
         this.environments = environments;
         this.minecraftJavaProxy = minecraftJavaProxy;
         this.minecraftBedrockProxy = minecraftBedrockProxy;

@@ -29,11 +29,6 @@ public final class GoMintPlayerListener implements EventListener {
         BridgeHelper.sendChannelMessageServerDisconnect(GoMintCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                 GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
-        GoMintCloudNetHelper.getPlugin().getScheduler().execute(new Runnable() {
-            @Override
-            public void run() {
-                BridgeHelper.updateServiceInfo();
-            }
-        });
+        GoMintCloudNetHelper.getPlugin().getScheduler().execute(() -> BridgeHelper.updateServiceInfo());
     }
 }

@@ -12,10 +12,6 @@ public class WorkerThread extends Thread implements ExecutorService {
     protected volatile boolean available = true;
     protected long destinationTime;
 
-    public boolean isAvailable() {
-        return available;
-    }
-
     public WorkerThread() {
         super();
         this.lifeMillis = 30000;
@@ -40,11 +36,15 @@ public class WorkerThread extends Thread implements ExecutorService {
         this.updateDestinationTime();
     }
 
+    public boolean isAvailable() {
+        return available;
+    }
+
     public void clearAllTasks() {
         this.tasks.clear();
     }
 
-    public <T> ITask<T> submit(Callable<T> task, ITaskListener<T> listener) {
+    public <T> ITask submit(Callable<T> task, ITaskListener<T> listener) {
         return this.submit(task, new ITaskListener[]{listener});
     }
 

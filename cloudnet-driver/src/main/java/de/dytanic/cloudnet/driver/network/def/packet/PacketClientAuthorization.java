@@ -23,7 +23,7 @@ public final class PacketClientAuthorization extends Packet {
 
         private int value;
 
-        private PacketAuthorizationType(int value) {
+        PacketAuthorizationType(int value) {
             this.value = value;
         }
 

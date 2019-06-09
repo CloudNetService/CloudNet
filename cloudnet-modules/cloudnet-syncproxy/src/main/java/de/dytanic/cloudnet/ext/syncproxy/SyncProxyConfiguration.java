@@ -34,20 +34,20 @@ public class SyncProxyConfiguration {
         return this.loginConfigurations;
     }
 
-    public Collection<SyncProxyTabListConfiguration> getTabListConfigurations() {
-        return this.tabListConfigurations;
-    }
-
-    public Map<String, String> getMessages() {
-        return this.messages;
-    }
-
     public void setLoginConfigurations(Collection<SyncProxyProxyLoginConfiguration> loginConfigurations) {
         this.loginConfigurations = loginConfigurations;
     }
 
+    public Collection<SyncProxyTabListConfiguration> getTabListConfigurations() {
+        return this.tabListConfigurations;
+    }
+
     public void setTabListConfigurations(Collection<SyncProxyTabListConfiguration> tabListConfigurations) {
         this.tabListConfigurations = tabListConfigurations;
+    }
+
+    public Map<String, String> getMessages() {
+        return this.messages;
     }
 
     public void setMessages(Map<String, String> messages) {

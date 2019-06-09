@@ -14,12 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 final class NettyNetworkChannel implements INetworkChannel {
 
-    private static final Callable<Void> EMPTY_TASK = new Callable<Void>() {
-        @Override
-        public Void call() throws Exception {
-            return null;
-        }
-    };
+    private static final Callable<Void> EMPTY_TASK = () -> null;
 
     private static final AtomicLong CHANNEL_ID_COUNTER = new AtomicLong();
 
@@ -56,12 +51,7 @@ final class NettyNetworkChannel implements INetworkChannel {
         if (this.channel.eventLoop().inEventLoop())
             sendPacket0(packet);
         else
-            this.channel.eventLoop().execute(new Runnable() {
-                @Override
-                public void run() {
-                    sendPacket0(packet);
-                }
-            });
+            this.channel.eventLoop().execute(() -> sendPacket0(packet));
     }
 
     private void sendPacket0(IPacket packet) {

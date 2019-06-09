@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 
 public final class CommandModules extends CommandDefault implements ITabCompleter {
 
@@ -38,13 +37,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
         if (args.length == 0) {
             sender.sendMessage(
-                    "Modules(" + moduleWrappers.size() + "): " + Arrays.toString(Iterables.map(moduleWrappers, new Function<IModuleWrapper, String>() {
-
-                        @Override
-                        public String apply(IModuleWrapper moduleWrapper) {
-                            return moduleWrapper.getModule().getName();
-                        }
-                    }).toArray(new String[0])),
+                    "Modules(" + moduleWrappers.size() + "): " + Arrays.toString(Iterables.map(moduleWrappers, moduleWrapper -> moduleWrapper.getModule().getName()).toArray(new String[0])),
                     " ",
                     "modules list | group=<name> name=<name> version=<version>"
             );
@@ -121,11 +114,6 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        return args.length < 3 ? Iterables.map(CloudNetDriver.getInstance().getModuleProvider().getModules(), new Function<IModuleWrapper, String>() {
-            @Override
-            public String apply(IModuleWrapper moduleWrapper) {
-                return moduleWrapper.getModule().getName();
-            }
-        }) : Arrays.asList("start", "stop", "unload");
+        return args.length < 3 ? Iterables.map(CloudNetDriver.getInstance().getModuleProvider().getModules(), moduleWrapper -> moduleWrapper.getModule().getName()) : Arrays.asList("start", "stop", "unload");
     }
 }

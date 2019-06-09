@@ -36,6 +36,11 @@ public class DefaultAsyncLogger implements ILogger {
     };
     protected int level = -1;
 
+    public DefaultAsyncLogger() {
+        logThread.setPriority(Thread.MIN_PRIORITY);
+        logThread.start();
+    }
+
     @Override
     public int getLevel() {
         return level;
@@ -44,11 +49,6 @@ public class DefaultAsyncLogger implements ILogger {
     @Override
     public void setLevel(int level) {
         this.level = level;
-    }
-
-    public DefaultAsyncLogger() {
-        logThread.setPriority(Thread.MIN_PRIORITY);
-        logThread.start();
     }
 
     @Override

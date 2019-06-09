@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
@@ -76,13 +75,8 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public ServiceInfoSnapshot getFreeNonStartedService(String taskName) {
-        return Iterables.first(CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().values(), new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName) &&
-                        (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED || serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED);
-            }
-        });
+        return Iterables.first(CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().values(), serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName) &&
+                (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED || serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED));
     }
 
     public ServiceInfoSnapshot createSmartCloudService(ServiceTask serviceTask, SmartServiceTaskConfig serviceTaskConfig) {
@@ -195,19 +189,19 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         ));
     }
 
-    public void setSmartServiceTaskConfigurations(Collection<SmartServiceTaskConfig> configs) {
-        smartServiceTaskConfigurations.clear();
-        smartServiceTaskConfigurations.addAll(configs);
-
-        getConfig().append("smartTasks", configs);
-        saveConfig();
-    }
-
     public Map<UUID, CloudNetServiceSmartProfile> getProvidedSmartServices() {
         return this.providedSmartServices;
     }
 
     public Collection<SmartServiceTaskConfig> getSmartServiceTaskConfigurations() {
         return this.smartServiceTaskConfigurations;
+    }
+
+    public void setSmartServiceTaskConfigurations(Collection<SmartServiceTaskConfig> configs) {
+        smartServiceTaskConfigurations.clear();
+        smartServiceTaskConfigurations.addAll(configs);
+
+        getConfig().append("smartTasks", configs);
+        saveConfig();
     }
 }

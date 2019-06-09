@@ -14,7 +14,6 @@ import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.*;
 
 import java.io.File;
-import java.util.function.Predicate;
 
 public final class NodeCustomChannelMessageListener {
     private BridgeConfiguration bridgeConfiguration;
@@ -175,13 +174,8 @@ public final class NodeCustomChannelMessageListener {
         CloudPlayer cloudPlayer = NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId());
 
         if (cloudPlayer == null) {
-            cloudPlayer = Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), new Predicate<CloudPlayer>() {
-                @Override
-                public boolean test(CloudPlayer cloudPlayer) {
-                    return cloudPlayer.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
-                            cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId());
-                }
-            });
+            cloudPlayer = Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
+                    cloudPlayer1.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()));
 
             if (cloudPlayer == null) {
                 ICloudOfflinePlayer cloudOfflinePlayer = getOrRegisterOfflinePlayer(networkConnectionInfo);
@@ -234,12 +228,7 @@ public final class NodeCustomChannelMessageListener {
     private void logoutPlayer(NetworkConnectionInfo networkConnectionInfo) {
         CloudPlayer cloudPlayer = networkConnectionInfo.getUniqueId() != null ?
                 NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId()) :
-                Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), new Predicate<CloudPlayer>() {
-                    @Override
-                    public boolean test(CloudPlayer cloudPlayer) {
-                        return cloudPlayer.getName().equalsIgnoreCase(networkConnectionInfo.getName());
-                    }
-                });
+                Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()));
 
         if (cloudPlayer != null)
             if (cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()))

@@ -13,8 +13,6 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 
-import java.util.function.Predicate;
-
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
     @Override
@@ -25,12 +23,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
                     for (HostAndPort hostAndPort : node.getListeners()) {
                         if (hostAndPort.getPort() == channel.getServerAddress().getPort() &&
                                 hostAndPort.getHost().equals(channel.getServerAddress().getHost())) {
-                            IClusterNodeServer nodeServer = Iterables.first(CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers(), new Predicate<IClusterNodeServer>() {
-                                @Override
-                                public boolean test(IClusterNodeServer clusterNodeServer) {
-                                    return clusterNodeServer.getNodeInfo().getUniqueId().equals(node.getUniqueId());
-                                }
-                            });
+                            IClusterNodeServer nodeServer = Iterables.first(CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers(), clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId().equals(node.getUniqueId()));
 
                             if (nodeServer != null && nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
                                 nodeServer.setChannel(channel);

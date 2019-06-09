@@ -58,27 +58,27 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
         return this.connected;
     }
 
-    public ServiceLifeCycle getLifeCycle() {
-        return this.lifeCycle;
-    }
-
-    public ProcessSnapshot getProcessSnapshot() {
-        return this.processSnapshot;
-    }
-
-    public ServiceConfiguration getConfiguration() {
-        return this.configuration;
-    }
-
     public void setConnected(boolean connected) {
         this.connected = connected;
+    }
+
+    public ServiceLifeCycle getLifeCycle() {
+        return this.lifeCycle;
     }
 
     public void setLifeCycle(ServiceLifeCycle lifeCycle) {
         this.lifeCycle = lifeCycle;
     }
 
+    public ProcessSnapshot getProcessSnapshot() {
+        return this.processSnapshot;
+    }
+
     public void setProcessSnapshot(ProcessSnapshot processSnapshot) {
         this.processSnapshot = processSnapshot;
+    }
+
+    public ServiceConfiguration getConfiguration() {
+        return this.configuration;
     }
 }

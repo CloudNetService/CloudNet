@@ -111,11 +111,11 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         return this.eventClass;
     }
 
-    public File getSavingRecordsDirectory() {
-        return this.savingRecordsDirectory;
-    }
-
     public void setEventClass(Class<? extends Event> eventClass) {
         this.eventClass = eventClass;
+    }
+
+    public File getSavingRecordsDirectory() {
+        return this.savingRecordsDirectory;
     }
 }

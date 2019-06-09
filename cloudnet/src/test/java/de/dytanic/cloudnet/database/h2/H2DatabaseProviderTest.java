@@ -10,8 +10,6 @@ import org.junit.Test;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 
 public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
@@ -59,22 +57,12 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
         Assert.assertEquals(29, database.get(new JsonDocument("age", 20).append("name", "Luzifer")).size());
 
         AtomicInteger counter = new AtomicInteger();
-        database.iterate(new BiConsumer<String, JsonDocument>() {
-            @Override
-            public void accept(String s, JsonDocument strings) {
-                counter.incrementAndGet();
-            }
-        });
+        database.iterate((s, strings) -> counter.incrementAndGet());
         Assert.assertEquals(100, counter.get());
 
-        Assert.assertEquals(3, database.filter(new BiPredicate<String, JsonDocument>() {
-            @Override
-            public boolean test(String s, JsonDocument strings) {
-                return s.equalsIgnoreCase("10") ||
-                        s.equalsIgnoreCase("14") ||
-                        s.equalsIgnoreCase("16");
-            }
-        }).size());
+        Assert.assertEquals(3, database.filter((s, strings) -> s.equalsIgnoreCase("10") ||
+                s.equalsIgnoreCase("14") ||
+                s.equalsIgnoreCase("16")).size());
 
         Assert.assertTrue(database.delete("10"));
         Assert.assertEquals(99, database.documents().size());

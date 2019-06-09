@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.signs;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -12,7 +11,6 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public abstract class AbstractSignManagement {
 
@@ -70,12 +68,7 @@ public abstract class AbstractSignManagement {
                 SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
                 new byte[0],
-                new Function<Pair<JsonDocument, byte[]>, Collection<Sign>>() {
-                    @Override
-                    public Collection<Sign> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("signs", SignConstants.COLLECTION_SIGNS);
-                    }
-                }
+                documentPair -> documentPair.getFirst().get("signs", SignConstants.COLLECTION_SIGNS)
         );
 
         try {

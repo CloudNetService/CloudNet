@@ -20,7 +20,6 @@ import lombok.ToString;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public final class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
@@ -151,12 +150,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public Collection<IHttpHandler> getHttpHandlers() {
-        return Iterables.map(this.registeredHandlers, new Function<HttpHandlerEntry, IHttpHandler>() {
-            @Override
-            public IHttpHandler apply(HttpHandlerEntry httpHandlerEntry) {
-                return httpHandlerEntry.httpHandler;
-            }
-        });
+        return Iterables.map(this.registeredHandlers, httpHandlerEntry -> httpHandlerEntry.httpHandler);
     }
 
     @Override

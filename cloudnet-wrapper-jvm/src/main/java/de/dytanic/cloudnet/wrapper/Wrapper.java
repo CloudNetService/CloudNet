@@ -39,7 +39,6 @@ import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
 import de.dytanic.cloudnet.wrapper.runtime.RuntimeApplicationClassLoader;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -101,12 +100,7 @@ public final class Wrapper extends CloudNetDriver {
      * The single task thread of the scheduler of the wrapper application
      */
     private final Thread mainThread = Thread.currentThread();
-    private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = new Function<Pair<JsonDocument, byte[]>, Void>() {
-        @Override
-        public Void apply(Pair<JsonDocument, byte[]> documentPair) {
-            return null;
-        }
-    };
+    private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
     /*= ---------------------------------------------------------- =*/
     /**
@@ -454,12 +448,7 @@ public final class Wrapper extends CloudNetDriver {
         sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "restart_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot),
                 null,
-                new Function<Pair<JsonDocument, byte[]>, Object>() {
-                    @Override
-                    public Object apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return null;
-                    }
-                }
+                documentPair -> null
         );
     }
 
@@ -476,12 +465,7 @@ public final class Wrapper extends CloudNetDriver {
         sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot),
                 null,
-                new Function<Pair<JsonDocument, byte[]>, Object>() {
-                    @Override
-                    public Object apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return null;
-                    }
-                }
+                documentPair -> null
         );
     }
 
@@ -500,12 +484,7 @@ public final class Wrapper extends CloudNetDriver {
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot)
                         .append("command", command),
                 null,
-                new Function<Pair<JsonDocument, byte[]>, Object>() {
-                    @Override
-                    public Object apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return null;
-                    }
-                }
+                documentPair -> null
         );
     }
 
@@ -1315,13 +1294,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine").append("commandLine", commandLine), null,
-                new Function<Pair<JsonDocument, byte[]>, String[]>() {
-                    @Override
-                    public String[] apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
+                }.getType()));
     }
 
     /**
@@ -1336,13 +1310,8 @@ public final class Wrapper extends CloudNetDriver {
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine_on_node")
                         .append("nodeUniqueId", nodeUniqueId)
                         .append("commandLine", commandLine), null,
-                new Function<Pair<JsonDocument, byte[]>, String[]>() {
-                    @Override
-                    public String[] apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
+                }.getType()));
     }
 
     /**
@@ -1357,13 +1326,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1378,13 +1342,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1417,13 +1376,8 @@ public final class Wrapper extends CloudNetDriver {
                         .append("processConfiguration", processConfiguration)
                         .append("port", port),
                 null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1459,13 +1413,8 @@ public final class Wrapper extends CloudNetDriver {
                         .append("processConfiguration", processConfiguration)
                         .append("port", port),
                 null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>() {
-                    @Override
-                    public Collection<ServiceInfoSnapshot> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                }.getType()));
     }
 
     /**
@@ -1483,13 +1432,8 @@ public final class Wrapper extends CloudNetDriver {
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_to_cloud_service")
                         .append("uniqueId", uniqueId)
                         .append("commandLine", commandLine), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1507,13 +1451,8 @@ public final class Wrapper extends CloudNetDriver {
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_template_to_cloud_service")
                         .append("uniqueId", uniqueId)
                         .append("serviceTemplate", serviceTemplate), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1531,13 +1470,8 @@ public final class Wrapper extends CloudNetDriver {
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_remote_inclusion_to_cloud_service")
                         .append("uniqueId", uniqueId)
                         .append("serviceRemoteInclusion", serviceRemoteInclusion), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1555,13 +1489,8 @@ public final class Wrapper extends CloudNetDriver {
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_deployment_to_cloud_service")
                         .append("uniqueId", uniqueId)
                         .append("serviceDeployment", serviceDeployment), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1577,13 +1506,8 @@ public final class Wrapper extends CloudNetDriver {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service")
                         .append("uniqueId", uniqueId), null,
-                new Function<Pair<JsonDocument, byte[]>, Queue<String>>() {
-                    @Override
-                    public Queue<String> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
+                }.getType()));
     }
 
     /**
@@ -1641,13 +1565,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_as_uuid"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<UUID>>() {
-                    @Override
-                    public Collection<UUID> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceUniqueIds", new TypeToken<Collection<UUID>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceUniqueIds", new TypeToken<Collection<UUID>>() {
+                }.getType()));
     }
 
     /**
@@ -1662,12 +1581,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudService_by_name").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE));
     }
 
     /**
@@ -1680,13 +1594,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>() {
-                    @Override
-                    public Collection<ServiceInfoSnapshot> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                }.getType()));
     }
 
     /**
@@ -1699,13 +1608,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_started"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>() {
-                    @Override
-                    public Collection<ServiceInfoSnapshot> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                }.getType()));
     }
 
     /**
@@ -1720,13 +1624,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_taskName").append("taskName", taskName), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>() {
-                    @Override
-                    public Collection<ServiceInfoSnapshot> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                }.getType()));
     }
 
     /**
@@ -1741,13 +1640,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_group").append("group", group), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>() {
-                    @Override
-                    public Collection<ServiceInfoSnapshot> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                }.getType()));
     }
 
     /**
@@ -1760,12 +1654,7 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Integer> getServicesCountAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count"), null,
-                new Function<Pair<JsonDocument, byte[]>, Integer>() {
-                    @Override
-                    public Integer apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().getInt("servicesCount");
-                    }
-                });
+                documentPair -> documentPair.getFirst().getInt("servicesCount"));
     }
 
     /**
@@ -1780,12 +1669,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_group").append("group", group), null,
-                new Function<Pair<JsonDocument, byte[]>, Integer>() {
-                    @Override
-                    public Integer apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().getInt("servicesCount");
-                    }
-                });
+                documentPair -> documentPair.getFirst().getInt("servicesCount"));
     }
 
     /**
@@ -1800,12 +1684,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_task").append("taskName", taskName), null,
-                new Function<Pair<JsonDocument, byte[]>, Integer>() {
-                    @Override
-                    public Integer apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().getInt("servicesCount");
-                    }
-                });
+                documentPair -> documentPair.getFirst().getInt("servicesCount"));
     }
 
     /**
@@ -1820,13 +1699,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_uniqueId").append("uniqueId", uniqueId), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                    @Override
-                    public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -1839,13 +1713,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_permanent_serviceTasks"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceTask>>() {
-                    @Override
-                    public Collection<ServiceTask> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceTasks", new TypeToken<Collection<ServiceTask>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceTasks", new TypeToken<Collection<ServiceTask>>() {
+                }.getType()));
     }
 
     /**
@@ -1860,13 +1729,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_service_task").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, ServiceTask>() {
-                    @Override
-                    public ServiceTask apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceTask", new TypeToken<ServiceTask>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceTask", new TypeToken<ServiceTask>() {
+                }.getType()));
     }
 
     /**
@@ -1881,13 +1745,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_service_task_present").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, Boolean>() {
-                    @Override
-                    public Boolean apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("result", new TypeToken<Boolean>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
+                }.getType()));
     }
 
     /**
@@ -1900,13 +1759,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_groupConfigurations"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<GroupConfiguration>>() {
-                    @Override
-                    public Collection<GroupConfiguration> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("groupConfigurations", new TypeToken<Collection<GroupConfiguration>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("groupConfigurations", new TypeToken<Collection<GroupConfiguration>>() {
+                }.getType()));
     }
 
     /**
@@ -1921,13 +1775,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_group_configuration").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, GroupConfiguration>() {
-                    @Override
-                    public GroupConfiguration apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("groupConfiguration", new TypeToken<GroupConfiguration>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("groupConfiguration", new TypeToken<GroupConfiguration>() {
+                }.getType()));
     }
 
     /**
@@ -1942,13 +1791,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_group_configuration_present").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, Boolean>() {
-                    @Override
-                    public Boolean apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("result", new TypeToken<Boolean>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
+                }.getType()));
     }
 
     /**
@@ -1961,13 +1805,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<NetworkClusterNode[]> getNodesAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_nodes"), null,
-                new Function<Pair<JsonDocument, byte[]>, NetworkClusterNode[]>() {
-                    @Override
-                    public NetworkClusterNode[] apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("nodes", new TypeToken<NetworkClusterNode[]>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("nodes", new TypeToken<NetworkClusterNode[]>() {
+                }.getType()));
     }
 
     /**
@@ -1982,13 +1821,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_by_uniqueId").append("uniqueId", uniqueId), null,
-                new Function<Pair<JsonDocument, byte[]>, NetworkClusterNode>() {
-                    @Override
-                    public NetworkClusterNode apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("clusterNode", new TypeToken<NetworkClusterNode>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("clusterNode", new TypeToken<NetworkClusterNode>() {
+                }.getType()));
     }
 
     /**
@@ -2001,13 +1835,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_info_snapshots"), null,
-                new Function<Pair<JsonDocument, byte[]>, NetworkClusterNodeInfoSnapshot[]>() {
-                    @Override
-                    public NetworkClusterNodeInfoSnapshot[] apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("nodeInfoSnapshots", new TypeToken<NetworkClusterNodeInfoSnapshot[]>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("nodeInfoSnapshots", new TypeToken<NetworkClusterNodeInfoSnapshot[]>() {
+                }.getType()));
     }
 
     /**
@@ -2022,13 +1851,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_info_snapshot_by_uniqueId").append("uniqueId", uniqueId), null,
-                new Function<Pair<JsonDocument, byte[]>, NetworkClusterNodeInfoSnapshot>() {
-                    @Override
-                    public NetworkClusterNodeInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("clusterNodeInfoSnapshot", new TypeToken<NetworkClusterNodeInfoSnapshot>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("clusterNodeInfoSnapshot", new TypeToken<NetworkClusterNodeInfoSnapshot>() {
+                }.getType()));
     }
 
     /**
@@ -2041,13 +1865,8 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_local_template_storage_templates"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceTemplate>>() {
-                    @Override
-                    public Collection<ServiceTemplate> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
+                }.getType()));
     }
 
     /**
@@ -2062,13 +1881,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloud_services_with_environment").append("serviceEnvironment", environment), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>() {
-                    @Override
-                    public Collection<ServiceInfoSnapshot> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                }.getType()));
     }
 
     /**
@@ -2083,13 +1897,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_template_storage_templates").append("serviceName", serviceName), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<ServiceTemplate>>() {
-                    @Override
-                    public Collection<ServiceTemplate> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
+                }.getType()));
     }
 
     /**
@@ -2105,13 +1914,8 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_as_permission_user").append("uniqueId", uniqueId).append("commandLine", commandLine), null,
-                new Function<Pair<JsonDocument, byte[]>, Pair<Boolean, String[]>>() {
-                    @Override
-                    public Pair<Boolean, String[]> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("executionResponse", new TypeToken<Pair<Boolean, String[]>>() {
-                        }.getType());
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("executionResponse", new TypeToken<Pair<Boolean, String[]>>() {
+                }.getType()));
     }
 
     /**
@@ -2140,12 +1944,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_user_with_uuid").append("uniqueId", uniqueId), null,
-                new Function<Pair<JsonDocument, byte[]>, Boolean>() {
-                    @Override
-                    public Boolean apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().getBoolean("result");
-                    }
-                });
+                documentPair -> documentPair.getFirst().getBoolean("result"));
     }
 
     /**
@@ -2160,12 +1959,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_user_with_name").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, Boolean>() {
-                    @Override
-                    public Boolean apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().getBoolean("result");
-                    }
-                });
+                documentPair -> documentPair.getFirst().getBoolean("result"));
     }
 
     /**
@@ -2180,12 +1974,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_user_by_uuid").append("uniqueId", uniqueId), null,
-                new Function<Pair<JsonDocument, byte[]>, IPermissionUser>() {
-                    @Override
-                    public IPermissionUser apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("permissionUser", PermissionUser.TYPE);
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("permissionUser", PermissionUser.TYPE));
     }
 
     /**
@@ -2200,15 +1989,12 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_user_by_name").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, List<IPermissionUser>>() {
-                    @Override
-                    public List<IPermissionUser> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        List<IPermissionUser> collection = Iterables.newArrayList();
-                        collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
-                        }.getType()));
+                documentPair -> {
+                    List<IPermissionUser> collection = Iterables.newArrayList();
+                    collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
+                    }.getType()));
 
-                        return collection;
-                    }
+                    return collection;
                 });
     }
 
@@ -2222,15 +2008,12 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<IPermissionUser>> getUsersAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_users"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<IPermissionUser>>() {
-                    @Override
-                    public Collection<IPermissionUser> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        Collection<IPermissionUser> collection = Iterables.newArrayList();
-                        collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
-                        }.getType()));
+                documentPair -> {
+                    Collection<IPermissionUser> collection = Iterables.newArrayList();
+                    collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
+                    }.getType()));
 
-                        return collection;
-                    }
+                    return collection;
                 });
     }
 
@@ -2246,15 +2029,12 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_users_by_group").append("group", group), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<IPermissionUser>>() {
-                    @Override
-                    public List<IPermissionUser> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        List<IPermissionUser> collection = Iterables.newArrayList();
-                        collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
-                        }.getType()));
+                documentPair -> {
+                    List<IPermissionUser> collection = Iterables.newArrayList();
+                    collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
+                    }.getType()));
 
-                        return collection;
-                    }
+                    return collection;
                 });
     }
 
@@ -2270,12 +2050,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_group").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, Boolean>() {
-                    @Override
-                    public Boolean apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().getBoolean("result");
-                    }
-                });
+                documentPair -> documentPair.getFirst().getBoolean("result"));
     }
 
     /**
@@ -2290,12 +2065,7 @@ public final class Wrapper extends CloudNetDriver {
 
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_group").append("name", name), null,
-                new Function<Pair<JsonDocument, byte[]>, IPermissionGroup>() {
-                    @Override
-                    public IPermissionGroup apply(Pair<JsonDocument, byte[]> documentPair) {
-                        return documentPair.getFirst().get("permissionGroup", PermissionGroup.TYPE);
-                    }
-                });
+                documentPair -> documentPair.getFirst().get("permissionGroup", PermissionGroup.TYPE));
     }
 
     /*= ------------------------------------------------------------------------ =*/
@@ -2310,15 +2080,12 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
         return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_groups"), null,
-                new Function<Pair<JsonDocument, byte[]>, Collection<IPermissionGroup>>() {
-                    @Override
-                    public Collection<IPermissionGroup> apply(Pair<JsonDocument, byte[]> documentPair) {
-                        List<IPermissionGroup> collection = Iterables.newArrayList();
-                        collection.addAll(documentPair.getFirst().get("permissionGroups", new TypeToken<List<PermissionGroup>>() {
-                        }.getType(), Iterables.newArrayList()));
+                documentPair -> {
+                    List<IPermissionGroup> collection = Iterables.newArrayList();
+                    collection.addAll(documentPair.getFirst().get("permissionGroups", new TypeToken<List<PermissionGroup>>() {
+                    }.getType(), Iterables.newArrayList()));
 
-                        return collection;
-                    }
+                    return collection;
                 });
     }
 
@@ -2391,12 +2158,7 @@ public final class Wrapper extends CloudNetDriver {
                         ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
-                        Iterables.map(Thread.getAllStackTraces().keySet(), new Function<Thread, ThreadSnapshot>() {
-                            @Override
-                            public ThreadSnapshot apply(Thread thread) {
-                                return new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority());
-                            }
-                        }),
+                        Iterables.map(Thread.getAllStackTraces().keySet(), thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority())),
                         CPUUsageResolver.getProcessCPUUsage()
                 ),
                 this.getServiceConfiguration()
@@ -2486,14 +2248,11 @@ public final class Wrapper extends CloudNetDriver {
         File dir = new File(System.getProperty("cloudnet.module.dir", ".wrapper/modules"));
         dir.mkdirs();
 
-        File[] files = dir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                String lowerName = pathname.getName().toLowerCase();
-                return !pathname.isDirectory() && lowerName.endsWith(".jar") ||
-                        lowerName.endsWith(".war") ||
-                        lowerName.endsWith(".zip");
-            }
+        File[] files = dir.listFiles(pathname -> {
+            String lowerName = pathname.getName().toLowerCase();
+            return !pathname.isDirectory() && lowerName.endsWith(".jar") ||
+                    lowerName.endsWith(".war") ||
+                    lowerName.endsWith(".zip");
         });
 
         if (files != null)
@@ -2517,13 +2276,10 @@ public final class Wrapper extends CloudNetDriver {
         while (entry == null && index < preStartApplicationEvent.getEnvironmentType().getEnvironments().length) {
             final int i = index;
 
-            entry = this.find(files, new Predicate<File>() {
-                @Override
-                public boolean test(File file) {
-                    String lowerName = file.getName().toLowerCase();
-                    return file.exists() && !file.isDirectory() && lowerName.endsWith(".jar") &&
-                            lowerName.contains(preStartApplicationEvent.getEnvironmentType().getEnvironments()[i].getName().toLowerCase());
-                }
+            entry = this.find(files, file -> {
+                String lowerName = file.getName().toLowerCase();
+                return file.exists() && !file.isDirectory() && lowerName.endsWith(".jar") &&
+                        lowerName.contains(preStartApplicationEvent.getEnvironmentType().getEnvironments()[i].getName().toLowerCase());
             });
 
             environment = preStartApplicationEvent.getEnvironmentType().getEnvironments()[i];
@@ -2570,18 +2326,13 @@ public final class Wrapper extends CloudNetDriver {
 
         this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, manifest, arguments));
 
-        Thread applicationThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + ":" + serviceEnvironment + "\n");
-                    method.invoke(null, new Object[]{arguments.toArray(new String[0])});
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        Thread applicationThread = new Thread(() -> {
+            try {
+                logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + ":" + serviceEnvironment + "\n");
+                method.invoke(null, new Object[]{arguments.toArray(new String[0])});
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
         }, "Application-Thread");
 
         applicationThread.setContextClassLoader(appClassLoader);

@@ -25,28 +25,28 @@ public class ModuleUpdateServiceConfiguration {
         return this.autoInstall;
     }
 
-    public String getUrl() {
-        return this.url;
-    }
-
-    public String getCurrentVersion() {
-        return this.currentVersion;
-    }
-
-    public String getInfoMessage() {
-        return this.infoMessage;
-    }
-
     public void setAutoInstall(boolean autoInstall) {
         this.autoInstall = autoInstall;
+    }
+
+    public String getUrl() {
+        return this.url;
     }
 
     public void setUrl(String url) {
         this.url = url;
     }
 
+    public String getCurrentVersion() {
+        return this.currentVersion;
+    }
+
     public void setCurrentVersion(String currentVersion) {
         this.currentVersion = currentVersion;
+    }
+
+    public String getInfoMessage() {
+        return this.infoMessage;
     }
 
     public void setInfoMessage(String infoMessage) {

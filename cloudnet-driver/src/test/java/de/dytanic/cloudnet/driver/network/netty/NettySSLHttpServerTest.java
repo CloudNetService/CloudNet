@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
@@ -9,7 +8,10 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,24 +35,12 @@ public class NettySSLHttpServerTest {
                 selfSignedCertificate.privateKey()
         ))) {
             Assert.assertTrue(httpServer.isSslEnabled());
-            Assert.assertTrue(httpServer.registerHandler("/test/power", new IHttpHandler() {
+            Assert.assertTrue(httpServer.registerHandler("/test/power", (IHttpHandler) (path, context) -> context.response()
+                    .header("Content-Type", "text/plain")
+                    .body("Data-Set")
+                    .statusCode(200)).addListener(32462));
 
-                @Override
-                public void handle(String path, IHttpContext context) throws Exception {
-                    context.response()
-                            .header("Content-Type", "text/plain")
-                            .body("Data-Set")
-                            .statusCode(200);
-                }
-
-            }).addListener(32462));
-
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String s, SSLSession sslSession) {
-                    return true;
-                }
-            });
+            HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
 
             TrustManager[] trustManagers = new TrustManager[]{
                     new X509TrustManager() {

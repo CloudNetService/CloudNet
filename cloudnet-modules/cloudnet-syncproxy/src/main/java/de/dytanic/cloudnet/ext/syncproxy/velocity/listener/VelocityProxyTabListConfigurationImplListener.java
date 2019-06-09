@@ -14,8 +14,8 @@ public final class VelocityProxyTabListConfigurationImplListener {
     public void handle(PostLoginEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
-                .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null)
+        if (syncProxyTabListConfiguration != null && !VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
+                .getPluginManager().getPlugin("cloudnet_bridge_velocity").isPresent())
             Wrapper.getInstance().publishServiceInfoUpdate();
     }
 
@@ -31,8 +31,8 @@ public final class VelocityProxyTabListConfigurationImplListener {
     public void handle(DisconnectEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
-                .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null)
+        if (syncProxyTabListConfiguration != null && !VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
+                .getPluginManager().getPlugin("cloudnet_bridge_velocity").isPresent())
             Wrapper.getInstance().publishServiceInfoUpdate();
     }
 }

@@ -30,36 +30,36 @@ final class BungeeCloudNetPlayerInfo {
         return this.uniqueId;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public String getServer() {
-        return this.server;
-    }
-
-    public int getPing() {
-        return this.ping;
-    }
-
-    public HostAndPort getAddress() {
-        return this.address;
-    }
-
     public void setUniqueId(UUID uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getServer() {
+        return this.server;
+    }
+
     public void setServer(String server) {
         this.server = server;
     }
 
+    public int getPing() {
+        return this.ping;
+    }
+
     public void setPing(int ping) {
         this.ping = ping;
+    }
+
+    public HostAndPort getAddress() {
+        return this.address;
     }
 
     public void setAddress(HostAndPort address) {

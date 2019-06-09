@@ -17,21 +17,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     private volatile V value;
 
     private volatile boolean wait, done, cancelled;
-
-    public void setWait(boolean wait) {
-        this.wait = wait;
-    }
-
-    public void setDone(boolean done) {
-        this.done = done;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
     private long delay, repeat, repeats, delayedTimeStamp;
-
     private Callable<V> callable;
 
     public DefaultScheduledTask(Callable<V> callable, long delay, long repeat, long repeats, TimeUnit timeUnit) {
@@ -76,14 +62,26 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
         return wait;
     }
 
+    public void setWait(boolean wait) {
+        this.wait = wait;
+    }
+
     @Override
     public boolean isDone() {
         return done;
     }
 
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
     @Override
     public boolean isCancelled() {
         return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 
     public long getDelay() {
@@ -158,7 +156,6 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
         return this.value;
     }
-
 
 
     @Override

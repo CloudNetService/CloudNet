@@ -105,14 +105,11 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     public Collection<String> getDatabaseNames() {
         return executeQuery(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
-                new IThrowableCallback<ResultSet, Collection<String>>() {
-                    @Override
-                    public Collection<String> call(ResultSet resultSet) throws Throwable {
-                        Collection<String> collection = Iterables.newArrayList();
-                        while (resultSet.next()) collection.add(resultSet.getString("table_name"));
+                resultSet -> {
+                    Collection<String> collection = Iterables.newArrayList();
+                    while (resultSet.next()) collection.add(resultSet.getString("table_name"));
 
-                        return collection;
-                    }
+                    return collection;
                 }
         );
     }

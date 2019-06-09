@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.*;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
@@ -12,7 +11,6 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public final class NettySSLNetworkClientServerTest implements INetworkChannelHandler {
@@ -38,20 +36,12 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
         Assert.assertTrue(server.isSslEnabled());
         Assert.assertTrue(client.isSslEnabled());
 
-        ITask<String> task = new ListenableTask<>(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return "Hello, world!";
-            }
-        });
+        ITask<String> task = new ListenableTask<>(() -> "Hello, world!");
 
-        server.getPacketRegistry().addListener(1, new IPacketListener() {
-            @Override
-            public void handle(INetworkChannel channel, IPacket packet) throws Exception {
-                if (packet.getHeader().contains("hello") && packet.getHeader().getString("hello").equalsIgnoreCase("Unit test") &&
-                        new String(packet.getBody()).equalsIgnoreCase("Test Test Test 1 2 4"))
-                    task.call();
-            }
+        server.getPacketRegistry().addListener(1, (IPacketListener) (channel, packet) -> {
+            if (packet.getHeader().contains("hello") && packet.getHeader().getString("hello").equalsIgnoreCase("Unit test") &&
+                    new String(packet.getBody()).equalsIgnoreCase("Test Test Test 1 2 4"))
+                task.call();
         });
 
         HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 34052);

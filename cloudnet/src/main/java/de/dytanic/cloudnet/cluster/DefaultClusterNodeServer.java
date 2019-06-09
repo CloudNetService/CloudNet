@@ -88,13 +88,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine")
                                 .append("commandLine", commandLine)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, String[]>() {
-                            @Override
-                            public String[] apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, String[]>) documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -116,13 +111,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                            @Override
-                            public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -139,13 +129,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                            @Override
-                            public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -180,13 +165,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("processConfiguration", processConfiguration)
                                 .append("port", port),
                         new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                            @Override
-                            public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -225,13 +205,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("processConfiguration", processConfiguration)
                                 .append("port", port),
                         new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>() {
-                            @Override
-                            public Collection<ServiceInfoSnapshot> apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -252,13 +227,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("uniqueId", uniqueId)
                                 .append("commandLine", commandLine)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                            @Override
-                            public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -278,13 +248,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("uniqueId", uniqueId)
                                 .append("serviceTemplate", serviceTemplate)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                            @Override
-                            public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -304,13 +269,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("uniqueId", uniqueId)
                                 .append("serviceRemoteInclusion", serviceRemoteInclusion)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                            @Override
-                            public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -330,13 +290,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("uniqueId", uniqueId)
                                 .append("serviceDeployment", serviceDeployment)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>() {
-                            @Override
-                            public ServiceInfoSnapshot apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -355,13 +310,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service")
                                 .append("uniqueId", uniqueId)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Queue<String>>() {
-                            @Override
-                            public Queue<String> apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
-                                }.getType());
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, Queue<String>>) documentPair -> documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
+                        }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -381,12 +331,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "set_service_life_cycle")
                                 .append("serviceInfoSnapshot", serviceInfoSnapshot).append("lifeCycle", lifeCycle)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Void>() {
-                            @Override
-                            public Void apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return null;
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -403,12 +348,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "restart_cloud_service")
                                 .append("serviceInfoSnapshot", serviceInfoSnapshot)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Void>() {
-                            @Override
-                            public Void apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return null;
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -425,12 +365,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot),
                         new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Object>() {
-                            @Override
-                            public Object apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return null;
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -449,12 +384,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot)
                                 .append("command", command),
                         new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Object>() {
-                            @Override
-                            public Object apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return null;
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -471,12 +401,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_inclusions")
                                 .append("uniqueId", uniqueId)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Void>() {
-                            @Override
-                            public Void apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return null;
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -492,12 +417,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_templates")
                                 .append("uniqueId", uniqueId)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Void>() {
-                            @Override
-                            public Void apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return null;
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -513,12 +433,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
                                 .append("uniqueId", uniqueId)
                         , new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Void>() {
-                            @Override
-                            public Void apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return null;
-                            }
-                        }).get(5, TimeUnit.SECONDS);
+                        (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -536,12 +451,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_reserved_task_ids")
                                 .append("task", task),
                         new byte[0],
-                        new Function<Pair<JsonDocument, byte[]>, Collection<Integer>>() {
-                            @Override
-                            public Collection<Integer> apply(Pair<JsonDocument, byte[]> documentPair) {
-                                return documentPair.getFirst().get("taskIds", TYPE_COLLECTION_INTEGER);
-                            }
-                        }
+                        (Function<Pair<JsonDocument, byte[]>, Collection<Integer>>) documentPair -> documentPair.getFirst().get("taskIds", TYPE_COLLECTION_INTEGER)
                 ).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
@@ -567,20 +477,20 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         return this.nodeInfoSnapshot;
     }
 
-    public NetworkClusterNode getNodeInfo() {
-        return this.nodeInfo;
-    }
-
-    public INetworkChannel getChannel() {
-        return this.channel;
-    }
-
     public void setNodeInfoSnapshot(NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
         this.nodeInfoSnapshot = nodeInfoSnapshot;
     }
 
+    public NetworkClusterNode getNodeInfo() {
+        return this.nodeInfo;
+    }
+
     public void setNodeInfo(NetworkClusterNode nodeInfo) {
         this.nodeInfo = nodeInfo;
+    }
+
+    public INetworkChannel getChannel() {
+        return this.channel;
     }
 
     public void setChannel(INetworkChannel channel) {

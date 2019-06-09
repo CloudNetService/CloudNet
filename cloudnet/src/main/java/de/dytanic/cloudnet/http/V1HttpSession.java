@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Predicate;
 
 public final class V1HttpSession {
 
@@ -34,12 +33,7 @@ public final class V1HttpSession {
         if (credentials.length != 2) return false;
 
         List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUser(credentials[0]);
-        IPermissionUser permissionUser = Iterables.first(permissionUsers, new Predicate<IPermissionUser>() {
-            @Override
-            public boolean test(IPermissionUser iPermissionUser) {
-                return iPermissionUser.checkPassword(credentials[1]);
-            }
-        });
+        IPermissionUser permissionUser = Iterables.first(permissionUsers, iPermissionUser -> iPermissionUser.checkPassword(credentials[1]));
 
         if (permissionUser == null) return false;
 

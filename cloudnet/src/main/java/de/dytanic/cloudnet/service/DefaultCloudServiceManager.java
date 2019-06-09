@@ -15,7 +15,6 @@ import de.dytanic.cloudnet.util.PortValidator;
 
 import java.io.File;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
@@ -95,12 +94,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public ServiceTask getServiceTask(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.getServiceTasks(), new Predicate<ServiceTask>() {
-            @Override
-            public boolean test(ServiceTask serviceTask) {
-                return serviceTask.getName().equalsIgnoreCase(name);
-            }
-        });
+        return Iterables.first(this.getServiceTasks(), serviceTask -> serviceTask.getName().equalsIgnoreCase(name));
     }
 
     @Override
@@ -127,12 +121,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public GroupConfiguration getGroupConfiguration(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.getGroupConfigurations(), new Predicate<GroupConfiguration>() {
-            @Override
-            public boolean test(GroupConfiguration groupConfiguration) {
-                return groupConfiguration.getName().equalsIgnoreCase(name);
-            }
-        });
+        return Iterables.first(this.getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(name));
     }
 
     @Override
@@ -171,12 +160,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public boolean isGroupConfigurationPresent(String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.first(this.getGroupConfigurations(), new Predicate<GroupConfiguration>() {
-            @Override
-            public boolean test(GroupConfiguration groupConfiguration) {
-                return groupConfiguration.getName().equalsIgnoreCase(group);
-            }
-        }) != null;
+        return Iterables.first(this.getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(group)) != null;
     }
 
     @Override
@@ -345,12 +329,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public Collection<ICloudService> getCloudServices(String taskName) {
         Validate.checkNotNull(taskName);
 
-        return Iterables.filter(this.cloudServices.values(), new Predicate<ICloudService>() {
-            @Override
-            public boolean test(ICloudService iCloudService) {
-                return iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName);
-            }
-        });
+        return Iterables.filter(this.cloudServices.values(), iCloudService -> iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName));
     }
 
     @Override
@@ -383,24 +362,14 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(String taskName) {
         Validate.checkNotNull(taskName);
 
-        return this.getServiceInfoSnapshots(new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName);
-            }
-        });
+        return this.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName));
     }
 
     @Override
     public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return this.getServiceInfoSnapshots(new Predicate<ServiceInfoSnapshot>() {
-            @Override
-            public boolean test(ServiceInfoSnapshot serviceInfoSnapshot) {
-                return serviceInfoSnapshot.getServiceId().getEnvironment() == environment;
-            }
-        });
+        return this.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getEnvironment() == environment);
     }
 
     @Override
@@ -459,12 +428,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     /*= ------------------------------------------------------- =*/
 
     private int checkAndReplacePort(int port) {
-        Collection<Integer> ports = Iterables.map(this.cloudServices.values(), new Function<ICloudService, Integer>() {
-            @Override
-            public Integer apply(ICloudService iCloudService) {
-                return iCloudService.getServiceConfiguration().getPort();
-            }
-        });
+        Collection<Integer> ports = Iterables.map(this.cloudServices.values(), iCloudService -> iCloudService.getServiceConfiguration().getPort());
 
         while (ports.contains(port))
             port++;

@@ -31,8 +31,7 @@ public final class Iterables {
     public static <T> ArrayList<T> newArrayList(T[] entries) {
         ArrayList<T> list = new ArrayList<>(entries.length);
 
-        for (T entry : entries)
-            list.add(entry);
+        list.addAll(Arrays.asList(entries));
 
         return list;
     }
@@ -120,11 +119,8 @@ public final class Iterables {
     public static void forEach(Properties properties, Consumer<String> consumer) {
         if (properties == null || consumer == null) return;
 
-        forEach(properties.propertyNames(), new Consumer() {
-            @Override
-            public void accept(Object o) {
-                if (o != null) consumer.accept(o.toString());
-            }
+        forEach(properties.propertyNames(), (Consumer) o -> {
+            if (o != null) consumer.accept(o.toString());
         });
     }
 
@@ -149,8 +145,7 @@ public final class Iterables {
     public static <T> void forEach(List<T> list, Consumer<T> consumer) {
         if (list == null || consumer == null) return;
 
-        for (int i = 0; i < list.size(); i++)
-            consumer.accept(list.get(i));
+        for (T t : list) consumer.accept(t);
     }
 
     /**

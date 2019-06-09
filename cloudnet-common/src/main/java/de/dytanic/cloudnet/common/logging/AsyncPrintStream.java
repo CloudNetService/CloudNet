@@ -22,11 +22,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class AsyncPrintStream extends PrintStream {
 
     static final BlockingQueue<Runnable> ASYNC_QUEUE = new LinkedBlockingQueue<>();
-
-    public static BlockingQueue<Runnable> getAsyncQueue() {
-        return ASYNC_QUEUE;
-    }
-
     private static final Thread worker = new Thread() {
 
         {
@@ -51,6 +46,10 @@ public class AsyncPrintStream extends PrintStream {
 
     public AsyncPrintStream(OutputStream out) throws UnsupportedEncodingException {
         super(out, true, StandardCharsets.UTF_8.name());
+    }
+
+    public static BlockingQueue<Runnable> getAsyncQueue() {
+        return ASYNC_QUEUE;
     }
 
     private void println0() {

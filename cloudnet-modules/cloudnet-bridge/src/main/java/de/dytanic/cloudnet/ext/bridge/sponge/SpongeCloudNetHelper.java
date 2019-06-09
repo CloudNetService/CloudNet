@@ -21,12 +21,10 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 public final class SpongeCloudNetHelper {
 
@@ -84,53 +82,42 @@ public final class SpongeCloudNetHelper {
                 .append("Incoming-Channels", Sponge.getChannelRegistrar().getRegisteredChannels(Platform.Type.CLIENT))
                 .append("Online-Mode", Sponge.getServer().getOnlineMode())
                 .append("Whitelist-Enabled", Sponge.getServer().hasWhitelist())
-                .append("Players", Iterables.map(Sponge.getServer().getOnlinePlayers(), new Function<Player, SpongeCloudNetPlayerInfo>() {
-                    @Override
-                    public SpongeCloudNetPlayerInfo apply(Player player) {
-                        Location<World> location = player.getLocation();
+                .append("Players", Iterables.map(Sponge.getServer().getOnlinePlayers(), player -> {
+                    Location<World> location = player.getLocation();
 
-                        Optional<ExperienceHolderData> holderData = player.get(ExperienceHolderData.class);
+                    Optional<ExperienceHolderData> holderData = player.get(ExperienceHolderData.class);
 
-                        return new SpongeCloudNetPlayerInfo(
-                                player.getUniqueId(),
-                                player.getName(),
-                                player.getConnection().getLatency(),
-                                player.getHealthData().health().get(),
-                                player.getHealthData().maxHealth().get(),
-                                player.saturation().get(),
-                                holderData.isPresent() ? holderData.get().level().get() : 0,
-                                new WorldPosition(
-                                        location.getX(),
-                                        location.getY(),
-                                        location.getZ(),
-                                        0F,
-                                        0F,
-                                        player.getWorld().getName()
-                                ),
-                                new HostAndPort(player.getConnection().getAddress())
-                        );
-                    }
+                    return new SpongeCloudNetPlayerInfo(
+                            player.getUniqueId(),
+                            player.getName(),
+                            player.getConnection().getLatency(),
+                            player.getHealthData().health().get(),
+                            player.getHealthData().maxHealth().get(),
+                            player.saturation().get(),
+                            holderData.isPresent() ? holderData.get().level().get() : 0,
+                            new WorldPosition(
+                                    location.getX(),
+                                    location.getY(),
+                                    location.getZ(),
+                                    0F,
+                                    0F,
+                                    player.getWorld().getName()
+                            ),
+                            new HostAndPort(player.getConnection().getAddress())
+                    );
                 }))
-                .append("Plugins", Iterables.map(Sponge.getGame().getPluginManager().getPlugins(), new Function<PluginContainer, PluginInfo>() {
-                    @Override
-                    public PluginInfo apply(PluginContainer pluginContainer) {
-                        PluginInfo pluginInfo = new PluginInfo(pluginContainer.getId(), pluginContainer.getVersion().isPresent() ? pluginContainer.getVersion().get() : null);
+                .append("Plugins", Iterables.map(Sponge.getGame().getPluginManager().getPlugins(), pluginContainer -> {
+                    PluginInfo pluginInfo = new PluginInfo(pluginContainer.getId(), pluginContainer.getVersion().isPresent() ? pluginContainer.getVersion().get() : null);
 
-                        pluginInfo.getProperties()
-                                .append("name", pluginContainer.getName())
-                                .append("authors", pluginContainer.getAuthors())
-                                .append("url", pluginContainer.getUrl().isPresent() ? pluginContainer.getUrl().get() : null)
-                                .append("description", pluginContainer.getDescription().isPresent() ? pluginContainer.getDescription().get() : null);
+                    pluginInfo.getProperties()
+                            .append("name", pluginContainer.getName())
+                            .append("authors", pluginContainer.getAuthors())
+                            .append("url", pluginContainer.getUrl().isPresent() ? pluginContainer.getUrl().get() : null)
+                            .append("description", pluginContainer.getDescription().isPresent() ? pluginContainer.getDescription().get() : null);
 
-                        return pluginInfo;
-                    }
+                    return pluginInfo;
                 }))
-                .append("Worlds", Iterables.map(Sponge.getServer().getWorlds(), new Function<World, WorldInfo>() {
-                    @Override
-                    public WorldInfo apply(World world) {
-                        return new WorldInfo(world.getUniqueId(), world.getName(), world.getDifficulty().getName(), world.getGameRules());
-                    }
-                }));
+                .append("Worlds", Iterables.map(Sponge.getServer().getWorlds(), world -> new WorldInfo(world.getUniqueId(), world.getName(), world.getDifficulty().getName(), world.getGameRules())));
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
@@ -178,7 +165,7 @@ public final class SpongeCloudNetHelper {
                 player.getHealthData().health().get(),
                 player.getHealthData().maxHealth().get(),
                 player.saturation().get(),
-                holderData.isPresent() ? holderData.get().level().get() : 0,
+                holderData.map(experienceHolderData -> experienceHolderData.level().get()).orElse(0),
                 worldPosition,
                 new HostAndPort(player.getConnection().getAddress()),
                 new NetworkServiceInfo(
@@ -193,28 +180,28 @@ public final class SpongeCloudNetHelper {
         return SpongeCloudNetHelper.apiMotd;
     }
 
-    public static String getExtra() {
-        return SpongeCloudNetHelper.extra;
-    }
-
-    public static String getState() {
-        return SpongeCloudNetHelper.state;
-    }
-
-    public static int getMaxPlayers() {
-        return SpongeCloudNetHelper.maxPlayers;
-    }
-
     public static void setApiMotd(String apiMotd) {
         SpongeCloudNetHelper.apiMotd = apiMotd;
+    }
+
+    public static String getExtra() {
+        return SpongeCloudNetHelper.extra;
     }
 
     public static void setExtra(String extra) {
         SpongeCloudNetHelper.extra = extra;
     }
 
+    public static String getState() {
+        return SpongeCloudNetHelper.state;
+    }
+
     public static void setState(String state) {
         SpongeCloudNetHelper.state = state;
+    }
+
+    public static int getMaxPlayers() {
+        return SpongeCloudNetHelper.maxPlayers;
     }
 
     public static void setMaxPlayers(int maxPlayers) {

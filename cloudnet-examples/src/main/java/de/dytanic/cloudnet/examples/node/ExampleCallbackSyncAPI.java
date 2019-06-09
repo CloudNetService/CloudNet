@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
 
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 
 public final class ExampleCallbackSyncAPI {
 
@@ -33,18 +32,13 @@ public final class ExampleCallbackSyncAPI {
     //Plugin or Wrapper send and get
 
     public ITask<Integer> getNodeCountAsync() {
+        //The callback information from node and the map to an Integer value
         return CloudNetDriver.getInstance().sendCallablePacket( //Send a packet, which has to get a message back async.
                 CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 "test_channel",
                 "get_node_count",
                 new JsonDocument(),
-                new Function<JsonDocument, Integer>() {
-                    @Override
-                    public Integer apply(JsonDocument jsonDocument) //The callback information from node and the map to an Integer value
-                    {
-                        return jsonDocument.getInt("nodeCount");
-                    }
-                }
+                jsonDocument -> jsonDocument.getInt("nodeCount")
         );
     }
 

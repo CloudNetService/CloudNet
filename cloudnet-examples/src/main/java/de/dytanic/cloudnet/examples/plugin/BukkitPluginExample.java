@@ -10,8 +10,6 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.concurrent.Callable;
-
 public final class BukkitPluginExample extends JavaPlugin {
 
     @Override
@@ -26,12 +24,8 @@ public final class BukkitPluginExample extends JavaPlugin {
 
         ServiceConfiguration serviceConfiguration = Wrapper.getInstance().getServiceConfiguration(); //The own serviceConfiguration instance
 
-        Wrapper.getInstance().runTask(new Callable<String>() { //Use the single thread scheduler by the wrapper application to run tasks which you add into the queue
-            @Override
-            public String call() throws Exception {
-                return "Hello, world";
-            }
-        }).addListener(new ITaskListener<String>() {
+        //Use the single thread scheduler by the wrapper application to run tasks which you add into the queue
+        Wrapper.getInstance().runTask(() -> "Hello, world").addListener(new ITaskListener<String>() {
             @Override
             public void onComplete(ITask<String> task, String result) {
                 Bukkit.broadcastMessage(result);

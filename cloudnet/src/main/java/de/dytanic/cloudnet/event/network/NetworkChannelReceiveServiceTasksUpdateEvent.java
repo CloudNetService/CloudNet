@@ -26,12 +26,12 @@ public final class NetworkChannelReceiveServiceTasksUpdateEvent extends NetworkE
         return this.serviceTasks;
     }
 
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
-
     public void setServiceTasks(List<ServiceTask> serviceTasks) {
         this.serviceTasks = serviceTasks;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
     }
 
     public void setCancelled(boolean cancelled) {

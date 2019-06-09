@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public final class CommandTasks extends CommandDefault implements ITabCompleter {
 
@@ -165,24 +163,14 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         }
 
         if (args[0].equalsIgnoreCase("task")) {
-            List<ServiceTask> serviceTasks = Iterables.filter(this.getCloudServiceManager().getServiceTasks(), new Predicate<ServiceTask>() {
-                @Override
-                public boolean test(ServiceTask serviceTask) {
-                    return serviceTask.getName().toLowerCase().contains(args[1].toLowerCase());
-                }
-            });
+            List<ServiceTask> serviceTasks = Iterables.filter(this.getCloudServiceManager().getServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(args[1].toLowerCase()));
 
             if (serviceTasks.isEmpty()) return;
 
             ServiceTask serviceTask;
 
             if (serviceTasks.size() > 1)
-                serviceTask = Iterables.first(this.getCloudServiceManager().getServiceTasks(), new Predicate<ServiceTask>() {
-                    @Override
-                    public boolean test(ServiceTask serviceTask) {
-                        return serviceTask.getName().equalsIgnoreCase(args[1]);
-                    }
-                });
+                serviceTask = Iterables.first(this.getCloudServiceManager().getServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
             else
                 serviceTask = serviceTasks.get(0);
 
@@ -323,12 +311,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         }
 
         if (args[0].equalsIgnoreCase("group")) {
-            GroupConfiguration groupConfiguration = Iterables.first(this.getCloudServiceManager().getGroupConfigurations(), new Predicate<GroupConfiguration>() {
-                @Override
-                public boolean test(GroupConfiguration groupConfiguration) {
-                    return groupConfiguration.getName().toLowerCase().contains(args[1].toLowerCase());
-                }
-            });
+            GroupConfiguration groupConfiguration = Iterables.first(this.getCloudServiceManager().getGroupConfigurations(), groupConfiguration1 -> groupConfiguration1.getName().toLowerCase().contains(args[1].toLowerCase()));
 
             if (groupConfiguration != null) {
                 if (args.length == 2) {
@@ -510,20 +493,10 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         else
             switch (args[0].toLowerCase()) {
                 case "group":
-                    collection.addAll(Iterables.map(this.getCloudServiceManager().getGroupConfigurations(), new Function<GroupConfiguration, String>() {
-                        @Override
-                        public String apply(GroupConfiguration groupConfiguration) {
-                            return groupConfiguration.getName();
-                        }
-                    }));
+                    collection.addAll(Iterables.map(this.getCloudServiceManager().getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName()));
                     break;
                 case "task":
-                    collection.addAll(Iterables.map(this.getCloudServiceManager().getServiceTasks(), new Function<ServiceTask, String>() {
-                        @Override
-                        public String apply(ServiceTask serviceTask) {
-                            return serviceTask.getName();
-                        }
-                    }));
+                    collection.addAll(Iterables.map(this.getCloudServiceManager().getServiceTasks(), serviceTask -> serviceTask.getName()));
                     break;
             }
 
