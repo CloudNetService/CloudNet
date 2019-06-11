@@ -68,17 +68,12 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
         Validate.checkNotNull(clazz);
         Validate.checkNotNull(instance);
 
-        UUID uniqueId = null;
-
         try {
             Method method = clazz.getMethod("getUniqueId");
             method.setAccessible(true);
-            uniqueId = (UUID) method.invoke(instance);
-
+            return  (UUID) method.invoke(instance);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            return null;
         }
-
-        return uniqueId;
     }
 }

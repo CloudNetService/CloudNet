@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.LivingEntity;
 
 import java.lang.reflect.Method;
@@ -168,27 +169,22 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         for (Sign sign : signs) {
 
-            Location location = null;
-            Block block = null;
+            Location location = toLocation(sign.getWorldPosition());
 
-            try {
-                location = toLocation(sign.getWorldPosition());
-                block = location.getBlock();
-
-                if (!(block.getState() instanceof org.bukkit.block.Sign) &&
-                        block.getType() != Material.SIGN_POST &&
-                        block.getType() != Material.WALL_SIGN &&
-                        block.getType() != Material.SIGN) {
-                    block = null;
-                    location = null;
-                    throw new Exception();
-                }
-
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            if(location == null) {
+                super.sendSignRemoveUpdate(sign);
+                continue;
             }
 
-            if (location == null || block == null) continue;
+            Block block = location.getBlock();
+
+            if (!(block.getState() instanceof org.bukkit.block.Sign) &&
+                    block.getType() != Material.SIGN_POST &&
+                    block.getType() != Material.WALL_SIGN &&
+                    block.getType() != Material.SIGN) {
+                super.sendSignRemoveUpdate(sign);
+                continue;
+            }
 
             Iterables.filter(entries, entry -> {
                 boolean access = Iterables.contains(sign.getTargetGroup(), entry.getValue().getFirst().getConfiguration().getGroups());

@@ -86,8 +86,8 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
             switch (serviceTaskConfig.getTemplateInstaller()) {
                 case INSTALL_ALL: {
                     outTemplates.addAll(serviceTemplates);
+                    break;
                 }
-                break;
                 case INSTALL_RANDOM: {
                     Random random = new Random();
 
@@ -98,14 +98,14 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                         serviceTemplates.remove(item);
                         outTemplates.add(item);
                     }
+                    break;
                 }
-                break;
                 case INSTALL_RANDOM_ONCE: {
                     ServiceTemplate item = serviceTemplates.get(new Random().nextInt(serviceTemplates.size()));
                     serviceTemplates.remove(item);
                     outTemplates.add(item);
+                    break;
                 }
-                break;
             }
 
         int maxMemory = serviceTask.getProcessConfiguration().getMaxHeapMemorySize();

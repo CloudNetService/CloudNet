@@ -33,6 +33,8 @@ import java.util.jar.JarFile;
 
 final class JVMCloudService implements ICloudService {
 
+    private static final String RUNTIME = "jvm";
+
     private static final String TEMP_NAME_SPLITTER = "_";
 
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
@@ -201,7 +203,7 @@ final class JVMCloudService implements ICloudService {
 
     @Override
     public final String getRuntime() {
-        return "jvm";
+        return RUNTIME;
     }
 
     @Override

@@ -53,7 +53,8 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
             boolean hasToUpdate = false, value = false;
 
-            Bukkit.getPluginManager().callEvent(serverListPingEvent);
+            Bukkit.getScheduler().runTaskAsynchronously(this, () -> Bukkit.getPluginManager().callEvent(serverListPingEvent));
+
             if (!serverListPingEvent.getMotd().equalsIgnoreCase(BukkitCloudNetHelper.getApiMotd())) {
                 hasToUpdate = true;
 
