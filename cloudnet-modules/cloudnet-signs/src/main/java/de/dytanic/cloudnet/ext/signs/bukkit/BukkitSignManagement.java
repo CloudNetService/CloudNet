@@ -18,7 +18,9 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.material.MaterialData;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -301,8 +303,8 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             method.setAccessible(true);
             return (Block) method.invoke(livingEntity, null, range);
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception ignored) {
+
         }
 
         //old
@@ -389,30 +391,20 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         Validate.checkNotNull(location);
 
         if (blockType != null && subId != -1) {
-            //1.12.2 and lower
-            try {
-                Material material = Material.getMaterial(blockType.toUpperCase());
-                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) location.getBlock().getState().getData();
+            BlockState signBlockState = location.getBlock().getState();
+            MaterialData signBlockData = signBlockState.getData();
 
-                Method method = Block.class.getMethod("setTypeIdAndData", int.class, byte.class, boolean.class);
-                method.setAccessible(true);
-                method.invoke(location.getBlock().getRelative(sign.getAttachedFace()), material.getId(), (byte) subId, false);
-                return;
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
+            if(signBlockData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a sign
 
-            //modern
-            try {
-                Material material = Material.getMaterial(blockType.toUpperCase());
-                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) location.getBlock().getState().getData();
+                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signBlockData;
 
-                Method method = Block.class.getMethod("setType", Material.class);
-                method.setAccessible(true);
-                method.invoke(location.getBlock().getRelative(sign.getAttachedFace()), material);
+                BlockState backBlockState = location.getBlock().getRelative(sign.getAttachedFace()).getState();
+                Material backBlockMaterial = Material.getMaterial(blockType.toUpperCase());
 
-            } catch (Exception exception) {
-                exception.printStackTrace();
+                backBlockState.setType(backBlockMaterial);
+                backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                backBlockState.update(true);
+
             }
         }
     }
