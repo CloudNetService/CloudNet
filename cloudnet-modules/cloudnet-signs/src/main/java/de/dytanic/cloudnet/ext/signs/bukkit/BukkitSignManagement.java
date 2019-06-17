@@ -20,7 +20,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.material.MaterialData;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -171,23 +170,6 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         for (Sign sign : signs) {
 
-            Location location = toLocation(sign.getWorldPosition());
-
-            if(location == null) {
-                super.sendSignRemoveUpdate(sign);
-                continue;
-            }
-
-            Block block = location.getBlock();
-
-            if (!(block.getState() instanceof org.bukkit.block.Sign) &&
-                    block.getType() != Material.SIGN_POST &&
-                    block.getType() != Material.WALL_SIGN &&
-                    block.getType() != Material.SIGN) {
-                super.sendSignRemoveUpdate(sign);
-                continue;
-            }
-
             Iterables.filter(entries, entry -> {
                 boolean access = Iterables.contains(sign.getTargetGroup(), entry.getValue().getFirst().getConfiguration().getGroups());
 
@@ -218,14 +200,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                         sign.setServiceInfoSnapshot(null);
 
                         if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty())
-                            updateSignNext(location, sign, block, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
+                            updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
                     }
                     break;
                     case STARTING: {
                         sign.setServiceInfoSnapshot(null);
 
                         if (!signConfiguration.getStartingLayouts().getSignLayouts().isEmpty())
-                            updateSignNext(location, sign, block, signConfiguration.getStartingLayouts().getSignLayouts().get(indexes[0].get()), entry.getValue().getFirst());
+                            updateSignNext(sign, signConfiguration.getStartingLayouts().getSignLayouts().get(indexes[0].get()), entry.getValue().getFirst());
                     }
                     break;
                     case EMPTY_ONLINE: {
@@ -239,7 +221,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                         if (signLayout == null)
                             signLayout = signConfiguration.getDefaultEmptyLayout();
 
-                        updateSignNext(location, sign, block, signLayout, entry.getValue().getFirst());
+                        updateSignNext(sign, signLayout, entry.getValue().getFirst());
                     }
                     break;
                     case ONLINE: {
@@ -253,7 +235,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                         if (signLayout == null)
                             signLayout = signConfiguration.getDefaultOnlineLayout();
 
-                        updateSignNext(location, sign, block, signLayout, entry.getValue().getFirst());
+                        updateSignNext(sign, signLayout, entry.getValue().getFirst());
                     }
                     break;
                     case FULL_ONLINE: {
@@ -267,7 +249,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                         if (signLayout == null)
                             signLayout = signConfiguration.getDefaultFullLayout();
 
-                        updateSignNext(location, sign, block, signLayout, entry.getValue().getFirst());
+                        updateSignNext(sign, signLayout, entry.getValue().getFirst());
                     }
                     break;
                 }
@@ -278,7 +260,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 sign.setServiceInfoSnapshot(null);
 
                 if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty())
-                    updateSignNext(location, sign, block, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
+                    updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
             }
 
             cachedFilter.clear();
@@ -321,8 +303,25 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         return null;
     }
 
-    private void updateSignNext(Location location, Sign sign, Block block, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
+    private void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
+            Location location = toLocation(sign.getWorldPosition());
+
+            if (location == null) {
+                super.sendSignRemoveUpdate(sign);
+                return;
+            }
+
+            Block block = location.getBlock();
+
+            if (!(block.getState() instanceof org.bukkit.block.Sign) &&
+                    block.getType() != Material.SIGN_POST &&
+                    block.getType() != Material.WALL_SIGN &&
+                    block.getType() != Material.SIGN) {
+                super.sendSignRemoveUpdate(sign);
+                return;
+            }
+
             org.bukkit.block.Sign bukkitSign = (org.bukkit.block.Sign) block.getState();
 
             updateSign(location, sign, bukkitSign, signLayout, serviceInfoSnapshot);
@@ -394,7 +393,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             BlockState signBlockState = location.getBlock().getState();
             MaterialData signBlockData = signBlockState.getData();
 
-            if(signBlockData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a sign
+            if (signBlockData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a sign
 
                 org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signBlockData;
 
