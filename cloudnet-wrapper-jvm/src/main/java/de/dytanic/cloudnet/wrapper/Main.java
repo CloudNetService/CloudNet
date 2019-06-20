@@ -37,8 +37,8 @@ public final class Main {
             logger.addLogHandler(logHandler.setFormatter(new WrapperLogFormatter()));
         }
 
-        System.setOut(new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true, StandardCharsets.UTF_8));
-        System.setErr(new PrintStream(new LogOutputStream(logger, LogLevel.WARNING), true, StandardCharsets.UTF_8));
+        System.setOut(new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true, StandardCharsets.UTF_8.toString()));
+        System.setErr(new PrintStream(new LogOutputStream(logger, LogLevel.WARNING), true, StandardCharsets.UTF_8.toString()));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
