@@ -21,11 +21,11 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
 
     private static CloudPermissionsPermissionManagement instance;
 
-	  public static CloudPermissionsPermissionManagement getInstance() {
-		    return instance != null
+    public static CloudPermissionsPermissionManagement getInstance() {
+        return instance != null
             ? instance
-            : (instance = new  CloudPermissionsPermissionManagement());
-	  }
+            : (instance = new CloudPermissionsPermissionManagement());
+    }
 
     private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps.newConcurrentHashMap();
 
