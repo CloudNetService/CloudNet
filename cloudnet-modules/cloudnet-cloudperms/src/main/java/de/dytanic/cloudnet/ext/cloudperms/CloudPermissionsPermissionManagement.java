@@ -19,6 +19,12 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
 
     private static CloudPermissionsPermissionManagement instance;
 
+    public static CloudPermissionsPermissionManagement getInstance() {
+        return CloudPermissionsPermissionManagement.instance != null
+            ? CloudPermissionsPermissionManagement.instance
+            : (CloudPermissionsPermissionManagement.instance = new CloudPermissionsPermissionManagement());
+    }
+
     private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps.newConcurrentHashMap();
 
     private final Map<UUID, IPermissionUser> cachedPermissionUsers = Maps.newConcurrentHashMap();
@@ -27,10 +33,6 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
         instance = this;
 
         init();
-    }
-
-    public static CloudPermissionsPermissionManagement getInstance() {
-        return CloudPermissionsPermissionManagement.instance;
     }
 
     private void init() {
