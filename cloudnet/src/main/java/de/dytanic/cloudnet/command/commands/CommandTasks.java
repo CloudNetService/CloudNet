@@ -223,7 +223,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "static":
                                 serviceTask.setStaticServices(args[4].equalsIgnoreCase("true"));
                                 this.updateServiceTask(serviceTask);
-                                this.sendMessage0(sender, serviceTask.getName(), "staticServices", serviceTask.isAutoDeleteOnStop());
+                                this.sendMessage0(sender, serviceTask.getName(), "staticServices", serviceTask.isStaticServices());
                                 break;
                             case "env":
                                 try {
