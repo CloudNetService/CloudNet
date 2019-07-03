@@ -39,7 +39,6 @@
 - Application support for [GlowStone Minecraft server for MC **1.8.9+**](https://glowstone.net)
 - Application support for [Velocity Minecraft Java edition proxy server](https://www.velocitypowered.com)
 - Application support for [ProxProx Minecraft Bedrock Edition proxy server](https://github.com/GoMint/ProxProx)
-- Application support for [GoMint Minecraft Bedrock Edition server software](https://github.com/GoMint/GoMint)
 - A **really big API** for **asynchronously** programming or **synchronously** programming
 - A **Bridge module**, which includes the basics for the Bukkit, Sponge, BungeeCord and Nukkit API and for BungeeCord a /cloudnet command to dispatch the console of CloudNet ingame
 - **BungeeCord exploit protection** with the Bridge Module for BungeeCord MC **1.5.2+** and Velocity
