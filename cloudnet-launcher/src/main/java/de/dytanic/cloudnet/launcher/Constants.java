@@ -31,8 +31,8 @@ public final class Constants {
         CLOUDNET_REPOSITORY_TYPE = "cloudnet.repository.type",
         CLOUDNET_REPOSITORY_AUTO_UPDATE = "cloudnet.auto-update",
         CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED = "cloudnet.auto-update.with-embedded",
-        LAUNHCER_CONFIG = System.getProperty("cloudnet.launcher.config", "launcher.cnl"),
-        LAUNHCER_DIR = System.getProperty("cloudnet.launcher.dir", "launcher"),
+        LAUNCHER_CONFIG = System.getProperty("cloudnet.launcher.config", "launcher.cnl"),
+        LAUNCHER_DIR = System.getProperty("cloudnet.launcher.dir", "launcher"),
         FALLBACK_VERSION = Constants.class.getPackage().getSpecificationVersion(),
         INTERNAL_CLOUDNET_JAR_FILE_NAME = "cloudnet.jar", INTERNAL_DRIVER_JAR_FILE_NAME = "driver.jar",
         INTERNAL_CLOUDNET_CNL_FILE_NAME = "cloudnet.cnl", INTERNAL_DRIVER_CNL_FILE_NAME = "driver.cnl";
