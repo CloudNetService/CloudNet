@@ -18,6 +18,10 @@ public interface IPermissionGroup extends IPermissible {
 
     void setPrefix(String prefix);
 
+    String getColor();
+
+    void setColor(String color);
+
     String getSuffix();
 
     void setSuffix(String suffix);

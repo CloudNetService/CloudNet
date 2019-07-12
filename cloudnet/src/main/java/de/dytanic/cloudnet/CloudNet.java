@@ -1814,6 +1814,7 @@ public final class CloudNet extends CloudNetDriver {
             adminPermissionGroup.addPermission("*");
             adminPermissionGroup.addPermission("Proxy", "*");
             adminPermissionGroup.setPrefix("&4Admin &8| &7");
+            adminPermissionGroup.setColor("&7");
             adminPermissionGroup.setSuffix("&f");
             adminPermissionGroup.setDisplay("&4");
             adminPermissionGroup.setSortId(10);
@@ -1824,6 +1825,7 @@ public final class CloudNet extends CloudNetDriver {
             defaultPermissionGroup.addPermission("bukkit.broadcast.user", true);
             defaultPermissionGroup.setDefaultGroup(true);
             defaultPermissionGroup.setPrefix("&7");
+            defaultPermissionGroup.setColor("&7");
             defaultPermissionGroup.setSuffix("&f");
             defaultPermissionGroup.setDisplay("&7");
             defaultPermissionGroup.setSortId(10);

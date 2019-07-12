@@ -17,7 +17,9 @@ import org.bukkit.scoreboard.Team;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -110,6 +112,19 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         if (team == null) team = all.getScoreboard().registerNewTeam(teamName);
 
         try {
+            Optional<Method> setColor = Optional.ofNullable(team.getClass().getDeclaredMethod("setColor", ChatColor.class));
+            if (setColor.isPresent()) {
+                Method method = setColor.get();
+                method.setAccessible(true);
+                if (permissionGroup.getColor().length() != 0) {
+                    method.invoke(team, ChatColor.getByChar(permissionGroup.getColor().replaceAll("&", "").replaceAll("§", "")));
+                } else {
+                    String color = ChatColor.getLastColors(permissionGroup.getPrefix().replace('&', '§'));
+                    permissionGroup.setColor(color);
+                    CloudPermissionsPermissionManagement.getInstance().updateGroup(permissionGroup);
+                    method.invoke(team, ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", "")));
+                }
+            }
             team.setPrefix(ChatColor.translateAlternateColorCodes('&',
                     permissionGroup.getPrefix().length() > 16 ?
                             shortenStringTo16Bytes(permissionGroup.getPrefix()) : permissionGroup.getPrefix()));
@@ -117,9 +132,9 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             team.setSuffix(ChatColor.translateAlternateColorCodes('&',
                     permissionGroup.getSuffix().length() > 16 ?
                             shortenStringTo16Bytes(permissionGroup.getSuffix()) : permissionGroup.getSuffix()));
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException ignored) {
+        } catch (UnsupportedEncodingException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
         }
         team.addPlayer(target);
 
