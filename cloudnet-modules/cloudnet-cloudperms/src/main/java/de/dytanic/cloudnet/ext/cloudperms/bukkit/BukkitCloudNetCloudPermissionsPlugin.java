@@ -17,6 +17,7 @@ import org.bukkit.scoreboard.Team;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -110,16 +111,40 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         if (team == null) team = all.getScoreboard().registerNewTeam(teamName);
 
         try {
+            Method method = team.getClass().getDeclaredMethod("setColor", ChatColor.class);
+            method.setAccessible(true);
+
+            String prefix = permissionGroup.getPrefix();
+            String color = permissionGroup.getColor();
+            String suffix = permissionGroup.getSuffix();
+
+            if (color != null && !color.isEmpty()) {
+                ChatColor chatColor = ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", ""));
+                if (chatColor != null) {
+                    method.invoke(team, chatColor);
+                }
+            } else {
+                color = ChatColor.getLastColors(prefix.replace('&', '§'));
+                if (color != null && !color.isEmpty()) {
+                    ChatColor chatColor = ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", ""));
+                    if (chatColor != null){
+                        permissionGroup.setColor(color);
+                        CloudPermissionsPermissionManagement.getInstance().updateGroup(permissionGroup);
+                        method.invoke(team, chatColor);
+                    }
+                }
+            }
+
             team.setPrefix(ChatColor.translateAlternateColorCodes('&',
-                    permissionGroup.getPrefix().length() > 16 ?
-                            shortenStringTo16Bytes(permissionGroup.getPrefix()) : permissionGroup.getPrefix()));
+                    prefix.length() > 16 ?
+                            shortenStringTo16Bytes(prefix) : prefix));
 
             team.setSuffix(ChatColor.translateAlternateColorCodes('&',
-                    permissionGroup.getSuffix().length() > 16 ?
-                            shortenStringTo16Bytes(permissionGroup.getSuffix()) : permissionGroup.getSuffix()));
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+                    suffix.length() > 16 ?
+                            shortenStringTo16Bytes(suffix) : suffix));
+        } catch (NoSuchMethodException ignored) {
+        } catch (UnsupportedEncodingException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
         }
         team.addPlayer(target);
 

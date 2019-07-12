@@ -24,7 +24,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
 
     protected Collection<String> groups;
 
-    private String prefix, suffix, display;
+    private String prefix, color, suffix, display;
 
     private int sortId;
 
@@ -37,19 +37,21 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         this.potency = potency;
         this.groups = Iterables.newArrayList();
         this.prefix = "&7";
+        this.color = "&7";
         this.suffix = "&f";
         this.display = "&7";
         this.sortId = 0;
         this.defaultGroup = false;
     }
 
-    public PermissionGroup(String name, int potency, Collection<String> groups, String prefix, String suffix, String display, int sortId, boolean defaultGroup) {
+    public PermissionGroup(String name, int potency, Collection<String> groups, String prefix, String color, String suffix, String display, int sortId, boolean defaultGroup) {
         super();
 
         this.name = name;
         this.potency = potency;
         this.groups = groups;
         this.prefix = prefix;
+        this.color = color;
         this.suffix = suffix;
         this.display = display;
         this.sortId = sortId;
@@ -70,6 +72,14 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public String getSuffix() {
