@@ -355,21 +355,25 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 sender.sendMessage(
                                         LanguageManager.getMessage("command-permissions-group-update-property")
                                                 .replace("%group%", permissionGroup.getName())
-                                                .replace("%value%", args[3])
                                                 .replace("%property%", args[2])
+                                                .replace("%value%", args[3])
                                 );
                                 break;
                             case "setcolor":
 
-                                permissionGroup.setColor(args[3]);
-                                permissionManagement.updateGroup(permissionGroup);
-                                this.updateClusterNetwork();
-                                sender.sendMessage(
-                                        LanguageManager.getMessage("command-permissions-group-update-property")
-                                                .replace("%group%", permissionGroup.getName())
-                                                .replace("%value%", args[3])
-                                                .replace("%property%", args[2])
-                                );
+                                String color = args[3];
+
+                                if (color != null && color.length() == 2) {
+                                    permissionGroup.setColor(args[3]);
+                                    permissionManagement.updateGroup(permissionGroup);
+                                    this.updateClusterNetwork();
+                                    sender.sendMessage(
+                                            LanguageManager.getMessage("command-permissions-group-update-property")
+                                                    .replace("%group%", permissionGroup.getName())
+                                                    .replace("%property%", args[2])
+                                                    .replace("%value%", color.replaceAll("§", "[color]").replaceAll("&", "[color]"))
+                                    );
+                                }
                                 break;
                         }
                     }

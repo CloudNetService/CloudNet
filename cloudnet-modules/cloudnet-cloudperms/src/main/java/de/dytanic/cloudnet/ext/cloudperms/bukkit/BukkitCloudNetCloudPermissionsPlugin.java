@@ -123,9 +123,11 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 method.invoke(team, ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", "")));
             else {
                 color = ChatColor.getLastColors(prefix.replace('&', '§'));
-                permissionGroup.setColor(color);
-                CloudPermissionsPermissionManagement.getInstance().updateGroup(permissionGroup);
-                method.invoke(team, ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", "")));
+                if (color != null) {
+                    permissionGroup.setColor(color);
+                    CloudPermissionsPermissionManagement.getInstance().updateGroup(permissionGroup);
+                    method.invoke(team, ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", "")));
+                }
             }
 
             team.setPrefix(ChatColor.translateAlternateColorCodes('&',
