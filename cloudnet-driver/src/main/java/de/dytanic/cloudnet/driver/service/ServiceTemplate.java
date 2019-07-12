@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.Validate;
 public class ServiceTemplate implements INameable {
 
     private final String prefix, name, storage;
+    private boolean alwaysCopyToStaticServices;
 
     public ServiceTemplate(String prefix, String name, String storage) {
         Validate.checkNotNull(prefix);
@@ -15,6 +16,15 @@ public class ServiceTemplate implements INameable {
         this.prefix = prefix;
         this.name = name;
         this.storage = storage;
+    }
+
+    public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices) {
+        this(prefix, name, storage);
+        this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
+    }
+
+    public boolean shouldAlwaysCopyToStaticServices() {
+        return this.alwaysCopyToStaticServices;
     }
 
     public String getTemplatePath() {
