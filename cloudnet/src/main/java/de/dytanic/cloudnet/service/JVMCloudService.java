@@ -605,7 +605,9 @@ final class JVMCloudService implements ICloudService {
                 this.copyDefaultFile("files/bungee/config.yml", file);
 
                 this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("  host: "))
+                    if (s.startsWith("    host: "))
+                        s = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
+                    else if (s.startsWith("  host: "))
                         s = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
 
                     return s;
