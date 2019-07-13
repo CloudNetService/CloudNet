@@ -295,6 +295,7 @@ final class JVMCloudService implements ICloudService {
                     this.templates.toArray(new ServiceTemplate[0]),
                     this.deployments.toArray(new ServiceDeployment[0]),
                     this.serviceConfiguration.getProcessConfig(),
+                    this.serviceConfiguration.getProperties(),
                     this.serviceConfiguration.getPort()
             );
 
@@ -385,6 +386,7 @@ final class JVMCloudService implements ICloudService {
                         -1,
                         Collections.emptyList(),
                         -1),
+                this.serviceConfiguration.getProperties(),
                 this.serviceConfiguration
         );
     }

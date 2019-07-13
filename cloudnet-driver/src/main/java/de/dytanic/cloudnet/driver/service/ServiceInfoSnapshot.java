@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -30,12 +31,17 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
     protected ServiceConfiguration configuration;
 
     public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+        this(creationTime, serviceId, address, connected, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
+    }
+
+    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
         this.creationTime = creationTime;
         this.serviceId = serviceId;
         this.address = address;
         this.connected = connected;
         this.lifeCycle = lifeCycle;
         this.processSnapshot = processSnapshot;
+        this.properties = properties;
         this.configuration = configuration;
     }
 

@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.service;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.io.File;
@@ -71,8 +72,24 @@ public interface ICloudServiceManager {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
+
+    default ICloudService runTask(
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
+    ){
+        return runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port);
+    }
 
     void startAllCloudServices();
 

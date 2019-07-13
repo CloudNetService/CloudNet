@@ -290,7 +290,7 @@ public final class Wrapper extends CloudNetDriver {
      */
     @Override
     public ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-                                                  Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+                                                  Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
         Validate.checkNotNull(templates);
@@ -299,7 +299,7 @@ public final class Wrapper extends CloudNetDriver {
         Validate.checkNotNull(processConfiguration);
 
         try {
-            return this.createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port).get(5, TimeUnit.SECONDS);
+            return this.createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -315,7 +315,7 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
                                                               Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments, Collection<String> groups,
-                                                              ProcessConfiguration processConfiguration, Integer port) {
+                                                              ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
         Validate.checkNotNull(nodeUniqueId);
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
@@ -325,7 +325,7 @@ public final class Wrapper extends CloudNetDriver {
         Validate.checkNotNull(processConfiguration);
 
         try {
-            return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port).get(5, TimeUnit.SECONDS);
+            return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -1355,7 +1355,7 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
                                                               Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-                                                              Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+                                                              Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
         Validate.checkNotNull(templates);
@@ -1374,6 +1374,7 @@ public final class Wrapper extends CloudNetDriver {
                         .append("deployments", deployments)
                         .append("groups", groups)
                         .append("processConfiguration", processConfiguration)
+                        .append("properties", properties)
                         .append("port", port),
                 null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
@@ -1389,7 +1390,7 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
                                                                           Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-                                                                          Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+                                                                          Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
         Validate.checkNotNull(nodeUniqueId);
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
@@ -1411,6 +1412,7 @@ public final class Wrapper extends CloudNetDriver {
                         .append("deployments", deployments)
                         .append("groups", groups)
                         .append("processConfiguration", processConfiguration)
+                        .append("properties", properties)
                         .append("port", port),
                 null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
@@ -2161,6 +2163,7 @@ public final class Wrapper extends CloudNetDriver {
                         Iterables.map(Thread.getAllStackTraces().keySet(), thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority())),
                         CPUUsageResolver.getProcessCPUUsage()
                 ),
+                this.currentServiceInfoSnapshot.getProperties(),
                 this.getServiceConfiguration()
         );
     }

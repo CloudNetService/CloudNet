@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.examples.driver;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.*;
@@ -95,6 +96,7 @@ public final class ExampleCreateCloudService {
                         356,
                         new ArrayList<>()
                 ),
+                JsonDocument.newDocument().append("votes", "10"), //define useful properties to call up later
                 null //automatic defined port or the start port
         );
 
@@ -127,6 +129,7 @@ public final class ExampleCreateCloudService {
                                 356,
                                 Collections.EMPTY_LIST
                         ),
+                        JsonDocument.newDocument().append("votes", "10"), //define useful properties to call up later
                         null //automatic defined port or the start port
                 )) {
                     DRIVER.startCloudService(serviceInfoSnapshot); //start the services

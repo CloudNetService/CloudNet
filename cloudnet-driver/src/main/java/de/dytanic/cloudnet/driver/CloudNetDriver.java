@@ -84,6 +84,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
@@ -99,6 +100,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
@@ -256,6 +258,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
@@ -271,6 +274,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
@@ -408,6 +412,70 @@ public abstract class CloudNetDriver {
         });
 
         return listenableTask;
+    }
+
+    public ServiceInfoSnapshot createCloudService(
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
+    ){
+        return createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    public Collection<ServiceInfoSnapshot> createCloudService(
+            String nodeUniqueId,
+            int amount,
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
+    ){
+        return createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
+    ){
+        return createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
+            String nodeUniqueId,
+            int amount,
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            Integer port
+    ){
+        return createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     public IServicesRegistry getServicesRegistry() {

@@ -141,8 +141,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot createCloudService(
-            String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+            String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties,Integer port) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
         Validate.checkNotNull(templates);
@@ -163,6 +168,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("deployments", deployments)
                                 .append("groups", groups)
                                 .append("processConfiguration", processConfiguration)
+                                .append("properties", properties)
                                 .append("port", port),
                         new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
@@ -178,8 +184,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     @Override
     public Collection<ServiceInfoSnapshot> createCloudService(
             String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-            Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-            Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties, Integer port) {
         Validate.checkNotNull(nodeUniqueId);
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
@@ -203,6 +213,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                                 .append("deployments", deployments)
                                 .append("groups", groups)
                                 .append("processConfiguration", processConfiguration)
+                                .append("properties", properties)
                                 .append("port", port),
                         new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {

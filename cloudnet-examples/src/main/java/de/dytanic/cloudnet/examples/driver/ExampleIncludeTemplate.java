@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.examples.driver;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -39,6 +40,7 @@ public final class ExampleIncludeTemplate {
                         256,
                         Iterables.newArrayList()
                 ),
+                JsonDocument.newDocument().append("UUID", playerUniqueId), //define useful properties to call up later
                 null
         );
 

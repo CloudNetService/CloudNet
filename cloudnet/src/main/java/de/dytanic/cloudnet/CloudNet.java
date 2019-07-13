@@ -407,16 +407,23 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
-                                                  Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-                                                  Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
-        ICloudService cloudService = this.cloudServiceManager.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port);
+                                                  Collection<ServiceTemplate> templates,
+                                                  Collection<ServiceDeployment> deployments,
+                                                  Collection<String> groups,
+                                                  ProcessConfiguration processConfiguration,
+                                                  JsonDocument properties, Integer port) {
+        ICloudService cloudService = this.cloudServiceManager.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
         return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
     }
 
     @Override
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-                                                              Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-                                                              Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+                                                              Collection<ServiceRemoteInclusion> includes,
+                                                              Collection<ServiceTemplate> templates,
+                                                              Collection<ServiceDeployment> deployments,
+                                                              Collection<String> groups,
+                                                              ProcessConfiguration processConfiguration,
+                                                              JsonDocument properties, Integer port) {
         Validate.checkNotNull(nodeUniqueId);
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
@@ -430,7 +437,7 @@ public final class CloudNet extends CloudNetDriver {
 
             for (int i = 0; i < amount; i++) {
                 ICloudService cloudService = this.cloudServiceManager.runTask(
-                        name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port != null ? port++ : null
+                        name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port != null ? port++ : null
                 );
 
                 if (cloudService != null) collection.add(cloudService.getServiceInfoSnapshot());
@@ -442,7 +449,7 @@ public final class CloudNet extends CloudNetDriver {
         IClusterNodeServer clusterNodeServer = getClusterNodeServerProvider().getNodeServer(nodeUniqueId);
 
         if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null)
-            return clusterNodeServer.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port);
+            return clusterNodeServer.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
         else
             return null;
     }
@@ -1050,8 +1057,9 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
                                                               Collection<ServiceRemoteInclusion> includes,
-                                                              Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-                                                              Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+                                                              Collection<ServiceTemplate> templates,
+                                                              Collection<ServiceDeployment> deployments,
+                                                              Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
         Validate.checkNotNull(templates);
@@ -1059,14 +1067,16 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        return scheduleTask(() -> CloudNet.this.createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port));
+        return scheduleTask(() -> CloudNet.this.createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port));
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
             String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
             Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, Integer port) {
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
         Validate.checkNotNull(nodeUniqueId);
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
@@ -1075,7 +1085,7 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        return scheduleTask(() -> CloudNet.this.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port));
+        return scheduleTask(() -> CloudNet.this.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port));
     }
 
     @Override

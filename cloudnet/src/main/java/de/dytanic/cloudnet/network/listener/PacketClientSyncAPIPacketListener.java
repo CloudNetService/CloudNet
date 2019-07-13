@@ -13,6 +13,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -202,6 +203,8 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                                     }.getType()),
                                     packet.getHeader().get("processConfiguration", new TypeToken<ProcessConfiguration>() {
                                     }.getType()),
+                                    packet.getHeader().get("properties", new TypeToken<JsonDocument>() {
+                                    }.getType()),
                                     packet.getHeader().getInt("port")
                             ))
                     );
@@ -225,6 +228,8 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                                     packet.getHeader().get("groups", new TypeToken<Collection<String>>() {
                                     }.getType()),
                                     packet.getHeader().get("processConfiguration", new TypeToken<ProcessConfiguration>() {
+                                    }.getType()),
+                                    packet.getHeader().get("properties", new TypeToken<JsonDocument>() {
                                     }.getType()),
                                     packet.getHeader().getInt("port")
                             ))
