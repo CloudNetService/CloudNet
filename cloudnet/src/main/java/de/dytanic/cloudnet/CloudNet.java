@@ -1888,7 +1888,7 @@ public final class CloudNet extends CloudNetDriver {
 
                         //Install
                         commandMap.dispatchCommand(consoleCommandSender, "lt create Global bukkit minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Global bukkit minecraft_server spigot-1.8.8");
+                        commandMap.dispatchCommand(consoleCommandSender, "lt install Global bukkit minecraft_server paperspigot-1.12.2");
 
                         commandMap.dispatchCommand(consoleCommandSender, "lt create Global proxy bungeecord");
                         commandMap.dispatchCommand(consoleCommandSender, "lt install Global proxy bungeecord default");

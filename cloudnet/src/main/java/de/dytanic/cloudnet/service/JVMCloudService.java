@@ -79,6 +79,8 @@ final class JVMCloudService implements ICloudService {
 
     private volatile ServiceInfoSnapshot serviceInfoSnapshot, lastServiceInfoSnapshot;
 
+    private boolean firstStartupOnStaticService = false;
+
     /*= --------------------------------------------------------------------- =*/
 
     private Process process;
@@ -108,6 +110,10 @@ final class JVMCloudService implements ICloudService {
                         new File(cloudServiceManager.getPersistenceServicesDirectory(), this.serviceId.getName())
                         :
                         new File(cloudServiceManager.getTempDirectory(), this.serviceId.getName() + TEMP_NAME_SPLITTER + this.serviceId.getUniqueId().toString());
+
+        if (this.serviceConfiguration.isStaticService()) {
+            this.firstStartupOnStaticService = !this.directory.exists();
+        }
 
         this.directory.mkdirs();
 
@@ -459,7 +465,7 @@ final class JVMCloudService implements ICloudService {
         while (!this.waitingTemplates.isEmpty()) {
             ServiceTemplate template = this.waitingTemplates.poll();
 
-            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null) {
+            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null && (!this.serviceConfiguration.isStaticService() || template.shouldAlwaysCopyToStaticServices() || this.firstStartupOnStaticService)) {
                 ITemplateStorage storage = getStorage(template.getStorage());
 
                 if (!storage.has(template)) continue;
