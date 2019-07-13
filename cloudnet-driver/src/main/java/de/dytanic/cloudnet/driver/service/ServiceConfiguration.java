@@ -27,6 +27,10 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     private int port;
 
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port){
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, processConfig, JsonDocument.newDocument(), port);
+    }
+
     public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, JsonDocument properties, int port) {
         this.serviceId = serviceId;
         this.runtime = runtime;

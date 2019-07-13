@@ -30,6 +30,10 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
 
     protected ServiceConfiguration configuration;
 
+    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+        this(creationTime, serviceId, address, connected, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
+    }
+
     public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
         this.creationTime = creationTime;
         this.serviceId = serviceId;
