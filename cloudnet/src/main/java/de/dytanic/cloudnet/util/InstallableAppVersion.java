@@ -102,7 +102,7 @@ public final class InstallableAppVersion {
             SPIGOT_1_5_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.5.2",
                     "https://cdn.getbukkit.org/spigot/spigot-1.5.2-R1.1-SNAPSHOT.jar"),
             VELOCITY_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.VELOCITY, ServiceEnvironment.VELOCITY_DEFAULT, "default",
-                    "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0-SNAPSHOT-all.jar"),
+                    "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.2-SNAPSHOT-all.jar"),
             PROX_PROX_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.PROX_PROX, ServiceEnvironment.PROX_PROX_DEFAULT, "default",
                     "http://ci.gomint.io/job/ProxProx/job/master/lastSuccessfulBuild/artifact/proxprox-server/target/ProxProx.jar"),
             GO_MINT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.GO_MINT, ServiceEnvironment.GO_MINT_DEFAULT, "default",
