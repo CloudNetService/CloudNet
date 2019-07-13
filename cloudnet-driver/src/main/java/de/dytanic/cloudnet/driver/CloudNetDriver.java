@@ -391,7 +391,7 @@ public abstract class CloudNetDriver {
 
         Value<R> value = new Value<>();
 
-        ITask<R> listenableTask = new ListenableTask<>(() -> value.getValue());
+        ITask<R> listenableTask = new ListenableTask<>(value::getValue);
 
         InternalSyncPacketChannel.sendCallablePacket(networkChannel, header, body, new ITaskListener<Pair<JsonDocument, byte[]>>() {
 
@@ -425,7 +425,7 @@ public abstract class CloudNetDriver {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             Integer port
-    ){
+    ) {
         return createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
@@ -442,7 +442,7 @@ public abstract class CloudNetDriver {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             Integer port
-    ){
+    ) {
         return createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
@@ -457,7 +457,7 @@ public abstract class CloudNetDriver {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             Integer port
-    ){
+    ) {
         return createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
@@ -474,7 +474,7 @@ public abstract class CloudNetDriver {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             Integer port
-    ){
+    ) {
         return createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 

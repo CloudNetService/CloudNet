@@ -246,8 +246,6 @@ public final class Iterables {
 
         List<V> collection = newArrayList(array.length);
 
-        if (function == null) return collection;
-
         for (T entry : array) collection.add(function.apply(entry));
 
         return collection;
@@ -257,8 +255,6 @@ public final class Iterables {
         if (coll == null || function == null) return null;
 
         List<V> collection = newArrayList(coll.size());
-
-        if (function == null) return collection;
 
         for (T entry : coll) collection.add(function.apply(entry));
 

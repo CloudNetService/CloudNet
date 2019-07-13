@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -101,11 +100,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup) {
         String teamName = permissionGroup.getSortId() + permissionGroup.getName();
 
-        try {
-            if (teamName.length() > 16) teamName = shortenStringTo16Bytes(teamName);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        if (teamName.length() > 16) teamName = teamName.substring(0, 16);
 
         Team team = all.getScoreboard().getTeam(teamName);
         if (team == null) team = all.getScoreboard().registerNewTeam(teamName);
@@ -127,7 +122,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 color = ChatColor.getLastColors(prefix.replace('&', '§'));
                 if (color != null && !color.isEmpty()) {
                     ChatColor chatColor = ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", ""));
-                    if (chatColor != null){
+                    if (chatColor != null) {
                         permissionGroup.setColor(color);
                         CloudPermissionsPermissionManagement.getInstance().updateGroup(permissionGroup);
                         method.invoke(team, chatColor);
@@ -137,14 +132,14 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
             team.setPrefix(ChatColor.translateAlternateColorCodes('&',
                     prefix.length() > 16 ?
-                            shortenStringTo16Bytes(prefix) : prefix));
+                            prefix.substring(0, 16) : prefix));
 
             team.setSuffix(ChatColor.translateAlternateColorCodes('&',
                     suffix.length() > 16 ?
-                            shortenStringTo16Bytes(suffix) : suffix));
+                            suffix.substring(0, 16) : suffix));
         } catch (NoSuchMethodException ignored) {
-        } catch (UnsupportedEncodingException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+        } catch (IllegalAccessException | InvocationTargetException exception) {
+            exception.printStackTrace();
         }
         team.addPlayer(target);
 
@@ -168,10 +163,6 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     /*= --------------------------------------------------------------------------------------------------- =*/
-
-    private String shortenStringTo16Bytes(String input) throws UnsupportedEncodingException {
-        return input.substring(0, 16);
-    }
 
     private void initScoreboard(Player all) {
         if (all.getScoreboard() == null) all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());
@@ -222,6 +213,6 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     private void initPlayersCloudPermissible() {
-        forEachPlayers(player -> injectCloudPermissible(player));
+        forEachPlayers(this::injectCloudPermissible);
     }
 }

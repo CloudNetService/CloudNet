@@ -18,21 +18,19 @@ import java.util.concurrent.TimeoutException;
 public final class CloudPermissionsPermissionManagement implements IPermissionManagement {
 
     private static CloudPermissionsPermissionManagement instance;
-
-    public static CloudPermissionsPermissionManagement getInstance() {
-        return CloudPermissionsPermissionManagement.instance != null
-            ? CloudPermissionsPermissionManagement.instance
-            : (CloudPermissionsPermissionManagement.instance = new CloudPermissionsPermissionManagement());
-    }
-
     private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps.newConcurrentHashMap();
-
     private final Map<UUID, IPermissionUser> cachedPermissionUsers = Maps.newConcurrentHashMap();
 
     public CloudPermissionsPermissionManagement() {
         instance = this;
 
         init();
+    }
+
+    public static CloudPermissionsPermissionManagement getInstance() {
+        return CloudPermissionsPermissionManagement.instance != null
+                ? CloudPermissionsPermissionManagement.instance
+                : (CloudPermissionsPermissionManagement.instance = new CloudPermissionsPermissionManagement());
     }
 
     private void init() {

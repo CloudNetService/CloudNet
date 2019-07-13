@@ -71,7 +71,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
         try {
             Method method = clazz.getMethod("getUniqueId");
             method.setAccessible(true);
-            return  (UUID) method.invoke(instance);
+            return (UUID) method.invoke(instance);
         } catch (Exception exception) {
             return null;
         }

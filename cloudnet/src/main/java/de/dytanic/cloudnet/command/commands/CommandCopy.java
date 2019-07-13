@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CommandCopy extends CommandDefault {
+
     public CommandCopy() {
         super("copy", "cp");
     }
@@ -56,9 +57,11 @@ public class CommandCopy extends CommandDefault {
 
             List<ServiceDeployment> oldDeployments = new ArrayList<>(cloudService.getDeployments());
             cloudService.getDeployments().clear();
+
             cloudService.getDeployments().add(new ServiceDeployment(targetTemplate, Collections.emptyList()));
             cloudService.deployResources();
             cloudService.getDeployments().clear();
+
             cloudService.getDeployments().addAll(oldDeployments);
 
             sender.sendMessage(
@@ -68,4 +71,5 @@ public class CommandCopy extends CommandDefault {
             );
         });
     }
+
 }

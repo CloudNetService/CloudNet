@@ -87,8 +87,8 @@ public interface ICloudServiceManager {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             Integer port
-    ){
-        return runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, port);
+    ) {
+        return runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     void startAllCloudServices();

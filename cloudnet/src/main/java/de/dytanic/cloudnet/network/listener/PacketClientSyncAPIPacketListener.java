@@ -13,18 +13,17 @@ import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.UUID;
 
 public final class PacketClientSyncAPIPacketListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         handle0(channel, packet);
     }
 
-    private void handle0(INetworkChannel channel, IPacket packet) throws Exception {
+    private void handle0(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains(PacketConstants.SYNC_PACKET_ID_PROPERTY) && packet.getHeader().contains(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY) &&
                 packet.getHeader().getString(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY).equals("cloudnet_driver_sync_api")) {
             switch (packet.getHeader().getString(PacketConstants.SYNC_PACKET_ID_PROPERTY)) {

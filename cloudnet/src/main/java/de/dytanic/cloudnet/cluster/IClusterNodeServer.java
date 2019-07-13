@@ -67,16 +67,16 @@ public interface IClusterNodeServer extends AutoCloseable {
                                                    Collection<ServiceTemplate> templates,
                                                    Collection<ServiceDeployment> deployments,
                                                    Collection<String> groups,
-                                                   ProcessConfiguration processConfiguration, Integer port){
+                                                   ProcessConfiguration processConfiguration, Integer port) {
         return createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     default Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-                                                            Collection<ServiceRemoteInclusion> includes,
-                                                            Collection<ServiceTemplate> templates,
-                                                            Collection<ServiceDeployment> deployments,
-                                                            Collection<String> groups,
-                                                            ProcessConfiguration processConfiguration, Integer port){
+                                                               Collection<ServiceRemoteInclusion> includes,
+                                                               Collection<ServiceTemplate> templates,
+                                                               Collection<ServiceDeployment> deployments,
+                                                               Collection<String> groups,
+                                                               ProcessConfiguration processConfiguration, Integer port) {
         return createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 

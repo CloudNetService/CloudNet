@@ -82,7 +82,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public String[] sendCommandLine(String commandLine) {
         Validate.checkNotNull(commandLine);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine")
@@ -107,7 +107,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), new byte[0],
@@ -125,7 +125,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         Validate.checkNotNull(serviceConfiguration);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), new byte[0],
@@ -147,7 +147,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
-            JsonDocument properties,Integer port) {
+            JsonDocument properties, Integer port) {
         Validate.checkNotNull(name);
         Validate.checkNotNull(includes);
         Validate.checkNotNull(templates);
@@ -155,7 +155,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom")
@@ -198,7 +198,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom_selected_node_and_amount")
@@ -231,7 +231,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_to_cloud_service")
@@ -252,7 +252,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceTemplate);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_template_to_cloud_service")
@@ -273,7 +273,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceRemoteInclusion);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_remote_inclusion_to_cloud_service")
@@ -294,7 +294,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceDeployment);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_deployment_to_cloud_service")
@@ -315,7 +315,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service")
@@ -336,7 +336,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(serviceInfoSnapshot);
         Validate.checkNotNull(lifeCycle);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "set_service_life_cycle")
@@ -353,7 +353,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "restart_cloud_service")
@@ -370,7 +370,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(
                         this.channel,
@@ -388,7 +388,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         Validate.checkNotNull(serviceInfoSnapshot);
         Validate.checkNotNull(command);
 
-        if (this.channel != null && this.isConnected()) {
+        if (this.channel != null) {
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(
                         this.channel,
@@ -406,7 +406,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public void includeWaitingServiceInclusions(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        if (this.channel != null && this.isConnected())
+        if (this.channel != null)
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_inclusions")
@@ -422,7 +422,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public void includeWaitingServiceTemplates(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        if (this.channel != null && this.isConnected())
+        if (this.channel != null)
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_templates")
@@ -438,7 +438,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public void deployResources(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        if (this.channel != null && this.isConnected())
+        if (this.channel != null)
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
@@ -454,7 +454,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public Collection<Integer> getReservedTaskIds(String task) {
         Validate.checkNotNull(task);
 
-        if (this.channel != null && this.isConnected())
+        if (this.channel != null)
             try {
                 return CloudNetDriver.getInstance().sendCallablePacket(this.channel,
                         PacketConstants.CLUSTER_NODE_SYNC_PACKET_CHANNEL_NAME,

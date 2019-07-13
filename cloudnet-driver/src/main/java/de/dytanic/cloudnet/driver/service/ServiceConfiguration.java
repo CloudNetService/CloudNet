@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     private final ServiceId serviceId;
@@ -27,7 +27,7 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     private int port;
 
-    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port){
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port) {
         this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, processConfig, JsonDocument.newDocument(), port);
     }
 

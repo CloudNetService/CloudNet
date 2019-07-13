@@ -12,10 +12,12 @@ public enum ServiceEnvironmentType {
             ServiceEnvironment.MINECRAFT_SERVER_TORCH,
             ServiceEnvironment.MINECRAFT_SERVER_HOSE,
             ServiceEnvironment.MINECRAFT_SERVER_TACO,
+            ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
+            ServiceEnvironment.MINECRAFT_SERVER_SHORT_SPIGOT,
             ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT,
             ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
             ServiceEnvironment.MINECRAFT_SERVER_AKARIN,
-            ServiceEnvironment.MINECRAFT_SERVER_DEFAULT
+            ServiceEnvironment.MINECRAFT_SERVER_DEFAULT,
     }, false, false, true, false),
     GLOWSTONE(new ServiceEnvironment[]{
             ServiceEnvironment.GLOWSTONE_DEFAULT
