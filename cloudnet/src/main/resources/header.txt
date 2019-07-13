@@ -1,11 +1,11 @@
 
-&1        ___  _                    _ &d     __    __  _____ &b[&5%codename%&b]
-&1       / __\| |  ___   _   _   __| |&d  /\ \ \  /__\/__   \
-&1      / /   | | / _ \ | | | | / _` |&d /  \/ / /_\    / /\/ &9%version%&0
-&1     / /___ | || (_) || |_| || (_| |&d/ /\  / //__   / /
-&1     \____/ |_| \___/  \__,_| \__,_|&d\_\ \/  \__/   \/ &0by Dytanic
+&f        ___  _                    _ &b     __    __  _____ &7[&9%codename%&7]
+&f       / __\| |  ___   _   _   __| |&b  /\ \ \  /__\/__   \
+&f      / /   | | / _ \ | | | | / _` |&b /  \/ / /_\    / /\/ &7%version%&r
+&f     / /___ | || (_) || |_| || (_| |&b/ /\  / //__   / /
+&f     \____/ |_| \___/  \__,_| \__,_|&b\_\ \/  \__/   \/ &rby Dytanic
       The next generation of Minecraft cloud systems
 
-     &b«&d*&b»&0 The Cloud Network Environment Technology 3
-     &b«&d*&b»&0 Discord Support - https://discord.gg/CPCWr7w
+     &7«&b*&7»&r The Cloud Network Environment Technology 3
+     &7«&b*&7»&r Discord Support - https://discord.gg/CPCWr7w
 
