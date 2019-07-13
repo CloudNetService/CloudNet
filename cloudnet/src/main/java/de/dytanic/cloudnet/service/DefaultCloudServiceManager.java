@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.*;
@@ -181,6 +182,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                         serviceTask.getProcessConfiguration().getMaxHeapMemorySize(),
                         serviceTask.getProcessConfiguration().getJvmOptions()
                 ),
+                serviceTask.getProperties(),
                 serviceTask.getStartPort()
         );
     }
@@ -229,6 +231,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     ) {
 
@@ -257,6 +260,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 includes.addAll(groupConfiguration.getIncludes());
                 templates.addAll(groupConfiguration.getTemplates());
                 deployments.addAll(groupConfiguration.getDeployments());
+                if (properties != null){
+                    properties.append(groupConfiguration.getProperties());
+                }
             }
 
         ServiceConfiguration serviceConfiguration = new ServiceConfiguration(
@@ -275,6 +281,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 templates.toArray(new ServiceTemplate[0]),
                 deployments.toArray(new ServiceDeployment[0]),
                 processConfiguration,
+                properties,
                 port
         );
 

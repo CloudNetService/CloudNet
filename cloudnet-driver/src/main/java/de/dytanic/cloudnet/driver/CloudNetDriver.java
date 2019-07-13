@@ -84,6 +84,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
@@ -99,6 +100,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
@@ -256,6 +258,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
@@ -271,6 +274,7 @@ public abstract class CloudNetDriver {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 

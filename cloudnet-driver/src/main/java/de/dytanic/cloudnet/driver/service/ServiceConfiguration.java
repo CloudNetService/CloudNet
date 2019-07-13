@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -26,7 +27,7 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     private int port;
 
-    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port) {
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, JsonDocument properties, int port) {
         this.serviceId = serviceId;
         this.runtime = runtime;
         this.autoDeleteOnStop = autoDeleteOnStop;
@@ -36,6 +37,7 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
         this.templates = templates;
         this.deployments = deployments;
         this.processConfig = processConfig;
+        this.properties = properties;
         this.port = port;
     }
 

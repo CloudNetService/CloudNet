@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.service;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.io.File;
@@ -71,6 +72,7 @@ public interface ICloudServiceManager {
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
+            JsonDocument properties,
             Integer port
     );
 
