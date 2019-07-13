@@ -2172,8 +2172,10 @@ public final class Wrapper extends CloudNetDriver {
      * @see ServiceInfoSnapshotConfigureEvent
      */
     public void publishServiceInfoUpdate() {
-        ServiceInfoSnapshot serviceInfoSnapshot = this.createServiceInfoSnapshot();
+        publishServiceInfoUpdate(this.createServiceInfoSnapshot());
+    }
 
+    public void publishServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
         this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
         this.lastServiceInfoSnapShot = this.currentServiceInfoSnapshot;
