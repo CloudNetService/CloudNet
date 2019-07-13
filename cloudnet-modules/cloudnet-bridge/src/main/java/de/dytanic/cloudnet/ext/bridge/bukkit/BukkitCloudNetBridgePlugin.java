@@ -17,8 +17,8 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
     @Override
     public synchronized void onEnable() {
-        this.initListeners();
         BukkitCloudNetHelper.setPlugin(this);
+        this.initListeners();
 
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "cloudnet:main");
         BridgeHelper.updateServiceInfo();
