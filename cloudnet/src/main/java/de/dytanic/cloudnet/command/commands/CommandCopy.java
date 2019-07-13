@@ -1,19 +1,13 @@
 package de.dytanic.cloudnet.command.commands;
-/*
- * Created by derrop on 13.07.2019
- */
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,8 +37,8 @@ public class CommandCopy extends CommandDefault {
                     String[] path = base[1].split("/");
                     if (path.length == 2) {
                         String storage = base[0];
-                        String prefix = base[1];
-                        String name = base[2];
+                        String prefix = path[0];
+                        String name = path[1];
 
                         targetTemplate = new ServiceTemplate(prefix, name, storage);
                     }
