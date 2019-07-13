@@ -1996,7 +1996,8 @@ public final class CloudNet extends CloudNetDriver {
                 new CommandLocalTemplate(),
                 new CommandMe(),
                 new CommandScreen(),
-                new CommandPermissions()
+                new CommandPermissions(),
+                new CommandCopy()
         );
     }
 
