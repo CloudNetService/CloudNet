@@ -63,7 +63,7 @@ public final class BungeeSyncProxyCloudNetListener {
     private void broadcastStartStop(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         SyncProxyConfiguration configuration = SyncProxyConfigurationProvider.load();
         if (configuration != null && configuration.showIngameServerStartStopMessages()) {
-            String message = ChatColor.translateAlternateColorCodes('&', configuration.getMessages().get(key).replace("%server%", serviceInfoSnapshot.getServiceId().getName()));
+            String message = ChatColor.translateAlternateColorCodes('&', configuration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()));
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
                     player.sendMessage(message);
