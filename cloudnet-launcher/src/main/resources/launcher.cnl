@@ -21,7 +21,7 @@ var cloudnet.messages.language english
 #var cloudnet.config.json.path config.json
 #var cloudnet.permissions.json.path local/perms.json
 #var cloudnet.database.h2.path local/database/h2
-#var cloudnet.console.prompt &3%user%&0@&9%screen% &1=>
+#var cloudnet.console.prompt &c%user%&f@&7%screen% &f=>
 #var cloudnet.config.default-address 127.0.0.1
 #var cloudnet.default.tasks.skip true
 #var cloudnet.default.permissions.skip true
