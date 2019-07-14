@@ -501,10 +501,10 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                 "* " + permissionGroup.getName() + " | " + permissionGroup.getPotency(),
                 "Parent groups: " + permissionGroup.getGroups(),
                 "Default: " + permissionGroup.isDefaultGroup() + " | SortId: " + permissionGroup.getSortId(),
-                "Prefix: " + permissionGroup.getPrefix().replace("&", "[color]"),
+                "Prefix: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getPrefix() : permissionGroup.getPrefix().replace("&", "§")),
                 "Color: " + permissionGroup.getColor().replace("&", "[color]"),
-                "Suffix: " + permissionGroup.getSuffix().replace("&", "[color]"),
-                "Display: " + permissionGroup.getDisplay().replace("&", "[color]")
+                "Suffix: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getSuffix() : permissionGroup.getSuffix().replace("&", "§")),
+                "Display: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getDisplay() : permissionGroup.getDisplay().replace("&", "§"))
         );
 
         this.displayPermissions(sender, permissionGroup);
