@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.common.logging;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
@@ -28,7 +29,9 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     private long writternBytes = 0L;
 
-    private int index = 0;
+    private File errorFile;
+    private long writtenErrorBytes = 0L;
+    private PrintWriter errorWriter;
 
     /**
      * The default constructor with all important configuration
@@ -47,28 +50,59 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         this.pattern = pattern;
         this.maxBytes = maxBytes;
 
-        selectLogFile();
+        this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+    }
+
+    /**
+     * Enables/disables the error log file (directory/error.log)
+     *
+     * @param enableErrorLog if the file should be created and filled with every error in the console
+     */
+    public DefaultFileLogHandler setEnableErrorLog(boolean enableErrorLog) throws IOException {
+        if (enableErrorLog && this.errorWriter == null) {
+            this.errorFile = this.initErrorWriter(this.selectLogFile(null, this.writtenErrorBytes, "error.log"));
+            this.errorWriter = new PrintWriter(new FileWriter(this.errorFile, true));
+        } else if (!enableErrorLog && this.errorWriter != null) {
+            this.errorWriter.close();
+            this.errorWriter = null;
+        }
+        return this;
     }
 
     @Override
     public void handle(LogEntry logEntry) {
         if (getFormatter() == null) setFormatter(new DefaultLogFormatter());
-        if (entry == null) selectLogFile();
-        if (entry.length() > maxBytes) selectLogFile();
+
+        if (entry == null || this.entry.length() > maxBytes)
+            this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
 
         String formatted = getFormatter().format(logEntry);
-        this.writternBytes = writternBytes + formatted.getBytes(StandardCharsets.UTF_8).length;
+        byte[] formattedBytes = formatted.getBytes(StandardCharsets.UTF_8);
+        this.writternBytes = writternBytes + formattedBytes.length;
 
-        if (this.writternBytes > maxBytes) selectLogFile();
+        if (this.writternBytes > maxBytes)
+            this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
 
         printWriter.write(formatted);
         printWriter.flush();
+
+        if (this.errorWriter != null && logEntry.getLogLevel().getLevel() >= 126 && logEntry.getLogLevel().getLevel() <= 127) {
+            if (this.errorFile == null || this.errorFile.length() > maxBytes)
+                this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+
+            this.writtenErrorBytes += formattedBytes.length;
+
+            if (this.writtenErrorBytes > maxBytes)
+                this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+
+            this.errorWriter.write(formatted);
+            this.errorWriter.flush();
+        }
     }
 
     @Override
     public void close() throws Exception {
 
-        index = 0;
         printWriter.close();
     }
 
@@ -96,18 +130,16 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         return writternBytes;
     }
 
-    public int getIndex() {
-        return index;
-    }
-
-    private void selectLogFile() {
+    private File selectLogFile(PrintWriter printWriter, long writternBytes, String pattern) {
         if (printWriter != null) printWriter.close();
         if (writternBytes != 0L) writternBytes = 0L;
 
         entry = null;
-        File file;
+        File file = null;
 
-        while (entry == null) {
+        int index = 0;
+
+        while (true) {
             file = new File(directory, pattern + "." + index);
 
             try {
@@ -115,9 +147,8 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
                 if (!file.exists()) file.createNewFile();
 
                 if (file.length() < maxBytes) {
-                    this.entry = file;
-                    this.printWriter = new PrintWriter(new FileWriter(this.entry, true));
-                    break;
+                    index = 0;
+                    return file;
                 }
 
             } catch (Exception ex) {
@@ -126,7 +157,23 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
             index++;
         }
+    }
 
-        index = 0;
+    private File initPrintWriter(File file) {
+        try {
+            this.printWriter = new PrintWriter(new FileWriter(file, true));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
+    private File initErrorWriter(File file) {
+        try {
+            this.errorWriter = new PrintWriter(new FileWriter(file, true));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 }
