@@ -4,7 +4,9 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceDisconnectNetworkEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationProvider;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
@@ -45,10 +47,29 @@ public final class BungeeSyncProxyCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
+        this.broadcastStartStop("server-stop", event.getServiceInfo());
+
         if (!event.getServiceInfo().getServiceId().getEnvironment().isMinecraftJavaProxy() &&
                 !event.getServiceInfo().getServiceId().getEnvironment().isMinecraftBedrockProxy()) return;
 
         BungeeCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies().remove(event.getServiceInfo().getServiceId().getUniqueId());
+    }
+
+    @EventListener
+    public void handle(CloudServiceStartEvent event) {
+        this.broadcastStartStop("server-start", event.getServiceInfo());
+    }
+
+    private void broadcastStartStop(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
+        SyncProxyConfiguration configuration = SyncProxyConfigurationProvider.load();
+        if (configuration != null && configuration.showIngameServerStartStopMessages()) {
+            String message = ChatColor.translateAlternateColorCodes('&', configuration.getMessages().get(key).replace("%server%", serviceInfoSnapshot.getServiceId().getName()));
+            for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+                if (player.hasPermission("cloudnet.syncproxy.notify")) {
+                    player.sendMessage(message);
+                }
+            }
+        }
     }
 
     @EventListener
