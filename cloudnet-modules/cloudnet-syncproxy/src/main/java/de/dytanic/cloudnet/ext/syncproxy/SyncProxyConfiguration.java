@@ -21,13 +21,13 @@ public class SyncProxyConfiguration {
 
     protected Map<String, String> messages;
 
-    private boolean ingameServerStartStopMessages = true;
+    private boolean ingameServiceStartStopMessages = true;
 
-    public SyncProxyConfiguration(Collection<SyncProxyProxyLoginConfiguration> loginConfigurations, Collection<SyncProxyTabListConfiguration> tabListConfigurations, Map<String, String> messages, boolean ingameServerStartStopMessages) {
+    public SyncProxyConfiguration(Collection<SyncProxyProxyLoginConfiguration> loginConfigurations, Collection<SyncProxyTabListConfiguration> tabListConfigurations, Map<String, String> messages, boolean ingameServiceStartStopMessages) {
         this.loginConfigurations = loginConfigurations;
         this.tabListConfigurations = tabListConfigurations;
         this.messages = messages;
-        this.ingameServerStartStopMessages = ingameServerStartStopMessages;
+        this.ingameServiceStartStopMessages = ingameServiceStartStopMessages;
     }
 
     public SyncProxyConfiguration() {
@@ -53,8 +53,8 @@ public class SyncProxyConfiguration {
         return this.messages;
     }
 
-    public boolean showIngameServerStartStopMessages() {
-        return ingameServerStartStopMessages;
+    public boolean showIngameServicesStartStopMessages() {
+        return ingameServiceStartStopMessages;
     }
 
     public void setMessages(Map<String, String> messages) {

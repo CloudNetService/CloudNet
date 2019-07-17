@@ -43,7 +43,7 @@ public final class VelocitySyncProxyCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
-        this.broadcastStartStop("server-stop", event.getServiceInfo());
+        this.broadcastStartStop("service-stop", event.getServiceInfo());
 
         if (!event.getServiceInfo().getServiceId().getEnvironment().isMinecraftJavaProxy()) return;
 
@@ -52,12 +52,12 @@ public final class VelocitySyncProxyCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceStartEvent event) {
-        this.broadcastStartStop("server-start", event.getServiceInfo());
+        this.broadcastStartStop("service-start", event.getServiceInfo());
     }
 
     private void broadcastStartStop(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         SyncProxyConfiguration configuration = SyncProxyConfigurationProvider.load();
-        if (configuration != null && configuration.showIngameServerStartStopMessages()) {
+        if (configuration != null && configuration.showIngameServicesStartStopMessages()) {
             String message = configuration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()).replace("&", "§");
 
             for (Player player : VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer().getAllPlayers()) {

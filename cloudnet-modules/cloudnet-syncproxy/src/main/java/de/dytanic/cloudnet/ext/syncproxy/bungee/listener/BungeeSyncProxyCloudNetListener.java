@@ -47,7 +47,7 @@ public final class BungeeSyncProxyCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
-        this.broadcastStartStop("server-stop", event.getServiceInfo());
+        this.broadcastStartStop("service-stop", event.getServiceInfo());
 
         if (!event.getServiceInfo().getServiceId().getEnvironment().isMinecraftJavaProxy() &&
                 !event.getServiceInfo().getServiceId().getEnvironment().isMinecraftBedrockProxy()) return;
@@ -57,12 +57,12 @@ public final class BungeeSyncProxyCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceStartEvent event) {
-        this.broadcastStartStop("server-start", event.getServiceInfo());
+        this.broadcastStartStop("service-start", event.getServiceInfo());
     }
 
     private void broadcastStartStop(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         SyncProxyConfiguration configuration = SyncProxyConfigurationProvider.load();
-        if (configuration != null && configuration.showIngameServerStartStopMessages()) {
+        if (configuration != null && configuration.showIngameServicesStartStopMessages()) {
             String message = ChatColor.translateAlternateColorCodes('&', configuration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()));
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
