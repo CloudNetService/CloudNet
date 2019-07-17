@@ -4,13 +4,16 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceDisconnectNetworkEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationProvider;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.proxprox.ProxProxCloudNetSyncProxyPlugin;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
+import io.gomint.proxprox.ProxProx;
 import io.gomint.proxprox.api.ChatColor;
 import io.gomint.proxprox.api.entity.Player;
 
@@ -41,10 +44,29 @@ public final class ProxProxSyncProxyCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
+        this.broadcastStartStop("service-stop", event.getServiceInfo());
+
         if (!event.getServiceInfo().getServiceId().getEnvironment().isMinecraftJavaProxy() &&
                 !event.getServiceInfo().getServiceId().getEnvironment().isMinecraftBedrockProxy()) return;
 
         ProxProxCloudNetSyncProxyPlugin.getInstance().getOnlineCountOfProxies().remove(event.getServiceInfo().getServiceId().getUniqueId());
+    }
+
+    @EventListener
+    public void handle(CloudServiceStartEvent event) {
+        this.broadcastStartStop("service-start", event.getServiceInfo());
+    }
+
+    private void broadcastStartStop(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
+        SyncProxyConfiguration configuration = SyncProxyConfigurationProvider.load();
+        if (configuration != null && configuration.showIngameServicesStartStopMessages()) {
+            String message = configuration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()).replace("&", "§");
+            for (Player player : ProxProx.instance.getPlayers()) {
+                if (player.hasPermission("cloudnet.syncproxy.notify")) {
+                    player.sendMessage(message);
+                }
+            }
+        }
     }
 
     @EventListener

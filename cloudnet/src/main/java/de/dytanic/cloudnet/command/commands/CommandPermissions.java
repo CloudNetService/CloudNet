@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;

@@ -76,8 +76,11 @@ public final class SyncProxyConfigurationWriterAndReader {
             ),
                     Maps.of(
                             new Pair<>("player-login-not-whitelisted", "&cThe network is currently in maintenance!"),
-                            new Pair<>("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network")
-                    )
+                            new Pair<>("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network"),
+                            new Pair<>("service-start", "&7The service &e%service% &7is &astarting..."),
+                            new Pair<>("service-stop", "&7The service &e%service% &7is &cstopping...")
+                    ),
+                    true
             ), file);
 
             document = JsonDocument.newDocument(file);
