@@ -33,6 +33,8 @@ findProject(':cloudnet-modules:cloudnet-cloudperms')?.name = 'cloudnet-cloudperm
 //plugins
 include 'cloudnet-plugins:cloudnet-simplenametags'
 findProject(':cloudnet-plugins:cloudnet-simplenametags')?.name = 'cloudnet-simplenametags'
+include 'cloudnet-plugins:cloudnet-chat'
+findProject(':cloudnet-plugins:cloudnet-chat')?.name = 'cloudnet-chat'
 
 include 'cloudnet-examples'
 include 'cloudnet-modules:cloudnet-rest'

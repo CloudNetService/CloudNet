@@ -1,0 +1,10 @@
+jar {
+    archiveName = 'cloudnet-chat.jar'
+}
+
+dependencies {
+    compileOnly project(':cloudnet-driver')
+    compileOnly project(':cloudnet-wrapper-jvm')
+    compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
+}
