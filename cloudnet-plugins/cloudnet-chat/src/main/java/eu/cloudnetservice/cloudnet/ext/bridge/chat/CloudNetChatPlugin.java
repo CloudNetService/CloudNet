@@ -42,8 +42,7 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
 
         String format = this.format
                 .replace("%name%", player.getName())
-                .replace("%uniqueId%", player.getUniqueId().toString())
-                .replace("%message%", message);
+                .replace("%uniqueId%", player.getUniqueId().toString());
         if (group != null) {
             format = ChatColor.translateAlternateColorCodes('&',
                     format
@@ -64,7 +63,7 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
             );
         }
 
-        event.setFormat(format);
+        event.setFormat(format.replace("%message%", message));
     }
 
 }
