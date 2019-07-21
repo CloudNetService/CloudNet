@@ -65,7 +65,7 @@ public interface IPermissionManagement {
                 permissionGroup = group;
         }
 
-        return permissionGroup;
+        return permissionGroup != null ? permissionGroup : this.getDefaultPermissionGroup();
     }
 
     default IPermissionGroup getDefaultPermissionGroup() {
@@ -91,15 +91,12 @@ public interface IPermissionManagement {
 
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups())
             if (groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis()) {
-                if (groupsToRemove != null) groupsToRemove = Iterables.newArrayList();
-
                 groupsToRemove.add(groupInfo);
                 result = true;
             }
 
-        if (groupsToRemove != null)
-            for (PermissionUserGroupInfo groupInfo : groupsToRemove)
-                permissionUser.getGroups().remove(groupInfo);
+        for (PermissionUserGroupInfo groupInfo : groupsToRemove)
+            permissionUser.getGroups().remove(groupInfo);
 
         return result;
     }
