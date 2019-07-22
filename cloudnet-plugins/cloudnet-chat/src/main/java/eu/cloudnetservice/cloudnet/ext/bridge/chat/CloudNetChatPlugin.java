@@ -40,20 +40,30 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        event.setFormat(
-                ChatColor.translateAlternateColorCodes(
-                        '&',
-                        this.format
-                                .replace("%group%", group.getName())
-                                .replace("%display%", group.getDisplay())
-                                .replace("%prefix%", group.getPrefix())
-                                .replace("%suffix%", group.getSuffix())
-                                .replace("%color%", group.getColor())
-                                .replace("%name%", player.getName())
-                                .replace("%uniqueId%", player.getUniqueId().toString())
-                ).replace("%message%", message)
-        );
+        String format = this.format
+                .replace("%name%", player.getName())
+                .replace("%uniqueId%", player.getUniqueId().toString());
+        if (group != null) {
+            format = ChatColor.translateAlternateColorCodes('&',
+                    format
+                            .replace("%group%", group.getName())
+                            .replace("%display%", group.getDisplay())
+                            .replace("%prefix%", group.getPrefix())
+                            .replace("%suffix%", group.getSuffix())
+                            .replace("%color%", group.getColor())
+            );
+        } else {
+            format = ChatColor.translateAlternateColorCodes('&',
+                    format
+                            .replace("%group%", "")
+                            .replace("%display%", "")
+                            .replace("%prefix%", "")
+                            .replace("%suffix%", "")
+                            .replace("%color%", "")
+            );
+        }
 
+        event.setFormat(format.replace("%message%", message));
     }
 
 }
