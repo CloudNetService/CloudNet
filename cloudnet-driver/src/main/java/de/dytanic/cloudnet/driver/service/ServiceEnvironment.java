@@ -7,7 +7,6 @@ public enum ServiceEnvironment {
     MINECRAFT_SERVER_CRAFTBUKKIT("bukkit"),
     MINECRAFT_SERVER_SPIGOT("spigot"),
     MINECRAFT_SERVER_PAPER_SPIGOT("paper"),
-    MINECRAFT_SERVER_SHORT_SPIGOT("shortspigot"),
     MINECRAFT_SERVER_FORGE("forge"),
     MINECRAFT_SERVER_MODPACK("modpack"),
     MINECRAFT_SERVER_CAULDRON("cauldron"),

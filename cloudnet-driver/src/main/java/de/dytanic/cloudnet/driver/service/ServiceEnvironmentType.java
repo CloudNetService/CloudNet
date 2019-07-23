@@ -13,7 +13,6 @@ public enum ServiceEnvironmentType {
             ServiceEnvironment.MINECRAFT_SERVER_HOSE,
             ServiceEnvironment.MINECRAFT_SERVER_TACO,
             ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
-            ServiceEnvironment.MINECRAFT_SERVER_SHORT_SPIGOT,
             ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT,
             ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
             ServiceEnvironment.MINECRAFT_SERVER_AKARIN,
