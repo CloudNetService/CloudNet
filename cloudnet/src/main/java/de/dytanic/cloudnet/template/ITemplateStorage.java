@@ -48,6 +48,8 @@ public interface ITemplateStorage extends AutoCloseable {
 
     boolean delete(ServiceTemplate template);
 
+    boolean create(ServiceTemplate template);
+
     boolean has(ServiceTemplate template);
 
     Collection<ServiceTemplate> getTemplates();

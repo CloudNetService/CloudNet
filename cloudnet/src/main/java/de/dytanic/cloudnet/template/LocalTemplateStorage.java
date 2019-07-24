@@ -155,6 +155,16 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
+    public boolean create(ServiceTemplate template) {
+        File diretory = new File(this.storageDirectory, template.getTemplatePath());
+        if (diretory.exists()) {
+            return false;
+        }
+        diretory.mkdirs();
+        return true;
+    }
+
+    @Override
     public boolean has(ServiceTemplate template) {
         Validate.checkNotNull(template);
 
