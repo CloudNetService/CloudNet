@@ -20,8 +20,6 @@ import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocitySyncProxyClou
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -38,8 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
 )
 public final class VelocityCloudNetSyncProxyPlugin {
-
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
     private static VelocityCloudNetSyncProxyPlugin instance;
 
@@ -141,9 +137,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
     }
 
     private String replaceTabListItem(Player player, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
-        return input
-                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
+        input = input
                 .replace("%server%", player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : "")
                 .replace("%online_players%",
                         (
@@ -154,11 +148,10 @@ public final class VelocityCloudNetSyncProxyPlugin {
                                 syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
                                         proxyServer.getConfiguration().getShowMaxPlayers()
                         ) + "")
-                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName() + "")
                 .replace("%name%", player.getUsername() + "")
-                .replace("%ping%", player.getPing() + "")
-                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "")
-                .replace("&", "§");
+                .replace("%ping%", player.getPing() + "");
+
+        return SyncProxyTabList.replaceTabListItem(input, player.getUniqueId());
     }
 
     /*= ------------------------------------------------------- =*/

@@ -17,17 +17,14 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
-
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
     private static BungeeCloudNetSyncProxyPlugin instance;
 
@@ -148,9 +145,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     }
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
-        return input
-                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
+        input = input
                 .replace("%server%", proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : "")
                 .replace("%online_players%",
                         (
@@ -161,10 +156,17 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                                 syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
                                         proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()
                         ) + "")
-                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName() + "")
                 .replace("%name%", proxiedPlayer.getName() + "")
-                .replace("%ping%", proxiedPlayer.getPing() + "")
-                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "");
+                .replace("%ping%", proxiedPlayer.getPing() + "");
+
+        UUID uniqueId = null;
+
+        try {
+            uniqueId = (UUID) proxiedPlayer.getClass().getDeclaredMethod("getUniqueId").invoke(proxiedPlayer);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+        }
+
+        return SyncProxyTabList.replaceTabListItem(input, uniqueId);
     }
 
     /*= ------------------------------------------------------------------------------------------------------------------- =*/
