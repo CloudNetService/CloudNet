@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.ext.syncproxy;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 
+import java.lang.reflect.InvocationTargetException;
+
 public final class SyncProxyConstants {
 
     public static final String
@@ -18,7 +20,7 @@ public final class SyncProxyConstants {
             PERMISSION_MANAGEMENT = (IPermissionManagement) Class.forName("de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement")
                     .getDeclaredMethod("getInstance")
                     .invoke(null);
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
         }
     }
 

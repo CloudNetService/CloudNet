@@ -19,6 +19,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -184,7 +185,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
             }
         }
 
