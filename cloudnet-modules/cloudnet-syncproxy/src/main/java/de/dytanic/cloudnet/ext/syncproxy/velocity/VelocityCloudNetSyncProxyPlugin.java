@@ -12,8 +12,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.*;
 import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocityProxyLoginConfigurationImplListener;
@@ -22,8 +20,6 @@ import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocitySyncProxyClou
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
 )
 public final class VelocityCloudNetSyncProxyPlugin {
-
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
     private static VelocityCloudNetSyncProxyPlugin instance;
 
@@ -144,8 +138,6 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
     private String replaceTabListItem(Player player, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
         input = input
-                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
                 .replace("%server%", player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : "")
                 .replace("%online_players%",
                         (
@@ -156,27 +148,10 @@ public final class VelocityCloudNetSyncProxyPlugin {
                                 syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
                                         proxyServer.getConfiguration().getShowMaxPlayers()
                         ) + "")
-                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName() + "")
                 .replace("%name%", player.getUsername() + "")
-                .replace("%ping%", player.getPing() + "")
-                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "");
+                .replace("%ping%", player.getPing() + "");
 
-        if (SyncProxyConstants.PERMISSION_MANAGEMENT != null) {
-            UUID uniqueId = player.getUniqueId();
-            IPermissionUser permissionUser = SyncProxyConstants.PERMISSION_MANAGEMENT.getUser(uniqueId);
-            if (permissionUser != null) {
-                IPermissionGroup group = SyncProxyConstants.PERMISSION_MANAGEMENT.getHighestPermissionGroup(permissionUser);
-                if (group != null) {
-                    input = input.replace("%prefix%", group.getPrefix())
-                            .replace("%suffix%", group.getSuffix())
-                            .replace("%display%", group.getDisplay())
-                            .replace("%color%", group.getColor())
-                            .replace("%group%", group.getName());
-                }
-            }
-        }
-
-        return input.replace("&", "§");
+        return SyncProxyTabList.replaceTabListItem(input, player.getUniqueId());
     }
 
     /*= ------------------------------------------------------- =*/

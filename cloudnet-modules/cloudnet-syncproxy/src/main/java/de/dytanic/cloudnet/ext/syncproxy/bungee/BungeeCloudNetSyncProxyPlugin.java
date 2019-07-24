@@ -5,8 +5,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.*;
 import de.dytanic.cloudnet.ext.syncproxy.bungee.listener.BungeeProxyLoginConfigurationImplListener;
@@ -21,16 +19,12 @@ import net.md_5.bungee.api.plugin.Plugin;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
-
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
     private static BungeeCloudNetSyncProxyPlugin instance;
 
@@ -152,8 +146,6 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
         input = input
-                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
                 .replace("%server%", proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : "")
                 .replace("%online_players%",
                         (
@@ -164,32 +156,17 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                                 syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
                                         proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()
                         ) + "")
-                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName() + "")
                 .replace("%name%", proxiedPlayer.getName() + "")
-                .replace("%ping%", proxiedPlayer.getPing() + "")
-                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "");
+                .replace("%ping%", proxiedPlayer.getPing() + "");
 
-        if (SyncProxyConstants.PERMISSION_MANAGEMENT != null) {
-            try {
-                UUID uniqueId = (UUID) proxiedPlayer.getClass().getDeclaredMethod("getUniqueId").invoke(proxiedPlayer);
-                if (uniqueId != null) {
-                    IPermissionUser permissionUser = SyncProxyConstants.PERMISSION_MANAGEMENT.getUser(uniqueId);
-                    if (permissionUser != null) {
-                        IPermissionGroup group = SyncProxyConstants.PERMISSION_MANAGEMENT.getHighestPermissionGroup(permissionUser);
-                        if (group != null) {
-                            input = input.replace("%prefix%", ChatColor.translateAlternateColorCodes('&', group.getPrefix()))
-                                    .replace("%suffix%", ChatColor.translateAlternateColorCodes('&', group.getSuffix()))
-                                    .replace("%display%", ChatColor.translateAlternateColorCodes('&', group.getDisplay()))
-                                    .replace("%color%", ChatColor.translateAlternateColorCodes('&', group.getColor()))
-                                    .replace("%group%", group.getName());
-                        }
-                    }
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-            }
+        UUID uniqueId = null;
+
+        try {
+            uniqueId = (UUID) proxiedPlayer.getClass().getDeclaredMethod("getUniqueId").invoke(proxiedPlayer);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
         }
 
-        return input;
+        return SyncProxyTabList.replaceTabListItem(input, uniqueId);
     }
 
     /*= ------------------------------------------------------------------------------------------------------------------- =*/
