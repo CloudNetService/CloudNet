@@ -5,6 +5,8 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.*;
 import de.dytanic.cloudnet.ext.syncproxy.bungee.listener.BungeeProxyLoginConfigurationImplListener;
@@ -148,7 +150,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     }
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
-        return input
+        input = input
                 .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
                 .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
                 .replace("%server%", proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : "")
@@ -165,6 +167,28 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                 .replace("%name%", proxiedPlayer.getName() + "")
                 .replace("%ping%", proxiedPlayer.getPing() + "")
                 .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "");
+
+        if (SyncProxyConstants.PERMISSION_MANAGEMENT != null) {
+            try {
+                UUID uniqueId = (UUID) proxiedPlayer.getClass().getDeclaredMethod("getUniqueId").invoke(proxiedPlayer);
+                if (uniqueId != null) {
+                    IPermissionUser permissionUser = SyncProxyConstants.PERMISSION_MANAGEMENT.getUser(uniqueId);
+                    if (permissionUser != null) {
+                        IPermissionGroup group = SyncProxyConstants.PERMISSION_MANAGEMENT.getHighestPermissionGroup(permissionUser);
+                        if (group != null) {
+                            input = input.replace("%prefix%", ChatColor.translateAlternateColorCodes('&', group.getPrefix()))
+                                    .replace("%suffix%", ChatColor.translateAlternateColorCodes('&', group.getSuffix()))
+                                    .replace("%display%", ChatColor.translateAlternateColorCodes('&', group.getDisplay()))
+                                    .replace("%color%", ChatColor.translateAlternateColorCodes('&', group.getColor()))
+                                    .replace("%group%", group.getName());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+            }
+        }
+
+        return input;
     }
 
     /*= ------------------------------------------------------------------------------------------------------------------- =*/
