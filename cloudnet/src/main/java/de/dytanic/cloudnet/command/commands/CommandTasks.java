@@ -253,14 +253,20 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "template":
                                 if (args.length == 7) {
                                     if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
+                                        ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
                                         ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
 
-                                        if (CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]).has(serviceTemplate)) {
-                                            serviceTask.getTemplates().add(serviceTemplate);
-                                            updateServiceTask(serviceTask);
-
-                                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-success"));
+                                        if (!templateStorage.has(serviceTemplate)) {
+                                            if (!templateStorage.create(serviceTemplate)) {
+                                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
+                                                break;
+                                            }
                                         }
+
+                                        serviceTask.getTemplates().add(serviceTemplate);
+                                        updateServiceTask(serviceTask);
+
+                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-success"));
                                     }
                                 }
                                 break;
@@ -325,14 +331,20 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "template":
                                 if (args.length >= 6) {
                                     if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
+                                        ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
                                         ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
 
-                                        if (CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]).has(serviceTemplate)) {
-                                            groupConfiguration.getTemplates().add(serviceTemplate);
-                                            updateGroupConfiguration(groupConfiguration);
-
-                                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-success"));
+                                        if (!templateStorage.has(serviceTemplate)) {
+                                            if (!templateStorage.create(serviceTemplate)) {
+                                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
+                                                break;
+                                            }
                                         }
+
+                                        groupConfiguration.getTemplates().add(serviceTemplate);
+                                        updateGroupConfiguration(groupConfiguration);
+
+                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-success"));
                                     }
                                 }
                                 break;

@@ -258,6 +258,14 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         });
     }
 
+    @Override
+    public boolean create(ServiceTemplate template) {
+        return handleWithFTPClient(ftpClient -> {
+            makeDirectories(ftpClient, template.getTemplatePath());
+            return null;
+        });
+    }
+
     private void delete0(FTPClient ftpClient, ServiceTemplate template, FTPFile file, String path) throws Exception {
         if (file.isDirectory()) {
             FTPFile[] files = path.isEmpty() ? ftpClient.listFiles() : ftpClient.listFiles(template.getTemplatePath());
