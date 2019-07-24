@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocityProxyTabListC
 import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocitySyncProxyCloudNetListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
-import net.md_5.bungee.api.ChatColor;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
