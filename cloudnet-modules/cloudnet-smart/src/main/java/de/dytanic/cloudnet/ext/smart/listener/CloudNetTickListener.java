@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.smart.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
@@ -106,8 +107,13 @@ public final class CloudNetTickListener {
                             serviceInfoSnapshot.getProperties().getInt("Online-Count"),
                             serviceInfoSnapshot.getProperties().getInt("Max-Players")
                     ) <= taskConfig.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture()) {
-                if (cloudServiceProfile.getAutoStopCount().decrementAndGet() <= 0)
+                if (cloudServiceProfile.getAutoStopCount().decrementAndGet() <= 0) {
+                    System.out.println(LanguageManager.getMessage("module-smart-stop-service-automatically")
+                            .replace("%id%", serviceInfoSnapshot.getServiceId().getUniqueId().toString())
+                            .replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName())
+                    );
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
+                }
 
             } else
                 cloudServiceProfile.getAutoStopCount().set(taskConfig.getAutoStopTimeByUnusedServiceInSeconds());
