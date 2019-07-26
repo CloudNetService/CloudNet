@@ -22,6 +22,8 @@ public interface ICloudServiceManager {
 
     Map<String, ICloudServiceFactory> getCloudServiceFactories();
 
+    void init();
+
     /*= -------------------------------------------------- =*/
 
     List<ServiceTask> getServiceTasks();

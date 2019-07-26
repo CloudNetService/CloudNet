@@ -35,6 +35,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     protected final DefaultCloudServiceManagerConfiguration config = new DefaultCloudServiceManagerConfiguration();
 
     @Override
+    public void init() {
+        this.config.load();
+    }
+
+    @Override
     public List<ServiceTask> getServiceTasks() {
         return config.getTasks();
     }
