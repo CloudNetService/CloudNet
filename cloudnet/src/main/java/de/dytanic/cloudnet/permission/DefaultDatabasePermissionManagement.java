@@ -268,8 +268,21 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
             this.permissionGroupsMap.clear();
 
-            for (PermissionGroup group : permissionGroups)
+            for (PermissionGroup group : permissionGroups) {
+                if (group.getColor() == null)
+                    group.setColor("&7");
+                if (group.getPrefix() == null)
+                    group.setPrefix("&7");
+                if (group.getSuffix() == null)
+                    group.setSuffix("&7");
+                if (group.getDisplay() == null)
+                    group.setDisplay("&7");
+                if (group.getGroups() == null)
+                    group.setGroups(new ArrayList<>());
                 this.permissionGroupsMap.put(group.getName(), group);
+            }
+            document.append("groups", this.permissionGroupsMap.values());
+            document.write(this.file);
         }
     }
 
