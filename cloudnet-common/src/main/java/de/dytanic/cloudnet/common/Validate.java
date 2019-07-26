@@ -106,8 +106,7 @@ public final class Validate {
             Integer.parseInt(input);
             value = true;
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (NumberFormatException ignored) {
         }
 
         return value;
@@ -127,8 +126,7 @@ public final class Validate {
             Double.parseDouble(input);
             value = true;
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (NumberFormatException ignored) {
         }
 
         return value;
@@ -148,8 +146,7 @@ public final class Validate {
             Long.parseLong(input);
             value = true;
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (NumberFormatException ignored) {
         }
 
         return value;
