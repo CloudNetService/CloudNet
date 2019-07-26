@@ -13,6 +13,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.UUID;
 
 public class PacketServerDatabaseAction implements IPacketListener {
+
     @Override
     public void handle(INetworkChannel channel, IPacket packet) throws Exception {
         if (packet.getHeader().contains("message")) {
@@ -151,4 +152,5 @@ public class PacketServerDatabaseAction implements IPacketListener {
     private void sendEmptyResponse(INetworkChannel channel, UUID uniqueId) {
         sendResponse(channel, uniqueId, new JsonDocument(), null);
     }
+
 }
