@@ -128,7 +128,6 @@ public final class DefaultCommandMap implements ICommandMap {
         return false;
     }
 
-    /*= ---------------------------------------------------------------------------- =*/
 
     private CommandInfo commandInfoFilter(Command command) {
         return command.getInfo();

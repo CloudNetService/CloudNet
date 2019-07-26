@@ -53,7 +53,6 @@ public interface ICloudService {
 
     IServiceConsoleLogCache getServiceConsoleLogCache();
 
-    /*= ------------------------------------------------------------------- =*/
 
     void start() throws Exception;
 
@@ -72,4 +71,5 @@ public interface ICloudService {
     void includeTemplates();
 
     void deployResources();
+
 }

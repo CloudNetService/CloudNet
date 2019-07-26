@@ -13,7 +13,7 @@ import java.util.Collection;
  * add new PermissionGroups into the IPermissionManagement implementation
  */
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class PermissionGroup extends AbstractPermissible implements IPermissionGroup {
 
     /**
@@ -22,26 +22,25 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     public static final Type TYPE = new TypeToken<PermissionGroup>() {
     }.getType();
 
-    protected Collection<String> groups;
+    protected Collection<String> groups = Iterables.newArrayList();
 
-    private String prefix, color, suffix, display;
+    private String prefix = "&7";
+    private String color = "&7";
+    private String suffix = "&f";
+    private String display = "&7";
 
-    private int sortId;
+    private int sortId = 0;
 
-    private boolean defaultGroup;
+    private boolean defaultGroup = false;
+
+    public PermissionGroup() {
+    }
 
     public PermissionGroup(String name, int potency) {
         super();
 
         this.name = name;
         this.potency = potency;
-        this.groups = Iterables.newArrayList();
-        this.prefix = "&7";
-        this.color = "&7";
-        this.suffix = "&f";
-        this.display = "&7";
-        this.sortId = 0;
-        this.defaultGroup = false;
     }
 
     public PermissionGroup(String name, int potency, Collection<String> groups, String prefix, String color, String suffix, String display, int sortId, boolean defaultGroup) {

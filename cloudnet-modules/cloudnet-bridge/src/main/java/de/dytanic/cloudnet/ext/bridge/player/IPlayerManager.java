@@ -22,7 +22,6 @@ public interface IPlayerManager {
 
     List<? extends ICloudOfflinePlayer> getRegisteredPlayers();
 
-    /*= ---------------------------------------------------------------------------- =*/
 
     ITask<? extends ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId);
 
@@ -38,7 +37,6 @@ public interface IPlayerManager {
 
     ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync();
 
-    /*= ---------------------------------------------------------------------------- =*/
 
     void updateOfflinePlayer(ICloudOfflinePlayer cloudOfflinePlayer);
 

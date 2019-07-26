@@ -148,7 +148,6 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
         return permissionUsers;
     }
 
-    /*= ------------------------------------------------------------------------ =*/
 
     @Override
     public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
@@ -250,7 +249,6 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
         saveGroups();
     }
 
-    /*= ---------------------------------------------------------------------------- =*/
 
     private void saveGroups() {
         List<IPermissionGroup> permissionGroups = Iterables.newArrayList(permissionGroupsMap.values());
@@ -270,6 +268,10 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
             for (PermissionGroup group : permissionGroups)
                 this.permissionGroupsMap.put(group.getName(), group);
+
+            // saving the groups again to be sure that new fields in the permission group are in the file too
+            document.append("groups", this.permissionGroupsMap.values());
+            document.write(this.file);
         }
     }
 

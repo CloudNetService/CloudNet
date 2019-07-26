@@ -10,7 +10,7 @@ import lombok.ToString;
 import java.lang.reflect.Type;
 
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
@@ -87,4 +87,5 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
     public ServiceConfiguration getConfiguration() {
         return this.configuration;
     }
+
 }

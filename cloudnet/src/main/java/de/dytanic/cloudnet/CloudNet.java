@@ -229,7 +229,7 @@ public final class CloudNet extends CloudNetDriver {
         eventManager.callEvent(new CloudNetNodePostInitializationEvent());
 
         this.runConsole();
-        this.start0();
+        this.mainloop();
     }
 
     private void setNetworkListeners() {
@@ -1203,7 +1203,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-        return scheduleTask(() -> CloudNet.this.getServicesAsUniqueId());
+        return scheduleTask(CloudNet.this::getServicesAsUniqueId);
     }
 
     @Override
@@ -1213,12 +1213,12 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-        return scheduleTask(() -> CloudNet.this.getCloudServices());
+        return scheduleTask(CloudNet.this::getCloudServices);
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
-        return scheduleTask(() -> CloudNet.this.getStartedCloudServices());
+        return scheduleTask(CloudNet.this::getStartedCloudServices);
     }
 
     @Override
@@ -1237,7 +1237,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Integer> getServicesCountAsync() {
-        return scheduleTask(() -> CloudNet.this.getServicesCount());
+        return scheduleTask(CloudNet.this::getServicesCount);
     }
 
     @Override
@@ -1263,7 +1263,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-        return scheduleTask(() -> CloudNet.this.getPermanentServiceTasks());
+        return scheduleTask(CloudNet.this::getPermanentServiceTasks);
     }
 
     @Override
@@ -1282,7 +1282,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-        return scheduleTask(() -> CloudNet.this.getGroupConfigurations());
+        return scheduleTask(CloudNet.this::getGroupConfigurations);
     }
 
     @Override
@@ -1301,7 +1301,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<NetworkClusterNode[]> getNodesAsync() {
-        return scheduleTask(() -> CloudNet.this.getNodes());
+        return scheduleTask(CloudNet.this::getNodes);
     }
 
     @Override
@@ -1313,7 +1313,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-        return scheduleTask(() -> CloudNet.this.getNodeInfoSnapshots());
+        return scheduleTask(CloudNet.this::getNodeInfoSnapshots);
     }
 
     @Override
@@ -1325,7 +1325,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return scheduleTask(() -> CloudNet.this.getLocalTemplateStorageTemplates());
+        return scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
     }
 
     @Override
@@ -1387,7 +1387,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<IPermissionUser>> getUsersAsync() {
-        return scheduleTask(() -> CloudNet.this.getUsers());
+        return scheduleTask(CloudNet.this::getUsers);
     }
 
     @Override
@@ -1413,7 +1413,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return scheduleTask(() -> CloudNet.this.getGroups());
+        return scheduleTask(CloudNet.this::getGroups);
     }
 
     public <T> ITask<T> runTask(Callable<T> runnable) {
@@ -1635,17 +1635,14 @@ public final class CloudNet extends CloudNetDriver {
         return map;
     }
 
-    /*= -------------------------------------------------------------------------------------------- =*/
-    //private methods
-    /*= -------------------------------------------------------------------------------------------- =*/
 
     private void initPacketRegistryListeners() {
-        //- Packet client registry
+        // Packet client registry
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerUpdatePermissionsListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageNodeListener());
-        //*= ------------------------------------
+
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGroupConfigurationListListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetJsonFilePermissionsListener());
@@ -1653,23 +1650,22 @@ public final class CloudNet extends CloudNetDriver {
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetServiceTaskListListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerDeployLocalTemplateListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
-        //*= -------------------------------------
+
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
-        //*= -------------------------------------
-        //Node server API
+
+        // Node server API
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientSyncAPIPacketListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClusterSyncAPIPacketListener());
-        //-
+
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL, new PacketServerClusterChannelMessageListener());
-        //-
-        //- Packet server registry
+
+        // Packet server registry
         this.getNetworkServer().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());
-        //-
     }
 
-    private void start0() {
+    private void mainloop() {
         long value = System.currentTimeMillis();
         long millis = 1000 / TPS;
         int start1Tick = 0, start3Tick = 0 / 2;
@@ -1691,18 +1687,18 @@ public final class CloudNet extends CloudNetDriver {
                     else this.processQueue.poll();
 
                 if (start1Tick++ >= TPS) {
-                    this.start1();
+                    this.launchServices();
                     start1Tick = 0;
                 }
 
-                this.start2();
+                this.stopDeadServices();
 
                 if (start3Tick++ >= TPS) {
-                    this.start3();
+                    this.sendNodeUpdate();
                     start3Tick = 0;
                 }
 
-                this.start4();
+                this.updateServiceLogs();
 
                 eventManager.callEvent(new CloudNetTickEvent());
 
@@ -1712,7 +1708,7 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
-    private void start1() {
+    private void launchServices() {
         for (ServiceTask serviceTask : cloudServiceManager.getServiceTasks())
             if (!serviceTask.isMaintenance())
                 if ((serviceTask.getAssociatedNodes().isEmpty() || (serviceTask.getAssociatedNodes().contains(getConfig().getIdentity().getUniqueId()))) &&
@@ -1730,19 +1726,22 @@ public final class CloudNet extends CloudNetDriver {
                 }
     }
 
-    private void start2() {
-        for (ICloudService cloudService : this.cloudServiceManager.getCloudServices().values())
-            if (!cloudService.isAlive())
+    private void stopDeadServices() {
+        for (ICloudService cloudService : this.cloudServiceManager.getCloudServices().values()) {
+            if (!cloudService.isAlive()) {
                 cloudService.stop();
+            }
+        }
     }
 
-    private void start3() {
+    private void sendNodeUpdate() {
         this.publishNetworkClusterNodeInfoSnapshotUpdate();
     }
 
-    private void start4() {
-        for (ICloudService cloudService : cloudServiceManager.getCloudServices().values())
+    private void updateServiceLogs() {
+        for (ICloudService cloudService : cloudServiceManager.getCloudServices().values()) {
             cloudService.getServiceConsoleLogCache().update();
+        }
     }
 
     private void unloadAll() {
@@ -2065,7 +2064,7 @@ public final class CloudNet extends CloudNetDriver {
                 new DefaultJsonFilePermissionManagement(new File(System.getProperty("cloudnet.permissions.json.path", "local/perms.json"))));
 
         this.servicesRegistry.registerService(IPermissionManagement.class, "json_database",
-                new DefaultDatabasePermissionManagement(() -> getDatabaseProvider()));
+                new DefaultDatabasePermissionManagement(this::getDatabaseProvider));
 
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
                 new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"), taskScheduler));

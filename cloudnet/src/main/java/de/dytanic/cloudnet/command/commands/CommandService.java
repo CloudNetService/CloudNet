@@ -197,49 +197,47 @@ public final class CommandService extends CommandDefault implements ITabComplete
                 return;
             }
 
-            if (args.length > 1) {
-                if (args[1].equalsIgnoreCase("start")) {
-                    CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                    return;
-                }
+            if (args[1].equalsIgnoreCase("start")) {
+                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+                return;
+            }
 
-                if (args[1].equalsIgnoreCase("stop")) {
-                    if (!properties.containsKey("--force"))
-                        CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
-                    else
-                        CloudNetDriver.getInstance().killCloudService(serviceInfoSnapshot);
+            if (args[1].equalsIgnoreCase("stop")) {
+                if (!properties.containsKey("--force"))
+                    CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
+                else
+                    CloudNetDriver.getInstance().killCloudService(serviceInfoSnapshot);
 
-                    return;
-                }
+                return;
+            }
 
-                if (args[1].equalsIgnoreCase("delete")) {
-                    CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
-                    return;
-                }
+            if (args[1].equalsIgnoreCase("delete")) {
+                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
+                return;
+            }
 
-                if (args[1].equalsIgnoreCase("includeInclusions")) {
-                    CloudNetDriver.getInstance().includeWaitingServiceInclusions(serviceInfoSnapshot.getServiceId().getUniqueId());
-                    return;
-                }
+            if (args[1].equalsIgnoreCase("includeInclusions")) {
+                CloudNetDriver.getInstance().includeWaitingServiceInclusions(serviceInfoSnapshot.getServiceId().getUniqueId());
+                return;
+            }
 
-                if (args[1].equalsIgnoreCase("includeTemplates")) {
-                    CloudNetDriver.getInstance().includeWaitingServiceTemplates(serviceInfoSnapshot.getServiceId().getUniqueId());
-                    return;
-                }
+            if (args[1].equalsIgnoreCase("includeTemplates")) {
+                CloudNetDriver.getInstance().includeWaitingServiceTemplates(serviceInfoSnapshot.getServiceId().getUniqueId());
+                return;
+            }
 
-                if (args[1].equalsIgnoreCase("deployResources")) {
-                    CloudNetDriver.getInstance().deployResources(serviceInfoSnapshot.getServiceId().getUniqueId());
-                    return;
-                }
+            if (args[1].equalsIgnoreCase("deployResources")) {
+                CloudNetDriver.getInstance().deployResources(serviceInfoSnapshot.getServiceId().getUniqueId());
+                return;
+            }
 
-                if (args[1].equalsIgnoreCase("restart")) {
-                    CloudNetDriver.getInstance().restartCloudService(serviceInfoSnapshot);
-                    return;
-                }
+            if (args[1].equalsIgnoreCase("restart")) {
+                CloudNetDriver.getInstance().restartCloudService(serviceInfoSnapshot);
+                return;
+            }
 
-                if (args[1].equalsIgnoreCase("info")) {
-                    this.display(sender, serviceInfoSnapshot, true);
-                }
+            if (args[1].equalsIgnoreCase("info")) {
+                this.display(sender, serviceInfoSnapshot, true);
             }
         }
     }
