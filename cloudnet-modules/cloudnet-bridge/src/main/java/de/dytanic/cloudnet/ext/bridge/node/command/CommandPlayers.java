@@ -76,7 +76,7 @@ public final class CommandPlayers extends Command {
                 switch (args[2].toLowerCase()) {
                     case "kick":
                         BridgePlayerManager.getInstance().proxyKickPlayer(cloudPlayer, buildMessage(args, 3));
-                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server"));
+                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player"));
                         break;
                     case "message":
                         BridgePlayerManager.getInstance().proxySendPlayerMessage(cloudPlayer, buildMessage(args, 3));
@@ -84,7 +84,7 @@ public final class CommandPlayers extends Command {
                         break;
                     case "send":
                         BridgePlayerManager.getInstance().proxySendPlayer(cloudPlayer, args[3]);
-                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player"));
+                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server"));
                         break;
                 }
             }
