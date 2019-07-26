@@ -147,6 +147,8 @@ public final class CloudNet extends CloudNetDriver {
 
         logger.addLogHandler(queuedConsoleLogHandler = new QueuedConsoleLogHandler());
 
+        this.cloudServiceManager.init();
+
         this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler());
         this.moduleProvider.setModuleDependencyLoader(new DefaultPersistableModuleDependencyLoader(new File(System.getProperty("cloudnet.launcher.dir", "launcher") + "/libs")));
 

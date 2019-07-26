@@ -786,6 +786,10 @@ final class JVMCloudService implements ICloudService {
             }
 
             this.lifeCycle = ServiceLifeCycle.STOPPED;
+            if (this.serviceConfiguration.getProcessConfig().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {
+                new File(this.directory, "config.yml").delete();
+            }
+
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStopEvent(this, exitValue));
             System.out.println(LanguageManager.getMessage("cloud-service-post-stop-message")
                     .replace("%task%", this.serviceId.getTaskName())
