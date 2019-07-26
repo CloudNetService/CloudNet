@@ -248,7 +248,7 @@ public final class BukkitCloudNetHelper {
 
             Method method = LivingEntity.class.getMethod("getHealth");
             method.setAccessible(true);
-            return (double) method.invoke(player);
+            return ((Number) method.invoke(player)).doubleValue();
 
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -264,7 +264,7 @@ public final class BukkitCloudNetHelper {
 
             Method method = LivingEntity.class.getMethod("getMaxHealth");
             method.setAccessible(true);
-            return (double) method.invoke(player);
+            return ((Number) method.invoke(player)).doubleValue();
 
         } catch (Exception exception) {
             exception.printStackTrace();
