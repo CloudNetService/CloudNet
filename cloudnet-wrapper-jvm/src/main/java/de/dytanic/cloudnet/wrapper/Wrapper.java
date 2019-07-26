@@ -28,6 +28,8 @@ import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
+import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
+import de.dytanic.cloudnet.wrapper.database.defaults.DefaultWrapperDatabaseProvider;
 import de.dytanic.cloudnet.wrapper.event.ApplicationEnvironmentEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
@@ -89,6 +91,8 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     private final INetworkClient networkClient;
+
+    private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
 
     /*= ----------------------------------------------------------- =*/
 
@@ -2373,5 +2377,14 @@ public final class Wrapper extends CloudNetDriver {
 
     public ServiceInfoSnapshot getCurrentServiceInfoSnapshot() {
         return this.currentServiceInfoSnapshot;
+    }
+
+    public void setDatabaseProvider(IDatabaseProvider databaseProvider) {
+        Validate.checkNotNull(databaseProvider);
+        this.databaseProvider = databaseProvider;
+    }
+
+    public IDatabaseProvider getDatabaseProvider() {
+        return databaseProvider;
     }
 }
