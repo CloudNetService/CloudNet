@@ -101,6 +101,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientSyncAPIPacketListener());
+                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketServerDatabaseAction());
                             //-
 
                             channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
