@@ -100,17 +100,12 @@ public final class Validate {
      * @return true if the string can parse to int
      */
     public static boolean testStringParseToInt(String input) {
-        boolean value = false;
-
         try {
             Integer.parseInt(input);
-            value = true;
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            return true;
+        } catch (NumberFormatException ignored) {
+            return false;
         }
-
-        return value;
     }
 
     /**
@@ -121,17 +116,12 @@ public final class Validate {
      * @return true if the string can parse to double
      */
     public static boolean testStringParseToDouble(String input) {
-        boolean value = false;
-
         try {
             Double.parseDouble(input);
-            value = true;
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            return true;
+        } catch (NumberFormatException ignored) {
+            return false;
         }
-
-        return value;
     }
 
     /**
@@ -142,16 +132,11 @@ public final class Validate {
      * @return true if the string can parse to long
      */
     public static boolean testStringParseToLong(String input) {
-        boolean value = false;
-
         try {
             Long.parseLong(input);
-            value = true;
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            return true;
+        } catch (NumberFormatException ignored) {
+            return false;
         }
-
-        return value;
     }
 }
