@@ -2,10 +2,8 @@ package de.dytanic.cloudnet.common.language;
 
 import de.dytanic.cloudnet.common.Properties;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,10 +81,24 @@ public final class LanguageManager {
      * @param inputStream the properties which will add in the language as parameter
      */
     public static void addLanguageFile(String language, InputStream inputStream) {
+        try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            addLanguageFile(language, reader);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Add a new language properties, which can resolve with getMessage() in the configured language.
+     *
+     * @param language    the language, which should append
+     * @param inputStream the properties which will add in the language as parameter
+     */
+    public static void addLanguageFile(String language, Reader reader) {
         Properties properties = new Properties();
 
         try {
-            properties.load(inputStream);
+            properties.load(reader);
         } catch (IOException e) {
             e.printStackTrace();
         }
