@@ -32,7 +32,6 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    /*= ----------------------------------------------------------- =*/
 
     private void initServers() {
         for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices())

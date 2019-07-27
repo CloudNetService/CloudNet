@@ -78,7 +78,6 @@ public final class Wrapper extends CloudNetDriver {
      */
     private final File workDirectory = new File(".");
 
-    /*= ----------------------------------------------------------- =*/
 
     /**
      * The commandline arguments from the main() method of Main class by the application wrapper
@@ -94,11 +93,9 @@ public final class Wrapper extends CloudNetDriver {
 
     private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
 
-    /*= ----------------------------------------------------------- =*/
 
     private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
 
-    /*= ----------------------------------------------------------- =*/
 
     /**
      * The single task thread of the scheduler of the wrapper application

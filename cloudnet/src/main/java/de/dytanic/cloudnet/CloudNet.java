@@ -112,7 +112,6 @@ public final class CloudNet extends CloudNetDriver {
 
     private final ITaskScheduler networkTaskScheduler = new DefaultTaskScheduler();
 
-    /*= ----------------------------------------------------------- =*/
 
     private final List<String> commandLineArguments;
 
@@ -124,14 +123,14 @@ public final class CloudNet extends CloudNetDriver {
 
     private final ConsoleCommandSender consoleCommandSender;
 
-    /*= ----------------------------------------------------------- =*/
+
     private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
     private IHttpServer httpServer;
     private IPermissionManagement permissionManagement;
 
-    /*= ----------------------------------------------------------- =*/
+
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
 

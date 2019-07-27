@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 
 public final class ExampleCallbackSyncAPI {
 
-    /*= ----------------------------------------------------------- =*/
+
     //Node part
 
     //Node event listener

@@ -188,7 +188,11 @@ final class JVMCloudService implements ICloudService {
     }
 
     private void invokeAutoDeleteOnStopIfNotRestart() {
-        if (serviceConfiguration.isAutoDeleteOnStop() && !restartState) delete();
+        if (serviceConfiguration.isAutoDeleteOnStop() && !restartState) {
+            delete();
+        } else {
+            this.initAndPrepareService();
+        }
     }
 
     @Override
@@ -223,7 +227,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     private void initAndPrepareService() {
-        if (this.lifeCycle == ServiceLifeCycle.DEFINED) {
+        if (this.lifeCycle == ServiceLifeCycle.DEFINED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
             System.out.println(LanguageManager.getMessage("cloud-service-pre-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
                     .replace("%id%", this.serviceId.getUniqueId().toString()));

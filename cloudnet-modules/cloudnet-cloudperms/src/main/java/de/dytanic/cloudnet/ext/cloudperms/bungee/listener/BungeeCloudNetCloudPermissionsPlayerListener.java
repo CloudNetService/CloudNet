@@ -62,7 +62,6 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(uniqueId);
     }
 
-    /*= --------------------------------------------------------- =*/
 
     private UUID getUniqueId(Class<?> clazz, Object instance) {
         Validate.checkNotNull(clazz);
