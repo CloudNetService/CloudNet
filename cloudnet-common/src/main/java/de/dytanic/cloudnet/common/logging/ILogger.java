@@ -41,7 +41,6 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      */
     boolean hasAsyncSupport();
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * A shortcut method from setLevel(level.getLevel()) to setLevel(level)
@@ -139,7 +138,6 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
         return log(new LogEntry(System.currentTimeMillis(), clazz, messages, level, throwable, Thread.currentThread()));
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -197,7 +195,6 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
         return log(LogLevel.INFO, clazz, messages);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -311,7 +308,6 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
         return log(LogLevel.WARNING, clazz, messages, throwable);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -425,7 +421,6 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
         return log(LogLevel.FATAL, clazz, messages, throwable);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -539,7 +534,6 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
         return log(LogLevel.ERROR, clazz, messages, throwable);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)

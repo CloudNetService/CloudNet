@@ -183,7 +183,6 @@ public final class Wrapper extends CloudNetDriver {
     public void stop() {
         try {
             this.networkClient.close();
-            this.logger.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2305,7 +2304,7 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     private boolean startApplication0(File file, ServiceEnvironment serviceEnvironment) throws Exception {
-        if (file == null) {
+        if (file == null || !file.exists()) {
             throw new FileNotFoundException("Application file for Runtime " + getServiceId().getEnvironment() +
                     " COULD NOT BE FOUND! Please include the file and calls " + Arrays.toString(getServiceId().getEnvironment().getEnvironments()));
         }

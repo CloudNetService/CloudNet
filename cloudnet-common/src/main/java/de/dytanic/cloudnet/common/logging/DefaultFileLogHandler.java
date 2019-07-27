@@ -13,7 +13,6 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     public static final long SIZE_8MB = 8000000L;
 
-    /*= -------------------------------- =*/
 
     private final File directory;
 
@@ -21,7 +20,6 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     private final long maxBytes;
 
-    /*= -------------------------------- =*/
 
     private File entry;
 
@@ -102,7 +100,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     @Override
     public void close() throws Exception {
-
+        printWriter.flush();
         printWriter.close();
     }
 

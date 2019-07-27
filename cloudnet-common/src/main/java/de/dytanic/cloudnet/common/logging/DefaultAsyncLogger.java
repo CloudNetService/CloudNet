@@ -140,7 +140,6 @@ public class DefaultAsyncLogger implements ILogger {
         this.handlers.clear();
     }
 
-    /*= ---------------------------------------------------- =*/
 
     private void handleLogEntry(LogEntry logEntry) {
         if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level)) {
