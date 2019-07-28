@@ -182,6 +182,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 Iterables.newArrayList(serviceTask.getTemplates()),
                 Iterables.newArrayList(serviceTask.getDeployments()),
                 Iterables.newArrayList(serviceTask.getGroups()),
+                serviceTask.getDeletedFilesAfterStop(),
                 new ProcessConfiguration(
                         serviceTask.getProcessConfiguration().getEnvironment(),
                         serviceTask.getProcessConfiguration().getMaxHeapMemorySize(),
@@ -235,6 +236,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             Collection<ServiceTemplate> templates,
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
             ProcessConfiguration processConfiguration,
             JsonDocument properties,
             Integer port
@@ -285,6 +287,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 includes.toArray(new ServiceRemoteInclusion[0]),
                 templates.toArray(new ServiceTemplate[0]),
                 deployments.toArray(new ServiceDeployment[0]),
+                deletedFilesAfterStop != null ? deletedFilesAfterStop.toArray(new String[0]) : new String[0],
                 processConfiguration,
                 properties,
                 port

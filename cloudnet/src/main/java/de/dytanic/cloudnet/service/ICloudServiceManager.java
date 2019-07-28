@@ -4,10 +4,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 public interface ICloudServiceManager {
@@ -64,7 +61,7 @@ public interface ICloudServiceManager {
 
     ICloudService runTask(ServiceConfiguration serviceConfiguration);
 
-    ICloudService runTask(
+    default ICloudService runTask(
             String name,
             String runtime,
             boolean autoDeleteOnStop,
@@ -76,7 +73,9 @@ public interface ICloudServiceManager {
             ProcessConfiguration processConfiguration,
             JsonDocument properties,
             Integer port
-    );
+    ) {
+        return this.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, Collections.emptyList(), processConfiguration, properties, port);
+    }
 
     default ICloudService runTask(
             String name,
@@ -91,6 +90,37 @@ public interface ICloudServiceManager {
             Integer port
     ) {
         return runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    ICloudService runTask(
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties,
+            Integer port
+    );
+
+    default ICloudService runTask(
+            String name,
+            String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
+            ProcessConfiguration processConfiguration,
+            Integer port
+    ) {
+        return runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, deletedFilesAfterStop, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     void startAllCloudServices();
