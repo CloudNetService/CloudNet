@@ -218,10 +218,6 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         } else
             deploy.addAll(deployments);
 
-        if (properties.containsKey("deletedFilesAfterStop")) {
-            deletedFilesAfterStop = Arrays.asList(properties.get("deletedFilesAfterStop").split(";"));
-        }
-
         for (int i = 0; i < count; i++) {
             ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().createCloudService(new ServiceTask(
                     includes,
@@ -233,7 +229,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                     properties.getOrDefault("static", staticServices + "").equalsIgnoreCase("true"),
                     properties.containsKey("node") ? Arrays.asList(properties.get("node").split(";")) : nodes,
                     properties.containsKey("groups") ? Arrays.asList(properties.get("groups").split(";")) : groups,
-                    deletedFilesAfterStop,
+                    properties.containsKey("deletedFilesAfterStop") ? Arrays.asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop,
                     new ProcessConfiguration(
                             processConfiguration.getEnvironment(),
                             properties.containsKey("memory") && Validate.testStringParseToInt(properties.get("memory")) ?

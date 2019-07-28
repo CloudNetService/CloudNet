@@ -795,9 +795,9 @@ final class JVMCloudService implements ICloudService {
                 new File(this.directory, "config.yml").delete();
             }
             if (this.serviceConfiguration.getDeletedFilesAfterStop() != null) {
-                for (String s : this.serviceConfiguration.getDeletedFilesAfterStop()) {
-                    if (s != null) {
-                        File file = new File(this.directory, s);
+                for (String path : this.serviceConfiguration.getDeletedFilesAfterStop()) {
+                    if (path != null) {
+                        File file = new File(this.directory, path);
                         if (file.exists()) {
                             FileUtils.delete(file);
                         }
