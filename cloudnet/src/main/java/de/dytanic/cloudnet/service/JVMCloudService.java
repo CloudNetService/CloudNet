@@ -298,6 +298,7 @@ final class JVMCloudService implements ICloudService {
                     this.includes.toArray(new ServiceRemoteInclusion[0]),
                     this.templates.toArray(new ServiceTemplate[0]),
                     this.deployments.toArray(new ServiceDeployment[0]),
+                    this.serviceConfiguration.getDeletedFilesAfterStop(),
                     this.serviceConfiguration.getProcessConfig(),
                     this.serviceConfiguration.getProperties(),
                     this.serviceConfiguration.getPort()
@@ -792,6 +793,16 @@ final class JVMCloudService implements ICloudService {
             this.lifeCycle = ServiceLifeCycle.STOPPED;
             if (this.serviceConfiguration.getProcessConfig().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {
                 new File(this.directory, "config.yml").delete();
+            }
+            if (this.serviceConfiguration.getDeletedFilesAfterStop() != null) {
+                for (String path : this.serviceConfiguration.getDeletedFilesAfterStop()) {
+                    if (path != null) {
+                        File file = new File(this.directory, path);
+                        if (file.exists()) {
+                            FileUtils.delete(file);
+                        }
+                    }
+                }
             }
 
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStopEvent(this, exitValue));

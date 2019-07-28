@@ -23,15 +23,25 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     private final ServiceDeployment[] deployments;
 
+    private final String[] deletedFilesAfterStop;
+
     private final ProcessConfiguration processConfig;
 
     private int port;
 
     public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port) {
-        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, processConfig, JsonDocument.newDocument(), port);
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, port);
+    }
+
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, String[] deletedFilesAfterStop, ProcessConfiguration processConfig, int port) {
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, deletedFilesAfterStop, processConfig, JsonDocument.newDocument(), port);
     }
 
     public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, JsonDocument properties, int port) {
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, properties, port);
+    }
+
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, String[] deletedFilesAfterStop, ProcessConfiguration processConfig, JsonDocument properties, int port) {
         this.serviceId = serviceId;
         this.runtime = runtime;
         this.autoDeleteOnStop = autoDeleteOnStop;
@@ -40,6 +50,7 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
         this.includes = includes;
         this.templates = templates;
         this.deployments = deployments;
+        this.deletedFilesAfterStop = deletedFilesAfterStop;
         this.processConfig = processConfig;
         this.properties = properties;
         this.port = port;
@@ -75,6 +86,10 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     public ServiceDeployment[] getDeployments() {
         return this.deployments;
+    }
+
+    public String[] getDeletedFilesAfterStop() {
+        return this.deletedFilesAfterStop;
     }
 
     public ProcessConfiguration getProcessConfig() {
