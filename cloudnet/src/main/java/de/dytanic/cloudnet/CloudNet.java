@@ -1177,7 +1177,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public void deployResources(UUID uniqueId) {
+    public void deployResources(UUID uniqueId, Boolean removeDeployments) {
         Validate.checkNotNull(uniqueId);
 
         if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId))
@@ -1186,7 +1186,7 @@ public final class CloudNet extends CloudNetDriver {
         ICloudService cloudService = getCloudServiceManager().getCloudService(uniqueId);
 
         if (cloudService != null) {
-            cloudService.deployResources();
+            cloudService.deployResources(removeDeployments);
             return;
         }
 

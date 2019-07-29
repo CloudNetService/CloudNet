@@ -292,7 +292,7 @@ public abstract class CloudNetDriver {
 
     public abstract void includeWaitingServiceInclusions(UUID uniqueId);
 
-    public abstract void deployResources(UUID uniqueId);
+    public abstract void deployResources(UUID uniqueId, Boolean removeDeployments);
 
     public abstract ITask<Collection<UUID>> getServicesAsUniqueIdAsync();
 
@@ -476,6 +476,10 @@ public abstract class CloudNetDriver {
             Integer port
     ) {
         return createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    public void deployResources(UUID uniqueId) {
+        this.deployResources(uniqueId, true);
     }
 
     public IServicesRegistry getServicesRegistry() {

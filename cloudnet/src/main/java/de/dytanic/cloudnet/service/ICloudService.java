@@ -70,6 +70,9 @@ public interface ICloudService {
 
     void includeTemplates();
 
-    void deployResources();
+    void deployResources(Boolean removeDeployments);
 
+    default void deployResources() {
+        deployResources(true);
+    }
 }

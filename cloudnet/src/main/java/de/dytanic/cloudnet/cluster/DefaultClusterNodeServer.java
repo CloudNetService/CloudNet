@@ -435,14 +435,14 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void deployResources(UUID uniqueId) {
+    public void deployResources(UUID uniqueId, Boolean removeDeployments) {
         Validate.checkNotNull(uniqueId);
 
         if (this.channel != null)
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
-                                .append("uniqueId", uniqueId)
+                                .append("uniqueId", uniqueId).append("removeDeployments", removeDeployments)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
