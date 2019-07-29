@@ -46,12 +46,15 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
         if (args[0].equalsIgnoreCase("list")) {
             for (IModuleWrapper wrapper : moduleWrappers) {
-                if (properties.containsKey("group") && !wrapper.getModuleConfiguration().getGroup().contains(properties.get("group")))
+                if (properties.containsKey("group") && !wrapper.getModuleConfiguration().getGroup().contains(properties.get("group"))) {
                     continue;
-                if (properties.containsKey("name") && !wrapper.getModuleConfiguration().getName().contains(properties.get("name")))
+                }
+                if (properties.containsKey("name") && !wrapper.getModuleConfiguration().getName().contains(properties.get("name"))) {
                     continue;
-                if (properties.containsKey("version") && !wrapper.getModuleConfiguration().getVersion().contains(properties.get("version")))
+                }
+                if (properties.containsKey("version") && !wrapper.getModuleConfiguration().getVersion().contains(properties.get("version"))) {
                     continue;
+                }
 
                 this.displayModuleInfo(sender, wrapper);
             }
@@ -69,19 +72,22 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
         list.add("* Health status: " + moduleWrapper.getModuleLifeCycle().name());
 
-        if (moduleWrapper.getModuleConfiguration().getAuthor() != null)
+        if (moduleWrapper.getModuleConfiguration().getAuthor() != null) {
             list.add("* Author: " + moduleWrapper.getModuleConfiguration().getAuthor());
+        }
 
-        if (moduleWrapper.getModuleConfiguration().getWebsite() != null)
+        if (moduleWrapper.getModuleConfiguration().getWebsite() != null) {
             list.add("* Website: " + moduleWrapper.getModuleConfiguration().getWebsite());
+        }
 
-        if (moduleWrapper.getModuleConfiguration().getDescription() != null)
+        if (moduleWrapper.getModuleConfiguration().getDescription() != null) {
             list.add("* Description: " + moduleWrapper.getModuleConfiguration().getDescription());
+        }
 
         if (moduleWrapper.getModuleConfiguration().getDependencies() != null) {
             list.add(" ");
             list.add("* Dependencies: ");
-            for (ModuleDependency moduleDependency : moduleWrapper.getModuleConfiguration().getDependencies())
+            for (ModuleDependency moduleDependency : moduleWrapper.getModuleConfiguration().getDependencies()) {
                 list.addAll(Arrays.asList(
                         "- ",
                         "Dependency: " + moduleDependency.getGroup() + ":" + moduleDependency.getName() + ":" + moduleDependency.getVersion(),
@@ -92,6 +98,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
                                         "Repository: " + moduleDependency.getRepo()
                         )
                 ));
+            }
         }
 
         if (moduleWrapper.getModuleConfiguration().getProperties() != null) {

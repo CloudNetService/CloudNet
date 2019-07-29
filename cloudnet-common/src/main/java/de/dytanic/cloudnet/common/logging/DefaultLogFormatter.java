@@ -28,8 +28,8 @@ public final class DefaultLogFormatter implements IFormatter {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (String message : logEntry.getMessages())
-            if (message != null)
+        for (String message : logEntry.getMessages()) {
+            if (message != null) {
                 stringBuilder
                         .append("[")
                         .append(dateFormat.format(logEntry.getTimeStamp()))
@@ -38,6 +38,8 @@ public final class DefaultLogFormatter implements IFormatter {
                         .append(": ")
                         .append(message)
                         .append(System.lineSeparator());
+            }
+        }
 
 
         stringBuilder.append(builder);

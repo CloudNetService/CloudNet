@@ -108,7 +108,6 @@ public final class Iterables {
         return new ArrayBlockingQueue<>(capacity, fair, collection);
     }
 
-    /*= ------------------------------------------------------------------------------------------------------------ =*/
 
     /**
      * Iterates all keys in a Properties class instance.
@@ -117,10 +116,14 @@ public final class Iterables {
      * @param consumer   the handler which handle the following keys
      */
     public static void forEach(Properties properties, Consumer<String> consumer) {
-        if (properties == null || consumer == null) return;
+        if (properties == null || consumer == null) {
+            return;
+        }
 
         forEach(properties.propertyNames(), (Consumer) o -> {
-            if (o != null) consumer.accept(o.toString());
+            if (o != null) {
+                consumer.accept(o.toString());
+            }
         });
     }
 
@@ -131,7 +134,9 @@ public final class Iterables {
      * @param consumer    the handler which handle the following keys
      */
     public static <T> void forEach(Enumeration<T> enumeration, Consumer<T> consumer) {
-        if (enumeration == null || consumer == null) return;
+        if (enumeration == null || consumer == null) {
+            return;
+        }
 
         forEach(enumeration, consumer, null);
     }
@@ -143,9 +148,13 @@ public final class Iterables {
      * @param consumer the handler which handle the following keys
      */
     public static <T> void forEach(List<T> list, Consumer<T> consumer) {
-        if (list == null || consumer == null) return;
+        if (list == null || consumer == null) {
+            return;
+        }
 
-        for (T t : list) consumer.accept(t);
+        for (T t : list) {
+            consumer.accept(t);
+        }
     }
 
     /**
@@ -156,15 +165,17 @@ public final class Iterables {
      * @param throwableConsumer will called if the consumer handler throws an Throwable
      */
     public static <T> void forEach(Enumeration<T> enumeration, Consumer<T> consumer, Consumer<Throwable> throwableConsumer) {
-        while (enumeration.hasMoreElements())
+        while (enumeration.hasMoreElements()) {
             try {
                 consumer.accept(enumeration.nextElement());
             } catch (Throwable th) {
-                if (throwableConsumer != null)
+                if (throwableConsumer != null) {
                     throwableConsumer.accept(th);
-                else
+                } else {
                     th.printStackTrace();
+                }
             }
+        }
     }
 
 
@@ -186,25 +197,32 @@ public final class Iterables {
      * @param throwableConsumer will called if the consumer handler throws an Throwable
      */
     public static <T> void forEach(Iterator<T> iterator, Consumer<T> consumer, Consumer<Throwable> throwableConsumer) {
-        while (iterator.hasNext())
+        while (iterator.hasNext()) {
             try {
                 consumer.accept(iterator.next());
             } catch (Throwable th) {
-                if (throwableConsumer != null)
+                if (throwableConsumer != null) {
                     throwableConsumer.accept(th);
-                else
+                } else {
                     th.printStackTrace();
+                }
             }
+        }
     }
 
     /**
      * Filters the first item in an Iterable, which the predicate returns true
      */
     public static <T> T first(Iterable<T> iterable, Predicate<T> predicate) {
-        if (iterable == null || predicate == null) return null;
+        if (iterable == null || predicate == null) {
+            return null;
+        }
 
-        for (T entry : iterable)
-            if (predicate.test(entry)) return entry;
+        for (T entry : iterable) {
+            if (predicate.test(entry)) {
+                return entry;
+            }
+        }
 
         return null;
     }
@@ -213,80 +231,113 @@ public final class Iterables {
      *
      */
     public static <T> T first(T[] iterable, Predicate<T> predicate) {
-        if (iterable == null || predicate == null) return null;
+        if (iterable == null || predicate == null) {
+            return null;
+        }
 
-        for (T entry : iterable)
-            if (predicate.test(entry)) return entry;
+        for (T entry : iterable) {
+            if (predicate.test(entry)) {
+                return entry;
+            }
+        }
 
         return null;
     }
 
     public static <T> List<T> filter(Iterable<T> iterable, Predicate<T> predicate) {
-        if (iterable == null || predicate == null) return newArrayList();
+        if (iterable == null || predicate == null) {
+            return newArrayList();
+        }
 
         List<T> collection = newArrayList();
 
-        for (T entry : iterable)
-            if (predicate.test(entry))
+        for (T entry : iterable) {
+            if (predicate.test(entry)) {
                 collection.add(entry);
+            }
+        }
 
         return collection;
     }
 
     public static <T> void filter(Iterable<T> iterable, Predicate<T> predicate, Collection<T> out) {
-        if (iterable == null || predicate == null || out == null) return;
+        if (iterable == null || predicate == null || out == null) {
+            return;
+        }
 
-        for (T entry : iterable)
-            if (predicate.test(entry))
+        for (T entry : iterable) {
+            if (predicate.test(entry)) {
                 out.add(entry);
+            }
+        }
     }
 
     public static <T, V> List<V> map(T[] array, Function<T, V> function) {
-        if (array == null || function == null) return null;
+        if (array == null || function == null) {
+            return null;
+        }
 
         List<V> collection = newArrayList(array.length);
 
-        for (T entry : array) collection.add(function.apply(entry));
+        for (T entry : array) {
+            collection.add(function.apply(entry));
+        }
 
         return collection;
     }
 
     public static <T, V> List<V> map(Collection<T> coll, Function<T, V> function) {
-        if (coll == null || function == null) return null;
+        if (coll == null || function == null) {
+            return null;
+        }
 
         List<V> collection = newArrayList(coll.size());
 
-        for (T entry : coll) collection.add(function.apply(entry));
+        for (T entry : coll) {
+            collection.add(function.apply(entry));
+        }
 
         return collection;
     }
 
     public static <K, T> T reduce(K[] array, BiFunction<T, K, T> function, T t) {
-        if (array == null || function == null || t == null) return t;
+        if (array == null || function == null || t == null) {
+            return t;
+        }
 
         T item = t;
 
-        for (K entry : array) item = function.apply(t, entry);
+        for (K entry : array) {
+            item = function.apply(t, entry);
+        }
 
         return item;
     }
 
     public static <K, T> T reduce(Collection<K> collection, BiFunction<T, K, T> function, T t) {
-        if (collection == null || function == null || t == null) return t;
+        if (collection == null || function == null || t == null) {
+            return t;
+        }
 
         T item = t;
 
-        for (K entry : collection) item = function.apply(t, entry);
+        for (K entry : collection) {
+            item = function.apply(t, entry);
+        }
 
         return item;
     }
 
     public static <T> boolean contains(T t, T[] array) {
-        if (array == null) return false;
+        if (array == null) {
+            return false;
+        }
 
-        for (T item : array)
-            if (item != null && item.equals(t))
+        for (T item : array) {
+            if (item != null && item.equals(t)) {
                 return true;
+            }
+        }
 
         return false;
     }

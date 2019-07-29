@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,10 +19,10 @@ public class NettyHttpServerTest {
     public void testHttpServerWithParameters() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
-        Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", (IHttpHandler) (path, context) -> {
+        Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", (path, context) -> {
             if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
                     context.request().pathParameters().get("id").equals("64") && context.request().pathParameters().get("name").equals("Albert") &&
-                    context.request().method().toUpperCase().equals("GET"))
+                    context.request().method().toUpperCase().equals("GET")) {
                 context
                         .response()
                         .header("Content-Type", "text/plain")
@@ -33,12 +32,13 @@ public class NettyHttpServerTest {
                         .context()
                         .cancelNext()
                         ;
-            else
+            } else {
                 context.response()
                         .statusCode(404)
                         .context()
                         .cancelNext()
-                        ;
+                ;
+            }
         }));
 
         Assert.assertEquals(1, httpServer.getHttpHandlers().size());
@@ -69,8 +69,8 @@ public class NettyHttpServerTest {
     public void testHttpServerWithWildCard() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
-        Assert.assertNotNull(httpServer.registerHandler("/person/*/test", (IHttpHandler) (path, context) -> {
-            if (context.request().method().toUpperCase().equals("POST"))
+        Assert.assertNotNull(httpServer.registerHandler("/person/*/test", (path, context) -> {
+            if (context.request().method().toUpperCase().equals("POST")) {
                 context
                         .response()
                         .header("Content-Type", "text/plain")
@@ -79,7 +79,8 @@ public class NettyHttpServerTest {
                         .statusCode(200)
                         .context()
                         .cancelNext()
-                        ;
+                ;
+            }
         }));
 
         Assert.assertEquals(1, httpServer.getHttpHandlers().size());

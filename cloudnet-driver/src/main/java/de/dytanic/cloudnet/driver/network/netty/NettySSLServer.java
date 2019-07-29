@@ -23,10 +23,11 @@ abstract class NettySSLServer {
                     sslConfiguration.getPrivateKeyPath() != null) {
                 SslContextBuilder builder = SslContextBuilder.forServer(sslConfiguration.getCertificatePath(), sslConfiguration.getPrivateKeyPath());
 
-                if (sslConfiguration.getTrustCertificatePath() != null)
+                if (sslConfiguration.getTrustCertificatePath() != null) {
                     builder.trustManager(sslConfiguration.getTrustCertificatePath());
-                else
+                } else {
                     builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
+                }
 
                 this.sslContext = builder
                         .clientAuth(sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)

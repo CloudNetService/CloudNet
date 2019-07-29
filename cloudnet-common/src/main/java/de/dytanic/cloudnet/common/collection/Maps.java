@@ -91,36 +91,47 @@ public final class Maps {
         return new EnumMap<>(clazz);
     }
 
-    /*= --------------------------------------------------------------------------- =*/
 
     public static <K, V> Map<K, V> newMapByValues(Collection<V> collection, Function<V, K> function) {
-        if (collection == null || function == null) return null;
+        if (collection == null || function == null) {
+            return null;
+        }
 
         Map<K, V> map = newHashMap(collection.size());
 
-        for (V entry : collection) map.put(function.apply(entry), entry);
+        for (V entry : collection) {
+            map.put(function.apply(entry), entry);
+        }
 
         return map;
     }
 
     public static <K, V> Map<K, V> newMapByKeys(Collection<K> collection, Function<K, V> function) {
-        if (collection == null || function == null) return null;
+        if (collection == null || function == null) {
+            return null;
+        }
 
         Map<K, V> map = newHashMap(collection.size());
 
-        for (K entry : collection) map.put(entry, function.apply(entry));
+        for (K entry : collection) {
+            map.put(entry, function.apply(entry));
+        }
 
         return map;
     }
 
     public static <K, V> Map<K, V> of(Pair<K, V>... pairs) {
-        if (pairs == null) return newHashMap();
+        if (pairs == null) {
+            return newHashMap();
+        }
 
         Map<K, V> map = newHashMap(pairs.length);
 
-        for (Pair<K, V> pair : pairs)
-            if (pair != null)
+        for (Pair<K, V> pair : pairs) {
+            if (pair != null) {
                 map.put(pair.getFirst(), pair.getSecond());
+            }
+        }
 
         return map;
     }

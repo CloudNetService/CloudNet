@@ -14,7 +14,9 @@ public final class CommandHub implements Command {
 
     @Override
     public void execute(@MaybePresent CommandSource source, @NonNull @MaybePresent String[] args) {
-        if (!(source instanceof Player)) return;
+        if (!(source instanceof Player)) {
+            return;
+        }
 
         Player player = (Player) source;
 
@@ -39,7 +41,8 @@ public final class CommandHub implements Command {
                             .replace("%server%", server + "")
                             .replace("&", "§")
             ));
-        } else
+        } else {
             source.sendMessage(TextComponent.of(BridgeConfigurationProvider.load().getMessages().get("command-hub-no-server-found").replace("&", "§")));
+        }
     }
 }

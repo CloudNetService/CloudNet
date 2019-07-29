@@ -49,7 +49,9 @@ public class WorkerThread extends Thread implements ExecutorService {
     }
 
     public <T> ITask<T> submit(Callable<T> task, ITaskListener<T>[] listeners) {
-        if (task == null) return null;
+        if (task == null) {
+            return null;
+        }
 
         ITask<T> taskListener = new ListenableTask<>(task);
         taskListener.addListener(listeners);
@@ -58,7 +60,6 @@ public class WorkerThread extends Thread implements ExecutorService {
         return taskListener;
     }
 
-    /*= -------------------------------------------------------------------------------------- =*/
 
     @Override
     public void shutdown() {
@@ -109,7 +110,9 @@ public class WorkerThread extends Thread implements ExecutorService {
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
         List<Future<T>> list = new ArrayList<>(tasks.size());
 
-        for (Callable<T> callable : tasks) list.add(this.submit(callable));
+        for (Callable<T> callable : tasks) {
+            list.add(this.submit(callable));
+        }
         return list;
     }
 
@@ -135,7 +138,6 @@ public class WorkerThread extends Thread implements ExecutorService {
         this.submit(command);
     }
 
-    /*= -------------------------------------------------------------------------------------- =*/
 
     @Override
     public final void run() {
@@ -153,8 +155,11 @@ public class WorkerThread extends Thread implements ExecutorService {
                     ex.printStackTrace();
                 }
 
-                if (this.destinationTime > System.currentTimeMillis()) this.updateDestinationTime();
-                else break;
+                if (this.destinationTime > System.currentTimeMillis()) {
+                    this.updateDestinationTime();
+                } else {
+                    break;
+                }
 
             } catch (Throwable ex) {
                 break;
@@ -163,12 +168,13 @@ public class WorkerThread extends Thread implements ExecutorService {
 
         this.available = false;
 
-        while (!this.tasks.isEmpty())
+        while (!this.tasks.isEmpty()) {
             try {
                 this.tasks.take().call();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
 
         this.postRun();
     }
@@ -177,7 +183,6 @@ public class WorkerThread extends Thread implements ExecutorService {
 
     }
 
-    /*= -------------------------------------------------------------------------------------- =*/
 
     protected final void updateDestinationTime() {
         this.destinationTime = System.currentTimeMillis() + this.lifeMillis;

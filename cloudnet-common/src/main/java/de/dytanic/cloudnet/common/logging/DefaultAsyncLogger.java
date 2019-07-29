@@ -21,7 +21,7 @@ public class DefaultAsyncLogger implements ILogger {
 
         @Override
         public void run() {
-            while (!isInterrupted())
+            while (!isInterrupted()) {
                 try {
                     LogHandlerRunnable logHandlerRunnable = entries.take();
                     logHandlerRunnable.call();
@@ -29,9 +29,11 @@ public class DefaultAsyncLogger implements ILogger {
                 } catch (Throwable e) {
                     break;
                 }
+            }
 
-            while (!entries.isEmpty())
+            while (!entries.isEmpty()) {
                 entries.poll().call();
+            }
         }
     };
     protected int level = -1;
@@ -60,8 +62,9 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public ILogger log(LogEntry... logEntries) {
-        for (LogEntry logEntry : logEntries)
+        for (LogEntry logEntry : logEntries) {
             handleLogEntry(logEntry);
+        }
 
         return this;
     }
@@ -81,14 +84,18 @@ public class DefaultAsyncLogger implements ILogger {
     @Override
     public synchronized ILogger addLogHandlers(ILogHandler... logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) addLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            addLogHandler(logHandler);
+        }
         return this;
     }
 
     @Override
     public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) addLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            addLogHandler(logHandler);
+        }
         return this;
     }
 
@@ -102,14 +109,18 @@ public class DefaultAsyncLogger implements ILogger {
     @Override
     public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) removeLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            removeLogHandler(logHandler);
+        }
         return this;
     }
 
     @Override
     public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) removeLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            removeLogHandler(logHandler);
+        }
         return this;
     }
 
@@ -125,15 +136,20 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public boolean hasLogHandlers(ILogHandler... logHandlers) {
-        for (ILogHandler logHandler : logHandlers)
-            if (!this.handlers.contains(logHandler)) return false;
+        for (ILogHandler logHandler : logHandlers) {
+            if (!this.handlers.contains(logHandler)) {
+                return false;
+            }
+        }
 
         return true;
     }
 
     @Override
     public void close() throws Exception {
-        for (ILogHandler logHandler : this.handlers) logHandler.close();
+        for (ILogHandler logHandler : this.handlers) {
+            logHandler.close();
+        }
 
         this.logThread.interrupt();
         this.logThread.join();
@@ -143,10 +159,11 @@ public class DefaultAsyncLogger implements ILogger {
 
     private void handleLogEntry(LogEntry logEntry) {
         if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level)) {
-            if (logEntry.getLogLevel().isAsync())
+            if (logEntry.getLogLevel().isAsync()) {
                 entries.offer(new LogHandlerRunnable(logEntry));
-            else
+            } else {
                 new LogHandlerRunnable(logEntry).call();
+            }
         }
     }
 
@@ -161,12 +178,13 @@ public class DefaultAsyncLogger implements ILogger {
         @Override
         public Void call() {
 
-            for (ILogHandler iLogHandler : handlers)
+            for (ILogHandler iLogHandler : handlers) {
                 try {
                     iLogHandler.handle(logEntry);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            }
             return null;
         }
     }

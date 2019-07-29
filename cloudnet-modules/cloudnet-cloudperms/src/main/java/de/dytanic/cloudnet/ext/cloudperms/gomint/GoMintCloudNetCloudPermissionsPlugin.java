@@ -45,11 +45,11 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    /*= ------------------------------------------------------------------------------- =*/
 
     private void injectEntityPlayersCloudPermissionManager() {
-        for (EntityPlayer entityPlayer : GoMint.instance().getPlayers())
+        for (EntityPlayer entityPlayer : GoMint.instance().getPlayers()) {
             injectPermissionManager(entityPlayer);
+        }
     }
 
     public void injectPermissionManager(EntityPlayer entityPlayer) {

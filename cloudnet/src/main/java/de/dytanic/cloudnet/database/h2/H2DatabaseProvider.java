@@ -59,8 +59,9 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
         removedOutdatedEntries();
 
-        if (!cachedDatabaseInstances.contains(name))
+        if (!cachedDatabaseInstances.contains(name)) {
             cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new H2Database(this, name));
+        }
 
         return cachedDatabaseInstances.getSecond(name);
     }
@@ -71,8 +72,11 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
         removedOutdatedEntries();
 
-        for (String database : getDatabaseNames())
-            if (database.equalsIgnoreCase(name)) return true;
+        for (String database : getDatabaseNames()) {
+            if (database.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
 
         return false;
     }
@@ -98,7 +102,9 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
                 resultSet -> {
                     Collection<String> collection = Iterables.newArrayList();
-                    while (resultSet.next()) collection.add(resultSet.getString("table_name"));
+                    while (resultSet.next()) {
+                        collection.add(resultSet.getString("table_name"));
+                    }
 
                     return collection;
                 }
@@ -112,12 +118,15 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
     @Override
     public void close() throws Exception {
-        if (autoShutdownTaskScheduler) taskScheduler.shutdown();
+        if (autoShutdownTaskScheduler) {
+            taskScheduler.shutdown();
+        }
 
-        if (connection != null) connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
 
-    /*= ------------------------------------------------------------ =*/
 
     public int executeUpdate(String query, Object... objects) {
         Validate.checkNotNull(query);
@@ -125,8 +134,9 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
-            for (Object object : objects)
+            for (Object object : objects) {
                 preparedStatement.setString(i++, object.toString());
+            }
 
             return preparedStatement.executeUpdate();
 
@@ -144,8 +154,9 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
-            for (Object object : objects)
+            for (Object object : objects) {
                 preparedStatement.setString(i++, object.toString());
+            }
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return callback.call(resultSet);
@@ -158,11 +169,12 @@ public final class H2DatabaseProvider extends AbstractDatabaseProvider {
         return null;
     }
 
-    /*= ------------------------------------------------------------ =*/
 
     private void removedOutdatedEntries() {
-        for (Map.Entry<String, Pair<Long, H2Database>> entry : cachedDatabaseInstances.entrySet())
-            if (entry.getValue().getFirst() < System.currentTimeMillis())
+        for (Map.Entry<String, Pair<Long, H2Database>> entry : cachedDatabaseInstances.entrySet()) {
+            if (entry.getValue().getFirst() < System.currentTimeMillis()) {
                 cachedDatabaseInstances.remove(entry.getKey());
+            }
+        }
     }
 }

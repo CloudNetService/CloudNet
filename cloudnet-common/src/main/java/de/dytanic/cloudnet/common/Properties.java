@@ -23,7 +23,9 @@ public class Properties extends LinkedHashMap<String, String> {
      * @return the current Properties object instance
      */
     public static Properties parseLine(String line) {
-        if (line.trim().isEmpty()) return null;
+        if (line.trim().isEmpty()) {
+            return null;
+        }
 
         return parseLine(line.split(" "));
     }
@@ -45,7 +47,9 @@ public class Properties extends LinkedHashMap<String, String> {
         Properties properties = new Properties();
 
         for (String argument : args) {
-            if (argument.isEmpty() || argument.equals(" ")) continue;
+            if (argument.isEmpty() || argument.equals(" ")) {
+                continue;
+            }
 
             if (argument.contains("=")) {
                 int x = argument.indexOf("=");
@@ -71,12 +75,13 @@ public class Properties extends LinkedHashMap<String, String> {
      * @return the property parsed as boolean
      */
     public boolean getBoolean(String key) {
-        if (!containsKey(key)) return false;
+        if (!containsKey(key)) {
+            return false;
+        }
 
         return Boolean.parseBoolean(get(key));
     }
 
-    /*= -------------------------------------------------------------- =*/
 
     /**
      * The the data from a .properties file in the properties from by Sun/Oracle
@@ -87,12 +92,15 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void load(File file) throws IOException {
-        if (file == null) return;
+        if (file == null) {
+            return;
+        }
 
-        if (file.exists())
+        if (file.exists()) {
             try (InputStream inputStream = new FileInputStream(file)) {
                 load(inputStream);
             }
+        }
     }
 
     /**
@@ -104,9 +112,9 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void load(Path path) throws IOException {
-        if (path == null)
-
+        if (path == null) {
             load(path.toFile());
+        }
     }
 
     /**
@@ -136,8 +144,9 @@ public class Properties extends LinkedHashMap<String, String> {
             String input;
 
             while ((input = bufferedReader.readLine()) != null) {
-                if (input.isEmpty() || input.equals(" ") || input.startsWith("#") || !input.contains("="))
+                if (input.isEmpty() || input.equals(" ") || input.startsWith("#") || !input.contains("=")) {
                     continue;
+                }
 
                 int x = input.indexOf("=");
 
@@ -154,7 +163,9 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void save(File file) throws IOException {
-        if (file == null) return;
+        if (file == null) {
+            return;
+        }
 
         save(null, file.toPath());
     }
@@ -168,7 +179,9 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void save(String commit, File file) throws IOException {
-        if (file == null) return;
+        if (file == null) {
+            return;
+        }
 
         save(commit, file.toPath());
     }
@@ -193,7 +206,9 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void save(String commit, Path path) throws IOException {
-        if (!Files.exists(path)) Files.createFile(path);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
 
         try (OutputStream outputStream = Files.newOutputStream(path)) {
             save(commit, outputStream);
@@ -246,13 +261,17 @@ public class Properties extends LinkedHashMap<String, String> {
      */
     public void save(String commit, Writer writer) throws IOException {
         try (PrintWriter printWriter = new PrintWriter(writer)) {
-            if (commit != null)
-                for (String key : commit.split("\n"))
+            if (commit != null) {
+                for (String key : commit.split("\n")) {
                     printWriter.write("# " + key.replace("\n", "") + System.lineSeparator());
+                }
+            }
 
-            for (Map.Entry<String, String> keys : entrySet())
-                if (keys.getKey() != null && keys.getValue() != null)
+            for (Map.Entry<String, String> keys : entrySet()) {
+                if (keys.getKey() != null && keys.getValue() != null) {
                     printWriter.write(keys.getKey() + "=" + keys.getValue() + System.lineSeparator());
+                }
+            }
 
             printWriter.flush();
         }

@@ -19,7 +19,9 @@ public class V1HttpHandlerLogout extends V1HttpHandler {
     public void handle(String path, IHttpContext context) throws Exception {
         super.handle(path, context);
 
-        if (context.request().method().equalsIgnoreCase("OPTIONS")) return;
+        if (context.request().method().equalsIgnoreCase("OPTIONS")) {
+            return;
+        }
 
         HTTP_SESSION.logout(context);
 

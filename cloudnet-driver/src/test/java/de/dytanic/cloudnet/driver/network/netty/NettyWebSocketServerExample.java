@@ -3,10 +3,8 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -37,17 +35,19 @@ public final class NettyWebSocketServerExample {
     public void testWebSocket() throws Exception {
         IHttpServer httpServer = new NettyHttpServer();
 
-        httpServer.registerHandler("/test", (IHttpHandler) (path, context) -> {
+        httpServer.registerHandler("/test", (path, context) -> {
             IWebSocketChannel channel = context.upgrade();
-            channel.addListener((IWebSocketListener) (channel1, type, bytes) -> {
+            channel.addListener((channel1, type, bytes) -> {
                 switch (type) {
                     case PING:
-                        if (new String(bytes, StandardCharsets.UTF_8).equals(PING_STRING))
+                        if (new String(bytes, StandardCharsets.UTF_8).equals(PING_STRING)) {
                             channel1.sendWebSocketFrame(WebSocketFrameType.PONG, PONG_STRING);
+                        }
                         break;
                     case TEXT:
-                        if (new String(bytes, StandardCharsets.UTF_8).equals(TEXT_STRING))
+                        if (new String(bytes, StandardCharsets.UTF_8).equals(TEXT_STRING)) {
                             channel1.sendWebSocketFrame(WebSocketFrameType.BINARY, BINARY_STRING);
+                        }
                         break;
                     case CLOSE:
                         channel1.close();

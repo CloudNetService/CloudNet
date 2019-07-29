@@ -25,11 +25,15 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     @Override
     public boolean addPermission(Permission permission) {
-        if (permission == null || permission.getName() == null) return false;
+        if (permission == null || permission.getName() == null) {
+            return false;
+        }
 
         Permission exist = this.getPermission(permission.getName());
 
-        if (exist != null) this.permissions.remove(exist);
+        if (exist != null) {
+            this.permissions.remove(exist);
+        }
 
         this.permissions.add(permission);
 
@@ -38,10 +42,13 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     @Override
     public boolean addPermission(String group, Permission permission) {
-        if (group == null || permission == null) return false;
+        if (group == null || permission == null) {
+            return false;
+        }
 
-        if (!groupPermissions.containsKey(group))
+        if (!groupPermissions.containsKey(group)) {
             groupPermissions.put(group, Iterables.newArrayList());
+        }
 
         groupPermissions.get(group).add(permission);
         return true;
@@ -49,24 +56,35 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     @Override
     public boolean removePermission(String permission) {
-        if (permission == null) return false;
+        if (permission == null) {
+            return false;
+        }
 
         Permission exist = this.getPermission(permission);
 
-        if (exist != null) return this.permissions.remove(exist);
-        else return false;
+        if (exist != null) {
+            return this.permissions.remove(exist);
+        } else {
+            return false;
+        }
     }
 
     @Override
     public boolean removePermission(String group, String permission) {
-        if (group == null || permission == null) return false;
+        if (group == null || permission == null) {
+            return false;
+        }
 
         if (groupPermissions.containsKey(group)) {
             Permission p = Iterables.first(groupPermissions.get(group), perm -> perm.getName().equalsIgnoreCase(permission));
 
-            if (p != null) groupPermissions.get(group).remove(p);
+            if (p != null) {
+                groupPermissions.get(group).remove(p);
+            }
 
-            if (groupPermissions.get(group).isEmpty()) groupPermissions.remove(group);
+            if (groupPermissions.get(group).isEmpty()) {
+                groupPermissions.remove(group);
+            }
         }
 
         return true;

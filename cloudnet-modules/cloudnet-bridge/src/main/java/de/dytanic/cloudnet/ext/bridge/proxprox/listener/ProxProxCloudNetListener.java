@@ -22,16 +22,18 @@ public final class ProxProxCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceInfoUpdateEvent event) {
-        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo()))
+        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo())) {
             ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.proxproxCall(new ProxProxCloudServiceInfoUpdateEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
-        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo()))
+        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo())) {
             ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.proxproxCall(new ProxProxCloudServiceRegisterEvent(event.getServiceInfo()));
     }
@@ -43,16 +45,18 @@ public final class ProxProxCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceConnectNetworkEvent event) {
-        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo()))
+        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo())) {
             ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.proxproxCall(new ProxProxCloudServiceConnectNetworkEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceDisconnectNetworkEvent event) {
-        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo()))
+        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo())) {
             ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.proxproxCall(new ProxProxCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
     }
@@ -69,8 +73,9 @@ public final class ProxProxCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
-        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo()))
+        if (ProxProxCloudNetHelper.isServiceEnvironmentTypeProvidedForProxProx(event.getServiceInfo())) {
             ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.remove(event.getServiceInfo().getServiceId().getName());
+        }
 
         this.proxproxCall(new ProxProxCloudServiceUnregisterEvent(event.getServiceInfo()));
     }

@@ -11,7 +11,9 @@ public final class PlayerAddOrRemovePermissionAndGroups {
     public void addPermission(Player player) {
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
 
-        if (permissionUser == null) return;
+        if (permissionUser == null) {
+            return;
+        }
 
         permissionUser.addPermission("minecraft.command.gamemode", true); //adds a permission
         permissionUser.addPermission("CityBuild", "minecraft.command.difficulty"); //adds a permission which the effect works only on CityBuild group services

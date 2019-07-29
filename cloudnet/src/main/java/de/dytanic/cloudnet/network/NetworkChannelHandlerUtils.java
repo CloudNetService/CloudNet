@@ -49,17 +49,21 @@ final class NetworkChannelHandlerUtils {
 
         Collection<Packet> removed = Iterables.newArrayList();
 
-        for (Map.Entry<UUID, ServiceInfoSnapshot> entry : CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().entrySet())
+        for (Map.Entry<UUID, ServiceInfoSnapshot> entry : CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().entrySet()) {
             if (entry.getValue().getServiceId().getNodeUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId())) {
                 CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(entry.getKey());
                 removed.add(new PacketClientServerServiceInfoPublisher(entry.getValue(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
                 CloudNet.getInstance().getEventManager().callEvent(new CloudServiceUnregisterEvent(entry.getValue()));
             }
+        }
 
-        for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values())
-            if (cloudService.getNetworkChannel() != null)
-                for (Packet packet : removed)
+        for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+            if (cloudService.getNetworkChannel() != null) {
+                for (Packet packet : removed) {
                     cloudService.getNetworkChannel().sendPacket(packet);
+                }
+            }
+        }
 
         System.out.println(LanguageManager.getMessage("cluster-server-networking-disconnected")
                 .replace("%id%", clusterNodeServer.getNodeInfo().getUniqueId() + "")

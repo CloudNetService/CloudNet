@@ -31,15 +31,18 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
         this.writtenMessages.add(message);
 
-        while (this.writtenMessages.size() > 64) this.writtenMessages.poll();
+        while (this.writtenMessages.size() > 64) {
+            this.writtenMessages.poll();
+        }
     }
 
     @Override
     public void sendMessage(String... messages) {
         Validate.checkNotNull(messages);
 
-        for (String message : messages)
+        for (String message : messages) {
             this.sendMessage(message);
+        }
     }
 
     @Override

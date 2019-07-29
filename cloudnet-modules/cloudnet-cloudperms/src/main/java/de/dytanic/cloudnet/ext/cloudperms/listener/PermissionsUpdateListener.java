@@ -17,8 +17,9 @@ public final class PermissionsUpdateListener {
 
     @EventListener
     public void handle(PermissionUpdateUserEvent event) {
-        if (CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().containsKey(event.getPermissionUser().getUniqueId()))
+        if (CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().containsKey(event.getPermissionUser().getUniqueId())) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(event.getPermissionUser().getUniqueId(), event.getPermissionUser());
+        }
     }
 
     @EventListener
@@ -53,7 +54,8 @@ public final class PermissionsUpdateListener {
     public void handle(PermissionSetGroupsEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().clear();
 
-        for (IPermissionGroup permissionGroup : event.getGroups())
+        for (IPermissionGroup permissionGroup : event.getGroups()) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().put(permissionGroup.getName(), permissionGroup);
+        }
     }
 }

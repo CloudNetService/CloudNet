@@ -19,13 +19,14 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
     default <T extends Event> T fireEvent(T event) {
         Validate.checkNotNull(event);
 
-        if (getEventClass().isAssignableFrom(event.getClass()))
+        if (getEventClass().isAssignableFrom(event.getClass())) {
             try {
                 getHandlerMethod().setAccessible(true);
                 getHandlerMethod().invoke(getInstance(), event);
             } catch (Exception ex) {
                 throw new EventListenerException("An error on offerTask method " + getHandlerMethod().getName() + " in class " + getInstance().getClass(), ex);
             }
+        }
 
         return event;
     }

@@ -37,7 +37,6 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     public CloudOfflinePlayer() {
     }
 
-    /*= --------------------------------------------------------------- =*/
 
     public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer) {
         Validate.checkNotNull(cloudPlayer);

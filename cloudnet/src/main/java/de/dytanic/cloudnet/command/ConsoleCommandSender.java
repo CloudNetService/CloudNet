@@ -35,8 +35,9 @@ public final class ConsoleCommandSender implements ICommandSender {
     public void sendMessage(String... messages) {
         Validate.checkNotNull(messages);
 
-        for (String message : messages)
+        for (String message : messages) {
             this.sendMessage(message);
+        }
     }
 
     /**

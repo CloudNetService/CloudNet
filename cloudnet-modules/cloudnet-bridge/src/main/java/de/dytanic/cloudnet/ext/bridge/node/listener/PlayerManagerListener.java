@@ -26,9 +26,11 @@ public final class PlayerManagerListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
-        for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlineCloudPlayers().values())
-            if (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getUniqueId().equals(event.getServiceInfo().getServiceId().getUniqueId()))
+        for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlineCloudPlayers().values()) {
+            if (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getUniqueId().equals(event.getServiceInfo().getServiceId().getUniqueId())) {
                 NodePlayerManager.getInstance().getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
+            }
+        }
     }
 
     @EventListener
@@ -42,30 +44,35 @@ public final class PlayerManagerListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME))
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
             return;
+        }
 
         switch (event.getMessage().toLowerCase()) {
             case "send_all_online_players": {
                 List<CloudPlayer> cloudPlayers = event.getData().get("cloudPlayers", TYPE_CLOUD_PLAYERS_LIST);
 
-                if (cloudPlayers != null)
-                    for (CloudPlayer cloudPlayer : cloudPlayers)
+                if (cloudPlayers != null) {
+                    for (CloudPlayer cloudPlayer : cloudPlayers) {
                         NodePlayerManager.getInstance().getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
+                    }
+                }
             }
             break;
             case "update_offline_cloud_player": {
                 ICloudOfflinePlayer cloudOfflinePlayer = event.getData().get("offlineCloudPlayer", CloudOfflinePlayer.TYPE);
 
-                if (cloudOfflinePlayer != null)
+                if (cloudOfflinePlayer != null) {
                     NodePlayerManager.getInstance().updateOfflinePlayer0(cloudOfflinePlayer);
+                }
             }
             break;
             case "update_online_cloud_player": {
                 ICloudPlayer cloudPlayer = event.getData().get("cloudPlayer", CloudPlayer.TYPE);
 
-                if (cloudPlayer != null)
+                if (cloudPlayer != null) {
                     NodePlayerManager.getInstance().updateOnlinePlayer0(cloudPlayer);
+                }
             }
             break;
         }
@@ -73,8 +80,9 @@ public final class PlayerManagerListener {
 
     @EventListener
     public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME))
+        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
             return;
+        }
 
         switch (event.getId().toLowerCase()) {
             case "get_online_players_by_uuid": {

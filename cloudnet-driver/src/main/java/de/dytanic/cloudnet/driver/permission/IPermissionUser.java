@@ -18,26 +18,33 @@ public interface IPermissionUser extends IPermissible {
 
     boolean checkPassword(String password);
 
-    /*= ------------------------------------------------------- =*/
 
     default IPermissionUser addGroup(String group) {
-        if (group == null) return this;
+        if (group == null) {
+            return this;
+        }
 
         return addGroup(group, 0L);
     }
 
     default IPermissionUser addGroup(String group, long time, TimeUnit timeUnit) {
-        if (group == null) return this;
+        if (group == null) {
+            return this;
+        }
 
         return addGroup(group, (System.currentTimeMillis() + timeUnit.toMillis(time)));
     }
 
     default IPermissionUser addGroup(String group, long timeOutMillis) {
-        if (group == null) return this;
+        if (group == null) {
+            return this;
+        }
 
         PermissionUserGroupInfo groupInfo = Iterables.first(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group));
 
-        if (groupInfo != null) removeGroup(groupInfo.getGroup());
+        if (groupInfo != null) {
+            removeGroup(groupInfo.getGroup());
+        }
 
         groupInfo = new PermissionUserGroupInfo(group, timeOutMillis);
 
@@ -46,7 +53,9 @@ public interface IPermissionUser extends IPermissible {
     }
 
     default IPermissionUser removeGroup(String group) {
-        if (group == null) return this;
+        if (group == null) {
+            return this;
+        }
 
         Collection<PermissionUserGroupInfo> groupInfo = Iterables.filter(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group));
 
@@ -56,7 +65,9 @@ public interface IPermissionUser extends IPermissible {
     }
 
     default boolean inGroup(String group) {
-        if (group == null) return false;
+        if (group == null) {
+            return false;
+        }
 
         return Iterables.first(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup() != null && permissionUserGroupInfo.getGroup().equalsIgnoreCase(group)) != null;
     }

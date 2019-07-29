@@ -44,16 +44,22 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
     private synchronized void readStream(InputStream inputStream, boolean printErrorIntoConsole) {
         try {
-            while (inputStream.available() > 0 && (len = inputStream.read(buffer, 0, buffer.length)) != -1)
+            while (inputStream.available() > 0 && (len = inputStream.read(buffer, 0, buffer.length)) != -1) {
                 stringBuffer.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
+            }
 
             String stringText = stringBuffer.toString();
-            if (!stringText.contains("\n") && !stringText.contains("\r")) return;
+            if (!stringText.contains("\n") && !stringText.contains("\r")) {
+                return;
+            }
 
-            for (String input : stringText.split("\r"))
-                for (String text : input.split("\n"))
-                    if (!text.trim().isEmpty())
+            for (String input : stringText.split("\r")) {
+                for (String text : input.split("\n")) {
+                    if (!text.trim().isEmpty()) {
                         this.addCachedItem(text, printErrorIntoConsole);
+                    }
+                }
+            }
 
             stringBuffer.setLength(0);
 
@@ -63,18 +69,22 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
     }
 
     private void addCachedItem(String text, boolean printErrorIntoConsole) {
-        if (text == null) return;
+        if (text == null) {
+            return;
+        }
 
-        while (cachedLogMessages.size() >= CloudNet.getInstance().getConfig().getMaxServiceConsoleLogCacheSize())
+        while (cachedLogMessages.size() >= CloudNet.getInstance().getConfig().getMaxServiceConsoleLogCacheSize()) {
             cachedLogMessages.poll();
+        }
 
         cachedLogMessages.offer(text);
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
         CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(new PacketServerConsoleLogEntryReceive(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
 
-        if (this.autoPrintReceivedInput || printErrorIntoConsole)
+        if (this.autoPrintReceivedInput || printErrorIntoConsole) {
             CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO), "[" + cloudService.getServiceId().getName() + "] " + text);
+        }
     }
 
     public Queue<String> getCachedLogMessages() {

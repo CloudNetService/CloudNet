@@ -28,7 +28,6 @@ public final class NodePlayerManager implements IPlayerManager {
     public NodePlayerManager(String databaseName) {
         this.databaseName = databaseName;
 
-        /*= --------------------------------- =*/
 
         instance = this;
     }
@@ -37,13 +36,11 @@ public final class NodePlayerManager implements IPlayerManager {
         return NodePlayerManager.instance;
     }
 
-    /*= ---------------------------------------------------------------- =*/
 
     public IDatabase getDatabase() {
         return CloudNet.getInstance().getDatabaseProvider().getDatabase(databaseName);
     }
 
-    /*= ---------------------------------------------------------------- =*/
 
     @Override
     public CloudPlayer getOnlinePlayer(UUID uniqueId) {
@@ -95,7 +92,6 @@ public final class NodePlayerManager implements IPlayerManager {
         return cloudOfflinePlayers;
     }
 
-    /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
     public ITask<ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
@@ -132,7 +128,6 @@ public final class NodePlayerManager implements IPlayerManager {
         return schedule(() -> getRegisteredPlayers());
     }
 
-    /*= -------------------------------------------------------------------------------------- =*/
 
     @Override
     public void updateOfflinePlayer(ICloudOfflinePlayer cloudOfflinePlayer) {
@@ -214,7 +209,6 @@ public final class NodePlayerManager implements IPlayerManager {
         );
     }
 
-    /*= ------------------------------------------------------------------------------------ =*/
 
     private <T> ITask<T> schedule(Callable<T> callable) {
         return CloudNet.getInstance().getTaskScheduler().schedule(callable);

@@ -36,20 +36,22 @@ public final class ProxProxPlayerListener implements Listener {
 
         ServiceInfoSnapshot serviceInfoSnapshot = ProxProxCloudNetHelper.getServiceInfoSnapshotByHostAndPort(event.getTo().getIP(), event.getTo().getPort());
 
-        if (serviceInfoSnapshot != null)
+        if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerConnectRequest(ProxProxCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                     new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getServiceId().getName()));
+        }
     }
 
     @EventHandler
     public void handle(PlayerSwitchedEvent event) {
         ServiceInfoSnapshot serviceInfoSnapshot = ProxProxCloudNetHelper.getServiceInfoSnapshotByHostAndPort(event.getTo().getIP(), event.getTo().getPort());
 
-        if (serviceInfoSnapshot != null)
+        if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerSwitch(ProxProxCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                     new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getServiceId().getName()));
+        }
     }
 
     @EventHandler

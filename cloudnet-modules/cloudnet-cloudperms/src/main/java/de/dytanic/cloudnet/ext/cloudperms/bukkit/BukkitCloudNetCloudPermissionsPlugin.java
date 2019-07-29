@@ -100,10 +100,14 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup) {
         String teamName = permissionGroup.getSortId() + permissionGroup.getName();
 
-        if (teamName.length() > 16) teamName = teamName.substring(0, 16);
+        if (teamName.length() > 16) {
+            teamName = teamName.substring(0, 16);
+        }
 
         Team team = all.getScoreboard().getTeam(teamName);
-        if (team == null) team = all.getScoreboard().registerNewTeam(teamName);
+        if (team == null) {
+            team = all.getScoreboard().registerNewTeam(teamName);
+        }
 
         try {
             Method method = team.getClass().getDeclaredMethod("setColor", ChatColor.class);
@@ -153,8 +157,11 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             Field field;
             Class<?> clazz = reflectCraftClazz(".entity.CraftHumanEntity");
 
-            if (clazz != null) field = clazz.getDeclaredField("perm");
-            else field = Class.forName("net.glowstone.entity.GlowHumanEntity").getDeclaredField("permissions");
+            if (clazz != null) {
+                field = clazz.getDeclaredField("perm");
+            } else {
+                field = Class.forName("net.glowstone.entity.GlowHumanEntity").getDeclaredField("permissions");
+            }
 
             injectCloudPermissible0(player, field);
         } catch (Exception exception) {
@@ -162,10 +169,11 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         }
     }
 
-    /*= --------------------------------------------------------------------------------------------------- =*/
 
     private void initScoreboard(Player all) {
-        if (all.getScoreboard() == null) all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());
+        if (all.getScoreboard() == null) {
+            all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());
+        }
     }
 
     private void injectCloudPermissible0(Player player, Field field) throws Exception {
@@ -198,14 +206,17 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             Object result = method.invoke(Bukkit.getServer());
 
             if (result instanceof Iterable) {
-                for (Object item : ((Iterable) result))
+                for (Object item : ((Iterable) result)) {
                     consumer.accept((Player) item);
+                }
                 return;
             }
 
-            if (result instanceof Player[])
-                for (Player player : ((Player[]) result))
+            if (result instanceof Player[]) {
+                for (Player player : ((Player[]) result)) {
                     consumer.accept(player);
+                }
+            }
 
         } catch (Exception exception) {
             exception.printStackTrace();

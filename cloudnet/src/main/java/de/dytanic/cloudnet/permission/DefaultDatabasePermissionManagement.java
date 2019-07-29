@@ -42,7 +42,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public void updateUser(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleUpdateUser(this, permissionUser);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleUpdateUser(this, permissionUser);
+        }
 
         getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
     }
@@ -51,8 +53,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public void deleteUser(String name) {
         Validate.checkNotNull(name);
 
-        for (IPermissionUser permissionUser : getUser(name))
+        for (IPermissionUser permissionUser : getUser(name)) {
             getDatabase().delete(permissionUser.getUniqueId().toString());
+        }
     }
 
     @Override
@@ -85,12 +88,14 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
         if (jsonDocument != null) {
             IPermissionUser permissionUser = jsonDocument.toInstanceOf(PermissionUser.TYPE);
 
-            if (testPermissionUser(permissionUser))
+            if (testPermissionUser(permissionUser)) {
                 updateUser(permissionUser);
+            }
 
             return permissionUser;
-        } else
+        } else {
             return null;
+        }
     }
 
     @Override
@@ -100,8 +105,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
         return Iterables.map(getDatabase().get("name", name), strings -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
-            if (testPermissionUser(permissionUser))
+            if (testPermissionUser(permissionUser)) {
                 updateUser(permissionUser);
+            }
 
             return permissionUser;
         });
@@ -127,9 +133,11 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
         getDatabase().clear();
 
-        for (IPermissionUser permissionUser : users)
-            if (permissionUser != null)
+        for (IPermissionUser permissionUser : users) {
+            if (permissionUser != null) {
                 getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+            }
+        }
     }
 
     @Override
@@ -142,7 +150,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
             testPermissionUser(permissionUser);
-            if (permissionUser.inGroup(group)) permissionUsers.add(permissionUser);
+            if (permissionUser.inGroup(group)) {
+                permissionUsers.add(permissionUser);
+            }
         });
 
         return permissionUsers;
@@ -153,7 +163,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleAddGroup(this, permissionGroup);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleAddGroup(this, permissionGroup);
+        }
 
         testPermissionGroup(permissionGroup);
         deleteGroup(permissionGroup.getName());
@@ -167,7 +179,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public void updateGroup(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
+        }
 
         testPermissionGroup(permissionGroup);
         permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
@@ -180,7 +194,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
         Validate.checkNotNull(group);
 
         IPermissionGroup permissionGroup = permissionGroupsMap.remove(group);
-        if (permissionManagementHandler != null) permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+        }
 
         saveGroups();
     }
@@ -205,17 +221,20 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
         IPermissionGroup permissionGroup = permissionGroupsMap.get(name);
 
-        if (testPermissionGroup(permissionGroup))
+        if (testPermissionGroup(permissionGroup)) {
             updateGroup(permissionGroup);
+        }
 
         return permissionGroup;
     }
 
     @Override
     public Collection<IPermissionGroup> getGroups() {
-        for (IPermissionGroup permissionGroup : permissionGroupsMap.values())
-            if (testPermissionGroup(permissionGroup))
+        for (IPermissionGroup permissionGroup : permissionGroupsMap.values()) {
+            if (testPermissionGroup(permissionGroup)) {
                 updateGroup(permissionGroup);
+            }
+        }
 
         return permissionGroupsMap.values();
     }
@@ -224,7 +243,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public void setGroups(Collection<? extends IPermissionGroup> groups) {
         Validate.checkNotNull(groups);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleSetGroups(this, groups);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleSetGroups(this, groups);
+        }
 
         setGroups0(groups);
     }
@@ -233,7 +254,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public boolean reload() {
         loadGroups();
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleReloaded(this);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleReloaded(this);
+        }
 
         return true;
     }
@@ -266,8 +289,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
             this.permissionGroupsMap.clear();
 
-            for (PermissionGroup group : permissionGroups)
+            for (PermissionGroup group : permissionGroups) {
                 this.permissionGroupsMap.put(group.getName(), group);
+            }
 
             // saving the groups again to be sure that new fields in the permission group are in the file too
             document.append("groups", this.permissionGroupsMap.values());

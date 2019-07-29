@@ -31,14 +31,16 @@ public final class CommandScreen extends CommandDefault {
 
             if (cloudService != null) {
                 if (!(sender instanceof ConsoleCommandSender)) {
-                    for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages())
+                    for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
                         sender.sendMessage("[" + cloudService.getServiceId().getName() + "] " + input);
+                    }
                 } else {
                     cloudService.getServiceConsoleLogCache().setAutoPrintReceivedInput(!cloudService.getServiceConsoleLogCache().isAutoPrintReceivedInput());
 
                     if (cloudService.getServiceConsoleLogCache().isAutoPrintReceivedInput()) {
-                        for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages())
+                        for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
                             CloudNetDriver.getInstance().getLogger().log(LogLevel.IMPORTANT, "[" + cloudService.getServiceId().getName() + "] " + input);
+                        }
 
                         sender.sendMessage(LanguageManager.getMessage("command-screen-enable-for-service")
                                 .replace("%name%", cloudService.getServiceId().getName() + "")
@@ -64,10 +66,11 @@ public final class CommandScreen extends CommandDefault {
             List<ICloudService> cloudServices = Iterables.filter(CloudNet.getInstance().getCloudServiceManager().getCloudServices().values(), cloudService12 -> cloudService12.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()));
 
             if (!cloudServices.isEmpty()) {
-                if (cloudServices.size() > 1)
+                if (cloudServices.size() > 1) {
                     cloudService = Iterables.first(cloudServices, cloudService1 -> cloudService1.getServiceId().getName().equalsIgnoreCase(argument));
-                else
+                } else {
                     cloudService = cloudServices.get(0);
+                }
             }
         }
 

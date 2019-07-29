@@ -27,19 +27,21 @@ public final class ServiceInfoSnapshotUtilExample {
 
         Collection<PluginInfo> pluginInfos = ServiceInfoSnapshotUtil.getPlugins(event.getServiceInfo()); //The pluginInfo items with the important information about the plugin or null
 
-        if (pluginInfos != null)
+        if (pluginInfos != null) {
             for (PluginInfo pluginInfo : pluginInfos) {
                 String pluginInfoName = pluginInfo.getName();
                 String pluginInfoVersion = pluginInfo.getVersion();
                 JsonDocument subProperties = pluginInfo.getProperties();
             }
+        }
 
         Collection<JsonDocument> players = ServiceInfoSnapshotUtil.getPlayers(event.getServiceInfo());
 
-        if (players != null)
+        if (players != null) {
             for (JsonDocument player : players) {
                 UUID uniqueId = player.get("uniqueId", UUID.class);
                 String name = player.getString("name");
             }
+        }
     }
 }

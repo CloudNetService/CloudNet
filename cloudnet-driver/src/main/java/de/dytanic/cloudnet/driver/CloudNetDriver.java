@@ -54,13 +54,11 @@ public abstract class CloudNetDriver {
         CloudNetDriver.instance = instance;
     }
 
-    /*= ------------------------------------------------- =*/
 
     public abstract void start() throws Exception;
 
     public abstract void stop() throws Exception;
 
-    /*= ------------------------------------------------- =*/
 
     public abstract INetworkClient getNetworkClient();
 
@@ -238,7 +236,6 @@ public abstract class CloudNetDriver {
 
     public abstract void setGroups(Collection<? extends IPermissionGroup> groups);
 
-    //=-------------------------------------------------------------------------------
 
     public abstract ITask<String[]> sendCommandLineAsync(String commandLine);
 
@@ -362,7 +359,6 @@ public abstract class CloudNetDriver {
 
     public abstract ITask<Collection<IPermissionGroup>> getGroupsAsync();
 
-    /*= ------------------------------------------------------------------------------------------------ =*/
 
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
         Validate.checkNotNull(networkChannel);

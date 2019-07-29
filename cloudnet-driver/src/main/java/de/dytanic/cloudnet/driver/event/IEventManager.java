@@ -20,7 +20,6 @@ public interface IEventManager {
 
     <T extends Event> T callEvent(String channel, T event);
 
-    /*= ---------------------------------------------------------- =*/
 
     default <T extends Event> T callEvent(T event) {
         return this.callEvent("*", event);
@@ -29,8 +28,9 @@ public interface IEventManager {
     default IEventManager registerListeners(Object... listeners) {
         Validate.checkNotNull(listeners);
 
-        for (Object listener : listeners)
+        for (Object listener : listeners) {
             this.registerListener(listener);
+        }
 
         return this;
     }

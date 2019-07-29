@@ -29,7 +29,9 @@ public class JsonDocumentTest {
                         .append("firstProp", stringStringPair.getFirst())
                         .append("secondProp", stringStringPair.getSecond()),
                 document -> {
-                    if (!document.contains("firstProp") || !document.contains("secondProp")) return null;
+                    if (!document.contains("firstProp") || !document.contains("secondProp")) {
+                        return null;
+                    }
 
                     return new Pair<>(document.getString("firstProp"), document.getString("secondProp"));
                 },

@@ -59,10 +59,11 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    /*= -------------------------------------------------------------------------------------------------- =*/
 
     private void initPlayersPermissionFunction() {
-        for (Player player : proxyServer.getAllPlayers()) injectPermissionFunction(player);
+        for (Player player : proxyServer.getAllPlayers()) {
+            injectPermissionFunction(player);
+        }
     }
 
     public void injectPermissionFunction(Player player) {

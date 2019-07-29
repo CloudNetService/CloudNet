@@ -22,7 +22,9 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
 
     @Override
     public void handleChannelInitialize(INetworkChannel channel) {
-        if (!NetworkChannelHandlerUtils.handleInitChannel(channel, ChannelType.CLIENT_CHANNEL)) return;
+        if (!NetworkChannelHandlerUtils.handleInitChannel(channel, ChannelType.CLIENT_CHANNEL)) {
+            return;
+        }
 
         channel.sendPacket(new PacketClientAuthorization(
                 PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
@@ -39,7 +41,9 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
 
     @Override
     public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-        if (InternalSyncPacketChannel.handleIncomingChannel(packet)) return false;
+        if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
+            return false;
+        }
 
         return !CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
     }
@@ -56,7 +60,8 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
 
         IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
 
-        if (clusterNodeServer != null)
+        if (clusterNodeServer != null) {
             NetworkChannelHandlerUtils.handleRemoveDisconnectedClusterInNetwork(channel, clusterNodeServer);
+        }
     }
 }

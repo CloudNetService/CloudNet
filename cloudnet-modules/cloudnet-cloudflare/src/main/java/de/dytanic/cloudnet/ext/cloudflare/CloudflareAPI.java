@@ -137,8 +137,9 @@ public final class CloudflareAPI implements AutoCloseable {
             if (statusCode < 400 && document.getDocument("result") != null && document.getDocument("result").contains("id")) {
                 this.createdRecords.remove(document.getDocument("result").getString("id"));
                 this.write();
-            } else
+            } else {
                 CloudNetDriver.getInstance().getLogger().fatal(document.toJson());
+            }
 
             return new Pair<>(statusCode, document);
 
@@ -153,12 +154,13 @@ public final class CloudflareAPI implements AutoCloseable {
     public void close() throws Exception {
     }
 
-    /*= ------------------------------------------------------------------------------- =*/
 
     private void read() {
         JsonDocument document = database.get(CLOUDFLARE_STORE_DOCUMENT);
 
-        if (document == null) document = new JsonDocument("cache", Collections.EMPTY_MAP);
+        if (document == null) {
+            document = new JsonDocument("cache", Collections.EMPTY_MAP);
+        }
         //Document document = Document.newDocument(this.file);
 
         this.createdRecords.clear();
@@ -168,7 +170,9 @@ public final class CloudflareAPI implements AutoCloseable {
     private void write() {
         JsonDocument document = database.get(CLOUDFLARE_STORE_DOCUMENT);
 
-        if (document == null) document = new JsonDocument();
+        if (document == null) {
+            document = new JsonDocument();
+        }
 
         document.append("cache", this.createdRecords);
 
@@ -184,8 +188,9 @@ public final class CloudflareAPI implements AutoCloseable {
                     .append("zoneId", zoneId)
             ));
             this.write();
-        } else
+        } else {
             CloudNetDriver.getInstance().getLogger().fatal(document.toJson());
+        }
     }
 
     private void initRequestProperties(HttpURLConnection httpURLConnection, String email, String apiKey) {

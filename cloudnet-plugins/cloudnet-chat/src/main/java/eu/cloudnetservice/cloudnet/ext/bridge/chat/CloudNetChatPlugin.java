@@ -32,8 +32,9 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
         IPermissionGroup group = CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(user);
 
         String message = event.getMessage().replace("%", "%%");
-        if (player.hasPermission("cloudnet.chat.color"))
+        if (player.hasPermission("cloudnet.chat.color")) {
             message = ChatColor.translateAlternateColorCodes('&', message);
+        }
 
         if (ChatColor.stripColor(message).trim().isEmpty()) {
             event.setCancelled(true);

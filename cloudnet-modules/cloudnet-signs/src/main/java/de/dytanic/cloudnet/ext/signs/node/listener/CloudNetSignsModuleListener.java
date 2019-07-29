@@ -28,7 +28,9 @@ public final class CloudNetSignsModuleListener {
 
     @EventListener
     public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY)) return;
+        if (!event.getChannelName().equalsIgnoreCase(SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY)) {
+            return;
+        }
 
         switch (event.getId().toLowerCase()) {
             case SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY: {
@@ -44,7 +46,7 @@ public final class CloudNetSignsModuleListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (event.getChannel().equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME))
+        if (event.getChannel().equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)) {
             switch (event.getMessage().toLowerCase()) {
                 case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
                     SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
@@ -57,8 +59,9 @@ public final class CloudNetSignsModuleListener {
                 }
                 break;
             }
+        }
 
-        if (event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME))
+        if (event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) {
             switch (event.getMessage().toLowerCase()) {
                 case SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE: {
                     Sign sign = event.getData().get("sign", Sign.TYPE);
@@ -77,5 +80,6 @@ public final class CloudNetSignsModuleListener {
                 }
                 break;
             }
+        }
     }
 }

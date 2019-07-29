@@ -35,7 +35,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public IPermissionUser addUser(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleAddUser(this, permissionUser);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleAddUser(this, permissionUser);
+        }
 
         this.deleteUser(permissionUser);
         this.permissionUsers.put(permissionUser.getUniqueId(), permissionUser);
@@ -48,7 +50,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public void updateUser(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleUpdateUser(this, permissionUser);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleUpdateUser(this, permissionUser);
+        }
 
         testPermissionUser(permissionUser);
         this.permissionUsers.put(permissionUser.getUniqueId(), permissionUser);
@@ -60,7 +64,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
         Validate.checkNotNull(name);
 
         for (IPermissionUser permissionUser : Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name))) {
-            if (permissionManagementHandler != null) permissionManagementHandler.handleDeleteUser(this, permissionUser);
+            if (permissionManagementHandler != null) {
+                permissionManagementHandler.handleDeleteUser(this, permissionUser);
+            }
 
             this.permissionUsers.remove(permissionUser.getUniqueId());
         }
@@ -72,7 +78,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public void deleteUser(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleDeleteUser(this, permissionUser);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleDeleteUser(this, permissionUser);
+        }
 
         this.permissionUsers.remove(permissionUser.getUniqueId());
         this.save();
@@ -97,8 +105,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
         Validate.checkNotNull(uniqueId);
         IPermissionUser permissionUser = this.permissionUsers.get(uniqueId);
 
-        if (testPermissionUser(permissionUser))
+        if (testPermissionUser(permissionUser)) {
             updateUser(permissionUser);
+        }
 
         return permissionUser;
     }
@@ -109,9 +118,11 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
 
         List<IPermissionUser> permissionUsers = Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name));
 
-        for (IPermissionUser user : permissionUsers)
-            if (testPermissionUser(user))
+        for (IPermissionUser user : permissionUsers) {
+            if (testPermissionUser(user)) {
                 updateUser(user);
+            }
+        }
 
         return permissionUsers;
     }
@@ -120,7 +131,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public boolean reload() {
         load();
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleReloaded(this);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleReloaded(this);
+        }
 
         return true;
     }
@@ -142,19 +155,24 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public Collection<IPermissionUser> getUsers() {
         Collection<IPermissionUser> permissionUsers = this.permissionUsers.values();
 
-        for (IPermissionUser permissionUser : permissionUsers)
-            if (testPermissionUser(permissionUser))
+        for (IPermissionUser permissionUser : permissionUsers) {
+            if (testPermissionUser(permissionUser)) {
                 updateUser(permissionUser);
+            }
+        }
 
         return permissionUsers;
     }
 
     @Override
     public void setUsers(Collection<? extends IPermissionUser> users) {
-        if (users == null) return;
+        if (users == null) {
+            return;
+        }
 
-        if (permissionManagementHandler != null)
+        if (permissionManagementHandler != null) {
             permissionManagementHandler.handleSetUsers(this, permissionUsers.values());
+        }
 
         setUsers0(users);
     }
@@ -183,7 +201,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleAddGroup(this, permissionGroup);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleAddGroup(this, permissionGroup);
+        }
 
         this.permissionGroups.put(permissionGroup.getName(), permissionGroup);
         this.save();
@@ -195,7 +215,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public void updateGroup(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
+        }
 
         testPermissionGroup(permissionGroup);
         this.permissionGroups.put(permissionGroup.getName(), permissionGroup);
@@ -208,16 +230,20 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
         IPermissionGroup permissionGroup = this.permissionGroups.remove(group);
         this.save();
 
-        if (permissionGroup != null)
-            if (permissionManagementHandler != null)
+        if (permissionGroup != null) {
+            if (permissionManagementHandler != null) {
                 permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+            }
+        }
     }
 
     @Override
     public void deleteGroup(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+        }
 
         this.permissionGroups.remove(permissionGroup.getName());
         this.save();
@@ -235,8 +261,9 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
         Validate.checkNotNull(name);
         IPermissionGroup permissionGroup = this.permissionGroups.get(name);
 
-        if (permissionGroup != null && testPermissionGroup(permissionGroup))
+        if (permissionGroup != null && testPermissionGroup(permissionGroup)) {
             updateGroup(permissionGroup);
+        }
 
         return permissionGroup;
     }
@@ -245,18 +272,24 @@ public final class DefaultJsonFilePermissionManagement implements IPermissionMan
     public Collection<IPermissionGroup> getGroups() {
         Collection<IPermissionGroup> permissionGroups = this.permissionGroups.values();
 
-        for (IPermissionGroup permissionGroup : permissionGroups)
-            if (testPermissionGroup(permissionGroup))
+        for (IPermissionGroup permissionGroup : permissionGroups) {
+            if (testPermissionGroup(permissionGroup)) {
                 updateGroup(permissionGroup);
+            }
+        }
 
         return permissionGroups;
     }
 
     @Override
     public void setGroups(Collection<? extends IPermissionGroup> permissionGroups) {
-        if (permissionGroups == null) return;
+        if (permissionGroups == null) {
+            return;
+        }
 
-        if (permissionManagementHandler != null) permissionManagementHandler.handleSetGroups(this, permissionGroups);
+        if (permissionManagementHandler != null) {
+            permissionManagementHandler.handleSetGroups(this, permissionGroups);
+        }
         setGroups0(permissionGroups);
     }
 

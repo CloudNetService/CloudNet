@@ -18,10 +18,12 @@ public final class PacketServerSetGlobalServiceInfoListListener implements IPack
             Collection<ServiceInfoSnapshot> serviceInfoSnapshots = packet.getHeader().get("serviceInfoList", new TypeToken<List<ServiceInfoSnapshot>>() {
             }.getType());
 
-            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots)
-                if (serviceInfoSnapshot != null)
+            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+                if (serviceInfoSnapshot != null) {
                     CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots()
                             .put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                }
+            }
         }
     }
 }

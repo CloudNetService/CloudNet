@@ -116,8 +116,9 @@ final class NettyHttpServerRequest implements IHttpRequest {
     public Map<String, String> headers() {
         Map<String, String> maps = Maps.newHashMap(this.httpRequest.headers().size());
 
-        for (String key : this.httpRequest.headers().names())
+        for (String key : this.httpRequest.headers().names()) {
             maps.put(key, this.httpRequest.headers().get(key));
+        }
 
         return maps;
     }
@@ -143,9 +144,9 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
                 int length = httpRequest.content().readableBytes();
 
-                if (httpRequest.content().hasArray())
+                if (httpRequest.content().hasArray()) {
                     body = httpRequest.content().array();
-                else {
+                } else {
                     body = new byte[length];
                     httpRequest.content().getBytes(httpRequest.content().readerIndex(), body);
                 }
@@ -175,21 +176,25 @@ final class NettyHttpServerRequest implements IHttpRequest {
     }
 
     private HttpVersion getCloudNetHttpVersion(io.netty.handler.codec.http.HttpVersion httpVersion) {
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0)
+        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0) {
             return HttpVersion.HTTP_1_0;
+        }
 
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1)
+        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
             return HttpVersion.HTTP_1_1;
+        }
 
         return HttpVersion.HTTP_1_0;
     }
 
     private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(HttpVersion httpVersion) {
-        if (httpVersion == HttpVersion.HTTP_1_0)
+        if (httpVersion == HttpVersion.HTTP_1_0) {
             return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
+        }
 
-        if (httpVersion == HttpVersion.HTTP_1_1)
+        if (httpVersion == HttpVersion.HTTP_1_1) {
             return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+        }
 
         return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
     }

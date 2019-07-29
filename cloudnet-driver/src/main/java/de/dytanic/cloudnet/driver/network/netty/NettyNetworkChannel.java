@@ -20,7 +20,6 @@ final class NettyNetworkChannel implements INetworkChannel {
 
     private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
 
-    /*= ------------------------------------------------------------------------------ =*/
 
     private final Channel channel;
 
@@ -48,10 +47,11 @@ final class NettyNetworkChannel implements INetworkChannel {
     public void sendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
-        if (this.channel.eventLoop().inEventLoop())
+        if (this.channel.eventLoop().inEventLoop()) {
             sendPacket0(packet);
-        else
+        } else {
             this.channel.eventLoop().execute(() -> sendPacket0(packet));
+        }
     }
 
     private void sendPacket0(IPacket packet) {
@@ -62,7 +62,9 @@ final class NettyNetworkChannel implements INetworkChannel {
     public void sendPacket(IPacket... packets) {
         Validate.checkNotNull(packets);
 
-        for (IPacket packet : packets) this.sendPacket(packet);
+        for (IPacket packet : packets) {
+            this.sendPacket(packet);
+        }
     }
 
     @Override

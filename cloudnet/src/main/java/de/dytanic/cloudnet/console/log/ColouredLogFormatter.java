@@ -25,8 +25,8 @@ public final class ColouredLogFormatter implements IFormatter {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (String message : logEntry.getMessages())
-            if (message != null)
+        for (String message : logEntry.getMessages()) {
+            if (message != null) {
                 stringBuilder
                         .append(ConsoleColor.DARK_GRAY)
                         .append("[")
@@ -41,6 +41,8 @@ public final class ColouredLogFormatter implements IFormatter {
                         .append(logEntry.getLogLevel().getLevel() < LogLevel.WARNING.getLevel() ? ConsoleColor.DEFAULT : ConsoleColor.YELLOW)
                         .append(message)
                         .append(System.lineSeparator());
+            }
+        }
 
         return stringBuilder.append(builder).toString();
     }

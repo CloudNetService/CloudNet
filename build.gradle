@@ -94,7 +94,6 @@ allprojects {
         cloudnetModuleDatabaseMySQLFileName = 'cloudnet-database-mysql.jar'
     }
 
-    /*= ------------------------------------------------------------------------------------------- =*/
 
     ext.createCnlFile = { Project pro, String fileName ->
 
@@ -170,7 +169,6 @@ subprojects {
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
     }
 
-    /*= ------------------------------------------------------------------------------------------- =*/
 
     task sourceJar(type: Jar, dependsOn: classes) {
 

@@ -26,8 +26,9 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
     public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
         Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
-        if (permissionUser == null)
+        if (permissionUser == null) {
             return infos;
+        }
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
             infos.putAll(
@@ -58,7 +59,9 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     @Override
     public boolean hasPermission(String inName) {
-        if (inName == null) return false;
+        if (inName == null) {
+            return false;
+        }
 
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
         return permissionUser != null && CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, inName);

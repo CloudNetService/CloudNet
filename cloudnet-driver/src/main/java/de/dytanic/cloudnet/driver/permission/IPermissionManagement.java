@@ -50,7 +50,6 @@ public interface IPermissionManagement {
 
     boolean reload();
 
-    /*= ----------------------------------------------------------------------------------- =*/
 
     default IPermissionGroup getHighestPermissionGroup(IPermissionUser permissionUser) {
         IPermissionGroup permissionGroup = null;
@@ -61,73 +60,92 @@ public interface IPermissionManagement {
                 continue;
             }
 
-            if (permissionGroup.getPotency() <= group.getPotency())
+            if (permissionGroup.getPotency() <= group.getPotency()) {
                 permissionGroup = group;
+            }
         }
 
         return permissionGroup != null ? permissionGroup : this.getDefaultPermissionGroup();
     }
 
     default IPermissionGroup getDefaultPermissionGroup() {
-        for (IPermissionGroup group : getGroups())
-            if (group != null && group.isDefaultGroup())
+        for (IPermissionGroup group : getGroups()) {
+            if (group != null && group.isDefaultGroup()) {
                 return group;
+            }
+        }
 
         return null;
     }
 
     default boolean testPermissionGroup(IPermissionGroup permissionGroup) {
-        if (permissionGroup == null) return false;
+        if (permissionGroup == null) {
+            return false;
+        }
 
         return testPermissible(permissionGroup);
     }
 
     default boolean testPermissionUser(IPermissionUser permissionUser) {
-        if (permissionUser == null) return false;
+        if (permissionUser == null) {
+            return false;
+        }
 
         boolean result = testPermissible(permissionUser);
 
         List<PermissionUserGroupInfo> groupsToRemove = Iterables.newArrayList();
 
-        for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups())
+        for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             if (groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis()) {
                 groupsToRemove.add(groupInfo);
                 result = true;
             }
+        }
 
-        for (PermissionUserGroupInfo groupInfo : groupsToRemove)
+        for (PermissionUserGroupInfo groupInfo : groupsToRemove) {
             permissionUser.getGroups().remove(groupInfo);
+        }
 
         return result;
     }
 
     default boolean testPermissible(IPermissible permissible) {
-        if (permissible == null) return false;
+        if (permissible == null) {
+            return false;
+        }
 
         boolean result = false;
 
         Collection<String> haveToRemove = Iterables.newArrayList();
 
-        for (Permission permission : permissible.getPermissions())
-            if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis())
+        for (Permission permission : permissible.getPermissions()) {
+            if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis()) {
                 haveToRemove.add(permission.getName());
+            }
+        }
 
         if (!haveToRemove.isEmpty()) {
             result = true;
 
-            for (String permission : haveToRemove) permissible.removePermission(permission);
+            for (String permission : haveToRemove) {
+                permissible.removePermission(permission);
+            }
             haveToRemove.clear();
         }
 
         for (Map.Entry<String, Collection<Permission>> entry : permissible.getGroupPermissions().entrySet()) {
-            for (Permission permission : entry.getValue())
-                if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis())
+            for (Permission permission : entry.getValue()) {
+                if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis()) {
                     haveToRemove.add(permission.getName());
+                }
+            }
 
             if (!haveToRemove.isEmpty()) {
                 result = true;
 
-                for (String permission : haveToRemove) permissible.removePermission(entry.getKey(), permission);
+                for (String permission : haveToRemove) {
+                    permissible.removePermission(entry.getKey(), permission);
+                }
                 haveToRemove.clear();
             }
         }
@@ -146,12 +164,16 @@ public interface IPermissionManagement {
     default Collection<IPermissionGroup> getGroups(IPermissionUser permissionUser) {
         Collection<IPermissionGroup> permissionGroups = Iterables.newArrayList();
 
-        if (permissionUser == null) return permissionGroups;
+        if (permissionUser == null) {
+            return permissionGroups;
+        }
 
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             IPermissionGroup permissionGroup = getGroup(groupInfo.getGroup());
 
-            if (permissionGroup != null) permissionGroups.add(permissionGroup);
+            if (permissionGroup != null) {
+                permissionGroups.add(permissionGroup);
+            }
         }
 
         return permissionGroups;
@@ -166,7 +188,9 @@ public interface IPermissionManagement {
     }
 
     default boolean hasPermission(IPermissionUser permissionUser, Permission permission) {
-        if (permissionUser == null || permission == null || permission.getName() == null) return false;
+        if (permissionUser == null || permission == null || permission.getName() == null) {
+            return false;
+        }
 
         switch (permissionUser.hasPermission(permission)) {
             case ALLOWED:
@@ -174,9 +198,11 @@ public interface IPermissionManagement {
             case FORBIDDEN:
                 return false;
             default:
-                for (IPermissionGroup permissionGroup : getGroups(permissionUser))
-                    if (tryExtendedGroups(permissionGroup, permission))
+                for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
+                    if (tryExtendedGroups(permissionGroup, permission)) {
                         return true;
+                    }
+                }
                 break;
         }
 
@@ -184,7 +210,9 @@ public interface IPermissionManagement {
     }
 
     default boolean hasPermission(IPermissionUser permissionUser, String group, Permission permission) {
-        if (permissionUser == null || group == null || permission == null || permission.getName() == null) return false;
+        if (permissionUser == null || group == null || permission == null || permission.getName() == null) {
+            return false;
+        }
 
         switch (permissionUser.hasPermission(group, permission)) {
             case ALLOWED:
@@ -192,9 +220,11 @@ public interface IPermissionManagement {
             case FORBIDDEN:
                 return false;
             default:
-                for (IPermissionGroup permissionGroup : getGroups(permissionUser))
-                    if (tryExtendedGroups(permissionGroup, group, permission))
+                for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
+                    if (tryExtendedGroups(permissionGroup, group, permission)) {
                         return true;
+                    }
+                }
                 break;
         }
 
@@ -202,7 +232,9 @@ public interface IPermissionManagement {
     }
 
     default boolean tryExtendedGroups(IPermissionGroup permissionGroup, Permission permission) {
-        if (permissionGroup == null) return false;
+        if (permissionGroup == null) {
+            return false;
+        }
 
         switch (permissionGroup.hasPermission(permission)) {
             case ALLOWED:
@@ -210,9 +242,11 @@ public interface IPermissionManagement {
             case FORBIDDEN:
                 return false;
             default:
-                for (IPermissionGroup extended : getExtendedGroups(permissionGroup))
-                    if (tryExtendedGroups(extended, permission))
+                for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
+                    if (tryExtendedGroups(extended, permission)) {
                         return true;
+                    }
+                }
                 break;
         }
 
@@ -220,7 +254,9 @@ public interface IPermissionManagement {
     }
 
     default boolean tryExtendedGroups(IPermissionGroup permissionGroup, String group, Permission permission) {
-        if (permissionGroup == null) return false;
+        if (permissionGroup == null) {
+            return false;
+        }
 
         switch (permissionGroup.hasPermission(group, permission)) {
             case ALLOWED:
@@ -228,9 +264,11 @@ public interface IPermissionManagement {
             case FORBIDDEN:
                 return false;
             default:
-                for (IPermissionGroup extended : getExtendedGroups(permissionGroup))
-                    if (tryExtendedGroups(extended, group, permission))
+                for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
+                    if (tryExtendedGroups(extended, group, permission)) {
                         return true;
+                    }
+                }
                 break;
         }
 
@@ -242,12 +280,14 @@ public interface IPermissionManagement {
     }
 
     default Collection<Permission> getAllPermissions(IPermissible permissible, String group) {
-        if (permissible == null)
+        if (permissible == null) {
             return Collections.emptyList();
+        }
 
         Collection<Permission> permissions = new ArrayList<>(permissible.getPermissions());
-        if (group != null && permissible.getGroupPermissions().containsKey(group))
+        if (group != null && permissible.getGroupPermissions().containsKey(group)) {
             permissions.addAll(permissible.getGroupPermissions().get(group));
+        }
         if (permissible instanceof IPermissionGroup) {
             for (IPermissionGroup extendedGroup : this.getExtendedGroups((IPermissionGroup) permissible)) {
                 permissions.addAll(this.getAllPermissions(extendedGroup, group));

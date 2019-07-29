@@ -48,7 +48,7 @@ final class NettyHttpServerContext implements IHttpContext {
         this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
         this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
-        if (this.httpRequest.headers().contains("Cookie"))
+        if (this.httpRequest.headers().contains("Cookie")) {
             this.cookies.addAll(Iterables.map(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")), cookie -> new HttpCookie(
                     cookie.name(),
                     cookie.value(),
@@ -56,6 +56,7 @@ final class NettyHttpServerContext implements IHttpContext {
                     cookie.path(),
                     cookie.maxAge()
             )));
+        }
 
         this.updateHeaderResponse();
     }
@@ -166,7 +167,9 @@ final class NettyHttpServerContext implements IHttpContext {
 
         HttpCookie cookie = cookie(httpCookie.getName());
 
-        if (cookie != null) this.removeCookie(cookie.getName());
+        if (cookie != null) {
+            this.removeCookie(cookie.getName());
+        }
         this.cookies.add(httpCookie);
         this.updateHeaderResponse();
 
@@ -178,7 +181,9 @@ final class NettyHttpServerContext implements IHttpContext {
         Validate.checkNotNull(name);
 
         HttpCookie cookie = cookie(name);
-        if (cookie != null) cookie.setMaxAge(-1);
+        if (cookie != null) {
+            cookie.setMaxAge(-1);
+        }
 
         this.updateHeaderResponse();
         return this;
@@ -192,9 +197,9 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     private void updateHeaderResponse() {
-        if (cookies.isEmpty())
+        if (cookies.isEmpty()) {
             this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
-        else
+        } else {
             this.httpServerResponse.httpResponse.headers()
                     .set("Set-Cookie", ServerCookieEncoder.LAX.encode(Iterables.map(this.cookies, httpCookie -> {
                         Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
@@ -204,6 +209,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
                         return cookie;
                     })));
+        }
     }
 
     public void setLastHandler(IHttpHandler lastHandler) {

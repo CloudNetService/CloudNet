@@ -36,21 +36,25 @@ public class TaskEntry<T> {
 
     protected void invoke() throws Exception {
 
-        if (task == null)
+        if (task == null) {
             return;
+        }
 
         T val = task.call();
 
         value = val;
 
-        if (callback != null)
+        if (callback != null) {
             callback.call(val);
+        }
 
-        if (repeat != -1 && repeat != 0) repeat--;
+        if (repeat != -1 && repeat != 0) {
+            repeat--;
+        }
 
-        if (repeat != 0)
+        if (repeat != 0) {
             this.delayTimeOut = System.currentTimeMillis() + delay;
-        else {
+        } else {
             completed = true;
 
             if (future.waits) {

@@ -24,8 +24,9 @@ public final class PlayerAPIExample {
     public int countServiceInfoSnapshotPlayerCount() {
         int counter = 0;
 
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby"))
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby")) {
             counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+        }
 
         return counter;
     }
@@ -37,9 +38,11 @@ public final class PlayerAPIExample {
             public void onComplete(ITask<Collection<ServiceInfoSnapshot>> task, Collection<ServiceInfoSnapshot> serviceInfoSnapshots) {
                 int counter = 0;
 
-                if (serviceInfoSnapshots != null)
-                    for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby"))
+                if (serviceInfoSnapshots != null) {
+                    for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby")) {
                         counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+                    }
+                }
 
                 consumer.accept(counter);
             }
@@ -69,7 +72,6 @@ public final class PlayerAPIExample {
             cloudOfflinePlayer.getLastLoginTimeMillis(); //Last login or the current login in milliseconds
         }
 
-        /*= ---------------------------------------------------------------- =*/
 
         List<? extends ICloudPlayer> cloudPlayers = BridgePlayerManager.getInstance().getOnlinePlayer(player.getName());
 

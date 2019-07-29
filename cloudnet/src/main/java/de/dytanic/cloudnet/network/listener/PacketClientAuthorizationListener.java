@@ -40,13 +40,13 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                         NetworkClusterNode clusterNode = credentials.get("clusterNode", new TypeToken<NetworkClusterNode>() {
                         }.getType());
 
-                        for (IClusterNodeServer clusterNodeServer : getCloudNet().getClusterNodeServerProvider().getNodeServers())
+                        for (IClusterNodeServer clusterNodeServer : getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
                             if (clusterNodeServer.isAcceptableConnection(channel, clusterNode.getUniqueId())) {
                                 //- packet channel registry
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageNodeListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerUpdatePermissionsListener());
-                                //*= ------------------------------------
+
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGroupConfigurationListListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetServiceTaskListListener());
@@ -55,7 +55,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerDeployLocalTemplateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerConsoleLogEntryReceiveListener());
-                                //
+
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL, new PacketServerClusterChannelMessageListener());
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
@@ -64,7 +64,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
-                                //-
+
 
                                 channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
 
@@ -82,6 +82,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                         credentials.contains("secondNodeConnection") && credentials.getBoolean("secondNodeConnection"));
                                 return;
                             }
+                        }
                     }
                     break;
                 case WRAPPER_TO_NODE:
@@ -96,7 +97,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 cloudService.getServiceId().getNodeUniqueId().equals(serviceId.getNodeUniqueId())) {
                             //- packet channel registry
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageWrapperListener());
-                            //*= ------------------------------------
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL, new PacketClientServiceInfoUpdateListener());
 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
@@ -140,16 +140,18 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
             channel.sendPacket(new PacketServerSetGroupConfigurationList(getCloudNet().getGroupConfigurations()));
             channel.sendPacket(new PacketServerSetServiceTaskList(getCloudNet().getPermanentServiceTasks()));
 
-            if (getCloudNet().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement)
+            if (getCloudNet().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement) {
                 channel.sendPacket(new PacketServerSetJsonFilePermissions(
                         getCloudNet().getPermissionManagement().getUsers(),
                         getCloudNet().getPermissionManagement().getGroups()
                 ));
+            }
 
-            if (getCloudNet().getPermissionManagement() instanceof DefaultDatabasePermissionManagement)
+            if (getCloudNet().getPermissionManagement() instanceof DefaultDatabasePermissionManagement) {
                 channel.sendPacket(new PacketServerSetDatabaseGroupFilePermissions(
                         getCloudNet().getPermissionManagement().getGroups()
                 ));
+            }
 
             ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 

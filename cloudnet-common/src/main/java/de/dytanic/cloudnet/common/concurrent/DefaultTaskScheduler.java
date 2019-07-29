@@ -102,9 +102,11 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     @Override
     public IWorkableThread hasFreeWorker() {
-        for (IWorkableThread workableThread : this.workers)
-            if (workableThread.isEmpty())
+        for (IWorkableThread workableThread : this.workers) {
+            if (workableThread.isEmpty()) {
                 return workableThread;
+            }
+        }
 
         return null;
     }
@@ -186,12 +188,13 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     @Override
     public void shutdown() {
-        for (IWorkableThread worker : this.workers)
+        for (IWorkableThread worker : this.workers) {
             try {
                 worker.stop();
             } catch (ThreadDeath th) {
                 workers.remove(worker);
             }
+        }
 
         taskEntries.clear();
         workers.clear();
@@ -214,13 +217,14 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     @Override
     public ITaskScheduler cancelAll() {
-        for (IWorkableThread worker : this.workers)
+        for (IWorkableThread worker : this.workers) {
             try {
                 worker.interrupt();
                 worker.stop();
             } catch (ThreadDeath th) {
                 workers.remove(worker);
             }
+        }
 
         taskEntries.clear();
         workers.clear();
@@ -230,11 +234,11 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     private void checkEnoughThreads() {
         IWorkableThread workableThread = hasFreeWorker();
 
-        if (workableThread == null && this.getCurrentWorkerCount() < maxThreadSize)
+        if (workableThread == null && this.getCurrentWorkerCount() < maxThreadSize) {
             this.createWorker();
+        }
     }
 
-    /*= ------------------------------------------------------------- =*/
 
     private final class VoidCallable implements Callable<Void> {
 
@@ -281,7 +285,9 @@ public class DefaultTaskScheduler implements ITaskScheduler {
             while (!taskEntries.isEmpty() && !isInterrupted()) {
                 scheduledTask = taskEntries.poll();
 
-                if (scheduledTask == null) continue;
+                if (scheduledTask == null) {
+                    continue;
+                }
 
                 lifeMillis = System.currentTimeMillis();
 
@@ -292,8 +298,9 @@ public class DefaultTaskScheduler implements ITaskScheduler {
                     offerEntry(scheduledTask);
                     continue;
 
-                } else if (difference > 0)
+                } else if (difference > 0) {
                     sleep0(difference);
+                }
 
                 try {
                     scheduledTask.call();
@@ -301,7 +308,9 @@ public class DefaultTaskScheduler implements ITaskScheduler {
                     throwable.printStackTrace();
                 }
 
-                if (checkScheduledTask()) scheduledTask = null;
+                if (checkScheduledTask()) {
+                    scheduledTask = null;
+                }
             }
         }
 

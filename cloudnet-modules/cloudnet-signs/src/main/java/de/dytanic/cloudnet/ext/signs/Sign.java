@@ -20,7 +20,6 @@ public class Sign implements Comparable<Sign> {
 
     protected SignPosition worldPosition;
 
-    //*=-- ---------------------------------------------------
 
     private volatile ServiceInfoSnapshot serviceInfoSnapshot;
 

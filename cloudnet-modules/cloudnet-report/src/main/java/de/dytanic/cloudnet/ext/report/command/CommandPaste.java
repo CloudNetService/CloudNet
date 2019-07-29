@@ -40,8 +40,9 @@ public final class CommandPaste extends Command {
         if (serviceInfoSnapshot != null) {
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                  PrintWriter printWriter = new PrintWriter(byteArrayOutputStream, true)) {
-                for (String line : CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId()))
+                for (String line : CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId())) {
                     printWriter.println(line);
+                }
 
                 printWriter.println();
                 printWriter.println("ServiceInfoSnapshot");
@@ -69,10 +70,11 @@ public final class CommandPaste extends Command {
             List<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()));
 
             if (!serviceInfoSnapshots.isEmpty()) {
-                if (serviceInfoSnapshots.size() > 1)
+                if (serviceInfoSnapshots.size() > 1) {
                     serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(argument));
-                else
+                } else {
                     serviceInfoSnapshot = serviceInfoSnapshots.get(0);
+                }
             }
         }
 

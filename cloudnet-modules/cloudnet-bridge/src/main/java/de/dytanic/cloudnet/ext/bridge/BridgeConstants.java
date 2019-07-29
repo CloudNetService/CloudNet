@@ -18,7 +18,6 @@ public interface BridgeConstants {
             BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS = "server_player_login_success_event",
             BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT = "server_player_disconnect_event";
 
-    /*= ------------------------------------------------------------------------------- =*/
 
     String BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME = "cloudnet-bridge-channel-player-api";
 

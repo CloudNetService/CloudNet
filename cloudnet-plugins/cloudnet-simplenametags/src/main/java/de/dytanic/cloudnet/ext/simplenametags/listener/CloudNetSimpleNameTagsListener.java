@@ -37,8 +37,9 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
             return false;
         });
 
-        if (player.getValue() != null)
+        if (player.getValue() != null) {
             BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player.getValue());
+        }
     }
 
     @EventListener
@@ -46,14 +47,14 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
         forEachPlayers(player -> {
             IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
 
-            if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName()))
+            if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName())) {
                 BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player);
+            }
 
             return false;
         });
     }
 
-    /*= ----------------------------------------------------------------- =*/
 
     private void forEachPlayers(Predicate<Player> predicate) {
         Method method;
@@ -62,15 +63,21 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
             method.setAccessible(true);
             Object result = method.invoke(Bukkit.getServer());
 
-            if (result instanceof Iterable)
-                for (Object item : ((Iterable) result))
-                    if (predicate.test((Player) item))
+            if (result instanceof Iterable) {
+                for (Object item : ((Iterable) result)) {
+                    if (predicate.test((Player) item)) {
                         return;
+                    }
+                }
+            }
 
-            if (result instanceof Player[])
-                for (Player player : ((Player[]) result))
-                    if (predicate.test(player))
+            if (result instanceof Player[]) {
+                for (Player player : ((Player[]) result)) {
+                    if (predicate.test(player)) {
                         return;
+                    }
+                }
+            }
 
         } catch (Exception exception) {
             exception.printStackTrace();

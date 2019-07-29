@@ -18,7 +18,9 @@ public final class ExampleCallbackSyncAPI {
     //Node event listener
     @EventListener
     public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase("test_channel")) return;
+        if (!event.getChannelName().equalsIgnoreCase("test_channel")) {
+            return;
+        }
 
         switch (event.getId()) {
             case "get_node_count":
@@ -28,7 +30,6 @@ public final class ExampleCallbackSyncAPI {
         }
     }
 
-    /*= ------------------------------------------------------------- =*/
     //Plugin or Wrapper send and get
 
     public ITask<Integer> getNodeCountAsync() {

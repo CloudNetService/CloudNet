@@ -43,7 +43,6 @@ public final class BukkitCloudNetHelper {
 
     private static JavaPlugin plugin;
 
-    //*= ----------------------------------------------------------------
 
     private BukkitCloudNetHelper() {
         throw new UnsupportedOperationException();
@@ -65,8 +64,9 @@ public final class BukkitCloudNetHelper {
 
                             @Override
                             public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null)
+                                if (serviceInfoSnapshot != null) {
                                     CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
+                                }
                             }
                         });
                     }
@@ -138,8 +138,9 @@ public final class BukkitCloudNetHelper {
                 .append("Worlds", Iterables.map(Bukkit.getWorlds(), world -> {
                     Map<String, String> gameRules = Maps.newHashMap();
 
-                    for (String entry : world.getGameRules())
+                    for (String entry : world.getGameRules()) {
                         gameRules.put(entry, world.getGameRuleValue(entry));
+                    }
 
                     return new WorldInfo(world.getUID(), world.getName(), world.getDifficulty().name(), gameRules);
                 }))
@@ -153,13 +154,17 @@ public final class BukkitCloudNetHelper {
             method.setAccessible(true);
             Object result = method.invoke(Bukkit.getServer());
 
-            if (result instanceof Collection)
-                for (Object item : ((Collection) result))
+            if (result instanceof Collection) {
+                for (Object item : ((Collection) result)) {
                     consumer.accept((Player) item);
+                }
+            }
 
-            if (result instanceof Player[])
-                for (Player player : ((Player[]) result))
+            if (result instanceof Player[]) {
+                for (Player player : ((Player[]) result)) {
                     consumer.accept(player);
+                }
+            }
 
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -168,7 +173,9 @@ public final class BukkitCloudNetHelper {
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
         Boolean onlineMode = Bukkit.getServer().getOnlineMode();
-        if (onlineMode == null) onlineMode = true;
+        if (onlineMode == null) {
+            onlineMode = true;
+        }
 
         return BridgeHelper.createNetworkConnectionInfo(
                 player.getUniqueId(),
@@ -189,9 +196,9 @@ public final class BukkitCloudNetHelper {
     public static NetworkPlayerServerInfo createNetworkPlayerServerInfo(Player player, boolean login) {
         WorldPosition worldPosition;
 
-        if (login)
+        if (login) {
             worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
-        else {
+        } else {
             Location location = player.getLocation();
             worldPosition = new WorldPosition(
                     location.getX(),
@@ -228,11 +235,13 @@ public final class BukkitCloudNetHelper {
             method.setAccessible(true);
             Object result = method.invoke(Bukkit.getServer());
 
-            if (result instanceof Collection)
+            if (result instanceof Collection) {
                 return ((Collection) result).size();
+            }
 
-            if (result instanceof Player[])
+            if (result instanceof Player[]) {
                 return ((Player[]) result).length;
+            }
 
         } catch (Exception exception) {
             exception.printStackTrace();

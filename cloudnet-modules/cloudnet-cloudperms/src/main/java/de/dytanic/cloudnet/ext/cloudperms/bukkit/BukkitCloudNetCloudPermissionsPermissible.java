@@ -33,8 +33,9 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     public Set<PermissionAttachmentInfo> getEffectivePermissions() {
         Set<PermissionAttachmentInfo> infos = new HashSet<>();
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
-        if (permissionUser == null)
+        if (permissionUser == null) {
             return infos;
+        }
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
             infos.addAll(
@@ -65,9 +66,13 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     @Override
     public boolean hasPermission(String inName) {
-        if (inName == null) return false;
+        if (inName == null) {
+            return false;
+        }
 
-        if (DEFAULT_ALLOWED_PERMISSION_COLLECTION.contains(inName.toLowerCase())) return true;
+        if (DEFAULT_ALLOWED_PERMISSION_COLLECTION.contains(inName.toLowerCase())) {
+            return true;
+        }
 
         try {
             IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());

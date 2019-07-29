@@ -32,7 +32,6 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     private final DefaultClusterNodeServerProvider provider;
 
-    /*= -------------------------------------------------- =*/
 
     private volatile NetworkClusterNodeInfoSnapshot nodeInfoSnapshot;
 
@@ -68,8 +67,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public void saveSendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
-        if (this.channel != null)
+        if (this.channel != null) {
             this.channel.sendPacket(packet);
+        }
 
     }
 
@@ -406,7 +406,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public void includeWaitingServiceInclusions(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        if (this.channel != null)
+        if (this.channel != null) {
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_inclusions")
@@ -416,13 +416,14 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override
     public void includeWaitingServiceTemplates(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        if (this.channel != null)
+        if (this.channel != null) {
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_templates")
@@ -432,13 +433,14 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override
     public void deployResources(UUID uniqueId, boolean removeDeployments) {
         Validate.checkNotNull(uniqueId);
 
-        if (this.channel != null)
+        if (this.channel != null) {
             try {
                 CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
@@ -448,13 +450,14 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override
     public Collection<Integer> getReservedTaskIds(String task) {
         Validate.checkNotNull(task);
 
-        if (this.channel != null)
+        if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().sendCallablePacket(this.channel,
                         PacketConstants.CLUSTER_NODE_SYNC_PACKET_CHANNEL_NAME,
@@ -467,14 +470,16 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
+        }
 
         return Iterables.newArrayList();
     }
 
     @Override
     public void close() throws Exception {
-        if (this.channel != null)
+        if (this.channel != null) {
             this.channel.close();
+        }
 
         this.nodeInfoSnapshot = null;
         this.channel = null;

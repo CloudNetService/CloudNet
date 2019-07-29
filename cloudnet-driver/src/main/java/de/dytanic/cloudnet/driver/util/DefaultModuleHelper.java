@@ -30,8 +30,9 @@ public final class DefaultModuleHelper {
         try {
             target.getParentFile().mkdirs();
 
-            if (!target.exists())
+            if (!target.exists()) {
                 target.createNewFile();
+            }
 
             URLConnection connection = ResourceResolver.resolveURIFromResourceByClass(clazz).toURL().openConnection();
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
@@ -52,8 +53,9 @@ public final class DefaultModuleHelper {
         FileUtils.openZipFileSystem(file, fileSystem -> {
             Path pluginPath = fileSystem.getPath("plugin.yml");
 
-            if (Files.exists(pluginPath))
+            if (Files.exists(pluginPath)) {
                 Files.delete(pluginPath);
+            }
 
             try (OutputStream outputStream = Files.newOutputStream(pluginPath)) {
                 switch (type) {
@@ -61,20 +63,23 @@ public final class DefaultModuleHelper {
                         break;
                     case BUNGEECORD:
                         try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bungee.yml")) {
-                            if (inputStream != null)
+                            if (inputStream != null) {
                                 FileUtils.copy(inputStream, outputStream);
+                            }
                         }
                         break;
                     case NUKKIT:
                         try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.nukkit.yml")) {
-                            if (inputStream != null)
+                            if (inputStream != null) {
                                 FileUtils.copy(inputStream, outputStream);
+                            }
                         }
                         break;
                     default:
                         try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bukkit.yml")) {
-                            if (inputStream != null)
+                            if (inputStream != null) {
                                 FileUtils.copy(inputStream, outputStream);
+                            }
                         }
                         break;
                 }

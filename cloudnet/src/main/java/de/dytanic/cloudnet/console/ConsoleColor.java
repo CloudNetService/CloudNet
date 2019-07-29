@@ -33,10 +33,13 @@ public enum ConsoleColor {
     }
 
     public static String toColouredString(char triggerChar, String text) {
-        if (text == null) throw new NullPointerException();
+        if (text == null) {
+            throw new NullPointerException();
+        }
 
-        for (ConsoleColor consoleColour : values())
+        for (ConsoleColor consoleColour : values()) {
             text = text.replace(triggerChar + "" + consoleColour.index, consoleColour.ansiCode);
+        }
 
         return text;
     }

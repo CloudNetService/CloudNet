@@ -33,16 +33,19 @@ public final class CommandLocalTemplate extends CommandDefault {
 
         ITemplateStorage storage = getCloudNet().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
-        if (storage == null)
+        if (storage == null) {
             throw new UnsupportedOperationException("Storage cannot be found!");
+        }
 
         if (args[0].equalsIgnoreCase("list")) {
             for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
-                if (properties.containsKey("prefix") && serviceTemplate.getPrefix().toLowerCase().contains(properties.get("prefix")))
+                if (properties.containsKey("prefix") && serviceTemplate.getPrefix().toLowerCase().contains(properties.get("prefix"))) {
                     continue;
+                }
 
-                if (properties.containsKey("name") && serviceTemplate.getName().toLowerCase().contains(properties.get("name")))
+                if (properties.containsKey("name") && serviceTemplate.getName().toLowerCase().contains(properties.get("name"))) {
                     continue;
+                }
 
                 this.displayTemplate(sender, serviceTemplate);
             }
@@ -55,9 +58,11 @@ public final class CommandLocalTemplate extends CommandDefault {
 
                     sender.sendMessage("ServiceType: " + environmentType);
 
-                    for (InstallableAppVersion installableAppVersion : InstallableAppVersion.VERSIONS)
-                        if (installableAppVersion.getServiceEnvironment() == environmentType)
+                    for (InstallableAppVersion installableAppVersion : InstallableAppVersion.VERSIONS) {
+                        if (installableAppVersion.getServiceEnvironment() == environmentType) {
                             sender.sendMessage("- " + installableAppVersion.getVersion() + " * Environment: " + installableAppVersion.getEnvironmentType());
+                        }
+                    }
 
                 } catch (Exception exception) {
                     exception.printStackTrace();
@@ -75,16 +80,17 @@ public final class CommandLocalTemplate extends CommandDefault {
                                 .replace("%environment%", installableAppVersion.getServiceEnvironment().name())
                                 .replace("%version%", installableAppVersion.getVersion())
                         );
-                        if (LocalTemplateStorageUtil.installApplicationJar(storage, serviceTemplate, installableAppVersion))
+                        if (LocalTemplateStorageUtil.installApplicationJar(storage, serviceTemplate, installableAppVersion)) {
                             sender.sendMessage(LanguageManager.getMessage("command-local-template-install-success")
                                     .replace("%environment%", installableAppVersion.getServiceEnvironment().name())
                                     .replace("%version%", installableAppVersion.getVersion())
                             );
-                        else
+                        } else {
                             sender.sendMessage(LanguageManager.getMessage("command-local-template-install-failed")
                                     .replace("%environment%", installableAppVersion.getServiceEnvironment().name())
                                     .replace("%version%", installableAppVersion.getVersion())
                             );
+                        }
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();
@@ -103,8 +109,9 @@ public final class CommandLocalTemplate extends CommandDefault {
             try {
                 ServiceEnvironmentType environment = ServiceEnvironmentType.valueOf(args[3].toUpperCase());
 
-                if (LocalTemplateStorageUtil.createAndPrepareTemplate(storage, args[1], args[2], environment))
+                if (LocalTemplateStorageUtil.createAndPrepareTemplate(storage, args[1], args[2], environment)) {
                     sender.sendMessage(LanguageManager.getMessage("command-local-template-create-template-success"));
+                }
 
             } catch (Exception exception) {
                 exception.printStackTrace();

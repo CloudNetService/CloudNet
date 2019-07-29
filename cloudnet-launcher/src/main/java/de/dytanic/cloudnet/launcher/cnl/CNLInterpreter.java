@@ -73,8 +73,9 @@ public class CNLInterpreter {
 
 
     public static void runCommand(Map<String, String> variables, String commandLine) throws CNLCommandExecuteException {
-        if (commandLine.startsWith(" ") || commandLine.startsWith("#") || commandLine.trim().isEmpty())
+        if (commandLine.startsWith(" ") || commandLine.startsWith("#") || commandLine.trim().isEmpty()) {
             return;
+        }
 
         String[] args = commandLine.split(" ");
 
@@ -83,15 +84,17 @@ public class CNLInterpreter {
         if (COMMANDS.containsKey(name.toLowerCase())) {
             CNLCommand command = COMMANDS.get(name.toLowerCase());
 
-            if (args.length == 1)
+            if (args.length == 1) {
                 args = new String[0];
-            else {
+            } else {
                 List<String> list = Arrays.asList(commandLine.replaceFirst(name + " ", "").split(" "));
                 list.replaceAll(text -> {
 
-                    for (String variable : variables.keySet())
-                        if (text.contains("$" + variable))
+                    for (String variable : variables.keySet()) {
+                        if (text.contains("$" + variable)) {
                             text = text.replace("$" + variable, variables.get(variable));
+                        }
+                    }
 
                     return text;
                 });

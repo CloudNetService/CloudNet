@@ -33,8 +33,9 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceStartEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            if (event.getServiceInfo().getProperties().contains("Online-Mode") && event.getServiceInfo().getProperties().getBoolean("Online-Mode"))
+            if (event.getServiceInfo().getProperties().contains("Online-Mode") && event.getServiceInfo().getProperties().getBoolean("Online-Mode")) {
                 return;
+            }
 
             String name = event.getServiceInfo().getServiceId().getName();
             VelocityCloudNetHelper.getProxyServer().registerServer(new ServerInfo(name, new InetSocketAddress(
@@ -53,8 +54,9 @@ public final class VelocityCloudNetListener {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             String name = event.getServiceInfo().getServiceId().getName();
 
-            if (VelocityCloudNetHelper.getProxyServer().getServer(name).isPresent())
+            if (VelocityCloudNetHelper.getProxyServer().getServer(name).isPresent()) {
                 VelocityCloudNetHelper.getProxyServer().unregisterServer(VelocityCloudNetHelper.getProxyServer().getServer(name).get().getServerInfo());
+            }
 
             VelocityCloudNetHelper.removeServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);
             VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
@@ -65,40 +67,45 @@ public final class VelocityCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceInfoUpdateEvent event) {
-        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo()))
+        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.velocityCall(new VelocityCloudServiceInfoUpdateEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
-        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo()))
+        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.velocityCall(new VelocityCloudServiceRegisterEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceConnectNetworkEvent event) {
-        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo()))
+        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.velocityCall(new VelocityCloudServiceConnectNetworkEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceDisconnectNetworkEvent event) {
-        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo()))
+        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.velocityCall(new VelocityCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
-        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo()))
+        if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.remove(event.getServiceInfo().getServiceId().getName());
+        }
 
         this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
     }
@@ -107,8 +114,9 @@ public final class VelocityCloudNetListener {
     public void handle(ChannelMessageReceiveEvent event) {
         this.velocityCall(new VelocityChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
 
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME))
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
             return;
+        }
 
         switch (event.getMessage().toLowerCase()) {
             case "send_on_proxy_player_to_server": {
@@ -117,23 +125,26 @@ public final class VelocityCloudNetListener {
                 if (player != null && event.getData().getString("serviceName") != null) {
                     Optional<RegisteredServer> serverInfo = VelocityCloudNetHelper.getProxyServer().getServer(event.getData().getString("serviceName"));
 
-                    if (serverInfo != null && serverInfo.isPresent())
+                    if (serverInfo != null && serverInfo.isPresent()) {
                         player.createConnectionRequest(serverInfo.get()).connect();
+                    }
                 }
             }
             break;
             case "kick_on_proxy_player_from_network": {
                 Player player = getPlayer(event.getData());
 
-                if (player != null && event.getData().getString("kickMessage") != null)
+                if (player != null && event.getData().getString("kickMessage") != null) {
                     player.disconnect(TextComponent.of((event.getData().getString("kickMessage") + "").replace("&", "§")));
+                }
             }
             break;
             case "send_message_to_proxy_player": {
                 Player player = getPlayer(event.getData());
 
-                if (player != null && event.getData().getString("message") != null)
+                if (player != null && event.getData().getString("message") != null) {
                     player.sendMessage(TextComponent.of((event.getData().getString("message") + "").replace("&", "§")));
+                }
             }
             break;
         }

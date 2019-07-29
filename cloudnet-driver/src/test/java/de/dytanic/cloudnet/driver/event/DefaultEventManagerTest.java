@@ -41,8 +41,6 @@ public final class DefaultEventManagerTest {
         eventManager.unregisterAll();
     }
 
-    /*= -------------------------------------------------------------------------------------- =*/
-
     @Test
     public void testEventPriority() {
         IEventManager eventManager = new DefaultEventManager();
@@ -71,7 +69,6 @@ public final class DefaultEventManagerTest {
         }
     }
 
-    /*= ----------------------------------------------------------------------------------- =*/
 
     private final class ListenerTest {
 

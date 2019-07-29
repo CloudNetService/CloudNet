@@ -24,7 +24,6 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
     private static final long NEW_CREATION_DELAY = 600000;
 
-    /*= ---------------------------------------------------------------------- =*/
 
     protected final NetorHashMap<String, Long, MySQLDatabase> cachedDatabaseInstances = new NetorHashMap<>();
 
@@ -66,8 +65,9 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
         removedOutdatedEntries();
 
-        if (!cachedDatabaseInstances.contains(name))
+        if (!cachedDatabaseInstances.contains(name)) {
             cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name));
+        }
 
         return cachedDatabaseInstances.getSecond(name);
     }
@@ -78,8 +78,11 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
         removedOutdatedEntries();
 
-        for (String database : getDatabaseNames())
-            if (database.equalsIgnoreCase(name)) return true;
+        for (String database : getDatabaseNames()) {
+            if (database.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
 
         return false;
     }
@@ -90,13 +93,14 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
         cachedDatabaseInstances.remove(name);
 
-        if (containsDatabase(name))
+        if (containsDatabase(name)) {
             try (Connection connection = getConnection();
                  PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE " + name)) {
                 return preparedStatement.executeUpdate() != -1;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
 
         return false;
     }
@@ -107,7 +111,9 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
                 resultSet -> {
                     Collection<String> collection = Iterables.newArrayList();
-                    while (resultSet.next()) collection.add(resultSet.getString("table_name"));
+                    while (resultSet.next()) {
+                        collection.add(resultSet.getString("table_name"));
+                    }
 
                     return collection;
                 }
@@ -124,7 +130,6 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
         hikariDataSource.close();
     }
 
-    /*= ------------------------------------------------------------ =*/
 
     public int executeUpdate(String query, Object... objects) {
         Validate.checkNotNull(query);
@@ -134,8 +139,9 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
                 Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
-            for (Object object : objects)
+            for (Object object : objects) {
                 preparedStatement.setString(i++, object.toString());
+            }
 
             return preparedStatement.executeUpdate();
 
@@ -154,8 +160,9 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             int i = 1;
-            for (Object object : objects)
+            for (Object object : objects) {
                 preparedStatement.setString(i++, object.toString());
+            }
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return callback.call(resultSet);
@@ -168,12 +175,13 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
         return null;
     }
 
-    /*= ------------------------------------------------------------ =*/
 
     private void removedOutdatedEntries() {
-        for (Map.Entry<String, Pair<Long, MySQLDatabase>> entry : cachedDatabaseInstances.entrySet())
-            if (entry.getValue().getFirst() < System.currentTimeMillis())
+        for (Map.Entry<String, Pair<Long, MySQLDatabase>> entry : cachedDatabaseInstances.entrySet()) {
+            if (entry.getValue().getFirst() < System.currentTimeMillis()) {
                 cachedDatabaseInstances.remove(entry.getKey());
+            }
+        }
     }
 
     private Connection getConnection() throws SQLException {

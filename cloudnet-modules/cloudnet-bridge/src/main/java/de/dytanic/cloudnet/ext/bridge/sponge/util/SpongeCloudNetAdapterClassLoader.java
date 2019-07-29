@@ -19,18 +19,22 @@ public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> target = findClass0(name);
 
-        if (target != null) return target;
+        if (target != null) {
+            return target;
+        }
 
         try {
             Class<?> loaded = this.findLoadedClass(name);
-            if (loaded != null)
+            if (loaded != null) {
                 return loaded;
-            else
+            } else {
                 return super.loadClass(name, resolve);
+            }
 
         } catch (Throwable ex) {
-            if (name.startsWith("io.netty") || name.startsWith("com.google.gson"))
+            if (name.startsWith("io.netty") || name.startsWith("com.google.gson")) {
                 throw new ClassNotFoundException(name);
+            }
             return cloudNetClassLoader.loadClass(name);
         }
     }
@@ -52,8 +56,9 @@ public final class SpongeCloudNetAdapterClassLoader extends URLClassLoader {
     public URL getResource(String name) {
         URL url = super.getResource(name);
 
-        if (url == null)
+        if (url == null) {
             url = cloudNetClassLoader.getResource(name);
+        }
 
         return url;
     }

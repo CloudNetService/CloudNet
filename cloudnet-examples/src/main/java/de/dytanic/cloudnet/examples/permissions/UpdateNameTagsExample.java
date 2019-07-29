@@ -30,7 +30,9 @@ public final class UpdateNameTagsExample {
     {
         Player player = Bukkit.getPlayer(event.getPermissionUser().getName());
 
-        if (player != null) BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player);
+        if (player != null) {
+            BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player);
+        }
     }
 
     //For developers with a NickAPI or something like this

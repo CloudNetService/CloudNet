@@ -38,8 +38,9 @@ public final class Main {
         for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
                 new DefaultFileLogHandler(new File("local/logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB).setEnableErrorLog(true),
                 new ConsoleLogHandler(console).setFormatter(console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter())
-        })
+        }) {
             logger.addLogHandler(logHandler);
+        }
 
         System.setOut(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
         System.setErr(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));

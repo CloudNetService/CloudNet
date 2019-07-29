@@ -62,8 +62,9 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
             GoMintCloudNetHelper.setApiMotd(pingEvent.getMotd());
             if (pingEvent.getMotd().toLowerCase().contains("running") ||
                     pingEvent.getMotd().toLowerCase().contains("ingame") ||
-                    pingEvent.getMotd().toLowerCase().contains("playing"))
+                    pingEvent.getMotd().toLowerCase().contains("playing")) {
                 value = true;
+            }
         }
 
         if (pingEvent.getMaxPlayers() != GoMintCloudNetHelper.getMaxPlayers()) {

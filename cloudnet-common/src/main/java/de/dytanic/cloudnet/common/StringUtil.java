@@ -28,8 +28,9 @@ public final class StringUtil {
         StringBuilder stringBuilder = new StringBuilder();
 
         synchronized (random) {
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < length; i++) {
                 stringBuilder.append(DEFAULT_ALPHABET_UPPERCASE[random.nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
+            }
         }
 
         return stringBuilder.toString();

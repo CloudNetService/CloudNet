@@ -42,7 +42,7 @@ public final class CommandPlayers extends Command {
         }
 
         if (args[0].equalsIgnoreCase("online")) {
-            for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlinePlayers())
+            for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlinePlayers()) {
                 sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
                         (cloudPlayer.getLoginService() != null ?
                                 cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
@@ -50,23 +50,28 @@ public final class CommandPlayers extends Command {
                         (cloudPlayer.getConnectedService() != null ?
                                 cloudPlayer.getConnectedService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getConnectedService().getServerName() : null)
                 );
+            }
             return;
         }
 
         if (args[0].equalsIgnoreCase("player") && args.length > 1) {
             List<? extends ICloudOfflinePlayer> cloudPlayers = NodePlayerManager.getInstance().getOnlinePlayer(args[1]);
 
-            if (cloudPlayers.isEmpty())
+            if (cloudPlayers.isEmpty()) {
                 cloudPlayers = NodePlayerManager.getInstance().getOfflinePlayer(args[1]);
+            }
 
             if (args.length < 4) {
-                for (ICloudOfflinePlayer cloudOfflinePlayer : cloudPlayers)
+                for (ICloudOfflinePlayer cloudOfflinePlayer : cloudPlayers) {
                     displayPlayer(sender, cloudOfflinePlayer);
+                }
 
                 return;
             }
 
-            if (cloudPlayers.isEmpty()) return;
+            if (cloudPlayers.isEmpty()) {
+                return;
+            }
 
             ICloudOfflinePlayer cloudOfflinePlayer = cloudPlayers.get(0);
 
@@ -94,14 +99,17 @@ public final class CommandPlayers extends Command {
     private String buildMessage(String[] args, int startIndex) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (int i = startIndex; i < args.length; ++i)
+        for (int i = startIndex; i < args.length; ++i) {
             stringBuilder.append(args[i]).append(" ");
+        }
 
         return stringBuilder.substring(0, stringBuilder.length() - 1);
     }
 
     private void displayPlayer(ICommandSender sender, ICloudOfflinePlayer cloudOfflinePlayer) {
-        if (cloudOfflinePlayer == null) return;
+        if (cloudOfflinePlayer == null) {
+            return;
+        }
 
         List<String> messages = Iterables.newArrayList();
 

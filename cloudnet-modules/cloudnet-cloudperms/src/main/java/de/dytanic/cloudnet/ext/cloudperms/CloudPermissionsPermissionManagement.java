@@ -34,8 +34,9 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
     }
 
     private void init() {
-        for (IPermissionGroup permissionGroup : getDriver().getGroups())
+        for (IPermissionGroup permissionGroup : getDriver().getGroups()) {
             cachedPermissionGroups.put(permissionGroup.getName(), permissionGroup);
+        }
 
         getDriver().getEventManager().registerListener(new PermissionsUpdateListener());
     }
@@ -43,14 +44,15 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
     public boolean hasPlayerPermission(IPermissionUser permissionUser, String perm) {
         Permission permission = new Permission(perm, 0);
 
-        for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups())
-            if (hasPermission(permissionUser, group, permission))
+        for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
+            if (hasPermission(permissionUser, group, permission)) {
                 return true;
+            }
+        }
 
         return hasPermission(permissionUser, permission);
     }
 
-    /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
     public IPermissionManagementHandler getPermissionManagementHandler() {
@@ -205,13 +207,13 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
 
         cachedPermissionGroups.clear();
 
-        for (IPermissionGroup group : permissionGroups)
+        for (IPermissionGroup group : permissionGroups) {
             cachedPermissionGroups.put(group.getName(), group);
+        }
 
         return true;
     }
 
-    /*= -------------------------------------------------------------- =*/
 
     private CloudNetDriver getDriver() {
         return CloudNetDriver.getInstance();

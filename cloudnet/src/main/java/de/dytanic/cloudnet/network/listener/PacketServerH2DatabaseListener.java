@@ -17,7 +17,7 @@ public final class PacketServerH2DatabaseListener implements IPacketListener {
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) throws Exception {
-        if (packet.getHeader().contains("operationType") && packet.getHeader().contains("name"))
+        if (packet.getHeader().contains("operationType") && packet.getHeader().contains("name")) {
             if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider) {
                 H2Database database = (H2Database) CloudNet.getInstance().getDatabaseProvider().getDatabase(packet.getHeader().getString("name"));
 
@@ -52,5 +52,6 @@ public final class PacketServerH2DatabaseListener implements IPacketListener {
                         break;
                 }
             }
+        }
     }
 }

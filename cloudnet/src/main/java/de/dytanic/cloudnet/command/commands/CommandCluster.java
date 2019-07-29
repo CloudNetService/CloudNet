@@ -53,7 +53,9 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                     byte[] bytes;
                     for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
                         bytes = storage.toZipByteArray(serviceTemplate);
-                        if (bytes != null) getCloudNet().deployTemplateInCluster(serviceTemplate, bytes);
+                        if (bytes != null) {
+                            getCloudNet().deployTemplateInCluster(serviceTemplate, bytes);
+                        }
 
                         sender.sendMessage(
                                 LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
@@ -87,8 +89,9 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
         }
 
         if (args[0].toLowerCase().contains("shutdown")) {
-            for (IClusterNodeServer node : getCloudNet().getClusterNodeServerProvider().getNodeServers())
+            for (IClusterNodeServer node : getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
                 node.sendCommandLine("stop");
+            }
 
             getCloudNet().getCommandMap().dispatchCommand(sender, "stop");
             return;
@@ -96,8 +99,9 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
 
         if (args[0].toLowerCase().contains("nodes")) {
             for (IClusterNodeServer node : getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
-                if (properties.containsKey("id") && !node.getNodeInfo().getUniqueId().contains(properties.get("id")))
+                if (properties.containsKey("id") && !node.getNodeInfo().getUniqueId().contains(properties.get("id"))) {
                     continue;
+                }
 
                 this.displayNode(sender, node);
             }
@@ -132,8 +136,9 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                 "Address: "
         ));
 
-        for (HostAndPort hostAndPort : node.getNodeInfo().getListeners())
+        for (HostAndPort hostAndPort : node.getNodeInfo().getListeners()) {
             list.add("- " + hostAndPort.getHost() + ":" + hostAndPort.getPort());
+        }
 
         if (node.getNodeInfoSnapshot() != null) {
             list.add(" ");

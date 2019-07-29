@@ -58,8 +58,9 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                 true
         ));
 
-        if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null)
+        if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null) {
             this.bridgeConfiguration.setExcludedOnlyProxyWalkableGroups(Iterables.newArrayList());
+        }
 
         saveConfig();
     }

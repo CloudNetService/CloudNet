@@ -13,8 +13,9 @@ public final class BridgeCustomChannelMessageListener {
 
     @EventListener
     public void handlePlayerUpdatesReceive(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME))
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
             return;
+        }
 
         switch (event.getMessage().toLowerCase()) {
             case "update_offline_cloud_player": {
@@ -32,8 +33,9 @@ public final class BridgeCustomChannelMessageListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL))
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) {
             return;
+        }
 
         switch (event.getMessage().toLowerCase()) {
             case "update_bridge_configuration": {

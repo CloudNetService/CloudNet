@@ -12,7 +12,9 @@ final class CommandTest implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
-        if (!command.testPermission(commandSender)) return false;
+        if (!command.testPermission(commandSender)) {
+            return false;
+        }
 
         switch (args.length) {
             case 1: {
@@ -27,8 +29,9 @@ final class CommandTest implements CommandExecutor {
                     }
 
                     counter = 0;
-                    for (GroupConfiguration groupConfiguration : CloudNetDriver.getInstance().getGroupConfigurations())
+                    for (GroupConfiguration groupConfiguration : CloudNetDriver.getInstance().getGroupConfigurations()) {
                         commandSender.sendMessage(counter++ + ": " + groupConfiguration.getName());
+                    }
 
                     return true;
                 }
@@ -47,10 +50,11 @@ final class CommandTest implements CommandExecutor {
                 if (args[0].equalsIgnoreCase("test3")) {
                     ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceByName("Lobby-54632");
 
-                    if (serviceInfoSnapshot != null)
+                    if (serviceInfoSnapshot != null) {
                         commandSender.sendMessage("ServiceInfoSnapshot exist");
-                    else
+                    } else {
                         commandSender.sendMessage("ServiceInfoSnapshot doesn't exist");
+                    }
                 }
             }
             break;

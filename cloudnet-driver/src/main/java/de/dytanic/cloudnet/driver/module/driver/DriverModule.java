@@ -39,7 +39,9 @@ public class DriverModule extends DefaultModule {
 
         File file = new File(getModuleWrapper().getDataFolder(), "config.json");
 
-        if (!file.exists()) new JsonDocument().write(file);
+        if (!file.exists()) {
+            new JsonDocument().write(file);
+        }
 
         return JsonDocument.newDocument(file);
     }

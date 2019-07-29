@@ -12,7 +12,9 @@ public final class V1SecurityProtectionHttpHandler extends V1HttpHandler {
 
     @Override
     public void handle(String path, IHttpContext context) throws Exception {
-        if (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/logout")) return;
+        if (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/logout")) {
+            return;
+        }
 
         if (!HTTP_SESSION.isAuthorized(context)) {
             context

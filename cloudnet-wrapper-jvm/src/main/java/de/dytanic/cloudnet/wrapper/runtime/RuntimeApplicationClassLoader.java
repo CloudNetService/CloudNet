@@ -26,10 +26,11 @@ public final class RuntimeApplicationClassLoader extends URLClassLoader {
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         try {
             Class<?> loaded = this.findLoadedClass(name);
-            if (loaded != null)
+            if (loaded != null) {
                 return loaded;
-            else
+            } else {
                 return super.loadClass(name, resolve);
+            }
 
         } catch (Throwable ex) {
             return cloudNetWrapperClassLoader.loadClass(name);
@@ -40,8 +41,9 @@ public final class RuntimeApplicationClassLoader extends URLClassLoader {
     public URL getResource(String name) {
         URL url = super.getResource(name);
 
-        if (url == null)
+        if (url == null) {
             url = cloudNetWrapperClassLoader.getResource(name);
+        }
 
         return url;
     }

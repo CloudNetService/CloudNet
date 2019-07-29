@@ -38,7 +38,6 @@ public final class SpongeCloudNetHelper {
         throw new UnsupportedOperationException();
     }
 
-    //*= ----------------------------------------------------------------
 
     public static void changeToIngame() {
         state = "INGAME";
@@ -56,8 +55,9 @@ public final class SpongeCloudNetHelper {
 
                             @Override
                             public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null)
+                                if (serviceInfoSnapshot != null) {
                                     CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
+                                }
                             }
                         });
                     }
@@ -122,7 +122,9 @@ public final class SpongeCloudNetHelper {
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
         Boolean onlineMode = Sponge.getServer().getOnlineMode();
-        if (onlineMode == null) onlineMode = true;
+        if (onlineMode == null) {
+            onlineMode = true;
+        }
 
         return BridgeHelper.createNetworkConnectionInfo(
                 player.getUniqueId(),
@@ -143,9 +145,9 @@ public final class SpongeCloudNetHelper {
     public static NetworkPlayerServerInfo createNetworkPlayerServerInfo(Player player, boolean login) {
         WorldPosition worldPosition;
 
-        if (login)
+        if (login) {
             worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
-        else {
+        } else {
             Location location = player.getLocation();
             worldPosition = new WorldPosition(
                     location.getX(),

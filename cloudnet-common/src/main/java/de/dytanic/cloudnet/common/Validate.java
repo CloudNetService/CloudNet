@@ -31,8 +31,9 @@ public final class Validate {
      * @return the same instance which you add into the first parameter
      */
     public static <T> T checkNotNull(T object, String message) {
-        if (object == null)
+        if (object == null) {
             throw new NullPointerException(message == null ? "The input object is null. Please check the parameters!" : message);
+        }
 
         return object;
     }
@@ -59,8 +60,9 @@ public final class Validate {
      * @return true
      */
     public static boolean assertTrue(boolean value, String message) {
-        if (!value)
+        if (!value) {
             throw new IllegalArgumentException(message == null ? "input condition is false. Expected true" : message);
+        }
 
         return value;
     }
@@ -87,7 +89,9 @@ public final class Validate {
      * @return false
      */
     public static boolean assertFalse(boolean value, String message) {
-        if (value) throw new IllegalArgumentException(message);
+        if (value) {
+            throw new IllegalArgumentException(message);
+        }
 
         return value;
     }

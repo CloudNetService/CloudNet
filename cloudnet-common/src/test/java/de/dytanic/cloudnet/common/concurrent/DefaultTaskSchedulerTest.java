@@ -57,7 +57,8 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-        for (int i = 0; i++ < 5; Thread.sleep(2)) ;
+        for (int i = 0; i++ < 5; Thread.sleep(2)) {
+        }
 
         return "Hello World";
     }

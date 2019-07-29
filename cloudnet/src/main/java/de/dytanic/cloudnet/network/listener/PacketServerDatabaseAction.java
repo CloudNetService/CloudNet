@@ -25,7 +25,7 @@ public class PacketServerDatabaseAction implements IPacketListener {
 
                 IDatabase database = databaseProvider.getDatabase(databaseName);
 
-                // ------------------- actions for a specific key in the database -------------------
+                // actions for a specific key in the database
                 if (packet.getHeader().contains("key")) {
                     String key = packet.getHeader().getString("key");
                     if (message.equals("contains")) {
@@ -80,9 +80,9 @@ public class PacketServerDatabaseAction implements IPacketListener {
                         return;
                     }
                 }
-                // ------------------- actions for a specific key in the database -------------------
+                // actions for a specific key in the database 
 
-                // ------------------- actions for the specific database WITH NO SPECIFIC KEY -------------------
+                // actions for the specific database WITH NO SPECIFIC KEY
                 if (message.equals("keys")) {
                     this.sendResponse(channel, packet.getUniqueId(),
                             new JsonDocument()
@@ -127,17 +127,17 @@ public class PacketServerDatabaseAction implements IPacketListener {
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                     return;
                 }
-                // ------------------- actions for the specific database WITH NO SPECIFIC KEY -------------------
+                // actions for the specific database WITH NO SPECIFIC KEY
 
             }
 
 
-            // ------------------- actions for the database provider WITHOUT a specific database -------------------
+            // actions for the database provider WITHOUT a specific database
             if (message.equals("databases")) {
                 this.sendResponse(channel, packet.getUniqueId(), new JsonDocument().append("databases", databaseProvider.getDatabaseNames()));
                 return;
             }
-            // ------------------- actions for the database provider WITHOUT a specific database -------------------
+            // actions for the database provider WITHOUT a specific database
         }
     }
 

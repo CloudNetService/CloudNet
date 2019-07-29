@@ -16,11 +16,15 @@ public final class CommandCloudSign implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) return false;
+        if (!(sender instanceof Player)) {
+            return false;
+        }
 
         SignConfigurationEntry entry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
 
-        if (entry == null) return false;
+        if (entry == null) {
+            return false;
+        }
 
         if (args.length == 0) {
             sender.sendMessage("§7/cloudsign create <targetGroup>");
@@ -36,8 +40,9 @@ public final class CommandCloudSign implements CommandExecutor {
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
-                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()))
+                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                         continue;
+                    }
 
                     Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
 
@@ -67,8 +72,9 @@ public final class CommandCloudSign implements CommandExecutor {
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
-                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()))
+                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                         continue;
+                    }
 
                     Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
 

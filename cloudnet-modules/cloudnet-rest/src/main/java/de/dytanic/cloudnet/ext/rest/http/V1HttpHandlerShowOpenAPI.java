@@ -12,7 +12,7 @@ public final class V1HttpHandlerShowOpenAPI extends MethodHttpHandlerAdapter {
     @Override
     public void handleGet(String path, IHttpContext context) throws Exception {
         try (InputStream inputStream = V1HttpHandlerShowOpenAPI.class.getClassLoader().getResourceAsStream("openapi/v1-openapi.yml")) {
-            if (inputStream != null)
+            if (inputStream != null) {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_OK)
@@ -21,7 +21,8 @@ public final class V1HttpHandlerShowOpenAPI extends MethodHttpHandlerAdapter {
                         .context()
                         .closeAfter(true)
                         .cancelNext()
-                        ;
+                ;
+            }
         }
     }
 }

@@ -32,7 +32,9 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
         //Writing the body
         data = packet.getBody();
 
-        if (data == null || data.length == 0) data = Packet.EMPTY_PACKET_BYTE_ARRAY;
+        if (data == null || data.length == 0) {
+            data = Packet.EMPTY_PACKET_BYTE_ARRAY;
+        }
 
         NettyUtils.writeVarInt(byteBuf, data.length).writeBytes(data);
     }

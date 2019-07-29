@@ -83,12 +83,13 @@ public final class JsonConfiguration implements IConfiguration {
 
         String address = defaultHostAddress;
 
-        if (address == null)
+        if (address == null) {
             try {
                 address = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
                 address = "127.0.0.1";
             }
+        }
 
         addresses.add(address);
 
@@ -101,8 +102,9 @@ public final class JsonConfiguration implements IConfiguration {
                 }
         ));
 
-        if (System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST") != null)
+        if (System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST") != null) {
             addresses.addAll(Arrays.asList(System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST").split(",")));
+        }
 
         this.ipWhitelist = this.document.get("ipWhitelist", COLLECTION_STRING, addresses);
 
@@ -143,15 +145,18 @@ public final class JsonConfiguration implements IConfiguration {
         this.serverSslConfig = this.document.get("serverSslConfig", ConfigurationOptionSSL.class, fallback);
         this.webSslConfig = this.document.get("webSslConfig", ConfigurationOptionSSL.class, fallback);
 
-        if (System.getProperty("cloudnet.cluster.id") != null)
+        if (System.getProperty("cloudnet.cluster.id") != null) {
             this.clusterConfig.setClusterId(UUID.fromString(System.getProperty("cloudnet.cluster.id")));
+        }
 
         this.document.write(CONFIG_FILE_PATH);
     }
 
     @Override
     public void save() {
-        if (document == null) document = new JsonDocument();
+        if (document == null) {
+            document = new JsonDocument();
+        }
 
         this.document
                 .append("identity", this.identity)

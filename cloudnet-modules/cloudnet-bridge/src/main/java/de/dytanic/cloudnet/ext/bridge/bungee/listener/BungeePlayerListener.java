@@ -28,10 +28,11 @@ public final class BungeePlayerListener implements Listener {
     public void handle(ServerSwitchEvent event) {
         ServiceInfoSnapshot serviceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getPlayer().getServer().getInfo().getName());
 
-        if (serviceInfoSnapshot != null)
+        if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerSwitch(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()),
                     new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getServiceId().getName()));
+        }
     }
 
     @EventHandler
@@ -40,8 +41,9 @@ public final class BungeePlayerListener implements Listener {
         if (proxiedPlayer.getServer() == null) {
             String server = BungeeCloudNetHelper.filterServiceForProxiedPlayer(proxiedPlayer, null);
 
-            if (server != null && ProxyServer.getInstance().getServers().containsKey(server))
+            if (server != null && ProxyServer.getInstance().getServers().containsKey(server)) {
                 event.setTarget(ProxyServer.getInstance().getServerInfo(server));
+            }
         }
 
         ServiceInfoSnapshot serviceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getTarget().getName());

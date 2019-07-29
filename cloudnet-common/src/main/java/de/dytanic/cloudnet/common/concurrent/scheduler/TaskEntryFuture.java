@@ -59,7 +59,9 @@ public class TaskEntryFuture<T> implements Future<T> {
     @Override
     public synchronized T get() throws InterruptedException, ExecutionException {
         waits = true;
-        while (!isDone()) this.wait();
+        while (!isDone()) {
+            this.wait();
+        }
 
         return entry.value;
     }
@@ -77,7 +79,9 @@ public class TaskEntryFuture<T> implements Future<T> {
             else throw new TimeoutException();
         }*/
 
-        while (!isDone()) this.wait(pUnit.toMillis(pTimeout));
+        while (!isDone()) {
+            this.wait(pUnit.toMillis(pTimeout));
+        }
 
         return entry.value;
     }

@@ -22,8 +22,9 @@ public final class QueuedConsoleLogHandler implements ILogHandler {
     public void handle(LogEntry logEntry) {
         cachedQueuedLogEntries.offer(logEntry);
 
-        while (cachedQueuedLogEntries.size() > 128)
+        while (cachedQueuedLogEntries.size() > 128) {
             cachedQueuedLogEntries.poll();
+        }
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new LoggingEntryEvent(logEntry));
     }

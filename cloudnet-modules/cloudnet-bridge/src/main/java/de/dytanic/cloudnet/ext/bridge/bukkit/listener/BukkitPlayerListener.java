@@ -36,12 +36,17 @@ public final class BukkitPlayerListener implements Listener {
     public void handle(BukkitBridgeProxyPlayerServerConnectRequestEvent event) {
         BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
 
-        if (Bukkit.getOnlineMode()) return;
+        if (Bukkit.getOnlineMode()) {
+            return;
+        }
 
-        if (bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null)
-            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups())
-                if (Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups()))
+        if (bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
+            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups()) {
+                if (Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                     return;
+                }
+            }
+        }
 
         if (event.getNetworkConnectionInfo().getUniqueId() != null) {
 
@@ -66,15 +71,18 @@ public final class BukkitPlayerListener implements Listener {
 
         boolean onlyProxyProtection = true;
 
-        if (Bukkit.getOnlineMode())
+        if (Bukkit.getOnlineMode()) {
             onlyProxyProtection = false;
+        }
 
-        if (onlyProxyProtection && bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null)
-            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups())
+        if (onlyProxyProtection && bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
+            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups()) {
                 if (Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                     onlyProxyProtection = false;
                     break;
                 }
+            }
+        }
 
         if (onlyProxyProtection) {
             UUID uniqueId = event.getPlayer().getUniqueId();
@@ -86,7 +94,9 @@ public final class BukkitPlayerListener implements Listener {
                     event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
                     return;
 
-                } else accessUniqueIds.remove(uniqueId);
+                } else {
+                    accessUniqueIds.remove(uniqueId);
+                }
 
                 checkName = false;
             }
@@ -100,7 +110,9 @@ public final class BukkitPlayerListener implements Listener {
                         event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
                         return;
 
-                    } else accessNames.remove(name);
+                    } else {
+                        accessNames.remove(name);
+                    }
                 }
             }
         }
@@ -126,5 +138,4 @@ public final class BukkitPlayerListener implements Listener {
         Wrapper.getInstance().runTask(() -> BridgeHelper.updateServiceInfo());
     }
 
-    /*= ---------------------------------------------------------------------------------------------------- =*/
 }

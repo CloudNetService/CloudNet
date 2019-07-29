@@ -67,7 +67,6 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         return sslContext != null;
     }
 
-    /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
     public boolean addListener(int port) {
@@ -79,7 +78,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         Validate.checkNotNull(hostAndPort);
         Validate.checkNotNull(hostAndPort.getHost());
 
-        if (!this.channelFutures.containsKey(hostAndPort.getPort()))
+        if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
                 this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
                         .group(bossEventLoopGroup, workerEventLoopGroup)
@@ -99,6 +98,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
 
         return false;
     }
@@ -108,8 +108,9 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         taskScheduler.shutdown();
         this.closeChannels();
 
-        for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values())
+        for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {
             entry.getSecond().cancel(true);
+        }
 
         this.bossEventLoopGroup.shutdownGracefully();
         this.workerEventLoopGroup.shutdownGracefully();
@@ -121,12 +122,13 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     @Override
     public void closeChannels() {
-        for (INetworkChannel channel : this.channels)
+        for (INetworkChannel channel : this.channels) {
             try {
                 channel.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
 
         this.channels.clear();
     }
@@ -135,16 +137,18 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     public void sendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
-        for (INetworkChannel channel : this.channels)
+        for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
+        }
     }
 
     @Override
     public void sendPacket(IPacket... packets) {
         Validate.checkNotNull(packets);
 
-        for (INetworkChannel channel : this.channels)
+        for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);
+        }
     }
 
     public IPacketListenerRegistry getPacketRegistry() {

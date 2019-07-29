@@ -57,31 +57,36 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
         if (version != null) {
 
-            if (!installFile(version, "cloudnet.jar", new File(destinationBaseDirectory + "/" + version, "cloudnet.jar"), buffer))
+            if (!installFile(version, "cloudnet.jar", new File(destinationBaseDirectory + "/" + version, "cloudnet.jar"), buffer)) {
                 successful = false;
+            }
 
-            if (!installFile(version, "cloudnet.cnl", new File(destinationBaseDirectory + "/" + version, "cloudnet.cnl"), buffer))
+            if (!installFile(version, "cloudnet.cnl", new File(destinationBaseDirectory + "/" + version, "cloudnet.cnl"), buffer)) {
                 successful = false;
+            }
 
-            if (!installFile(version, "driver.jar", new File(destinationBaseDirectory + "/" + version, "driver.jar"), buffer))
+            if (!installFile(version, "driver.jar", new File(destinationBaseDirectory + "/" + version, "driver.jar"), buffer)) {
                 successful = false;
+            }
 
-            if (!installFile(version, "driver.cnl", new File(destinationBaseDirectory + "/" + version, "driver.cnl"), buffer))
+            if (!installFile(version, "driver.cnl", new File(destinationBaseDirectory + "/" + version, "driver.cnl"), buffer)) {
                 successful = false;
+            }
 
             //return successful;
         }
 
         if (version != null && moduleDestinationBaseDirectory != null) {
-            for (CloudNetModule module : Constants.DEFAULT_MODULES)
-                if (!installModuleFile(version, module.getFileName(), new File(moduleDestinationBaseDirectory, module.getFileName()), buffer))
+            for (CloudNetModule module : Constants.DEFAULT_MODULES) {
+                if (!installModuleFile(version, module.getFileName(), new File(moduleDestinationBaseDirectory, module.getFileName()), buffer)) {
                     successful = false;
+                }
+            }
         }
 
         return successful;
     }
 
-    /*= ------------------------------------------------ =*/
 
     private boolean installModuleFile(String version, String name, File file, byte[] buffer) {
         System.out.println("Installing remote version module " + name + " in version " + version);
@@ -110,7 +115,9 @@ public final class DefaultRepositoryUpdater implements IUpdater {
     }
 
     private boolean installFile(String version, String name, File file, byte[] buffer) {
-        if (file.exists()) return true;
+        if (file.exists()) {
+            return true;
+        }
 
         try {
             URLConnection urlConnection = new URL(url + "versions/" + version + "/" + name).openConnection();

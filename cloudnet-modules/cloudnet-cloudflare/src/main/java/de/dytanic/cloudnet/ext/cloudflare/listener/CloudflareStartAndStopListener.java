@@ -45,12 +45,13 @@ public final class CloudflareStartAndStopListener {
                     )
             );
 
-            if (response.getFirst() < 400)
+            if (response.getFirst() < 400) {
                 CloudNetDriver.getInstance().getLogger().info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
                         .replace("%service%", event.getCloudService().getServiceId().getName() + "")
                         .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
                         .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
                 );
+            }
         });
     }
 
@@ -67,25 +68,28 @@ public final class CloudflareStartAndStopListener {
                         entry.getSecond().getDocument("result").getString("id")
                 );
 
-                if (response.getFirst() < 400)
+                if (response.getFirst() < 400) {
                     CloudNetDriver.getInstance().getLogger().info(LanguageManager.getMessage("module-cloudflare-delete-dns-record-for-service")
                             .replace("%service%", event.getCloudService().getServiceId().getName() + "")
                             .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
                             .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
                     );
+                }
             }
         });
     }
 
-    /*= ---------------------------------------------------------------- =*/
 
     private void handle0(ICloudService cloudService, BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler) {
-        for (CloudflareConfigurationEntry entry : CloudNetCloudflareModule.getInstance().getCloudflareConfiguration().getEntries())
-            if (entry != null && entry.isEnabled() && entry.getGroups() != null)
-                for (CloudflareGroupConfiguration groupConfiguration : entry.getGroups())
+        for (CloudflareConfigurationEntry entry : CloudNetCloudflareModule.getInstance().getCloudflareConfiguration().getEntries()) {
+            if (entry != null && entry.isEnabled() && entry.getGroups() != null) {
+                for (CloudflareGroupConfiguration groupConfiguration : entry.getGroups()) {
                     if (groupConfiguration != null && Iterables.contains(groupConfiguration.getName(), cloudService.getServiceConfiguration().getGroups())) {
                         handler.accept(entry, groupConfiguration);
                         break;
                     }
+                }
+            }
+        }
     }
 }

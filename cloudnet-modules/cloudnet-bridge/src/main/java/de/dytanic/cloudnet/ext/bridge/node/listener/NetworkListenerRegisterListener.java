@@ -24,8 +24,9 @@ public final class NetworkListenerRegisterListener {
 
     @EventListener
     public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME))
+        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME)) {
             return;
+        }
 
         switch (event.getId()) {
             case BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION: {

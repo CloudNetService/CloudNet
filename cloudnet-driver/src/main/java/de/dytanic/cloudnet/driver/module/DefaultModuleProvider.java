@@ -43,7 +43,9 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
         DefaultModuleWrapper moduleWrapper = null;
 
-        if (Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString())) != null) return null;
+        if (Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString())) != null) {
+            return null;
+        }
 
         try {
 
@@ -53,8 +55,9 @@ public final class DefaultModuleProvider implements IModuleProvider {
         } catch (Throwable throwable) {
             throwable.printStackTrace();
 
-            if (moduleWrapper != null)
+            if (moduleWrapper != null) {
                 moduleWrapper.unloadModule();
+            }
         }
 
         return moduleWrapper;
@@ -84,8 +87,9 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public IModuleProvider loadModule(URL... urls) {
         Validate.checkNotNull(urls);
 
-        for (URL url : urls)
+        for (URL url : urls) {
             loadModule(url);
+        }
 
         return this;
     }
@@ -94,8 +98,9 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public IModuleProvider loadModule(File... files) {
         Validate.checkNotNull(files);
 
-        for (File file : files)
+        for (File file : files) {
             loadModule(file);
+        }
 
         return this;
     }
@@ -104,32 +109,36 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public IModuleProvider loadModule(Path... paths) {
         Validate.checkNotNull(paths);
 
-        for (Path path : paths)
+        for (Path path : paths) {
             loadModule(path);
+        }
 
         return this;
     }
 
     @Override
     public IModuleProvider startAll() {
-        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
+        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
             moduleWrapper.startModule();
+        }
 
         return this;
     }
 
     @Override
     public IModuleProvider stopAll() {
-        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
+        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
             moduleWrapper.stopModule();
+        }
 
         return this;
     }
 
     @Override
     public IModuleProvider unloadAll() {
-        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers)
+        for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
             moduleWrapper.unloadModule();
+        }
 
         return this;
     }

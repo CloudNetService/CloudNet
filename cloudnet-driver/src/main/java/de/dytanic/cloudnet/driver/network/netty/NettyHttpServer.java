@@ -39,7 +39,6 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         this.init();
     }
 
-    /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
     public boolean isSslEnabled() {
@@ -56,7 +55,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         Validate.checkNotNull(hostAndPort);
         Validate.checkNotNull(hostAndPort.getHost());
 
-        if (!channelFutures.containsKey(hostAndPort.getPort()))
+        if (!channelFutures.containsKey(hostAndPort.getPort())) {
             try {
                 this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
                         .group(bossGroup, workerGroup)
@@ -77,6 +76,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
 
         return false;
     }
@@ -96,21 +96,29 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         Validate.checkNotNull(path);
         Validate.checkNotNull(handlers);
 
-        if (!path.startsWith("/")) path = "/" + path;
-        if (path.endsWith("/") && !path.equals("/")) path = path.substring(0, path.length() - 1);
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        if (path.endsWith("/") && !path.equals("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
 
-        for (IHttpHandler httpHandler : handlers)
+        for (IHttpHandler httpHandler : handlers) {
             if (httpHandler != null) {
                 boolean value = true;
 
-                for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
+                for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
                     if (registeredHandler.path.equals(path) && registeredHandler.httpHandler.getClass().equals(httpHandler.getClass())) {
                         value = false;
                         break;
                     }
+                }
 
-                if (value) this.registeredHandlers.add(new HttpHandlerEntry(path, httpHandler, port, priority));
+                if (value) {
+                    this.registeredHandlers.add(new HttpHandlerEntry(path, httpHandler, port, priority));
+                }
             }
+        }
 
         return this;
     }
@@ -119,9 +127,11 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     public IHttpServer removeHandler(IHttpHandler handler) {
         Validate.checkNotNull(handler);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
-            if (registeredHandler.httpHandler.equals(handler))
+        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
+            if (registeredHandler.httpHandler.equals(handler)) {
                 this.registeredHandlers.remove(registeredHandler);
+            }
+        }
 
         return this;
     }
@@ -130,9 +140,11 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     public IHttpServer removeHandler(Class<? extends IHttpHandler> handler) {
         Validate.checkNotNull(handler);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
-            if (registeredHandler.httpHandler.getClass().equals(handler))
+        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
+            if (registeredHandler.httpHandler.getClass().equals(handler)) {
                 this.registeredHandlers.remove(registeredHandler);
+            }
+        }
 
         return this;
     }
@@ -141,9 +153,11 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     public IHttpServer removeHandler(ClassLoader classLoader) {
         Validate.checkNotNull(classLoader);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers)
-            if (registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader))
+        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
+            if (registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader)) {
                 this.registeredHandlers.remove(registeredHandler);
+            }
+        }
 
         return this;
     }
@@ -161,15 +175,15 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public void close() throws Exception {
-        for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values())
+        for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {
             entry.getSecond().cancel(true);
+        }
 
         this.bossGroup.shutdownGracefully();
         this.workerGroup.shutdownGracefully();
         this.clearHandlers();
     }
 
-    /*= ---------------------------------------------------------- =*/
 
     @ToString
     @EqualsAndHashCode
