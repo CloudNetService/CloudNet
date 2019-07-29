@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.service;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @ToString
@@ -19,6 +20,8 @@ public class ServiceTask extends ServiceConfigurationBase {
 
     private Collection<String> groups;
 
+    private Collection<String> deletedFilesAfterStop;
+
     private ProcessConfiguration processConfiguration;
 
     private int startPort, minServiceCount;
@@ -31,16 +34,28 @@ public class ServiceTask extends ServiceConfigurationBase {
     }
 
     public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
+                       String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
+                       Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
+        this(includes, templates, deployments, name, runtime, false, autoDeleteOnStop, staticServices, associatedNodes, groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount);
+    }
+
+    public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
                        String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
                        ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
-        super(includes, templates, deployments);
+        this(includes, templates, deployments, name, runtime, maintenance, autoDeleteOnStop, staticServices, associatedNodes, groups, new ArrayList<>(), processConfiguration, startPort, minServiceCount);
+    }
 
+    public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
+                       String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
+                       Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
+        super(includes, templates, deployments);
         this.name = name;
         this.runtime = runtime;
         this.maintenance = maintenance;
         this.autoDeleteOnStop = autoDeleteOnStop;
         this.associatedNodes = associatedNodes;
         this.groups = groups;
+        this.deletedFilesAfterStop = deletedFilesAfterStop;
         this.processConfiguration = processConfiguration;
         this.startPort = startPort;
         this.minServiceCount = minServiceCount;
@@ -104,6 +119,14 @@ public class ServiceTask extends ServiceConfigurationBase {
 
     public void setGroups(Collection<String> groups) {
         this.groups = groups;
+    }
+
+    public Collection<String> getDeletedFilesAfterStop() {
+        return deletedFilesAfterStop;
+    }
+
+    public void setDeletedFilesAfterStop(Collection<String> deletedFilesAfterStop) {
+        this.deletedFilesAfterStop = deletedFilesAfterStop;
     }
 
     public ProcessConfiguration getProcessConfiguration() {

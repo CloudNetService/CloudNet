@@ -61,6 +61,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                         serviceTask.getTemplates(),
                         serviceTask.getDeployments(),
                         serviceTask.getGroups(),
+                        serviceTask.getDeletedFilesAfterStop(),
                         serviceTask.getProcessConfiguration(),
                         serviceTask.getStartPort()
                 );
@@ -102,6 +103,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                         null,
                         false,
                         false,
+                        Iterables.newArrayList(),
                         Iterables.newArrayList(),
                         Iterables.newArrayList(),
                         Iterables.newArrayList(),
@@ -167,6 +169,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
             Collection<ServiceTemplate> templates,
             Collection<ServiceDeployment> deployments,
             Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
             ProcessConfiguration processConfiguration,
             int startPort
     ) {
@@ -226,6 +229,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                     properties.getOrDefault("static", staticServices + "").equalsIgnoreCase("true"),
                     properties.containsKey("node") ? Arrays.asList(properties.get("node").split(";")) : nodes,
                     properties.containsKey("groups") ? Arrays.asList(properties.get("groups").split(";")) : groups,
+                    properties.containsKey("deletedFilesAfterStop") ? Arrays.asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop,
                     new ProcessConfiguration(
                             processConfiguration.getEnvironment(),
                             properties.containsKey("memory") && Validate.testStringParseToInt(properties.get("memory")) ?
