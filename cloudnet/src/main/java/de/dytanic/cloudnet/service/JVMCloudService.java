@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
@@ -239,7 +240,7 @@ final class JVMCloudService implements ICloudService {
                 try {
                     ConfigurationOptionSSL ssl = CloudNet.getInstance().getConfig().getServerSslConfig();
 
-                    File file = null;
+                    File file;
                     if (ssl.getCertificatePath() != null) {
                         file = new File(ssl.getCertificatePath());
 
@@ -774,12 +775,13 @@ final class JVMCloudService implements ICloudService {
 
     private int stop0(boolean force) {
         if (this.lifeCycle == ServiceLifeCycle.RUNNING) {
+
             System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message")
                     .replace("%task%", this.serviceId.getTaskName())
                     .replace("%id%", this.serviceId.getUniqueId().toString()));
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStopEvent(this));
 
-            int exitValue = this.stop1(force);
+            int exitValue = this.stopProcess(force);
 
             if (this.networkChannel != null) {
                 try {
@@ -809,22 +811,30 @@ final class JVMCloudService implements ICloudService {
         return -1;
     }
 
-    private int stop1(boolean force) {
+    private int stopProcess(boolean force) {
         if (this.process != null) {
-            try {
-                OutputStream outputStream = this.process.getOutputStream();
-                outputStream.write("stop\n".getBytes());
-                outputStream.flush();
-                outputStream.write("end\n".getBytes());
-                outputStream.flush();
 
-                Thread.sleep(500);
-            } catch (Exception exception) {
-                exception.printStackTrace();
+            if (this.process.isAlive()) {
+                try {
+                    OutputStream outputStream = this.process.getOutputStream();
+                    outputStream.write("stop\n".getBytes());
+                    outputStream.flush();
+                    outputStream.write("end\n".getBytes());
+                    outputStream.flush();
+
+                    if (process.waitFor(5, TimeUnit.SECONDS)) {
+                        return process.exitValue();
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
 
-            if (!force) this.process.destroy();
-            else this.process.destroyForcibly();
+            if (!force) {
+                this.process.destroy();
+            } else {
+                this.process.destroyForcibly();
+            }
 
             try {
                 return this.process.exitValue();

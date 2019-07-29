@@ -39,14 +39,5 @@ public final class Main {
 
         System.setOut(new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true, StandardCharsets.UTF_8.name()));
         System.setErr(new PrintStream(new LogOutputStream(logger, LogLevel.ERROR), true, StandardCharsets.UTF_8.name()));
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                logger.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }));
     }
 }

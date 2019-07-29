@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
@@ -54,6 +55,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -183,6 +185,7 @@ public final class Wrapper extends CloudNetDriver {
     public void stop() {
         try {
             this.networkClient.close();
+            this.logger.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2070,7 +2073,6 @@ public final class Wrapper extends CloudNetDriver {
                 documentPair -> documentPair.getFirst().get("permissionGroup", PermissionGroup.TYPE));
     }
 
-    /*= ------------------------------------------------------------------------ =*/
 
     /**
      * Application wrapper implementation of this method. See the full documentation at the
@@ -2187,9 +2189,6 @@ public final class Wrapper extends CloudNetDriver {
         this.networkClient.sendPacket(new PacketClientServiceInfoUpdate(serviceInfoSnapshot));
     }
 
-    /*= -------------------------------------------------------------------------------------------- =*/
-    //private methods
-    /*= -------------------------------------------------------------------------------------------- =*/
 
     /**
      * Removes all PacketListeners from all channels of the Network Connctor from a
@@ -2272,23 +2271,28 @@ public final class Wrapper extends CloudNetDriver {
         this.eventManager.callEvent(preStartApplicationEvent);
 
         File[] files = this.workDirectory.listFiles();
-        if (files == null) throw new FileNotFoundException("no files found!");
+        if (files == null) {
+            this.logger.log(LogLevel.ERROR,
+                    "",
+                    new FileNotFoundException("no files found!"));
+            return false;
+        }
 
         File entry = null;
         ServiceEnvironment environment = null;
 
-        int index = 0;
-        while (entry == null && index < preStartApplicationEvent.getEnvironmentType().getEnvironments().length) {
-            final int i = index;
+        for (ServiceEnvironment subEnvironment : preStartApplicationEvent.getEnvironmentType().getEnvironments()) {
+            if (entry != null) {
+                break;
+            }
 
             entry = this.find(files, file -> {
                 String lowerName = file.getName().toLowerCase();
                 return file.exists() && !file.isDirectory() && lowerName.endsWith(".jar") &&
-                        lowerName.contains(preStartApplicationEvent.getEnvironmentType().getEnvironments()[i].getName().toLowerCase());
+                        lowerName.contains(subEnvironment.getName().toLowerCase());
             });
 
-            environment = preStartApplicationEvent.getEnvironmentType().getEnvironments()[i];
-            index++;
+            environment = subEnvironment;
         }
 
         try {
@@ -2305,8 +2309,17 @@ public final class Wrapper extends CloudNetDriver {
 
     private boolean startApplication0(File file, ServiceEnvironment serviceEnvironment) throws Exception {
         if (file == null || !file.exists()) {
-            throw new FileNotFoundException("Application file for Runtime " + getServiceId().getEnvironment() +
-                    " COULD NOT BE FOUND! Please include the file and calls " + Arrays.toString(getServiceId().getEnvironment().getEnvironments()));
+            Collection<String> availableFileNames = Arrays.stream(getServiceId().getEnvironment().getEnvironments())
+                    .map(subEnvironment -> subEnvironment.getName() + ".jar")
+                    .collect(Collectors.toSet());
+
+            this.logger.log(LogLevel.ERROR,
+                    "",
+                    new FileNotFoundException("Application file for Runtime "
+                            + getServiceId().getEnvironment()
+                            + " COULD NOT BE FOUND! Please include a file with one of the following names: "
+                            + String.join(", ", availableFileNames)));
+            return false;
         }
 
         JarFile jarFile = new JarFile(file);
