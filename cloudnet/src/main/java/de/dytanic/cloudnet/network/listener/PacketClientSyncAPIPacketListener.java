@@ -288,7 +288,9 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "deploy_resources_from_service": {
-                    getCloudNet().deployResources(packet.getHeader().get("uniqueId", UUID.class));
+                    getCloudNet().deployResources(
+                            packet.getHeader().get("uniqueId", UUID.class),
+                            packet.getHeader().getBoolean("removeDeployments"));
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;

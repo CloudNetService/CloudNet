@@ -1552,11 +1552,12 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
-    public void deployResources(UUID uniqueId) {
+    public void deployResources(UUID uniqueId, boolean removeDeployments) {
         Validate.checkNotNull(uniqueId);
 
         sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service").append("uniqueId", uniqueId), null,
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
+                        .append("uniqueId", uniqueId).append("removeDeployments", removeDeployments), null,
                 VOID_FUNCTION);
     }
 
