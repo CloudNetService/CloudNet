@@ -77,7 +77,6 @@ public interface ICommandMap {
      */
     boolean dispatchCommand(ICommandSender commandSender, String commandLine);
 
-    /*= ----------------------------------------- =*/
 
     /**
      * Register new command instances with all names that are is configured
@@ -85,10 +84,13 @@ public interface ICommandMap {
      * @param commands the commands that should registered
      */
     default void registerCommand(Command... commands) {
-        if (commands != null)
-            for (Command command : commands)
-                if (command != null)
+        if (commands != null) {
+            for (Command command : commands) {
+                if (command != null) {
                     registerCommand(command);
+                }
+            }
+        }
     }
 
     /**
@@ -97,10 +99,13 @@ public interface ICommandMap {
      * @param commands the command names that should remove from the map
      */
     default void unregisterCommand(String... commands) {
-        if (commands != null)
-            for (String command : commands)
-                if (command != null)
+        if (commands != null) {
+            for (String command : commands) {
+                if (command != null) {
                     unregisterCommand(command);
+                }
+            }
+        }
     }
 
     /**
@@ -109,9 +114,12 @@ public interface ICommandMap {
      * @param commands the class references that should remove from the map
      */
     default void unregisterCommand(Class<? extends Command>... commands) {
-        if (commands != null)
-            for (Class<? extends Command> c : commands)
-                if (c != null)
+        if (commands != null) {
+            for (Class<? extends Command> c : commands) {
+                if (c != null) {
                     unregisterCommand(c);
+                }
+            }
+        }
     }
 }

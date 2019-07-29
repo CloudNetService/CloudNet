@@ -44,7 +44,8 @@ public class LogOutputStream extends ByteArrayOutputStream {
         String input = toString(StandardCharsets.UTF_8.name());
         this.reset();
 
-        if (input != null && !input.isEmpty() && !input.equals(System.lineSeparator()))
+        if (input != null && !input.isEmpty() && !input.equals(System.lineSeparator())) {
             logger.log(logLevel, input);
+        }
     }
 }

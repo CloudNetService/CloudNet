@@ -41,11 +41,9 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
     private final ProxyServer proxyServer;
 
-    /*= ---------------------------------------------------------------------- =*/
 
     private final Map<UUID, Integer> onlineCountOfProxies = Maps.newConcurrentHashMap();
 
-    /*= ---------------------------------------------------------------------- =*/
 
     private volatile AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
 
@@ -75,14 +73,15 @@ public final class VelocityCloudNetSyncProxyPlugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    /*= ------------------------------------------------------------ =*/
 
     public int getSyncProxyOnlineCount() {
         int onlinePlayers = proxyServer.getPlayerCount();
 
-        for (Map.Entry<UUID, Integer> entry : onlineCountOfProxies.entrySet())
-            if (!Wrapper.getInstance().getServiceId().getUniqueId().equals(entry.getKey()))
+        for (Map.Entry<UUID, Integer> entry : onlineCountOfProxies.entrySet()) {
+            if (!Wrapper.getInstance().getServiceId().getUniqueId().equals(entry.getKey())) {
                 onlinePlayers += entry.getValue();
+            }
+        }
 
         return onlinePlayers;
     }
@@ -107,26 +106,32 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
     public SyncProxyProxyLoginConfiguration getProxyLoginConfiguration() {
         for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration :
-                SyncProxyConfigurationProvider.load().getLoginConfigurations())
+                SyncProxyConfigurationProvider.load().getLoginConfigurations()) {
             if (syncProxyProxyLoginConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()))
+                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                 return syncProxyProxyLoginConfiguration;
+            }
+        }
 
         return null;
     }
 
     public SyncProxyTabListConfiguration getTabListConfiguration() {
         for (SyncProxyTabListConfiguration syncProxyTabListConfiguration :
-                SyncProxyConfigurationProvider.load().getTabListConfigurations())
+                SyncProxyConfigurationProvider.load().getTabListConfigurations()) {
             if (syncProxyTabListConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()))
+                    Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                 return syncProxyTabListConfiguration;
+            }
+        }
 
         return null;
     }
 
     public void setTabList(Player player) {
-        if (tabListEntryIndex.get() == -1) return;
+        if (tabListEntryIndex.get() == -1) {
+            return;
+        }
 
         SyncProxyProxyLoginConfiguration proxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
@@ -154,7 +159,6 @@ public final class VelocityCloudNetSyncProxyPlugin {
         return SyncProxyTabList.replaceTabListItem(input, player.getUniqueId());
     }
 
-    /*= ------------------------------------------------------- =*/
 
     private void initListeners() {
         //Velocity
@@ -170,12 +174,15 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
         if (syncProxyTabListConfiguration != null && syncProxyTabListConfiguration.getEntries() != null &&
                 !syncProxyTabListConfiguration.getEntries().isEmpty()) {
-            if (tabListEntryIndex.get() == -1) tabListEntryIndex.set(0);
-
-            if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size())
-                tabListEntryIndex.incrementAndGet();
-            else
+            if (tabListEntryIndex.get() == -1) {
                 tabListEntryIndex.set(0);
+            }
+
+            if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
+                tabListEntryIndex.incrementAndGet();
+            } else {
+                tabListEntryIndex.set(0);
+            }
 
             SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(tabListEntryIndex.get());
 
@@ -194,21 +201,25 @@ public final class VelocityCloudNetSyncProxyPlugin {
                     .schedule();
         }
 
-        for (Player player : proxyServer.getAllPlayers())
-            if (player.isActive() && player.getCurrentServer().isPresent())
+        for (Player player : proxyServer.getAllPlayers()) {
+            if (player.isActive() && player.getCurrentServer().isPresent()) {
                 setTabList(player);
+            }
+        }
     }
 
     private void initOnlineCount() {
         SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null && syncProxyProxyLoginConfiguration.getTargetGroup() != null) {
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceByGroup(syncProxyProxyLoginConfiguration.getTargetGroup()))
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceByGroup(syncProxyProxyLoginConfiguration.getTargetGroup())) {
                 if ((serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockProxy() ||
                         serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaProxy()) &&
-                        serviceInfoSnapshot.getProperties().contains(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT))
+                        serviceInfoSnapshot.getProperties().contains(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
                     getOnlineCountOfProxies().put(serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getProperties().getInt(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
+                }
+            }
         }
     }
 

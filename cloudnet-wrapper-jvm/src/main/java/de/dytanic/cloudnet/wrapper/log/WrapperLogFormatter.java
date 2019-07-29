@@ -19,8 +19,11 @@ public final class WrapperLogFormatter implements IFormatter {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (String line : logEntry.getMessages())
-            if (line != null) stringBuilder.append(line);
+        for (String line : logEntry.getMessages()) {
+            if (line != null) {
+                stringBuilder.append(line);
+            }
+        }
 
         return stringBuilder.append(builder).toString();
     }

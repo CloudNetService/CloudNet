@@ -56,7 +56,9 @@ public final class CommandReport extends Command {
         long millis = System.currentTimeMillis();
         File file = new File(directory, dateFormat.format(millis) + ".report");
 
-        if (file.exists()) return;
+        if (file.exists()) {
+            return;
+        }
 
         try (FileWriter fileWriter = new FileWriter(file, false);
              ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -85,9 +87,9 @@ public final class CommandReport extends Command {
             writer.println();
 
             writer.println("Last log lines");
-            for (LogEntry logEntry : CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries())
-                if (logEntry.getMessages() != null)
-                    for (String message : logEntry.getMessages())
+            for (LogEntry logEntry : CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries()) {
+                if (logEntry.getMessages() != null) {
+                    for (String message : logEntry.getMessages()) {
                         if (message != null) {
                             writer.println(
                                     "[" + logFormat.format(logEntry.getTimeStamp()) + "] " +
@@ -97,9 +99,13 @@ public final class CommandReport extends Command {
                                             message
                             );
 
-                            if (logEntry.getThrowable() != null)
+                            if (logEntry.getThrowable() != null) {
                                 logEntry.getThrowable().printStackTrace(writer);
+                            }
                         }
+                    }
+                }
+            }
 
             writer.println();
             writer.println("###################################################################################");
@@ -120,8 +126,9 @@ public final class CommandReport extends Command {
                 writer.println("- Stack");
                 writer.println();
 
-                for (StackTraceElement element : entry.getValue())
+                for (StackTraceElement element : entry.getValue()) {
                     writer.println(element.toString());
+                }
 
                 writer.println();
             }
@@ -148,8 +155,9 @@ public final class CommandReport extends Command {
                 writer.println();
 
                 writer.println("Console receivedMessages:");
-                for (String entry : CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId()))
+                for (String entry : CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId())) {
                     writer.println(entry);
+                }
 
                 writer.println();
             }
@@ -173,8 +181,9 @@ public final class CommandReport extends Command {
                 for (Map.Entry<ModuleLifeCycle, List<IModuleTaskEntry>> moduleLifeCycleListEntry : moduleWrapper.getModuleTasks().entrySet()) {
                     writer.println("ModuleTask: " + moduleLifeCycleListEntry.getKey());
 
-                    for (IModuleTaskEntry moduleTaskEntry : moduleLifeCycleListEntry.getValue())
+                    for (IModuleTaskEntry moduleTaskEntry : moduleLifeCycleListEntry.getValue()) {
                         writer.println("Order: " + moduleTaskEntry.getTaskInfo().order() + " | " + moduleTaskEntry.getHandler().getName());
+                    }
                 }
 
                 writer.println();
@@ -185,8 +194,9 @@ public final class CommandReport extends Command {
             for (Class<?> c : CloudNetDriver.getInstance().getServicesRegistry().getProvidedServices()) {
                 writer.println("Registry Item Class: " + c.getName());
 
-                for (Object item : CloudNetDriver.getInstance().getServicesRegistry().getServices(c))
+                for (Object item : CloudNetDriver.getInstance().getServicesRegistry().getServices(c)) {
                     writer.println("- " + item.getClass().getName());
+                }
 
                 writer.println();
             }

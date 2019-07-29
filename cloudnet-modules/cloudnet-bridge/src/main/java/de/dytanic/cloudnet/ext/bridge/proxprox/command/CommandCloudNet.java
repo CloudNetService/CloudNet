@@ -14,7 +14,9 @@ public final class CommandCloudNet extends Command {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("cloudnet.command.cloudnet")) return;
+        if (!sender.hasPermission("cloudnet.command.cloudnet")) {
+            return;
+        }
 
         if (args.length == 0) {
             sender.sendMessage(ChatColor.toANSI(BridgeConfigurationProvider.load().getPrefix()) + "/cloudnet <command>");
@@ -22,15 +24,20 @@ public final class CommandCloudNet extends Command {
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        for (String arg : args) stringBuilder.append(arg).append(" ");
+        for (String arg : args) {
+            stringBuilder.append(arg).append(" ");
+        }
 
         String[] messages = CloudNetDriver.getInstance().sendCommandLine(stringBuilder.toString());
 
-        if (messages != null)
-            for (String message : messages)
-                if (message != null)
+        if (messages != null) {
+            for (String message : messages) {
+                if (message != null) {
                     sender.sendMessage(
                             ChatColor.toANSI(BridgeConfigurationProvider.load().getPrefix() + message)
                     );
+                }
+            }
+        }
     }
 }

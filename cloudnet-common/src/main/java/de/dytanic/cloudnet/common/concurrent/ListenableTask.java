@@ -21,7 +21,9 @@ public class ListenableTask<V> implements ITask<V> {
 
         this.callable = callable;
 
-        if (listener != null) this.addListener(listener);
+        if (listener != null) {
+            this.addListener(listener);
+        }
     }
 
     @Override
@@ -50,21 +52,26 @@ public class ListenableTask<V> implements ITask<V> {
 
     @Override
     public ITask<V> addListener(ITaskListener<V>... listeners) {
-        if (listeners == null) return this;
+        if (listeners == null) {
+            return this;
+        }
 
         initListenersCollectionIfNotExists();
 
-        for (ITaskListener<V> listener : listeners)
-            if (listener != null)
+        for (ITaskListener<V> listener : listeners) {
+            if (listener != null) {
                 this.listeners.add(listener);
+            }
+        }
 
         return this;
     }
 
     @Override
     public ITask<V> clearListeners() {
-        if (this.listeners != null)
+        if (this.listeners != null) {
             this.listeners.clear();
+        }
 
         return this;
     }
@@ -94,7 +101,9 @@ public class ListenableTask<V> implements ITask<V> {
     @Override
     public V get() throws InterruptedException, ExecutionException {
         synchronized (this) {
-            if (!isDone()) this.wait();
+            if (!isDone()) {
+                this.wait();
+            }
         }
 
         return value;
@@ -103,13 +112,14 @@ public class ListenableTask<V> implements ITask<V> {
     @Override
     public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         synchronized (this) {
-            if (!isDone()) this.wait(unit.toMillis(timeout));
+            if (!isDone()) {
+                this.wait(unit.toMillis(timeout));
+            }
         }
 
         return value;
     }
 
-    /*= ------------------------------------------------------------------------------------------------------ =*/
 
     @Override
     public V call() {
@@ -135,33 +145,38 @@ public class ListenableTask<V> implements ITask<V> {
         return this.value;
     }
 
-    /*= ---------------------------------------------------------------------------------- =*/
 
     private void initListenersCollectionIfNotExists() {
-        if (this.listeners == null)
+        if (this.listeners == null) {
             this.listeners = new ConcurrentLinkedQueue<>();
+        }
     }
 
     private void invokeTaskListener() {
-        if (this.listeners != null)
-            for (ITaskListener<V> listener : this.listeners)
+        if (this.listeners != null) {
+            for (ITaskListener<V> listener : this.listeners) {
                 try {
-                    if (this.cancelled)
+                    if (this.cancelled) {
                         listener.onCancelled(this);
-                    else
+                    } else {
                         listener.onComplete(this, this.value);
+                    }
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
+            }
+        }
     }
 
     private void invokeFailure(Throwable ex) {
-        if (this.listeners != null)
-            for (ITaskListener<V> listener : this.listeners)
+        if (this.listeners != null) {
+            for (ITaskListener<V> listener : this.listeners) {
                 try {
                     listener.onFailure(this, ex);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
+            }
+        }
     }
 }

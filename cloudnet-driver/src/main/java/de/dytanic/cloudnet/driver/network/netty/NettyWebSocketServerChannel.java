@@ -36,9 +36,11 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel addListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
-        for (IWebSocketListener listener : listeners)
-            if (listener != null)
+        for (IWebSocketListener listener : listeners) {
+            if (listener != null) {
                 webSocketListeners.add(listener);
+            }
+        }
 
         return this;
     }
@@ -47,9 +49,11 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
-        for (IWebSocketListener listener : webSocketListeners)
-            if (Iterables.first(listeners, webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)) != null)
+        for (IWebSocketListener listener : webSocketListeners) {
+            if (Iterables.first(listeners, webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)) != null) {
                 webSocketListeners.remove(listener);
+            }
+        }
 
         return this;
     }
@@ -58,18 +62,22 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes) {
         Validate.checkNotNull(classes);
 
-        for (IWebSocketListener listener : webSocketListeners)
-            if (classes.contains(listener.getClass()))
+        for (IWebSocketListener listener : webSocketListeners) {
+            if (classes.contains(listener.getClass())) {
                 webSocketListeners.remove(listener);
+            }
+        }
 
         return this;
     }
 
     @Override
     public IWebSocketChannel removeListener(ClassLoader classLoader) {
-        for (IWebSocketListener listener : webSocketListeners)
-            if (listener.getClass().getClassLoader().equals(classLoader))
+        for (IWebSocketListener listener : webSocketListeners) {
+            if (listener.getClass().getClassLoader().equals(classLoader)) {
                 webSocketListeners.remove(listener);
+            }
+        }
 
         return this;
     }

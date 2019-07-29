@@ -48,8 +48,9 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
         } else {
             Map<String, String> queryFilters = Maps.newHashMap();
 
-            for (Map.Entry<String, List<String>> queryEntry : context.request().queryParameters().entrySet())
+            for (Map.Entry<String, List<String>> queryEntry : context.request().queryParameters().entrySet()) {
                 queryFilters.put(queryEntry.getKey(), queryEntry.getValue().get(0));
+            }
 
             context
                     .response()

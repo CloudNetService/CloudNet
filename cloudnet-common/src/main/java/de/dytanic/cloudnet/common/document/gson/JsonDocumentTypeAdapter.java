@@ -22,9 +22,10 @@ public class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
     @Override
     public JsonDocument read(JsonReader jsonReader) throws IOException {
         JsonElement jsonElement = TypeAdapters.JSON_ELEMENT.read(jsonReader);
-        if (jsonElement != null && jsonElement.isJsonObject())
+        if (jsonElement != null && jsonElement.isJsonObject()) {
             return new JsonDocument(jsonElement);
-        else
+        } else {
             return null;
+        }
     }
 }

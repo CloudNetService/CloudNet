@@ -21,7 +21,6 @@ public interface ICloudServiceManager {
 
     void init();
 
-    /*= -------------------------------------------------- =*/
 
     List<ServiceTask> getServiceTasks();
 

@@ -33,8 +33,9 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceStartEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            if (event.getServiceInfo().getProperties().contains("Online-Mode") && event.getServiceInfo().getProperties().getBoolean("Online-Mode"))
+            if (event.getServiceInfo().getProperties().contains("Online-Mode") && event.getServiceInfo().getProperties().getBoolean("Online-Mode")) {
                 return;
+            }
 
             String name = event.getServiceInfo().getServiceId().getName();
 
@@ -63,40 +64,45 @@ public final class BungeeCloudNetListener {
 
     @EventListener
     public void handle(CloudServiceInfoUpdateEvent event) {
-        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo()))
+        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
             BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.bungeeCall(new BungeeCloudServiceInfoUpdateEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
-        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo()))
+        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
             BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.bungeeCall(new BungeeCloudServiceRegisterEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceConnectNetworkEvent event) {
-        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo()))
+        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
             BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.bungeeCall(new BungeeCloudServiceConnectNetworkEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceDisconnectNetworkEvent event) {
-        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo()))
+        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
             BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+        }
 
         this.bungeeCall(new BungeeCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
     }
 
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
-        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo()))
+        if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
             BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.remove(event.getServiceInfo().getServiceId().getName());
+        }
 
         this.bungeeCall(new BungeeCloudServiceUnregisterEvent(event.getServiceInfo()));
     }
@@ -105,8 +111,9 @@ public final class BungeeCloudNetListener {
     public void handle(ChannelMessageReceiveEvent event) {
         this.bungeeCall(new BungeeChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
 
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME))
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
             return;
+        }
 
         switch (event.getMessage().toLowerCase()) {
             case "send_on_proxy_player_to_server": {
@@ -115,22 +122,26 @@ public final class BungeeCloudNetListener {
                 if (proxiedPlayer != null && event.getData().getString("serviceName") != null) {
                     ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(event.getData().getString("serviceName"));
 
-                    if (serverInfo != null) proxiedPlayer.connect(serverInfo);
+                    if (serverInfo != null) {
+                        proxiedPlayer.connect(serverInfo);
+                    }
                 }
             }
             break;
             case "kick_on_proxy_player_from_network": {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
-                if (proxiedPlayer != null && event.getData().getString("kickMessage") != null)
+                if (proxiedPlayer != null && event.getData().getString("kickMessage") != null) {
                     proxiedPlayer.disconnect(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage") + ""));
+                }
             }
             break;
             case "send_message_to_proxy_player": {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
-                if (proxiedPlayer != null && event.getData().getString("message") != null)
+                if (proxiedPlayer != null && event.getData().getString("message") != null) {
                     proxiedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + ""));
+                }
             }
             break;
         }

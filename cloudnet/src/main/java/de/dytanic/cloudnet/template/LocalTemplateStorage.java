@@ -41,7 +41,9 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(directory);
         Validate.checkNotNull(target);
 
-        if (!directory.isDirectory()) return false;
+        if (!directory.isDirectory()) {
+            return false;
+        }
 
         try {
             FileUtils.copyFilesToDirectory(directory, new File(this.storageDirectory, target.getTemplatePath()));
@@ -72,18 +74,20 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
         boolean value = true;
 
-        for (File entry : files)
+        for (File entry : files) {
             try {
-                if (entry.isDirectory())
+                if (entry.isDirectory()) {
                     FileUtils.copyFilesToDirectory(entry, new File(templateDirectory, entry.getName()), buffer);
-                else
+                } else {
                     FileUtils.copy(entry, new File(templateDirectory, entry.getName()), buffer);
+                }
 
             } catch (Exception ex) {
                 ex.printStackTrace();
 
                 value = false;
             }
+        }
 
         return value;
     }
@@ -120,10 +124,11 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(directories);
         boolean value = true;
 
-        for (File directory : directories)
+        for (File directory : directories) {
             if (!this.copy(template, directory)) {
                 value = false;
             }
+        }
 
         return value;
     }
@@ -133,9 +138,11 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(directories);
         boolean value = true;
 
-        for (Path path : directories)
-            if (!this.copy(template, path))
+        for (Path path : directories) {
+            if (!this.copy(template, path)) {
                 value = false;
+            }
+        }
 
         return value;
     }
@@ -177,16 +184,21 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
         File[] files = this.storageDirectory.listFiles();
 
-        if (files != null)
-            for (File entry : files)
+        if (files != null) {
+            for (File entry : files) {
                 if (entry.isDirectory()) {
                     File[] subPathEntries = entry.listFiles();
 
-                    if (subPathEntries != null)
-                        for (File subEntry : subPathEntries)
-                            if (subEntry.isDirectory())
+                    if (subPathEntries != null) {
+                        for (File subEntry : subPathEntries) {
+                            if (subEntry.isDirectory()) {
                                 templates.add(new ServiceTemplate(entry.getName(), subEntry.getName(), LOCAL_TEMPLATE_STORAGE));
+                            }
+                        }
+                    }
                 }
+            }
+        }
 
         return templates;
     }

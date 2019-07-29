@@ -18,8 +18,8 @@ public final class CNLCommandCNL extends CNLCommand {
         if (args.length > 0) {
 
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 1; i < args.length; stringBuilder.append(args[i++]).append(" "))
-                ;
+            for (int i = 1; i < args.length; stringBuilder.append(args[i++]).append(" ")) {
+            }
 
             CNLInterpreter.runInterpreter(new File(stringBuilder.substring(0, stringBuilder.length() - 1)), variables);
         }

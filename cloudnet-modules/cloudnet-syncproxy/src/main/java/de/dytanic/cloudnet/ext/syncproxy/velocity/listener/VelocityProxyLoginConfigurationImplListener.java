@@ -27,13 +27,15 @@ public final class VelocityProxyLoginConfigurationImplListener {
             Random random = new Random();
 
             if (syncProxyProxyLoginConfiguration.isMaintenance()) {
-                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty())
+                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty()) {
                     syncProxyMotd = syncProxyProxyLoginConfiguration.getMaintenanceMotds().get(random.nextInt(
                             syncProxyProxyLoginConfiguration.getMaintenanceMotds().size()));
+                }
             } else {
-                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty())
+                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty()) {
                     syncProxyMotd = syncProxyProxyLoginConfiguration.getMotds().get(random.nextInt(
                             syncProxyProxyLoginConfiguration.getMotds().size()));
+                }
             }
 
             if (syncProxyMotd != null) {
@@ -87,8 +89,9 @@ public final class VelocityProxyLoginConfigurationImplListener {
             if (syncProxyProxyLoginConfiguration.isMaintenance() && syncProxyProxyLoginConfiguration.getWhitelist() != null) {
                 if (syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getPlayer().getUsername()) ||
                         syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getPlayer().getUniqueId().toString()) ||
-                        event.getPlayer().hasPermission("cloudnet.syncproxy.maintenance"))
+                        event.getPlayer().hasPermission("cloudnet.syncproxy.maintenance")) {
                     return;
+                }
 
                 event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages()
                         .get("player-login-not-whitelisted") + "").replace("&", "§"))));

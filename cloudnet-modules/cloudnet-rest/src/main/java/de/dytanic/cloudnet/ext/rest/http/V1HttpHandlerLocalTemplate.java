@@ -24,7 +24,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
-            if (getStorage().has(serviceTemplate))
+            if (getStorage().has(serviceTemplate)) {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_OK)
@@ -35,14 +35,15 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
                         .closeAfter(true)
                         .cancelNext()
                         ;
-            else
+            } else {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_NOT_FOUND)
                         .context()
                         .closeAfter(true)
                         .cancelNext()
-                        ;
+                ;
+            }
 
             return;
         }
@@ -86,7 +87,6 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
         this.send400Response(context, "prefix or name path parameter not found");
     }
 
-    /*= --------------------------------------------------------------------------------------- =*/
 
     private ServiceTemplate createLocalTemplate(String prefix, String name) {
         return new ServiceTemplate(prefix, name, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);

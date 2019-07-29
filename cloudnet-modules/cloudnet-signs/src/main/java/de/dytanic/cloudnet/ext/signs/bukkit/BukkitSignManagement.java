@@ -56,10 +56,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) return;
+        if (!isImportantCloudService(serviceInfoSnapshot)) {
+            return;
+        }
 
         SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
 
         services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STOPPED));
         this.updateSigns();
@@ -67,10 +71,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void onStartService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) return;
+        if (!isImportantCloudService(serviceInfoSnapshot)) {
+            return;
+        }
 
         SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
 
         services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STARTING));
         this.updateSigns();
@@ -78,10 +86,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void onConnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) return;
+        if (!isImportantCloudService(serviceInfoSnapshot)) {
+            return;
+        }
 
         SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
 
         services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, fromServiceInfoSnapshot(serviceInfoSnapshot, entry)));
         this.updateSigns();
@@ -89,10 +101,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void onUpdateServiceInfo(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) return;
+        if (!isImportantCloudService(serviceInfoSnapshot)) {
+            return;
+        }
 
         SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
 
         services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, fromServiceInfoSnapshot(serviceInfoSnapshot, entry)));
         this.updateSigns();
@@ -100,10 +116,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void onDisconnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) return;
+        if (!isImportantCloudService(serviceInfoSnapshot)) {
+            return;
+        }
 
         SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
 
         services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STOPPED));
         this.updateSigns();
@@ -111,10 +131,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void onStopService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) return;
+        if (!isImportantCloudService(serviceInfoSnapshot)) {
+            return;
+        }
 
         SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
 
         services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STOPPED));
         this.updateSigns();
@@ -122,10 +146,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void onUnregisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) return;
+        if (!isImportantCloudService(serviceInfoSnapshot)) {
+            return;
+        }
 
         SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
 
         services.remove(serviceInfoSnapshot.getServiceId().getUniqueId());
         this.updateSigns();
@@ -139,7 +167,6 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
 
-    /*= -------------------------------------------------------------------------------- =*/
 
     @Override
     public void onSignRemove(Sign sign) {
@@ -147,20 +174,25 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         Sign signEntry = Iterables.first(signs, s -> s.getSignId() == sign.getSignId());
 
-        if (signEntry != null)
+        if (signEntry != null) {
             signs.remove(signEntry);
+        }
 
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
 
     public void updateSigns() {
         SignConfigurationEntry signConfiguration = getOwnSignConfigurationEntry();
-        if (signConfiguration == null) return;
+        if (signConfiguration == null) {
+            return;
+        }
 
         List<Sign> signs = Iterables.newArrayList(Iterables.filter(this.signs, sign -> Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())));
 
         Collections.sort(signs);
-        if (signs.isEmpty()) return;
+        if (signs.isEmpty()) {
+            return;
+        }
 
         List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = Iterables.newArrayList();
         List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = Iterables.newArrayList(Iterables.filter(services.entrySet(),
@@ -176,11 +208,12 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 if (sign.getTemplatePath() != null) {
                     boolean condition = false;
 
-                    for (ServiceTemplate template : entry.getValue().getFirst().getConfiguration().getTemplates())
+                    for (ServiceTemplate template : entry.getValue().getFirst().getConfiguration().getTemplates()) {
                         if (sign.getTemplatePath().equals(template.getTemplatePath())) {
                             condition = true;
                             break;
                         }
+                    }
 
                     access = condition;
                 }
@@ -199,15 +232,17 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                     case STOPPED: {
                         sign.setServiceInfoSnapshot(null);
 
-                        if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty())
+                        if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty()) {
                             updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
+                        }
                     }
                     break;
                     case STARTING: {
                         sign.setServiceInfoSnapshot(null);
 
-                        if (!signConfiguration.getStartingLayouts().getSignLayouts().isEmpty())
+                        if (!signConfiguration.getStartingLayouts().getSignLayouts().isEmpty()) {
                             updateSignNext(sign, signConfiguration.getStartingLayouts().getSignLayouts().get(indexes[0].get()), entry.getValue().getFirst());
+                        }
                     }
                     break;
                     case EMPTY_ONLINE: {
@@ -215,11 +250,13 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
                         SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
 
-                        if (taskEntry != null)
+                        if (taskEntry != null) {
                             signLayout = taskEntry.getEmptyLayout();
+                        }
 
-                        if (signLayout == null)
+                        if (signLayout == null) {
                             signLayout = signConfiguration.getDefaultEmptyLayout();
+                        }
 
                         updateSignNext(sign, signLayout, entry.getValue().getFirst());
                     }
@@ -229,11 +266,13 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
                         SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
 
-                        if (taskEntry != null)
+                        if (taskEntry != null) {
                             signLayout = taskEntry.getOnlineLayout();
+                        }
 
-                        if (signLayout == null)
+                        if (signLayout == null) {
                             signLayout = signConfiguration.getDefaultOnlineLayout();
+                        }
 
                         updateSignNext(sign, signLayout, entry.getValue().getFirst());
                     }
@@ -243,11 +282,13 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
                         SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
 
-                        if (taskEntry != null)
+                        if (taskEntry != null) {
                             signLayout = taskEntry.getFullLayout();
+                        }
 
-                        if (signLayout == null)
+                        if (signLayout == null) {
                             signLayout = signConfiguration.getDefaultFullLayout();
+                        }
 
                         updateSignNext(sign, signLayout, entry.getValue().getFirst());
                     }
@@ -259,8 +300,9 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             } else {
                 sign.setServiceInfoSnapshot(null);
 
-                if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty())
+                if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty()) {
                     updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
+                }
             }
 
             cachedFilter.clear();
@@ -338,8 +380,9 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 signLayout.getLines().length == 4) {
             String[] lines = new String[4];
 
-            for (int i = 0; i < lines.length; i++)
+            for (int i = 0; i < lines.length; i++) {
                 lines[i] = addDataToLine(sign, signLayout.getLines()[i], serviceInfoSnapshot);
+            }
 
             bukkitSign.setLine(0, lines[0]);
             bukkitSign.setLine(1, lines[1]);
@@ -354,7 +397,9 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     private String addDataToLine(Sign sign, String input, ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(input);
 
-        if (serviceInfoSnapshot == null) return ChatColor.translateAlternateColorCodes('&', input);
+        if (serviceInfoSnapshot == null) {
+            return ChatColor.translateAlternateColorCodes('&', input);
+        }
 
         input = input.replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName() + "");
         input = input.replace("%task_id%", serviceInfoSnapshot.getServiceId().getTaskServiceId() + "");
@@ -470,28 +515,35 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         );
     }
 
-    //*= ------------------------
 
     private ServiceInfoState fromServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot, SignConfigurationEntry signConfiguration) {
-        if (isIngameService(serviceInfoSnapshot)) return ServiceInfoState.STOPPED;
-
-        if (isEmptyService(serviceInfoSnapshot)) return ServiceInfoState.EMPTY_ONLINE;
-
-        if (isFullService(serviceInfoSnapshot)) {
-            if (!signConfiguration.isSwitchToSearchingWhenServiceIsFull())
-                return ServiceInfoState.FULL_ONLINE;
-            else
-                return ServiceInfoState.STOPPED;
+        if (isIngameService(serviceInfoSnapshot)) {
+            return ServiceInfoState.STOPPED;
         }
 
-        if (isStartingService(serviceInfoSnapshot)) return ServiceInfoState.STARTING;
+        if (isEmptyService(serviceInfoSnapshot)) {
+            return ServiceInfoState.EMPTY_ONLINE;
+        }
+
+        if (isFullService(serviceInfoSnapshot)) {
+            if (!signConfiguration.isSwitchToSearchingWhenServiceIsFull()) {
+                return ServiceInfoState.FULL_ONLINE;
+            } else {
+                return ServiceInfoState.STOPPED;
+            }
+        }
+
+        if (isStartingService(serviceInfoSnapshot)) {
+            return ServiceInfoState.STARTING;
+        }
 
         if (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING &&
                 serviceInfoSnapshot.isConnected() &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online"))
+                serviceInfoSnapshot.getProperties().getBoolean("Online")) {
             return ServiceInfoState.ONLINE;
-        else
+        } else {
             return ServiceInfoState.STOPPED;
+        }
     }
 
     private void executeStartingTask() {
@@ -499,12 +551,15 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         if (signConfigurationEntry != null && signConfigurationEntry.getStartingLayouts() != null &&
                 signConfigurationEntry.getStartingLayouts().getSignLayouts().size() > 0) {
-            if (indexes[0].get() == -1) indexes[0].set(0);
-
-            if ((indexes[0].get() + 1) < signConfigurationEntry.getStartingLayouts().getSignLayouts().size())
-                indexes[0].incrementAndGet();
-            else
+            if (indexes[0].get() == -1) {
                 indexes[0].set(0);
+            }
+
+            if ((indexes[0].get() + 1) < signConfigurationEntry.getStartingLayouts().getSignLayouts().size()) {
+                indexes[0].incrementAndGet();
+            } else {
+                indexes[0].set(0);
+            }
 
             Bukkit.getScheduler().runTaskLater(
                     this.plugin,
@@ -525,12 +580,15 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
         if (signConfigurationEntry != null && signConfigurationEntry.getSearchLayouts() != null &&
                 signConfigurationEntry.getSearchLayouts().getSignLayouts().size() > 0) {
-            if (indexes[1].get() == -1) indexes[1].set(0);
-
-            if ((indexes[1].get() + 1) < signConfigurationEntry.getSearchLayouts().getSignLayouts().size())
-                indexes[1].incrementAndGet();
-            else
+            if (indexes[1].get() == -1) {
                 indexes[1].set(0);
+            }
+
+            if ((indexes[1].get() + 1) < signConfigurationEntry.getSearchLayouts().getSignLayouts().size()) {
+                indexes[1].incrementAndGet();
+            } else {
+                indexes[1].set(0);
+            }
 
             Bukkit.getScheduler().runTaskLater(
                     this.plugin,

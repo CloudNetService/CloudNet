@@ -43,7 +43,9 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
 
     @Override
     public void onUninstall() {
-        if (task != null) task.cancel();
+        if (task != null) {
+            task.cancel();
+        }
 
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
@@ -63,19 +65,21 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
     }
 
     private void initServers() {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices())
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
             if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer()) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
-                        serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING)
+                        serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
                     continue;
+                }
 
                 String name = serviceInfoSnapshot.getServiceId().getName();
                 ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
             }
+        }
     }
 
     private void updateProxProxDefaultServer() {
-        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
+        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
             if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
                     proxyFallbackConfiguration.getTargetGroup(),
                     Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
@@ -84,8 +88,9 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
 
                 List<Map.Entry<String, ServiceInfoSnapshot>> entries = ProxProxCloudNetHelper.getFilteredEntries(proxyFallbackConfiguration.getDefaultFallbackTask(), null);
 
-                if (entries.size() > 0)
+                if (entries.size() > 0) {
                     server = entries.get(new Random().nextInt(entries.size()));
+                }
 
                 if (server != null) {
                     ProxProxCloudNetHelper.getProxyServer().getConfig().setDefaultServer(
@@ -94,5 +99,6 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
                     return;
                 }
             }
+        }
     }
 }

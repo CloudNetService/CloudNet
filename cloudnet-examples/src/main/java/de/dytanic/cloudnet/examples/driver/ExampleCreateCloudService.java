@@ -170,7 +170,9 @@ public final class ExampleCreateCloudService {
         DRIVER.getServiceTaskAsync(serviceTask).addListener(new ITaskListener<ServiceTask>() {
             @Override
             public void onComplete(ITask<ServiceTask> task, ServiceTask serviceTask) {
-                if (serviceTask == null) return;
+                if (serviceTask == null) {
+                    return;
+                }
 
                 serviceTask.setTemplates(
                         serviceTask.getTemplates().size() > 1 ?

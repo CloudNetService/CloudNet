@@ -59,12 +59,13 @@ public final class CloudNetReportListener {
                         File subDir = new File(directory, "logs");
                         subDir.mkdirs();
 
-                        for (File file : files)
+                        for (File file : files) {
                             try {
                                 FileUtils.copy(file, new File(subDir, file.getName()));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
+                        }
                     }
                 }
                 break;

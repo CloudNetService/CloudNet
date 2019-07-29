@@ -51,7 +51,9 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                 if (files != null) {
                     Collection<JsonDocument> documents = Iterables.newArrayList(files.length);
 
-                    for (File item : files) documents.add(getFileEntry(item));
+                    for (File item : files) {
+                        documents.add(getFileEntry(item));
+                    }
 
                     context
                             .response()
@@ -63,9 +65,10 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                             .cancelNext()
                     ;
 
-                } else
+                } else {
                     this.send404Response(context, "directory is empty or not a directory");
-            } else
+                }
+            } else {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_OK)
@@ -75,9 +78,12 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                         .context()
                         .closeAfter(true)
                         .cancelNext()
-                        ;
+                ;
+            }
 
-        } else this.send404Response(context, "template not found!");
+        } else {
+            this.send404Response(context, "template not found!");
+        }
     }
 
     @Override
@@ -114,7 +120,9 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                     .cancelNext()
             ;
 
-        } else this.send404Response(context, "template not found!");
+        } else {
+            this.send404Response(context, "template not found!");
+        }
     }
 
     @Override
@@ -147,10 +155,11 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                     .cancelNext()
             ;
 
-        } else this.send404Response(context, "template not found!");
+        } else {
+            this.send404Response(context, "template not found!");
+        }
     }
 
-    /*= --------------------------------------------------------------------------------------- =*/
 
     private JsonDocument getFileEntry(File file) {
         Validate.checkNotNull(file);

@@ -33,13 +33,17 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     @SafeVarargs
     @Override
     public final ITask<V> addListener(ITaskListener<V>... listeners) {
-        if (listeners == null) return this;
+        if (listeners == null) {
+            return this;
+        }
 
         initListenersCollectionIfNotExists();
 
-        for (ITaskListener<V> listener : listeners)
-            if (listener != null)
+        for (ITaskListener<V> listener : listeners) {
+            if (listener != null) {
                 this.listeners.add(listener);
+            }
+        }
 
         return this;
     }
@@ -130,7 +134,9 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public V call() throws Exception {
-        if (callable == null || done) return this.value;
+        if (callable == null || done) {
+            return this.value;
+        }
 
         if (!isCancelled()) {
             try {
@@ -140,7 +146,9 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
             }
         }
 
-        if (repeats > 0) repeats--;
+        if (repeats > 0) {
+            repeats--;
+        }
 
         if ((repeats > 0 || repeats == -1) && !cancelled) {
             this.delayedTimeStamp = System.currentTimeMillis() + repeat;
@@ -148,10 +156,11 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
             this.done = true;
             this.invokeTaskListener();
 
-            if (this.wait)
+            if (this.wait) {
                 synchronized (this) {
                     this.notifyAll();
                 }
+            }
         }
 
         return this.value;
@@ -171,7 +180,9 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     @Override
     public synchronized V get() throws InterruptedException, ExecutionException {
         wait = true;
-        while (!isDone()) this.wait();
+        while (!isDone()) {
+            this.wait();
+        }
 
         return value;
     }
@@ -179,39 +190,46 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     @Override
     public synchronized V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         wait = true;
-        if (!isDone()) this.wait(unit.toMillis(timeout));
+        if (!isDone()) {
+            this.wait(unit.toMillis(timeout));
+        }
 
         return value;
     }
 
-    /*= ---------------------------------------------------------------------------------- =*/
 
     private void initListenersCollectionIfNotExists() {
-        if (this.listeners == null)
+        if (this.listeners == null) {
             this.listeners = new ConcurrentLinkedQueue<>();
+        }
     }
 
     private void invokeTaskListener() {
-        if (this.listeners != null)
-            for (ITaskListener<V> listener : this.listeners)
+        if (this.listeners != null) {
+            for (ITaskListener<V> listener : this.listeners) {
                 try {
-                    if (this.cancelled)
+                    if (this.cancelled) {
                         listener.onCancelled(this);
-                    else
+                    } else {
                         listener.onComplete(this, this.value);
+                    }
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
+            }
+        }
     }
 
     private void invokeFailure(Throwable throwable) {
-        if (this.listeners != null)
-            for (ITaskListener<V> listener : this.listeners)
+        if (this.listeners != null) {
+            for (ITaskListener<V> listener : this.listeners) {
                 try {
                     listener.onFailure(this, throwable);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
+            }
+        }
     }
 
     @Override

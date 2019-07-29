@@ -28,11 +28,9 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
 
     private static BungeeCloudNetSyncProxyPlugin instance;
 
-    /*= ---------------------------------------------------------------------- =*/
 
     private final Map<UUID, Integer> onlineCountOfProxies = Maps.newConcurrentHashMap();
 
-    /*= ---------------------------------------------------------------------- =*/
 
     private volatile AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
 
@@ -68,20 +66,24 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
 
     public SyncProxyProxyLoginConfiguration getProxyLoginConfiguration() {
         for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration :
-                SyncProxyConfigurationProvider.load().getLoginConfigurations())
+                SyncProxyConfigurationProvider.load().getLoginConfigurations()) {
             if (syncProxyProxyLoginConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()))
+                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                 return syncProxyProxyLoginConfiguration;
+            }
+        }
 
         return null;
     }
 
     public SyncProxyTabListConfiguration getTabListConfiguration() {
         for (SyncProxyTabListConfiguration syncProxyTabListConfiguration :
-                SyncProxyConfigurationProvider.load().getTabListConfigurations())
+                SyncProxyConfigurationProvider.load().getTabListConfigurations()) {
             if (syncProxyTabListConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()))
+                    Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                 return syncProxyTabListConfiguration;
+            }
+        }
 
         return null;
     }
@@ -100,15 +102,19 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     public int getSyncProxyOnlineCount() {
         int onlinePlayers = ProxyServer.getInstance().getOnlineCount();
 
-        for (Map.Entry<UUID, Integer> entry : onlineCountOfProxies.entrySet())
-            if (!Wrapper.getInstance().getServiceId().getUniqueId().equals(entry.getKey()))
+        for (Map.Entry<UUID, Integer> entry : onlineCountOfProxies.entrySet()) {
+            if (!Wrapper.getInstance().getServiceId().getUniqueId().equals(entry.getKey())) {
                 onlinePlayers += entry.getValue();
+            }
+        }
 
         return onlinePlayers;
     }
 
     public void setTabList(ProxiedPlayer proxiedPlayer) {
-        if (tabListEntryIndex.get() == -1) return;
+        if (tabListEntryIndex.get() == -1) {
+            return;
+        }
 
         try {
             Class<?> baseComponentClass = Class.forName("net.md_5.bungee.api.chat.BaseComponent");
@@ -169,19 +175,21 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
         return SyncProxyTabList.replaceTabListItem(input, uniqueId);
     }
 
-    /*= ------------------------------------------------------------------------------------------------------------------- =*/
 
     private void scheduleTabList() {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = getTabListConfiguration();
 
         if (syncProxyTabListConfiguration != null && syncProxyTabListConfiguration.getEntries() != null &&
                 !syncProxyTabListConfiguration.getEntries().isEmpty()) {
-            if (tabListEntryIndex.get() == -1) tabListEntryIndex.set(0);
-
-            if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size())
-                tabListEntryIndex.incrementAndGet();
-            else
+            if (tabListEntryIndex.get() == -1) {
                 tabListEntryIndex.set(0);
+            }
+
+            if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
+                tabListEntryIndex.incrementAndGet();
+            } else {
+                tabListEntryIndex.set(0);
+            }
 
             SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(tabListEntryIndex.get());
 
@@ -199,7 +207,9 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
             ProxyServer.getInstance().getScheduler().schedule(this, this::scheduleTabList, 500, TimeUnit.MILLISECONDS);
         }
 
-        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) setTabList(player);
+        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+            setTabList(player);
+        }
     }
 
     private void initListeners() {
@@ -213,12 +223,14 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
         SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null && syncProxyProxyLoginConfiguration.getTargetGroup() != null) {
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceByGroup(syncProxyProxyLoginConfiguration.getTargetGroup()))
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceByGroup(syncProxyProxyLoginConfiguration.getTargetGroup())) {
                 if ((serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockProxy() ||
                         serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaProxy()) &&
-                        serviceInfoSnapshot.getProperties().contains(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT))
+                        serviceInfoSnapshot.getProperties().contains(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
                     getOnlineCountOfProxies().put(serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getProperties().getInt(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
+                }
+            }
         }
     }
 

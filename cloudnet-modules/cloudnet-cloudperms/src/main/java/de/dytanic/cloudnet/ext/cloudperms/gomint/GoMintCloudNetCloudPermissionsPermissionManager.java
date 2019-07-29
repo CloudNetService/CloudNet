@@ -23,7 +23,9 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends Permi
 
     @Override
     public boolean hasPermission(String s) {
-        if (s == null) return false;
+        if (s == null) {
+            return false;
+        }
 
         IPermissionUser permissionUser = getUser();
         return permissionUser != null && CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, s);
@@ -31,12 +33,16 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends Permi
 
     @Override
     public void addGroup(Group group) {
-        if (defaultPermissionManager != null) defaultPermissionManager.addGroup(group);
+        if (defaultPermissionManager != null) {
+            defaultPermissionManager.addGroup(group);
+        }
     }
 
     @Override
     public void removeGroup(Group group) {
-        if (defaultPermissionManager != null) defaultPermissionManager.removeGroup(group);
+        if (defaultPermissionManager != null) {
+            defaultPermissionManager.removeGroup(group);
+        }
     }
 
     @Override
@@ -57,7 +63,6 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends Permi
         CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
     }
 
-    /*= ----------------------------------------------- =*/
 
     private IPermissionUser getUser() {
         return CloudPermissionsPermissionManagement.getInstance().getUser(player.getUUID());

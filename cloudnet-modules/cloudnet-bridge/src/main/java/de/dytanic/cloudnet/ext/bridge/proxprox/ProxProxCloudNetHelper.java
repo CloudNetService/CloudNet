@@ -96,7 +96,7 @@ public final class ProxProxCloudNetHelper {
     }
 
     public static String filterServiceForPlayer(Player player, String currentServer) {
-        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
+        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
             if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
                     proxyFallbackConfiguration.getTargetGroup(),
                     Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
@@ -107,13 +107,18 @@ public final class ProxProxCloudNetHelper {
                 String server = null;
 
                 for (ProxyFallback proxyFallback : proxyFallbacks) {
-                    if (proxyFallback.getTask() != null) continue;
-                    if (proxyFallback.getPermission() != null && !player.hasPermission(proxyFallback.getPermission()))
+                    if (proxyFallback.getTask() != null) {
                         continue;
+                    }
+                    if (proxyFallback.getPermission() != null && !player.hasPermission(proxyFallback.getPermission())) {
+                        continue;
+                    }
 
                     List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallback.getTask(), currentServer);
 
-                    if (entries.size() == 0) continue;
+                    if (entries.size() == 0) {
+                        continue;
+                    }
 
                     server = entries.get(new Random().nextInt(entries.size())).getKey();
                 }
@@ -121,12 +126,14 @@ public final class ProxProxCloudNetHelper {
                 if (server == null) {
                     List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallbackConfiguration.getDefaultFallbackTask(), currentServer);
 
-                    if (entries.size() > 0)
+                    if (entries.size() > 0) {
                         server = entries.get(new Random().nextInt(entries.size())).getKey();
+                    }
                 }
 
                 return server;
             }
+        }
 
         return null;
     }
@@ -134,8 +141,9 @@ public final class ProxProxCloudNetHelper {
     public static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
         return Iterables.filter(
                 SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(), stringServiceInfoSnapshotEntry -> {
-                    if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey()))
+                    if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey())) {
                         return false;
+                    }
 
                     return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
                 });

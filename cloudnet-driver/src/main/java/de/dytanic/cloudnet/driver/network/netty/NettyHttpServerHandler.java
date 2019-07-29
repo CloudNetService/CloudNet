@@ -40,8 +40,9 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (!(cause instanceof IOException))
+        if (!(cause instanceof IOException)) {
             cause.printStackTrace();
+        }
     }
 
     @Override
@@ -63,8 +64,12 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
         URI uri = URI.create(httpRequest.uri());
         String fullPath = uri.getPath();
 
-        if (fullPath.isEmpty()) fullPath = "/";
-        if (fullPath.endsWith("/") && !fullPath.equals("/")) fullPath = fullPath.substring(0, fullPath.length() - 1);
+        if (fullPath.isEmpty()) {
+            fullPath = "/";
+        }
+        if (fullPath.endsWith("/") && !fullPath.equals("/")) {
+            fullPath = fullPath.substring(0, fullPath.length() - 1);
+        }
 
         Map<String, String> pathParameters = Maps.newHashMap();
         List<NettyHttpServer.HttpHandlerEntry> entries = Iterables.newArrayList(this.nettyHttpServer.registeredHandlers);
@@ -74,40 +79,50 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
         NettyHttpServerContext context = new NettyHttpServerContext(this.nettyHttpServer, this.channel, uri, pathParameters, httpRequest);
 
         for (NettyHttpServer.HttpHandlerEntry httpHandlerEntry : entries) {
-            if (context.cancelNext) break;
+            if (context.cancelNext) {
+                break;
+            }
             handlerPathEntries = httpHandlerEntry.path.split("/");
 
-            if (this.handleMessage0(httpHandlerEntry, context, pathParameters, fullPath, pathEntries, handlerPathEntries))
+            if (this.handleMessage0(httpHandlerEntry, context, pathParameters, fullPath, pathEntries, handlerPathEntries)) {
                 context.lastHandler = httpHandlerEntry.httpHandler;
+            }
         }
 
         if (!context.cancelSendResponse) {
-            if (context.httpServerResponse.statusCode() == 404 && context.httpServerResponse.httpResponse.content().readableBytes() == 0)
+            if (context.httpServerResponse.statusCode() == 404 && context.httpServerResponse.httpResponse.content().readableBytes() == 0) {
                 context.httpServerResponse.httpResponse.content().writeBytes("Resource not found!".getBytes());
+            }
 
             ChannelFuture channelFuture = channel.writeAndFlush(context.httpServerResponse.httpResponse).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-            if (context.closeAfter())
+            if (context.closeAfter()) {
                 channelFuture.addListener(ChannelFutureListener.CLOSE);
+            }
         }
     }
 
     private boolean handleMessage0(NettyHttpServer.HttpHandlerEntry httpHandlerEntry, NettyHttpServerContext context,
                                    Map<String, String> pathParameters, String fullPath, String[] pathEntries, String[] handlerPathEntries) {
-        if (httpHandlerEntry.port != null && httpHandlerEntry.port != connectedAddress.getPort())
+        if (httpHandlerEntry.port != null && httpHandlerEntry.port != connectedAddress.getPort()) {
             return false;
+        }
 
-        if (!httpHandlerEntry.path.endsWith("*") && pathEntries.length != handlerPathEntries.length)
+        if (!httpHandlerEntry.path.endsWith("*") && pathEntries.length != handlerPathEntries.length) {
             return false;
+        }
 
-        if (pathEntries.length < handlerPathEntries.length)
+        if (pathEntries.length < handlerPathEntries.length) {
             return false;
+        }
 
         boolean wildCard = false;
 
-        if (!(pathEntries.length == 1 && handlerPathEntries.length == 1))
+        if (!(pathEntries.length == 1 && handlerPathEntries.length == 1)) {
             for (int index = 1; index < pathEntries.length; ++index) {
-                if (wildCard) continue;
+                if (wildCard) {
+                    continue;
+                }
 
                 if (index >= handlerPathEntries.length) {
                     return false;
@@ -132,6 +147,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
                     return false;
                 }
             }
+        }
 
         try {
             httpHandlerEntry.httpHandler.handle(fullPath, context);

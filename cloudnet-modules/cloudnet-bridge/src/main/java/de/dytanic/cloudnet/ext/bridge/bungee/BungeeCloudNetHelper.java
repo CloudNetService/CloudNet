@@ -35,12 +35,15 @@ public final class BungeeCloudNetHelper {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         handleWithListenerInfoServerPriority(collection -> {
-            for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
+            for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
                 if (bungeeFallbackConfiguration != null && bungeeFallbackConfiguration.getFallbacks() != null &&
                         bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(bungeeFallbackConfiguration.getTargetGroup(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()))
-                    if (!collection.contains(name) && bungeeFallbackConfiguration.getDefaultFallbackTask().equals(serviceInfoSnapshot.getServiceId().getTaskName()))
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups())) {
+                    if (!collection.contains(name) && bungeeFallbackConfiguration.getDefaultFallbackTask().equals(serviceInfoSnapshot.getServiceId().getTaskName())) {
                         collection.add(name);
+                    }
+                }
+            }
         });
     }
 
@@ -68,21 +71,24 @@ public final class BungeeCloudNetHelper {
     public static boolean isOnAFallbackInstance(ProxiedPlayer proxiedPlayer) {
         ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(proxiedPlayer.getServer().getInfo().getName());
 
-        for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
+        for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
             if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
                     bungeeFallbackConfiguration.getTargetGroup(),
                     Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
             )) {
-                for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks())
-                    if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask()))
+                for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks()) {
+                    if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
                         return true;
+                    }
+                }
             }
+        }
 
         return false;
     }
 
     public static String filterServiceForProxiedPlayer(ProxiedPlayer proxiedPlayer, String currentServer) {
-        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
+        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
             if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
                     proxyFallbackConfiguration.getTargetGroup(),
                     Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
@@ -93,16 +99,20 @@ public final class BungeeCloudNetHelper {
                 String server = null;
 
                 for (ProxyFallback proxyFallback : proxyFallbacks) {
-                    if (proxyFallback.getTask() == null)
+                    if (proxyFallback.getTask() == null) {
                         continue;
+                    }
                     if (proxyFallback.getPermission() != null) {
-                        if (!proxiedPlayer.hasPermission(proxyFallback.getPermission()))
+                        if (!proxiedPlayer.hasPermission(proxyFallback.getPermission())) {
                             continue;
+                        }
                     }
 
                     List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallback.getTask(), currentServer);
 
-                    if (entries.size() == 0) continue;
+                    if (entries.size() == 0) {
+                        continue;
+                    }
 
                     server = entries.get(new Random().nextInt(entries.size())).getKey();
                 }
@@ -110,12 +120,14 @@ public final class BungeeCloudNetHelper {
                 if (server == null) {
                     List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallbackConfiguration.getDefaultFallbackTask(), currentServer);
 
-                    if (entries.size() > 0)
+                    if (entries.size() > 0) {
                         server = entries.get(new Random().nextInt(entries.size())).getKey();
+                    }
                 }
 
                 return server;
             }
+        }
 
         return null;
     }
@@ -123,8 +135,9 @@ public final class BungeeCloudNetHelper {
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
         return Iterables.filter(
                 SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(), stringServiceInfoSnapshotEntry -> {
-                    if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey()))
+                    if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey())) {
                         return false;
+                    }
 
                     return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
                 });
@@ -168,10 +181,14 @@ public final class BungeeCloudNetHelper {
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(PendingConnection pendingConnection) {
         Boolean onlineMode = isOnlineModeOfPendingConnection(pendingConnection);
-        if (onlineMode == null) onlineMode = true;
+        if (onlineMode == null) {
+            onlineMode = true;
+        }
 
         Boolean legacy = isLegacyOfPendingConnection(pendingConnection);
-        if (legacy == null) legacy = true;
+        if (legacy == null) {
+            legacy = true;
+        }
 
         return BridgeHelper.createNetworkConnectionInfo(
                 getUniqueIdOfPendingConnection(pendingConnection) == null ? UUID.randomUUID() : getUniqueIdOfPendingConnection(pendingConnection),

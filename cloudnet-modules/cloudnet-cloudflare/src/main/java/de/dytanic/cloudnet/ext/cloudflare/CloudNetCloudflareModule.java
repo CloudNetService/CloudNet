@@ -61,7 +61,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
     public void addedDefaultCloudflareDNSServices() {
-        for (CloudflareConfigurationEntry cloudflareConfigurationEntry : this.getCloudflareConfiguration().getEntries())
+        for (CloudflareConfigurationEntry cloudflareConfigurationEntry : this.getCloudflareConfiguration().getEntries()) {
             if (cloudflareConfigurationEntry.isEnabled()) {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
                         getCloudNet().getConfig().getIdentity().getUniqueId(),
@@ -77,13 +77,15 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
                         )
                 );
 
-                if (response.getFirst() < 400)
+                if (response.getFirst() < 400) {
                     CloudNetDriver.getInstance().getLogger().info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
                             .replace("%service%", getCloudNet().getConfig().getIdentity().getUniqueId() + "")
                             .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
                             .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
                     );
+                }
             }
+        }
     }
 
     @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
@@ -106,12 +108,13 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
     public void closeCloudflareAPI() {
-        if (CloudflareAPI.getInstance() != null)
+        if (CloudflareAPI.getInstance() != null) {
             try {
                 CloudflareAPI.getInstance().close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
@@ -132,7 +135,6 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
         }
     }
 
-    /*= ------------------------------------------------------------------------------------------- =*/
 
     private String getInitialHostAddress() {
         try {

@@ -23,10 +23,11 @@ public final class PacketServerSetServiceTaskListListener implements IPacketList
                 NetworkChannelReceiveServiceTasksUpdateEvent event = new NetworkChannelReceiveServiceTasksUpdateEvent(channel, serviceTasks);
                 CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
-                if (!event.isCancelled())
+                if (!event.isCancelled()) {
                     CloudNet.getInstance().getCloudServiceManager().setServiceTasks(
                             event.getServiceTasks() != null ? event.getServiceTasks() : serviceTasks
                     );
+                }
             }
         }
     }

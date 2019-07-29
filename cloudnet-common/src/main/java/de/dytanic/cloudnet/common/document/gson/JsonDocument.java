@@ -28,7 +28,6 @@ public class JsonDocument implements IDocument<JsonDocument> {
             .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
             .create();
 
-    /*= -------------------------------------------------------------------------- =*/
     protected final JsonObject jsonObject;
 
     public JsonDocument(JsonObject jsonObject) {
@@ -87,7 +86,6 @@ public class JsonDocument implements IDocument<JsonDocument> {
         this.append(key, value);
     }
 
-    /*= -------------------------------------------------------------------------------------------------- =*/
 
     public static JsonDocument newDocument() {
         return new JsonDocument();
@@ -117,7 +115,6 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return new JsonDocument(key, value);
     }
 
-    /*= -------------------------------------------------------------------------------------------------- =*/
 
     public static JsonDocument newDocument(byte[] bytes) {
         return newDocument(new String(bytes, StandardCharsets.UTF_8));
@@ -128,7 +125,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
     }
 
     public static JsonDocument newDocument(File file) {
-        if (file == null) return null;
+        if (file == null) {
+            return null;
+        }
 
         return newDocument(file.toPath());
     }
@@ -148,8 +147,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public Collection<String> keys() {
         Collection<String> collection = new ArrayList<>(this.jsonObject.size());
 
-        for (Map.Entry<String, JsonElement> entry : this.jsonObject.entrySet())
+        for (Map.Entry<String, JsonElement> entry : this.jsonObject.entrySet()) {
             collection.add(entry.getKey());
+        }
 
         return collection;
     }
@@ -161,8 +161,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument clear() {
-        for (Map.Entry<String, JsonElement> elementEntry : this.jsonObject.entrySet())
+        for (Map.Entry<String, JsonElement> elementEntry : this.jsonObject.entrySet()) {
             this.jsonObject.remove(elementEntry.getKey());
+        }
 
         return this;
     }
@@ -190,7 +191,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(String key, Object value) {
-        if (key == null || value == null) return this;
+        if (key == null || value == null) {
+            return this;
+        }
 
         this.jsonObject.add(key, GSON.toJsonTree(value));
         return this;
@@ -198,7 +201,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(String key, Number value) {
-        if (key == null || value == null) return this;
+        if (key == null || value == null) {
+            return this;
+        }
 
         this.jsonObject.addProperty(key, value);
         return this;
@@ -206,7 +211,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(String key, Boolean value) {
-        if (key == null || value == null) return this;
+        if (key == null || value == null) {
+            return this;
+        }
 
         this.jsonObject.addProperty(key, value);
         return this;
@@ -214,7 +221,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(String key, String value) {
-        if (key == null || value == null) return this;
+        if (key == null || value == null) {
+            return this;
+        }
 
         this.jsonObject.addProperty(key, value);
         return this;
@@ -222,7 +231,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(String key, Character value) {
-        if (key == null || value == null) return this;
+        if (key == null || value == null) {
+            return this;
+        }
 
         this.jsonObject.addProperty(key, value);
         return this;
@@ -230,7 +241,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(String key, JsonDocument value) {
-        if (key == null || value == null) return this;
+        if (key == null || value == null) {
+            return this;
+        }
 
         this.jsonObject.add(key, value.jsonObject);
         return this;
@@ -238,28 +251,37 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(JsonDocument document) {
-        if (document == null) return this;
-        else return append(document.jsonObject);
+        if (document == null) {
+            return this;
+        } else {
+            return append(document.jsonObject);
+        }
     }
 
     public JsonDocument append(JsonObject jsonObject) {
-        if (jsonObject == null) return this;
+        if (jsonObject == null) {
+            return this;
+        }
 
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet())
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             this.jsonObject.add(entry.getKey(), entry.getValue());
+        }
 
         return this;
     }
 
     @Override
     public JsonDocument append(Properties properties) {
-        if (properties == null) return this;
+        if (properties == null) {
+            return this;
+        }
 
         Object entry;
         Enumeration enumeration = properties.keys();
 
-        while (enumeration.hasMoreElements() && (entry = enumeration.nextElement()) != null)
+        while (enumeration.hasMoreElements() && (entry = enumeration.nextElement()) != null) {
             append(entry.toString(), properties.getProperty(entry.toString()));
+        }
 
         return this;
     }
@@ -271,16 +293,22 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument append(String key, byte[] bytes) {
-        if (key == null || bytes == null) return this;
+        if (key == null || bytes == null) {
+            return this;
+        }
 
         return this.append(key, Base64.getEncoder().encodeToString(bytes));
     }
 
     @Override
     public JsonDocument append(Map<String, Object> map) {
-        if (map == null) return this;
+        if (map == null) {
+            return this;
+        }
 
-        for (Map.Entry<String, Object> entry : map.entrySet()) this.append(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            this.append(entry.getKey(), entry.getValue());
+        }
 
         return this;
     }
@@ -302,154 +330,227 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public JsonDocument getDocument(String key) {
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonObject()) return new JsonDocument(jsonElement.getAsJsonObject());
-        else return null;
+        if (jsonElement.isJsonObject()) {
+            return new JsonDocument(jsonElement.getAsJsonObject());
+        } else {
+            return null;
+        }
     }
 
     @Override
     public int getInt(String key) {
-        if (!contains(key)) return 0;
+        if (!contains(key)) {
+            return 0;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsInt();
-        else return 0;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsInt();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public double getDouble(String key) {
-        if (!contains(key)) return 0;
+        if (!contains(key)) {
+            return 0;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsDouble();
-        else return 0;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsDouble();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public float getFloat(String key) {
-        if (!contains(key)) return 0;
+        if (!contains(key)) {
+            return 0;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsFloat();
-        else return 0;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsFloat();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public byte getByte(String key) {
-        if (!contains(key)) return 0;
+        if (!contains(key)) {
+            return 0;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsByte();
-        else return 0;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsByte();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public short getShort(String key) {
-        if (!contains(key)) return 0;
+        if (!contains(key)) {
+            return 0;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsShort();
-        else return 0;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsShort();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public long getLong(String key) {
-        if (!contains(key)) return 0;
+        if (!contains(key)) {
+            return 0;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsLong();
-        else return 0;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsLong();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public boolean getBoolean(String key) {
-        if (!contains(key)) return false;
+        if (!contains(key)) {
+            return false;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsBoolean();
-        else return false;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsBoolean();
+        } else {
+            return false;
+        }
     }
 
     @Override
     public String getString(String key) {
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsString();
-        else return null;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsString();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public char getChar(String key) {
-        if (!contains(key)) return 0;
+        if (!contains(key)) {
+            return 0;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsCharacter();
-        else return 0;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsCharacter();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public BigDecimal getBigDecimal(String key) {
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsBigDecimal();
-        else return null;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsBigDecimal();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public BigInteger getBigInteger(String key) {
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonPrimitive()) return jsonElement.getAsBigInteger();
-        else return null;
+        if (jsonElement.isJsonPrimitive()) {
+            return jsonElement.getAsBigInteger();
+        } else {
+            return null;
+        }
     }
 
     public JsonArray getJsonArray(String key) {
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonArray()) return jsonElement.getAsJsonArray();
-        else return null;
+        if (jsonElement.isJsonArray()) {
+            return jsonElement.getAsJsonArray();
+        } else {
+            return null;
+        }
     }
 
     public JsonObject getJsonObject(String key) {
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         JsonElement jsonElement = this.jsonObject.get(key);
 
-        if (jsonElement.isJsonObject()) return jsonElement.getAsJsonObject();
-        else return null;
+        if (jsonElement.isJsonObject()) {
+            return jsonElement.getAsJsonObject();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Properties getProperties(String key) {
         Properties properties = new Properties();
 
-        for (Map.Entry<String, JsonElement> entry : this.jsonObject.entrySet())
+        for (Map.Entry<String, JsonElement> entry : this.jsonObject.entrySet()) {
             properties.setProperty(entry.getKey(), entry.getValue().toString());
+        }
 
         return properties;
     }
 
     public JsonElement get(String key) {
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         return this.jsonObject.get(key);
     }
@@ -470,129 +571,172 @@ public class JsonDocument implements IDocument<JsonDocument> {
     }
 
     public <T> T get(String key, Gson gson, Class<T> clazz) {
-        if (key == null || gson == null || clazz == null) return null;
+        if (key == null || gson == null || clazz == null) {
+            return null;
+        }
 
         JsonElement jsonElement = get(key);
 
-        if (jsonElement == null) return null;
-        else return gson.fromJson(jsonElement, clazz);
+        if (jsonElement == null) {
+            return null;
+        } else {
+            return gson.fromJson(jsonElement, clazz);
+        }
     }
 
     public <T> T get(String key, Gson gson, Type type) {
-        if (key == null || gson == null || type == null) return null;
+        if (key == null || gson == null || type == null) {
+            return null;
+        }
 
-        if (!contains(key)) return null;
+        if (!contains(key)) {
+            return null;
+        }
 
         JsonElement jsonElement = get(key);
 
-        if (jsonElement == null) return null;
-        else return gson.fromJson(jsonElement, type);
+        if (jsonElement == null) {
+            return null;
+        } else {
+            return gson.fromJson(jsonElement, type);
+        }
     }
 
     public Integer getInt(String key, Integer def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getInt(key);
     }
 
     public Short getShort(String key, Short def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getShort(key);
     }
 
     public Boolean getBoolean(String key, Boolean def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getBoolean(key);
     }
 
     public Long getLong(String key, Long def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getLong(key);
     }
 
     public Double getDouble(String key, Double def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getDouble(key);
     }
 
-    /*= ------------------------------------------------------------------------------------------ =*/
 
     public Float getFloat(String key, Float def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getFloat(key);
     }
 
     public String getString(String key, String def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getString(key);
     }
 
     public JsonDocument getDocument(String key, JsonDocument def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getDocument(key);
     }
 
     public JsonArray getJsonArray(String key, JsonArray def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getJsonArray(key);
     }
 
     public JsonObject getJsonObject(String key, JsonObject def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getJsonObject(key);
     }
 
     public byte[] getBinary(String key, byte[] def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getBinary(key);
     }
 
-    /*= ------------------------------------------------------------------------------------------ =*/
 
     public <T> T get(String key, Type type, T def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.get(key, type);
     }
 
     public <T> T get(String key, Class<T> clazz, T def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.get(key, clazz);
     }
 
     public Properties getProperties(String key, Properties def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getProperties(key);
     }
 
     public BigInteger getBigInteger(String key, BigInteger def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getBigInteger(key);
     }
 
-    /*= ------------------------------------------------------------------------------------------ =*/
 
     public BigDecimal getBigDecimal(String key, BigDecimal def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getBigDecimal(key);
     }
 
     public Character getChar(String key, Character def) {
-        if (!this.contains(key)) this.append(key, def);
+        if (!this.contains(key)) {
+            this.append(key, def);
+        }
 
         return this.getChar(key);
     }
@@ -623,7 +767,6 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return this;
     }
 
-    /*= ------------------------------------------------------------------------------------------ =*/
 
     @Override
     public JsonDocument read(Reader reader) {
@@ -693,7 +836,6 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return toJson();
     }
 
-    /*= ------------------------------------------------------------------------------------------------ =*/
 
     @Override
     public Iterator<String> iterator() {

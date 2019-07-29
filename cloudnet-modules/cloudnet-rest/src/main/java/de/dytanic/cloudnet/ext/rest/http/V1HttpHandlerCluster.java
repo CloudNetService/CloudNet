@@ -19,7 +19,7 @@ public final class V1HttpHandlerCluster extends V1HttpHandler {
 
     @Override
     public void handleGet(String path, IHttpContext context) throws Exception {
-        if (context.request().pathParameters().containsKey("node"))
+        if (context.request().pathParameters().containsKey("node")) {
             context
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
@@ -33,7 +33,7 @@ public final class V1HttpHandlerCluster extends V1HttpHandler {
                     .closeAfter(true)
                     .cancelNext()
                     ;
-        else
+        } else {
             context
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
@@ -48,6 +48,7 @@ public final class V1HttpHandlerCluster extends V1HttpHandler {
                     .context()
                     .closeAfter(true)
                     .cancelNext()
-                    ;
+            ;
+        }
     }
 }

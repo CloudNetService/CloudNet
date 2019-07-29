@@ -74,11 +74,18 @@ public class CAProgressBar {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (expand) {
-            for (int i = 0; i < percent; i++)
-                if (i % 2 == 0) stringBuilder.append(progressChar);
-        } else
-            for (int i = 0; i < 100; i++)
-                if (i % 2 == 0) stringBuilder.append(i < percent ? progressChar : " ");
+            for (int i = 0; i < percent; i++) {
+                if (i % 2 == 0) {
+                    stringBuilder.append(progressChar);
+                }
+            }
+        } else {
+            for (int i = 0; i < 100; i++) {
+                if (i % 2 == 0) {
+                    stringBuilder.append(i < percent ? progressChar : " ");
+                }
+            }
+        }
 
         console.write(
                 Ansi

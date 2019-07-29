@@ -22,7 +22,7 @@ public final class ExampleDatabaseProviderHandling {
                 .append("registered", System.currentTimeMillis())
         );
 
-        if (database.contains("Peter"))
+        if (database.contains("Peter")) {
             database.getAsync("Peter").addListener(new ITaskListener<JsonDocument>() {
 
                 @Override
@@ -32,6 +32,7 @@ public final class ExampleDatabaseProviderHandling {
                     System.out.println(document.getInt("age"));
                 }
             }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+        }
 
         List<JsonDocument> responses = database.get("name", "Peter"); //filter with a key/value pair in value
         System.out.println("Founded items: " + responses.size()); //Founded items: 1

@@ -22,7 +22,9 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
             ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
             PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getHeader().get("type", PacketClientServerServiceInfoPublisher.PublisherType.class);
 
-            if (serviceInfoSnapshot == null || publisherType == null) return;
+            if (serviceInfoSnapshot == null || publisherType == null) {
+                return;
+            }
 
             switch (publisherType) {
                 case UPDATE:
@@ -68,8 +70,10 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
     }
 
     private void sendUpdateToAllServices(ServiceInfoSnapshot serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType type) {
-        for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values())
-            if (cloudService.getNetworkChannel() != null)
+        for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+            if (cloudService.getNetworkChannel() != null) {
                 cloudService.getNetworkChannel().sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, type));
+            }
+        }
     }
 }

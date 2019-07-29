@@ -76,8 +76,9 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
 
         Sign first = Iterables.first(signs, s -> sign.getSignId() == s.getSignId());
 
-        if (first != null)
+        if (first != null) {
             signs.remove(first);
+        }
 
         signs.remove(first);
         this.write(signs);
@@ -96,8 +97,9 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
         IDatabase database = getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(SIGN_STORE_DOCUMENT);
 
-        if (document == null)
+        if (document == null) {
             document = new JsonDocument();
+        }
 
         database.update(SIGN_STORE_DOCUMENT, document.append("signs", signs));
     }

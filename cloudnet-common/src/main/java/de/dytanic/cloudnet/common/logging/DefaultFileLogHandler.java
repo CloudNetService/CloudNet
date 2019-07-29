@@ -39,8 +39,9 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
      * @param maxBytes  the maximum bytes, that a log file should have, to switch to the next log file
      */
     public DefaultFileLogHandler(File directory, String pattern, long maxBytes) {
-        if (directory == null)
+        if (directory == null) {
             directory = new File(System.getProperty("cloudnet.logging.fallback.log.directory", "logs"));
+        }
 
         this.directory = directory;
         this.directory.mkdirs();
@@ -69,29 +70,35 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     @Override
     public void handle(LogEntry logEntry) {
-        if (getFormatter() == null) setFormatter(new DefaultLogFormatter());
+        if (getFormatter() == null) {
+            setFormatter(new DefaultLogFormatter());
+        }
 
-        if (entry == null || this.entry.length() > maxBytes)
+        if (entry == null || this.entry.length() > maxBytes) {
             this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+        }
 
         String formatted = getFormatter().format(logEntry);
         byte[] formattedBytes = formatted.getBytes(StandardCharsets.UTF_8);
         this.writternBytes = writternBytes + formattedBytes.length;
 
-        if (this.writternBytes > maxBytes)
+        if (this.writternBytes > maxBytes) {
             this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+        }
 
         printWriter.write(formatted);
         printWriter.flush();
 
         if (this.errorWriter != null && logEntry.getLogLevel().getLevel() >= 126 && logEntry.getLogLevel().getLevel() <= 127) {
-            if (this.errorFile == null || this.errorFile.length() > maxBytes)
+            if (this.errorFile == null || this.errorFile.length() > maxBytes) {
                 this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+            }
 
             this.writtenErrorBytes += formattedBytes.length;
 
-            if (this.writtenErrorBytes > maxBytes)
+            if (this.writtenErrorBytes > maxBytes) {
                 this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+            }
 
             this.errorWriter.write(formatted);
             this.errorWriter.flush();
@@ -129,8 +136,12 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     }
 
     private File selectLogFile(PrintWriter printWriter, long writternBytes, String pattern) {
-        if (printWriter != null) printWriter.close();
-        if (writternBytes != 0L) writternBytes = 0L;
+        if (printWriter != null) {
+            printWriter.close();
+        }
+        if (writternBytes != 0L) {
+            writternBytes = 0L;
+        }
 
         entry = null;
         File file = null;
@@ -142,7 +153,9 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
             try {
 
-                if (!file.exists()) file.createNewFile();
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
 
                 if (file.length() < maxBytes) {
                     index = 0;

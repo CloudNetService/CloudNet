@@ -61,8 +61,9 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
                 BukkitCloudNetHelper.setApiMotd(serverListPingEvent.getMotd());
                 if (serverListPingEvent.getMotd().toLowerCase().contains("running") ||
                         serverListPingEvent.getMotd().toLowerCase().contains("ingame") ||
-                        serverListPingEvent.getMotd().toLowerCase().contains("playing"))
+                        serverListPingEvent.getMotd().toLowerCase().contains("playing")) {
                     value = true;
+                }
             }
 
             if (serverListPingEvent.getMaxPlayers() != BukkitCloudNetHelper.getMaxPlayers()) {

@@ -28,10 +28,11 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
 
     Map<String, Collection<Permission>> getGroupPermissions();
 
-    /*= ------------------------------------------------------------------------ =*/
 
     default Permission getPermission(String name) {
-        if (name == null) return null;
+        if (name == null) {
+            return null;
+        }
 
         return Iterables.first(getPermissions(), permission -> permission.getName().equalsIgnoreCase(name));
     }
@@ -69,33 +70,40 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
     }
 
     default PermissionCheckResult hasPermission(Collection<Permission> permissions, Permission permission) {
-        if (permissions == null || permission == null || permission.getName() == null)
+        if (permissions == null || permission == null || permission.getName() == null) {
             return PermissionCheckResult.DENIED;
+        }
 
         Permission targetPerms = Iterables.first(permissions, perm -> perm.getName().equalsIgnoreCase(permission.getName()));
 
-        if (targetPerms != null && permission.getName().equalsIgnoreCase(targetPerms.getName()) && targetPerms.getPotency() < 0)
+        if (targetPerms != null && permission.getName().equalsIgnoreCase(targetPerms.getName()) && targetPerms.getPotency() < 0) {
             return PermissionCheckResult.FORBIDDEN;
+        }
 
         for (Permission permissionEntry : permissions) {
 
-            if (permissionEntry.getName().equals("*") && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency()))
+            if (permissionEntry.getName().equals("*") && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
                 return PermissionCheckResult.ALLOWED;
+            }
 
             if (permissionEntry.getName().endsWith("*") && permission.getName().contains(permissionEntry.getName().replace("*", ""))
-                    && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency()))
+                    && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
                 return PermissionCheckResult.ALLOWED;
+            }
 
             if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) &&
-                    (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency()))
+                    (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
                 return PermissionCheckResult.ALLOWED;
+            }
         }
 
         return PermissionCheckResult.DENIED;
     }
 
     default PermissionCheckResult hasPermission(String group, Permission permission) {
-        if (group == null || permission == null) return PermissionCheckResult.DENIED;
+        if (group == null || permission == null) {
+            return PermissionCheckResult.DENIED;
+        }
 
         return getGroupPermissions().containsKey(group) ? hasPermission(getGroupPermissions().get(group), permission) : PermissionCheckResult.DENIED;
     }

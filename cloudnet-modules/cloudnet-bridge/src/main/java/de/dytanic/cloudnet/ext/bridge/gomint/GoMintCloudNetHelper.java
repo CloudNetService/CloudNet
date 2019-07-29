@@ -47,7 +47,6 @@ public final class GoMintCloudNetHelper {
         }
     }
 
-    //*= ----------------------------------------------------------------
 
     private GoMintCloudNetHelper() {
         throw new UnsupportedOperationException();
@@ -73,8 +72,9 @@ public final class GoMintCloudNetHelper {
 
                             @Override
                             public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null)
+                                if (serviceInfoSnapshot != null) {
                                     CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
+                                }
                             }
                         });
                     }
@@ -94,7 +94,7 @@ public final class GoMintCloudNetHelper {
                 .append("State", state)
                 .append("TPS", GoMint.instance().getTPS());
 
-        if (GoMint.instance().isMainThread())
+        if (GoMint.instance().isMainThread()) {
             serviceInfoSnapshot.getProperties()
                     .append("Online-Count", GoMint.instance().getPlayers().size())
                     .append("Players", Iterables.map(GoMint.instance().getPlayers(), entityPlayer -> {
@@ -129,7 +129,7 @@ public final class GoMintCloudNetHelper {
                     .append("Worlds", Iterables.map(GoMint.instance().getWorlds(), world -> {
                         Map<String, String> gameRules = Maps.newHashMap();
 
-                        for (Field field : Gamerule.class.getFields())
+                        for (Field field : Gamerule.class.getFields()) {
                             if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()) &&
                                     Modifier.isPublic(field.getModifiers()) && Gamerule.class.isAssignableFrom(field.getType())) {
                                 try {
@@ -141,6 +141,7 @@ public final class GoMintCloudNetHelper {
                                     e.printStackTrace();
                                 }
                             }
+                        }
 
                         return new WorldInfo(
                                 UUID.randomUUID(),
@@ -149,7 +150,8 @@ public final class GoMintCloudNetHelper {
                                 gameRules
                         );
                     }))
-                    ;
+            ;
+        }
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(EntityPlayer entityPlayer) {
@@ -174,9 +176,9 @@ public final class GoMintCloudNetHelper {
     public static NetworkPlayerServerInfo createNetworkPlayerServerInfo(EntityPlayer entityPlayer, boolean login) {
         WorldPosition worldPosition;
 
-        if (login)
+        if (login) {
             worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
-        else {
+        } else {
             Location location = entityPlayer.getLocation();
 
             worldPosition = new WorldPosition(

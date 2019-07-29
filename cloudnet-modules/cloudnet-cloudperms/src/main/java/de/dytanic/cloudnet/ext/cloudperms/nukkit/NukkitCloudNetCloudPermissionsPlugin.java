@@ -38,11 +38,11 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    /*= ----------------------------------------------------------------- =*/
 
     private void injectPlayersCloudPermissible() {
-        for (Player player : Server.getInstance().getOnlinePlayers().values())
+        for (Player player : Server.getInstance().getOnlinePlayers().values()) {
             injectCloudPermissible(player);
+        }
     }
 
     public void injectCloudPermissible(Player player) {

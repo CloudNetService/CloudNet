@@ -20,48 +20,64 @@ public interface IReadable {
 
     IReadable append(Reader reader);
 
-    /*= --------------------------------------------------------------- =*/
 
     default IReadable read(Path path) {
-        if (Files.exists(path))
+        if (Files.exists(path)) {
             try (InputStream inputStream = new FileInputStream(path.toFile())) {
                 this.read(inputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
 
         return this;
     }
 
     default IReadable read(String path) {
-        if (path == null) return this;
+        if (path == null) {
+            return this;
+        }
 
         return this.read(Paths.get(path));
     }
 
     default IReadable read(String... paths) {
-        if (paths == null) return this;
-        for (String path : paths) this.read(path);
+        if (paths == null) {
+            return this;
+        }
+        for (String path : paths) {
+            this.read(path);
+        }
 
         return this;
     }
 
     default IReadable read(File file) {
-        if (file == null) return this;
+        if (file == null) {
+            return this;
+        }
 
         return this.read(file.toPath());
     }
 
     default IReadable read(File... files) {
-        if (files == null) return this;
-        for (File file : files) this.read(file);
+        if (files == null) {
+            return this;
+        }
+        for (File file : files) {
+            this.read(file);
+        }
 
         return this;
     }
 
     default IReadable read(Path... paths) {
-        if (paths == null) return this;
-        for (Path path : paths) this.read(path);
+        if (paths == null) {
+            return this;
+        }
+        for (Path path : paths) {
+            this.read(path);
+        }
 
         return this;
     }
@@ -72,34 +88,50 @@ public interface IReadable {
     }
 
     default IReadable append(String path) {
-        if (path == null) return this;
+        if (path == null) {
+            return this;
+        }
 
         return this.append(Paths.get(path));
     }
 
     default IReadable append(String... paths) {
-        if (paths == null) return this;
-        for (String path : paths) this.append(path);
+        if (paths == null) {
+            return this;
+        }
+        for (String path : paths) {
+            this.append(path);
+        }
 
         return this;
     }
 
     default IReadable append(File file) {
-        if (file == null) return this;
+        if (file == null) {
+            return this;
+        }
 
         return this.append(file.toPath());
     }
 
     default IReadable append(File... files) {
-        if (files == null) return this;
-        for (File file : files) this.append(file);
+        if (files == null) {
+            return this;
+        }
+        for (File file : files) {
+            this.append(file);
+        }
 
         return this;
     }
 
     default IReadable append(Path... paths) {
-        if (paths == null) return this;
-        for (Path path : paths) this.append(path);
+        if (paths == null) {
+            return this;
+        }
+        for (Path path : paths) {
+            this.append(path);
+        }
 
         return this;
     }

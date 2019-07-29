@@ -48,7 +48,9 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @param level the LogLevel instance, from that the level integer value should get
      */
     default void setLevel(LogLevel level) {
-        if (level == null) return;
+        if (level == null) {
+            return;
+        }
 
         setLevel(level.getLevel());
     }

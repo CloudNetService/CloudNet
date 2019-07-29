@@ -15,8 +15,8 @@ public final class CNLCommandEcho extends CNLCommand {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (int i = 0; i < args.length; stringBuilder.append(args[i++]).append(" "))
-            ;
+        for (int i = 0; i < args.length; stringBuilder.append(args[i++]).append(" ")) {
+        }
 
         System.out.println(stringBuilder.substring(0, stringBuilder.length() == 0 ? stringBuilder.length() : stringBuilder.length() - 1));
     }

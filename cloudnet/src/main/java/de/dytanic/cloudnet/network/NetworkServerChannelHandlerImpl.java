@@ -28,7 +28,9 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
             return;
         }
 
-        if (!NetworkChannelHandlerUtils.handleInitChannel(channel, ChannelType.SERVER_CHANNEL)) return;
+        if (!NetworkChannelHandlerUtils.handleInitChannel(channel, ChannelType.SERVER_CHANNEL)) {
+            return;
+        }
 
         System.out.println(LanguageManager.getMessage("server-network-channel-init")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
@@ -38,7 +40,9 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
 
     @Override
     public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-        if (InternalSyncPacketChannel.handleIncomingChannel(packet)) return false;
+        if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
+            return false;
+        }
 
         return !CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
     }
@@ -61,8 +65,9 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
 
         IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
 
-        if (clusterNodeServer != null)
+        if (clusterNodeServer != null) {
             NetworkChannelHandlerUtils.handleRemoveDisconnectedClusterInNetwork(channel, clusterNodeServer);
+        }
     }
 
     private void closeAsCloudService(ICloudService cloudService, INetworkChannel channel) {
@@ -78,9 +83,11 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
     }
 
     private boolean inWhitelist(INetworkChannel channel) {
-        for (String whitelistAddress : CloudNet.getInstance().getConfig().getIpWhitelist())
-            if (channel.getClientAddress().getHost().equals(whitelistAddress))
+        for (String whitelistAddress : CloudNet.getInstance().getConfig().getIpWhitelist()) {
+            if (channel.getClientAddress().getHost().equals(whitelistAddress)) {
                 return true;
+            }
+        }
 
         return false;
     }

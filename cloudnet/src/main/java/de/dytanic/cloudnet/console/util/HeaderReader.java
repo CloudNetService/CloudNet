@@ -23,8 +23,9 @@ public final class HeaderReader {
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
             String input;
-            while ((input = bufferedReader.readLine()) != null)
+            while ((input = bufferedReader.readLine()) != null) {
                 console.writeLine(input.replace("%codename%", codename + "").replace("%version%", version + ""));
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

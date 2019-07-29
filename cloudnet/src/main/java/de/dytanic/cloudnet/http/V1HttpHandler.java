@@ -105,9 +105,11 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
         Validate.checkNotNull(collection);
         Validate.checkNotNull(name);
 
-        for (String queryString : collection)
-            if (queryString.contains(name))
+        for (String queryString : collection) {
+            if (queryString.contains(name)) {
                 return true;
+            }
+        }
 
         return false;
     }

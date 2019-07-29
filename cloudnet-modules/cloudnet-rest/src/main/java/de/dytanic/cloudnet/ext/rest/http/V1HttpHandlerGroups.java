@@ -61,14 +61,17 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
             return;
         }
 
-        if (groupConfiguration.getTemplates() == null)
+        if (groupConfiguration.getTemplates() == null) {
             groupConfiguration.setTemplates(Iterables.newArrayList());
+        }
 
-        if (groupConfiguration.getIncludes() == null)
+        if (groupConfiguration.getIncludes() == null) {
             groupConfiguration.setIncludes(Iterables.newArrayList());
+        }
 
-        if (groupConfiguration.getDeployments() == null)
+        if (groupConfiguration.getDeployments() == null) {
             groupConfiguration.setDeployments(Iterables.newArrayList());
+        }
 
         int status = !CloudNetDriver.getInstance().isGroupConfigurationPresent(groupConfiguration.getName()) ?
                 HttpResponseCode.HTTP_OK
@@ -88,8 +91,9 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
 
         String name = context.request().pathParameters().get("name");
 
-        if (CloudNetDriver.getInstance().isGroupConfigurationPresent(name))
+        if (CloudNetDriver.getInstance().isGroupConfigurationPresent(name)) {
             CloudNetDriver.getInstance().removeGroupConfiguration(name);
+        }
 
         context.response().statusCode(HttpResponseCode.HTTP_OK);
     }

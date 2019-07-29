@@ -107,13 +107,11 @@ public class TaskScheduler {
 
         this.maxThreads = maxThreads <= 0 ? Runtime.getRuntime().availableProcessors() : maxThreads;
 
-        if (entries != null)
+        if (entries != null) {
             taskEntries.addAll(entries);
+        }
     }
 
-
-
-    /* ======================================================================== */
 
     public TaskEntryFuture<Void> schedule(Runnable runnable) {
         return schedule(runnable, (IVoidCallback<Void>) null);
@@ -246,8 +244,6 @@ public class TaskScheduler {
 
 
 
-    /*= --------------------------------------------------------------------------------------- =*/
-
     public <V> TaskEntryFuture<V> schedule(Callable<V> callable) {
         return schedule(callable, (IVoidCallback<V>) null);
     }
@@ -356,8 +352,9 @@ public class TaskScheduler {
     public <V> Collection<TaskEntryFuture<V>> schedule(Collection<TaskEntry<V>> threadEntries) {
 
         Collection<TaskEntryFuture<V>> TaskEntryFutures = new ArrayList<>();
-        for (TaskEntry<V> entry : threadEntries)
+        for (TaskEntry<V> entry : threadEntries) {
             TaskEntryFutures.add(offerEntry(entry));
+        }
 
         return TaskEntryFutures;
     }
@@ -394,7 +391,6 @@ public class TaskScheduler {
 
 
 
-    /* =============================== */
 
     public TaskScheduler chargeThreadLimit(short threads) {
         this.maxThreads += threads;
@@ -426,18 +422,21 @@ public class TaskScheduler {
         return new ConcurrentLinkedDeque<>();
     }
 
-    /* =================================== */
 
     private void checkEnoughThreads() {
         Worker worker = hasFreeWorker();
         if (getCurrentThreadSize() < maxThreads
-                || (dynamicWorkerCount && maxThreads > 1 && taskEntries.size() > getCurrentThreadSize() && taskEntries.size() <= (getMaxThreads() * 2)) && worker == null)
+                || (dynamicWorkerCount && maxThreads > 1 && taskEntries.size() > getCurrentThreadSize() && taskEntries.size() <= (getMaxThreads() * 2)) && worker == null) {
             newWorker();
+        }
     }
 
     private Worker hasFreeWorker() {
-        for (Worker worker : workers)
-            if (worker.isFreeWorker()) return worker;
+        for (Worker worker : workers) {
+            if (worker.isFreeWorker()) {
+                return worker;
+            }
+        }
 
         return null;
     }
@@ -448,7 +447,6 @@ public class TaskScheduler {
         return entry.drop();
     }
 
-    /* =================================== */
 
     public class Worker extends Thread {
 
@@ -479,7 +477,9 @@ public class TaskScheduler {
             while (!taskEntries.isEmpty() && !isInterrupted()) {
                 taskEntry = taskEntries.poll();
 
-                if (taskEntry == null || taskEntry.task == null) continue;
+                if (taskEntry == null || taskEntry.task == null) {
+                    continue;
+                }
 
                 liveTimeStamp = System.currentTimeMillis();
 
@@ -492,7 +492,9 @@ public class TaskScheduler {
                             offerEntry(taskEntry);
                             continue;
 
-                        } else sleepUninterruptedly(difference);
+                        } else {
+                            sleepUninterruptedly(difference);
+                        }
                     } else {
                         sleepUninterruptedly(sleepThreadSwitch);
                         offerEntry(taskEntry);
@@ -506,8 +508,9 @@ public class TaskScheduler {
                     e.printStackTrace();
                 }
 
-                if (checkEntry())
+                if (checkEntry()) {
                     taskEntry = null;
+                }
             }
         }
 
@@ -557,8 +560,9 @@ public class TaskScheduler {
         public VoidTaskEntry(Runnable task, IVoidCallback<Void> complete, long delay, long repeat) {
             super(() -> {
 
-                if (task != null)
+                if (task != null) {
                     task.run();
+                }
 
                 return null;
             }, complete, delay, repeat);

@@ -30,15 +30,17 @@ public final class PacketServerSetJsonFilePermissionsListener implements IPacket
                     CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
                     if (!event.isCancelled()) {
-                        if (permissionUsers != null)
+                        if (permissionUsers != null) {
                             ((DefaultJsonFilePermissionManagement) CloudNet.getInstance().getPermissionManagement()).setUsers0(
                                     event.getPermissionUsers() != null ? event.getPermissionUsers() : permissionUsers
                             );
+                        }
 
-                        if (permissionGroups != null)
+                        if (permissionGroups != null) {
                             ((DefaultJsonFilePermissionManagement) CloudNet.getInstance().getPermissionManagement()).setGroups0(
                                     event.getPermissionGroups() != null ? event.getPermissionGroups() : permissionGroups
                             );
+                        }
                     }
                 }
             }

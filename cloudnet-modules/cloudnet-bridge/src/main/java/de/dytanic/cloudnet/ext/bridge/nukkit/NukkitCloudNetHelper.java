@@ -33,7 +33,6 @@ public final class NukkitCloudNetHelper {
 
     private static volatile int maxPlayers = Server.getInstance().getMaxPlayers();
 
-    //*= ----------------------------------------------------------------
 
     private NukkitCloudNetHelper() {
         throw new UnsupportedOperationException();
@@ -55,8 +54,9 @@ public final class NukkitCloudNetHelper {
 
                             @Override
                             public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null)
+                                if (serviceInfoSnapshot != null) {
                                     CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
+                                }
                             }
                         });
                     }
@@ -173,9 +173,9 @@ public final class NukkitCloudNetHelper {
     public static NetworkPlayerServerInfo createNetworkPlayerServerInfo(Player player, boolean login) {
         WorldPosition worldPosition;
 
-        if (login)
+        if (login) {
             worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
-        else {
+        } else {
             worldPosition = new WorldPosition(
                     player.getX(),
                     player.getY(),

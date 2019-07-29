@@ -21,9 +21,11 @@ public final class PacketServerChannelMessageNodeListener implements IPacketList
                     packet.getHeader().getDocument("data")
             );
 
-            for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values())
-                if (cloudService.getNetworkChannel() != null)
+            for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+                if (cloudService.getNetworkChannel() != null) {
                     cloudService.getNetworkChannel().sendPacket(packetClientServerChannelMessage);
+                }
+            }
 
             CloudNetDriver.getInstance().getEventManager().callEvent(
                     new ChannelMessageReceiveEvent(

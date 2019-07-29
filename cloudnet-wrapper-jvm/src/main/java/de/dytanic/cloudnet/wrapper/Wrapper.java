@@ -105,7 +105,6 @@ public final class Wrapper extends CloudNetDriver {
     private final Thread mainThread = Thread.currentThread();
     private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
-    /*= ---------------------------------------------------------- =*/
     /**
      * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot
      * from this process. The lastServiceInfoSnapshot is the element which was send before.
@@ -120,7 +119,7 @@ public final class Wrapper extends CloudNetDriver {
 
         this.commandLineArguments = commandLineArguments;
 
-        if (this.config.getSslConfig().getBoolean("enabled"))
+        if (this.config.getSslConfig().getBoolean("enabled")) {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, new SSLConfiguration(
                     this.config.getSslConfig().getBoolean("clientAuth"),
                     this.config.getSslConfig().contains("trustCertificatePath") ?
@@ -133,8 +132,9 @@ public final class Wrapper extends CloudNetDriver {
                             new File(".wrapper/privateKey") :
                             null
             ), taskScheduler);
-        else
+        } else {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
+        }
 
         //- Packet client registry
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
@@ -175,7 +175,9 @@ public final class Wrapper extends CloudNetDriver {
 
         this.networkClient.getPacketRegistry().removeListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
-        if (!listener.isResult()) throw new IllegalStateException("authorization response is: denied");
+        if (!listener.isResult()) {
+            throw new IllegalStateException("authorization response is: denied");
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
         this.start0();
@@ -1269,7 +1271,6 @@ public final class Wrapper extends CloudNetDriver {
         return null;
     }
 
-    //=- ------------------------------------------------------------------------------
 
     /**
      * Application wrapper implementation of this method. See the full documentation at the
@@ -2200,8 +2201,9 @@ public final class Wrapper extends CloudNetDriver {
     public void unregisterPacketListenersByClassLoader(ClassLoader classLoader) {
         networkClient.getPacketRegistry().removeListeners(classLoader);
 
-        for (INetworkChannel channel : networkClient.getChannels())
+        for (INetworkChannel channel : networkClient.getChannels()) {
             channel.getPacketRegistry().removeListeners(classLoader);
+        }
     }
 
     private synchronized void start0() throws Exception {
@@ -2215,20 +2217,25 @@ public final class Wrapper extends CloudNetDriver {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     long diff = System.currentTimeMillis() - value;
-                    if (diff < millis)
+                    if (diff < millis) {
                         try {
                             Thread.sleep(millis - diff);
                         } catch (Exception exception) {
                             exception.printStackTrace();
                         }
+                    }
 
                     value = System.currentTimeMillis();
 
                     eventManager.callEvent(new CloudNetTickEvent());
 
-                    while (!this.processQueue.isEmpty())
-                        if (this.processQueue.peek() != null) Objects.requireNonNull(this.processQueue.poll()).call();
-                        else this.processQueue.poll();
+                    while (!this.processQueue.isEmpty()) {
+                        if (this.processQueue.peek() != null) {
+                            Objects.requireNonNull(this.processQueue.poll()).call();
+                        } else {
+                            this.processQueue.poll();
+                        }
+                    }
 
                     if (start1Tick++ >= tps5) {
                         this.start1();
@@ -2260,11 +2267,12 @@ public final class Wrapper extends CloudNetDriver {
                     lowerName.endsWith(".zip");
         });
 
-        if (files != null)
+        if (files != null) {
             for (File file : files) {
                 IModuleWrapper moduleWrapper = this.moduleProvider.loadModule(file);
                 moduleWrapper.startModule();
             }
+        }
     }
 
     private boolean startApplication() throws Exception {

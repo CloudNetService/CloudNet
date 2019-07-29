@@ -39,7 +39,6 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
         registerListeners(new IncludePluginListener(), new ConfigurationUpdateListener());
     }
 
-    /*= ------------------------------------------------- =*/
 
     public List<String> getExcludedGroups() {
         return getConfig().get("excludedGroups", LIST_STRING);

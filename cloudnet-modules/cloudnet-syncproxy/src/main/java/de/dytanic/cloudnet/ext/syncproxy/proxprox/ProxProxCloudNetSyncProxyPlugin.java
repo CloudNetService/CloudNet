@@ -30,13 +30,11 @@ public final class ProxProxCloudNetSyncProxyPlugin extends Plugin {
     private static ProxProxCloudNetSyncProxyPlugin instance;
     private final Map<UUID, Integer> onlineCountOfProxies = Maps.newConcurrentHashMap();
 
-    /*= ---------------------------------------------------------------------- =*/
 
     public ProxProxCloudNetSyncProxyPlugin() {
         instance = this;
     }
 
-    /*= ---------------------------------------------------------------------- =*/
 
     public static ProxProx getProxyServer() {
         return ProxProx.instance;
@@ -67,10 +65,12 @@ public final class ProxProxCloudNetSyncProxyPlugin extends Plugin {
 
     public SyncProxyProxyLoginConfiguration getProxyLoginConfiguration() {
         for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration :
-                SyncProxyConfigurationProvider.load().getLoginConfigurations())
+                SyncProxyConfigurationProvider.load().getLoginConfigurations()) {
             if (syncProxyProxyLoginConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()))
+                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                 return syncProxyProxyLoginConfiguration;
+            }
+        }
 
         return null;
     }
@@ -89,14 +89,15 @@ public final class ProxProxCloudNetSyncProxyPlugin extends Plugin {
     public int getSyncProxyOnlineCount() {
         int onlinePlayers = getProxyServer().getPlayers().size();
 
-        for (Map.Entry<UUID, Integer> entry : onlineCountOfProxies.entrySet())
-            if (!Wrapper.getInstance().getServiceId().getUniqueId().equals(entry.getKey()))
+        for (Map.Entry<UUID, Integer> entry : onlineCountOfProxies.entrySet()) {
+            if (!Wrapper.getInstance().getServiceId().getUniqueId().equals(entry.getKey())) {
                 onlinePlayers += entry.getValue();
+            }
+        }
 
         return onlinePlayers;
     }
 
-    /*= ------------------------------------------------------------------------------------------------------------------- =*/
 
     private void initListeners() {
         CloudNetDriver.getInstance().getEventManager().registerListener(new ProxProxSyncProxyCloudNetListener());
@@ -108,12 +109,14 @@ public final class ProxProxCloudNetSyncProxyPlugin extends Plugin {
         SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null && syncProxyProxyLoginConfiguration.getTargetGroup() != null) {
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceByGroup(syncProxyProxyLoginConfiguration.getTargetGroup()))
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceByGroup(syncProxyProxyLoginConfiguration.getTargetGroup())) {
                 if ((serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockProxy() ||
                         serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaProxy()) &&
-                        serviceInfoSnapshot.getProperties().contains(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT))
+                        serviceInfoSnapshot.getProperties().contains(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {
                     getOnlineCountOfProxies().put(serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getProperties().getInt(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT));
+                }
+            }
         }
     }
 

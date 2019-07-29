@@ -19,7 +19,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
     @Override
     public void handleGet(String path, IHttpContext context) throws Exception {
         if (HTTP_SESSION.auth(context)) {
-            if (context.request().queryParameters().containsKey("redirect"))
+            if (context.request().queryParameters().containsKey("redirect")) {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_MOVED_TEMP)
@@ -28,7 +28,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                         .closeAfter(true)
                         .cancelNext()
                         ;
-            else
+            } else {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_OK)
@@ -38,7 +38,8 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                         .closeAfter(true)
                         .cancelNext()
                         ;
-        } else
+            }
+        } else {
             context
                     .response()
                     .statusCode(HttpResponseCode.HTTP_UNAUTHORIZED)
@@ -46,6 +47,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                     .context()
                     .closeAfter(true)
                     .cancelNext()
-                    ;
+            ;
+        }
     }
 }

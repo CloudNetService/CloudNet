@@ -57,14 +57,16 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public void addPermanentServiceTask(ServiceTask task) {
         Validate.checkNotNull(task);
 
-        if (isTaskPresent(task.getName()))
+        if (isTaskPresent(task.getName())) {
             removePermanentServiceTask(task);
+        }
 
         ServiceTaskAddEvent serviceTaskAddEvent = new ServiceTaskAddEvent(this, task);
         CloudNetDriver.getInstance().getEventManager().callEvent(serviceTaskAddEvent);
 
-        if (!serviceTaskAddEvent.isCancelled())
+        if (!serviceTaskAddEvent.isCancelled()) {
             this.config.getTasks().add(task);
+        }
 
         this.config.save();
         CloudNet.getInstance().updateServiceTasksInCluster();
@@ -80,11 +82,12 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public void removePermanentServiceTask(String name) {
         Validate.checkNotNull(name);
 
-        for (ServiceTask serviceTask : this.config.getTasks())
+        for (ServiceTask serviceTask : this.config.getTasks()) {
             if (serviceTask.getName().equalsIgnoreCase(name)) {
                 CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskRemoveEvent(this, serviceTask));
                 this.config.getTasks().remove(serviceTask);
             }
+        }
 
         this.config.save();
         CloudNet.getInstance().updateServiceTasksInCluster();
@@ -134,9 +137,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
 
-        for (GroupConfiguration group : this.config.getGroups())
-            if (group.getName().equalsIgnoreCase(groupConfiguration.getName()))
+        for (GroupConfiguration group : this.config.getGroups()) {
+            if (group.getName().equalsIgnoreCase(groupConfiguration.getName())) {
                 this.config.getGroups().remove(groupConfiguration);
+            }
+        }
 
         this.config.getGroups().add(groupConfiguration);
         this.config.save();
@@ -154,9 +159,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public void removeGroupConfiguration(String name) {
         Validate.checkNotNull(name);
 
-        for (GroupConfiguration group : this.config.getGroups())
-            if (group.getName().equalsIgnoreCase(name))
+        for (GroupConfiguration group : this.config.getGroups()) {
+            if (group.getName().equalsIgnoreCase(name)) {
                 this.config.getGroups().remove(group);
+            }
+        }
 
         this.config.save();
         CloudNet.getInstance().updateGroupConfigurationsInCluster();
@@ -198,18 +205,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         CloudServiceCreateEvent cloudServiceCreateEvent = new CloudServiceCreateEvent(serviceConfiguration);
         CloudNetDriver.getInstance().getEventManager().callEvent(cloudServiceCreateEvent);
 
-        if (cloudServiceCreateEvent.isCancelled())
+        if (cloudServiceCreateEvent.isCancelled()) {
             return null;
+        }
 
         serviceConfiguration.setPort(checkAndReplacePort(serviceConfiguration.getPort()));
 
         ICloudService cloudService = null;
 
-        if (serviceConfiguration.getRuntime() != null && this.cloudServiceFactories.containsKey(serviceConfiguration.getRuntime()))
+        if (serviceConfiguration.getRuntime() != null && this.cloudServiceFactories.containsKey(serviceConfiguration.getRuntime())) {
             cloudService = this.cloudServiceFactories.get(serviceConfiguration.getRuntime()).createCloudService(this, serviceConfiguration);
+        }
 
-        if (cloudService == null)
+        if (cloudService == null) {
             cloudService = DEFAULT_FACTORY.createCloudService(this, serviceConfiguration);
+        }
 
         if (cloudService != null) {
             this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
@@ -255,14 +265,18 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         for (IClusterNodeServer clusterNodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
             Collection<Integer> ids = clusterNodeServer.getReservedTaskIds(name);
 
-            if (ids != null) taskIdList.addAll(ids);
+            if (ids != null) {
+                taskIdList.addAll(ids);
+            }
         }
 
         taskIdList.addAll(getReservedTaskIds(name));
 
-        while (taskIdList.contains(taskId)) taskId++;
+        while (taskIdList.contains(taskId)) {
+            taskId++;
+        }
 
-        for (GroupConfiguration groupConfiguration : this.getGroupConfigurations())
+        for (GroupConfiguration groupConfiguration : this.getGroupConfigurations()) {
             if (groups.contains(groupConfiguration.getName())) {
                 includes.addAll(groupConfiguration.getIncludes());
                 templates.addAll(groupConfiguration.getTemplates());
@@ -271,6 +285,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                     properties.append(groupConfiguration.getProperties());
                 }
             }
+        }
 
         ServiceConfiguration serviceConfiguration = new ServiceConfiguration(
                 new ServiceId(
@@ -298,32 +313,35 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void startAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values())
+        for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override
     public void stopAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values())
+        for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.stop();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override
     public void deleteAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values())
+        for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.delete();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override
@@ -405,9 +423,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         Collection<Integer> taskIdList = Iterables.newArrayList();
 
-        for (ServiceInfoSnapshot serviceInfoSnapshot : this.globalServiceInfoSnapshots.values())
-            if (serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task))
+        for (ServiceInfoSnapshot serviceInfoSnapshot : this.globalServiceInfoSnapshots.values()) {
+            if (serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task)) {
                 taskIdList.add(serviceInfoSnapshot.getServiceId().getTaskServiceId());
+            }
+        }
 
         return taskIdList;
     }
@@ -423,9 +443,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public int getCurrentUsedHeapMemory() {
         int value = 0;
 
-        for (ICloudService cloudService : this.cloudServices.values())
-            if (cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING)
+        for (ICloudService cloudService : this.cloudServices.values()) {
+            if (cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING) {
                 value += cloudService.getConfiguredMaxHeapMemory();
+            }
+        }
 
         return value;
     }
@@ -434,22 +456,24 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public int getCurrentReservedMemory() {
         int value = 0;
 
-        for (ICloudService cloudService : this.cloudServices.values())
+        for (ICloudService cloudService : this.cloudServices.values()) {
             value += cloudService.getConfiguredMaxHeapMemory();
+        }
 
         return value;
     }
 
-    /*= ------------------------------------------------------- =*/
 
     private int checkAndReplacePort(int port) {
         Collection<Integer> ports = Iterables.map(this.cloudServices.values(), iCloudService -> iCloudService.getServiceConfiguration().getPort());
 
-        while (ports.contains(port))
+        while (ports.contains(port)) {
             port++;
+        }
 
-        while (!PortValidator.checkPort(port))
+        while (!PortValidator.checkPort(port)) {
             port++;
+        }
 
         return port;
     }

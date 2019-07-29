@@ -21,16 +21,17 @@ public final class BukkitSignInteractionListener implements Listener {
     public void handle(PlayerInteractEvent event) {
         SignConfigurationEntry entry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
 
-        if (entry != null)
+        if (entry != null) {
             if ((event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) &&
                     event.getClickedBlock() != null &&
-                    event.getClickedBlock().getState() instanceof org.bukkit.block.Sign)
+                    event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
                     Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
 
                     if (location == null || sign.getServiceInfoSnapshot() == null ||
-                            !location.equals(event.getClickedBlock().getLocation()))
+                            !location.equals(event.getClickedBlock().getLocation())) {
                         continue;
+                    }
 
                     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                          DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
@@ -51,5 +52,7 @@ public final class BukkitSignInteractionListener implements Listener {
 
                     return;
                 }
+            }
+        }
     }
 }

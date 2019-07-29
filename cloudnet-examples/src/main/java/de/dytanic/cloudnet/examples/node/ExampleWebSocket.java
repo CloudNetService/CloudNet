@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
@@ -20,12 +19,13 @@ public class ExampleWebSocket {
 
     @EventListener
     public void handlePostEventsToWebSocketChannels(Event event) {
-        for (IWebSocketChannel channel : channels)
+        for (IWebSocketChannel channel : channels) {
             channel.sendWebSocketFrame(WebSocketFrameType.TEXT, GsonUtil.GSON.toJson(event));
+        }
     }
 
     public void invokeWebSocketChannel() {
-        CloudNet.getInstance().getHttpServer().registerHandler("/http_websocket_example_path", (IHttpHandler) (path, context) -> {
+        CloudNet.getInstance().getHttpServer().registerHandler("/http_websocket_example_path", (path, context) -> {
             IWebSocketChannel channel = context.upgrade(); //upgraded context to WebSocket
 
             channels.add(channel);
@@ -50,7 +50,9 @@ public class ExampleWebSocket {
                 @Override
                 public void handleClose(IWebSocketChannel channel, Value<Integer> statusCode, Value<String> reasonText) //handle the closing output
                 {
-                    if (!channels.contains(channel)) statusCode.setValue(500);
+                    if (!channels.contains(channel)) {
+                        statusCode.setValue(500);
+                    }
 
                     channels.remove(channel);
 

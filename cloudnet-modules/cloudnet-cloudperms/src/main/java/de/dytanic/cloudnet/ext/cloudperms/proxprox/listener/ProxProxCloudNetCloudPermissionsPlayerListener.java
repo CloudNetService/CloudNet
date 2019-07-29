@@ -38,8 +38,9 @@ public final class ProxProxCloudNetCloudPermissionsPlayerListener implements Lis
     public void handle(PermissionCheckEvent event) {
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUUID());
 
-        if (permissionUser != null)
+        if (permissionUser != null) {
             event.setResult(CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, event.getPermission()));
+        }
     }
 
     @EventHandler

@@ -48,12 +48,13 @@ public final class LocalTemplateStorageUtil {
         Validate.checkNotNull(serviceTemplate);
         Validate.checkNotNull(installableAppVersion);
 
-        if (!storage.has(serviceTemplate))
+        if (!storage.has(serviceTemplate)) {
             try {
                 createAndPrepareTemplate(storage, serviceTemplate.getPrefix(), serviceTemplate.getName(), installableAppVersion.getServiceEnvironment());
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
 
         return installApplicationJar0(
                 installableAppVersion.getUrl(),
@@ -72,8 +73,9 @@ public final class LocalTemplateStorageUtil {
             httpURLConnection.setDoOutput(false);
             httpURLConnection.connect();
 
-            if (!destination.exists())
+            if (!destination.exists()) {
                 destination.createNewFile();
+            }
 
             try (InputStream inputStream = httpURLConnection.getInputStream();
                  FileOutputStream fileOutputStream = new FileOutputStream(destination)) {
@@ -112,7 +114,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(proxyYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/proxprox/config.yml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
                 }
                 break;
@@ -122,7 +126,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(proxyYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/bungee/config.yml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File serverIcon = new File(directory, "server-icon.png");
@@ -130,7 +136,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(serverIcon);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
                 }
                 break;
@@ -140,7 +148,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(proxyYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/velocity/velocity.toml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File serverIcon = new File(directory, "server-icon.png");
@@ -148,7 +158,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(serverIcon);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
                 }
                 break;
@@ -158,7 +170,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(serverProperties);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/nukkit/server.properties")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File nukkitYml = new File(directory, "nukkit.yml");
@@ -166,7 +180,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(nukkitYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/nukkit/nukkit.yml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
                 }
                 break;
@@ -176,7 +192,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(serverYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
                 }
                 break;
@@ -186,7 +204,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(serverProperties);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/nms/server.properties")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File bukkitYml = new File(directory, "bukkit.yml");
@@ -194,7 +214,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(bukkitYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/nms/bukkit.yml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File spigotYml = new File(directory, "spigot.yml");
@@ -202,7 +224,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(spigotYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/nms/spigot.yml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File spongeGlobalConf = new File(directory, "config/sponge/global.conf");
@@ -211,7 +235,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(spongeGlobalConf);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/nms/global.conf")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File serverIcon = new File(directory, "server-icon.png");
@@ -219,7 +245,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(serverIcon);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
                 }
                 break;
@@ -230,7 +258,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(glowstoneYml);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/glowstone/glowstone.yml")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
 
                     File serverIcon = new File(directory, "server-icon.png");
@@ -238,7 +268,9 @@ public final class LocalTemplateStorageUtil {
 
                     try (FileOutputStream fileOutputStream = new FileOutputStream(serverIcon);
                          InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
-                        if (inputStream != null) FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, fileOutputStream, buffer);
+                        }
                     }
                 }
                 break;
@@ -246,7 +278,8 @@ public final class LocalTemplateStorageUtil {
 
             CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.toZipByteArray(serviceTemplate));
             return true;
-        } else
+        } else {
             return false;
+        }
     }
 }

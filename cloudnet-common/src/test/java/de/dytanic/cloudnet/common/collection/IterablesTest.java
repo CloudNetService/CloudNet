@@ -44,7 +44,9 @@ public class IterablesTest {
 
         Assert.assertEquals(collection.size(), integerCollection.size());
 
-        for (String item : collection) Assert.assertTrue(integerCollection.contains(item.getBytes().length));
+        for (String item : collection) {
+            Assert.assertTrue(integerCollection.contains(item.getBytes().length));
+        }
 
         Assert.assertTrue(Iterables.contains("Stairs", collection.toArray(new String[0])));
         Assert.assertEquals("Home", Iterables.first(collection.toArray(new String[0]), s -> s.startsWith("H")));

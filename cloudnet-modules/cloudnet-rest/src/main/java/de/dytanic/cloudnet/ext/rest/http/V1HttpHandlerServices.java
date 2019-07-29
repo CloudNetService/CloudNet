@@ -79,7 +79,9 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
 
                         StringBuilder stringBuilder = new StringBuilder();
 
-                        for (String item : queue) stringBuilder.append(item).append("\n");
+                        for (String item : queue) {
+                            stringBuilder.append(item).append("\n");
+                        }
 
                         context
                                 .response()
@@ -122,12 +124,14 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                 .header("Content-Type", "application/json")
                 .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot -> {
                     if (context.request().queryParameters().containsKey("name") &&
-                            !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName()))
+                            !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName())) {
                         return false;
+                    }
 
                     if (context.request().queryParameters().containsKey("task") &&
-                            !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName()))
+                            !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName())) {
                         return false;
+                    }
 
                     return !context.request().queryParameters().containsKey("node") ||
                             context.request().queryParameters().get("node").contains(serviceInfoSnapshot.getServiceId().getNodeUniqueId());

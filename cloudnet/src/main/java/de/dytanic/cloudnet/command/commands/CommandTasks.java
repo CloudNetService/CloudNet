@@ -68,7 +68,9 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
 
             for (ServiceTask serviceTask : this.getCloudServiceManager().getServiceTasks()) {
                 if (properties.containsKey("name") &&
-                        !properties.get("name").toLowerCase().contains(serviceTask.getName().toLowerCase())) continue;
+                        !properties.get("name").toLowerCase().contains(serviceTask.getName().toLowerCase())) {
+                    continue;
+                }
 
                 sender.sendMessage(serviceTask.getName() + " | MinServiceCount: " + serviceTask.getMinServiceCount() + " | Nodes: " +
                         (serviceTask.getAssociatedNodes().isEmpty() ? "All" : serviceTask.getAssociatedNodes()) + " | StartPort: " +
@@ -79,24 +81,28 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
 
             for (GroupConfiguration groupConfiguration : this.getCloudServiceManager().getGroupConfigurations()) {
                 if (properties.containsKey("name") &&
-                        !properties.get("name").toLowerCase().contains(groupConfiguration.getName().toLowerCase()))
+                        !properties.get("name").toLowerCase().contains(groupConfiguration.getName().toLowerCase())) {
                     continue;
+                }
 
                 sender.sendMessage("- " + groupConfiguration.getName());
             }
             return;
         }
 
-        if (args.length <= 1) return;
+        if (args.length <= 1) {
+            return;
+        }
 
         if (args[0].equalsIgnoreCase("create")) {
-            if (args.length == 3 && args[1].equalsIgnoreCase("group"))
+            if (args.length == 3 && args[1].equalsIgnoreCase("group")) {
                 if (this.createGroupConfiguration(args[2])) {
                     sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
                     return;
                 }
+            }
 
-            if (args.length == 4 && args[1].equalsIgnoreCase("task"))
+            if (args.length == 4 && args[1].equalsIgnoreCase("task")) {
                 if (!this.getCloudServiceManager().isTaskPresent(args[2])) {
                     try {
                         ServiceEnvironmentType type = ServiceEnvironmentType.valueOf(args[3].toUpperCase());
@@ -142,6 +148,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         exception.printStackTrace();
                     }
                 }
+            }
 
             return;
         }
@@ -165,14 +172,17 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         if (args[0].equalsIgnoreCase("task")) {
             List<ServiceTask> serviceTasks = Iterables.filter(this.getCloudServiceManager().getServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(args[1].toLowerCase()));
 
-            if (serviceTasks.isEmpty()) return;
+            if (serviceTasks.isEmpty()) {
+                return;
+            }
 
             ServiceTask serviceTask;
 
-            if (serviceTasks.size() > 1)
+            if (serviceTasks.size() > 1) {
                 serviceTask = Iterables.first(this.getCloudServiceManager().getServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
-            else
+            } else {
                 serviceTask = serviceTasks.get(0);
+            }
 
             if (serviceTask != null) {
                 if (args.length == 2) {
@@ -275,8 +285,9 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                     if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
                                         ServiceDeployment serviceDeployment = new ServiceDeployment(new ServiceTemplate(args[5], args[6], args[4]), Iterables.newArrayList());
 
-                                        if (args.length == 8)
+                                        if (args.length == 8) {
                                             serviceDeployment.getExcludes().addAll(Arrays.asList(args[7].split(";")));
+                                        }
 
                                         serviceTask.getDeployments().add(serviceDeployment);
                                         updateServiceTask(serviceTask);
@@ -353,8 +364,9 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                     if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
                                         ServiceDeployment serviceDeployment = new ServiceDeployment(new ServiceTemplate(args[5], args[6], args[4]), Iterables.newArrayList());
 
-                                        if (args.length == 8)
+                                        if (args.length == 8) {
                                             serviceDeployment.getExcludes().addAll(Arrays.asList(args[7].split(";")));
+                                        }
 
                                         groupConfiguration.getDeployments().add(serviceDeployment);
                                         updateGroupConfiguration(groupConfiguration);
@@ -399,14 +411,16 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
 
         list.add("* Includes:");
 
-        for (ServiceRemoteInclusion inclusion : serviceTask.getIncludes())
+        for (ServiceRemoteInclusion inclusion : serviceTask.getIncludes()) {
             list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+        }
 
         list.add(" ");
         list.add("* Templates:");
 
-        for (ServiceTemplate template : serviceTask.getTemplates())
+        for (ServiceTemplate template : serviceTask.getTemplates()) {
             list.add("- " + template.getStorage() + ":" + template.getTemplatePath());
+        }
 
         list.add(" ");
         list.add("* Deployments:");
@@ -436,14 +450,16 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
 
         list.add("* Includes:");
 
-        for (ServiceRemoteInclusion inclusion : groupConfiguration.getIncludes())
+        for (ServiceRemoteInclusion inclusion : groupConfiguration.getIncludes()) {
             list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+        }
 
         list.add(" ");
         list.add("* Templates:");
 
-        for (ServiceTemplate template : groupConfiguration.getTemplates())
+        for (ServiceTemplate template : groupConfiguration.getTemplates()) {
             list.add("- " + template.getStorage() + ":" + template.getTemplatePath());
+        }
 
         list.add(" ");
         list.add("* Deployments:");
@@ -500,9 +516,9 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
         Collection<String> collection = Iterables.newArrayList();
 
-        if (args.length == 0)
+        if (args.length == 0) {
             collection.addAll(Arrays.asList("group", "task"));
-        else
+        } else {
             switch (args[0].toLowerCase()) {
                 case "group":
                     collection.addAll(Iterables.map(this.getCloudServiceManager().getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName()));
@@ -511,6 +527,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     collection.addAll(Iterables.map(this.getCloudServiceManager().getServiceTasks(), serviceTask -> serviceTask.getName()));
                     break;
             }
+        }
 
         return collection;
     }

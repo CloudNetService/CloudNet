@@ -33,13 +33,15 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
             Random random = new Random();
 
             if (syncProxyProxyLoginConfiguration.isMaintenance()) {
-                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty())
+                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty()) {
                     syncProxyMotd = syncProxyProxyLoginConfiguration.getMaintenanceMotds().get(random.nextInt(
                             syncProxyProxyLoginConfiguration.getMaintenanceMotds().size()));
+                }
             } else {
-                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty())
+                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty()) {
                     syncProxyMotd = syncProxyProxyLoginConfiguration.getMotds().get(random.nextInt(
                             syncProxyProxyLoginConfiguration.getMotds().size()));
+                }
             }
 
             if (syncProxyMotd != null) {
@@ -75,14 +77,16 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
             LoginPendingConnectionCommandSender loginEventCommandSender = new LoginPendingConnectionCommandSender(event, getUniqueIdOfPendingConnection(event.getConnection()));
 
             if (syncProxyProxyLoginConfiguration.isMaintenance() && syncProxyProxyLoginConfiguration.getWhitelist() != null) {
-                if (syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getConnection().getName()))
+                if (syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getConnection().getName())) {
                     return;
+                }
 
                 UUID uniqueId = getUniqueIdOfPendingConnection(event.getConnection());
 
                 if ((uniqueId != null && syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) ||
-                        loginEventCommandSender.hasPermission("cloudnet.syncproxy.maintenance"))
+                        loginEventCommandSender.hasPermission("cloudnet.syncproxy.maintenance")) {
                     return;
+                }
 
                 event.setCancelled(true);
                 event.setCancelReason(ChatColor.translateAlternateColorCodes('&',
@@ -119,10 +123,12 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
 
             Object array = Array.newInstance(playerInfoClass, playerInfo != null ? playerInfo.length : 0);
 
-            if (playerInfo != null)
-                for (int i = 0; i < playerInfo.length; i++)
+            if (playerInfo != null) {
+                for (int i = 0; i < playerInfo.length; i++) {
                     Array.set(array, i, playerInfoClassConstructor.newInstance(
                             ChatColor.translateAlternateColorCodes('&', playerInfo[i]), UUID.randomUUID().toString()));
+                }
+            }
 
             Method methodFromLegacyTest = textComponentClass.getMethod("fromLegacyText", String.class);
             methodFromLegacyTest.setAccessible(true);

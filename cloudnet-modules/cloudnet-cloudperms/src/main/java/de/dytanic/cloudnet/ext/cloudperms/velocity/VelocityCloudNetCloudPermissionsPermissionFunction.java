@@ -17,7 +17,9 @@ public final class VelocityCloudNetCloudPermissionsPermissionFunction implements
 
     @Override
     public Tristate getPermissionValue(String permission) {
-        if (permission == null) return Tristate.FALSE;
+        if (permission == null) {
+            return Tristate.FALSE;
+        }
 
         IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
         return (permissionUser != null && CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, permission)) ?

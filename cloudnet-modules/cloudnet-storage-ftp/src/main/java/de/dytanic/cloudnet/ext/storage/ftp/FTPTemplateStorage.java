@@ -41,7 +41,9 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(zipInput);
         Validate.checkNotNull(target);
 
-        if (has(target)) delete(target);
+        if (has(target)) {
+            delete(target);
+        }
 
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipInput);
              ZipInputStream zipInputStream = new ZipInputStream(byteArrayInputStream, StandardCharsets.UTF_8)) {
@@ -66,10 +68,11 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     }
 
     private void deploy0(FTPClient ftpClient, ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws Exception {
-        if (zipEntry.isDirectory())
+        if (zipEntry.isDirectory()) {
             makeDirectories(ftpClient, targetDirectory + "/" + zipEntry.getName());
-        else
+        } else {
             ftpClient.storeFile(targetDirectory + "/" + zipEntry.getName(), zipInputStream);
+        }
     }
 
     @Override
@@ -82,7 +85,9 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
             boolean value = false;
 
-            if (files != null) value = this.deploy(files, target);
+            if (files != null) {
+                value = this.deploy(files, target);
+            }
 
             return value;
         }
@@ -103,14 +108,18 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(files);
         Validate.checkNotNull(target);
 
-        if (has(target)) delete(target);
+        if (has(target)) {
+            delete(target);
+        }
 
         return this.handleWithFTPClient(ftpClient -> {
             makeDirectories(ftpClient, target.getTemplatePath());
 
-            for (File file : files)
-                if (file != null)
+            for (File file : files) {
+                if (file != null) {
                     deploy0(ftpClient, file, target.getTemplatePath());
+                }
+            }
 
             return null;
         });
@@ -122,9 +131,11 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
             File[] files = file.listFiles();
 
-            if (files != null)
-                for (File entry : files)
+            if (files != null) {
+                for (File entry : files) {
                     deploy0(ftpClient, entry, targetDirectory + "/" + file.getName());
+                }
+            }
 
         } else {
             try (InputStream inputStream = new FileInputStream(file)) {
@@ -138,17 +149,20 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(template);
         Validate.checkNotNull(directory);
 
-        if (!has(template)) return false;
+        if (!has(template)) {
+            return false;
+        }
 
         directory.mkdirs();
 
         return handleWithFTPClient(ftpClient -> {
             FTPFile[] files = ftpClient.listFiles(template.getTemplatePath());
 
-            if (files != null)
+            if (files != null) {
                 for (FTPFile file : files) {
                     copy0(ftpClient, template.getTemplatePath() + "/" + file.getName(), file, directory);
                 }
+            }
 
             return null;
         });
@@ -161,9 +175,11 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
             FTPFile[] files = ftpClient.listFiles(filePath);
 
-            if (files != null)
-                for (FTPFile entry : files)
+            if (files != null) {
+                for (FTPFile entry : files) {
                     copy0(ftpClient, filePath + "/" + entry.getName(), entry, new File(directory, file.getName()));
+                }
+            }
 
         } else if (file.isFile()) {
             File entry = new File(directory, file.getName());
@@ -194,10 +210,11 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
         boolean value = true;
 
-        for (File dir : directories)
+        for (File dir : directories) {
             if (!this.copy(template, dir)) {
                 value = false;
             }
+        }
 
         return value;
     }
@@ -212,7 +229,9 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
     @Override
     public byte[] toZipByteArray(ServiceTemplate template) {
-        if (!has(template)) return FileUtils.emptyZipByteArray();
+        if (!has(template)) {
+            return FileUtils.emptyZipByteArray();
+        }
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream, StandardCharsets.UTF_8)) {
@@ -233,8 +252,8 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     private void toByteArray0(FTPClient ftpClient, ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws Exception {
         FTPFile[] files = ftpClient.listFiles(baseDirectory);
 
-        if (files != null)
-            for (FTPFile file : files)
+        if (files != null) {
+            for (FTPFile file : files) {
                 if (file != null) {
                     if (file.isDirectory()) {
                         toByteArray0(ftpClient, zipOutputStream, baseDirectory + "/" + file.getName(),
@@ -245,6 +264,8 @@ public final class FTPTemplateStorage implements ITemplateStorage {
                         zipOutputStream.closeEntry();
                     }
                 }
+            }
+        }
     }
 
     @Override
@@ -270,12 +291,15 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         if (file.isDirectory()) {
             FTPFile[] files = path.isEmpty() ? ftpClient.listFiles() : ftpClient.listFiles(template.getTemplatePath());
 
-            if (files != null)
-                for (FTPFile entry : files)
-                    if (entry.isDirectory())
+            if (files != null) {
+                for (FTPFile entry : files) {
+                    if (entry.isDirectory()) {
                         delete0(ftpClient, template, entry, path + (path.isEmpty() ? "" : "/") + entry.getName());
-                    else
+                    } else {
                         ftpClient.deleteFile(path + entry.getName());
+                    }
+                }
+            }
         }
 
         ftpClient.removeDirectory(template.getTemplatePath());
@@ -302,16 +326,21 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         handleWithFTPClient(ftpClient -> {
             FTPFile[] files = ftpClient.listFiles();
 
-            if (files != null)
-                for (FTPFile entry : files)
+            if (files != null) {
+                for (FTPFile entry : files) {
                     if (entry.isDirectory()) {
                         FTPFile[] subPathEntries = ftpClient.listFiles(entry.getName());
 
-                        if (subPathEntries != null)
-                            for (FTPFile subEntry : subPathEntries)
-                                if (subEntry.isDirectory())
+                        if (subPathEntries != null) {
+                            for (FTPFile subEntry : subPathEntries) {
+                                if (subEntry.isDirectory()) {
                                     templates.add(new ServiceTemplate(entry.getName(), subEntry.getName(), document.getString("storage")));
+                                }
+                            }
+                        }
                     }
+                }
+            }
 
             return null;
         });
@@ -323,15 +352,16 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     public void close() throws Exception {
     }
 
-    /*= ----------------------------------------------------------------------------------- =*/
 
     private void makeDirectories(FTPClient ftpClient, String pathname) throws Exception {
         boolean dirExists = true;
 
         String[] directories = pathname.startsWith("/") ? pathname.split("/") : (ftpClient.printWorkingDirectory() + "/" + pathname).split("/");
-        for (String dir : directories)
+        for (String dir : directories) {
             if (!dir.isEmpty()) {
-                if (dirExists) dirExists = ftpClient.changeWorkingDirectory(dir);
+                if (dirExists) {
+                    dirExists = ftpClient.changeWorkingDirectory(dir);
+                }
 
                 if (!dirExists) {
                     if (!ftpClient.makeDirectory(dir)) {
@@ -347,6 +377,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
                     }
                 }
             }
+        }
 
         resetWorkingDirectory(ftpClient);
     }

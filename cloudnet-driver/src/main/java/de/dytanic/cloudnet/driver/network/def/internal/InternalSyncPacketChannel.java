@@ -48,7 +48,9 @@ public final class InternalSyncPacketChannel {
 
             return true;
 
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body) {
@@ -74,7 +76,7 @@ public final class InternalSyncPacketChannel {
     private static void checkCachedValidation() {
         long systemCurrent = System.currentTimeMillis();
 
-        for (Map.Entry<UUID, SynchronizedCallback> entry : WAITING_PACKETS.entrySet())
+        for (Map.Entry<UUID, SynchronizedCallback> entry : WAITING_PACKETS.entrySet()) {
             if (entry.getValue().timeOut < systemCurrent) {
                 WAITING_PACKETS.remove(entry.getKey());
 
@@ -85,6 +87,7 @@ public final class InternalSyncPacketChannel {
                     throwable.printStackTrace();
                 }
             }
+        }
     }
 
     private static class SynchronizedCallback {

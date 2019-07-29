@@ -49,8 +49,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         this.url = url;
         this.moduleProvider = moduleProvider;
 
-        for (ModuleLifeCycle moduleLifeCycle : ModuleLifeCycle.values())
+        for (ModuleLifeCycle moduleLifeCycle : ModuleLifeCycle.values()) {
             moduleTasks.put(moduleLifeCycle, Iterables.newCopyOnWriteArrayList());
+        }
 
         this.init(url);
     }
@@ -61,7 +62,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
         try (FinalizeURLClassLoader classLoader = new FinalizeURLClassLoader(url);
              InputStream inputStream = classLoader.getResourceAsStream(MODULE_CONFIG_PATH)) {
-            if (inputStream == null) throw new ModuleConfigurationNotFoundException(url);
+            if (inputStream == null) {
+                throw new ModuleConfigurationNotFoundException(url);
+            }
 
             try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
                 JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
@@ -71,53 +74,73 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             }
         }
 
-        if (moduleConfiguration == null) throw new ModuleConfigurationNotFoundException(url);
+        if (moduleConfiguration == null) {
+            throw new ModuleConfigurationNotFoundException(url);
+        }
 
-        if (moduleConfiguration.getGroup() == null) throw new ModuleConfigurationPropertyNotFoundException("group");
-        if (moduleConfiguration.getName() == null) throw new ModuleConfigurationPropertyNotFoundException("name");
-        if (moduleConfiguration.getVersion() == null) throw new ModuleConfigurationPropertyNotFoundException("version");
-        if (moduleConfiguration.getMain() == null) throw new ModuleConfigurationPropertyNotFoundException("main");
+        if (moduleConfiguration.getGroup() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("group");
+        }
+        if (moduleConfiguration.getName() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("name");
+        }
+        if (moduleConfiguration.getVersion() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("version");
+        }
+        if (moduleConfiguration.getMain() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("main");
+        }
 
         Map<String, String> repositories = Maps.newHashMap(defaultRepositories);
 
         List<URL> urls = Iterables.newArrayList();
         urls.add(url);
 
-        if (moduleConfiguration.getRepos() != null)
-            for (ModuleRepository moduleRepository : moduleConfiguration.getRepos())
-                if (moduleRepository.getName() != null && moduleRepository.getUrl() != null)
+        if (moduleConfiguration.getRepos() != null) {
+            for (ModuleRepository moduleRepository : moduleConfiguration.getRepos()) {
+                if (moduleRepository.getName() != null && moduleRepository.getUrl() != null) {
                     repositories.put(moduleRepository.getName(), moduleRepository.getUrl().endsWith("/") ? moduleRepository.getUrl() : moduleRepository.getUrl() + "/");
+                }
+            }
+        }
 
-        if (moduleConfiguration.getDependencies() != null)
-            for (ModuleDependency moduleDependency : moduleConfiguration.getDependencies())
+        if (moduleConfiguration.getDependencies() != null) {
+            for (ModuleDependency moduleDependency : moduleConfiguration.getDependencies()) {
                 if (moduleDependency.getGroup() != null && moduleDependency.getName() != null && moduleDependency.getVersion() != null) {
                     if (moduleDependency.getUrl() != null) {
-                        if (moduleProvider.getModuleProviderHandler() != null)
+                        if (moduleProvider.getModuleProviderHandler() != null) {
                             moduleProvider.getModuleProviderHandler().handlePreInstallDependency(this, moduleDependency);
+                        }
 
                         urls.add(moduleProvider.getModuleDependencyLoader().loadModuleDependencyByUrl(moduleConfiguration, moduleDependency, repositories));
 
-                        if (moduleProvider.getModuleProviderHandler() != null)
+                        if (moduleProvider.getModuleProviderHandler() != null) {
                             moduleProvider.getModuleProviderHandler().handlePostInstallDependency(this, moduleDependency);
+                        }
                         continue;
                     }
 
                     if (moduleDependency.getRepo() != null && repositories.containsKey(moduleDependency.getRepo())) {
-                        if (moduleProvider.getModuleProviderHandler() != null)
+                        if (moduleProvider.getModuleProviderHandler() != null) {
                             moduleProvider.getModuleProviderHandler().handlePreInstallDependency(this, moduleDependency);
+                        }
 
                         urls.add(moduleProvider.getModuleDependencyLoader().loadModuleDependencyByRepository(moduleConfiguration, moduleDependency, repositories));
 
-                        if (moduleProvider.getModuleProviderHandler() != null)
+                        if (moduleProvider.getModuleProviderHandler() != null) {
                             moduleProvider.getModuleProviderHandler().handlePostInstallDependency(this, moduleDependency);
+                        }
                     }
                 }
+            }
+        }
 
         this.classLoader = new FinalizeURLClassLoader(urls.toArray(new URL[0]));
         Class<?> clazz = classLoader.loadClass(moduleConfiguration.getMainClass());
 
-        if (!DefaultModule.class.isAssignableFrom(clazz))
+        if (!DefaultModule.class.isAssignableFrom(clazz)) {
             throw new IllegalArgumentException("Invalid module class type");
+        }
 
         this.module = (DefaultModule) clazz.newInstance();
 
@@ -125,11 +148,12 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         this.module.moduleConfig = this.moduleConfiguration;
         this.module.classLoader = this.classLoader;
 
-        for (Method method : clazz.getDeclaredMethods())
+        for (Method method : clazz.getDeclaredMethods()) {
             if (method.getParameterCount() == 0 && method.isAnnotationPresent(ModuleTask.class)) {
                 ModuleTask moduleTask = method.getAnnotation(ModuleTask.class);
                 this.moduleTasks.get(moduleTask.event()).add(new DefaultModuleTaskEntry(this, moduleTask, method));
             }
+        }
     }
 
     @Override
@@ -156,21 +180,22 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         if (moduleLifeCycle == ModuleLifeCycle.LOADED || moduleLifeCycle == ModuleLifeCycle.STOPPED) {
             moduleProvider.getModuleProviderHandler().handlePreModuleStart(this);
             if (this.moduleConfiguration.getDependencies() != null) {
-                for (ModuleDependency moduleDependency : this.moduleConfiguration.getDependencies())
+                for (ModuleDependency moduleDependency : this.moduleConfiguration.getDependencies()) {
                     if (moduleDependency != null && moduleDependency.getGroup() != null && moduleDependency.getName() != null &&
                             moduleDependency.getVersion() != null && moduleDependency.getRepo() == null &&
                             moduleDependency.getUrl() == null) {
                         IModuleWrapper moduleWrapper = Iterables.first(this.getModuleProvider().getModules(), module -> module.getModuleConfiguration().getGroup().equals(moduleDependency.getGroup()) &&
                                 module.getModuleConfiguration().getName().equals(moduleDependency.getName()));
 
-                        if (moduleWrapper != null)
+                        if (moduleWrapper != null) {
                             moduleWrapper.startModule();
-                        else {
+                        } else {
                             new ModuleDependencyNotFoundException("Module Dependency for " + moduleDependency.getGroup() + ":" + moduleDependency.getName() +
                                     ":" + moduleDependency.getVersion()).printStackTrace();
                             return this;
                         }
                     }
+                }
             }
 
             fireTasks(this.moduleTasks.get(ModuleLifeCycle.STARTED));
@@ -195,8 +220,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     @Override
     public IModuleWrapper unloadModule() {
-        if (moduleLifeCycle != ModuleLifeCycle.UNLOADED)
+        if (moduleLifeCycle != ModuleLifeCycle.UNLOADED) {
             stopModule();
+        }
 
         moduleProvider.getModuleProviderHandler().handlePreModuleUnload(this);
         fireTasks(moduleTasks.get(ModuleLifeCycle.UNLOADED));
@@ -217,7 +243,6 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         return this;
     }
 
-    /*= ------------------------------------------------------------------------ =*/
 
     private void fireTasks(List<IModuleTaskEntry> entries) {
         entries.sort((o1, o2) -> o2.getTaskInfo().order() - o1.getTaskInfo().order());

@@ -38,7 +38,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .closeAfter(true)
                     .cancelNext()
             ;
-        } else
+        } else {
             context
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
@@ -48,7 +48,8 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .context()
                     .closeAfter(true)
                     .cancelNext()
-                    ;
+            ;
+        }
     }
 
     @Override
@@ -60,20 +61,25 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
             return;
         }
 
-        if (serviceTask.getGroups() == null)
+        if (serviceTask.getGroups() == null) {
             serviceTask.setGroups(Iterables.newArrayList());
+        }
 
-        if (serviceTask.getAssociatedNodes() == null)
+        if (serviceTask.getAssociatedNodes() == null) {
             serviceTask.setAssociatedNodes(Iterables.newArrayList());
+        }
 
-        if (serviceTask.getTemplates() == null)
+        if (serviceTask.getTemplates() == null) {
             serviceTask.setTemplates(Iterables.newArrayList());
+        }
 
-        if (serviceTask.getIncludes() == null)
+        if (serviceTask.getIncludes() == null) {
             serviceTask.setIncludes(Iterables.newArrayList());
+        }
 
-        if (serviceTask.getDeployments() == null)
+        if (serviceTask.getDeployments() == null) {
             serviceTask.setDeployments(Iterables.newArrayList());
+        }
 
         int status = !CloudNetDriver.getInstance().isServiceTaskPresent(serviceTask.getName()) ?
                 HttpResponseCode.HTTP_OK
@@ -98,8 +104,9 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
 
         String name = context.request().pathParameters().get("name");
 
-        if (CloudNetDriver.getInstance().isServiceTaskPresent(name))
+        if (CloudNetDriver.getInstance().isServiceTaskPresent(name)) {
             CloudNetDriver.getInstance().removePermanentServiceTask(name);
+        }
 
         context
                 .response()

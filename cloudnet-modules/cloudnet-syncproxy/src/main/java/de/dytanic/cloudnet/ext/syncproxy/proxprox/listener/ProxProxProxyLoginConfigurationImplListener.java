@@ -24,13 +24,15 @@ public final class ProxProxProxyLoginConfigurationImplListener implements Listen
             Random random = new Random();
 
             if (syncProxyProxyLoginConfiguration.isMaintenance()) {
-                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty())
+                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty()) {
                     syncProxyMotd = syncProxyProxyLoginConfiguration.getMaintenanceMotds().get(random.nextInt(
                             syncProxyProxyLoginConfiguration.getMaintenanceMotds().size()));
+                }
             } else {
-                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty())
+                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty()) {
                     syncProxyMotd = syncProxyProxyLoginConfiguration.getMotds().get(random.nextInt(
                             syncProxyProxyLoginConfiguration.getMotds().size()));
+                }
             }
 
             if (syncProxyMotd != null) {
@@ -58,8 +60,9 @@ public final class ProxProxProxyLoginConfigurationImplListener implements Listen
             if (syncProxyProxyLoginConfiguration.isMaintenance() && syncProxyProxyLoginConfiguration.getWhitelist() != null) {
                 if (syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getPlayer().getName()) ||
                         syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getPlayer().getUUID().toString()) ||
-                        event.getPlayer().hasPermission("cloudnet.syncproxy.maintenance"))
+                        event.getPlayer().hasPermission("cloudnet.syncproxy.maintenance")) {
                     return;
+                }
 
                 event.deny(ChatColor.toANSI((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + "")));
                 return;

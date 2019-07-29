@@ -68,10 +68,11 @@ public final class NettyNetworkClient implements INetworkClient {
                     sslConfiguration.getPrivateKeyPath() != null) {
                 SslContextBuilder builder = SslContextBuilder.forClient();
 
-                if (sslConfiguration.getTrustCertificatePath() != null)
+                if (sslConfiguration.getTrustCertificatePath() != null) {
                     builder.trustManager(sslConfiguration.getTrustCertificatePath());
-                else
+                } else {
                     builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
+                }
 
                 this.sslContext = builder
                         .keyManager(sslConfiguration.getCertificatePath(), sslConfiguration.getPrivateKeyPath())
@@ -92,7 +93,6 @@ public final class NettyNetworkClient implements INetworkClient {
         return sslContext != null;
     }
 
-    /*= ---------------------------------------------------------------------------------- =*/
 
     @Override
     public boolean connect(HostAndPort hostAndPort) {
@@ -135,12 +135,13 @@ public final class NettyNetworkClient implements INetworkClient {
 
     @Override
     public void closeChannels() {
-        for (INetworkChannel channel : this.channels)
+        for (INetworkChannel channel : this.channels) {
             try {
                 channel.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
 
         this.channels.clear();
     }
@@ -149,16 +150,18 @@ public final class NettyNetworkClient implements INetworkClient {
     public void sendPacket(IPacket packet) {
         Validate.checkNotNull(packet);
 
-        for (INetworkChannel channel : this.channels)
+        for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
+        }
     }
 
     @Override
     public void sendPacket(IPacket... packets) {
         Validate.checkNotNull(packets);
 
-        for (INetworkChannel channel : this.channels)
+        for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);
+        }
     }
 
     public IPacketListenerRegistry getPacketRegistry() {

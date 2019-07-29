@@ -32,8 +32,9 @@ public final class VelocityPlayerListener {
         if (!event.getPlayer().getCurrentServer().isPresent()) {
             String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), null);
 
-            if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent())
+            if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent()) {
                 event.setResult(ServerPreConnectEvent.ServerResult.allowed(VelocityCloudNetHelper.getProxyServer().getServer(server).get()));
+            }
         }
 
         ServiceInfoSnapshot serviceInfoSnapshot = VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getResult().getServer().get().getServerInfo().getName());
@@ -55,21 +56,24 @@ public final class VelocityPlayerListener {
     public void handle(ServerConnectedEvent event) {
         ServiceInfoSnapshot serviceInfoSnapshot = VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getServer().getServerInfo().getName());
 
-        if (serviceInfoSnapshot != null)
+        if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerSwitch(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                     new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
                             serviceInfoSnapshot.getServiceId().getName()));
+        }
     }
 
     @Subscribe
     public void handle(KickedFromServerEvent event) {
         String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
 
-        if (event.getOriginalReason().isPresent())
+        if (event.getOriginalReason().isPresent()) {
             event.getPlayer().sendMessage(event.getOriginalReason().get());
+        }
 
-        if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent())
+        if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent()) {
             event.setResult(KickedFromServerEvent.RedirectPlayer.create(VelocityCloudNetHelper.getProxyServer().getServer(server).get()));
+        }
     }
 
     @Subscribe

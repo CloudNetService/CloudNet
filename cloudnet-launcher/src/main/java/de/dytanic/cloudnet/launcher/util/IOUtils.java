@@ -12,8 +12,9 @@ public final class IOUtils {
     }
 
     public static void copy(byte[] buffer, InputStream inputStream, Path path) throws Exception {
-        if (Files.exists(path))
+        if (Files.exists(path)) {
             Files.delete(path);
+        }
 
         Files.createFile(path);
 

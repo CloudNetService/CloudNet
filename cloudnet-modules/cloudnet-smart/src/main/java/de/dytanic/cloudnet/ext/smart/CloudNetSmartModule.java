@@ -34,7 +34,6 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     private final Collection<SmartServiceTaskConfig> smartServiceTaskConfigurations = Iterables.newCopyOnWriteArrayList();
 
-    /*= ------------------------------------------------------------------------------------------------ =*/
 
     public CloudNetSmartModule() {
         instance = this;
@@ -59,19 +58,18 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         registerListeners(new CloudNetTickListener(), new CloudServiceListener());
     }
 
-    /*= ------------------------------------------------------------------------------------------------ =*/
 
     public int getPercentOfFreeMemory(ServiceTask serviceTask) {
         NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().searchLogicNode(serviceTask);
 
         if (networkClusterNodeInfoSnapshot != null && !networkClusterNodeInfoSnapshot.getNode()
-                .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId()))
-
+                .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
             return (((networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100) /
                     networkClusterNodeInfoSnapshot.getMaxMemory());
-        else
+        } else {
             return (((getCloudNet().getConfig().getMaxMemory() - getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100) /
                     getCloudNet().getConfig().getMaxMemory());
+        }
     }
 
     public ServiceInfoSnapshot getFreeNonStartedService(String taskName) {
@@ -82,7 +80,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     public ServiceInfoSnapshot createSmartCloudService(ServiceTask serviceTask, SmartServiceTaskConfig serviceTaskConfig) {
         List<ServiceTemplate> serviceTemplates = Iterables.newArrayList(serviceTask.getTemplates()), outTemplates = Iterables.newArrayList();
 
-        if (!serviceTemplates.isEmpty())
+        if (!serviceTemplates.isEmpty()) {
             switch (serviceTaskConfig.getTemplateInstaller()) {
                 case INSTALL_ALL: {
                     outTemplates.addAll(serviceTemplates);
@@ -107,16 +105,18 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                     break;
                 }
             }
+        }
 
         int maxMemory = serviceTask.getProcessConfiguration().getMaxHeapMemorySize();
 
         if (serviceTaskConfig.isDynamicMemoryAllocation()) {
             int percent = getPercentOfFreeMemory(serviceTask);
 
-            if (percent > 50)
+            if (percent > 50) {
                 maxMemory = maxMemory - ((percent * serviceTaskConfig.getDynamicMemoryAllocationRange()) / 100);
-            else
+            } else {
                 maxMemory = maxMemory + ((percent * serviceTaskConfig.getDynamicMemoryAllocationRange()) / 100);
+            }
         }
 
         ServiceInfoSnapshot serviceInfoSnapshot = getDriver().createCloudService(

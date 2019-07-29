@@ -44,7 +44,9 @@ public final class BukkitCloudNetSignListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) return;
+        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) {
+            return;
+        }
 
         switch (event.getMessage().toLowerCase()) {
             case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
@@ -55,13 +57,17 @@ public final class BukkitCloudNetSignListener {
             case SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE: {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
-                if (sign != null) AbstractSignManagement.getInstance().onSignAdd(sign);
+                if (sign != null) {
+                    AbstractSignManagement.getInstance().onSignAdd(sign);
+                }
             }
             break;
             case SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE: {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
-                if (sign != null) AbstractSignManagement.getInstance().onSignRemove(sign);
+                if (sign != null) {
+                    AbstractSignManagement.getInstance().onSignRemove(sign);
+                }
             }
             break;
         }

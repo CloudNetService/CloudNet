@@ -103,7 +103,9 @@ public final class CommandSyncProxy extends Command {
                             }
                         }
                     }
-                } else this.displayConfiguration(sender, syncProxyLoginConfiguration);
+                } else {
+                    this.displayConfiguration(sender, syncProxyLoginConfiguration);
+                }
             }
             return;
         }
@@ -140,8 +142,9 @@ public final class CommandSyncProxy extends Command {
     }
 
     private void displayListConfiguration(ICommandSender sender, SyncProxyConfiguration syncProxyConfiguration) {
-        for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration : syncProxyConfiguration.getLoginConfigurations())
+        for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration : syncProxyConfiguration.getLoginConfigurations()) {
             displayConfiguration(sender, syncProxyProxyLoginConfiguration);
+        }
 
         for (SyncProxyTabListConfiguration syncProxyTabListConfiguration : syncProxyConfiguration.getTabListConfigurations()) {
             sender.sendMessage(
@@ -172,11 +175,13 @@ public final class CommandSyncProxy extends Command {
         this.displayWhitelist(sender, syncProxyProxyLoginConfiguration.getWhitelist());
 
         sender.sendMessage("Motds:");
-        for (SyncProxyMotd syncProxyMotd : syncProxyProxyLoginConfiguration.getMotds())
+        for (SyncProxyMotd syncProxyMotd : syncProxyProxyLoginConfiguration.getMotds()) {
             this.displayMotd(sender, syncProxyMotd);
+        }
 
-        for (SyncProxyMotd syncProxyMotd : syncProxyProxyLoginConfiguration.getMaintenanceMotds())
+        for (SyncProxyMotd syncProxyMotd : syncProxyProxyLoginConfiguration.getMaintenanceMotds()) {
             this.displayMotd(sender, syncProxyMotd);
+        }
     }
 
     private void displayMotd(ICommandSender sender, SyncProxyMotd syncProxyMotd) {
@@ -190,15 +195,18 @@ public final class CommandSyncProxy extends Command {
                 "PlayerInfo: "
         );
 
-        if (syncProxyMotd.getPlayerInfo() != null)
-            for (String playerInfoItem : syncProxyMotd.getPlayerInfo())
+        if (syncProxyMotd.getPlayerInfo() != null) {
+            for (String playerInfoItem : syncProxyMotd.getPlayerInfo()) {
                 sender.sendMessage("- " + playerInfoItem);
+            }
+        }
     }
 
     private void displayWhitelist(ICommandSender sender, Collection<String> whitelistEntries) {
         sender.sendMessage("Whitelist:");
 
-        for (String whitelistEntry : whitelistEntries)
+        for (String whitelistEntry : whitelistEntries) {
             sender.sendMessage("- " + whitelistEntry);
+        }
     }
 }

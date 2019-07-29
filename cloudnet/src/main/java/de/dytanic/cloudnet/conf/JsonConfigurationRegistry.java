@@ -235,9 +235,11 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         }
 
         JsonDocument loaded = JsonDocument.newDocument(this.path);
-        if (loaded.contains("registryVersion") && loaded.contains("entries"))
-            if (lowestSupportedVersion <= loaded.getInt("registryVersion"))
+        if (loaded.contains("registryVersion") && loaded.contains("entries")) {
+            if (lowestSupportedVersion <= loaded.getInt("registryVersion")) {
                 this.entries = loaded.getDocument("entries");
+            }
+        }
 
         return this;
     }

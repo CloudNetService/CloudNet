@@ -23,10 +23,11 @@ public final class PacketServerSetGroupConfigurationListListener implements IPac
                 NetworkChannelReceiveGroupConfigurationsUpdateEvent event = new NetworkChannelReceiveGroupConfigurationsUpdateEvent(channel, groupConfigurations);
                 CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
-                if (!event.isCancelled())
+                if (!event.isCancelled()) {
                     CloudNet.getInstance().getCloudServiceManager().setGroupConfigurations(
                             event.getGroupConfigurations() != null ? event.getGroupConfigurations() : groupConfigurations
                     );
+                }
             }
         }
     }

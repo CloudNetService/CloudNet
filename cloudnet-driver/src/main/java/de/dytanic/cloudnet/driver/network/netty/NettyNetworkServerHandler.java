@@ -28,15 +28,17 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
                 this.nettyNetworkServer.networkChannelHandler.call(), connectedAddress, new HostAndPort(ctx.channel().remoteAddress()), false);
         this.nettyNetworkServer.channels.add(channel);
 
-        if (this.channel.getHandler() != null)
+        if (this.channel.getHandler() != null) {
             this.channel.getHandler().handleChannelInitialize(this.channel);
+        }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-            if (this.channel.getHandler() != null)
+            if (this.channel.getHandler() != null) {
                 this.channel.getHandler().handleChannelClose(this.channel);
+            }
 
             ctx.channel().close();
 
@@ -46,8 +48,9 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (!(cause instanceof IOException) && !(cause instanceof ClosedChannelException))
+        if (!(cause instanceof IOException) && !(cause instanceof ClosedChannelException)) {
             cause.printStackTrace();
+        }
     }
 
     @Override
@@ -58,8 +61,9 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
         nettyNetworkServer.taskScheduler.schedule((Callable<Void>) () -> {
-            if (channel.getHandler() != null && !channel.getHandler().handlePacketReceive(channel, msg))
+            if (channel.getHandler() != null && !channel.getHandler().handlePacketReceive(channel, msg)) {
                 return null;
+            }
 
             channel.getPacketRegistry().handlePacket(channel, msg);
             return null;

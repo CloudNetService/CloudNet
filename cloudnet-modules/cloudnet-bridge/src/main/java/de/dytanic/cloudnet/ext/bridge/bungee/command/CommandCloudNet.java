@@ -20,15 +20,20 @@ public final class CommandCloudNet extends Command {
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        for (String arg : args) stringBuilder.append(arg).append(" ");
+        for (String arg : args) {
+            stringBuilder.append(arg).append(" ");
+        }
 
         String[] messages = CloudNetDriver.getInstance().sendCommandLine(stringBuilder.toString());
 
-        if (messages != null)
-            for (String message : messages)
-                if (message != null)
+        if (messages != null) {
+            for (String message : messages) {
+                if (message != null) {
                     sender.sendMessages(
                             ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getPrefix() + message)
                     );
+                }
+            }
+        }
     }
 }

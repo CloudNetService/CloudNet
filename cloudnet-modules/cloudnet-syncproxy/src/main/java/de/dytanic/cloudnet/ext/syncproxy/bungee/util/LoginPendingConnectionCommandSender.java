@@ -24,9 +24,11 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
 
         this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(loginEvent.getConnection().getName()));
 
-        for (String group : groups)
-            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group))
+        for (String group : groups) {
+            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group)) {
                 this.setPermission(permission, true);
+            }
+        }
     }
 
     @Override
@@ -69,10 +71,11 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
     public void setPermission(String permission, boolean value) {
         Validate.checkNotNull(permission);
 
-        if (value)
+        if (value) {
             this.permissions.add(permission.toLowerCase());
-        else
+        } else {
             this.permissions.remove(permission.toLowerCase());
+        }
     }
 
     public Collection<String> getPermissions() {

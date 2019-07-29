@@ -65,8 +65,9 @@ public final class CloudNetTickListener {
             if (services.size() < task.getMinServiceOnlineCount()) {
                 ServiceInfoSnapshot serviceInfoSnapshot = CloudNetSmartModule.getInstance().getFreeNonStartedService(serviceTask.getName());
 
-                if (serviceInfoSnapshot == null)
+                if (serviceInfoSnapshot == null) {
                     serviceInfoSnapshot = CloudNetSmartModule.getInstance().createSmartCloudService(serviceTask, task);
+                }
 
                 if (serviceInfoSnapshot != null) {
                     CloudNetSmartModule.getInstance().getProvidedSmartServices().remove(serviceInfoSnapshot.getServiceId().getUniqueId());
@@ -86,7 +87,9 @@ public final class CloudNetTickListener {
             if (services.size() < task.getPreparedServices()) {
                 ServiceInfoSnapshot serviceInfoSnapshot = CloudNetSmartModule.getInstance().createSmartCloudService(serviceTask, task);
 
-                if (serviceInfoSnapshot != null) services.add(serviceInfoSnapshot);
+                if (serviceInfoSnapshot != null) {
+                    services.add(serviceInfoSnapshot);
+                }
             }
         }
     }
@@ -115,8 +118,9 @@ public final class CloudNetTickListener {
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
                 }
 
-            } else
+            } else {
                 cloudServiceProfile.getAutoStopCount().set(taskConfig.getAutoStopTimeByUnusedServiceInSeconds());
+            }
         }
     }
 
@@ -127,7 +131,9 @@ public final class CloudNetTickListener {
                     cloudService.getServiceInfoSnapshot().getProperties().contains("Max-Players")) {
                 SmartServiceTaskConfig taskConfig = getSmartTaskConfig(cloudService.getServiceInfoSnapshot());
 
-                if (isIngameService(cloudService.getServiceInfoSnapshot())) continue;
+                if (isIngameService(cloudService.getServiceInfoSnapshot())) {
+                    continue;
+                }
 
                 if (taskConfig != null && taskConfig.getPercentOfPlayersForANewServiceByInstance() > 0 && !newInstanceDelay.contains(cloudService.getServiceId().getUniqueId()) &&
                         getPercentOf(
@@ -170,11 +176,13 @@ public final class CloudNetTickListener {
     }
 
     private boolean isIngameService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (serviceInfoSnapshot.getProperties().contains("State") && isIngameService0(serviceInfoSnapshot.getProperties().getString("State")))
+        if (serviceInfoSnapshot.getProperties().contains("State") && isIngameService0(serviceInfoSnapshot.getProperties().getString("State"))) {
             return true;
+        }
 
-        if (serviceInfoSnapshot.getProperties().contains("Extra") && isIngameService0(serviceInfoSnapshot.getProperties().getString("Extra")))
+        if (serviceInfoSnapshot.getProperties().contains("Extra") && isIngameService0(serviceInfoSnapshot.getProperties().getString("Extra"))) {
             return true;
+        }
 
         return serviceInfoSnapshot.getProperties().contains("Motd") && isIngameService0(serviceInfoSnapshot.getProperties().getString("Motd"));
     }

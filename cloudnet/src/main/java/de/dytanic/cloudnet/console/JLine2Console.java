@@ -44,7 +44,9 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public IConsole write(String text) {
-        if (text == null) return this;
+        if (text == null) {
+            return this;
+        }
 
         text = ConsoleColor.toColouredString('&', text);
 
@@ -60,12 +62,15 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public IConsole writeLine(String text) {
-        if (text == null) return this;
+        if (text == null) {
+            return this;
+        }
 
         text = ConsoleColor.toColouredString('&', text);
 
-        if (!text.endsWith(System.lineSeparator()))
+        if (!text.endsWith(System.lineSeparator())) {
             text = text + System.lineSeparator();
+        }
 
         try {
             this.consoleReader.print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);

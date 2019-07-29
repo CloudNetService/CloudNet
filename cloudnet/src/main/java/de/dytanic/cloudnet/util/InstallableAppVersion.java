@@ -127,21 +127,22 @@ public final class InstallableAppVersion {
             "https://ci.nukkitx.com/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar");
 
     static {
-        for (Field field : InstallableAppVersion.class.getFields())
+        for (Field field : InstallableAppVersion.class.getFields()) {
             if (field.getType().equals(InstallableAppVersion.class) &&
                     Modifier.isFinal(field.getModifiers()) &&
                     Modifier.isStatic(field.getModifiers()) &&
-                    Modifier.isPublic(field.getModifiers()))
+                    Modifier.isPublic(field.getModifiers())) {
                 try {
                     field.setAccessible(true);
                     VERSIONS.add((InstallableAppVersion) field.get(null));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
+            }
+        }
     }
 
     private final ServiceEnvironmentType serviceEnvironment;
-    /*= -------------------------------------------------- =*/
     private final ServiceEnvironment environmentType;
     private final String version, url;
 
@@ -174,5 +175,4 @@ public final class InstallableAppVersion {
         return this.url;
     }
 
-    /*= -------------------------------------------------- =*/
 }

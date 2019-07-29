@@ -49,8 +49,9 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
         if (uniqueId != null) {
             IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
 
-            if (permissionUser != null)
+            if (permissionUser != null) {
                 event.setHasPermission(CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, event.getPermission()));
+            }
         }
     }
 
@@ -58,8 +59,9 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
     public void handle(PlayerDisconnectEvent event) {
         UUID uniqueId = getUniqueId(event.getPlayer().getClass(), event.getPlayer());
 
-        if (uniqueId != null)
+        if (uniqueId != null) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(uniqueId);
+        }
     }
 
 

@@ -108,7 +108,6 @@ public final class BridgePlayerManager implements IPlayerManager {
         return Iterables.newArrayList();
     }
 
-    /*= --------------------------------------------------------------------------------------------- =*/
 
     @Override
     public ITask<? extends ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
@@ -207,7 +206,6 @@ public final class BridgePlayerManager implements IPlayerManager {
         );
     }
 
-    /*= --------------------------------------------------------------------------------------------- =*/
 
     @Override
     public void updateOfflinePlayer(ICloudOfflinePlayer cloudOfflinePlayer) {
@@ -280,7 +278,6 @@ public final class BridgePlayerManager implements IPlayerManager {
         );
     }
 
-    /*= ------------------------------------------------------------------------ =*/
 
     private CloudNetDriver getCloudNetDriver() {
         return CloudNetDriver.getInstance();

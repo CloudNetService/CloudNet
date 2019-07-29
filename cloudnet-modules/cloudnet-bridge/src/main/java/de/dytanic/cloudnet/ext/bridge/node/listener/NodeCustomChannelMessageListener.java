@@ -24,7 +24,9 @@ public final class NodeCustomChannelMessageListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) return;
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) {
+            return;
+        }
 
         switch (event.getMessage().toLowerCase()) {
             case BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER: {
@@ -66,7 +68,6 @@ public final class NodeCustomChannelMessageListener {
                     );
                 }
 
-                /*= -------------------------------------- =*/
                 //Player
                 loginPlayer(networkConnectionInfo, null);
             }
@@ -168,7 +169,6 @@ public final class NodeCustomChannelMessageListener {
         }
     }
 
-    /*= --------------------------------------------------------------------------------------------------- =*/
 
     private void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
         CloudPlayer cloudPlayer = NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId());
@@ -197,7 +197,9 @@ public final class NodeCustomChannelMessageListener {
             cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
             cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
 
-            if (networkPlayerServerInfo.getXBoxId() != null) cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
+            if (networkPlayerServerInfo.getXBoxId() != null) {
+                cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
+            }
         }
 
         NodePlayerManager.getInstance().updateOnlinePlayer0(cloudPlayer);
@@ -230,8 +232,10 @@ public final class NodeCustomChannelMessageListener {
                 NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId()) :
                 Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()));
 
-        if (cloudPlayer != null)
-            if (cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()))
+        if (cloudPlayer != null) {
+            if (cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())) {
                 NodePlayerManager.getInstance().getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
+            }
+        }
     }
 }

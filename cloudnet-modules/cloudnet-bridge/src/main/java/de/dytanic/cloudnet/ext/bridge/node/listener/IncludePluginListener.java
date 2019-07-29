@@ -13,9 +13,11 @@ public final class IncludePluginListener {
     @EventListener
     public void handle(CloudServicePreStartEvent event) {
         try {
-            for (String group : CloudNetBridgeModule.getInstance().getBridgeConfiguration().getExcludedGroups())
-                if (Iterables.contains(group, event.getCloudService().getServiceConfiguration().getGroups()))
+            for (String group : CloudNetBridgeModule.getInstance().getBridgeConfiguration().getExcludedGroups()) {
+                if (Iterables.contains(group, event.getCloudService().getServiceConfiguration().getGroups())) {
                     return;
+                }
+            }
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -24,8 +26,9 @@ public final class IncludePluginListener {
         File file = new File(event.getCloudService().getDirectory(), "plugins/cloudnet-bridge.jar");
         file.delete();
 
-        if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file))
+        if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
             DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(IncludePluginListener.class,
                     event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
+        }
     }
 }

@@ -21,8 +21,9 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
         switch (args.length) {
             case 0:
 
-                for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos())
+                for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
                     sender.sendMessage("Aliases: " + Arrays.toString(commandInfo.getNames()) + " - " + commandInfo.getDescription());
+                }
 
                 break;
             case 1:
@@ -30,13 +31,14 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                 if (getCloudNet().getCommandMap().getCommandNames().contains(args[0].toLowerCase())) {
                     Command commandInfo = getCloudNet().getCommandMap().getCommand(args[0].toLowerCase());
 
-                    if (commandInfo != null)
+                    if (commandInfo != null) {
                         sender.sendMessage(
                                 " ",
                                 "Aliases: " + Arrays.toString(commandInfo.getNames()),
                                 "Description: " + commandInfo.getDescription(),
                                 "Usage: " + commandInfo.getUsage()
                         );
+                    }
                 }
                 break;
         }

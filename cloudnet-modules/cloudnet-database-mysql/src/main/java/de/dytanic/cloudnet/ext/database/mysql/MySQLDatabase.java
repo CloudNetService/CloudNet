@@ -47,8 +47,9 @@ public final class MySQLDatabase implements IDatabase {
         Validate.checkNotNull(key);
         Validate.checkNotNull(document);
 
-        if (databaseProvider.getDatabaseHandler() != null)
+        if (databaseProvider.getDatabaseHandler() != null) {
             databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
+        }
 
         return !contains(key) ?
                 databaseProvider.executeUpdate(
@@ -62,8 +63,9 @@ public final class MySQLDatabase implements IDatabase {
         Validate.checkNotNull(key);
         Validate.checkNotNull(document);
 
-        if (databaseProvider.getDatabaseHandler() != null)
+        if (databaseProvider.getDatabaseHandler() != null) {
             databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
+        }
 
         return !contains(key) ? insert(key, document) : databaseProvider.executeUpdate(
                 "UPDATE " + name + " SET " + TABLE_COLUMN_VALUE + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
@@ -86,8 +88,9 @@ public final class MySQLDatabase implements IDatabase {
     public boolean delete(String key) {
         Validate.checkNotNull(key);
 
-        if (databaseProvider.getDatabaseHandler() != null)
+        if (databaseProvider.getDatabaseHandler() != null) {
             databaseProvider.getDatabaseHandler().handleDelete(this, key);
+        }
 
         return databaseProvider.executeUpdate(
                 "DELETE FROM " + name + " WHERE " + TABLE_COLUMN_KEY + "=?",
@@ -116,8 +119,9 @@ public final class MySQLDatabase implements IDatabase {
                 resultSet -> {
                     List<JsonDocument> jsonDocuments = Iterables.newArrayList();
 
-                    while (resultSet.next())
+                    while (resultSet.next()) {
                         jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+                    }
 
                     return jsonDocuments;
                 },
@@ -145,7 +149,9 @@ public final class MySQLDatabase implements IDatabase {
                 stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ?");
                 collection.add("%\"" + item + "\":" + filters.get(item).toString() + "%");
 
-                if (iterator.hasNext()) stringBuilder.append(" and ");
+                if (iterator.hasNext()) {
+                    stringBuilder.append(" and ");
+                }
             }
         }
 
@@ -154,8 +160,9 @@ public final class MySQLDatabase implements IDatabase {
                 resultSet -> {
                     List<JsonDocument> jsonDocuments = Iterables.newArrayList();
 
-                    while (resultSet.next())
+                    while (resultSet.next()) {
                         jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+                    }
 
                     return jsonDocuments;
                 },
@@ -170,8 +177,9 @@ public final class MySQLDatabase implements IDatabase {
                 resultSet -> {
                     Collection<String> keys = Iterables.newArrayList();
 
-                    while (resultSet.next())
+                    while (resultSet.next()) {
                         keys.add(resultSet.getString(TABLE_COLUMN_KEY));
+                    }
 
                     return keys;
                 }
@@ -185,8 +193,9 @@ public final class MySQLDatabase implements IDatabase {
                 resultSet -> {
                     Collection<JsonDocument> documents = Iterables.newArrayList();
 
-                    while (resultSet.next())
+                    while (resultSet.next()) {
                         documents.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+                    }
 
                     return documents;
                 }
@@ -200,8 +209,9 @@ public final class MySQLDatabase implements IDatabase {
                 resultSet -> {
                     Map<String, JsonDocument> map = Maps.newWeakHashMap();
 
-                    while (resultSet.next())
+                    while (resultSet.next()) {
                         map.put(resultSet.getString(TABLE_COLUMN_KEY), JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+                    }
 
                     return map;
                 }
@@ -221,7 +231,9 @@ public final class MySQLDatabase implements IDatabase {
                         String key = resultSet.getString(TABLE_COLUMN_KEY);
                         JsonDocument document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
 
-                        if (predicate.test(key, document)) map.put(key, document);
+                        if (predicate.test(key, document)) {
+                            map.put(key, document);
+                        }
                     }
 
                     return map;
@@ -249,13 +261,13 @@ public final class MySQLDatabase implements IDatabase {
 
     @Override
     public void clear() {
-        if (databaseProvider.getDatabaseHandler() != null)
+        if (databaseProvider.getDatabaseHandler() != null) {
             databaseProvider.getDatabaseHandler().handleClear(this);
+        }
 
         databaseProvider.executeUpdate("TRUNCATE TABLE " + name);
     }
 
-    /*= ----------------------------------------------------------------- =*/
 
     @Override
     public ITask<Boolean> insertAsync(String key, JsonDocument document) {

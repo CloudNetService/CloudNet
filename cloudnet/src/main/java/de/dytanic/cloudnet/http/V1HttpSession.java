@@ -20,22 +20,31 @@ public final class V1HttpSession {
     private final Collection<SessionEntry> entries = Iterables.newCopyOnWriteArrayList();
 
     public boolean auth(IHttpContext context) throws Exception {
-        if (isAuthorized(context))
+        if (isAuthorized(context)) {
             logout(context);
+        }
 
-        if (!context.request().hasHeader("Authorization")) return false;
+        if (!context.request().hasHeader("Authorization")) {
+            return false;
+        }
 
         String[] typeAndCredentials = context.request().header("Authorization").split(" ");
 
-        if (typeAndCredentials.length != 2 || !typeAndCredentials[0].equalsIgnoreCase("Basic")) return false;
+        if (typeAndCredentials.length != 2 || !typeAndCredentials[0].equalsIgnoreCase("Basic")) {
+            return false;
+        }
 
         String[] credentials = new String(Base64.getDecoder().decode(typeAndCredentials[1]), StandardCharsets.UTF_8).split(":");
-        if (credentials.length != 2) return false;
+        if (credentials.length != 2) {
+            return false;
+        }
 
         List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUser(credentials[0]);
         IPermissionUser permissionUser = Iterables.first(permissionUsers, iPermissionUser -> iPermissionUser.checkPassword(credentials[1]));
 
-        if (permissionUser == null) return false;
+        if (permissionUser == null) {
+            return false;
+        }
 
         SessionEntry sessionEntry = new SessionEntry(
                 System.nanoTime(),
@@ -60,13 +69,16 @@ public final class V1HttpSession {
     }
 
     public boolean isAuthorized(IHttpContext context) throws Exception {
-        if (!context.hasCookie(COOKIE_NAME))
+        if (!context.hasCookie(COOKIE_NAME)) {
             return false;
+        }
 
         HttpCookie httpCookie = context.cookie(COOKIE_NAME);
 
         SessionEntry sessionEntry = getValidSessionEntry(httpCookie.getValue(), context);
-        if (sessionEntry == null) return false;
+        if (sessionEntry == null) {
+            return false;
+        }
 
         if ((sessionEntry.lastUsageMillis + EXPIRE_TIME) < System.currentTimeMillis()) {
             logout(context);
@@ -79,11 +91,15 @@ public final class V1HttpSession {
     }
 
     public SessionEntry getValidSessionEntry(String cookieValue, IHttpContext context) throws Exception {
-        if (cookieValue == null || context == null) return null;
+        if (cookieValue == null || context == null) {
+            return null;
+        }
 
-        for (SessionEntry entry : this.entries)
-            if (cookieValue.equals(createKey(entry, context)))
+        for (SessionEntry entry : this.entries) {
+            if (cookieValue.equals(createKey(entry, context))) {
                 return entry;
+            }
+        }
 
         return null;
     }
@@ -92,8 +108,9 @@ public final class V1HttpSession {
         Validate.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
-        if (sessionEntry != null)
+        if (sessionEntry != null) {
             this.entries.remove(sessionEntry);
+        }
 
         context.removeCookie(COOKIE_NAME);
     }
@@ -107,7 +124,9 @@ public final class V1HttpSession {
     }
 
     private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) throws Exception {
-        if (sessionEntry == null || context == null) return null;
+        if (sessionEntry == null || context == null) {
+            return null;
+        }
 
         return CloudNet.getInstance().getPermissionManagement().getUser(UUID.fromString(sessionEntry.userUniqueId));
     }
@@ -115,10 +134,11 @@ public final class V1HttpSession {
     private String getCookieValue(IHttpContext context) throws Exception {
         HttpCookie httpCookie = context.cookie(COOKIE_NAME);
 
-        if (httpCookie != null)
+        if (httpCookie != null) {
             return httpCookie.getValue();
-        else
+        } else {
             return null;
+        }
     }
 
     private String createKey(SessionEntry sessionEntry, IHttpContext context) {

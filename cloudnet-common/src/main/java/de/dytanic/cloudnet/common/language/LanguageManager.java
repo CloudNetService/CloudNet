@@ -30,7 +30,9 @@ public final class LanguageManager {
      * @return the message which is defined in language cache or a fallback message like "MESSAGE OR LANGUAGE NOT FOUND!"
      */
     public static String getMessage(String property) {
-        if (language == null || !LANGUAGE_CACHE.containsKey(language)) return "MESSAGE OR LANGUAGE NOT FOUND!";
+        if (language == null || !LANGUAGE_CACHE.containsKey(language)) {
+            return "MESSAGE OR LANGUAGE NOT FOUND!";
+        }
 
         return LANGUAGE_CACHE.get(language).get(property);
     }
@@ -42,12 +44,15 @@ public final class LanguageManager {
      * @param properties the properties which will add in the language as parameter
      */
     public static void addLanguageFile(String language, Properties properties) {
-        if (language == null || properties == null) return;
+        if (language == null || properties == null) {
+            return;
+        }
 
-        if (LANGUAGE_CACHE.containsKey(language))
+        if (LANGUAGE_CACHE.containsKey(language)) {
             LANGUAGE_CACHE.get(language).putAll(properties);
-        else
+        } else {
             LANGUAGE_CACHE.put(language, properties);
+        }
     }
 
     /**

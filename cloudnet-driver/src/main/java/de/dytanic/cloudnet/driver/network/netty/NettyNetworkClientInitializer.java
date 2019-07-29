@@ -17,9 +17,10 @@ final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
-        if (nettyNetworkClient.sslContext != null)
+        if (nettyNetworkClient.sslContext != null) {
             ch.pipeline()
                     .addLast(nettyNetworkClient.sslContext.newHandler(ch.alloc(), hostAndPort.getHost(), hostAndPort.getPort()));
+        }
 
         ch.pipeline()
                 .addLast("packet-length-deserializer", new NettyPacketLengthDeserializer())

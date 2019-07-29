@@ -40,8 +40,9 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
                         }
                     }
                 }
-            } else
+            } else {
                 CloudNet.getInstance().getLogger().log(LogLevel.WARNING, LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
+            }
         }
     }
 }
