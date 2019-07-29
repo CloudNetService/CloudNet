@@ -27,8 +27,6 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     private final Map<UUID, CloudNetServiceSmartProfile> providedSmartServices = Maps.newConcurrentHashMap();
 
-    /*= ------------------------------------------------------------------------------------------------ =*/
-
     public CloudNetSmartModule() {
         instance = this;
     }
@@ -106,13 +104,13 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().searchLogicNode(serviceTask);
 
         if (networkClusterNodeInfoSnapshot != null && !networkClusterNodeInfoSnapshot.getNode()
-                .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId()))
-
+                .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
             return (((networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100) /
                     networkClusterNodeInfoSnapshot.getMaxMemory());
-        else
+        } else {
             return (((getCloudNet().getConfig().getMaxMemory() - getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100) /
                     getCloudNet().getConfig().getMaxMemory());
+        }
     }
 
     public ServiceInfoSnapshot getFreeNonStartedService(String taskName) {
@@ -136,20 +134,24 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                 break;
             }
             case INSTALL_RANDOM: {
-                Random random = new Random();
+                if (!templates.isEmpty()) {
+                    Random random = new Random();
 
-                int size = random.nextInt(templates.size());
+                    int size = random.nextInt(templates.size());
 
-                for (int i = 0; i < size; ++i) {
-                    ServiceTemplate item = templates.get(random.nextInt(templates.size()));
-                    templates.remove(item);
-                    outTemplates.add(item);
+                    for (int i = 0; i < size; ++i) {
+                        ServiceTemplate item = templates.get(random.nextInt(templates.size()));
+                        templates.remove(item);
+                        outTemplates.add(item);
+                    }
                 }
                 break;
             }
             case INSTALL_RANDOM_ONCE: {
-                ServiceTemplate item = templates.get(new Random().nextInt(templates.size()));
-                outTemplates.add(item);
+                if (!templates.isEmpty()) {
+                    ServiceTemplate item = templates.get(new Random().nextInt(templates.size()));
+                    outTemplates.add(item);
+                }
                 break;
             }
         }
@@ -160,10 +162,11 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         if (smartTask.isDynamicMemoryAllocation()) {
             int percent = getPercentOfFreeMemory(serviceTask);
 
-            if (percent > 50)
+            if (percent > 50) {
                 maxMemory = maxMemory - ((percent * smartTask.getDynamicMemoryAllocationRange()) / 100);
-            else
+            } else {
                 maxMemory = maxMemory + ((percent * smartTask.getDynamicMemoryAllocationRange()) / 100);
+            }
         }
         return maxMemory;
     }
