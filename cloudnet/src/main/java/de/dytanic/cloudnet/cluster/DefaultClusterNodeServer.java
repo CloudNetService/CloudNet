@@ -435,7 +435,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void deployResources(UUID uniqueId, Boolean removeDeployments) {
+    public void deployResources(UUID uniqueId, boolean removeDeployments) {
         Validate.checkNotNull(uniqueId);
 
         if (this.channel != null)

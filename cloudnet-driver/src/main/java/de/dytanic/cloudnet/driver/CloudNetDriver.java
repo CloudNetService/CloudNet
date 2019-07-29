@@ -292,7 +292,7 @@ public abstract class CloudNetDriver {
 
     public abstract void includeWaitingServiceInclusions(UUID uniqueId);
 
-    public abstract void deployResources(UUID uniqueId, Boolean removeDeployments);
+    public abstract void deployResources(UUID uniqueId, boolean removeDeployments);
 
     public abstract ITask<Collection<UUID>> getServicesAsUniqueIdAsync();
 

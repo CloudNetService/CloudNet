@@ -102,7 +102,7 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     void includeWaitingServiceTemplates(UUID uniqueId);
 
-    void deployResources(UUID uniqueId, Boolean removeDeployments);
+    void deployResources(UUID uniqueId, boolean removeDeployments);
 
     default void deployResources(UUID uniqueId) {
         deployResources(uniqueId, true);

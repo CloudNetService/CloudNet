@@ -502,7 +502,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     @Override
-    public void deployResources(Boolean removeDeployments) {
+    public void deployResources(boolean removeDeployments) {
         for (ServiceDeployment deployment : this.deployments)
             if (deployment != null)
                 if (deployment.getTemplate() != null && deployment.getTemplate().getStorage() != null && deployment.getTemplate().getPrefix() != null &&
@@ -532,7 +532,9 @@ final class JVMCloudService implements ICloudService {
                             deployment.getTemplate()
                     );
 
-                    if (removeDeployments) this.deployments.remove(deployment);
+                    if (removeDeployments) {
+                        this.deployments.remove(deployment);
+                    }
 
                     if (storage instanceof LocalTemplateStorage)
                         CloudNet.getInstance().deployTemplateInCluster(deployment.getTemplate(), storage.toZipByteArray(deployment.getTemplate()));
