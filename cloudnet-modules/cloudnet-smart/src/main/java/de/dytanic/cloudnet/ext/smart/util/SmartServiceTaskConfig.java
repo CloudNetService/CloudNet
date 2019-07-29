@@ -8,15 +8,13 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig> {
 
-    protected String task;
+    protected boolean enabled;
 
     protected int priority;
 
     protected boolean directTemplatesAndInclusionsSetup;
 
     protected int preparedServices;
-
-    protected int minServiceOnlineCount;
 
     protected boolean dynamicMemoryAllocation;
 
@@ -34,12 +32,11 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
 
     protected TemplateInstaller templateInstaller;
 
-    public SmartServiceTaskConfig(String task, int priority, boolean directTemplatesAndInclusionsSetup, int preparedServices, int minServiceOnlineCount, boolean dynamicMemoryAllocation, int dynamicMemoryAllocationRange, int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture, int autoStopTimeByUnusedServiceInSeconds, boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService, int percentOfPlayersForANewServiceByInstance, int forAnewInstanceDelayTimeInSeconds, TemplateInstaller templateInstaller) {
-        this.task = task;
+    public SmartServiceTaskConfig(int priority, boolean directTemplatesAndInclusionsSetup, int preparedServices, boolean dynamicMemoryAllocation, int dynamicMemoryAllocationRange, int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture, int autoStopTimeByUnusedServiceInSeconds, boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService, int percentOfPlayersForANewServiceByInstance, int forAnewInstanceDelayTimeInSeconds, TemplateInstaller templateInstaller) {
+        this.enabled = true;
         this.priority = priority;
         this.directTemplatesAndInclusionsSetup = directTemplatesAndInclusionsSetup;
         this.preparedServices = preparedServices;
-        this.minServiceOnlineCount = minServiceOnlineCount;
         this.dynamicMemoryAllocation = dynamicMemoryAllocation;
         this.dynamicMemoryAllocationRange = dynamicMemoryAllocationRange;
         this.percentOfPlayersToCheckShouldAutoStopTheServiceInFuture = percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
@@ -55,12 +52,12 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
         return priority + o.priority;
     }
 
-    public String getTask() {
-        return this.task;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setTask(String task) {
-        this.task = task;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public int getPriority() {
@@ -85,14 +82,6 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
 
     public void setPreparedServices(int preparedServices) {
         this.preparedServices = preparedServices;
-    }
-
-    public int getMinServiceOnlineCount() {
-        return this.minServiceOnlineCount;
-    }
-
-    public void setMinServiceOnlineCount(int minServiceOnlineCount) {
-        this.minServiceOnlineCount = minServiceOnlineCount;
     }
 
     public boolean isDynamicMemoryAllocation() {
