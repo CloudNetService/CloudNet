@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.ext.bridge.*;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
@@ -123,6 +124,8 @@ public final class BungeeCloudNetHelper {
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
         return Iterables.filter(
                 SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(), stringServiceInfoSnapshotEntry -> {
+                    if (stringServiceInfoSnapshotEntry.getValue().getLifeCycle() != ServiceLifeCycle.RUNNING)
+                        return false;
                     if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey()))
                         return false;
 
