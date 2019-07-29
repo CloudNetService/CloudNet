@@ -173,10 +173,19 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        return args.length == 0 ? Arrays.asList(
+        return args.length == 1 ? Arrays.asList(
+                "shutdown",
+                "add",
                 "nodes",
-                "services",
-                "push-local-templates"
-        ) : Iterables.map(getCloudNet().getCloudServiceManager().getCloudServices().keySet(), uuid -> uuid.toString());
+                "push"
+        ) :
+                args.length == 2 ?
+                        args[0].equalsIgnoreCase("push") ?
+                                Arrays.asList(
+                                        "local-templates",
+                                        "tasks",
+                                        "groups",
+                                        "local-perms"
+                                ) : null : null;
     }
 }

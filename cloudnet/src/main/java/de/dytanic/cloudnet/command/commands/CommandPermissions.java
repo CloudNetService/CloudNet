@@ -3,19 +3,18 @@ package de.dytanic.cloudnet.command.commands;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public final class CommandPermissions extends CommandDefault implements ITabCompleter {
 
@@ -552,12 +551,133 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        IPermissionManagement permissionManager = getCloudNet().getPermissionManagement();
+        if (args.length <= 1) {
+            return Arrays.asList("user", "group", "users", "create", "delete");
+        }
 
-        return args.length == 0 ? Arrays.asList("user", "group") : args[0].equalsIgnoreCase("group") ?
-                Iterables.map(permissionManager.getGroups(), permissionGroup -> permissionGroup.getName())
-                :
-                Iterables.map(permissionManager.getUsers(), permissionUser -> permissionUser.getName())
-                ;
+        if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("users")) {
+                return Collections.singletonList("group");
+            }
+
+            if (args[0].equalsIgnoreCase("create")) {
+                return Arrays.asList("user", "group");
+            }
+
+            if (args[0].equalsIgnoreCase("delete")) {
+                return Arrays.asList("user", "group");
+            }
+
+            if (args[0].equalsIgnoreCase("group")) {
+                return this.getGroupNames();
+            }
+        }
+
+        if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("delete") && args[1].equalsIgnoreCase("group")) {
+                return this.getGroupNames();
+            }
+            if (args[0].equalsIgnoreCase("users") && args[1].equalsIgnoreCase("group")) {
+                return this.getGroupNames();
+            }
+            if (args[0].equalsIgnoreCase("user")) {
+                return Arrays.asList("password", "rename", "check", "add", "remove");
+            }
+            if (args[0].equalsIgnoreCase("group")) {
+                return Arrays.asList("setSortId", "setDisplay", "setDefaultGroup", "setPrefix", "setSuffix", "setColor", "add", "remove");
+            }
+        }
+
+        if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
+                if (args[2].equalsIgnoreCase("add") || args[2].equalsIgnoreCase("remove")) {
+                    return Arrays.asList("group", "permission");
+                }
+            }
+        }
+
+        if (args.length == 5) {
+            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
+                if (args[2].equalsIgnoreCase("add")) {
+                    if (args[3].equalsIgnoreCase("group")) {
+                        return this.getGroupNames();
+                    }
+                }
+                if (args[2].equalsIgnoreCase("remove")) {
+                    if (args[3].equalsIgnoreCase("group")) {
+                        return this.getGroupNames();
+                    }
+                    if (args[3].equalsIgnoreCase("permission")) {
+                        return this.getUserPermissions(args[1]);
+                    }
+                }
+            }
+        }
+
+        if (args.length == 6) {
+            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
+                if (args[2].equalsIgnoreCase("remove")) {
+                    if (args[3].equalsIgnoreCase("permission")) {
+                        return args[0].equalsIgnoreCase("user") ?
+                                this.getGroupsForUserPermission(args[1], args[4]) :
+                                this.getGroupsForGroupPermission(args[1], args[4]);
+                    }
+                }
+            }
+        }
+
+        if (args.length == 9) {
+            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
+                if (args[2].equalsIgnoreCase("add")) {
+                    if (args[3].equalsIgnoreCase("permission")) {
+                        return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                    }
+                }
+            }
+        }
+
+        return null;
     }
+
+    private Collection<String> getGroupNames() {
+        return getCloudNet().getPermissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList());
+    }
+
+    private Collection<String> getUserPermissions(String user) {
+        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUser(user);
+        IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
+        if (permissionUser != null) {
+            Collection<String> outNames = new ArrayList<>(permissionUser.getPermissionNames());
+            for (Collection<Permission> permissions : permissionUser.getGroupPermissions().values()) {
+                permissions.stream().map(Permission::getName).forEach(outNames::add);
+            }
+            return outNames;
+        }
+        return null;
+    }
+
+    private Collection<String> getGroupsForUserPermission(String user, String permissionName) {
+        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUser(user);
+        IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
+        return this.getGroupsForPermission(permissionUser, permissionName);
+    }
+
+    private Collection<String> getGroupsForGroupPermission(String group, String permissionName) {
+        IPermissionGroup permissionGroup = getCloudNet().getPermissionManagement().getGroup(group);
+        return this.getGroupsForPermission(permissionGroup, permissionName);
+    }
+
+    private Collection<String> getGroupsForPermission(IPermissible permissible, String permissionName) {
+        if (permissible != null) {
+            Collection<String> outGroups = new ArrayList<>();
+            for (Map.Entry<String, Collection<Permission>> entry : permissible.getGroupPermissions().entrySet()) {
+                if (entry.getValue().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(permissionName))) {
+                    outGroups.add(entry.getKey());
+                }
+            }
+            return outGroups;
+        }
+        return null;
+    }
+
 }

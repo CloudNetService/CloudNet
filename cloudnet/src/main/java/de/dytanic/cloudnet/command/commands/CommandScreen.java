@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.command.commands;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
+import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
@@ -11,9 +12,11 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.service.ICloudService;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public final class CommandScreen extends CommandDefault {
+public final class CommandScreen extends CommandDefault implements ITabCompleter {
 
     public CommandScreen() {
         super("screen", "scr", "console");
@@ -75,5 +78,12 @@ public final class CommandScreen extends CommandDefault {
         }
 
         return cloudService;
+    }
+
+    @Override
+    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
+        return CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()
+                .stream().map(cloudService -> cloudService.getServiceId().getName())
+                .collect(Collectors.toList());
     }
 }

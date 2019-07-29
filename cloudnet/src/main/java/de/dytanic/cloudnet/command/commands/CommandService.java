@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class CommandService extends CommandDefault implements ITabCompleter {
 
@@ -317,7 +318,9 @@ public final class CommandService extends CommandDefault implements ITabComplete
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        return Iterables.map(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getUniqueId().toString());
+        return CloudNetDriver.getInstance().getCloudServices().stream()
+                .map(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName())
+                .collect(Collectors.toList());
     }
 
     private ServiceInfoSnapshot getServiceInfoSnapshot(String argument) {
