@@ -33,7 +33,7 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
     protected TemplateInstaller templateInstaller;
 
     public SmartServiceTaskConfig(int priority, boolean directTemplatesAndInclusionsSetup, int preparedServices, boolean dynamicMemoryAllocation, int dynamicMemoryAllocationRange, int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture, int autoStopTimeByUnusedServiceInSeconds, boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService, int percentOfPlayersForANewServiceByInstance, int forAnewInstanceDelayTimeInSeconds, TemplateInstaller templateInstaller) {
-        this.enabled = true;
+        this.enabled = false;
         this.priority = priority;
         this.directTemplatesAndInclusionsSetup = directTemplatesAndInclusionsSetup;
         this.preparedServices = preparedServices;
