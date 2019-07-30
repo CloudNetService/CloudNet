@@ -246,6 +246,10 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
                         if (args[2].equalsIgnoreCase("add")) {
                             try {
+                                if (!Validate.testStringParseToInt(args[5])) {
+                                    return;
+                                }
+
                                 switch (args.length) {
                                     case 6:
                                         permissionUser.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
@@ -437,6 +441,10 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
                         if (args[2].equalsIgnoreCase("add")) {
                             try {
+                                if (!Validate.testStringParseToInt(args[5])) {
+                                    return;
+                                }
+
                                 switch (args.length) {
                                     case 6:
                                         permissionGroup.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
