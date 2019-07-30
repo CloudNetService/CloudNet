@@ -727,8 +727,10 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ServiceInfoSnapshot getCloudServiceByName(String name) {
-        ICloudService service = Iterables.first(cloudServiceManager.getCloudServices().values(), cloudService -> cloudService.getServiceId().getName().equalsIgnoreCase(name));
-        return service != null ? service.getServiceInfoSnapshot() : null;
+        return this.cloudServiceManager.getGlobalServiceInfoSnapshots().values().stream()
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
