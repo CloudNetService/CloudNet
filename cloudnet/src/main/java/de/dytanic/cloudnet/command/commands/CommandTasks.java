@@ -14,10 +14,8 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorageUtil;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CommandTasks extends CommandDefault implements ITabCompleter {
 
@@ -514,21 +512,99 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        Collection<String> collection = Iterables.newArrayList();
+        if (args.length == 1) {
+            return Arrays.asList("group", "task", "delete", "create", "reload", "list");
+        }
 
-        if (args.length == 0) {
-            collection.addAll(Arrays.asList("group", "task"));
-        } else {
-            switch (args[0].toLowerCase()) {
-                case "group":
-                    collection.addAll(Iterables.map(this.getCloudServiceManager().getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName()));
-                    break;
-                case "task":
-                    collection.addAll(Iterables.map(this.getCloudServiceManager().getServiceTasks(), serviceTask -> serviceTask.getName()));
-                    break;
+        if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("create") || args[0].equalsIgnoreCase("delete")) {
+                return Arrays.asList("group", "task");
+            }
+            if (args[0].equalsIgnoreCase("group")) {
+                return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+            }
+            if (args[0].equalsIgnoreCase("task")) {
+                return getCloudNet().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
             }
         }
 
-        return collection;
+        if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("delete")) {
+                if (args[1].equalsIgnoreCase("group")) {
+                    return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                }
+                if (args[1].equalsIgnoreCase("task")) {
+                    return getCloudNet().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
+                }
+            }
+            if (args[0].equalsIgnoreCase("group")) {
+                return Collections.singletonList("add");
+            }
+            if (args[0].equalsIgnoreCase("task")) {
+                return Arrays.asList("add", "set", "remove");
+            }
+        }
+
+        if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("create")) {
+                if (args[1].equalsIgnoreCase("task")) {
+                    return Arrays.stream(ServiceEnvironmentType.values()).map(Objects::toString).collect(Collectors.toList());
+                }
+            }
+            if (args[0].equalsIgnoreCase("group")) {
+                if (args[2].equalsIgnoreCase("add")) {
+                    return Arrays.asList("inclusion", "template", "deployment");
+                }
+            }
+            if (args[0].equalsIgnoreCase("task")) {
+                if (args[2].equalsIgnoreCase("set")) {
+                    return Arrays.asList("maxHeapMemory", "maintenance", "autoDeleteOnStop", "static", "startPort", "minServiceCount", "env");
+                }
+                if (args[2].equalsIgnoreCase("add")) {
+                    return Arrays.asList("group", "node", "inclusion", "template", "deployment");
+                }
+                if (args[2].equalsIgnoreCase("remove")) {
+                    return Arrays.asList("group", "node");
+                }
+            }
+        }
+
+        if (args.length == 5) {
+            if (args[0].equalsIgnoreCase("task")) {
+                if (args[2].equalsIgnoreCase("set")) {
+                    if (args[3].equalsIgnoreCase("maxHeapMemory")) {
+                        return Arrays.asList("128", "256", "512", "1024", "2048", "4096", "8192", "16384");
+                    }
+                    if (args[3].equalsIgnoreCase("maintenance")) {
+                        return Arrays.asList("true", "false");
+                    }
+                    if (args[3].equalsIgnoreCase("autoDeleteOnStop")) {
+                        return Arrays.asList("true", "false");
+                    }
+                    if (args[3].equalsIgnoreCase("static")) {
+                        return Arrays.asList("true", "false");
+                    }
+                    if (args[3].equalsIgnoreCase("env")) {
+                        return Arrays.stream(ServiceEnvironmentType.values()).map(Objects::toString).collect(Collectors.toList());
+                    }
+                }
+                if (args[2].equalsIgnoreCase("remove")) {
+                    if (args[3].equalsIgnoreCase("group")) {
+                        ServiceTask serviceTask = getCloudNet().getServiceTask(args[1]);
+                        if (serviceTask == null)
+                            return null;
+                        return serviceTask.getGroups();
+                    }
+                    if (args[3].equalsIgnoreCase("node")) {
+                        ServiceTask serviceTask = getCloudNet().getServiceTask(args[1]);
+                        if (serviceTask == null)
+                            return null;
+                        return serviceTask.getAssociatedNodes();
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

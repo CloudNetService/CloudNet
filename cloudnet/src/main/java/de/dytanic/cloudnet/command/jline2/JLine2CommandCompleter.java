@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import jline.console.completer.Completer;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,10 +33,15 @@ public final class JLine2CommandCompleter implements Completer {
 
             if (command instanceof ITabCompleter) {
                 String[] args = buffer.split(" ");
-                String testString = args[args.length - 1];
-                args = buffer.replaceFirst(args[0] + " ", "").split(" ");
+                String testString = args.length <= 1 || buffer.endsWith(" ") ? "" : args[args.length - 1].toLowerCase().trim();
+                if (buffer.endsWith(" ")) {
+                    args = Arrays.copyOfRange(args, 1, args.length + 1);
+                    args[args.length - 1] = "";
+                } else {
+                    args = Arrays.copyOfRange(args, 1, args.length);
+                }
 
-                responses.addAll(Iterables.filter(((ITabCompleter) command).complete(buffer, args, Properties.parseLine(args)), s -> s != null && (testString.isEmpty() || s.toLowerCase().startsWith(testString.toLowerCase()))));
+                responses.addAll(Iterables.filter(((ITabCompleter) command).complete(buffer, args, Properties.parseLine(args)), s -> s != null && (testString.isEmpty() || s.toLowerCase().startsWith(testString))));
             }
         }
 
