@@ -38,9 +38,10 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
                         sender.sendMessage("[" + cloudService.getServiceId().getName() + "] " + input);
                     }
                 } else {
-                    cloudService.getServiceConsoleLogCache().setAutoPrintReceivedInput(!cloudService.getServiceConsoleLogCache().isAutoPrintReceivedInput());
+                    boolean autoPrintReceivedInput = !cloudService.getServiceConsoleLogCache().isAutoPrintReceivedInput();
+                    cloudService.getServiceConsoleLogCache().setAutoPrintReceivedInput(autoPrintReceivedInput);
 
-                    if (cloudService.getServiceConsoleLogCache().isAutoPrintReceivedInput()) {
+                    if (autoPrintReceivedInput) {
                         for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
                             CloudNetDriver.getInstance().getLogger().log(LogLevel.IMPORTANT, "[" + cloudService.getServiceId().getName() + "] " + input);
                         }

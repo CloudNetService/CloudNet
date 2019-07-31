@@ -44,7 +44,7 @@ public class HostAndPort {
     }
 
     public HostAndPort(String host, int port) {
-        this.host = host;
+        this.host = host.trim();
         this.port = port;
     }
 
@@ -54,7 +54,7 @@ public class HostAndPort {
     }
 
     public String getHost() {
-        return this.host;
+        return this.host.trim();
     }
 
     public int getPort() {

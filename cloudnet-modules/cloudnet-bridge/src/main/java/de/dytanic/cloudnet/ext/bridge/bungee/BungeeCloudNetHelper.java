@@ -299,24 +299,24 @@ public final class BungeeCloudNetHelper {
         Class<ProxyServer> proxyServerClass = ProxyServer.class;
         Method method;
 
-        try //1.4.7
-        {
+        // 1.4.7
+        try {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
         }
 
-        try //with restricted
-        {
+        // with restricted
+        try {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, false);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
         }
 
-        try //with motd
-        {
+        // with motd
+        try {
             method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, String.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, "CloudNet provided serverInfo", false);
