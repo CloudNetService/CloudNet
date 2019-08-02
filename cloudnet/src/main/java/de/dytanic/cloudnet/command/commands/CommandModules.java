@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class CommandModules extends CommandDefault implements ITabCompleter {
 
@@ -58,6 +59,11 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
                 this.displayModuleInfo(sender, wrapper);
             }
+        }
+
+        IModuleWrapper wrapper = CloudNetDriver.getInstance().getModuleProvider().getModule(args[0]);
+        if (wrapper != null) {
+            this.displayModuleInfo(sender, wrapper);
         }
     }
 
@@ -121,6 +127,11 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        return args.length < 3 ? Iterables.map(CloudNetDriver.getInstance().getModuleProvider().getModules(), moduleWrapper -> moduleWrapper.getModule().getName()) : Arrays.asList("start", "stop", "unload");
+        if (args.length > 1)
+            return null;
+        Collection<String> response = CloudNetDriver.getInstance().getModuleProvider().getModules()
+                .stream().map(moduleWrapper -> moduleWrapper.getModule().getName()).collect(Collectors.toList());
+        response.add("list");
+        return response;
     }
 }
