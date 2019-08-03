@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -601,18 +602,43 @@ final class JVMCloudService implements ICloudService {
         ));
 
         File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
+        Optional<File> environmentFile = Files.list(this.directory.toPath())
+                .map(Path::toFile)
+                .filter(file -> file.getName().endsWith(".jar"))
+                .filter(file -> {
+                    for (ServiceEnvironment environment : this.serviceConfiguration.getProcessConfig().getEnvironment().getEnvironments()) {
+                        if (file.getName().toLowerCase(Locale.ENGLISH)
+                                .contains(environment.getName().toLowerCase(Locale.ENGLISH))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }).findFirst();
+
+        if (!environmentFile.isPresent()) {
+            long time = 10;
+            System.out.println(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
+                    .replace("%environment%", this.serviceConfiguration.getProcessConfig().getEnvironment().name()
+                    .replace("%time%", "test")));
+            Thread.sleep(time * 1000);
+            stop();
+            return;
+        }
 
         commandArguments.addAll(this.serviceConfiguration.getProcessConfig().getJvmOptions());
         commandArguments.addAll(Arrays.asList(
                 "-Xmx" + this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize() + "M",
                 "-javaagent:" + wrapperFile.getAbsolutePath(),
-                "-cp",
-                "\"" + System.getProperty("cloudnet.launcher.driver.dependencies") + File.pathSeparator + wrapperFile.getAbsolutePath() + "\""
+                "-cp", System.getProperty("cloudnet.launcher.driver.dependencies") +
+                        File.pathSeparator + wrapperFile.getAbsolutePath() +
+                        File.pathSeparator + environmentFile.get().getAbsolutePath()
         ));
 
         try (JarFile jarFile = new JarFile(wrapperFile)) {
             commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
         }
+
+        commandArguments.add(environmentFile.get().getAbsolutePath());
 
         this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 
@@ -622,7 +648,7 @@ final class JVMCloudService implements ICloudService {
                 .start();
     }
 
-    private void postConfigureServiceEnvironmentStartParameters(List<String> commandArguments) throws Exception {
+    private void postConfigureServiceEnvironmentStartParameters(List<String> commandArguments) {
         switch (this.serviceConfiguration.getProcessConfig().getEnvironment()) {
             case MINECRAFT_SERVER:
                 commandArguments.add("nogui");
@@ -705,12 +731,10 @@ final class JVMCloudService implements ICloudService {
                 properties = new Properties();
 
                 file = new File(this.directory, "eula.txt");
-                if (file.exists()) {
+                if (file.exists() || file.createNewFile()) {
                     try (InputStream inputStream = new FileInputStream(file)) {
                         properties.load(inputStream);
                     }
-                } else {
-                    file.createNewFile();
                 }
 
                 properties.setProperty("eula", "true");
@@ -782,9 +806,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     private void copyDefaultFile(String from, File target) throws Exception {
-        if (!target.exists()) {
-            target.createNewFile();
-
+        if (!target.exists() && target.createNewFile()) {
             try (InputStream inputStream = JVMCloudService.class.getClassLoader().getResourceAsStream(from);
                  OutputStream outputStream = new FileOutputStream(target)) {
                 if (inputStream != null) {
