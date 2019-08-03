@@ -27,29 +27,6 @@ public final class SpongeCloudNetBridgePlugin {
 
     @Listener
     public synchronized void handle(GameStartedServerEvent event) {
-        try {
-            Method method = ClassLoader.getSystemClassLoader().getClass().getMethod("getCloudNetWrapperClassLoader");
-            method.setAccessible(true);
-
-            ClassLoader classLoader = new SpongeCloudNetAdapterClassLoader(
-                    (ClassLoader) method.invoke(ClassLoader.getSystemClassLoader()),
-                    Thread.currentThread().getContextClassLoader(),
-                    ClassLoader.getSystemClassLoader().getParent()
-            );
-
-            Field field = ClassLoader.class.getDeclaredField("parent");
-            field.setAccessible(true);
-            field.set(Thread.currentThread().getContextClassLoader(), classLoader);
-
-
-            field = ClassLoader.class.getDeclaredField("scl");
-            field.setAccessible(true);
-            field.set(null, Thread.currentThread().getContextClassLoader());
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
         Sponge.getChannelRegistrar().createChannel(this, "bungeecord:main");
         Sponge.getChannelRegistrar().createChannel(this, "cloudnet:main");
 
