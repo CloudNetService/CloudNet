@@ -618,8 +618,9 @@ final class JVMCloudService implements ICloudService {
         if (!environmentFile.isPresent()) {
             long time = 10;
             System.out.println(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
+                    .replace("%time%", time + "")
                     .replace("%environment%", this.serviceConfiguration.getProcessConfig().getEnvironment().name()
-                    .replace("%time%", "test")));
+                    ));
             Thread.sleep(time * 1000);
             stop();
             return;
