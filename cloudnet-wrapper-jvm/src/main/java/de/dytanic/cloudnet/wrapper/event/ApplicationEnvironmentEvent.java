@@ -27,6 +27,7 @@ public final class ApplicationEnvironmentEvent extends Event {
      */
     private ServiceEnvironmentType environmentType;
 
+    @Deprecated(since = "3.0.1", forRemoval = true)
     public ApplicationEnvironmentEvent(Wrapper cloudNetWrapper, ServiceEnvironmentType environmentType) {
         this.cloudNetWrapper = cloudNetWrapper;
         this.environmentType = environmentType;
@@ -40,6 +41,13 @@ public final class ApplicationEnvironmentEvent extends Event {
         return this.environmentType;
     }
 
+    /**
+     * Set the environment which will be used to find the jar file
+     * Since the jar file may not be into the classpath, by using this your application might get broken
+     * Define your environment before starting the service, by using events from {@link de.dytanic.cloudnet.event.service }
+     * @param environmentType type of environment for this service
+     */
+    @Deprecated(since = "3.0.1", forRemoval = true)
     public void setEnvironmentType(ServiceEnvironmentType environmentType) {
         this.environmentType = environmentType;
     }
