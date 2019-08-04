@@ -96,7 +96,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 cloudService.getServiceId().getTaskServiceId() == serviceId.getTaskServiceId() &&
                                 cloudService.getServiceId().getNodeUniqueId().equals(serviceId.getNodeUniqueId())) {
                             //- packet channel registry
-                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageWrapperListener());
+                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageNodeListener());
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL, new PacketClientServiceInfoUpdateListener());
 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());

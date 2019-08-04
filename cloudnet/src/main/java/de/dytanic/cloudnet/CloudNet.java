@@ -375,6 +375,33 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    public void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data) {
+        if (targetServiceInfoSnapshot.getServiceId().getNodeUniqueId().equals(this.config.getIdentity().getUniqueId())) {
+            ICloudService cloudService = this.getCloudServiceManager().getCloudService(targetServiceInfoSnapshot.getServiceId().getUniqueId());
+            if (cloudService != null && cloudService.getNetworkChannel() != null) {
+                cloudService.getNetworkChannel().sendPacket(new PacketClientServerChannelMessage(channel, message, data));
+            }
+        } else {
+            IClusterNodeServer nodeServer = this.clusterNodeServerProvider.getNodeServer(targetServiceInfoSnapshot.getServiceId().getNodeUniqueId());
+            if (nodeServer != null) {
+                nodeServer.saveSendPacket(new PacketClientServerChannelMessage(
+                        targetServiceInfoSnapshot.getServiceId().getUniqueId(),
+                        channel,
+                        message,
+                        data
+                ));
+            }
+        }
+    }
+
+    @Override
+    public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudService(targetServiceTask.getName())) {
+            this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
+        }
+    }
+
+    @Override
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
