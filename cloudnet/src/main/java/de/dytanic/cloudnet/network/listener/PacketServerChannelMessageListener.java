@@ -14,7 +14,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.UUID;
 
-public final class PacketServerChannelMessageNodeListener implements IPacketListener {
+public final class PacketServerChannelMessageListener implements IPacketListener {
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) throws Exception {
@@ -42,7 +42,7 @@ public final class PacketServerChannelMessageNodeListener implements IPacketList
                             packet.getHeader().getDocument("data")
                     );
                 }
-            } else {
+            } else { //this can be called from both the nodes and services
                 IPacket response = new PacketClientServerChannelMessage(
                         packet.getHeader().getString("channel"),
                         packet.getHeader().getString("message"),
