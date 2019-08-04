@@ -68,9 +68,7 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                 if (args[1].equalsIgnoreCase("local-perms")) {
                     getCloudNet().publishUpdateJsonPermissionManagement();
 
-                    sender.sendMessage(
-
-                    );
+                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-permissions-success"));
                 }
 
                 if (args[1].equalsIgnoreCase("tasks")) {
