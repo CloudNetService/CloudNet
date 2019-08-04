@@ -43,12 +43,12 @@ public final class ServiceInfoSnapshotUtil {
     }
 
     public static Collection<PluginInfo> getPlugins(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getProperties().get("Plugins", new TypeToken<PluginInfo>() {
+        return serviceInfoSnapshot.getProperties().get("Plugins", new TypeToken<Collection<PluginInfo>>() {
         }.getType());
     }
 
     public static Collection<JsonDocument> getPlayers(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getProperties().get("Players", new TypeToken<JsonDocument>() {
+        return serviceInfoSnapshot.getProperties().get("Players", new TypeToken<Collection<JsonDocument>>() {
         }.getType());
     }
 }
