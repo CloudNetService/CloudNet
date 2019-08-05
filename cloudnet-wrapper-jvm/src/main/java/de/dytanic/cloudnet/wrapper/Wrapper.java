@@ -256,6 +256,38 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
+    public void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data) {
+        Validate.checkNotNull(targetServiceInfoSnapshot);
+        Validate.checkNotNull(channel);
+        Validate.checkNotNull(message);
+        Validate.checkNotNull(data);
+
+        this.networkClient.sendPacket(new PacketClientServerChannelMessage(targetServiceInfoSnapshot.getServiceId().getUniqueId(), channel, message, data));
+    }
+
+    /**
+     * Application wrapper implementation of this method. See the full documentation at the
+     * CloudNetDriver class.
+     *
+     * @see CloudNetDriver
+     */
+    @Override
+    public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
+        Validate.checkNotNull(targetServiceTask);
+        Validate.checkNotNull(channel);
+        Validate.checkNotNull(message);
+        Validate.checkNotNull(data);
+
+        this.networkClient.sendPacket(new PacketClientServerChannelMessage(targetServiceTask.getName(), channel, message, data));
+    }
+
+    /**
+     * Application wrapper implementation of this method. See the full documentation at the
+     * CloudNetDriver class.
+     *
+     * @see CloudNetDriver
+     */
+    @Override
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 

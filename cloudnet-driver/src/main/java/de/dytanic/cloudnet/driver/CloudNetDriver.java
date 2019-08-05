@@ -68,6 +68,10 @@ public abstract class CloudNetDriver {
 
     public abstract void sendChannelMessage(String channel, String message, JsonDocument data);
 
+    public abstract void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data);
+
+    public abstract void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data);
+
     public abstract ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
 
     public abstract ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
