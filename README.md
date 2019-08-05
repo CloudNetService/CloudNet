@@ -76,15 +76,15 @@
 
 Linux / OSX
 ```
-git clone https://github.com/Dytanic/CloudNet-3.X.git
-cd CloudNet-3.X
+git clone https://github.com/CloudNetService/CloudNet-v3.git
+cd CloudNet-v3
 ./gradlew
 ```
 
 Windows
 ```
-git clone https://github.com/Dytanic/CloudNet-3.X.git
-cd CloudNet-3.X
+git clone https://github.com/CloudNetService/CloudNet-v3.git
+cd CloudNet-v3
 gradlew.bat
 ```
 

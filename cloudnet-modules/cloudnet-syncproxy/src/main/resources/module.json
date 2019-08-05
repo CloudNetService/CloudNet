@@ -2,7 +2,7 @@
   "group": "de.dytanic.cloudnet.modules",
   "name": "CloudNet-SyncProxy",
   "version": "1.0",
-  "author": "Dytanic",
+  "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
   "description": "CloudNet extension, which implement the multi Proxy server synchronization bridge technology and some small features",
   "main": "de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule"

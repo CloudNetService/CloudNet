@@ -1,7 +1,7 @@
 name: CloudNet-Bridge
 version: 1.0
 api: ["1.0.5"]
-author: Dytanic
+author: CloudNetService
 website: https://cloudnetservice.eu
 description: Nukkit extension for the CloudNet runtime, which optimize some features
 

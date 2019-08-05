@@ -1,5 +1,5 @@
 name: CloudNet-Chat
 version: '1.0'
-author: Derrop
+author: CloudNetService
 
 main: eu.cloudnetservice.cloudnet.ext.bridge.chat.CloudNetChatPlugin

@@ -1,6 +1,6 @@
 name: CloudNet-SyncProxy
 version: 1.0
-author: Dytanic
+author: CloudNetService
 description: CloudNet extension, which implement the multi proxy synchronization bridge technology and some small features
 
 main: de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeCloudNetSyncProxyPlugin
