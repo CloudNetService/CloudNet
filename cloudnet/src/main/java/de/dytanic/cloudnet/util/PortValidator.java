@@ -10,9 +10,7 @@ public final class PortValidator {
             serverSocket.bind(new InetSocketAddress(port));
             return true;
         } catch (Exception exception) {
-            exception.printStackTrace();
+            return false;
         }
-
-        return false;
     }
 }
