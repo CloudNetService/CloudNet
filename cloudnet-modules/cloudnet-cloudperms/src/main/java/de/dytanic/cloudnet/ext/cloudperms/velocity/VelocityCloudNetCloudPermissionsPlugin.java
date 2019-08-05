@@ -16,16 +16,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.lang.reflect.Field;
 
-@Plugin(
-        id = "cloudnet_cloudperms_velocity",
-        name = "CloudNet-CloudPerms",
-        version = "1.0",
-        description = "Velocity extension which implement the permission management system from CloudNet into Velocity for players",
-        url = "https://cloudnetservice.eu",
-        authors = {
-                "Dytanic"
-        }
-)
+@Plugin(id = "cloudnet_cloudperms_velocity")
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
     private static VelocityCloudNetCloudPermissionsPlugin instance;
