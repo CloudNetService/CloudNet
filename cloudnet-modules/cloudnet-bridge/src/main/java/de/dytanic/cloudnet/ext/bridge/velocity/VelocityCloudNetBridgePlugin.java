@@ -19,16 +19,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.net.InetSocketAddress;
 
-@Plugin(
-        id = "cloudnet_bridge_velocity",
-        name = "CloudNet-Bridge",
-        version = "1.0",
-        description = "Velocity extension for the CloudNet runtime, which optimize some features",
-        url = "https://cloudnetservice.eu",
-        authors = {
-                "Dytanic"
-        }
-)
+@Plugin(id = "cloudnet_bridge_velocity")
 public final class VelocityCloudNetBridgePlugin {
 
     private static VelocityCloudNetBridgePlugin instance;

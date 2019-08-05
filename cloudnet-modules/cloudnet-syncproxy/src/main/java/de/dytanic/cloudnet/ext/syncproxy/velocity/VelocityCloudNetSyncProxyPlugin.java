@@ -25,16 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Plugin(
-        id = "cloudnet_syncproxy_velocity",
-        name = "CloudNet-SyncProxy",
-        version = "1.0",
-        description = "CloudNet extension, which implement the multi proxy synchronization bridge technology and some small features",
-        url = "https://cloudnetservice.eu",
-        authors = {
-                "Dytanic"
-        }
-)
+@Plugin(id = "cloudnet_syncproxy_velocity")
 public final class VelocityCloudNetSyncProxyPlugin {
 
     private static VelocityCloudNetSyncProxyPlugin instance;
