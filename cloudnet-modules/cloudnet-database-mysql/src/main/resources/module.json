@@ -3,7 +3,7 @@
   "group": "de.dytanic.cloudnet.modules",
   "name": "CloudNet-Database-MySQL",
   "version": "1.0",
-  "author": "Dytanic",
+  "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
   "description": "CloudNet extension, which includes the database support for MySQL and MariaDB database to store",
   "main": "de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule",

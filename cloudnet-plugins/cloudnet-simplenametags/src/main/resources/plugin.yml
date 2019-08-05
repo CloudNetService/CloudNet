@@ -1,5 +1,5 @@
 name: CloudNet-SimpleNameTags
-author: Dytanic
+author: CloudNetService
 version: 1.0
 
 main: de.dytanic.cloudnet.ext.simplenametags.CloudNetSimpleNameTagsPlugin
