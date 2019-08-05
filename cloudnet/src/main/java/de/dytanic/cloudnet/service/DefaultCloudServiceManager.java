@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.*;
@@ -472,7 +473,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         while (!PortValidator.checkPort(port)) {
-            port++;
+            System.out.println(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
+                    .replace("%port%", String.valueOf(port))
+                    .replace("%next_port%", String.valueOf(++port)));
         }
 
         return port;
