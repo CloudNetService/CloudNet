@@ -2272,23 +2272,16 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     private boolean startApplication() throws Exception {
-        ApplicationEnvironmentEvent preStartApplicationEvent = new ApplicationEnvironmentEvent(this, this.config.getServiceConfiguration().getServiceId().getEnvironment());
-        this.eventManager.callEvent(preStartApplicationEvent);
-
         File entry = new File(commandLineArguments.get(0));
 
-        Optional<ServiceEnvironment> environment = Arrays.stream(preStartApplicationEvent.getEnvironmentType().getEnvironments())
-                .filter(env -> entry.getName().toLowerCase().contains(env.getName().toLowerCase()))
-                .findFirst();
-
-        if (entry.exists() && environment.isPresent()) {
-            return this.startApplication0(entry, environment.get());
+        if (entry.exists()) {
+            return this.startApplication0(entry);
         } else {
             return false;
         }
     }
 
-    private boolean startApplication0(File file, ServiceEnvironment serviceEnvironment) throws Exception {
+    private boolean startApplication0(File file) throws Exception {
         JarFile jarFile = new JarFile(file);
         Manifest manifest = jarFile.getManifest();
         String mainClazz = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
@@ -2303,7 +2296,7 @@ public final class Wrapper extends CloudNetDriver {
 
         Thread applicationThread = new Thread(() -> {
             try {
-                logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + ":" + serviceEnvironment + "\n");
+                logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
                 method.invoke(null, new Object[]{arguments.toArray(new String[0])});
             } catch (Exception e) {
                 e.printStackTrace();
