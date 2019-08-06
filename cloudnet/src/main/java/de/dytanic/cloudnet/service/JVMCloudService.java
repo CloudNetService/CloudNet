@@ -607,8 +607,8 @@ final class JVMCloudService implements ICloudService {
                 .filter(file -> file.getName().endsWith(".jar"))
                 .filter(file -> {
                     for (ServiceEnvironment environment : this.serviceConfiguration.getProcessConfig().getEnvironment().getEnvironments()) {
-                        if (file.getName().toLowerCase(Locale.ENGLISH)
-                                .contains(environment.getName().toLowerCase(Locale.ENGLISH))) {
+                        if (file.getName().toLowerCase()
+                                .contains(environment.getName().toLowerCase())) {
                             return true;
                         }
                     }
