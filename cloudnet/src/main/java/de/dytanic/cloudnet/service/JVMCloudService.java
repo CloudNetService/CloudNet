@@ -32,6 +32,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 final class JVMCloudService implements ICloudService {
 
@@ -602,7 +603,7 @@ final class JVMCloudService implements ICloudService {
         ));
 
         File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
-        Optional<File> environmentFile = Files.list(this.directory.toPath())
+        List<String> availableJarFiles = Files.list(this.directory.toPath())
                 .map(Path::toFile)
                 .filter(file -> file.getName().endsWith(".jar"))
                 .filter(file -> {
@@ -613,9 +614,11 @@ final class JVMCloudService implements ICloudService {
                         }
                     }
                     return false;
-                }).findFirst();
+                })
+                .map(File::getAbsolutePath)
+                .collect(Collectors.toList());
 
-        if (!environmentFile.isPresent()) {
+        if (availableJarFiles.isEmpty()) {
             long time = 10;
             System.out.println(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%time%", time + "")
@@ -632,14 +635,14 @@ final class JVMCloudService implements ICloudService {
                 "-javaagent:" + wrapperFile.getAbsolutePath(),
                 "-cp", System.getProperty("cloudnet.launcher.driver.dependencies") +
                         File.pathSeparator + wrapperFile.getAbsolutePath() +
-                        File.pathSeparator + environmentFile.get().getAbsolutePath()
+                        File.pathSeparator + String.join(File.pathSeparator, availableJarFiles)
         ));
 
         try (JarFile jarFile = new JarFile(wrapperFile)) {
             commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
         }
 
-        commandArguments.add(environmentFile.get().getAbsolutePath());
+        commandArguments.add(availableJarFiles.get(0));
 
         this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 
