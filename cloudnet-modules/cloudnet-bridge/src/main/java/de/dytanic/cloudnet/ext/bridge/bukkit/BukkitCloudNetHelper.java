@@ -3,8 +3,6 @@ package de.dytanic.cloudnet.ext.bridge.bukkit;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -55,21 +53,13 @@ public final class BukkitCloudNetHelper {
         String task = Wrapper.getInstance().getServiceId().getTaskName();
 
         if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).addListener(new ITaskListener<ServiceTask>() {
-
-                @Override
-                public void onComplete(ITask<ServiceTask> task, ServiceTask serviceTask) {
-                    if (serviceTask != null) {
-                        CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).addListener(new ITaskListener<ServiceInfoSnapshot>() {
-
-                            @Override
-                            public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null) {
-                                    CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
-                                }
-                            }
-                        });
-                    }
+            CloudNetDriver.getInstance().getServiceTaskAsync(task).onComplete(serviceTask -> {
+                if (serviceTask != null) {
+                    CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
+                        if (serviceInfoSnapshot != null) {
+                            CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
+                        }
+                    });
                 }
             });
         }

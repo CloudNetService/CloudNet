@@ -51,18 +51,14 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public ITask<V> addListener(ITaskListener<V>... listeners) {
-        if (listeners == null) {
+    public ITask<V> addListener(ITaskListener<V> listener) {
+        if (listener == null) {
             return this;
         }
 
         initListenersCollectionIfNotExists();
 
-        for (ITaskListener<V> listener : listeners) {
-            if (listener != null) {
-                this.listeners.add(listener);
-            }
-        }
+        this.listeners.add(listener);
 
         return this;
     }

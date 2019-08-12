@@ -47,11 +47,8 @@ public final class ExampleCallbackSyncAPI {
 
     public void workingWithGetNodeCount() {
         //Async operation
-        getNodeCountAsync().addListener(new ITaskListener<Integer>() {
-            @Override
-            public void onComplete(ITask<Integer> task, Integer integer) {
-                System.out.println("Current Node count with async callback: " + integer);
-            }
+        getNodeCountAsync().onComplete(integer -> {
+            System.out.println("Current Node count with async callback: " + integer);
         });
 
         //Sync Operation

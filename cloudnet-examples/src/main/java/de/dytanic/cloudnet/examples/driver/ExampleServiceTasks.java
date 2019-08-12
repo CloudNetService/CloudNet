@@ -48,12 +48,9 @@ public final class ExampleServiceTasks {
 
     public void updateServiceTask() {
         if (CloudNetDriver.getInstance().isServiceTaskPresent("TestTask")) {
-            CloudNetDriver.getInstance().getServiceTaskAsync("TestTask").addListener(new ITaskListener<ServiceTask>() {
-                @Override
-                public void onComplete(ITask<ServiceTask> task, ServiceTask result) {
-                    result.setMinServiceCount(1);
-                    CloudNetDriver.getInstance().addPermanentServiceTask(result);
-                }
+            CloudNetDriver.getInstance().getServiceTaskAsync("TestTask").onComplete(result -> {
+                result.setMinServiceCount(1);
+                CloudNetDriver.getInstance().addPermanentServiceTask(result);
             });
         }
     }

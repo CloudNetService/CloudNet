@@ -33,19 +33,16 @@ public final class PlayerAPIExample {
 
     //Asynchronous variant of count the player count from a task
     public void countServiceInfoSnapshotPlayerCount(Consumer<Integer> consumer) {
-        CloudNetDriver.getInstance().getCloudServicesAsync("Lobby").addListener(new ITaskListener<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public void onComplete(ITask<Collection<ServiceInfoSnapshot>> task, Collection<ServiceInfoSnapshot> serviceInfoSnapshots) {
-                int counter = 0;
+        CloudNetDriver.getInstance().getCloudServicesAsync("Lobby").onComplete(serviceInfoSnapshots -> {
+            int counter = 0;
 
-                if (serviceInfoSnapshots != null) {
-                    for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby")) {
-                        counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
-                    }
+            if (serviceInfoSnapshots != null) {
+                for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby")) {
+                    counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
                 }
-
-                consumer.accept(counter);
             }
+
+            consumer.accept(counter);
         });
     }
 
