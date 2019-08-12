@@ -30,20 +30,15 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
         this.delayedTimeStamp = System.currentTimeMillis() + this.delay;
     }
 
-    @SafeVarargs
     @Override
-    public final ITask<V> addListener(ITaskListener<V>... listeners) {
-        if (listeners == null) {
+    public final ITask<V> addListener(ITaskListener<V> listener) {
+        if (listener == null) {
             return this;
         }
 
         initListenersCollectionIfNotExists();
 
-        for (ITaskListener<V> listener : listeners) {
-            if (listener != null) {
-                this.listeners.add(listener);
-            }
-        }
+        this.listeners.add(listener);
 
         return this;
     }

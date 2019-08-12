@@ -181,15 +181,12 @@ public class WrapperDatabase implements IDatabase {
     @Override
     public ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
         ITask<Void> task = new ListenableTask<>(() -> null);
-        this.entriesAsync().addListener(new ITaskListener<Map<String, JsonDocument>>() {
-            @Override
-            public void onComplete(ITask<Map<String, JsonDocument>> task, Map<String, JsonDocument> response) {
-                response.forEach(consumer);
-                try {
-                    task.call();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        this.entriesAsync().onComplete(response -> {
+            response.forEach(consumer);
+            try {
+                task.call();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
         return task;

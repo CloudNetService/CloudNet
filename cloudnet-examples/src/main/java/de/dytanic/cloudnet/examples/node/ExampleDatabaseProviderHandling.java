@@ -23,14 +23,10 @@ public final class ExampleDatabaseProviderHandling {
         );
 
         if (database.contains("Peter")) {
-            database.getAsync("Peter").addListener(new ITaskListener<JsonDocument>() {
-
-                @Override
-                public void onComplete(ITask<JsonDocument> task, JsonDocument document) {
-                    System.out.println(document.getString("name"));
-                    System.out.println(document.getString("lastName"));
-                    System.out.println(document.getInt("age"));
-                }
+            database.getAsync("Peter").onComplete(document -> {
+                System.out.println(document.getString("name"));
+                System.out.println(document.getString("lastName"));
+                System.out.println(document.getInt("age"));
             }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
         }
 

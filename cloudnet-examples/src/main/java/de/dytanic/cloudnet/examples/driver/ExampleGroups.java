@@ -22,17 +22,14 @@ public final class ExampleGroups {
 
     public void updateGroupConfiguration() {
         if (CloudNetDriver.getInstance().isGroupConfigurationPresent("TestGroup")) {
-            CloudNetDriver.getInstance().getGroupConfigurationAsync("TestGroup").addListener(new ITaskListener<GroupConfiguration>() {
-                @Override
-                public void onComplete(ITask<GroupConfiguration> task, GroupConfiguration result) {
-                    result.getTemplates().add(new ServiceTemplate( //add a new ServiceTemplate to the group
-                            "Lobby",
-                            "default",
-                            "local"
-                    ));
+            CloudNetDriver.getInstance().getGroupConfigurationAsync("TestGroup").onComplete(result -> {
+                result.getTemplates().add(new ServiceTemplate( //add a new ServiceTemplate to the group
+                        "Lobby",
+                        "default",
+                        "local"
+                ));
 
-                    CloudNetDriver.getInstance().addGroupConfiguration(result); //add or update the group configuration
-                }
+                CloudNetDriver.getInstance().addGroupConfiguration(result); //add or update the group configuration
             }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
         }
     }
