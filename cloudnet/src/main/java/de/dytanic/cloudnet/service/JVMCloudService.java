@@ -39,6 +39,8 @@ final class JVMCloudService implements ICloudService {
     private static final String RUNTIME = "jvm";
 
     private static final String TEMP_NAME_SPLITTER = "_";
+    
+    private static final long SERVICE_ERROR_RESTART_DELAY = 10;
 
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
@@ -619,12 +621,11 @@ final class JVMCloudService implements ICloudService {
                 .collect(Collectors.toList());
 
         if (availableJarFiles.isEmpty()) {
-            long time = 10;
             System.out.println(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
-                    .replace("%time%", time + "")
+                    .replace("%time%", String.valueOf(SERVICE_ERROR_RESTART_DELAY))
                     .replace("%environment%", this.serviceConfiguration.getProcessConfig().getEnvironment().name()
                     ));
-            Thread.sleep(time * 1000);
+            Thread.sleep(SERVICE_ERROR_RESTART_DELAY * 1000);
             stop();
             return;
         }
