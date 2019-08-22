@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -311,11 +312,11 @@ public final class CloudNetLauncher {
         dependencyResources.add(target.toURI().toURL());
         dependencyResources.add(driverTarget.toURI().toURL());
 
-        ClassLoader classLoader = new RuntimeClassLoader(dependencyResources.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+        ClassLoader classLoader = new URLClassLoader(dependencyResources.toArray(new URL[0]));
+
         prepareApplication(variables);
 
         Method method = classLoader.loadClass(mainClazz).getMethod("main", String[].class);
-        method.setAccessible(true);
 
         PRINT.accept("Application setup complete! " + (System.currentTimeMillis() - launcherStartTime) + "ms");
         PRINT.accept("Starting application version " + System.getProperty(Constants.CLOUDNET_SELECTED_VERSION) + "...");
@@ -324,10 +325,6 @@ public final class CloudNetLauncher {
     }
 
     private static void startApplication0(Method method, ClassLoader classLoader, String... args) throws Throwable {
-        Field field = ClassLoader.class.getDeclaredField("scl");
-        field.setAccessible(true);
-        field.set(null, classLoader);
-
         Thread thread = new Thread(() -> {
             try {
                 method.invoke(null, new Object[]{args});

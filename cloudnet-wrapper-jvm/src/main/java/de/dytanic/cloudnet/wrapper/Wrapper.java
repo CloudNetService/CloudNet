@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
@@ -39,23 +38,20 @@ import de.dytanic.cloudnet.wrapper.module.WrapperModuleProviderHandler;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
-import de.dytanic.cloudnet.wrapper.runtime.RuntimeApplicationClassLoader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -2308,78 +2304,23 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     private boolean startApplication() throws Exception {
-        ApplicationEnvironmentEvent preStartApplicationEvent = new ApplicationEnvironmentEvent(this, this.config.getServiceConfiguration().getServiceId().getEnvironment());
-        this.eventManager.callEvent(preStartApplicationEvent);
+        File entry = new File(commandLineArguments.get(0));
 
-        File[] files = this.workDirectory.listFiles();
-        if (files == null) {
-            this.logger.log(LogLevel.ERROR,
-                    "",
-                    new FileNotFoundException("no files found!"));
+        if (entry.exists()) {
+            return this.startApplication0(entry);
+        } else {
             return false;
         }
-
-        File entry = null;
-        ServiceEnvironment environment = null;
-
-        for (ServiceEnvironment subEnvironment : preStartApplicationEvent.getEnvironmentType().getEnvironments()) {
-            if (entry != null) {
-                break;
-            }
-
-            entry = this.find(files, file -> {
-                String lowerName = file.getName().toLowerCase();
-                return file.exists() && !file.isDirectory() && lowerName.endsWith(".jar") &&
-                        lowerName.contains(subEnvironment.getName().toLowerCase());
-            });
-
-            environment = subEnvironment;
-        }
-
-        try {
-            return this.startApplication0(entry, environment);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace(System.err);
-        }
-        return false;
     }
 
-    private File find(File[] files, Predicate<File> predicate) throws Exception {
-        return Iterables.first(files, predicate);
-    }
-
-    private boolean startApplication0(File file, ServiceEnvironment serviceEnvironment) throws Exception {
-        if (file == null || !file.exists()) {
-            Collection<String> availableFileNames = Arrays.stream(getServiceId().getEnvironment().getEnvironments())
-                    .map(subEnvironment -> subEnvironment.getName() + ".jar")
-                    .collect(Collectors.toSet());
-
-            this.logger.log(LogLevel.ERROR,
-                    "",
-                    new FileNotFoundException("Application file for Runtime "
-                            + getServiceId().getEnvironment()
-                            + " COULD NOT BE FOUND! Please include a file with one of the following names: "
-                            + String.join(", ", availableFileNames)));
-            return false;
-        }
-
+    private boolean startApplication0(File file) throws Exception {
         JarFile jarFile = new JarFile(file);
         Manifest manifest = jarFile.getManifest();
         String mainClazz = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
 
-        RuntimeApplicationClassLoader appClassLoader = new RuntimeApplicationClassLoader(
-                ClassLoader.getSystemClassLoader(),
-                file.toURI().toURL(),
-                ClassLoader.getSystemClassLoader().getParent()
-        );
-
-        Field field = ClassLoader.class.getDeclaredField("scl");
-        field.setAccessible(true);
-        field.set(null, appClassLoader);
-
-        Class<?> main = Class.forName(mainClazz, true, ClassLoader.getSystemClassLoader());
+        ClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()}, Thread.currentThread().getContextClassLoader());
+        Class<?> main = Class.forName(mainClazz, true, classLoader);
         Method method = main.getMethod("main", String[].class);
-        method.setAccessible(true);
 
         Collection<String> arguments = Iterables.newArrayList(this.commandLineArguments);
 
@@ -2387,17 +2328,17 @@ public final class Wrapper extends CloudNetDriver {
 
         Thread applicationThread = new Thread(() -> {
             try {
-                logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + ":" + serviceEnvironment + "\n");
+                logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
                 method.invoke(null, new Object[]{arguments.toArray(new String[0])});
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }, "Application-Thread");
 
-        applicationThread.setContextClassLoader(appClassLoader);
+        applicationThread.setContextClassLoader(classLoader);
         applicationThread.start();
 
-        eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, appClassLoader));
+        eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, classLoader));
         return true;
     }
 
