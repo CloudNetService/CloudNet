@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.sponge.listener.SpongeCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.sponge.listener.SpongePlayerListener;
-import de.dytanic.cloudnet.ext.bridge.sponge.util.SpongeCloudNetAdapterClassLoader;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
