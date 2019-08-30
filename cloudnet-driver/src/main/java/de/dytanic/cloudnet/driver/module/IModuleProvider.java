@@ -7,6 +7,10 @@ import java.util.Collection;
 
 public interface IModuleProvider {
 
+    File getModuleDirectory();
+
+    void setModuleDirectory(File moduleDirectory);
+
     IModuleProviderHandler getModuleProviderHandler();
 
     void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);

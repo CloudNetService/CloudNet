@@ -30,12 +30,5 @@ public interface IModuleWrapper {
 
     IModuleWrapper unloadModule();
 
-
-    default File getDataFolder() {
-        return this.getModuleConfigurationSource() != null && this.getModuleConfigurationSource().contains("dataFolder") ?
-                new File(this.getModuleConfigurationSource().getString("dataFolder"))
-                :
-                new File("modules/" + this.getModuleConfiguration().getName()
-                );
-    }
+    File getDataFolder();
 }

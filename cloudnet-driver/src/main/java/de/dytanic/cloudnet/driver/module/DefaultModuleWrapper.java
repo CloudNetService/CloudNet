@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
@@ -41,6 +42,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     private FinalizeURLClassLoader classLoader;
     private ModuleConfiguration moduleConfiguration;
     private JsonDocument moduleConfigurationSource;
+    private File moduleDirectory = new File("modules");
 
     public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url) throws Exception {
         Validate.checkNotNull(url);
@@ -54,6 +56,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         }
 
         this.init(url);
+    }
+
+    public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url, File moduleDirectory) throws Exception {
+        this(moduleProvider, url);
+        this.moduleDirectory = moduleDirectory;
     }
 
     private void init(URL url) throws Exception {
@@ -241,6 +248,15 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         this.classLoader = null;
         moduleProvider.getModuleProviderHandler().handlePostModuleUnload(this);
         return this;
+    }
+
+    @Override
+    public File getDataFolder() {
+        return this.getModuleConfigurationSource() != null && this.getModuleConfigurationSource().contains("dataFolder") ?
+                new File(this.getModuleConfigurationSource().getString("dataFolder"))
+                :
+                new File(this.moduleDirectory, this.getModuleConfiguration().getName()
+                );
     }
 
 

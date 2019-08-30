@@ -143,6 +143,7 @@ public final class Wrapper extends CloudNetDriver {
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
         //-
 
+        this.moduleProvider.setModuleDirectory(new File(".wrapper/modules"));
         this.moduleProvider.setModuleProviderHandler(new WrapperModuleProviderHandler());
         this.driverEnvironment = DriverEnvironment.WRAPPER;
     }
