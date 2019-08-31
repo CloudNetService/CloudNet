@@ -1,7 +1,7 @@
 replace_username_spaces: true
 forge_support: true
 player_limit: -1
-use_xuid_for_uuid: true
+use_xuid_for_uuid: false
 bedrock_encryption: true
 permissions:
   default:
@@ -22,7 +22,7 @@ disabled_commands:
   - disabledcommandhere
 servers:
   fallback:
-    raknet: false
+    raknet: true
     motd: '&7Just another &bCloudNet &7service - Forced Host'
     transfer_group: default
     address: localhost:16073
@@ -40,7 +40,7 @@ listeners:
     priorities:
       - fallback
     bind_local_address: true
-    host: 0.0.0.0:25577
+    host: 0.0.0.0:19132
     max_players: -1
     tab_size: 60
     force_default_server: false
