@@ -41,9 +41,9 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         Assert.assertTrue(delayValue >= 20);
 
+        long del = System.currentTimeMillis();
         delayed = scheduler.schedule(() -> null, 1, TimeUnit.SECONDS);
 
-        long del = System.currentTimeMillis();
         delayed.get();
         del = System.currentTimeMillis() - del;
 
