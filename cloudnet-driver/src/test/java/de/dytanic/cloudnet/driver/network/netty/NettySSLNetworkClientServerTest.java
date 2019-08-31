@@ -16,6 +16,8 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
 
     @Test
     public void testSslNetworking() throws Exception {
+        int port = NettyTestUtil.generateRandomPort();
+
         SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
 
         INetworkServer server = new NettyNetworkServer(() -> this, new SSLConfiguration(
@@ -44,7 +46,7 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
             }
         });
 
-        HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 34052);
+        HostAndPort hostAndPort = new HostAndPort("127.0.0.1", port);
 
         Assert.assertTrue(server.addListener(hostAndPort));
         Assert.assertTrue(client.connect(hostAndPort));

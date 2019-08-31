@@ -17,6 +17,8 @@ public class NettyHttpServerTest {
 
     @Test
     public void testHttpServerWithParameters() throws Exception {
+        int port = NettyTestUtil.generateRandomPort();
+
         IHttpServer httpServer = new NettyHttpServer();
 
         Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", (path, context) -> {
@@ -42,9 +44,9 @@ public class NettyHttpServerTest {
         }));
 
         Assert.assertEquals(1, httpServer.getHttpHandlers().size());
-        Assert.assertTrue(httpServer.addListener(2917));
+        Assert.assertTrue(httpServer.addListener(port));
 
-        HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("http://localhost:2917/person/64/Albert/info").openConnection();
+        HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("http://localhost:" + port + "/person/64/Albert/info").openConnection();
         httpURLConnection.setRequestMethod("GET");
         httpURLConnection.setDoOutput(false);
         httpURLConnection.setUseCaches(false);

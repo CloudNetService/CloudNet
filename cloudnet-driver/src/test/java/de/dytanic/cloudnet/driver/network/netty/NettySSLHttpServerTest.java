@@ -26,6 +26,8 @@ public class NettySSLHttpServerTest {
 
     @Test
     public void testSslConfiguration() throws Exception {
+        int port = NettyTestUtil.generateRandomPort();
+
         SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
 
         try (IHttpServer httpServer = new NettyHttpServer(new SSLConfiguration(
@@ -38,7 +40,7 @@ public class NettySSLHttpServerTest {
             Assert.assertTrue(httpServer.registerHandler("/test/power", (IHttpHandler) (path, context) -> context.response()
                     .header("Content-Type", "text/plain")
                     .body("Data-Set")
-                    .statusCode(200)).addListener(32462));
+                    .statusCode(200)).addListener(port));
 
             HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
 
@@ -65,7 +67,7 @@ public class NettySSLHttpServerTest {
 
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 
-            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("https://127.0.0.1:32462/test/power").openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("https://127.0.0.1:" + port + "/test/power").openConnection();
             httpURLConnection.connect();
 
             Assert.assertEquals(HttpResponseCode.HTTP_OK, httpURLConnection.getResponseCode());

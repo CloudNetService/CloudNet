@@ -26,7 +26,7 @@ public class NettyNetworkClientServerTest {
         networkClient.getPacketRegistry().addListener(6, new PacketListenerImpl());
         networkServer.getPacketRegistry().addListener(6, new PacketListenerImpl());
 
-        HostAndPort address = new HostAndPort("127.0.0.1", 43206);
+        HostAndPort address = new HostAndPort("127.0.0.1", NettyTestUtil.generateRandomPort());
 
         Assert.assertTrue(networkServer.addListener(address));
         Assert.assertTrue(networkClient.connect(address));
