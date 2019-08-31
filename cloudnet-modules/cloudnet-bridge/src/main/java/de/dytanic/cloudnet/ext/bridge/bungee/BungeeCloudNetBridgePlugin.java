@@ -32,10 +32,9 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-
     private void initServers() {
         for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
-            if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer()) {
+            if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(serviceInfoSnapshot)) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
                         serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
                     continue;

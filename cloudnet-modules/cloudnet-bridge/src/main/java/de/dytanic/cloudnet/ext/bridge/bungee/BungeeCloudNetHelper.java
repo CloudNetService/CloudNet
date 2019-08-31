@@ -147,7 +147,9 @@ public final class BungeeCloudNetHelper {
 
     public static boolean isServiceEnvironmentTypeProvidedForBungeeCord(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
-        return serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer();
+        ServiceEnvironmentType currentServiceEnvironment = Wrapper.getInstance().getCurrentServiceInfoSnapshot().getServiceId().getEnvironment();
+        return (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer() && currentServiceEnvironment.isMinecraftJavaProxy())
+                || (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer() && currentServiceEnvironment.isMinecraftBedrockProxy());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
