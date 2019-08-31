@@ -18,6 +18,18 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
+    private File moduleDirectory = new File("modules");
+
+    @Override
+    public File getModuleDirectory() {
+        return moduleDirectory;
+    }
+
+    @Override
+    public void setModuleDirectory(File moduleDirectory) {
+        this.moduleDirectory = Validate.checkNotNull(moduleDirectory);
+    }
+
     @Override
     public Collection<IModuleWrapper> getModules() {
         return Collections.unmodifiableCollection(moduleWrappers);
@@ -49,7 +61,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
         try {
 
-            this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url));
+            this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url, this.moduleDirectory));
             moduleWrapper.loadModule();
 
         } catch (Throwable throwable) {
