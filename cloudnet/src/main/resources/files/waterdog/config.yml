@@ -1,7 +1,7 @@
 replace_username_spaces: true
 forge_support: true
 player_limit: -1
-use_xuid_for_uuid: false
+use_xuid_for_uuid: true
 bedrock_encryption: true
 permissions:
   default:
