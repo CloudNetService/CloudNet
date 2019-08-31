@@ -52,6 +52,5 @@ groups:
   Dytanic:
     - admin
 connection_throttle: 0
-stats: f76b7b56-0127-4a6f-a98b-9fed5572a4de
 connection_throttle_limit: 3
 log_pings: true
