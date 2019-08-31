@@ -29,12 +29,14 @@ public final class InstallableAppVersion {
                     "https://papermc.io/ci/view/WaterfallMC/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"),
             BUNGEECORD_HEXACORD = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_HEXACORD, "hexacord",
                     "https://yivesmirror.com/files/hexacord/HexaCord-v219.jar"),
-            GLOWSTONE_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.GLOWSTONE, ServiceEnvironment.GLOWSTONE_DEFAULT, "default", //GlowStone
-                    "https://github.com/GlowstoneMC/Glowstone/releases/download/2018.9.0/glowstone.jar"),
+    //Glowstone
+    GLOWSTONE_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.GLOWSTONE, ServiceEnvironment.GLOWSTONE_DEFAULT, "default", //GlowStone
+            "https://github.com/GlowstoneMC/Glowstone/releases/download/2018.9.0/glowstone.jar"),
             GLOWSTONE_1_8_9 = new InstallableAppVersion(ServiceEnvironmentType.GLOWSTONE, ServiceEnvironment.GLOWSTONE_DEFAULT, "1.8.9",
                     "https://github.com/GlowstoneMC/Glowstone/releases/download/v1.8.9/glowstone.-1.8.9-SNAPSHOT.jar"),
-            CRAFTBUKKIT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "default", //CraftBukkit
-                    "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.14.1-R0.1-SNAPSHOT.jar"),
+    //CraftBukkit
+    CRAFTBUKKIT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "default", //CraftBukkit
+            "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.14.1-R0.1-SNAPSHOT.jar"),
             CRAFTBUKKIT_1_14_1 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "craftbukkit-1.14",
                     "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.14.1-R0.1-SNAPSHOT.jar"),
             CRAFTBUKKIT_1_14 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "craftbukkit-1.14",
@@ -59,8 +61,9 @@ public final class InstallableAppVersion {
                     "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.5.2-R1.0.jar"),
             SPONGE_VANILLA_1_12_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.12.2",
                     "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"),
-            SPONGE_VANILLA_1_11_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.11.2",
-                    "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.11.2-6.1.0-BETA-27/spongevanilla-1.11.2-6.1.0-BETA-27.jar"),
+    //Sponge
+    SPONGE_VANILLA_1_11_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.11.2",
+            "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.11.2-6.1.0-BETA-27/spongevanilla-1.11.2-6.1.0-BETA-27.jar"),
             SPONGE_VANILLA_1_10_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.10.2",
                     "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.10.2-5.2.0-BETA-403/spongevanilla-1.10.2-5.2.0-BETA-403.jar"),
             SPONGE_VANILLA_1_8_9 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.8.9",
@@ -71,16 +74,18 @@ public final class InstallableAppVersion {
                     "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.11.2-2476-6.1.0-BETA-2792/spongeforge-1.11.2-2476-6.1.0-BETA-2792.jar"),
             SPONGE_FORGE_1_10_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_FORGE, "spongeforge-1.10.2",
                     "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.10.2-2477-5.2.0-BETA-2793/spongeforge-1.10.2-2477-5.2.0-BETA-2793.jar"),
-            PAPER_SPIGOT_LATEST = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT, "paperspigot-latest",
-                    "https://yivesmirror.com/files/paper/Paper-latest.jar"),
+    //Paper
+    PAPER_SPIGOT_LATEST = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT, "paperspigot-latest",
+            "https://yivesmirror.com/files/paper/Paper-latest.jar"),
             PAPER_SPIGOT_1_13_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT, "paperspigot-1.13.2",
                     "https://yivesmirror.com/files/paper/Paper-1.13.2-b597.jar"),
             PAPER_SPIGOT_1_12_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT, "paperspigot-1.12.2",
                     "https://yivesmirror.com/files/paper/Paper-1.12.2-b1611.jar"),
             PAPER_SPIGOT_1_8_8 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT, "paperspigot-1.8.8",
                     "https://yivesmirror.com/files/paper/PaperSpigot-1.8.8-R0.1-SNAPSHOT-latest.jar"),
-            SPIGOT_1_14_1 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.14.1",
-                    "https://cdn.getbukkit.org/spigot/spigot-1.14.1.jar"),
+    //Spigot
+    SPIGOT_1_14_1 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.14.1",
+            "https://cdn.getbukkit.org/spigot/spigot-1.14.1.jar"),
             SPIGOT_1_14 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.14",
                     "https://cdn.getbukkit.org/spigot/spigot-1.14.jar"),
             SPIGOT_1_13_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.13.2",
@@ -101,28 +106,35 @@ public final class InstallableAppVersion {
                     "https://cdn.getbukkit.org/spigot/spigot-1.6.4-R2.1-SNAPSHOT.jar"),
             SPIGOT_1_5_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.5.2",
                     "https://cdn.getbukkit.org/spigot/spigot-1.5.2-R1.1-SNAPSHOT.jar"),
-            VELOCITY_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.VELOCITY, ServiceEnvironment.VELOCITY_DEFAULT, "default",
-                    "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.2-SNAPSHOT-all.jar"),
-            PROX_PROX_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.PROX_PROX, ServiceEnvironment.PROX_PROX_DEFAULT, "default",
-                    "http://ci.gomint.io/job/ProxProx/job/master/lastSuccessfulBuild/artifact/proxprox-server/target/ProxProx.jar"),
-            GO_MINT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.GO_MINT, ServiceEnvironment.GO_MINT_DEFAULT, "default",
-                    "http://ci.gomint.io/job/GoMint/job/master/lastSuccessfulBuild/artifact/gomint-server/target/GoMint.jar"),
+    //Waterdog
+    WATERDOG_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.WATERDOG, ServiceEnvironment.WATERDOG_DEFAULT, "default",
+            "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar"),
+    //Velocity
+    VELOCITY_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.VELOCITY, ServiceEnvironment.VELOCITY_DEFAULT, "default",
+            "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.4-SNAPSHOT-all.jar"),
+
     /*
-            PAPER_SPIGOT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-default",
-                    "https://yivesmirror.com/files/paper/Paper-latest.jar"),
-            PAPER_SPIGOT_1_13_1 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.13.1",
-                    "https://yivesmirror.com/files/paper/Paper-1.13.1-b386.jar"),
-            PAPER_SPIGOT_1_12_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.12.2",
-                    "https://yivesmirror.com/files/paper/PaperSpigot-1.12.2-b1562.jar"),
-            PAPER_SPIGOT_1_12_1 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.12.1",
-                    "https://yivesmirror.com/files/paper/PaperSpigot-1.12.1-b1204.jar"),
-            PAPER_SPIGOT_1_11_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.11.2",
-                    "https://yivesmirror.com/files/paper/PaperSpigot-1.11.2-b1104.jar"),
-            PAPER_SPIGOT_1_8_8 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.8.8",
-                    "https://yivesmirror.com/files/paper/PaperSpigot-1.8.8-R0.1-SNAPSHOT-latest.jar"),
-            CAULDRON_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "cauldron-default",
-                    "https://yivesmirror.com/files/cauldron/cauldron-1.7.10-2.1403.1.49.zip"),
+    PROX_PROX_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.PROX_PROX, ServiceEnvironment.PROX_PROX_DEFAULT, "default",
+            "http://ci.gomint.io/job/ProxProx/job/master/lastSuccessfulBuild/artifact/proxprox-server/target/ProxProx.jar"),
+    GO_MINT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.GO_MINT, ServiceEnvironment.GO_MINT_DEFAULT, "default",
+            "http://ci.gomint.io/job/GoMint/job/master/lastSuccessfulBuild/artifact/gomint-server/target/GoMint.jar"),
+
+    PAPER_SPIGOT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-default",
+            "https://yivesmirror.com/files/paper/Paper-latest.jar"),
+    PAPER_SPIGOT_1_13_1 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.13.1",
+            "https://yivesmirror.com/files/paper/Paper-1.13.1-b386.jar"),
+    PAPER_SPIGOT_1_12_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.12.2",
+            "https://yivesmirror.com/files/paper/PaperSpigot-1.12.2-b1562.jar"),
+    PAPER_SPIGOT_1_12_1 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.12.1",
+            "https://yivesmirror.com/files/paper/PaperSpigot-1.12.1-b1204.jar"),
+    PAPER_SPIGOT_1_11_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.11.2",
+            "https://yivesmirror.com/files/paper/PaperSpigot-1.11.2-b1104.jar"),
+    PAPER_SPIGOT_1_8_8 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "paperspigot-1.8.8",
+            "https://yivesmirror.com/files/paper/PaperSpigot-1.8.8-R0.1-SNAPSHOT-latest.jar"),
+    CAULDRON_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "cauldron-default",
+            "https://yivesmirror.com/files/cauldron/cauldron-1.7.10-2.1403.1.49.zip"),
     */
+    //Nukkit
     NUKKIT_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.NUKKIT, ServiceEnvironment.NUKKIT_DEFAULT, "default",
             "https://ci.nukkitx.com/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar");
 

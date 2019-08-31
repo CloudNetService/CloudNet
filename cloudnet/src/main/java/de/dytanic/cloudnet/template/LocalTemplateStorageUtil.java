@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.util.InstallableAppVersion;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -92,6 +93,28 @@ public final class LocalTemplateStorageUtil {
         return false;
     }
 
+    private static void prepareProxyTemplate(File directory, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {
+        File configFile = new File(directory, configPath);
+        configFile.createNewFile();
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream(configFile);
+             InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream(defaultConfigPath)) {
+            if (inputStream != null) {
+                FileUtils.copy(inputStream, fileOutputStream, buffer);
+            }
+        }
+
+        File serverIcon = new File(directory, "server-icon.png");
+        serverIcon.createNewFile();
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream(serverIcon);
+             InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
+            if (inputStream != null) {
+                FileUtils.copy(inputStream, fileOutputStream, buffer);
+            }
+        }
+    }
+
     public static boolean createAndPrepareTemplate(ITemplateStorage storage, String prefix, String name, ServiceEnvironmentType environment) throws Exception {
         Validate.checkNotNull(storage);
         Validate.checkNotNull(prefix);
@@ -121,47 +144,15 @@ public final class LocalTemplateStorageUtil {
                 }
                 break;
                 case BUNGEECORD: {
-                    File proxyYml = new File(directory, "config.yml");
-                    proxyYml.createNewFile();
-
-                    try (FileOutputStream fileOutputStream = new FileOutputStream(proxyYml);
-                         InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/bungee/config.yml")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, fileOutputStream, buffer);
-                        }
-                    }
-
-                    File serverIcon = new File(directory, "server-icon.png");
-                    serverIcon.createNewFile();
-
-                    try (FileOutputStream fileOutputStream = new FileOutputStream(serverIcon);
-                         InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, fileOutputStream, buffer);
-                        }
-                    }
+                    prepareProxyTemplate(directory, buffer, "config.yml", "files/bungee/config.yml");
+                }
+                break;
+                case WATERDOG: {
+                    prepareProxyTemplate(directory, buffer, "config.yml", "files/waterdog/config.yml");
                 }
                 break;
                 case VELOCITY: {
-                    File proxyYml = new File(directory, "velocity.toml");
-                    proxyYml.createNewFile();
-
-                    try (FileOutputStream fileOutputStream = new FileOutputStream(proxyYml);
-                         InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/velocity/velocity.toml")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, fileOutputStream, buffer);
-                        }
-                    }
-
-                    File serverIcon = new File(directory, "server-icon.png");
-                    serverIcon.createNewFile();
-
-                    try (FileOutputStream fileOutputStream = new FileOutputStream(serverIcon);
-                         InputStream inputStream = CommandLocalTemplate.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, fileOutputStream, buffer);
-                        }
-                    }
+                    prepareProxyTemplate(directory, buffer, "velocity.toml", "files/velocity/velocity.toml");
                 }
                 break;
                 case NUKKIT: {

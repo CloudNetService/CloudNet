@@ -24,6 +24,8 @@ public enum ServiceEnvironment {
     BUNGEECORD_WATERFALL("waterfall"),
     BUNGEECORD_TRAVERTINE("travertine"),
     BUNGEECORD_HEXACORD("hexacord"),
+    //Waterdog
+    WATERDOG_DEFAULT("waterdog"),
     //Nukkit
     NUKKIT_DEFAULT("nukkit"),
     //GoMint
@@ -31,9 +33,7 @@ public enum ServiceEnvironment {
     //Velocity
     VELOCITY_DEFAULT("velocity"),
     //ProxProx
-    PROX_PROX_DEFAULT("proxprox")
-    //
-    ;
+    PROX_PROX_DEFAULT("proxprox");
 
     private final String name;
 
