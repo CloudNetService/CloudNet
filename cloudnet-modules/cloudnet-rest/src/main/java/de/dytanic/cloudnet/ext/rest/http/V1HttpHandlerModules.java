@@ -25,7 +25,7 @@ public final class V1HttpHandlerModules extends V1HttpHandler {
                     .header("Content-Type", "application/json")
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getModuleProvider().getModules(), moduleWrapper -> context.request().pathParameters().get("name").contains(moduleWrapper.getModuleConfiguration().getName()))))
-                    ;
+            ;
         } else {
             context
                     .response()

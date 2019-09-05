@@ -28,23 +28,6 @@ public class SyncProxyTabList {
     public SyncProxyTabList() {
     }
 
-    public String getHeader() {
-        return this.header;
-    }
-
-    public void setHeader(String header) {
-        this.header = header;
-    }
-
-    public String getFooter() {
-        return this.footer;
-    }
-
-    public void setFooter(String footer) {
-        this.footer = footer;
-    }
-
-
     public static String replaceTabListItem(String input, UUID playerUniqueId) {
         input = input
                 .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
@@ -67,5 +50,21 @@ public class SyncProxyTabList {
         }
 
         return input.replace("&", "§");
+    }
+
+    public String getHeader() {
+        return this.header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public String getFooter() {
+        return this.footer;
+    }
+
+    public void setFooter(String footer) {
+        this.footer = footer;
     }
 }

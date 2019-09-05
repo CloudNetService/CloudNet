@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
  *
  * @see ServiceEnvironmentType
  * @see Event
- *
  * @deprecated the searching of the application jar archive has been moved to the node, this event is not being used anymore
  */
 @Deprecated

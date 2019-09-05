@@ -4,6 +4,8 @@
   "version": "1.0",
   "description": "CloudNet extension, which implement the multi proxy synchronization bridge technology and some small features",
   "url": "https://cloudnetservice.eu",
-  "authors": ["CloudNetService"],
+  "authors": [
+    "CloudNetService"
+  ],
   "main": "de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissionsPlugin"
 }

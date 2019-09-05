@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.examples.driver;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;

@@ -4,6 +4,8 @@
   "version": "1.0",
   "description": "Velocity extension for the CloudNet runtime, which optimize some features",
   "url": "https://cloudnetservice.eu",
-  "authors": ["CloudNetService"],
+  "authors": [
+    "CloudNetService"
+  ],
   "main": "de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin"
 }

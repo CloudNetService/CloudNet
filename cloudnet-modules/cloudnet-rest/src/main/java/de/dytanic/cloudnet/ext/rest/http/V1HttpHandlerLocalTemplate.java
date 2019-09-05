@@ -34,7 +34,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
                         .context()
                         .closeAfter(true)
                         .cancelNext()
-                        ;
+                ;
             } else {
                 context
                         .response()

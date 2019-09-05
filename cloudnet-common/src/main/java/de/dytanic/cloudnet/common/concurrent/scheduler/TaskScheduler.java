@@ -243,7 +243,6 @@ public class TaskScheduler {
     }
 
 
-
     public <V> TaskEntryFuture<V> schedule(Callable<V> callable) {
         return schedule(callable, (IVoidCallback<V>) null);
     }
@@ -388,8 +387,6 @@ public class TaskScheduler {
 
         return entries;
     }
-
-
 
 
     public TaskScheduler chargeThreadLimit(short threads) {

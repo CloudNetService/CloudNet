@@ -4,6 +4,8 @@
   "version": "1.0",
   "description": "Velocity extension which implement the permission management system from CloudNet into Velocity for players",
   "url": "https://cloudnetservice.eu",
-  "authors": ["CloudNetService"],
+  "authors": [
+    "CloudNetService"
+  ],
   "main": "de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissionsPlugin"
 }

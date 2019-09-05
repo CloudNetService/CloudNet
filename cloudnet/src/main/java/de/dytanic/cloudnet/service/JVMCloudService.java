@@ -39,7 +39,7 @@ final class JVMCloudService implements ICloudService {
     private static final String RUNTIME = "jvm";
 
     private static final String TEMP_NAME_SPLITTER = "_";
-    
+
     private static final long SERVICE_ERROR_RESTART_DELAY = 10;
 
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();

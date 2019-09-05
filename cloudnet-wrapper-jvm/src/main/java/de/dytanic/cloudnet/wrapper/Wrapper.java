@@ -30,7 +30,6 @@ import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
 import de.dytanic.cloudnet.wrapper.database.defaults.DefaultWrapperDatabaseProvider;
-import de.dytanic.cloudnet.wrapper.event.ApplicationEnvironmentEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
@@ -88,19 +87,13 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     private final INetworkClient networkClient;
-
-    private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
-
-
     private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
-
-
     /**
      * The single task thread of the scheduler of the wrapper application
      */
     private final Thread mainThread = Thread.currentThread();
     private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
-
+    private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
     /**
      * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot
      * from this process. The lastServiceInfoSnapshot is the element which was send before.
@@ -2371,12 +2364,12 @@ public final class Wrapper extends CloudNetDriver {
         return this.currentServiceInfoSnapshot;
     }
 
+    public IDatabaseProvider getDatabaseProvider() {
+        return databaseProvider;
+    }
+
     public void setDatabaseProvider(IDatabaseProvider databaseProvider) {
         Validate.checkNotNull(databaseProvider);
         this.databaseProvider = databaseProvider;
-    }
-
-    public IDatabaseProvider getDatabaseProvider() {
-        return databaseProvider;
     }
 }

@@ -38,6 +38,7 @@
 - Application support for [BungeeCord proxy server and forks for MC **1.5.2+**](https://github.com/SpigotMC/BungeeCord)
 - Application support for [GlowStone Minecraft server for MC **1.8.9+**](https://glowstone.net)
 - Application support for [Velocity Minecraft Java edition proxy server](https://www.velocitypowered.com)
+- Application support for [Waterdog Minecraft Bedrock Edition proxy server](https://github.com/yesdog/Waterdog)
 - Application support for [ProxProx Minecraft Bedrock Edition proxy server](https://github.com/GoMint/ProxProx)
 - Application support for [GoMint Minecraft Bedrock Edition server software](https://github.com/GoMint/GoMint)
 - A **really big API** for **asynchronously** programming or **synchronously** programming
@@ -66,7 +67,7 @@
 - Internet connection
 
 ## Recommended requirements
-- Java 8 JRE
+- Java 11 JRE
 - 512MB JVM Heap size
 - 8GB DDR3 system memory
 - 2-4 virtual cores

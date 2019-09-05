@@ -27,7 +27,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                         .context()
                         .closeAfter(true)
                         .cancelNext()
-                        ;
+                ;
             } else {
                 context
                         .response()
@@ -37,7 +37,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                         .context()
                         .closeAfter(true)
                         .cancelNext()
-                        ;
+                ;
             }
         } else {
             context

@@ -12,9 +12,6 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 @Plugin(
         id = "cloudnet_bridge",
         name = "CloudNet-Bridge",

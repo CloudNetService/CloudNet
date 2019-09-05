@@ -33,7 +33,7 @@ public class NettyHttpServerTest {
                         .statusCode(200)
                         .context()
                         .cancelNext()
-                        ;
+                ;
             } else {
                 context.response()
                         .statusCode(404)
