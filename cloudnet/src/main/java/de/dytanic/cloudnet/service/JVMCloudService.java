@@ -664,21 +664,32 @@ final class JVMCloudService implements ICloudService {
         }
     }
 
+    private void rewriteBungeeConfig(File config) throws Exception {
+        this.rewriteServiceConfigurationFile(config, line -> {
+            if (line.startsWith("    host: ")) {
+                line = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
+            } else if (line.startsWith("  host: ")) {
+                line = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
+            }
+
+            return line;
+        });
+    }
+
     private void configureServiceEnvironment() throws Exception {
         switch (this.serviceConfiguration.getProcessConfig().getEnvironment()) {
             case BUNGEECORD: {
                 File file = new File(this.directory, "config.yml");
                 this.copyDefaultFile("files/bungee/config.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("    host: ")) {
-                        s = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
-                    } else if (s.startsWith("  host: ")) {
-                        s = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
-                    }
+                this.rewriteBungeeConfig(file);
+            }
+            break;
+            case WATERDOG: {
+                File file = new File(this.directory, "config.yml");
+                this.copyDefaultFile("files/waterdog/config.yml", file);
 
-                    return s;
-                });
+                this.rewriteBungeeConfig(file);
             }
             break;
             case VELOCITY: {
@@ -687,13 +698,13 @@ final class JVMCloudService implements ICloudService {
 
                 Value<Boolean> value = new Value<>(true);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (value.getValue() && s.startsWith("bind =")) {
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (value.getValue() && line.startsWith("bind =")) {
                         value.setValue(false);
                         return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort() + "\"";
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;
@@ -701,16 +712,16 @@ final class JVMCloudService implements ICloudService {
                 File file = new File(this.directory, "config.yml");
                 this.copyDefaultFile("files/proxprox/config.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("ip: ")) {
-                        s = "ip: " + CloudNet.getInstance().getConfig().getHostAddress();
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (line.startsWith("ip: ")) {
+                        line = "ip: " + CloudNet.getInstance().getConfig().getHostAddress();
                     }
 
-                    if (s.startsWith("port: ")) {
-                        s = "port: " + serviceConfiguration.getPort();
+                    if (line.startsWith("port: ")) {
+                        line = "port: " + serviceConfiguration.getPort();
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;
@@ -773,16 +784,16 @@ final class JVMCloudService implements ICloudService {
                 File file = new File(this.directory, "server.yml");
                 this.copyDefaultFile("files/gomint/server.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("  ip: ")) {
-                        s = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (line.startsWith("  ip: ")) {
+                        line = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
                     }
 
-                    if (s.startsWith("  port: ")) {
-                        s = "  port: " + serviceConfiguration.getPort();
+                    if (line.startsWith("  port: ")) {
+                        line = "  port: " + serviceConfiguration.getPort();
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;
@@ -792,16 +803,16 @@ final class JVMCloudService implements ICloudService {
 
                 copyDefaultFile("files/glowstone/glowstone.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("    ip: ")) {
-                        s = "    ip: '" + CloudNet.getInstance().getConfig().getHostAddress() + "'";
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (line.startsWith("    ip: ")) {
+                        line = "    ip: '" + CloudNet.getInstance().getConfig().getHostAddress() + "'";
                     }
 
-                    if (s.startsWith("    port: ")) {
-                        s = "    port: " + serviceConfiguration.getPort();
+                    if (line.startsWith("    port: ")) {
+                        line = "    port: " + serviceConfiguration.getPort();
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;

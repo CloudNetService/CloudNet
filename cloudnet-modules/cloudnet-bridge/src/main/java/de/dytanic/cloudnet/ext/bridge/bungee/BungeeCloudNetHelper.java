@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.bungee;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -147,7 +148,9 @@ public final class BungeeCloudNetHelper {
 
     public static boolean isServiceEnvironmentTypeProvidedForBungeeCord(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
-        return serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer();
+        ServiceEnvironmentType currentServiceEnvironment = Wrapper.getInstance().getCurrentServiceInfoSnapshot().getServiceId().getEnvironment();
+        return (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer() && currentServiceEnvironment.isMinecraftJavaProxy())
+                || (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer() && currentServiceEnvironment.isMinecraftBedrockProxy());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -297,11 +300,22 @@ public final class BungeeCloudNetHelper {
         Validate.checkNotNull(address);
 
         Class<ProxyServer> proxyServerClass = ProxyServer.class;
-        Method method;
+
+        // with rakNet enabled to support bedrock servers on Waterdog
+        if (Wrapper.getInstance().getCurrentServiceInfoSnapshot().getServiceId().getEnvironment() == ServiceEnvironmentType.WATERDOG) {
+            try {
+                Method method = proxyServerClass.getMethod("constructServerInfo",
+                        String.class, InetSocketAddress.class, String.class, boolean.class, boolean.class, String.class);
+                method.setAccessible(true);
+                return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, "CloudNet provided serverInfo", false, true, "default");
+            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
+                Wrapper.getInstance().getLogger().log(LogLevel.ERROR, "Unable to enable rakNet, although using Waterdog: ", exception);
+            }
+        }
 
         // 1.4.7
         try {
-            method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class);
+            Method method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
@@ -309,7 +323,7 @@ public final class BungeeCloudNetHelper {
 
         // with restricted
         try {
-            method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, boolean.class);
+            Method method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, false);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
@@ -317,7 +331,7 @@ public final class BungeeCloudNetHelper {
 
         // with motd
         try {
-            method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, String.class, boolean.class);
+            Method method = proxyServerClass.getMethod("constructServerInfo", String.class, InetSocketAddress.class, String.class, boolean.class);
             method.setAccessible(true);
             return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, "CloudNet provided serverInfo", false);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {

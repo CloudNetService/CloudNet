@@ -36,6 +36,9 @@ public enum ServiceEnvironmentType {
     VELOCITY(new ServiceEnvironment[]{
             ServiceEnvironment.VELOCITY_DEFAULT
     }, true, false, false, false),
+    WATERDOG(new ServiceEnvironment[]{
+            ServiceEnvironment.WATERDOG_DEFAULT
+    }, false, true, false, false),
     PROX_PROX(new ServiceEnvironment[]{
             ServiceEnvironment.PROX_PROX_DEFAULT
     }, false, true, false, false);

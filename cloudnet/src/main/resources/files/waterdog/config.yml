@@ -1,0 +1,56 @@
+replace_username_spaces: true
+forge_support: true
+player_limit: -1
+use_xuid_for_uuid: true
+bedrock_encryption: true
+permissions:
+  default:
+    - bungeecord.command.server
+    - bungeecord.command.list
+  admin:
+    - bungeecord.command.alert
+    - bungeecord.command.end
+    - bungeecord.command.ip
+    - bungeecord.command.reload
+    - cloudnet.command.cloudnet
+    - cloudnet.syncproxy.fullljoin
+    - cloudnet.syncproxy.maintenance
+timeout: 30000
+log_commands: true
+online_mode: true
+disabled_commands:
+  - disabledcommandhere
+servers:
+  fallback:
+    raknet: true
+    motd: '&7Just another &bCloudNet &7service - Forced Host'
+    transfer_group: default
+    address: localhost:16073
+    restricted: false
+listeners:
+  - query_port: 19132
+    motd: '&bCloudNet &7v&b3 &8[&9TSUNAMI&8] &7Waterdog &cProxy &7instance'
+    tab_list: GLOBAL_PING
+    query_enabled: false
+    proxy_protocol: false
+    forced_hosts:
+      pvp.md-5.net: pvp
+    ping_passthrough: false
+    raknet: true
+    priorities:
+      - fallback
+    bind_local_address: true
+    host: 0.0.0.0:19132
+    max_players: -1
+    tab_size: 60
+    force_default_server: false
+ip_forward: true
+network_compression_threshold: 256
+max_mtu: -1
+prevent_proxy_connections: false
+groups:
+  Dytanic:
+    - admin
+connection_throttle: 0
+connection_throttle_limit: 3
+log_pings: true
