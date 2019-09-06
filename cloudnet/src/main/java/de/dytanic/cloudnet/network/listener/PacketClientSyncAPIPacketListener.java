@@ -59,6 +59,28 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                     );
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                     break;
+                case "console_commands": {
+                    if (packet.getHeader().contains("commandLine")) {
+                        this.sendResponse(
+                                channel,
+                                packet.getUniqueId(),
+                                new JsonDocument()
+                                        .append(
+                                        "commandInfo",
+                                        getCloudNet().getConsoleCommand(
+                                                packet.getHeader().getString("commandLine")
+                                        )
+                                )
+                        );
+                    } else {
+                        this.sendResponse(
+                                channel,
+                                packet.getUniqueId(),
+                                new JsonDocument().append("commandInfos", getCloudNet().getConsoleCommands())
+                        );
+                    }
+                }
+                    break;
                 case "send_commandLine": {
                     String[] messages = getCloudNet().sendCommandLine(packet.getHeader().getString("commandLine"));
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("responseMessages", messages));

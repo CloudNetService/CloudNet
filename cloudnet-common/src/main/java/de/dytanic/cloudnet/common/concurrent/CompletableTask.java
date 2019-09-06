@@ -5,29 +5,19 @@ import de.dytanic.cloudnet.common.Validate;
 import java.util.Collection;
 import java.util.concurrent.*;
 
-public class ListenableTask<V> implements ITask<V> {
+public class CompletableTask<V> implements ITask<V> {
 
-    private final Callable<V> callable;
     private Collection<ITaskListener<V>> listeners;
     private volatile V value;
     private volatile boolean done, cancelled;
 
-    public ListenableTask(Callable<V> callable) {
-        this(callable, null);
+    public CompletableTask() {
     }
 
-    public ListenableTask(Callable<V> callable, ITaskListener<V> listener) {
-        Validate.checkNotNull(callable);
-
-        this.callable = callable;
-
+    public CompletableTask(ITaskListener<V> listener) {
         if (listener != null) {
             this.addListener(listener);
         }
-    }
-
-    public Callable<V> getCallable() {
-        return callable;
     }
 
     @Override
@@ -115,15 +105,9 @@ public class ListenableTask<V> implements ITask<V> {
         return value;
     }
 
-
-    @Override
-    public V call() {
+    public void call(V value) {
         if (!isCancelled()) {
-            try {
-                this.value = this.callable.call();
-            } catch (Throwable ex) {
-                this.invokeFailure(ex);
-            }
+            this.value = value;
         }
 
         this.done = true;
@@ -136,8 +120,11 @@ public class ListenableTask<V> implements ITask<V> {
                 throwable.printStackTrace();
             }
         }
+    }
 
-        return this.value;
+    @Override
+    public V call() {
+        throw new UnsupportedOperationException("Not supported in CompletableTask, use call(V) instead");
     }
 
 

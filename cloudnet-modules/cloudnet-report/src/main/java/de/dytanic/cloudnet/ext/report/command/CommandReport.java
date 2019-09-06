@@ -6,7 +6,7 @@ import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
-import de.dytanic.cloudnet.command.CommandInfo;
+import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
