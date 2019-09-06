@@ -13,8 +13,6 @@ public interface ITask<V> extends Future<V>, Callable<V> {
 
     Collection<ITaskListener<V>> getListeners();
 
-    Callable<V> getCallable();
-
     V getDef(V def);
 
     V get(long time, TimeUnit timeUnit, V def);

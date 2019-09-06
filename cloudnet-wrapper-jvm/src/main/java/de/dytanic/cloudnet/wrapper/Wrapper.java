@@ -4,6 +4,8 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -1286,6 +1288,26 @@ public final class Wrapper extends CloudNetDriver {
                 VOID_FUNCTION);
     }
 
+    @Override
+    public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
+        return this.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "console_commands"),
+                new byte[0],
+                pair -> pair.getFirst().get("commandInfos", new TypeToken<Collection<CommandInfo>>() {
+                }.getType())
+        );
+    }
+
+    @Override
+    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
+        return this.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "console_commands")
+                        .append("commandLine", commandLine),
+                new byte[0],
+                pair -> pair.getFirst().get("commandInfo", CommandInfo.class)
+        );
+    }
+
     /**
      * Application wrapper implementation of this method. See the full documentation at the
      * CloudNetDriver class.
@@ -2383,6 +2405,16 @@ public final class Wrapper extends CloudNetDriver {
 
     public INetworkClient getNetworkClient() {
         return this.networkClient;
+    }
+
+    @Override
+    public Collection<CommandInfo> getConsoleCommands() {
+        return this.getConsoleCommandsAsync().getDef(Collections.emptyList());
+    }
+
+    @Override
+    public CommandInfo getConsoleCommand(String commandLine) {
+        return this.getConsoleCommandAsync(commandLine).getDef(null);
     }
 
     public Thread getMainThread() {

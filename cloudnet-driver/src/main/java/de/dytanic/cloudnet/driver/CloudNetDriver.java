@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.*;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
@@ -20,6 +21,7 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.Collection;
@@ -61,6 +63,10 @@ public abstract class CloudNetDriver {
 
 
     public abstract INetworkClient getNetworkClient();
+
+    public abstract Collection<CommandInfo> getConsoleCommands();
+
+    public abstract CommandInfo getConsoleCommand(String commandLine);
 
     public abstract String[] sendCommandLine(String commandLine);
 
@@ -236,6 +242,10 @@ public abstract class CloudNetDriver {
 
     public abstract void setGroups(Collection<? extends IPermissionGroup> groups);
 
+
+    public abstract ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
+
+    public abstract ITask<CommandInfo> getConsoleCommandAsync(String commandLine);
 
     public abstract ITask<String[]> sendCommandLineAsync(String commandLine);
 

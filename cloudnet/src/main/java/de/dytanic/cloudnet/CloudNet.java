@@ -3,10 +3,7 @@ package de.dytanic.cloudnet;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
-import de.dytanic.cloudnet.command.ConsoleCommandSender;
-import de.dytanic.cloudnet.command.DefaultCommandMap;
-import de.dytanic.cloudnet.command.DriverCommandSender;
-import de.dytanic.cloudnet.command.ICommandMap;
+import de.dytanic.cloudnet.command.*;
 import de.dytanic.cloudnet.command.commands.*;
 import de.dytanic.cloudnet.command.jline2.JLine2CommandCompleter;
 import de.dytanic.cloudnet.common.Properties;
@@ -14,6 +11,7 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
@@ -1083,6 +1081,16 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(groups);
 
         getPermissionManagement().setGroups(groups);
+    }
+
+    @Override
+    public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
+        return this.scheduleTask(this::getConsoleCommands);
+    }
+
+    @Override
+    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
+        return this.scheduleTask(() -> this.getConsoleCommand(commandLine));
     }
 
     @Override
@@ -2259,6 +2267,17 @@ public final class CloudNet extends CloudNetDriver {
 
     public INetworkClient getNetworkClient() {
         return this.networkClient;
+    }
+
+    @Override
+    public Collection<CommandInfo> getConsoleCommands() {
+        return this.commandMap.getCommandInfos();
+    }
+
+    @Override
+    public CommandInfo getConsoleCommand(String commandLine) {
+        Command command = this.commandMap.getCommandFromLine(commandLine);
+        return command != null ? command.getInfo() : null;
     }
 
     public INetworkServer getNetworkServer() {

@@ -105,7 +105,6 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
         return delayedTimeStamp;
     }
 
-    @Override
     public Callable<V> getCallable() {
         return callable;
     }

@@ -19,8 +19,18 @@ import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class CloudNetBridgeModule extends NodeCloudNetModule {
+
+    private static final Map<String, String> DEFAULT_MESSAGES = Maps.of(
+            new Pair<>("command-hub-success-connect", "&7You did successfully connect to %server%"),
+            new Pair<>("command-hub-already-in-hub", "&cYou are already connected"),
+            new Pair<>("command-hub-no-server-found", "&7Hub server cannot be found"),
+            new Pair<>("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server"),
+            new Pair<>("command-cloud-sub-command-no-permission", "&7You are not allowed to use &e%command%")
+    );
 
     private static CloudNetBridgeModule instance;
 
@@ -49,17 +59,22 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                                 Collections.singletonList(new ProxyFallback("Lobby", null, 1))
                         )
                 ),
-                Maps.of(
-                        new Pair<>("command-hub-success-connect", "&7You did successfully connect to %server%"),
-                        new Pair<>("command-hub-already-in-hub", "&cYou are already connected"),
-                        new Pair<>("command-hub-no-server-found", "&7Hub server cannot be found"),
-                        new Pair<>("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server")
-                ),
+                DEFAULT_MESSAGES,
                 true
         ));
 
         if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null) {
             this.bridgeConfiguration.setExcludedOnlyProxyWalkableGroups(Iterables.newArrayList());
+        }
+
+        if (this.bridgeConfiguration.getMessages() != null) {
+            for (Map.Entry<String, String> entry : DEFAULT_MESSAGES.entrySet()) {
+                if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
+                    this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());
+                }
+            }
+        } else {
+            this.bridgeConfiguration.setMessages(new HashMap<>(DEFAULT_MESSAGES));
         }
 
         saveConfig();
