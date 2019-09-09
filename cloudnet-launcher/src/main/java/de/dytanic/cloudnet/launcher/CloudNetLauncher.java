@@ -6,23 +6,17 @@ import de.dytanic.cloudnet.launcher.cnl.defaults.CNLCommandEcho;
 import de.dytanic.cloudnet.launcher.cnl.defaults.CNLCommandVar;
 import de.dytanic.cloudnet.launcher.cnl.install.CNLCommandInclude;
 import de.dytanic.cloudnet.launcher.cnl.install.CNLCommandRepo;
-import de.dytanic.cloudnet.launcher.runtime.RuntimeClassLoader;
 import de.dytanic.cloudnet.launcher.update.DefaultRepositoryUpdater;
 import de.dytanic.cloudnet.launcher.update.IUpdater;
 import de.dytanic.cloudnet.launcher.util.CloudNetModule;
 import de.dytanic.cloudnet.launcher.util.Dependency;
 import de.dytanic.cloudnet.launcher.util.IOUtils;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,7 +44,6 @@ public final class CloudNetLauncher {
 
     public static synchronized void main(String... args) throws Throwable {
         setAdministrativeWarning();
-        setDefaultCharset_ToUTF8();
 
         List<String> arguments = Arrays.asList(args);
         run(arguments);
@@ -65,12 +58,6 @@ public final class CloudNetLauncher {
             PRINT.accept("It's better and save, if you create an extra user which you start CloudNet");
             PRINT.accept("===================================================================");
         }
-    }
-
-    private static void setDefaultCharset_ToUTF8() throws Exception {
-        Field field = Charset.class.getDeclaredField("defaultCharset");
-        field.setAccessible(true);
-        field.set(null, StandardCharsets.UTF_8);
     }
 
     private static synchronized void run(List<String> args) throws Throwable {
