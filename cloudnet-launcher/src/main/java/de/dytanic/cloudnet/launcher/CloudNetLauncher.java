@@ -12,7 +12,9 @@ import de.dytanic.cloudnet.launcher.util.CloudNetModule;
 import de.dytanic.cloudnet.launcher.util.Dependency;
 import de.dytanic.cloudnet.launcher.util.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
