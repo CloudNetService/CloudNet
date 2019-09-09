@@ -30,7 +30,6 @@ import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
 import de.dytanic.cloudnet.wrapper.database.defaults.DefaultWrapperDatabaseProvider;
-import de.dytanic.cloudnet.wrapper.event.ApplicationEnvironmentEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
