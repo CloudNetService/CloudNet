@@ -33,9 +33,9 @@
 - Multi system support and synchronizing in a network cluster
 - Support for Minecraft **vanilla 1.0+**
 - Application support for [Nukkit Project 1.0+ for Bedrock Edition 1.7](https://github.com/NukkitX/Nukkit)
-- Application support for [Bukkit based Minecraft **1.5.2+** (Craftbukkit, Spigot, PaperSpigot and more...)](https://github.com/Bukkit/Bukkit)
+- Application support for [Bukkit based Minecraft **1.8.8+** (Craftbukkit, Spigot, PaperSpigot and more...)](https://github.com/Bukkit/Bukkit)
 - Application support for [Sponge based Minecraft servers with the SpongeAPI **7.0.0+**](https://www.spongepowered.org/)
-- Application support for [BungeeCord proxy server and forks for MC **1.5.2+**](https://github.com/SpigotMC/BungeeCord)
+- Application support for [BungeeCord proxy server and forks for MC **1.8.8+**](https://github.com/SpigotMC/BungeeCord)
 - Application support for [GlowStone Minecraft server for MC **1.8.9+**](https://glowstone.net)
 - Application support for [Velocity Minecraft Java edition proxy server](https://www.velocitypowered.com)
 - Application support for [Waterdog Minecraft Bedrock Edition proxy server](https://github.com/yesdog/Waterdog)
@@ -43,9 +43,9 @@
 - Application support for [GoMint Minecraft Bedrock Edition server software](https://github.com/GoMint/GoMint)
 - A **really big API** for **asynchronously** programming or **synchronously** programming
 - A **Bridge module**, which includes the basics for the Bukkit, Sponge, BungeeCord and Nukkit API and for BungeeCord a /cloudnet command to dispatch the console of CloudNet ingame
-- **BungeeCord exploit protection** with the Bridge Module for BungeeCord MC **1.5.2+** and Velocity
-- **Random Hub** and **/hub** command with the Bridge Module for BungeeCord MC **1.5.2+**, Velocity and ProxProx
-- **/cloudnet** command which dispatch the console of CloudNet Ingame for BungeeCord MC **1.5.2**, Velocity and ProxProx
+- **BungeeCord exploit protection** with the Bridge Module for BungeeCord MC **1.8.8+** and Velocity
+- **Random Hub** and **/hub** command with the Bridge Module for BungeeCord MC **1.8.8+**, Velocity and ProxProx
+- **/cloudnet** command which dispatches the console of CloudNet Ingame for BungeeCord MC **1.8.8+**, Velocity and ProxProx
 - A live, ingame, sorted signs system for Bukkit and Sponge with a dynamic animation and configuration for each group.
 - A **SyncProxy module**, which include the **synchronization between two or more BungeeCord services** in one group.
 - **Motd** layout configuration and synchronizing between Proxys with **SyncProxy module**
