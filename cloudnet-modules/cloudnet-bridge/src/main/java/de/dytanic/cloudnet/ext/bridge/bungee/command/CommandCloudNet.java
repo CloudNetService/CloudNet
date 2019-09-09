@@ -1,9 +1,11 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.command;
 
+import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
 public final class CommandCloudNet extends Command {
@@ -22,6 +24,22 @@ public final class CommandCloudNet extends Command {
         StringBuilder stringBuilder = new StringBuilder();
         for (String arg : args) {
             stringBuilder.append(arg).append(" ");
+        }
+
+        if (sender instanceof ProxiedPlayer) {
+            CommandInfo commandInfo = CloudNetDriver.getInstance().getConsoleCommand(stringBuilder.toString());
+            if (commandInfo != null && commandInfo.getPermission() != null) {
+                if (!sender.hasPermission(commandInfo.getPermission())) {
+                    sender.sendMessage(
+                            ChatColor.translateAlternateColorCodes(
+                                    '&',
+                                    BridgeConfigurationProvider.load().getMessages().get("command-cloud-sub-command-no-permission")
+                                            .replace("%command%", stringBuilder)
+                            )
+                    );
+                    return;
+                }
+            }
         }
 
         String[] messages = CloudNetDriver.getInstance().sendCommandLine(stringBuilder.toString());

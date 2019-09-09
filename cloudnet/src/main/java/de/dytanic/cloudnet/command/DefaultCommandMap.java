@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
+import de.dytanic.cloudnet.common.command.CommandInfo;
 
 import java.util.Collection;
 import java.util.Map;
