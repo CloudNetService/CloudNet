@@ -839,6 +839,6 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public Iterator<String> iterator() {
-        return this.jsonObject.keySet().iterator();
+        return this.jsonObject.entrySet().stream().map(Map.Entry::getKey).iterator();
     }
 }
