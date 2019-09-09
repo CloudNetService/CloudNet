@@ -77,7 +77,7 @@ public final class CloudNetLauncher {
 
         PRINT.accept("Starting CloudNet launcher " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
 
-        final Path configPath = Paths.get(Constants.LAUNHCER_CONFIG), launcherDirectory = Paths.get(Constants.LAUNHCER_DIR);
+        final Path configPath = Paths.get(Constants.LAUNCHER_CONFIG), launcherDirectory = Paths.get(Constants.LAUNCHER_DIR);
 
         for (File directory : new File[]{
                 new File(launcherDirectory.toFile(), "versions"),
