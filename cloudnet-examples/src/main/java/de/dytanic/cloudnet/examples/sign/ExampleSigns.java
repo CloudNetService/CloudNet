@@ -28,7 +28,7 @@ public final class ExampleSigns {
                                 "A minecraft server",
                                 "LOBBY"
                         },
-                        Material.BED.name(),
+                        Material.STONE.name(),
                         0
                 ),
                 new SignLayout(
@@ -38,7 +38,7 @@ public final class ExampleSigns {
                                 "A minecraft server",
                                 "LOBBY"
                         },
-                        Material.BED.name(),
+                        Material.STONE.name(),
                         0
                 ),
                 new SignLayout(
@@ -48,7 +48,7 @@ public final class ExampleSigns {
                                 "A minecraft server",
                                 "LOBBY"
                         },
-                        Material.BED.name(),
+                        Material.STONE.name(),
                         0
                 )
         ));

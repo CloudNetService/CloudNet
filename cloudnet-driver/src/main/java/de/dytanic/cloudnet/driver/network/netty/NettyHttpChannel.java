@@ -27,7 +27,7 @@ final class NettyHttpChannel implements IHttpChannel {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         channel.close();
     }
 

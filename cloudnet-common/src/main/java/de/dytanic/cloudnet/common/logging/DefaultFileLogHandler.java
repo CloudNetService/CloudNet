@@ -106,7 +106,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         printWriter.flush();
         printWriter.close();
     }

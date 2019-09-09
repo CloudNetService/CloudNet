@@ -48,7 +48,6 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
                 )));
 
                 BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
-                BungeeCloudNetHelper.addItemToBungeeCordListenerPrioritySystem(serviceInfoSnapshot, name);
             }
         }
     }

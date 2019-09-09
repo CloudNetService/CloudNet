@@ -190,7 +190,7 @@ public final class CloudNetLauncher {
         }
     }
 
-    private static void overwriteCnlConfiguration(List<String> arguments, Map<String, String> variables) throws Exception {
+    private static void overwriteCnlConfiguration(List<String> arguments, Map<String, String> variables) {
         if (arguments.contains("--version") && arguments.indexOf("--version") + 1 < arguments.size()) {
             variables.put(Constants.CLOUDNET_SELECTED_VERSION, arguments.get(arguments.indexOf("--version") + 1));
         }
@@ -281,7 +281,7 @@ public final class CloudNetLauncher {
         }
     }
 
-    private static void prepareApplication(Map<String, String> variables) throws Throwable {
+    private static void prepareApplication(Map<String, String> variables) {
         //Set properties for default dependencies
         System.setProperty("io.netty.maxDirectMemory", "0");
         System.setProperty("io.netty.leakDetectionLevel", "DISABLED");
@@ -323,7 +323,7 @@ public final class CloudNetLauncher {
         startApplication0(method, classLoader, args.toArray(new String[0]));
     }
 
-    private static void startApplication0(Method method, ClassLoader classLoader, String... args) throws Throwable {
+    private static void startApplication0(Method method, ClassLoader classLoader, String... args) {
         Thread thread = new Thread(() -> {
             try {
                 method.invoke(null, new Object[]{args});

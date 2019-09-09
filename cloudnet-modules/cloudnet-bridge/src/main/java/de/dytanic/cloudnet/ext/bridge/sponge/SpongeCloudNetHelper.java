@@ -83,7 +83,7 @@ public final class SpongeCloudNetHelper {
                             player.getHealthData().health().get(),
                             player.getHealthData().maxHealth().get(),
                             player.saturation().get(),
-                            holderData.isPresent() ? holderData.get().level().get() : 0,
+                            holderData.map(experienceHolderData -> experienceHolderData.level().get()).orElse(0),
                             new WorldPosition(
                                     location.getX(),
                                     location.getY(),

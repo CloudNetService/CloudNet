@@ -15,7 +15,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 public final class PacketServerClusterNodeInfoUpdateListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("clusterNodeInfoSnapshot")) {
             NetworkClusterNodeInfoSnapshot snapshot = packet.getHeader().get("clusterNodeInfoSnapshot", NetworkClusterNodeInfoSnapshot.TYPE);
             IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(snapshot.getNode().getUniqueId());

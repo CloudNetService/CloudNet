@@ -16,7 +16,7 @@ import java.util.UUID;
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("channel") && packet.getHeader().contains("message") && packet.getHeader().contains("data")) {
             if (packet.getHeader().contains("uniqueId")) { //this is sent by both the nodes and services
                 UUID uniqueId = packet.getHeader().get("uniqueId", UUID.class);

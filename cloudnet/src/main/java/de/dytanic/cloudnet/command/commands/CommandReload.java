@@ -19,22 +19,20 @@ public final class CommandReload extends CommandDefault {
             );
         }
 
-        switch (args.length) {
-            case 1:
-                if (args[0].equalsIgnoreCase("confirm") || args[0].equalsIgnoreCase("all")) {
-                    getCloudNet().reload();
-                    sender.sendMessage(LanguageManager.getMessage("command-reload-confirm-success"));
-                    return;
-                }
-                if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("conf")) {
-                    getCloudNet().getConfig().load();
-                    getCloudNet().getConfigurationRegistry().load();
-                    getCloudNet().getCloudServiceManager().reload();
-                    getCloudNet().getPermissionManagement().reload();
-                    sender.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
-                    return;
-                }
-                break;
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("confirm") || args[0].equalsIgnoreCase("all")) {
+                getCloudNet().reload();
+                sender.sendMessage(LanguageManager.getMessage("command-reload-confirm-success"));
+                return;
+            }
+            if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("conf")) {
+                getCloudNet().getConfig().load();
+                getCloudNet().getConfigurationRegistry().load();
+                getCloudNet().getCloudServiceManager().reload();
+                getCloudNet().getPermissionManagement().reload();
+                sender.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
+                return;
+            }
         }
     }
 }

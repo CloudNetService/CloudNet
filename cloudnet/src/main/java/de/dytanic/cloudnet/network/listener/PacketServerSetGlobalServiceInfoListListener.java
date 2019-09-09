@@ -13,7 +13,7 @@ import java.util.List;
 public final class PacketServerSetGlobalServiceInfoListListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("serviceInfoList")) {
             Collection<ServiceInfoSnapshot> serviceInfoSnapshots = packet.getHeader().get("serviceInfoList", new TypeToken<List<ServiceInfoSnapshot>>() {
             }.getType());

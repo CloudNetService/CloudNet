@@ -21,11 +21,9 @@ public final class ExampleCallbackSyncAPI {
             return;
         }
 
-        switch (event.getId()) {
-            case "get_node_count":
-                event.setCallbackPacket(new JsonDocument("nodeCount", CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().size()));
-                //Set the callback packet data for the node
-                break;
+        if ("get_node_count".equals(event.getId())) {
+            event.setCallbackPacket(new JsonDocument("nodeCount", CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().size()));
+            //Set the callback packet data for the node
         }
     }
 
@@ -46,9 +44,7 @@ public final class ExampleCallbackSyncAPI {
 
     public void workingWithGetNodeCount() {
         //Async operation
-        getNodeCountAsync().onComplete(integer -> {
-            System.out.println("Current Node count with async callback: " + integer);
-        });
+        getNodeCountAsync().onComplete(integer -> System.out.println("Current Node count with async callback: " + integer));
 
         //Sync Operation
         try {

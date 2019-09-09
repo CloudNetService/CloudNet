@@ -17,12 +17,12 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, GET");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("uuid")) {
             ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid")));
 

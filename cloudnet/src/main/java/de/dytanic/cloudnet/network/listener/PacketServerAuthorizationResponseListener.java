@@ -16,7 +16,7 @@ import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEve
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("access")) {
             if (packet.getHeader().getBoolean("access")) {
                 for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {

@@ -28,15 +28,12 @@ public final class NetworkListenerRegisterListener {
             return;
         }
 
-        switch (event.getId()) {
-            case BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION: {
-                event.setCallbackPacket(
-                        new JsonDocument().append("bridgeConfig", (BridgeConfiguration) JsonDocument.newDocument(
-                                new File(CloudNetDriver.getInstance().getModuleProvider().getModule("CloudNet-Bridge").getDataFolder(), "config.json")
-                        ).get("config", BridgeConfiguration.TYPE))
-                );
-            }
-            break;
+        if (BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION.equals(event.getId())) {
+            event.setCallbackPacket(
+                    new JsonDocument().append("bridgeConfig", (BridgeConfiguration) JsonDocument.newDocument(
+                            new File(CloudNetDriver.getInstance().getModuleProvider().getModule("CloudNet-Bridge").getDataFolder(), "config.json")
+                    ).get("config", BridgeConfiguration.TYPE))
+            );
         }
     }
 }

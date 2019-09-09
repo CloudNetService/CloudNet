@@ -38,7 +38,7 @@ public final class MySQLDatabase implements IDatabase {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         databaseProvider.cachedDatabaseInstances.remove(name);
     }
 
@@ -79,7 +79,7 @@ public final class MySQLDatabase implements IDatabase {
 
         return databaseProvider.executeQuery(
                 "SELECT " + TABLE_COLUMN_KEY + " FROM " + name + " WHERE " + TABLE_COLUMN_KEY + "=?",
-                resultSet -> resultSet.next(),
+                ResultSet::next,
                 key
         );
     }
@@ -301,17 +301,17 @@ public final class MySQLDatabase implements IDatabase {
 
     @Override
     public ITask<Collection<String>> keysAsync() {
-        return schedule(() -> keys());
+        return schedule(this::keys);
     }
 
     @Override
     public ITask<Collection<JsonDocument>> documentsAsync() {
-        return schedule(() -> documents());
+        return schedule(this::documents);
     }
 
     @Override
     public ITask<Map<String, JsonDocument>> entriesAsync() {
-        return schedule(() -> entries());
+        return schedule(this::entries);
     }
 
     @Override

@@ -22,12 +22,12 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("name")) {
             context
                     .response()
@@ -53,7 +53,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, IHttpContext context) {
         ServiceTask serviceTask = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
 
         if (serviceTask.getProcessConfiguration() == null || serviceTask.getName() == null) {
@@ -96,7 +96,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) throws Exception {
+    public void handleDelete(String path, IHttpContext context) {
         if (!context.request().pathParameters().containsKey("name")) {
             send400Response(context, "name parameter not found");
             return;

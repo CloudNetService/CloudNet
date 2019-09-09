@@ -90,7 +90,7 @@ public final class V1HttpSession {
         return true;
     }
 
-    public SessionEntry getValidSessionEntry(String cookieValue, IHttpContext context) throws Exception {
+    public SessionEntry getValidSessionEntry(String cookieValue, IHttpContext context) {
         if (cookieValue == null || context == null) {
             return null;
         }
@@ -123,7 +123,7 @@ public final class V1HttpSession {
         return getUser(sessionEntry, context);
     }
 
-    private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) throws Exception {
+    private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) {
         if (sessionEntry == null || context == null) {
             return null;
         }
@@ -131,7 +131,7 @@ public final class V1HttpSession {
         return CloudNet.getInstance().getPermissionManagement().getUser(UUID.fromString(sessionEntry.userUniqueId));
     }
 
-    private String getCookieValue(IHttpContext context) throws Exception {
+    private String getCookieValue(IHttpContext context) {
         HttpCookie httpCookie = context.cookie(COOKIE_NAME);
 
         if (httpCookie != null) {

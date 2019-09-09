@@ -24,7 +24,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
     }.getType();
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("permissions_event") && packet.getHeader().contains("updateType")) {
             switch (packet.getHeader().get("updateType", PacketServerUpdatePermissions.UpdateType.class)) {
                 case ADD_USER:

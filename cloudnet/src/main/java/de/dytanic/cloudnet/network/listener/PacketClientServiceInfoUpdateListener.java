@@ -14,7 +14,7 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 public final class PacketClientServiceInfoUpdateListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("message") && packet.getHeader().getString("message").equals("update_serviceInfo") && packet.getHeader().contains("serviceInfoSnapshot")) {
             ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
 

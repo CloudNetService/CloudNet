@@ -47,19 +47,19 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!(cause instanceof IOException) && !(cause instanceof ClosedChannelException)) {
             cause.printStackTrace();
         }
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
         nettyNetworkServer.taskScheduler.schedule((Callable<Void>) () -> {
             if (channel.getHandler() != null && !channel.getHandler().handlePacketReceive(channel, msg)) {
                 return null;

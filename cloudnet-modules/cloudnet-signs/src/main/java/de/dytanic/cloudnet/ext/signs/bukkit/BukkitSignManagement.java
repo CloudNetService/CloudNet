@@ -17,10 +17,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.material.MaterialData;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -317,34 +315,6 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask));
     }
 
-    public Block getLivingEntityTargetBlock(LivingEntity livingEntity, int range) {
-        Validate.checkNotNull(livingEntity);
-
-        //new
-        try {
-
-            Method method = LivingEntity.class.getMethod("getTargetBlock", Set.class, int.class);
-            method.setAccessible(true);
-            return (Block) method.invoke(livingEntity, null, range);
-
-        } catch (Exception ignored) {
-
-        }
-
-        //old
-        try {
-
-            Method method = LivingEntity.class.getMethod("getTargetBlock", HashSet.class, int.class);
-            method.setAccessible(true);
-            return (Block) method.invoke(livingEntity, null, range);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
-
     private void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             Location location = toLocation(sign.getWorldPosition());
@@ -356,10 +326,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
             Block block = location.getBlock();
 
-            if (!(block.getState() instanceof org.bukkit.block.Sign) &&
-                    block.getType() != Material.SIGN_POST &&
-                    block.getType() != Material.WALL_SIGN &&
-                    block.getType() != Material.SIGN) {
+            if (!(block.getState() instanceof org.bukkit.block.Sign)) {
                 super.sendSignRemoveUpdate(sign);
                 return;
             }

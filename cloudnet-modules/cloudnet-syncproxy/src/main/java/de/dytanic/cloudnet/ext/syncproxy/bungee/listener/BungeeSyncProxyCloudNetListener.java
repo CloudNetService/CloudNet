@@ -17,7 +17,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.lang.reflect.Method;
 import java.util.UUID;
 
 public final class BungeeSyncProxyCloudNetListener {
@@ -96,17 +95,14 @@ public final class BungeeSyncProxyCloudNetListener {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
-            case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
-                SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+            SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
-                if (syncProxyConfiguration != null) {
-                    SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
-                }
-
-                handlePlayerNotWhitelisted();
+            if (syncProxyConfiguration != null) {
+                SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
             }
-            break;
+
+            handlePlayerNotWhitelisted();
         }
     }
 
@@ -119,9 +115,9 @@ public final class BungeeSyncProxyCloudNetListener {
                 if (syncProxyProxyLoginConfiguration.isMaintenance() &&
                         syncProxyProxyLoginConfiguration.getWhitelist() != null &&
                         !syncProxyProxyLoginConfiguration.getWhitelist().contains(proxiedPlayer.getName())) {
-                    UUID uniqueId = getUniqueIdOfPendingConnection(proxiedPlayer);
+                    UUID uniqueId = proxiedPlayer.getUniqueId();
 
-                    if (uniqueId != null && syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) {
+                    if (syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) {
                         continue;
                     }
 
@@ -137,18 +133,4 @@ public final class BungeeSyncProxyCloudNetListener {
         }
     }
 
-    private UUID getUniqueIdOfPendingConnection(ProxiedPlayer pendingConnection) {
-        try {
-
-            Method method = ProxiedPlayer.class.getMethod("getUniqueId");
-            method.setAccessible(true);
-
-            return (UUID) method.invoke(pendingConnection);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
 }

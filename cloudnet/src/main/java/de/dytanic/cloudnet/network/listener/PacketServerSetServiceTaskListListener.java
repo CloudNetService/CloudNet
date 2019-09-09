@@ -14,7 +14,7 @@ import java.util.List;
 public final class PacketServerSetServiceTaskListListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("taskList") && packet.getHeader().contains("set")) {
             List<ServiceTask> serviceTasks = packet.getHeader().get("taskList", new TypeToken<List<ServiceTask>>() {
             }.getType());

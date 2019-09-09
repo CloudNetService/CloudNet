@@ -36,7 +36,7 @@ public final class CommandCloudSign implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
-            Block block = BukkitSignManagement.getInstance().getLivingEntityTargetBlock(player, 15);
+            Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
@@ -68,7 +68,7 @@ public final class CommandCloudSign implements CommandExecutor {
         }
 
         if (args.length >= 2 && args[0].equalsIgnoreCase("create")) {
-            Block block = BukkitSignManagement.getInstance().getLivingEntityTargetBlock(player, 15);
+            Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {

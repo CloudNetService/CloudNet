@@ -32,16 +32,14 @@ public class ExampleWebSocket {
 
             channel.addListener(new IWebSocketListener() { //Add a listener for received WebSocket channel messages and closing
                 @Override
-                public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
+                public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) {
                     switch (type) {
                         case PONG:
                             channel.sendWebSocketFrame(WebSocketFrameType.TEXT, new JsonDocument("message", "Hello, world!").toString());
                             break;
                         case TEXT:
-                            switch (new String(bytes)) {
-                                case "handleClose":
-                                    channel.close(200, "invoked close");
-                                    break;
+                            if ("handleClose".equals(new String(bytes))) {
+                                channel.close(200, "invoked close");
                             }
                             break;
                     }

@@ -24,7 +24,7 @@ public final class VelocityPlayerListener {
     public void handle(PostLoginEvent event) {
         BridgeHelper.sendChannelMessageProxyLoginSuccess(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        Wrapper.getInstance().runTask(() -> VelocityCloudNetHelper.updateServiceInfo());
+        Wrapper.getInstance().runTask(VelocityCloudNetHelper::updateServiceInfo);
     }
 
     @Subscribe
@@ -80,6 +80,6 @@ public final class VelocityPlayerListener {
     public void handle(DisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        Wrapper.getInstance().runTask(() -> VelocityCloudNetHelper.updateServiceInfo());
+        Wrapper.getInstance().runTask(VelocityCloudNetHelper::updateServiceInfo);
     }
 }

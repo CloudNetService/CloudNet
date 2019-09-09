@@ -58,6 +58,6 @@ public final class ProxProxPlayerListener implements Listener {
     public void handle(PlayerQuitEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(ProxProxCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        Wrapper.getInstance().runTask(() -> BridgeHelper.updateServiceInfo());
+        Wrapper.getInstance().runTask(BridgeHelper::updateServiceInfo);
     }
 }

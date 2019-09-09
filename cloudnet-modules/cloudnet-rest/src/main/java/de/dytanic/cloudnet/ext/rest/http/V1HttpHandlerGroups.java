@@ -22,12 +22,12 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, GET, POST, DELETE");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("name")) {
             context
                     .response()
@@ -53,7 +53,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, IHttpContext context) {
         GroupConfiguration groupConfiguration = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
 
         if (groupConfiguration.getName() == null) {
@@ -83,7 +83,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) throws Exception {
+    public void handleDelete(String path, IHttpContext context) {
         if (!context.request().pathParameters().containsKey("name")) {
             send400Response(context, "name parameter not found");
             return;

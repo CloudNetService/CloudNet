@@ -16,7 +16,7 @@ import java.util.List;
 public final class PacketServerSetJsonFilePermissionsListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("permissionUsers") && packet.getHeader().contains("permissionGroups") && packet.getHeader().contains("set_json_file")) {
             if (CloudNet.getInstance().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement) {
                 List<PermissionUser> permissionUsers = packet.getHeader().get("permissionUsers", new TypeToken<List<PermissionUser>>() {

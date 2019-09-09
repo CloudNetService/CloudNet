@@ -107,7 +107,7 @@ public class WorkerThread extends Thread implements ExecutorService {
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) {
         List<Future<T>> list = new ArrayList<>(tasks.size());
 
         for (Callable<T> callable : tasks) {
@@ -123,13 +123,13 @@ public class WorkerThread extends Thread implements ExecutorService {
 
     @Deprecated
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
+    public <T> T invokeAny(Collection<? extends Callable<T>> tasks) {
         throw new UnsupportedOperationException("Method invokeAny(Collection<? extends Callable<T>> tasks) won't support");
     }
 
     @Deprecated
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) {
         throw new UnsupportedOperationException("Method invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) won't support");
     }
 

@@ -11,12 +11,12 @@ public final class V1HttpHandlerPing extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, GET");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         context
                 .response()
                 .header("Content-Type", "application/json")

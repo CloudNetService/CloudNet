@@ -3,7 +3,9 @@ package de.dytanic.cloudnet.common.concurrent;
 import de.dytanic.cloudnet.common.Validate;
 
 import java.util.Collection;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
@@ -128,7 +130,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public V call() throws Exception {
+    public V call() {
         if (callable == null || done) {
             return this.value;
         }
@@ -173,7 +175,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public synchronized V get() throws InterruptedException, ExecutionException {
+    public synchronized V get() throws InterruptedException {
         wait = true;
         while (!isDone()) {
             this.wait();
@@ -183,7 +185,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public synchronized V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public synchronized V get(long timeout, TimeUnit unit) throws InterruptedException {
         wait = true;
         if (!isDone()) {
             this.wait(unit.toMillis(timeout));

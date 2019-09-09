@@ -94,7 +94,7 @@ public final class JLine2Console implements IConsole {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.consoleReader.close();
     }
 

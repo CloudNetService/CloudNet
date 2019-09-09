@@ -77,14 +77,11 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             httpURLConnection.setDoOutput(true);
             httpURLConnection.connect();
 
-            switch (getConfig().get("pasteServerType", PasteServerType.class)) {
-                case HASTE: {
-                    try (DataOutputStream writer = new DataOutputStream(httpURLConnection.getOutputStream())) {
-                        writer.writeBytes(context);
-                        writer.flush();
-                    }
+            if (getConfig().get("pasteServerType", PasteServerType.class) == PasteServerType.HASTE) {
+                try (DataOutputStream writer = new DataOutputStream(httpURLConnection.getOutputStream())) {
+                    writer.writeBytes(context);
+                    writer.flush();
                 }
-                break;
             }
 
             String input;
