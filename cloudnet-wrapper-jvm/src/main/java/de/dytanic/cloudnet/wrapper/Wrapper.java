@@ -2226,10 +2226,12 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     public void publishServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
+        if (currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
+            this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
-        this.lastServiceInfoSnapShot = this.currentServiceInfoSnapshot;
-        this.currentServiceInfoSnapshot = serviceInfoSnapshot;
+            this.lastServiceInfoSnapShot = this.currentServiceInfoSnapshot;
+            this.currentServiceInfoSnapshot = serviceInfoSnapshot;
+        }
 
         this.networkClient.sendPacket(new PacketClientServiceInfoUpdate(serviceInfoSnapshot));
     }
