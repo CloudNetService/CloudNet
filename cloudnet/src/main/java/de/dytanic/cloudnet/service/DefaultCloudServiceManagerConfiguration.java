@@ -79,16 +79,16 @@ final class DefaultCloudServiceManagerConfiguration {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
     public void save() {
         try {
             Files.createDirectories(TASKS_DIRECTORY);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         for (ServiceTask task : this.tasks) {
@@ -106,8 +106,8 @@ final class DefaultCloudServiceManagerConfiguration {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         new JsonDocument().append("groups", this.groups).write(GROUPS_CONFIG_FILE);
