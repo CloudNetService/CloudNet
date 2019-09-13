@@ -100,8 +100,7 @@ final class DefaultCloudServiceManagerConfiguration {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String name = file.getFileName().toString();
-                    if (name.endsWith(".json") &&
-                            tasks.stream().noneMatch(serviceTask -> serviceTask.getName().equalsIgnoreCase(name.substring(0, name.length() - 5)))) {
+                    if (tasks.stream().noneMatch(serviceTask -> (serviceTask.getName() + ".json").equalsIgnoreCase(name))) {
                         Files.delete(file);
                     }
                     return FileVisitResult.CONTINUE;
