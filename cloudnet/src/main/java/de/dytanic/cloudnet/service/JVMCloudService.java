@@ -869,9 +869,7 @@ final class JVMCloudService implements ICloudService {
             }
 
             this.lifeCycle = ServiceLifeCycle.STOPPED;
-            if (this.serviceConfiguration.getProcessConfig().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {
-                new File(this.directory, "config.yml").delete();
-            }
+
             if (this.serviceConfiguration.getDeletedFilesAfterStop() != null) {
                 for (String path : this.serviceConfiguration.getDeletedFilesAfterStop()) {
                     if (path != null) {

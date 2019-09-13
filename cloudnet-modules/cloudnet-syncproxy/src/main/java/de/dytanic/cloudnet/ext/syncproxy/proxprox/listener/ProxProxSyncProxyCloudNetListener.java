@@ -92,17 +92,14 @@ public final class ProxProxSyncProxyCloudNetListener {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
-            case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
-                SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+            SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
-                if (syncProxyConfiguration != null) {
-                    SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
-                }
-
-                handlePlayerNotWhitelisted();
+            if (syncProxyConfiguration != null) {
+                SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
             }
-            break;
+
+            handlePlayerNotWhitelisted();
         }
     }
 

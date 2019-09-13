@@ -300,7 +300,7 @@ public final class FileUtils {
             throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(inputStream,
                 StandardCharsets.UTF_8)) {
-            ZipEntry zipEntry = null;
+            ZipEntry zipEntry;
 
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 extract1(zipInputStream, zipEntry, targetDirectory);

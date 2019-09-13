@@ -47,7 +47,7 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
             ServerListPingEvent serverListPingEvent = new ServerListPingEvent(
                     new InetSocketAddress("127.0.0.1", 53345).getAddress(),
                     BukkitCloudNetHelper.getApiMotd(),
-                    BukkitCloudNetHelper.getOnlineCount(),
+                    Bukkit.getOnlinePlayers().size(),
                     BukkitCloudNetHelper.getMaxPlayers()
             );
 

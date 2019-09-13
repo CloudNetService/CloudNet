@@ -104,7 +104,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         taskScheduler.shutdown();
         this.closeChannels();
 

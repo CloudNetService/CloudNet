@@ -16,7 +16,7 @@ import de.dytanic.cloudnet.network.packet.PacketServerH2Database;
 public final class PacketServerH2DatabaseListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("operationType") && packet.getHeader().contains("name")) {
             if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider) {
                 H2Database database = (H2Database) CloudNet.getInstance().getDatabaseProvider().getDatabase(packet.getHeader().getString("name"));

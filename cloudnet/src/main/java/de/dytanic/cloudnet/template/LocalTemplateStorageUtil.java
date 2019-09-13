@@ -32,9 +32,8 @@ public final class LocalTemplateStorageUtil {
         File target = new File(getLocalTemplateStorage().getStorageDirectory() + "/" + serviceTemplate.getTemplatePath(), directoryPath);
 
         if (target.exists()) {
-            File[] files = target.listFiles();
 
-            return files;
+            return target.listFiles();
         }
 
         return null;

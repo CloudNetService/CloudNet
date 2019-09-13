@@ -14,7 +14,7 @@ import java.util.List;
 public final class PacketServerSetGroupConfigurationListListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("groups") && packet.getHeader().contains("set")) {
             List<GroupConfiguration> groupConfigurations = packet.getHeader().get("groups", new TypeToken<List<GroupConfiguration>>() {
             }.getType());

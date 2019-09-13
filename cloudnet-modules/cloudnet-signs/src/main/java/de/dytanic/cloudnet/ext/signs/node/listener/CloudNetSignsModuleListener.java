@@ -47,17 +47,14 @@ public final class CloudNetSignsModuleListener {
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
         if (event.getChannel().equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)) {
-            switch (event.getMessage().toLowerCase()) {
-                case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
-                    SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
-                    Collection<Sign> signs = event.getData().get("signs", SignConstants.COLLECTION_SIGNS);
+            if (SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+                SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
+                Collection<Sign> signs = event.getData().get("signs", SignConstants.COLLECTION_SIGNS);
 
-                    CloudNetSignsModule.getInstance().setSignConfiguration(signConfiguration);
-                    SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFile());
+                CloudNetSignsModule.getInstance().setSignConfiguration(signConfiguration);
+                SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFile());
 
-                    CloudNetSignsModule.getInstance().write(signs);
-                }
-                break;
+                CloudNetSignsModule.getInstance().write(signs);
             }
         }
 

@@ -83,7 +83,7 @@ public final class SpongeCloudNetHelper {
                             player.getHealthData().health().get(),
                             player.getHealthData().maxHealth().get(),
                             player.saturation().get(),
-                            holderData.isPresent() ? holderData.get().level().get() : 0,
+                            holderData.map(experienceHolderData -> experienceHolderData.level().get()).orElse(0),
                             new WorldPosition(
                                     location.getX(),
                                     location.getY(),
@@ -110,17 +110,14 @@ public final class SpongeCloudNetHelper {
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
-        Boolean onlineMode = Sponge.getServer().getOnlineMode();
-        if (onlineMode == null) {
-            onlineMode = true;
-        }
+        boolean onlineMode = Sponge.getServer().getOnlineMode();
 
         return BridgeHelper.createNetworkConnectionInfo(
                 player.getUniqueId(),
                 player.getName(),
                 -1,
                 new HostAndPort(player.getConnection().getAddress()),
-                new HostAndPort(Sponge.getServer().getBoundAddress().get()),
+                new HostAndPort(Sponge.getServer().getBoundAddress().orElse(null)),
                 onlineMode,
                 false,
                 new NetworkServiceInfo(

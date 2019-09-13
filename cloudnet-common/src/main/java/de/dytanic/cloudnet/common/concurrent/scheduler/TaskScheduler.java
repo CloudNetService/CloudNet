@@ -39,7 +39,7 @@ public class TaskScheduler {
 
     protected final long threadLifeMillis;
 
-    protected int maxThreads = 0;
+    protected int maxThreads;
 
     protected Deque<TaskEntry<?>> taskEntries = new ConcurrentLinkedDeque<>();
 
@@ -547,7 +547,7 @@ public class TaskScheduler {
 
     }
 
-    private final class VoidTaskEntry extends TaskEntry<Void> {
+    private static final class VoidTaskEntry extends TaskEntry<Void> {
 
         public VoidTaskEntry(Callable<Void> task, IVoidCallback<Void> complete, long delay, long repeat) {
             super(task, complete, delay, repeat);

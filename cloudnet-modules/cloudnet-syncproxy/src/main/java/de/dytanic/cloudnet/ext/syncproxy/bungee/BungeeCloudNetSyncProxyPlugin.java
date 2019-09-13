@@ -13,12 +13,10 @@ import de.dytanic.cloudnet.ext.syncproxy.bungee.listener.BungeeSyncProxyCloudNet
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -116,38 +114,21 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
             return;
         }
 
-        try {
-            Class<?> baseComponentClass = Class.forName("net.md_5.bungee.api.chat.BaseComponent");
-            Class<?> textComponentClass = Class.forName("net.md_5.bungee.api.chat.TextComponent");
-            Object array = Array.newInstance(baseComponentClass, 1);
+        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
-            Method methodFromLegacyTest = textComponentClass.getMethod("fromLegacyText", String.class);
-            methodFromLegacyTest.setAccessible(true);
+        proxiedPlayer.setTabHeader(
+                TextComponent.fromLegacyText(tabListHeader != null ?
+                        replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
+                                ChatColor.translateAlternateColorCodes('&', tabListHeader + ""))
+                        : ""
+                ),
+                TextComponent.fromLegacyText(tabListFooter != null ?
+                        replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
+                                ChatColor.translateAlternateColorCodes('&', tabListFooter + ""))
+                        : ""
+                )
+        );
 
-            Method methodSetTabHeader = ProxiedPlayer.class.getDeclaredMethod("setTabHeader", array.getClass(), array.getClass());
-            methodSetTabHeader.setAccessible(true);
-
-            SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
-
-            methodSetTabHeader.invoke(
-                    proxiedPlayer,
-                    methodFromLegacyTest.invoke(null, tabListHeader != null ?
-                            replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                    ChatColor.translateAlternateColorCodes('&', tabListHeader + ""))
-                            :
-                            ""
-                    ),
-                    methodFromLegacyTest.invoke(null, tabListFooter != null ?
-                            replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                    ChatColor.translateAlternateColorCodes('&', tabListFooter + ""))
-                            :
-                            ""
-                    )
-            );
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
     }
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
@@ -165,14 +146,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                 .replace("%name%", proxiedPlayer.getName() + "")
                 .replace("%ping%", proxiedPlayer.getPing() + "");
 
-        UUID uniqueId = null;
-
-        try {
-            uniqueId = (UUID) proxiedPlayer.getClass().getDeclaredMethod("getUniqueId").invoke(proxiedPlayer);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-        }
-
-        return SyncProxyTabList.replaceTabListItem(input, uniqueId);
+        return SyncProxyTabList.replaceTabListItem(input, proxiedPlayer.getUniqueId());
     }
 
 

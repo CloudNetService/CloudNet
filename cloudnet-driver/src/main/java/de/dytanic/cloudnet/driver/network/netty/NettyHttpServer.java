@@ -174,7 +174,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {
             entry.getSecond().cancel(true);
         }
@@ -187,7 +187,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @ToString
     @EqualsAndHashCode
-    public class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
+    public static class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
 
         public final String path;
 

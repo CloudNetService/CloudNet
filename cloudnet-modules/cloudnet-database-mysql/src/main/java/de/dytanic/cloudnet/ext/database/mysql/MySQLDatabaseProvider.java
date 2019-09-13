@@ -38,7 +38,7 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public boolean init() throws Exception {
+    public boolean init() {
         addresses = config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
         MySQLConnectionEndpoint endpoint = addresses.get(new Random().nextInt(addresses.size()));
 
@@ -126,7 +126,7 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         hikariDataSource.close();
     }
 

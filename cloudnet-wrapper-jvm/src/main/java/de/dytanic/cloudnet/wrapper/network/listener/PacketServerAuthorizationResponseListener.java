@@ -21,7 +21,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
     }
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("access") && packet.getHeader().contains("text")) {
             result = packet.getHeader().getBoolean("access");
 

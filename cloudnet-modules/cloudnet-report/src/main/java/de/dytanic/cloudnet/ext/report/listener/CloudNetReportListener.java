@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.service.CloudServicePreDeleteEvent;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -51,27 +52,23 @@ public final class CloudNetReportListener {
 
     private void copyLogFiles(File directory, ICloudService cloudService) {
         try {
-            switch (cloudService.getServiceId().getEnvironment()) {
-                case BUNGEECORD: {
-                    File[] files = cloudService.getDirectory().listFiles(pathname -> !pathname.isDirectory() && pathname.getName().startsWith("proxy.log"));
+            if (cloudService.getServiceId().getEnvironment() == ServiceEnvironmentType.BUNGEECORD) {
+                File[] files = cloudService.getDirectory().listFiles(pathname -> !pathname.isDirectory() && pathname.getName().startsWith("proxy.log"));
 
-                    if (files != null) {
-                        File subDir = new File(directory, "logs");
-                        subDir.mkdirs();
+                if (files != null) {
+                    File subDir = new File(directory, "logs");
+                    subDir.mkdirs();
 
-                        for (File file : files) {
-                            try {
-                                FileUtils.copy(file, new File(subDir, file.getName()));
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                    for (File file : files) {
+                        try {
+                            FileUtils.copy(file, new File(subDir, file.getName()));
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
                 }
-                break;
-                default:
-                    FileUtils.copyFilesToDirectory(new File(cloudService.getDirectory(), "logs"), new File(directory, "logs"));
-                    break;
+            } else {
+                FileUtils.copyFilesToDirectory(new File(cloudService.getDirectory(), "logs"), new File(directory, "logs"));
             }
 
         } catch (Exception ex) {

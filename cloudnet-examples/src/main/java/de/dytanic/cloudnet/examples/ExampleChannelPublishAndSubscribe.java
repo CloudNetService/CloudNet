@@ -18,11 +18,8 @@ public final class ExampleChannelPublishAndSubscribe {
     @EventListener
     public void handleChannelMessage(ChannelMessageReceiveEvent event) {
         if (event.getChannel().equalsIgnoreCase("user_channel")) {
-            switch (event.getMessage().toLowerCase()) {
-                case "user_info_publishing":
-
-                    System.out.println("Name: " + event.getData().getString("name") + " | Age: " + event.getData().getInt("age"));
-                    break;
+            if ("user_info_publishing".equals(event.getMessage().toLowerCase())) {
+                System.out.println("Name: " + event.getData().getString("name") + " | Age: " + event.getData().getInt("age"));
             }
         }
         //Receive a channel message in the network

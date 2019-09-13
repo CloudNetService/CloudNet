@@ -60,7 +60,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(paths);
         Validate.checkNotNull(target);
 
-        return this.deploy(Iterables.map(Arrays.asList(paths), t -> t.toFile()).toArray(new File[0]), target);
+        return this.deploy(Iterables.map(Arrays.asList(paths), Path::toFile).toArray(new File[0]), target);
     }
 
     @Override
@@ -204,7 +204,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
     }
 
     public File getStorageDirectory() {

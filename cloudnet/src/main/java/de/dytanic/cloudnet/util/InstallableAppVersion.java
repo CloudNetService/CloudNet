@@ -16,12 +16,6 @@ public final class InstallableAppVersion {
     public static final InstallableAppVersion
             BUNGEECORD_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_DEFAULT, "default", //BungeeCord
             "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"),
-            BUNGEECORD_1_7_10 = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_DEFAULT, "1.7.10",
-                    "https://ci.md-5.net/job/BungeeCord/1119/artifact/bootstrap/target/BungeeCord.jar"),
-            BUNGEECORD_1_6_4 = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_DEFAULT, "1.6.4",
-                    "https://ci.md-5.net/job/BungeeCord/701/artifact/bootstrap/target/BungeeCord.jar"),
-            BUNGEECORD_1_5_2 = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_DEFAULT, "1.5.2",
-                    "https://ci.md-5.net/job/BungeeCord/548/artifact/proxy/target/BungeeCord.jar"),
             BUNGEECORD_WATERFALL = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_WATERFALL, "waterfall",
                     "https://ci.destroystokyo.com/job/Waterfall/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterfall.jar"),
             BUNGEECORD_TRAVERTINE = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_TRAVERTINE, "travertine",
@@ -50,12 +44,6 @@ public final class InstallableAppVersion {
                     "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.9.4-R0.1-SNAPSHOT-latest.jar"),
             CRAFTBUKKIT_1_8_8 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "craftbukkit-1.8.8",
                     "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.8.8-R0.1-SNAPSHOT-latest.jar"),
-            CRAFTBUKKIT_1_7_10 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "craftbukkit-1.7.10",
-                    "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.10-R0.1-20140808.005431-8.jar"),
-            CRAFTBUKKIT_1_6_4 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "craftbukkit-1.6.4",
-                    "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.4-R2.0.jar"),
-            CRAFTBUKKIT_1_5_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "craftbukkit-1.5.2",
-                    "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.5.2-R1.0.jar"),
             SPONGE_VANILLA_1_12_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.12.2", //Sponge
                     "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"),
             SPONGE_VANILLA_1_11_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.11.2",
@@ -94,12 +82,6 @@ public final class InstallableAppVersion {
                     "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar"),
             SPIGOT_1_8_8 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.8.8",
                     "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"),
-            SPIGOT_1_7_10 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.7.10",
-                    "https://cdn.getbukkit.org/spigot/spigot-1.7.10-SNAPSHOT-b1657.jar"),
-            SPIGOT_1_6_4 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.6.4",
-                    "https://cdn.getbukkit.org/spigot/spigot-1.6.4-R2.1-SNAPSHOT.jar"),
-            SPIGOT_1_5_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPIGOT, "spigot-1.5.2",
-                    "https://cdn.getbukkit.org/spigot/spigot-1.5.2-R1.1-SNAPSHOT.jar"),
             WATERDOG_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.WATERDOG, ServiceEnvironment.WATERDOG_DEFAULT, "default", //Waterdog
                     "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar"),
             VELOCITY_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.VELOCITY, ServiceEnvironment.VELOCITY_DEFAULT, "default", //Velocity

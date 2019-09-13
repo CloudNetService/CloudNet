@@ -138,8 +138,8 @@ public final class VelocityCloudNetHelper {
                 )))
                 .append("Plugins", Iterables.map(proxyServer.getPluginManager().getPlugins(), pluginContainer -> {
                     PluginInfo pluginInfo = new PluginInfo(
-                            pluginContainer.getDescription().getName().get(),
-                            pluginContainer.getDescription().getVersion().get()
+                            pluginContainer.getDescription().getName().orElse(null),
+                            pluginContainer.getDescription().getVersion().orElse(null)
                     );
 
                     pluginInfo.getProperties()

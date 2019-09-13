@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudNetCloudPer
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
@@ -18,7 +17,6 @@ import org.bukkit.scoreboard.Team;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
@@ -73,7 +71,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
         initScoreboard(player);
 
-        forEachPlayers(all -> {
+        Bukkit.getOnlinePlayers().forEach(all -> {
             initScoreboard(all);
 
             if (playerPermissionGroup.getValue() != null) {
@@ -109,13 +107,13 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             team = all.getScoreboard().registerNewTeam(teamName);
         }
 
+        String prefix = permissionGroup.getPrefix();
+        String color = permissionGroup.getColor();
+        String suffix = permissionGroup.getSuffix();
+
         try {
             Method method = team.getClass().getDeclaredMethod("setColor", ChatColor.class);
             method.setAccessible(true);
-
-            String prefix = permissionGroup.getPrefix();
-            String color = permissionGroup.getColor();
-            String suffix = permissionGroup.getSuffix();
 
             if (color != null && !color.isEmpty()) {
                 ChatColor chatColor = ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", ""));
@@ -124,7 +122,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 }
             } else {
                 color = ChatColor.getLastColors(prefix.replace('&', '§'));
-                if (color != null && !color.isEmpty()) {
+                if (!color.isEmpty()) {
                     ChatColor chatColor = ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", ""));
                     if (chatColor != null) {
                         permissionGroup.setColor(color);
@@ -133,19 +131,20 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                     }
                 }
             }
-
-            team.setPrefix(ChatColor.translateAlternateColorCodes('&',
-                    prefix.length() > 16 ?
-                            prefix.substring(0, 16) : prefix));
-
-            team.setSuffix(ChatColor.translateAlternateColorCodes('&',
-                    suffix.length() > 16 ?
-                            suffix.substring(0, 16) : suffix));
         } catch (NoSuchMethodException ignored) {
         } catch (IllegalAccessException | InvocationTargetException exception) {
             exception.printStackTrace();
         }
-        team.addPlayer(target);
+
+        team.setPrefix(ChatColor.translateAlternateColorCodes('&',
+                prefix.length() > 16 ?
+                        prefix.substring(0, 16) : prefix));
+
+        team.setSuffix(ChatColor.translateAlternateColorCodes('&',
+                suffix.length() > 16 ?
+                        suffix.substring(0, 16) : suffix));
+
+        team.addEntry(target.getName());
 
         target.setDisplayName(ChatColor.translateAlternateColorCodes('&', permissionGroup.getDisplay() + target.getName()));
     }
@@ -171,7 +170,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
 
     private void initScoreboard(Player all) {
-        if (all.getScoreboard() == null) {
+        if (all.getScoreboard().equals(all.getServer().getScoreboardManager().getMainScoreboard())) {
             all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());
         }
     }
@@ -198,32 +197,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         }
     }
 
-    private void forEachPlayers(Consumer<Player> consumer) {
-        Method method;
-        try {
-            method = Server.class.getMethod("getOnlinePlayers");
-            method.setAccessible(true);
-            Object result = method.invoke(Bukkit.getServer());
-
-            if (result instanceof Iterable) {
-                for (Object item : ((Iterable) result)) {
-                    consumer.accept((Player) item);
-                }
-                return;
-            }
-
-            if (result instanceof Player[]) {
-                for (Player player : ((Player[]) result)) {
-                    consumer.accept(player);
-                }
-            }
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
     private void initPlayersCloudPermissible() {
-        forEachPlayers(this::injectCloudPermissible);
+        Bukkit.getOnlinePlayers().forEach(this::injectCloudPermissible);
     }
 }

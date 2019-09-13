@@ -3,7 +3,9 @@ package de.dytanic.cloudnet.common.concurrent;
 import de.dytanic.cloudnet.common.Validate;
 
 import java.util.Collection;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 public class ListenableTask<V> implements ITask<V> {
 
@@ -95,7 +97,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public V get() throws InterruptedException, ExecutionException {
+    public V get() throws InterruptedException {
         synchronized (this) {
             if (!isDone()) {
                 this.wait();
@@ -106,7 +108,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public V get(long timeout, TimeUnit unit) throws InterruptedException {
         synchronized (this) {
             if (!isDone()) {
                 this.wait(unit.toMillis(timeout));

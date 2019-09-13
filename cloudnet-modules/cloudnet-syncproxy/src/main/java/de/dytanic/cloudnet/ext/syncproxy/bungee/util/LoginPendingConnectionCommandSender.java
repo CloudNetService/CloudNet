@@ -4,7 +4,8 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 
 import java.util.Collection;
@@ -14,15 +15,15 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
 
     private final Collection<String> permissions = Iterables.newArrayList(), groups = Iterables.newArrayList();
 
-    private final LoginEvent loginEvent;
+    private final PendingConnection pendingConnection;
 
     private final UUID uniqueId;
 
-    public LoginPendingConnectionCommandSender(LoginEvent loginEvent, UUID uniqueId) {
-        this.loginEvent = loginEvent;
-        this.uniqueId = uniqueId;
+    public LoginPendingConnectionCommandSender(PendingConnection pendingConnection) {
+        this.pendingConnection = pendingConnection;
+        this.uniqueId = pendingConnection.getUniqueId();
 
-        this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(loginEvent.getConnection().getName()));
+        this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(pendingConnection.getName()));
 
         for (String group : groups) {
             for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group)) {
@@ -33,27 +34,37 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
 
     @Override
     public String getName() {
-        return loginEvent.getConnection().getName();
+        return this.pendingConnection.getName();
     }
 
     @Override
     public void sendMessage(String message) {
-        //Not supported
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
     public void sendMessages(String... messages) {
-        //Not supported
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void sendMessage(BaseComponent... message) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void sendMessage(BaseComponent message) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
     public void addGroups(String... groups) {
-        //Not supported
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
     public void removeGroups(String... groups) {
-        //Not supported
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
@@ -86,8 +97,8 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
         return this.groups;
     }
 
-    public LoginEvent getLoginEvent() {
-        return this.loginEvent;
+    public PendingConnection getPendingConnection() {
+        return pendingConnection;
     }
 
     public UUID getUniqueId() {

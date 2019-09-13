@@ -17,10 +17,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.material.MaterialData;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -317,34 +315,6 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask));
     }
 
-    public Block getLivingEntityTargetBlock(LivingEntity livingEntity, int range) {
-        Validate.checkNotNull(livingEntity);
-
-        //new
-        try {
-
-            Method method = LivingEntity.class.getMethod("getTargetBlock", Set.class, int.class);
-            method.setAccessible(true);
-            return (Block) method.invoke(livingEntity, null, range);
-
-        } catch (Exception ignored) {
-
-        }
-
-        //old
-        try {
-
-            Method method = LivingEntity.class.getMethod("getTargetBlock", HashSet.class, int.class);
-            method.setAccessible(true);
-            return (Block) method.invoke(livingEntity, null, range);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
-
     private void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             Location location = toLocation(sign.getWorldPosition());
@@ -356,10 +326,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
             Block block = location.getBlock();
 
-            if (!(block.getState() instanceof org.bukkit.block.Sign) &&
-                    block.getType() != Material.SIGN_POST &&
-                    block.getType() != Material.WALL_SIGN &&
-                    block.getType() != Material.SIGN) {
+            if (!(block.getState() instanceof org.bukkit.block.Sign)) {
                 super.sendSignRemoveUpdate(sign);
                 return;
             }
@@ -445,9 +412,11 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 BlockState backBlockState = location.getBlock().getRelative(sign.getAttachedFace()).getState();
                 Material backBlockMaterial = Material.getMaterial(blockType.toUpperCase());
 
-                backBlockState.setType(backBlockMaterial);
-                backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
-                backBlockState.update(true);
+                if (backBlockMaterial != null) {
+                    backBlockState.setType(backBlockMaterial);
+                    backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    backBlockState.update(true);
+                }
 
             }
         }
@@ -564,8 +533,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             Bukkit.getScheduler().runTaskLater(
                     this.plugin,
                     this::executeStartingTask,
-                    20 / (signConfigurationEntry.getStartingLayouts().getAnimationsPerSecond() >= 20 ? 20 :
-                            signConfigurationEntry.getStartingLayouts().getAnimationsPerSecond())
+                    20 / (Math.min(signConfigurationEntry.getStartingLayouts().getAnimationsPerSecond(), 20))
             );
         } else {
             indexes[0].set(-1);
@@ -593,8 +561,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             Bukkit.getScheduler().runTaskLater(
                     this.plugin,
                     this::executeSearchingTask,
-                    20 / (signConfigurationEntry.getSearchLayouts().getAnimationsPerSecond() >= 20 ? 20 :
-                            signConfigurationEntry.getSearchLayouts().getAnimationsPerSecond())
+                    20 / (Math.min(signConfigurationEntry.getSearchLayouts().getAnimationsPerSecond(), 20))
             );
         } else {
             indexes[1].set(-1);

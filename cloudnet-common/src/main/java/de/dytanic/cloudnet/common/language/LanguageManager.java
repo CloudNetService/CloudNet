@@ -96,8 +96,8 @@ public final class LanguageManager {
     /**
      * Add a new language properties, which can resolve with getMessage() in the configured language.
      *
-     * @param language    the language, which should append
-     * @param inputStream the properties which will add in the language as parameter
+     * @param language the language, which should append
+     * @param reader   the properties which will be added in the language as parameter
      */
     public static void addLanguageFile(String language, Reader reader) {
         Properties properties = new Properties();

@@ -18,7 +18,7 @@ public final class PacketServerSetH2DatabaseDataListener implements IPacketListe
     }.getType();
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider && packet.getHeader().contains("set_h2db")) {
             Map<String, Map<String, JsonDocument>> documents = packet.getHeader().get("documents", TYPE);
 

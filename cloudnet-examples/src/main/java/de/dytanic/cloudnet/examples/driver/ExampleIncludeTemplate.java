@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 public final class ExampleIncludeTemplate {
@@ -34,7 +34,7 @@ public final class ExampleIncludeTemplate {
                         )
                 }),
                 Iterables.newArrayList(),
-                Arrays.asList("PrivateServerGroup"),
+                Collections.singletonList("PrivateServerGroup"),
                 new ProcessConfiguration(
                         ServiceEnvironmentType.MINECRAFT_SERVER,
                         256,

@@ -110,7 +110,7 @@ public final class NodePlayerManager implements IPlayerManager {
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-        return schedule(() -> getOnlinePlayers());
+        return schedule(this::getOnlinePlayers);
     }
 
     @Override
@@ -125,7 +125,7 @@ public final class NodePlayerManager implements IPlayerManager {
 
     @Override
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
-        return schedule(() -> getRegisteredPlayers());
+        return schedule(this::getRegisteredPlayers);
     }
 
 

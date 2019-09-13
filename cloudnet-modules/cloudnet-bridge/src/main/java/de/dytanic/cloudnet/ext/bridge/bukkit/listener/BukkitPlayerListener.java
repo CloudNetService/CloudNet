@@ -24,8 +24,6 @@ public final class BukkitPlayerListener implements Listener {
 
     private final Collection<UUID> accessUniqueIds = Iterables.newCopyOnWriteArrayList();
 
-    private final Collection<String> accessNames = Iterables.newCopyOnWriteArrayList();
-
     private final BukkitCloudNetBridgePlugin plugin;
 
     public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
@@ -54,14 +52,6 @@ public final class BukkitPlayerListener implements Listener {
 
             accessUniqueIds.add(uniqueId);
             Bukkit.getScheduler().runTaskLater(plugin, () -> accessUniqueIds.remove(uniqueId), 40);
-            return;
-        }
-
-        if (event.getNetworkConnectionInfo().getName() != null) {
-            String name = event.getNetworkConnectionInfo().getName();
-
-            accessNames.add(name);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> accessNames.remove(name), 40);
         }
     }
 
@@ -86,35 +76,16 @@ public final class BukkitPlayerListener implements Listener {
 
         if (onlyProxyProtection) {
             UUID uniqueId = event.getPlayer().getUniqueId();
-            boolean checkName = true;
 
-            if (uniqueId != null) {
-                if (!accessUniqueIds.contains(uniqueId)) {
-                    event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                    event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
-                    return;
+            if (!accessUniqueIds.contains(uniqueId)) {
+                event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
+                return;
 
-                } else {
-                    accessUniqueIds.remove(uniqueId);
-                }
-
-                checkName = false;
+            } else {
+                accessUniqueIds.remove(uniqueId);
             }
 
-            if (checkName) {
-                String name = event.getPlayer().getName();
-
-                if (name != null) {
-                    if (!accessNames.contains(name)) {
-                        event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                        event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
-                        return;
-
-                    } else {
-                        accessNames.remove(name);
-                    }
-                }
-            }
         }
 
         BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),

@@ -13,23 +13,20 @@ import java.util.UUID;
 public final class PacketClusterSyncAPIPacketListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         handle0(channel, packet);
     }
 
-    private void handle0(INetworkChannel channel, IPacket packet) throws Exception {
+    private void handle0(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains(PacketConstants.SYNC_PACKET_ID_PROPERTY) && packet.getHeader().contains(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY) &&
                 packet.getHeader().getString(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY).equals(PacketConstants.CLUSTER_NODE_SYNC_PACKET_CHANNEL_NAME)) {
-            switch (packet.getHeader().getString(PacketConstants.SYNC_PACKET_ID_PROPERTY)) {
-                case "get_reserved_task_ids": {
-                    this.sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("taskIds", CloudNet.getInstance().getCloudServiceManager().getReservedTaskIds(
-                                    packet.getHeader().getString("task")
-                            )),
-                            new byte[0]
-                    );
-                }
-                break;
+            if ("get_reserved_task_ids".equals(packet.getHeader().getString(PacketConstants.SYNC_PACKET_ID_PROPERTY))) {
+                this.sendResponse(channel, packet.getUniqueId(),
+                        new JsonDocument("taskIds", CloudNet.getInstance().getCloudServiceManager().getReservedTaskIds(
+                                packet.getHeader().getString("task")
+                        )),
+                        new byte[0]
+                );
             }
         }
     }

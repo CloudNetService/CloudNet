@@ -28,34 +28,35 @@ public class PacketServerDatabaseAction implements IPacketListener {
                 // actions for a specific key in the database
                 if (packet.getHeader().contains("key")) {
                     String key = packet.getHeader().getString("key");
-                    if (message.equals("contains")) {
-                        this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
-                                new byte[]{
-                                        (byte) (database.contains(key) ? 1 : 0)
-                                }
-                        );
-                        return;
-                    } else if (message.equals("insert")) {
-                        this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
-                                new byte[]{
-                                        (byte) (database.insert(key, packet.getHeader().getDocument("value")) ? 1 : 0)
-                                }
-                        );
-                        return;
-                    } else if (message.equals("delete")) {
-                        this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
-                                new byte[]{
-                                        (byte) (database.delete(key) ? 1 : 0)
-                                }
-                        );
-                        return;
-                    } else if (message.equals("update")) {
-                        this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
-                                new byte[]{
-                                        (byte) (database.update(key, packet.getHeader().getDocument("value")) ? 1 : 0)
-                                }
-                        );
-                        return;
+                    switch (message) {
+                        case "contains":
+                            this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
+                                    new byte[]{
+                                            (byte) (database.contains(key) ? 1 : 0)
+                                    }
+                            );
+                            return;
+                        case "insert":
+                            this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
+                                    new byte[]{
+                                            (byte) (database.insert(key, packet.getHeader().getDocument("value")) ? 1 : 0)
+                                    }
+                            );
+                            return;
+                        case "delete":
+                            this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
+                                    new byte[]{
+                                            (byte) (database.delete(key) ? 1 : 0)
+                                    }
+                            );
+                            return;
+                        case "update":
+                            this.sendResponse(channel, packet.getUniqueId(), new JsonDocument(),
+                                    new byte[]{
+                                            (byte) (database.update(key, packet.getHeader().getDocument("value")) ? 1 : 0)
+                                    }
+                            );
+                            return;
                     }
                 }
                 if (message.equals("get")) {
@@ -135,7 +136,6 @@ public class PacketServerDatabaseAction implements IPacketListener {
             // actions for the database provider WITHOUT a specific database
             if (message.equals("databases")) {
                 this.sendResponse(channel, packet.getUniqueId(), new JsonDocument().append("databases", databaseProvider.getDatabaseNames()));
-                return;
             }
             // actions for the database provider WITHOUT a specific database
         }

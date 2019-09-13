@@ -77,23 +77,16 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             httpURLConnection.setDoOutput(true);
             httpURLConnection.connect();
 
-            switch (getConfig().get("pasteServerType", PasteServerType.class)) {
-                case HASTE: {
-                    try (DataOutputStream writer = new DataOutputStream(httpURLConnection.getOutputStream())) {
-                        writer.writeBytes(context);
-                        writer.flush();
-                    }
+            if (getConfig().get("pasteServerType", PasteServerType.class) == PasteServerType.HASTE) {
+                try (DataOutputStream writer = new DataOutputStream(httpURLConnection.getOutputStream())) {
+                    writer.writeBytes(context);
+                    writer.flush();
                 }
-                break;
             }
 
             String input;
             try (InputStream inputStream = httpURLConnection.getInputStream()) {
                 input = new String(FileUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
-            }
-
-            if (input == null) {
-                throw new IOException("Response text is null");
             }
 
             JsonDocument jsonDocument = JsonDocument.newDocument(input);

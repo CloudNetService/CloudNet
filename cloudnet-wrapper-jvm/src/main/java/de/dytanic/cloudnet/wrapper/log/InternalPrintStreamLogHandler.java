@@ -29,7 +29,7 @@ public final class InternalPrintStreamLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 }

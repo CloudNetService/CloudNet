@@ -12,7 +12,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 public final class PacketServerServiceInfoPublisherListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("serviceInfoSnapshot") && packet.getHeader().contains("type")) {
             ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
             PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getHeader().get("type", PacketClientServerServiceInfoPublisher.PublisherType.class);

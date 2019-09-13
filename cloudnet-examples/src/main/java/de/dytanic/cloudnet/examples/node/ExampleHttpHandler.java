@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.examples.node;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
 
 public final class ExampleHttpHandler {
@@ -11,7 +10,7 @@ public final class ExampleHttpHandler {
     public void registerHttpHandlerExample() {
         CloudNet.getInstance().getHttpServer().registerHandler( //register a default http handler, which receives all http message on the following path
                 "/helloworld",
-                (IHttpHandler) (path, context) -> {
+                (path, context) -> {
                     context
                             .response()
                             .statusCode(HttpResponseCode.HTTP_OK) //sets the response status code
@@ -29,7 +28,7 @@ public final class ExampleHttpHandler {
                 new MethodHttpHandlerAdapter() {
 
                     @Override
-                    public void handleGet(String path, IHttpContext context) throws Exception {
+                    public void handleGet(String path, IHttpContext context) {
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)

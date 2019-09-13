@@ -22,12 +22,12 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         super.sendOptions(context, "GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
@@ -63,7 +63,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, IHttpContext context) {
         IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
@@ -96,7 +96,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) throws Exception {
+    public void handleDelete(String path, IHttpContext context) {
         IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context

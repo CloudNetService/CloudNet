@@ -43,8 +43,6 @@ public final class BungeeCloudNetListener {
                     event.getServiceInfo().getAddress().getHost(),
                     event.getServiceInfo().getAddress().getPort()
             )));
-
-            BungeeCloudNetHelper.addItemToBungeeCordListenerPrioritySystem(event.getServiceInfo(), name);
         }
 
         this.bungeeCall(new BungeeCloudServiceStartEvent(event.getServiceInfo()));
@@ -55,8 +53,6 @@ public final class BungeeCloudNetListener {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
             String name = event.getServiceInfo().getServiceId().getName();
             ProxyServer.getInstance().getServers().remove(name);
-
-            BungeeCloudNetHelper.removeItemToBungeeCordListenerPrioritySystem(event.getServiceInfo(), name);
         }
 
         this.bungeeCall(new BungeeCloudServiceStopEvent(event.getServiceInfo()));
@@ -148,13 +144,8 @@ public final class BungeeCloudNetListener {
     }
 
     public ProxiedPlayer getPlayer(JsonDocument data) {
-        return Iterables.first(ProxyServer.getInstance().getPlayers(), proxiedPlayer -> {
-            UUID uniqueId = BungeeCloudNetHelper.getUniqueIdOfPlayer(proxiedPlayer);
-
-            return uniqueId != null ?
-                    data.contains("uniqueId") && uniqueId.equals(data.get("uniqueId", UUID.class)) :
-                    data.contains("name") && proxiedPlayer.getName().equalsIgnoreCase(data.getString("name"));
-        });
+        return Iterables.first(ProxyServer.getInstance().getPlayers(), proxiedPlayer ->
+                data.contains("uniqueId") && proxiedPlayer.getUniqueId().equals(data.get("uniqueId", UUID.class)));
     }
 
     @EventListener

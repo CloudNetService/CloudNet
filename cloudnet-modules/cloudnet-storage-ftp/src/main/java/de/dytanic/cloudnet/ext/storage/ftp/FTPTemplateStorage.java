@@ -100,7 +100,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(paths);
         Validate.checkNotNull(target);
 
-        return this.deploy(Iterables.map(Arrays.asList(paths), t -> t.toFile()).toArray(new File[0]), target);
+        return this.deploy(Iterables.map(Arrays.asList(paths), Path::toFile).toArray(new File[0]), target);
     }
 
     @Override
@@ -224,7 +224,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(template);
         Validate.checkNotNull(directories);
 
-        return this.copy(template, Iterables.map(Arrays.asList(directories), path -> path.toFile()).toArray(new File[0]));
+        return this.copy(template, Iterables.map(Arrays.asList(directories), Path::toFile).toArray(new File[0]));
     }
 
     @Override
@@ -349,7 +349,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
     }
 
 

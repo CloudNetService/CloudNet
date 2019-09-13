@@ -15,7 +15,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
         if (webSocketFrame instanceof PingWebSocketFrame) {
             invoke0(WebSocketFrameType.PING, webSocketFrame);
         }

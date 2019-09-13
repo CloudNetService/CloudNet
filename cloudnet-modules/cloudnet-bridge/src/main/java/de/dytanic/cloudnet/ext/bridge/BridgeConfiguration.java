@@ -24,7 +24,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     private Map<String, String> messages;
 
-    private boolean logPlayerConnections = true;
+    private boolean logPlayerConnections;
 
     public BridgeConfiguration(String prefix, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups, Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Map<String, String> messages, boolean logPlayerConnections) {
         this.prefix = prefix;

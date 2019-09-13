@@ -6,7 +6,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.Callable;
 
 final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet> {
@@ -48,19 +47,19 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (!(cause instanceof IOException) && !(cause instanceof ClosedChannelException)) {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        if (!(cause instanceof IOException)) {
             cause.printStackTrace();
         }
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
         nettyNetworkClient.taskScheduler.schedule((Callable<Void>) () -> {
             if (channel.getHandler() != null && !channel.getHandler().handlePacketReceive(channel, msg)) {
                 return null;

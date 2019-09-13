@@ -240,7 +240,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
 
-    private final class VoidCallable implements Callable<Void> {
+    private static final class VoidCallable implements Callable<Void> {
 
         private final Runnable runnable;
 
@@ -249,7 +249,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         }
 
         @Override
-        public Void call() throws Exception {
+        public Void call() {
             runnable.run();
             return null;
         }
@@ -358,7 +358,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             this.stop();
         }
     }

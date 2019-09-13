@@ -16,7 +16,7 @@ final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
     }
 
     @Override
-    protected void initChannel(Channel ch) throws Exception {
+    protected void initChannel(Channel ch) {
         if (nettyNetworkClient.sslContext != null) {
             ch.pipeline()
                     .addLast(nettyNetworkClient.sslContext.newHandler(ch.alloc(), hostAndPort.getHost(), hostAndPort.getPort()));

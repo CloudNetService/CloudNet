@@ -24,7 +24,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "GET, DELETE, POST");
     }
 
@@ -40,7 +40,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         if (LocalTemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
             File file = getFileByPath(path, serviceTemplate);
 
-            if (file == null || !file.exists()) {
+            if (!file.exists()) {
                 this.send404Response(context, "file '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
                 return;
             }
@@ -126,7 +126,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) throws Exception {
+    public void handleDelete(String path, IHttpContext context) {
         if (!context.request().pathParameters().containsKey("prefix") || !context.request().pathParameters().containsKey("name")) {
             this.send400Response(context, "path parameter prefix or suffix doesn't exists");
             return;
@@ -137,7 +137,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         if (LocalTemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
             File file = getFileByPath(path, serviceTemplate);
 
-            if (file == null || !file.exists()) {
+            if (!file.exists()) {
                 this.send404Response(context, "file or directory '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
                 return;
             }
