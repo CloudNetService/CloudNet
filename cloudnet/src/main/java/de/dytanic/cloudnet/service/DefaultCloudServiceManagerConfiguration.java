@@ -79,20 +79,35 @@ final class DefaultCloudServiceManagerConfiguration {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
     public void save() {
         try {
             Files.createDirectories(TASKS_DIRECTORY);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         for (ServiceTask task : this.tasks) {
             new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
+        }
+
+        try {
+            Files.walkFileTree(TASKS_DIRECTORY, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String name = file.getFileName().toString();
+                    if (tasks.stream().noneMatch(serviceTask -> (serviceTask.getName() + ".json").equalsIgnoreCase(name))) {
+                        Files.delete(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         new JsonDocument().append("groups", this.groups).write(GROUPS_CONFIG_FILE);

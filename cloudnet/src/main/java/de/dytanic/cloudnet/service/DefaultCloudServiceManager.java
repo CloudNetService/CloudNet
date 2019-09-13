@@ -21,17 +21,17 @@ import java.util.function.Predicate;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
-    protected static final ICloudServiceFactory DEFAULT_FACTORY = new JVMCloudServiceFactory();
+    private static final ICloudServiceFactory DEFAULT_FACTORY = new JVMCloudServiceFactory();
 
-    protected final File
+    private final File
             tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
             persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
 
-    protected final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = Maps.newConcurrentHashMap();
+    private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = Maps.newConcurrentHashMap();
 
-    protected final Map<UUID, ICloudService> cloudServices = Maps.newConcurrentHashMap();
+    private final Map<UUID, ICloudService> cloudServices = Maps.newConcurrentHashMap();
 
-    protected final Map<String, ICloudServiceFactory> cloudServiceFactories = Maps.newConcurrentHashMap();
+    private final Map<String, ICloudServiceFactory> cloudServiceFactories = Maps.newConcurrentHashMap();
 
     protected final DefaultCloudServiceManagerConfiguration config = new DefaultCloudServiceManagerConfiguration();
 
@@ -67,10 +67,10 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         if (!serviceTaskAddEvent.isCancelled()) {
             this.config.getTasks().add(task);
-        }
 
-        this.config.save();
-        CloudNet.getInstance().updateServiceTasksInCluster();
+            this.config.save();
+            CloudNet.getInstance().updateServiceTasksInCluster();
+        }
     }
 
     @Override
@@ -85,8 +85,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         for (ServiceTask serviceTask : this.config.getTasks()) {
             if (serviceTask.getName().equalsIgnoreCase(name)) {
-                CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskRemoveEvent(this, serviceTask));
-                this.config.getTasks().remove(serviceTask);
+                if (!CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskRemoveEvent(this, serviceTask)).isCancelled()) {
+                    this.config.getTasks().remove(serviceTask);
+                }
             }
         }
 
