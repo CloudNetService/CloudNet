@@ -89,10 +89,6 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
                 input = new String(FileUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
             }
 
-            if (input == null) {
-                throw new IOException("Response text is null");
-            }
-
             JsonDocument jsonDocument = JsonDocument.newDocument(input);
 
             return getConfig().getString("pasteServerUrl") + "/" + jsonDocument.getString("key") +

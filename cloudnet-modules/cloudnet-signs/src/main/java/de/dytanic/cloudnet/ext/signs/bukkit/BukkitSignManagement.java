@@ -412,9 +412,11 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 BlockState backBlockState = location.getBlock().getRelative(sign.getAttachedFace()).getState();
                 Material backBlockMaterial = Material.getMaterial(blockType.toUpperCase());
 
-                backBlockState.setType(backBlockMaterial);
-                backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
-                backBlockState.update(true);
+                if (backBlockMaterial != null) {
+                    backBlockState.setType(backBlockMaterial);
+                    backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    backBlockState.update(true);
+                }
 
             }
         }
@@ -531,8 +533,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             Bukkit.getScheduler().runTaskLater(
                     this.plugin,
                     this::executeStartingTask,
-                    20 / (signConfigurationEntry.getStartingLayouts().getAnimationsPerSecond() >= 20 ? 20 :
-                            signConfigurationEntry.getStartingLayouts().getAnimationsPerSecond())
+                    20 / (Math.min(signConfigurationEntry.getStartingLayouts().getAnimationsPerSecond(), 20))
             );
         } else {
             indexes[0].set(-1);
@@ -560,8 +561,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             Bukkit.getScheduler().runTaskLater(
                     this.plugin,
                     this::executeSearchingTask,
-                    20 / (signConfigurationEntry.getSearchLayouts().getAnimationsPerSecond() >= 20 ? 20 :
-                            signConfigurationEntry.getSearchLayouts().getAnimationsPerSecond())
+                    20 / (Math.min(signConfigurationEntry.getSearchLayouts().getAnimationsPerSecond(), 20))
             );
         } else {
             indexes[1].set(-1);

@@ -20,9 +20,7 @@ public final class PacketServerSetDatabaseGroupFilePermissionsListener implement
                 }.getType());
 
                 if (permissionGroups != null) {
-                    if (permissionGroups != null) {
-                        ((DefaultDatabasePermissionManagement) CloudNet.getInstance().getPermissionManagement()).setGroups0(permissionGroups);
-                    }
+                    ((DefaultDatabasePermissionManagement) CloudNet.getInstance().getPermissionManagement()).setGroups0(permissionGroups);
                 }
             }
         }

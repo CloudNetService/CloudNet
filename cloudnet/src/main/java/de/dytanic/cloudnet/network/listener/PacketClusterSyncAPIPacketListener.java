@@ -13,7 +13,7 @@ import java.util.UUID;
 public final class PacketClusterSyncAPIPacketListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         handle0(channel, packet);
     }
 

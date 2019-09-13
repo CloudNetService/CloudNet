@@ -144,7 +144,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         }
 
         entry = null;
-        File file = null;
+        File file;
 
         int index = 0;
 

@@ -1924,7 +1924,7 @@ public final class CloudNet extends CloudNetDriver {
                     logger.warning(ConsoleColor.RED + LanguageManager.getMessage("cloudnet-init-config-hostaddress-input-invalid"));
                 }
 
-            } while (input != null);
+            } while (true);
         }
     }
 
@@ -2081,9 +2081,9 @@ public final class CloudNet extends CloudNetDriver {
                         doBreak = true;
                         break;
                     case "bedrock":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy proxprox");
+                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy waterdog");
                         commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby nukkit");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default proxprox default");
+                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default waterdog default");
                         commandMap.dispatchCommand(consoleCommandSender, "lt install Lobby default nukkit default");
                         commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
@@ -2101,7 +2101,7 @@ public final class CloudNet extends CloudNetDriver {
                     break;
                 }
 
-            } while (input != null);
+            } while (true);
         }
     }
 

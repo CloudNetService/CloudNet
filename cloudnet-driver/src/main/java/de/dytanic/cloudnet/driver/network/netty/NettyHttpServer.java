@@ -187,7 +187,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @ToString
     @EqualsAndHashCode
-    public class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
+    public static class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
 
         public final String path;
 

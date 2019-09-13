@@ -48,7 +48,7 @@ public final class Validate {
     public static boolean assertTrue(boolean value) {
         assertTrue(value, null);
 
-        return value;
+        return true;
     }
 
     /**
@@ -64,7 +64,7 @@ public final class Validate {
             throw new IllegalArgumentException(message == null ? "input condition is false. Expected true" : message);
         }
 
-        return value;
+        return true;
     }
 
     /**
@@ -77,7 +77,7 @@ public final class Validate {
     public static boolean assertFalse(boolean value) {
         assertFalse(value, "value is true");
 
-        return value;
+        return false;
     }
 
     /**
@@ -93,7 +93,7 @@ public final class Validate {
             throw new IllegalArgumentException(message);
         }
 
-        return value;
+        return false;
     }
 
     /**

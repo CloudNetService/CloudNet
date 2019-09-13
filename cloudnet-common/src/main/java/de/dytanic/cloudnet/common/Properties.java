@@ -244,10 +244,9 @@ public class Properties extends LinkedHashMap<String, String> {
      * Writes all properties into the file like the .properties default in UTF-8
      *
      * @param writer the target Writer, which should use
-     * @throws IOException if an problem to write into the file exists
      * @see java.util.Properties
      */
-    public void save(Writer writer) throws IOException {
+    public void save(Writer writer) {
         save(null, writer);
     }
 

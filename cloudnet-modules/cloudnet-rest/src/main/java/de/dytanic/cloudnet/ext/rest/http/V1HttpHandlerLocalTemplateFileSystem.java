@@ -40,7 +40,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         if (LocalTemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
             File file = getFileByPath(path, serviceTemplate);
 
-            if (file == null || !file.exists()) {
+            if (!file.exists()) {
                 this.send404Response(context, "file '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
                 return;
             }
@@ -137,7 +137,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         if (LocalTemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
             File file = getFileByPath(path, serviceTemplate);
 
-            if (file == null || !file.exists()) {
+            if (!file.exists()) {
                 this.send404Response(context, "file or directory '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
                 return;
             }

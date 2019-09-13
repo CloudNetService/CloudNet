@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -9,17 +8,17 @@ import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class BukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
-    private static final Collection<String> DEFAULT_ALLOWED_PERMISSION_COLLECTION = Iterables.newArrayList(Arrays.asList(
+    private static final Collection<String> DEFAULT_ALLOWED_PERMISSION_COLLECTION = Collections.singletonList(
             "bukkit.broadcast.user"
-    ));
+    );
 
     private final Player player;
 

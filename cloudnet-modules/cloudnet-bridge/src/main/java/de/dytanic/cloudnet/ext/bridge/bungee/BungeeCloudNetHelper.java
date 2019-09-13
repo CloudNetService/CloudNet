@@ -20,10 +20,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public final class BungeeCloudNetHelper {
 

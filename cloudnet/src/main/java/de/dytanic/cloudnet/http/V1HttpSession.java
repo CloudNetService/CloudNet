@@ -104,7 +104,7 @@ public final class V1HttpSession {
         return null;
     }
 
-    public void logout(IHttpContext context) throws Exception {
+    public void logout(IHttpContext context) {
         Validate.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
@@ -115,7 +115,7 @@ public final class V1HttpSession {
         context.removeCookie(COOKIE_NAME);
     }
 
-    public IPermissionUser getUser(IHttpContext context) throws Exception {
+    public IPermissionUser getUser(IHttpContext context) {
         Validate.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
@@ -152,7 +152,7 @@ public final class V1HttpSession {
         ));
     }
 
-    public class SessionEntry {
+    public static class SessionEntry {
 
         long creationTime, lastUsageMillis;
 

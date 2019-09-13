@@ -240,7 +240,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
 
-    private final class VoidCallable implements Callable<Void> {
+    private static final class VoidCallable implements Callable<Void> {
 
         private final Runnable runnable;
 

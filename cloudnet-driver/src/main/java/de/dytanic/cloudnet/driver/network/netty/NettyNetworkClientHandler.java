@@ -6,7 +6,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.Callable;
 
 final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet> {
@@ -49,7 +48,7 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (!(cause instanceof IOException) && !(cause instanceof ClosedChannelException)) {
+        if (!(cause instanceof IOException)) {
             cause.printStackTrace();
         }
     }

@@ -136,7 +136,6 @@ public class PacketServerDatabaseAction implements IPacketListener {
             // actions for the database provider WITHOUT a specific database
             if (message.equals("databases")) {
                 this.sendResponse(channel, packet.getUniqueId(), new JsonDocument().append("databases", databaseProvider.getDatabaseNames()));
-                return;
             }
             // actions for the database provider WITHOUT a specific database
         }

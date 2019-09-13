@@ -25,9 +25,8 @@ public final class ServiceInfoSnapshotUtil {
     }
 
     public static boolean isOnline(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Boolean value = serviceInfoSnapshot.getProperties().getBoolean("Online");
 
-        return value != null && value;
+        return serviceInfoSnapshot.getProperties().getBoolean("Online");
     }
 
     public static String getMotd(ServiceInfoSnapshot serviceInfoSnapshot) {

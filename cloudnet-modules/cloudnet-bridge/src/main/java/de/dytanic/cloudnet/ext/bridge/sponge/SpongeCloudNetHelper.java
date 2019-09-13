@@ -110,17 +110,14 @@ public final class SpongeCloudNetHelper {
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
-        Boolean onlineMode = Sponge.getServer().getOnlineMode();
-        if (onlineMode == null) {
-            onlineMode = true;
-        }
+        boolean onlineMode = Sponge.getServer().getOnlineMode();
 
         return BridgeHelper.createNetworkConnectionInfo(
                 player.getUniqueId(),
                 player.getName(),
                 -1,
                 new HostAndPort(player.getConnection().getAddress()),
-                new HostAndPort(Sponge.getServer().getBoundAddress().get()),
+                new HostAndPort(Sponge.getServer().getBoundAddress().orElse(null)),
                 onlineMode,
                 false,
                 new NetworkServiceInfo(

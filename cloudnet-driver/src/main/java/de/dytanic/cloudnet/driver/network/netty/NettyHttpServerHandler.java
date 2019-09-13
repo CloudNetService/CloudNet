@@ -51,7 +51,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
         if (msg.decoderResult() != DecoderResult.SUCCESS) {
             ctx.channel().close();
             return;

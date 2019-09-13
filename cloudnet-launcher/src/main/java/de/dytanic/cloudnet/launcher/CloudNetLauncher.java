@@ -212,7 +212,7 @@ public final class CloudNetLauncher {
             return;
         }
 
-        if (exists && variables.containsKey(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED) && variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED)
+        if (variables.containsKey(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED) && variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED)
                 .equalsIgnoreCase("true")) {
             configureInstallDefaultModules0(buffer, directory, false);
         }

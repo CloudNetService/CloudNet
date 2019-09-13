@@ -31,7 +31,6 @@ public final class CommandReload extends CommandDefault {
                 getCloudNet().getCloudServiceManager().reload();
                 getCloudNet().getPermissionManagement().reload();
                 sender.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
-                return;
             }
         }
     }
