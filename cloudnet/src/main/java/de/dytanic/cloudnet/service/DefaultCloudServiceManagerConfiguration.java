@@ -95,6 +95,22 @@ final class DefaultCloudServiceManagerConfiguration {
             new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
         }
 
+        try {
+            Files.walkFileTree(TASKS_DIRECTORY, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String name = file.getFileName().toString();
+                    if (name.endsWith(".json") &&
+                            tasks.stream().noneMatch(serviceTask -> serviceTask.getName().equalsIgnoreCase(name.substring(0, name.length() - 5)))) {
+                        Files.delete(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         new JsonDocument().append("groups", this.groups).write(GROUPS_CONFIG_FILE);
     }
 
