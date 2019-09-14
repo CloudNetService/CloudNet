@@ -52,11 +52,12 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         }
 
         for (ServiceTask task : this.getCloudNet().getPermanentServiceTasks()) {
+            SmartServiceTaskConfig config = task.getProperties().get(SMART_CONFIG_ENTRY, SmartServiceTaskConfig.class);
             task.getProperties().append(
                     SMART_CONFIG_ENTRY,
                     oldSmartTasks.containsKey(task.getName()) ?
                             oldSmartTasks.get(task.getName()) :
-                            new SmartServiceTaskConfig()
+                            config != null ? config : new SmartServiceTaskConfig()
             );
             this.getCloudNet().getCloudServiceManager().addPermanentServiceTask(task);
         }
