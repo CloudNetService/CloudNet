@@ -22,9 +22,11 @@ import java.util.UUID;
 
 public final class BukkitPlayerListener implements Listener {
 
-    private final Collection<UUID> accessUniqueIds = Iterables.newCopyOnWriteArrayList();
-
     private final BukkitCloudNetBridgePlugin plugin;
+
+    private final BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+
+    private final Collection<UUID> accessUniqueIds = Iterables.newCopyOnWriteArrayList();
 
     public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
         this.plugin = plugin;
@@ -32,58 +34,46 @@ public final class BukkitPlayerListener implements Listener {
 
     @EventHandler
     public void handle(BukkitBridgeProxyPlayerServerConnectRequestEvent event) {
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
-
         if (Bukkit.getOnlineMode()) {
             return;
         }
 
-        if (bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
-            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups()) {
-                if (Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups())) {
-                    return;
-                }
+        if (this.bridgeConfiguration != null && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
+            if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
+                    .anyMatch(group -> Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups()))) {
+                return;
             }
+
         }
 
         if (event.getNetworkConnectionInfo().getUniqueId() != null) {
 
             UUID uniqueId = event.getNetworkConnectionInfo().getUniqueId();
 
-            accessUniqueIds.add(uniqueId);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> accessUniqueIds.remove(uniqueId), 40);
+            this.accessUniqueIds.add(uniqueId);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.accessUniqueIds.remove(uniqueId), 40);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+        boolean onlyProxyProtection = !Bukkit.getOnlineMode();
 
-        boolean onlyProxyProtection = true;
-
-        if (Bukkit.getOnlineMode()) {
-            onlyProxyProtection = false;
-        }
-
-        if (onlyProxyProtection && bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
-            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups()) {
-                if (Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups())) {
-                    onlyProxyProtection = false;
-                    break;
-                }
-            }
+        if (onlyProxyProtection && this.bridgeConfiguration != null && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
+            onlyProxyProtection = this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
+                    .noneMatch(group -> Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups()));
         }
 
         if (onlyProxyProtection) {
             UUID uniqueId = event.getPlayer().getUniqueId();
 
-            if (!accessUniqueIds.contains(uniqueId)) {
+            if (!this.accessUniqueIds.contains(uniqueId)) {
                 event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
                 return;
 
             } else {
-                accessUniqueIds.remove(uniqueId);
+                this.accessUniqueIds.remove(uniqueId);
             }
 
         }
