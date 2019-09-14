@@ -132,8 +132,8 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                         CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
                     }
                 }).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException exception) {
+                exception.printStackTrace();
             }
         }
     }
