@@ -21,6 +21,11 @@ public final class CloudServiceListener {
         ServiceTask serviceTask = CloudNet.getInstance().getServiceTask(event.getServiceConfiguration().getServiceId().getTaskName());
         if (serviceTask != null && CloudNetSmartModule.getInstance().hasSmartServiceTaskConfig(serviceTask)) {
             SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask);
+            if (smartTask.getMaxServiceCount() > 0 &&
+                    CloudNet.getInstance().getCloudService(serviceTask.getName()).size() >= smartTask.getMaxServiceCount()) {
+                event.setCancelled(true);
+                return;
+            }
 
             CloudNetSmartModule.getInstance().updateAsSmartService(event.getServiceConfiguration(), serviceTask, smartTask);
         }

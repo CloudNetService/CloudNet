@@ -13,7 +13,6 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.ext.smart.listener.CloudNetTickListener;
 import de.dytanic.cloudnet.ext.smart.listener.CloudServiceListener;
 import de.dytanic.cloudnet.ext.smart.listener.TaskDefaultSmartConfigListener;
-import de.dytanic.cloudnet.ext.smart.template.TemplateInstaller;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
@@ -53,38 +52,19 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         }
 
         for (ServiceTask task : this.getCloudNet().getPermanentServiceTasks()) {
-            if (!task.getProperties().contains(SMART_CONFIG_ENTRY)) {
-                task.getProperties().append(
-                        SMART_CONFIG_ENTRY,
-                        oldSmartTasks.containsKey(task.getName()) ?
-                                oldSmartTasks.get(task.getName()) :
-                                this.createDefaultSmartServiceTaskConfig()
-                );
-                this.getCloudNet().getCloudServiceManager().addPermanentServiceTask(task);
-            }
+            task.getProperties().append(
+                    SMART_CONFIG_ENTRY,
+                    oldSmartTasks.containsKey(task.getName()) ?
+                            oldSmartTasks.get(task.getName()) :
+                            new SmartServiceTaskConfig()
+            );
+            this.getCloudNet().getCloudServiceManager().addPermanentServiceTask(task);
         }
-        this.getCloudNet().updateServiceTasksInCluster();
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
         registerListeners(new CloudNetTickListener(), new CloudServiceListener(), new TaskDefaultSmartConfigListener());
-    }
-
-    public SmartServiceTaskConfig createDefaultSmartServiceTaskConfig() {
-        return new SmartServiceTaskConfig(
-                10,
-                true,
-                0,
-                false,
-                256,
-                0,
-                180,
-                false,
-                100,
-                300,
-                TemplateInstaller.INSTALL_ALL
-        );
     }
 
     public SmartServiceTaskConfig getSmartServiceTaskConfig(ServiceTask task) {
