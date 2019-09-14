@@ -250,12 +250,12 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         switch (args[3].toLowerCase()) {
                             case "group":
                                 serviceTask.getGroups().add(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
                                 break;
                             case "node":
                                 serviceTask.getAssociatedNodes().add(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
                                 break;
                             case "template":
@@ -309,13 +309,57 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         switch (args[3].toLowerCase()) {
                             case "group":
                                 serviceTask.getGroups().remove(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-group-success"));
                                 break;
                             case "node":
                                 serviceTask.getAssociatedNodes().remove(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-node-success"));
+                                break;
+                            case "template":
+                                if (args.length == 7) {
+                                    serviceTask.getTemplates().stream()
+                                            .filter(
+                                                    template ->
+                                                            template.getPrefix().equals(args[5]) &&
+                                                                    template.getName().equals(args[6]) &&
+                                                                    template.getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                            .forEach(template -> serviceTask.getTemplates().remove(template));
+                                        updateServiceTask(serviceTask);
+
+                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
+                                }
+                                break;
+                            case "deployment":
+                                if (args.length == 7) {
+                                    serviceTask.getDeployments().stream()
+                                            .filter(
+                                                    deployment ->
+                                                            deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                                    deployment.getTemplate().getName().equals(args[6]) &&
+                                                                    deployment.getTemplate().getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                            .forEach(deployment -> serviceTask.getDeployments().remove(deployment));
+                                        updateServiceTask(serviceTask);
+
+                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
+                                }
+                                break;
+                            case "inclusion":
+                                if (args.length == 6) {
+                                    serviceTask.getIncludes().stream()
+                                            .filter(
+                                                    inclusion ->
+                                                            inclusion.getUrl().equals(args[4]) &&
+                                                                    inclusion.getDestination().equals(args[5])
+                                            ).collect(Collectors.toList())
+                                            .forEach(inclusion -> serviceTask.getIncludes().remove(inclusion));
+                                    updateServiceTask(serviceTask);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
+                                }
                                 break;
                         }
                     }
@@ -377,6 +421,55 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                     updateGroupConfiguration(groupConfiguration);
 
                                     sender.sendMessage(LanguageManager.getMessage("command-tasks-add-inclusion-success"));
+                                }
+                                break;
+                        }
+                    }
+
+                    if (args[2].equalsIgnoreCase("remove")) {
+                        switch (args[3].toLowerCase()) {
+                            case "template":
+                                if (args.length == 7) {
+                                    groupConfiguration.getTemplates().stream()
+                                            .filter(
+                                                    template ->
+                                                            template.getPrefix().equals(args[5]) &&
+                                                                    template.getName().equals(args[6]) &&
+                                                                    template.getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                            .forEach(template -> groupConfiguration.getTemplates().remove(template));
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
+                                }
+                                break;
+                            case "deployment":
+                                if (args.length == 7) {
+                                    groupConfiguration.getDeployments().stream()
+                                            .filter(
+                                                    deployment ->
+                                                            deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                                    deployment.getTemplate().getName().equals(args[6]) &&
+                                                                    deployment.getTemplate().getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                            .forEach(deployment -> groupConfiguration.getDeployments().remove(deployment));
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
+                                }
+                                break;
+                            case "inclusion":
+                                if (args.length == 6) {
+                                    groupConfiguration.getIncludes().stream()
+                                            .filter(
+                                                    inclusion ->
+                                                            inclusion.getUrl().equals(args[4]) &&
+                                                                    inclusion.getDestination().equals(args[5])
+                                            ).collect(Collectors.toList())
+                                            .forEach(inclusion -> groupConfiguration.getIncludes().remove(inclusion));
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
                                 }
                                 break;
                         }
