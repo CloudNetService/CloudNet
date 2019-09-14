@@ -326,40 +326,37 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "template":
                                 if (args.length == 7) {
                                     serviceTask.getTemplates().removeAll(serviceTask.getTemplates().stream()
-                                            .filter(
-                                                    template ->
-                                                            template.getPrefix().equals(args[5]) &&
-                                                                    template.getName().equals(args[6]) &&
-                                                                    template.getStorage().equals(args[4])
+                                            .filter(template ->
+                                                    template.getPrefix().equals(args[5]) &&
+                                                            template.getName().equals(args[6]) &&
+                                                            template.getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
                                     );
-                                        updateServiceTask(serviceTask);
+                                    updateServiceTask(serviceTask);
 
-                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
                                 }
                                 break;
                             case "deployment":
                                 if (args.length == 7) {
                                     serviceTask.getDeployments().removeAll(serviceTask.getDeployments().stream()
-                                            .filter(
-                                                    deployment ->
-                                                            deployment.getTemplate().getPrefix().equals(args[5]) &&
-                                                                    deployment.getTemplate().getName().equals(args[6]) &&
-                                                                    deployment.getTemplate().getStorage().equals(args[4])
+                                            .filter(deployment ->
+                                                    deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                            deployment.getTemplate().getName().equals(args[6]) &&
+                                                            deployment.getTemplate().getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
                                     );
-                                        updateServiceTask(serviceTask);
+                                    updateServiceTask(serviceTask);
 
-                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
                                 }
                                 break;
                             case "inclusion":
                                 if (args.length == 6) {
                                     serviceTask.getIncludes().removeAll(serviceTask.getIncludes().stream()
-                                            .filter(
-                                                    inclusion ->
-                                                            inclusion.getUrl().equals(args[4]) &&
-                                                                    inclusion.getDestination().equals(args[5])
+                                            .filter(inclusion ->
+                                                    inclusion.getUrl().equals(args[4]) &&
+                                                            inclusion.getDestination().equals(args[5])
                                             ).collect(Collectors.toList())
                                     );
                                     updateServiceTask(serviceTask);
@@ -437,11 +434,10 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "template":
                                 if (args.length == 7) {
                                     groupConfiguration.getTemplates().removeAll(groupConfiguration.getTemplates().stream()
-                                            .filter(
-                                                    template ->
-                                                            template.getPrefix().equals(args[5]) &&
-                                                                    template.getName().equals(args[6]) &&
-                                                                    template.getStorage().equals(args[4])
+                                            .filter(template ->
+                                                    template.getPrefix().equals(args[5]) &&
+                                                            template.getName().equals(args[6]) &&
+                                                            template.getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
                                     );
                                     updateGroupConfiguration(groupConfiguration);
@@ -452,11 +448,10 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "deployment":
                                 if (args.length == 7) {
                                     groupConfiguration.getDeployments().removeAll(groupConfiguration.getDeployments().stream()
-                                            .filter(
-                                                    deployment ->
-                                                            deployment.getTemplate().getPrefix().equals(args[5]) &&
-                                                                    deployment.getTemplate().getName().equals(args[6]) &&
-                                                                    deployment.getTemplate().getStorage().equals(args[4])
+                                            .filter(deployment ->
+                                                    deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                            deployment.getTemplate().getName().equals(args[6]) &&
+                                                            deployment.getTemplate().getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
                                     );
                                     updateGroupConfiguration(groupConfiguration);
@@ -467,10 +462,9 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "inclusion":
                                 if (args.length == 6) {
                                     groupConfiguration.getIncludes().removeAll(groupConfiguration.getIncludes().stream()
-                                            .filter(
-                                                    inclusion ->
-                                                            inclusion.getUrl().equals(args[4]) &&
-                                                                    inclusion.getDestination().equals(args[5])
+                                            .filter(inclusion ->
+                                                    inclusion.getUrl().equals(args[4]) &&
+                                                            inclusion.getDestination().equals(args[5])
                                             ).collect(Collectors.toList())
                                     );
                                     updateGroupConfiguration(groupConfiguration);
