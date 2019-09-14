@@ -325,14 +325,14 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 break;
                             case "template":
                                 if (args.length == 7) {
-                                    serviceTask.getTemplates().stream()
+                                    serviceTask.getTemplates().removeAll(serviceTask.getTemplates().stream()
                                             .filter(
                                                     template ->
                                                             template.getPrefix().equals(args[5]) &&
                                                                     template.getName().equals(args[6]) &&
                                                                     template.getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
-                                            .forEach(template -> serviceTask.getTemplates().remove(template));
+                                    );
                                         updateServiceTask(serviceTask);
 
                                         sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
@@ -340,14 +340,14 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 break;
                             case "deployment":
                                 if (args.length == 7) {
-                                    serviceTask.getDeployments().stream()
+                                    serviceTask.getDeployments().removeAll(serviceTask.getDeployments().stream()
                                             .filter(
                                                     deployment ->
                                                             deployment.getTemplate().getPrefix().equals(args[5]) &&
                                                                     deployment.getTemplate().getName().equals(args[6]) &&
                                                                     deployment.getTemplate().getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
-                                            .forEach(deployment -> serviceTask.getDeployments().remove(deployment));
+                                    );
                                         updateServiceTask(serviceTask);
 
                                         sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
@@ -355,13 +355,13 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 break;
                             case "inclusion":
                                 if (args.length == 6) {
-                                    serviceTask.getIncludes().stream()
+                                    serviceTask.getIncludes().removeAll(serviceTask.getIncludes().stream()
                                             .filter(
                                                     inclusion ->
                                                             inclusion.getUrl().equals(args[4]) &&
                                                                     inclusion.getDestination().equals(args[5])
                                             ).collect(Collectors.toList())
-                                            .forEach(inclusion -> serviceTask.getIncludes().remove(inclusion));
+                                    );
                                     updateServiceTask(serviceTask);
 
                                     sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
@@ -436,14 +436,14 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         switch (args[3].toLowerCase()) {
                             case "template":
                                 if (args.length == 7) {
-                                    groupConfiguration.getTemplates().stream()
+                                    groupConfiguration.getTemplates().removeAll(groupConfiguration.getTemplates().stream()
                                             .filter(
                                                     template ->
                                                             template.getPrefix().equals(args[5]) &&
                                                                     template.getName().equals(args[6]) &&
                                                                     template.getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
-                                            .forEach(template -> groupConfiguration.getTemplates().remove(template));
+                                    );
                                     updateGroupConfiguration(groupConfiguration);
 
                                     sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
@@ -451,14 +451,14 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 break;
                             case "deployment":
                                 if (args.length == 7) {
-                                    groupConfiguration.getDeployments().stream()
+                                    groupConfiguration.getDeployments().removeAll(groupConfiguration.getDeployments().stream()
                                             .filter(
                                                     deployment ->
                                                             deployment.getTemplate().getPrefix().equals(args[5]) &&
                                                                     deployment.getTemplate().getName().equals(args[6]) &&
                                                                     deployment.getTemplate().getStorage().equals(args[4])
                                             ).collect(Collectors.toList())
-                                            .forEach(deployment -> groupConfiguration.getDeployments().remove(deployment));
+                                    );
                                     updateGroupConfiguration(groupConfiguration);
 
                                     sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
@@ -466,13 +466,13 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 break;
                             case "inclusion":
                                 if (args.length == 6) {
-                                    groupConfiguration.getIncludes().stream()
+                                    groupConfiguration.getIncludes().removeAll(groupConfiguration.getIncludes().stream()
                                             .filter(
                                                     inclusion ->
                                                             inclusion.getUrl().equals(args[4]) &&
                                                                     inclusion.getDestination().equals(args[5])
                                             ).collect(Collectors.toList())
-                                            .forEach(inclusion -> groupConfiguration.getIncludes().remove(inclusion));
+                                    );
                                     updateGroupConfiguration(groupConfiguration);
 
                                     sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
