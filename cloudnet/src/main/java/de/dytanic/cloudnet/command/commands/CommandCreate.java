@@ -66,24 +66,11 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                         serviceTask.getStartPort()
                 );
 
-                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                    if (serviceInfoSnapshot != null) {
-                        sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
-                    }
+                if (serviceInfoSnapshots.isEmpty()) {
+                    sender.sendMessage(LanguageManager.getMessage("command-create-by-task-failed"));
+                    return;
                 }
-
-                if (properties.containsKey("start")) {
-                    try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                            }
-
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
+                this.listAndStartServices(sender, serviceInfoSnapshots, properties);
 
                 sender.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
             }
@@ -121,29 +108,33 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                         46949
                 );
 
-                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                    if (serviceInfoSnapshot != null) {
-                        sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
-                    }
-                }
-
-                if (properties.containsKey("start")) {
-                    try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                            }
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
+                this.listAndStartServices(sender, serviceInfoSnapshots, properties);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
             sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
+        }
+    }
+
+    private void listAndStartServices(ICommandSender sender, Collection<ServiceInfoSnapshot> serviceInfoSnapshots, Properties properties) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+            if (serviceInfoSnapshot != null) {
+                sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
+            }
+        }
+
+        if (properties.containsKey("start")) {
+            try {
+                CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
+                    for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+                        CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+                    }
+                }).get();
+            } catch (InterruptedException | ExecutionException exception) {
+                exception.printStackTrace();
+            }
         }
     }
 
