@@ -31,12 +31,15 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     "tasks reload",
                     "tasks create group <name>",
                     "tasks create task <name> <" + Arrays.toString(ServiceEnvironmentType.values()) + ">",
-                    "tasks delete group <name>", //TODO
-                    "tasks delete task <name>", //TODO
+                    "tasks delete group <name>",
+                    "tasks delete task <name>",
                     "tasks group <group>",
                     "tasks group <group> add inclusion <url> <target>",
                     "tasks group <group> add template <storage> <prefix> <name>",
                     "tasks group <group> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]",
+                    "tasks group <group> remove inclusion <url> <target>",
+                    "tasks group <group> remove template <storage> <prefix> <name>",
+                    "tasks group <group> remove deployment <storage> <prefix> <name>",
                     "tasks task <name>",
                     "tasks task <name> set maxHeapMemory <mb>",
                     "tasks task <name> set maintenance <true : false>",
@@ -51,7 +54,10 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     "tasks task <name> remove node <name>",
                     "tasks task <name> add inclusion <url> <target>",
                     "tasks task <name> add template <storage> <prefix> <name>",
-                    "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]"
+                    "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]",
+                    "tasks task <name> remove inclusion <url> <target>",
+                    "tasks task <name> remove template <storage> <prefix> <name>",
+                    "tasks task <name> remove deployment <storage> <prefix> <name>"
             );
             return;
         }
