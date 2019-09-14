@@ -81,8 +81,8 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         return task.getProperties().contains(SMART_CONFIG_ENTRY) && this.getSmartServiceTaskConfig(task).isEnabled();
     }
 
-    public int getPercentOfFreeMemory(ServiceTask serviceTask) {
-        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().searchLogicNode(serviceTask);
+    public int getPercentOfFreeMemory(String nodeId, ServiceTask serviceTask) {
+        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().getNodeInfoSnapshot(nodeId);
 
         if (networkClusterNodeInfoSnapshot != null && !networkClusterNodeInfoSnapshot.getNode()
                 .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
@@ -102,7 +102,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     public void updateAsSmartService(ServiceConfiguration configuration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
         configuration.setTemplates(this.useSmartConfig(configuration.getTemplates(), smartTask));
         configuration.getProcessConfig().setMaxHeapMemorySize(
-                this.useSmartConfig(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), serviceTask, smartTask)
+                this.useSmartConfig(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), configuration, serviceTask, smartTask)
         );
     }
 
@@ -139,9 +139,9 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         return outTemplates.toArray(new ServiceTemplate[0]);
     }
 
-    private int useSmartConfig(int maxMemory, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
+    private int useSmartConfig(int maxMemory, ServiceConfiguration serviceConfiguration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
         if (smartTask.isDynamicMemoryAllocation()) {
-            int percent = getPercentOfFreeMemory(serviceTask);
+            int percent = getPercentOfFreeMemory(serviceConfiguration.getServiceId().getNodeUniqueId(), serviceTask);
 
             if (percent > 50) {
                 maxMemory = maxMemory - ((percent * smartTask.getDynamicMemoryAllocationRange()) / 100);
