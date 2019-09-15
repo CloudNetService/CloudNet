@@ -913,6 +913,8 @@ public final class CloudNet extends CloudNetDriver {
     public NetworkClusterNode getNode(String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
+        if (uniqueId.equals(this.config.getIdentity().getUniqueId()))
+            return this.config.getIdentity();
         return Iterables.first(this.config.getClusterConfig().getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId));
     }
 
@@ -931,6 +933,9 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
+        if (uniqueId.equals(this.config.getIdentity().getUniqueId()))
+            return this.currentNetworkClusterNodeInfoSnapshot;
+
         for (IClusterNodeServer clusterNodeServer : this.clusterNodeServerProvider.getNodeServers()) {
             if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null) {
                 return clusterNodeServer.getNodeInfoSnapshot();
