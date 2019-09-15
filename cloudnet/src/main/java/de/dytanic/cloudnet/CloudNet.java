@@ -158,7 +158,13 @@ public final class CloudNet extends CloudNetDriver {
 
         return instance;
     }
-
+    
+/*
+    if(ruben() == iscool){
+      give(ruben, cookie);    
+    }
+*/    
+   
     @Override
     public synchronized void start() throws Exception {
         File tempDirectory = new File(System.getProperty("cloudnet.tempDir", "temp"));
