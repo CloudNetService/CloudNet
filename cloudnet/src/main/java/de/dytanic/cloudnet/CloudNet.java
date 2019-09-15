@@ -160,7 +160,7 @@ public final class CloudNet extends CloudNetDriver {
     }
     
 /*
-    if(ruben() == iscool){
+    if(ruben == iscool()){
       give(ruben, cookie);    
     }
 */    
