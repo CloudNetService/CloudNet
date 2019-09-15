@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.listener;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
@@ -10,6 +11,7 @@ import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerServer
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -57,6 +59,17 @@ public final class BukkitPlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
+        Player player = event.getPlayer();
+
+        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+        ServiceTask serviceTask = Wrapper.getInstance().getServiceTask(currentTaskName);
+
+        if (serviceTask != null && serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
+            return;
+        }
+
         boolean onlyProxyProtection = !Bukkit.getOnlineMode();
 
         if (onlyProxyProtection && this.bridgeConfiguration != null && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
@@ -65,7 +78,7 @@ public final class BukkitPlayerListener implements Listener {
         }
 
         if (onlyProxyProtection) {
-            UUID uniqueId = event.getPlayer().getUniqueId();
+            UUID uniqueId = player.getUniqueId();
 
             if (!this.accessUniqueIds.contains(uniqueId)) {
                 event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
@@ -75,11 +88,10 @@ public final class BukkitPlayerListener implements Listener {
             } else {
                 this.accessUniqueIds.remove(uniqueId);
             }
-
         }
 
-        BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), true)
+        BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(player),
+                BukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
         );
     }
 

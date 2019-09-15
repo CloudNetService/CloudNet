@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.nukkit.listener;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -9,6 +10,7 @@ import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.plugin.Plugin;
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
@@ -54,6 +56,17 @@ public final class NukkitPlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
+        Player player = event.getPlayer();
+
+        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+        ServiceTask serviceTask = Wrapper.getInstance().getServiceTask(currentTaskName);
+
+        if (serviceTask != null && serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+            event.setCancelled(true);
+            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
+            return;
+        }
+
         boolean onlyProxyProtection = !Server.getInstance().getPropertyBoolean("xbox-auth");
 
         if (onlyProxyProtection && this.bridgeConfiguration != null && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
@@ -62,7 +75,7 @@ public final class NukkitPlayerListener implements Listener {
         }
 
         if (onlyProxyProtection) {
-            UUID uniqueId = event.getPlayer().getUniqueId();
+            UUID uniqueId = player.getUniqueId();
 
             if (!this.accessUniqueIds.contains(uniqueId)) {
                 event.setCancelled(true);
@@ -72,11 +85,10 @@ public final class NukkitPlayerListener implements Listener {
             } else {
                 this.accessUniqueIds.remove(uniqueId);
             }
-
         }
 
-        BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), true)
+        BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
+                NukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
         );
     }
 
