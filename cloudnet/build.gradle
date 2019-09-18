@@ -4,11 +4,11 @@ jar {
 
     manifest {
         attributes 'Main-Class': 'de.dytanic.cloudnet.Main'
-        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
         attributes 'Implementation-Title': cloudNetCodeName
     }
 
-    archiveName = cloudnetRunnableOutFileName
+    archiveFileName.set(cloudnetRunnableOutFileName)
 
     manifest = jar.manifest
 
