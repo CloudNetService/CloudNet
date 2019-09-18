@@ -634,8 +634,7 @@ final class JVMCloudService implements ICloudService {
         commandArguments.addAll(Arrays.asList(
                 "-Xmx" + this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize() + "M",
                 "-javaagent:" + wrapperFile.getAbsolutePath(),
-                "-cp", System.getProperty("cloudnet.launcher.driver.dependencies") +
-                        File.pathSeparator + wrapperFile.getAbsolutePath() +
+                "-cp", wrapperFile.getAbsolutePath() +
                         File.pathSeparator + String.join(File.pathSeparator, availableJarFiles)
         ));
 
