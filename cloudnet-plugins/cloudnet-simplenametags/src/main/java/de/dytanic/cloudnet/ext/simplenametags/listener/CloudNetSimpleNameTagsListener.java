@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEv
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
+import de.dytanic.cloudnet.ext.simplenametags.CloudNetSimpleNameTagsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,10 +17,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.Optional;
 
 public final class CloudNetSimpleNameTagsListener implements Listener {
+    private final CloudNetSimpleNameTagsPlugin plugin;
+
+    public CloudNetSimpleNameTagsListener(CloudNetSimpleNameTagsPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("CloudNet-SimpleNameTags"), () -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(event.getPlayer()));
+        Bukkit.getScheduler().runTask(plugin, () -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(event.getPlayer()));
     }
 
     @EventListener
