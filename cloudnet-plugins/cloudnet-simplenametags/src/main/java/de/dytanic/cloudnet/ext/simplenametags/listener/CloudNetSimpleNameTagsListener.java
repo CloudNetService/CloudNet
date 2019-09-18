@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public final class CloudNetSimpleNameTagsListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("CloudNet-SimpleNameTags"), () -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(event.getPlayer()));
     }
