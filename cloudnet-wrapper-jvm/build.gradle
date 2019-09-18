@@ -1,15 +1,33 @@
-jar {
-
-    archiveName cloudnetWrapperFile
-
-    manifest {
-        attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
-        attributes 'Premain-Class': 'de.dytanic.cloudnet.wrapper.runtime.RuntimeAgent'
-        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
-        attributes 'Implementation-Title': cloudNetCodeName
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
     }
 }
 
+apply plugin: 'com.github.johnrengelman.shadow'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
+        attributes 'Premain-Class': 'de.dytanic.cloudnet.wrapper.runtime.RuntimeAgent'
+        attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Title': cloudNetCodeName
+    }
+
+    dependsOn shadowJar
+}
+
 dependencies {
-    compileOnly project(':cloudnet-driver')
+    compile project(':cloudnet-driver')
+}
+
+shadowJar {
+    archiveFileName.set(cloudnetWrapperFile)
+    archiveClassifier.set(null)
+    archiveVersion.set(null)
+    relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.netty'
+    relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
 }
