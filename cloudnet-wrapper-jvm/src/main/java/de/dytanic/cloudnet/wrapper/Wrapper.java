@@ -2238,7 +2238,7 @@ public final class Wrapper extends CloudNetDriver {
 
 
     /**
-     * Removes all PacketListeners from all channels of the Network Connctor from a
+     * Removes all PacketListeners from all channels of the Network Connector from a
      * specific ClassLoader. It is recommended to do this with the disables of your own plugin
      *
      * @param classLoader the ClassLoader from which the IPacketListener implementations derive.
