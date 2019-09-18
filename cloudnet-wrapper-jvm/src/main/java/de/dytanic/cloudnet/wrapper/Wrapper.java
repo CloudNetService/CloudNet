@@ -2265,8 +2265,9 @@ public final class Wrapper extends CloudNetDriver {
                     if (diff < millis) {
                         try {
                             Thread.sleep(millis - diff);
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
+                        } catch (InterruptedException ignored) {
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
 
