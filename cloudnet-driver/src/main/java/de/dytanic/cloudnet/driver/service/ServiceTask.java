@@ -16,15 +16,16 @@ public class ServiceTask extends ServiceConfigurationBase {
 
     private boolean maintenance, autoDeleteOnStop, staticServices;
 
-    private Collection<String> associatedNodes;
+    private Collection<String> associatedNodes = new ArrayList<>();
 
-    private Collection<String> groups;
+    private Collection<String> groups = new ArrayList<>();
 
-    private Collection<String> deletedFilesAfterStop;
+    private Collection<String> deletedFilesAfterStop = new ArrayList<>();
 
     private ProcessConfiguration processConfiguration;
 
-    private int startPort, minServiceCount;
+    private int startPort;
+    private int minServiceCount = 0;
 
     public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
                        String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,

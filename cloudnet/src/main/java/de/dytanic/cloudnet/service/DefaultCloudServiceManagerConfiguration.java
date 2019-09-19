@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
@@ -72,6 +73,11 @@ final class DefaultCloudServiceManagerConfiguration {
                     ServiceTask task = document.toInstanceOf(ServiceTask.class);
                     if (task != null && task.getName() != null) {
                         tasks.add(task);
+                        try {
+                            Files.write(path, new JsonDocument(task).toPrettyJson().getBytes(StandardCharsets.UTF_8));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         System.out.println(LanguageManager.getMessage("cloudnet-load-task-success").replace("%path%", path.toString()).replace("%name%", task.getName()));
                     } else {
                         System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed").replace("%path%", path.toString()));
