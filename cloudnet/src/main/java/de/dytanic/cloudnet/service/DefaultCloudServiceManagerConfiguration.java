@@ -67,17 +67,13 @@ final class DefaultCloudServiceManagerConfiguration {
             }
             Files.walkFileTree(TASKS_DIRECTORY, new SimpleFileVisitor<Path>() {
                 @Override
-                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
+                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                     System.out.println(LanguageManager.getMessage("cloudnet-load-task").replace("%path%", path.toString()));
                     JsonDocument document = JsonDocument.newDocument(path);
                     ServiceTask task = document.toInstanceOf(ServiceTask.class);
                     if (task != null && task.getName() != null) {
                         tasks.add(task);
-                        try {
                             Files.write(path, new JsonDocument(task).toPrettyJson().getBytes(StandardCharsets.UTF_8));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                         System.out.println(LanguageManager.getMessage("cloudnet-load-task-success").replace("%path%", path.toString()).replace("%name%", task.getName()));
                     } else {
                         System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed").replace("%path%", path.toString()));
