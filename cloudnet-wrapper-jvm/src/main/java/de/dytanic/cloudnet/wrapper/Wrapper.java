@@ -171,7 +171,7 @@ public final class Wrapper extends CloudNetDriver {
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-        this.start0();
+        this.mainloop();
     }
 
     @Override
@@ -179,8 +179,10 @@ public final class Wrapper extends CloudNetDriver {
         try {
             this.networkClient.close();
             this.logger.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            Thread.sleep(1000);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         this.taskScheduler.shutdown();
@@ -2251,7 +2253,7 @@ public final class Wrapper extends CloudNetDriver {
         }
     }
 
-    private synchronized void start0() throws Exception {
+    private synchronized void mainloop() throws Exception {
         long value = System.currentTimeMillis();
         long millis = 1000 / TPS;
         int tps5 = TPS * 5, start1Tick = tps5;
@@ -2283,22 +2285,18 @@ public final class Wrapper extends CloudNetDriver {
                     }
 
                     if (start1Tick++ >= tps5) {
-                        this.start1();
+                        this.publishServiceInfoUpdate();
                         start1Tick = 0;
                     }
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         }
 
         this.stop();
         System.exit(0);
-    }
-
-    private void start1() {
-        this.publishServiceInfoUpdate();
     }
 
     private void enableModules() {
@@ -2324,13 +2322,13 @@ public final class Wrapper extends CloudNetDriver {
         File entry = new File(commandLineArguments.get(0));
 
         if (entry.exists()) {
-            return this.startApplication0(entry);
+            return this.startApplication(entry);
         } else {
             return false;
         }
     }
 
-    private boolean startApplication0(File file) throws Exception {
+    private boolean startApplication(File file) throws Exception {
         JarFile jarFile = new JarFile(file);
         Manifest manifest = jarFile.getManifest();
         String mainClazz = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
@@ -2347,8 +2345,8 @@ public final class Wrapper extends CloudNetDriver {
             try {
                 logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
                 method.invoke(null, new Object[]{arguments.toArray(new String[0])});
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }, "Application-Thread");
 
