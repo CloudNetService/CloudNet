@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 
