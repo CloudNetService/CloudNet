@@ -15,6 +15,7 @@ import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
@@ -128,7 +129,7 @@ public final class BungeeCloudNetListener {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("kickMessage") != null) {
-                    proxiedPlayer.disconnect(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage") + ""));
+                    proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage") + "")));
                 }
             }
             break;
@@ -136,7 +137,7 @@ public final class BungeeCloudNetListener {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("message") != null) {
-                    proxiedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + ""));
+                    proxiedPlayer.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + "")));
                 }
             }
             break;

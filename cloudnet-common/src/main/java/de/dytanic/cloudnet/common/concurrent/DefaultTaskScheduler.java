@@ -359,7 +359,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
         @Override
         public void close() {
-            this.stop();
+            this.interrupt();
         }
     }
 }
