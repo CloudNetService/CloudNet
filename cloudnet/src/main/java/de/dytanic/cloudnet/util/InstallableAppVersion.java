@@ -21,7 +21,7 @@ public final class InstallableAppVersion {
             BUNGEECORD_TRAVERTINE = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_TRAVERTINE, "travertine",
                     "https://papermc.io/ci/view/WaterfallMC/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"),
             BUNGEECORD_HEXACORD = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_HEXACORD, "hexacord",
-                    "https://yivesmirror.com/files/hexacord/HexaCord-v219.jar"),
+                    "https://yivesmirror.com/files/hexacord/HexaCord-v246.jar"),
             GLOWSTONE_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.GLOWSTONE, ServiceEnvironment.GLOWSTONE_DEFAULT, "default", //Glowstone
                     "https://github.com/GlowstoneMC/Glowstone/releases/download/2018.9.0/glowstone.jar"),
             GLOWSTONE_1_8_9 = new InstallableAppVersion(ServiceEnvironmentType.GLOWSTONE, ServiceEnvironment.GLOWSTONE_DEFAULT, "1.8.9",
