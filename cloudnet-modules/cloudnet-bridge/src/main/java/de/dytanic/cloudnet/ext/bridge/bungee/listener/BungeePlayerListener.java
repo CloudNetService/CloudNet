@@ -70,7 +70,7 @@ public final class BungeePlayerListener implements Listener {
         if (server != null && ProxyServer.getInstance().getServers().containsKey(server)) {
             event.setCancelled(true);
             event.setCancelServer(ProxyServer.getInstance().getServerInfo(server));
-            event.getPlayer().sendMessage(event.getKickReason());
+            event.getPlayer().sendMessage(event.getKickReasonComponent());
         }
     }
 
