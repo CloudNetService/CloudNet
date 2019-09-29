@@ -22,6 +22,8 @@ public final class BungeePlayerListener implements Listener {
     public void handle(PostLoginEvent event) {
         BridgeHelper.sendChannelMessageProxyLoginSuccess(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()));
         BridgeHelper.updateServiceInfo();
+        
+        event.getPlayer().sendData("badlion:cps", "{\"clicksPerSecondLimitRight\":0,\"clicksPerSecondLimit\":0}".getBytes());
     }
 
     @EventHandler
@@ -68,7 +70,7 @@ public final class BungeePlayerListener implements Listener {
         if (server != null && ProxyServer.getInstance().getServers().containsKey(server)) {
             event.setCancelled(true);
             event.setCancelServer(ProxyServer.getInstance().getServerInfo(server));
-            event.getPlayer().sendMessage(event.getKickReasonComponent());
+            event.getPlayer().sendMessage(event.getKickReason());
         }
     }
 
