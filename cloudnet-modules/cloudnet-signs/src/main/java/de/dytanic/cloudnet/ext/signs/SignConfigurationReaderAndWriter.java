@@ -198,6 +198,12 @@ public final class SignConfigurationReaderAndWriter {
             document = JsonDocument.newDocument(file);
         }
 
-        return document.get("config", SignConfiguration.TYPE);
+        SignConfiguration signConfiguration = document.get("config", SignConfiguration.TYPE);
+
+        // new properties in the configuration will be saved
+        document.append("config", signConfiguration);
+        document.write(file);
+
+        return signConfiguration;
     }
 }
