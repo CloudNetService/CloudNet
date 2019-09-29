@@ -179,8 +179,6 @@ public final class Wrapper extends CloudNetDriver {
         try {
             this.networkClient.close();
             this.logger.close();
-
-            Thread.sleep(1000);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -2259,15 +2257,13 @@ public final class Wrapper extends CloudNetDriver {
         int tps5 = TPS * 5, start1Tick = tps5;
 
         if (this.startApplication()) {
-            Runtime.getRuntime().addShutdownHook(new Thread(mainThread::interrupt));
-
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     long diff = System.currentTimeMillis() - value;
                     if (diff < millis) {
                         try {
                             Thread.sleep(millis - diff);
-                        } catch (Exception exception) {
+                        } catch (InterruptedException exception) {
                             exception.printStackTrace();
                         }
                     }
@@ -2295,7 +2291,6 @@ public final class Wrapper extends CloudNetDriver {
             }
         }
 
-        this.stop();
         System.exit(0);
     }
 

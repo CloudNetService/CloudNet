@@ -2,7 +2,7 @@ defaultTasks 'clean', 'build', 'test', 'jar'
 
 allprojects {
 
-    def major = 3, minor = 1, patch = 0, versionType = "RELEASE"
+    def major = 3, minor = 1, patch = 0, versionType = "SNAPSHOT"
 
     group 'de.dytanic.cloudnet'
     version "$major.$minor.$patch-$versionType"
@@ -136,7 +136,7 @@ allprojects {
 
                 hashValue = new String(hashStdOut.toByteArray()).substring(0, 7)
 
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
                 hashValue = "unknown"
             }
         }
