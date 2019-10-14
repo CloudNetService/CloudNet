@@ -492,7 +492,7 @@ final class JVMCloudService implements ICloudService {
         while (!this.waitingTemplates.isEmpty()) {
             ServiceTemplate template = this.waitingTemplates.poll();
 
-            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null && (!this.serviceConfiguration.isStaticService() || template.shouldAlwaysCopyToStaticServices() || this.firstStartupOnStaticService)) {
+            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null) {
                 ITemplateStorage storage = getStorage(template.getStorage());
 
                 if (!storage.has(template)) {
@@ -507,14 +507,16 @@ final class JVMCloudService implements ICloudService {
                 }
 
                 try {
-                    System.out.println(LanguageManager.getMessage("cloud-service-include-template-message")
-                            .replace("%task%", this.serviceId.getTaskName() + "")
-                            .replace("%id%", this.serviceId.getUniqueId().toString() + "")
-                            .replace("%template%", template.getTemplatePath() + "")
-                            .replace("%storage%", template.getStorage() + "")
-                    );
+                    if (!this.serviceConfiguration.isStaticService() || template.shouldAlwaysCopyToStaticServices() || this.firstStartupOnStaticService) {
+                        System.out.println(LanguageManager.getMessage("cloud-service-include-template-message")
+                                .replace("%task%", this.serviceId.getTaskName())
+                                .replace("%id%", this.serviceId.getUniqueId().toString())
+                                .replace("%template%", template.getTemplatePath())
+                                .replace("%storage%", template.getStorage())
+                        );
 
-                    storage.copy(template, this.directory);
+                        storage.copy(template, this.directory);
+                    }
 
                     this.templates.add(template);
 
@@ -523,6 +525,7 @@ final class JVMCloudService implements ICloudService {
                 }
             }
         }
+
     }
 
     @Override
