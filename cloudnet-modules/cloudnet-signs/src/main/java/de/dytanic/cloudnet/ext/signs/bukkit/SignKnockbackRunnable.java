@@ -5,10 +5,8 @@ import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,18 +31,17 @@ public class SignKnockbackRunnable implements Runnable {
             if (signLocation != null && signLocation.getWorld() != null) {
                 double knockbackDistance = this.ownConfigurationEntry.getKnockbackDistance();
 
-                Collection<Entity> nearbyPlayers = signLocation.getWorld()
-                        .getNearbyEntities(signLocation, knockbackDistance, knockbackDistance, knockbackDistance, entity ->
-                                entity instanceof Player && !entity.hasPermission("cloudnet.signs.knockback.bypass"));
-
-                for (Entity player : nearbyPlayers) {
-                    // pushing the player back with the specified strength
-                    player.setVelocity(player.getLocation().toVector().subtract(signLocation.toVector())
-                            .normalize()
-                            .multiply(this.ownConfigurationEntry.getKnockbackStrength())
-                            .setY(0.2));
-
-                }
+                signLocation.getWorld()
+                        .getNearbyEntities(signLocation, knockbackDistance, knockbackDistance, knockbackDistance)
+                        .stream()
+                        .filter(entity -> entity instanceof Player && !entity.hasPermission("cloudnet.signs.knockback.bypass"))
+                        .forEach(player -> {
+                            // pushing the player back with the specified strength
+                            player.setVelocity(player.getLocation().toVector().subtract(signLocation.toVector())
+                                    .normalize()
+                                    .multiply(this.ownConfigurationEntry.getKnockbackStrength())
+                                    .setY(0.2));
+                        });
             }
         }
 
