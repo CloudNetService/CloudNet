@@ -35,7 +35,7 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
     private void initListeners() {
         //BukkitAPI
-        Bukkit.getServer().getPluginManager().registerEvents(new BukkitPlayerListener(this), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new BukkitPlayerListener(), this);
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new BukkitCloudNetListener());
