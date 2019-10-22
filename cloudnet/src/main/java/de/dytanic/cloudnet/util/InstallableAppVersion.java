@@ -19,7 +19,7 @@ public final class InstallableAppVersion {
             BUNGEECORD_WATERFALL = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_WATERFALL, "waterfall",
                     "https://ci.destroystokyo.com/job/Waterfall/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterfall.jar"),
             BUNGEECORD_TRAVERTINE = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_TRAVERTINE, "travertine",
-                    "https://papermc.io/ci/view/WaterfallMC/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"),
+                    "https://papermc.io/ci/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"),
             BUNGEECORD_HEXACORD = new InstallableAppVersion(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironment.BUNGEECORD_HEXACORD, "hexacord",
                     "https://yivesmirror.com/files/hexacord/HexaCord-v246.jar"),
             GLOWSTONE_DEFAULT = new InstallableAppVersion(ServiceEnvironmentType.GLOWSTONE, ServiceEnvironment.GLOWSTONE_DEFAULT, "default", //Glowstone

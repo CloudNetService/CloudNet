@@ -66,17 +66,10 @@ public final class NukkitPlayerListener implements Listener {
             return;
         }
 
-        if (this.onlyProxyProtection) {
-            UUID uniqueId = player.getUniqueId();
-
-            if (!this.accessUniqueIds.contains(uniqueId)) {
-                event.setCancelled(true);
-                event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
-                return;
-
-            } else {
-                this.accessUniqueIds.remove(uniqueId);
-            }
+        if (this.onlyProxyProtection && !BridgeHelper.playerIsOnProxy(player.getUniqueId(), player.getAddress())) {
+            event.setCancelled(true);
+            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
+            return;
         }
 
         BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
