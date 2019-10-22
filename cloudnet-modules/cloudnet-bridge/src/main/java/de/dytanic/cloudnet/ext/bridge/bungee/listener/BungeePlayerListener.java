@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -38,13 +39,6 @@ public final class BungeePlayerListener implements Listener {
     @EventHandler
     public void handle(ServerConnectEvent event) {
         ProxiedPlayer proxiedPlayer = event.getPlayer();
-        if (proxiedPlayer.getServer() == null) {
-            String server = BungeeCloudNetHelper.filterServiceForProxiedPlayer(proxiedPlayer, null);
-
-            if (server != null && ProxyServer.getInstance().getServers().containsKey(server)) {
-                event.setTarget(ProxyServer.getInstance().getServerInfo(server));
-            }
-        }
 
         ServiceInfoSnapshot serviceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getTarget().getName());
 
@@ -63,6 +57,12 @@ public final class BungeePlayerListener implements Listener {
 
     @EventHandler
     public void handle(ServerKickEvent event) {
+        Server previousServer = event.getPlayer().getServer();
+        if (previousServer == null || BungeeCloudNetHelper.isFallbackServer(previousServer.getInfo())) {
+            event.getPlayer().disconnect(event.getKickReasonComponent());
+            event.setCancelled(true);
+            return;
+        }
         String server = BungeeCloudNetHelper.filterServiceForProxiedPlayer(event.getPlayer(), event.getPlayer().getServer() != null ? event.getPlayer().getServer().getInfo().getName() : null);
 
         if (server != null && ProxyServer.getInstance().getServers().containsKey(server)) {
