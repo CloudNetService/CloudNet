@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.service.ICloudService;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -31,10 +30,7 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
                     "screen <local service uniqueId | name> | toggling",
                     "screen write <command>"
             );
-            return;
-        }
-
-        if (args.length == 1) {
+        } else if (args.length == 1) {
             ICloudService cloudService = getCloudService(args[0]);
 
             if (cloudService != null) {
@@ -65,21 +61,24 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
             }
         } else {
             String line = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-            Collection<ICloudService> services = new ArrayList<>();
-            for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-                if (cloudService.getServiceConsoleLogCache().isScreenEnabled()) {
-                    cloudService.runCommand(line);
-                    services.add(cloudService);
-                }
-            }
-            if (services.isEmpty()) {
+
+            Collection<String> targetServiceNames = CloudNet.getInstance().getCloudServiceManager().getCloudServices().values().stream()
+                    .filter(cloudService -> {
+                        if (cloudService.getServiceConsoleLogCache().isScreenEnabled()) {
+                            cloudService.runCommand(line);
+                            return true;
+                        }
+                        return false;
+                    })
+                    .map(cloudService -> cloudService.getServiceId().getName())
+                    .collect(Collectors.toSet());
+
+            if (targetServiceNames.isEmpty()) {
                 sender.sendMessage(LanguageManager.getMessage("command-screen-write-no-screen"));
             } else {
                 sender.sendMessage(LanguageManager.getMessage("command-screen-write-success")
                         .replace("%command%", line)
-                        .replace("%targets%",
-                                services.stream().map(cloudService -> cloudService.getServiceId().getName() + "#" + cloudService.getServiceId().getUniqueId()).collect(Collectors.joining(", "))
-                        ));
+                        .replace("%targets%", String.join(", ", targetServiceNames)));
             }
         }
     }
