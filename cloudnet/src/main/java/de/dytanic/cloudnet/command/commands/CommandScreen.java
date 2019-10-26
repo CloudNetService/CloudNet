@@ -12,6 +12,8 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.service.ICloudService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +27,10 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         if (args.length == 0) {
-            sender.sendMessage("screen <local service uniqueId | name> | toggling");
+            sender.sendMessage(
+                    "screen <local service uniqueId | name> | toggling",
+                    "screen write <command>"
+            );
             return;
         }
 
@@ -38,10 +43,10 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
                         sender.sendMessage("[" + cloudService.getServiceId().getName() + "] " + input);
                     }
                 } else {
-                    boolean autoPrintReceivedInput = !cloudService.getServiceConsoleLogCache().isAutoPrintReceivedInput();
-                    cloudService.getServiceConsoleLogCache().setAutoPrintReceivedInput(autoPrintReceivedInput);
+                    boolean enabled = !cloudService.getServiceConsoleLogCache().isScreenEnabled();
+                    cloudService.getServiceConsoleLogCache().setScreenEnabled(enabled);
 
-                    if (autoPrintReceivedInput) {
+                    if (enabled) {
                         for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
                             CloudNetDriver.getInstance().getLogger().log(LogLevel.IMPORTANT, "[" + cloudService.getServiceId().getName() + "] " + input);
                         }
@@ -57,6 +62,24 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
                         );
                     }
                 }
+            }
+        } else {
+            String line = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+            Collection<ICloudService> services = new ArrayList<>();
+            for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+                if (cloudService.getServiceConsoleLogCache().isScreenEnabled()) {
+                    cloudService.runCommand(line);
+                    services.add(cloudService);
+                }
+            }
+            if (services.isEmpty()) {
+                sender.sendMessage(LanguageManager.getMessage("command-screen-write-no-screen"));
+            } else {
+                sender.sendMessage(LanguageManager.getMessage("command-screen-write-success")
+                        .replace("%command%", line)
+                        .replace("%targets%",
+                                services.stream().map(cloudService -> cloudService.getServiceId().getName() + "#" + cloudService.getServiceId().getUniqueId()).collect(Collectors.joining(", "))
+                        ));
             }
         }
     }
