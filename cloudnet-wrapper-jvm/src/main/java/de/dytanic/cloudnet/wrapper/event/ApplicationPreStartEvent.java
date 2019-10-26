@@ -35,7 +35,7 @@ public final class ApplicationPreStartEvent extends DriverEvent {
     private Manifest manifest;
 
     /**
-     * The file of original application
+     * The file of the original application
      */
     private File applicationFile;
 
@@ -72,7 +72,7 @@ public final class ApplicationPreStartEvent extends DriverEvent {
 
     /**
      * @deprecated the manifest of the application file is not available in the wrapper anymore,
-     * use {@link ApplicationPreStartEvent#getApplicationFile()} to get the whole file
+     * use {@link ApplicationPreStartEvent#getApplicationFile()} to get the file of the manifest
      */
     @Deprecated
     public Manifest getManifest() {
