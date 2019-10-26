@@ -1832,7 +1832,7 @@ public final class CloudNet extends CloudNetDriver {
 
     private void launchServices() {
         for (ServiceTask serviceTask : cloudServiceManager.getServiceTasks()) {
-            if (!serviceTask.isMaintenance()) {
+            if (serviceTask.canStartServices()) {
                 if ((serviceTask.getAssociatedNodes().isEmpty() || (serviceTask.getAssociatedNodes().contains(getConfig().getIdentity().getUniqueId()))) &&
                         serviceTask.getMinServiceCount() > cloudServiceManager.getServiceInfoSnapshots(serviceTask.getName()).size()) {
                     if (competeWithCluster(serviceTask)) {
