@@ -27,16 +27,16 @@ jobs:
         
     - name: Release ZIP
       run: |
-        echo 'Creating CloudNet.zip file...'
-        sh 'mkdir -p temp';
-        sh 'cp -r .template/* temp/';
-        sh 'mkdir temp/dev';
-        sh 'mkdir temp/dev/examples';
-        sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples';
-        sh 'mkdir temp/plugins';
-        sh 'cp cloudnet-plugins/cloudnet-simplenametags/build/libs/*.jar temp/plugins/';
-        sh 'cp cloudnet-plugins/cloudnet-chat/build/libs/*.jar temp/plugins/';
-        sh 'cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar';
+        echo 'Creating CloudNet.zip file...';
+        mkdir -p temp/;
+        cp -r .template/* temp/;
+        mkdir temp/dev;
+        mkdir temp/dev/examples;
+        cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples;
+        mkdir temp/plugins;
+        cp cloudnet-plugins/cloudnet-simplenametags/build/libs/*.jar temp/plugins/;
+        cp cloudnet-plugins/cloudnet-chat/build/libs/*.jar temp/plugins/;
+        cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar;
         
     - uses: actions/upload-artifact@master
       with:
