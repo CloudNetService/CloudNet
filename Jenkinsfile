@@ -40,6 +40,16 @@ pipeline {
         sh 'rm -r temp/';
       }
     }
+    stage('AutoUpdater ZIP') {
+      steps {
+        echo 'Creating AutoUpdater.zip file...'
+        sh 'mkdir -p temp';
+        sh 'cp -r **/build/libs/*.jar temp/';
+        sh 'cp -r **/build/libs/*.cnl temp/';
+        zip archive: true, dir: 'temp', glob: '', zipFile: 'AutoUpdater.zip';
+        sh 'rm -r temp/';
+      }
+    }
     stage('Archive') {
       steps {
         archiveArtifacts artifacts: '**/build/libs/*.jar'
