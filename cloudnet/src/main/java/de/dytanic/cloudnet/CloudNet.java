@@ -1886,7 +1886,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void unloadModule(IModuleWrapper moduleWrapper) {
-        //unregister packet listeners
         this.unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
         this.eventManager.unregisterListeners(moduleWrapper.getClassLoader());
         this.commandMap.unregisterCommands(moduleWrapper.getClassLoader());
