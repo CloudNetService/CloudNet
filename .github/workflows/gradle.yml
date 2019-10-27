@@ -27,12 +27,12 @@ jobs:
         
     - name: Release ZIP
       run: |
-        mkdir -p temp;
-        cp -r .template/* temp/;
-        cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/;
-        cp cloudnet-plugins/cloudnet-simplenametags/build/libs/*.jar temp/plugins/;
-        cp cloudnet-plugins/cloudnet-chat/build/libs/*.jar temp/plugins/;
-        cp cloudnet-launcher/build/libs/*.jar temp/launcher.jar ';'
+        echo 'Creating AutoUpdater.zip file...'
+        sh 'mkdir -p temp';
+        sh 'cp -r cloudnet/build/libs/*.jar temp/';
+        sh 'cp -r cloudnet-driver/build/libs/*.jar temp/';
+        sh 'cp -r cloudnet-modules/**/build/libs/*.jar temp/';
+        sh 'cp -r **/build/libs/*.cnl temp/';
         
     - uses: actions/upload-artifact@master
       with:
