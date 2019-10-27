@@ -18,11 +18,12 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
         architecture: x64
+        
+    - name: Test with Gradle
+      run: ./gradlew test
 
     - name: Build with Gradle
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: build
+      run: ./gradlew jar
         
     - name: Release ZIP
       run: |
