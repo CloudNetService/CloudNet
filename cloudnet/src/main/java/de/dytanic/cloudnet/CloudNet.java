@@ -1628,23 +1628,21 @@ public final class CloudNet extends CloudNetDriver {
     public NetworkClusterNodeInfoSnapshot searchLogicNode(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
-        Collection<IClusterNodeServer> clusterNodeServers = this.getValidClusterNodeServers(serviceTask);
-        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
+        Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(serviceTask).stream().map(IClusterNodeServer::getNodeInfoSnapshot).filter(Objects::nonNull).collect(Collectors.toList());
+        if (serviceTask.getAssociatedNodes().contains(this.config.getIdentity().getUniqueId())) {
+            nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
+        }
+        NetworkClusterNodeInfoSnapshot result = null;
 
-        for (IClusterNodeServer node : clusterNodeServers) {
-            if (node.getNodeInfoSnapshot() != null &&
-                    (node.getNodeInfoSnapshot().getMaxMemory() - node.getNodeInfoSnapshot().getReservedMemory())
-                            > (networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getReservedMemory()) &&
-                    //
-                    (node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage() * node.getNodeInfoSnapshot().getCurrentServicesCount())
-                            < (networkClusterNodeInfoSnapshot.getProcessSnapshot().getCpuUsage() *
-                            networkClusterNodeInfoSnapshot.getCurrentServicesCount())
-            ) {
-                networkClusterNodeInfoSnapshot = node.getNodeInfoSnapshot();
+        for (NetworkClusterNodeInfoSnapshot node : nodes) {
+            if (result == null ||
+                    ((node.getMaxMemory() - node.getReservedMemory()) > (result.getMaxMemory() - result.getReservedMemory()) &&
+                    (node.getProcessSnapshot().getCpuUsage() * node.getCurrentServicesCount()) < (result.getProcessSnapshot().getCpuUsage() * result.getCurrentServicesCount()))) {
+                result = node;
             }
         }
 
-        return networkClusterNodeInfoSnapshot;
+        return result;
     }
 
     public boolean competeWithCluster(ServiceTask serviceTask) {
