@@ -405,6 +405,9 @@ public final class CloudNet extends CloudNetDriver {
 
         try {
             NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = searchLogicNode(serviceTask);
+            if (networkClusterNodeInfoSnapshot == null) {
+                return null;
+            }
 
             if (getConfig().getIdentity().getUniqueId().equals(networkClusterNodeInfoSnapshot.getNode().getUniqueId())) {
                 ICloudService cloudService = this.cloudServiceManager.runTask(serviceTask);

@@ -103,7 +103,7 @@ final class DefaultCloudServiceManagerConfiguration {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String name = file.getFileName().toString();
                     if (tasks.stream().noneMatch(serviceTask -> (serviceTask.getName() + ".json").equalsIgnoreCase(name))) {
-                        Files.delete(file);
+                        Files.deleteIfExists(file);
                     }
                     return FileVisitResult.CONTINUE;
                 }
