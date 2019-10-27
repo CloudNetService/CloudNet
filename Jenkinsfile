@@ -24,6 +24,22 @@ pipeline {
         sh './gradlew jar'
       }
     }
+    stage('Release ZIP') {
+      steps {
+        echo 'Creating CloudNet.zip file...'
+        sh 'mkdir -p temp';
+        sh 'cp -r .template/* temp/';
+        sh 'mkdir temp/dev';
+        sh 'mkdir temp/dev/examples';
+        sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples';
+        sh 'mkdir temp/plugins';
+        sh 'cp cloudnet-plugins/cloudnet-simplenametags/build/libs/*.jar temp/plugins/';
+        sh 'cp cloudnet-plugins/cloudnet-chat/build/libs/*.jar temp/plugins/';
+        sh 'cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar';
+        zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip';
+        sh 'rm -r temp/';
+      }
+    }
     stage('Archive') {
       steps {
         archiveArtifacts artifacts: '**/build/libs/*.jar'
