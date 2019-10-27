@@ -249,6 +249,21 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
+    public void proxyKickPlayer(ICloudPlayer cloudPlayer, String kickMessage) {
+        Validate.checkNotNull(cloudPlayer);
+        Validate.checkNotNull(kickMessage);
+
+        getCloudNetDriver().sendChannelMessage(
+                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                "kick_on_proxy_player_from_network",
+                new JsonDocument()
+                        .append("uniqueId", cloudPlayer.getUniqueId())
+                        .append("name", cloudPlayer.getName())
+                        .append("kickMessage", kickMessage)
+        );
+    }
+
+    @Override
     public void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message) {
         Validate.checkNotNull(cloudPlayer);
         Validate.checkNotNull(message);
@@ -264,17 +279,28 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxyKickPlayer(ICloudPlayer cloudPlayer, String kickMessage) {
-        Validate.checkNotNull(cloudPlayer);
-        Validate.checkNotNull(kickMessage);
+    public void broadcastMessage(String message) {
+        Validate.checkNotNull(message);
 
         getCloudNetDriver().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "kick_on_proxy_player_from_network",
+                "broadcast_message",
                 new JsonDocument()
-                        .append("uniqueId", cloudPlayer.getUniqueId())
-                        .append("name", cloudPlayer.getName())
-                        .append("kickMessage", kickMessage)
+                        .append("message", message)
+        );
+    }
+
+    @Override
+    public void broadcastMessage(String message, String permission) {
+        Validate.checkNotNull(message);
+        Validate.checkNotNull(permission);
+
+        getCloudNetDriver().sendChannelMessage(
+                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                "broadcast_message",
+                new JsonDocument()
+                        .append("message", message)
+                        .append("permission", permission)
         );
     }
 
