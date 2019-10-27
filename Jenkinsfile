@@ -26,6 +26,7 @@ pipeline {
     }
     stage('Release ZIP') {
       steps {
+        echo 'Creating CloudNet.zip file...'
         sh 'mkdir -p temp';
         sh 'cp -r .template/* temp/';
         sh 'mkdir temp/dev';
