@@ -317,8 +317,8 @@ public final class CloudNetLauncher {
         Thread thread = new Thread(() -> {
             try {
                 method.invoke(null, new Object[]{args});
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
         }, "Application-Thread");
 

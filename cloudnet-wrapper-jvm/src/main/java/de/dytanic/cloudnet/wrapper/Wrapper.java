@@ -43,15 +43,11 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -2314,27 +2310,19 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     private boolean startApplication() throws Exception {
-        File entry = new File(commandLineArguments.get(0));
+        File applicationFile = new File(this.commandLineArguments.remove(0));
+        String mainClass = this.commandLineArguments.remove(0);
 
-        if (entry.exists()) {
-            return this.startApplication(entry);
-        } else {
-            return false;
-        }
+        return applicationFile.exists() && this.startApplication(applicationFile, mainClass);
     }
 
-    private boolean startApplication(File file) throws Exception {
-        JarFile jarFile = new JarFile(file);
-        Manifest manifest = jarFile.getManifest();
-        String mainClazz = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
-
-        ClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()}, Thread.currentThread().getContextClassLoader());
-        Class<?> main = Class.forName(mainClazz, true, classLoader);
+    private boolean startApplication(File applicationFile, String mainClass) throws Exception {
+        Class<?> main = Class.forName(mainClass);
         Method method = main.getMethod("main", String[].class);
 
         Collection<String> arguments = Iterables.newArrayList(this.commandLineArguments);
 
-        this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, manifest, arguments));
+        this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, applicationFile, arguments));
 
         Thread applicationThread = new Thread(() -> {
             try {
@@ -2344,11 +2332,9 @@ public final class Wrapper extends CloudNetDriver {
                 exception.printStackTrace();
             }
         }, "Application-Thread");
-
-        applicationThread.setContextClassLoader(classLoader);
         applicationThread.start();
 
-        eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, classLoader));
+        eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
         return true;
     }
 
