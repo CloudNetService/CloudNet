@@ -26,14 +26,14 @@ pipeline {
     }
     stage('Release ZIP') {
       steps {
-        sh 'mkdir -p temp';
-        sh 'cp -r .template/* temp/';
-        sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/';
-        sh 'cp cloudnet-plugins/cloudnet-simplenametags/build/libs/*.jar temp/plugins/';
-        sh 'cp cloudnet-plugins/cloudnet-chat/build/libs/*.jar temp/plugins/';
-        sh 'cp cloudnet-launcher/build/libs/*.jar temp/launcher.jar';
+        sh 'mkdir -p temp;'
+        sh 'cp -r .template/* temp/;'
+        sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/;'
+        sh 'cp cloudnet-plugins/cloudnet-simplenametags/build/libs/*.jar temp/plugins/;'
+        sh 'cp cloudnet-plugins/cloudnet-chat/build/libs/*.jar temp/plugins/;'
+        sh 'cp cloudnet-launcher/build/libs/*.jar temp/launcher.jar;'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip'
-        sh 'rm -r temp/';
+        sh 'rm -r temp/'
       }
     }
     stage('Archive') {
