@@ -31,14 +31,14 @@ pipeline {
         cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/;
         cp cloudnet-plugins/cloudnet-simplenametags/build/libs/*.jar temp/plugins/;
         cp cloudnet-plugins/cloudnet-chat/build/libs/*.jar temp/plugins/;
-        cp cloudnet-launcher/build/libs/*.jar temp/launcher.jar;
+        cp cloudnet-launcher/build/libs/*.jar temp/launcher.jar; '''
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip'
         sh 'rm -r temp/';
       }
     }
     stage('Archive') {
       steps {
-        archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/libs/*.jar', fingerprint: true, onlyIfSuccessful: true
+        archiveArtifacts artifacts: '**/build/libs/*.jar'
       }
     }
   }
