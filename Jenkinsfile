@@ -38,7 +38,7 @@ pipeline {
     }
     stage('Archive') {
       steps {
-        archiveArtifacts artifacts: '**/build/libs/*.jar'
+        archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/libs/*.jar', fingerprint: true, onlyIfSuccessful: true
       }
     }
   }
