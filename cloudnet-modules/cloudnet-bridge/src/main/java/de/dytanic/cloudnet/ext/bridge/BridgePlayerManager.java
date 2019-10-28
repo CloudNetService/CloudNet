@@ -243,7 +243,6 @@ public final class BridgePlayerManager implements IPlayerManager {
                 "send_on_proxy_player_to_server",
                 new JsonDocument()
                         .append("uniqueId", cloudPlayer.getUniqueId())
-                        .append("name", cloudPlayer.getName())
                         .append("serviceName", serviceName)
         );
     }
@@ -258,7 +257,6 @@ public final class BridgePlayerManager implements IPlayerManager {
                 "kick_on_proxy_player_from_network",
                 new JsonDocument()
                         .append("uniqueId", cloudPlayer.getUniqueId())
-                        .append("name", cloudPlayer.getName())
                         .append("kickMessage", kickMessage)
         );
     }
@@ -273,7 +271,6 @@ public final class BridgePlayerManager implements IPlayerManager {
                 "send_message_to_proxy_player",
                 new JsonDocument()
                         .append("uniqueId", cloudPlayer.getUniqueId())
-                        .append("name", cloudPlayer.getName())
                         .append("message", message)
         );
     }

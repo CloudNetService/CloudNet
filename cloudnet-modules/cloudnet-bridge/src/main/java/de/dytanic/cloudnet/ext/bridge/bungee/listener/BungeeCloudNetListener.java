@@ -138,8 +138,10 @@ public final class BungeeCloudNetListener {
             case "send_message_to_proxy_player": {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
-                if (proxiedPlayer != null && event.getData().getString("message") != null) {
-                    proxiedPlayer.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + "")));
+                if (proxiedPlayer != null) {
+                    BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
+                            ComponentSerializer.parse(event.getData().getString("messages"));
+                    proxiedPlayer.sendMessage(messages);
                 }
             }
             break;
