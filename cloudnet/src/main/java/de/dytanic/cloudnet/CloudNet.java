@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet;
 
-import com.sun.java.swing.plaf.windows.resources.windows;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
