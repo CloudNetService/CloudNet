@@ -32,7 +32,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 final class JVMCloudService implements ICloudService {
 
@@ -40,7 +39,7 @@ final class JVMCloudService implements ICloudService {
 
     private static final String TEMP_NAME_SPLITTER = "_";
 
-    private static final long SERVICE_ERROR_RESTART_DELAY = 10;
+    private static final long SERVICE_ERROR_RESTART_DELAY = 30;
 
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
@@ -338,7 +337,7 @@ final class JVMCloudService implements ICloudService {
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartEvent(this));
 
             this.configureServiceEnvironment();
-            this.startApplication();
+            this.startWrapper();
 
             this.lifeCycle = ServiceLifeCycle.RUNNING;
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartEvent(this));
@@ -492,7 +491,7 @@ final class JVMCloudService implements ICloudService {
         while (!this.waitingTemplates.isEmpty()) {
             ServiceTemplate template = this.waitingTemplates.poll();
 
-            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null && (!this.serviceConfiguration.isStaticService() || template.shouldAlwaysCopyToStaticServices() || this.firstStartupOnStaticService)) {
+            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null) {
                 ITemplateStorage storage = getStorage(template.getStorage());
 
                 if (!storage.has(template)) {
@@ -507,14 +506,16 @@ final class JVMCloudService implements ICloudService {
                 }
 
                 try {
-                    System.out.println(LanguageManager.getMessage("cloud-service-include-template-message")
-                            .replace("%task%", this.serviceId.getTaskName() + "")
-                            .replace("%id%", this.serviceId.getUniqueId().toString() + "")
-                            .replace("%template%", template.getTemplatePath() + "")
-                            .replace("%storage%", template.getStorage() + "")
-                    );
+                    if (!this.serviceConfiguration.isStaticService() || template.shouldAlwaysCopyToStaticServices() || this.firstStartupOnStaticService) {
+                        System.out.println(LanguageManager.getMessage("cloud-service-include-template-message")
+                                .replace("%task%", this.serviceId.getTaskName())
+                                .replace("%id%", this.serviceId.getUniqueId().toString())
+                                .replace("%template%", template.getTemplatePath())
+                                .replace("%storage%", template.getStorage())
+                        );
 
-                    storage.copy(template, this.directory);
+                        storage.copy(template, this.directory);
+                    }
 
                     this.templates.add(template);
 
@@ -523,6 +524,7 @@ final class JVMCloudService implements ICloudService {
                 }
             }
         }
+
     }
 
     @Override
@@ -571,7 +573,7 @@ final class JVMCloudService implements ICloudService {
         }
     }
 
-    private void startApplication() throws Exception {
+    private void startWrapper() throws Exception {
         this.configuredMaxHeapMemory = this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize();
 
         List<String> commandArguments = Iterables.newArrayList();
@@ -605,7 +607,8 @@ final class JVMCloudService implements ICloudService {
         ));
 
         File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
-        List<String> availableJarFiles = Files.list(this.directory.toPath())
+
+        Optional<File> applicationFileOptional = Files.list(this.directory.toPath())
                 .map(Path::toFile)
                 .filter(file -> file.getName().endsWith(".jar"))
                 .filter(file -> {
@@ -617,32 +620,38 @@ final class JVMCloudService implements ICloudService {
                     }
                     return false;
                 })
-                .map(File::getAbsolutePath)
-                .collect(Collectors.toList());
+                .findFirst();
 
-        if (availableJarFiles.isEmpty()) {
-            System.out.println(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
-                    .replace("%time%", String.valueOf(SERVICE_ERROR_RESTART_DELAY))
-                    .replace("%environment%", this.serviceConfiguration.getProcessConfig().getEnvironment().name()
-                    ));
-            Thread.sleep(SERVICE_ERROR_RESTART_DELAY * 1000);
-            stop();
+        if (!applicationFileOptional.isPresent()) {
+            CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
+                    .replace("%task%", this.serviceId.getTaskName())
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+                    .replace("%time%", String.valueOf(SERVICE_ERROR_RESTART_DELAY)));
+
+            ServiceTask serviceTask = this.getCloudServiceManager().getServiceTask(this.getServiceId().getTaskName());
+            serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);
+
+            this.stop();
             return;
         }
+
+        File applicationFile = applicationFileOptional.get();
 
         commandArguments.addAll(this.serviceConfiguration.getProcessConfig().getJvmOptions());
         commandArguments.addAll(Arrays.asList(
                 "-Xmx" + this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize() + "M",
                 "-javaagent:" + wrapperFile.getAbsolutePath(),
-                "-cp", wrapperFile.getAbsolutePath() +
-                        File.pathSeparator + String.join(File.pathSeparator, availableJarFiles)
-        ));
+                "-cp", wrapperFile.getAbsolutePath() + File.pathSeparator + applicationFile.getAbsolutePath())
+        );
 
         try (JarFile jarFile = new JarFile(wrapperFile)) {
             commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
         }
 
-        commandArguments.add(availableJarFiles.get(0));
+        commandArguments.add(applicationFile.getAbsolutePath());
+        try (JarFile jarFile = new JarFile(applicationFile)) {
+            commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
+        }
 
         this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 

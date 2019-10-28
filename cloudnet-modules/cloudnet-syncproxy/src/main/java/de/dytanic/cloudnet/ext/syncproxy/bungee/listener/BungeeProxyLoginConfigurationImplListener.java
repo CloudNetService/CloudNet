@@ -101,8 +101,7 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
 
                 event.setCancelled(true);
                 event.setCancelReason(ChatColor.translateAlternateColorCodes('&',
-                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + ""
-                ));
+                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + ""));
                 return;
             }
 

@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
@@ -22,6 +23,11 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
         this.initListeners();
         this.registerCommands();
         this.initServers();
+
+        this.getProxy().setReconnectHandler(new BungeeCloudNetReconnectHandler());
+        for (ListenerInfo listenerInfo : this.getProxy().getConfig().getListeners()) {
+            listenerInfo.getServerPriority().clear();
+        }
 
         BridgeHelper.updateServiceInfo();
     }

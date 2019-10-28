@@ -27,6 +27,11 @@ public class ServiceTask extends ServiceConfigurationBase {
     private int startPort;
     private int minServiceCount = 0;
 
+    /**
+     * Represents the time in millis where this task is able to start new services again
+     */
+    private transient long serviceStartAbilityTime = -1;
+
     public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
                        String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
                        ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
@@ -64,6 +69,19 @@ public class ServiceTask extends ServiceConfigurationBase {
     }
 
     public ServiceTask() {
+    }
+
+    /**
+     * Forbids this task to start new services for a specific time
+     *
+     * @param time the time in millis
+     */
+    public void forbidServiceStarting(long time) {
+        this.serviceStartAbilityTime = System.currentTimeMillis() + time;
+    }
+
+    public boolean canStartServices() {
+        return !this.maintenance && System.currentTimeMillis() > this.serviceStartAbilityTime;
     }
 
     public String getName() {
