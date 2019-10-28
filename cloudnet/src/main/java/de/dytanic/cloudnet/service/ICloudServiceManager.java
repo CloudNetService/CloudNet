@@ -26,11 +26,19 @@ public interface ICloudServiceManager {
 
     void setServiceTasks(Collection<ServiceTask> tasks);
 
-    void addPermanentServiceTask(ServiceTask task);
+    void setServiceTasksWithoutClusterSync(Collection<ServiceTask> tasks);
+
+    boolean addPermanentServiceTask(ServiceTask task);
 
     void removePermanentServiceTask(ServiceTask task);
 
     void removePermanentServiceTask(String name);
+
+    boolean addPermanentServiceTaskWithoutClusterSync(ServiceTask task);
+
+    void removePermanentServiceTaskWithoutClusterSync(ServiceTask task);
+
+    void removePermanentServiceTaskWithoutClusterSync(String name);
 
     void removeAllPermanentServiceTasks();
 
@@ -44,13 +52,21 @@ public interface ICloudServiceManager {
 
     void setGroupConfigurations(Collection<GroupConfiguration> groupConfigurations);
 
+    void setGroupConfigurationsWithoutClusterSync(Collection<GroupConfiguration> groupConfigurations);
+
     GroupConfiguration getGroupConfiguration(String name);
 
     void addGroupConfiguration(GroupConfiguration groupConfiguration);
 
     void removeGroupConfiguration(GroupConfiguration groupConfiguration);
 
+    void addGroupConfigurationWithoutClusterSync(GroupConfiguration groupConfiguration);
+
+    void removeGroupConfigurationWithoutClusterSync(GroupConfiguration groupConfiguration);
+
     void removeGroupConfiguration(String name);
+
+    void removeGroupConfigurationWithoutClusterSync(String name);
 
     boolean isGroupConfigurationPresent(String group);
 

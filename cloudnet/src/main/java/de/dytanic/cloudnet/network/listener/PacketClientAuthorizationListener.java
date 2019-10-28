@@ -13,16 +13,12 @@ import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
-import de.dytanic.cloudnet.driver.permission.DefaultJsonFilePermissionManagement;
 import de.dytanic.cloudnet.driver.service.ServiceId;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkChannelAuthCloudServiceSuccessEvent;
-import de.dytanic.cloudnet.network.packet.*;
-import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
+import de.dytanic.cloudnet.network.ClusterUtils;
+import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
 import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
 import java.util.UUID;
 
@@ -50,8 +46,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGroupConfigurationListListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetServiceTaskListListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetJsonFilePermissionsListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetDatabaseGroupFilePermissionsListener());
+                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetPermissionDataListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerDeployLocalTemplateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerConsoleLogEntryReceiveListener());
@@ -78,8 +73,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                                 );
 
-                                this.sendSetupInformationPackets(channel,
-                                        credentials.contains("secondNodeConnection") && credentials.getBoolean("secondNodeConnection"));
+                                ClusterUtils.sendSetupInformationPackets(channel, credentials.getBoolean("secondNodeConnection"));
                                 return;
                             }
                         }
@@ -131,39 +125,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
             channel.sendPacket(new PacketServerAuthorizationResponse(false, "access denied"));
             channel.close();
-        }
-    }
-
-    private void sendSetupInformationPackets(INetworkChannel channel, boolean secondNodeConnection) {
-        channel.sendPacket(new PacketServerSetGlobalServiceInfoList(getCloudNet().getCloudServiceManager().getGlobalServiceInfoSnapshots().values()));
-
-        if (!secondNodeConnection) {
-            channel.sendPacket(new PacketServerSetGroupConfigurationList(getCloudNet().getGroupConfigurations()));
-            channel.sendPacket(new PacketServerSetServiceTaskList(getCloudNet().getPermanentServiceTasks()));
-
-            if (getCloudNet().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement) {
-                channel.sendPacket(new PacketServerSetJsonFilePermissions(
-                        getCloudNet().getPermissionManagement().getUsers(),
-                        getCloudNet().getPermissionManagement().getGroups()
-                ));
-            }
-
-            if (getCloudNet().getPermissionManagement() instanceof DefaultDatabasePermissionManagement) {
-                channel.sendPacket(new PacketServerSetDatabaseGroupFilePermissions(
-                        getCloudNet().getPermissionManagement().getGroups()
-                ));
-            }
-
-            ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
-
-            byte[] bytes;
-            for (ServiceTemplate serviceTemplate : templateStorage.getTemplates()) {
-                bytes = templateStorage.toZipByteArray(serviceTemplate);
-                channel.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, bytes));
-            }
-
-            CloudNet.getInstance().publishH2DatabaseDataToCluster(channel);
-            CloudNet.getInstance().publishH2DatabaseDataToCluster(channel);
         }
     }
 

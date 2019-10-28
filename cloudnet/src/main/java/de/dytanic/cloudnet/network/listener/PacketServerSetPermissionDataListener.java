@@ -13,7 +13,7 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 
 import java.util.List;
 
-public final class PacketServerSetDatabaseGroupFilePermissionsListener implements IPacketListener {
+public final class PacketServerSetPermissionDataListener implements IPacketListener {
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {

@@ -9,9 +9,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerUpdatePermissions;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.lang.reflect.Type;
@@ -27,30 +25,70 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
     public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("permissions_event") && packet.getHeader().contains("updateType")) {
             switch (packet.getHeader().get("updateType", PacketServerUpdatePermissions.UpdateType.class)) {
-                case ADD_USER:
-                    invoke0(new PermissionAddUserEvent(getPermissionManagement(), packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
-                    break;
-                case ADD_GROUP:
-                    invoke0(new PermissionAddGroupEvent(getPermissionManagement(), packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
-                    break;
-                case SET_USERS:
-                    invoke0(new PermissionSetUsersEvent(getPermissionManagement(), packet.getHeader().get("permissionUsers", PERMISSION_USERS_TYPE)));
-                    break;
-                case SET_GROUPS:
-                    invoke0(new PermissionSetGroupsEvent(getPermissionManagement(), packet.getHeader().get("permissionGroups", PERMISSION_GROUPS_TYPE)));
-                    break;
-                case DELETE_USER:
-                    invoke0(new PermissionUpdateUserEvent(getPermissionManagement(), packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
-                    break;
-                case UPDATE_USER:
-                    invoke0(new PermissionDeleteUserEvent(getPermissionManagement(), packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
-                    break;
-                case DELETE_GROUP:
-                    invoke0(new PermissionDeleteGroupEvent(getPermissionManagement(), packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
-                    break;
-                case UPDATE_GROUP:
-                    invoke0(new PermissionUpdateGroupEvent(getPermissionManagement(), packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
-                    break;
+                case ADD_USER: {
+                    IPermissionUser permissionUser = packet.getHeader().get("permissionUser", PermissionUser.TYPE);
+                    invoke0(new PermissionAddUserEvent(getPermissionManagement(), permissionUser));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).addUserWithoutClusterSync(permissionUser);
+                    }
+                }
+                break;
+                case ADD_GROUP: {
+                    IPermissionGroup permissionGroup = packet.getHeader().get("permissionGroup", PermissionGroup.TYPE);
+                    invoke0(new PermissionAddGroupEvent(getPermissionManagement(), permissionGroup));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).addGroupWithoutClusterSync(permissionGroup);
+                    }
+                }
+                break;
+                case SET_USERS: {
+                    Collection<? extends IPermissionUser> permissionUsers = packet.getHeader().get("permissionUsers", PERMISSION_USERS_TYPE);
+                    invoke0(new PermissionSetUsersEvent(getPermissionManagement(), permissionUsers));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).setUsersWithoutClusterSync(permissionUsers);
+                    }
+                }
+                break;
+                case SET_GROUPS: {
+                    Collection<? extends IPermissionGroup> permissionGroups = packet.getHeader().get("permissionGroups", PERMISSION_GROUPS_TYPE);
+                    invoke0(new PermissionSetGroupsEvent(getPermissionManagement(), permissionGroups));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).setGroupsWithoutClusterSync(permissionGroups);
+                    }
+                }
+                break;
+                case DELETE_USER: {
+                    IPermissionUser permissionUser = packet.getHeader().get("permissionUser", PermissionUser.TYPE);
+                    invoke0(new PermissionUpdateUserEvent(getPermissionManagement(), permissionUser));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).deleteUserWithoutClusterSync(permissionUser);
+                    }
+                }
+                break;
+                case UPDATE_USER: {
+                    IPermissionUser permissionUser = packet.getHeader().get("permissionUser", PermissionUser.TYPE);
+                    invoke0(new PermissionDeleteUserEvent(getPermissionManagement(), permissionUser));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).updateUserWithoutClusterSync(permissionUser);
+                    }
+                }
+                break;
+                case DELETE_GROUP: {
+                    IPermissionGroup permissionGroup = packet.getHeader().get("permissionGroup", PermissionGroup.TYPE);
+                    invoke0(new PermissionDeleteGroupEvent(getPermissionManagement(), permissionGroup));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).deleteGroupWithoutClusterSync(permissionGroup);
+                    }
+                }
+                break;
+                case UPDATE_GROUP: {
+                    IPermissionGroup permissionGroup = packet.getHeader().get("permissionGroup", PermissionGroup.TYPE);
+                    invoke0(new PermissionUpdateGroupEvent(getPermissionManagement(), permissionGroup));
+                    if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).updateGroupWithoutClusterSync(permissionGroup);
+                    }
+                }
+                break;
             }
 
             sendUpdateToAllServices(packet);

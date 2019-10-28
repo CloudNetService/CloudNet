@@ -64,6 +64,7 @@ import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
+import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.network.listener.*;
 import de.dytanic.cloudnet.network.packet.*;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
@@ -1538,12 +1539,12 @@ public final class CloudNet extends CloudNetDriver {
         this.getClusterNodeServerProvider().deployTemplateInCluster(serviceTemplate, resource);
     }
 
-    public void updateServiceTasksInCluster() {
-        this.getClusterNodeServerProvider().sendPacket(new PacketServerSetServiceTaskList(this.getCloudServiceManager().getServiceTasks()));
+    public void updateServiceTasksInCluster(Collection<ServiceTask> serviceTasks, NetworkUpdateType updateType) {
+        this.getClusterNodeServerProvider().sendPacket(new PacketServerSetServiceTaskList(serviceTasks, updateType));
     }
 
-    public void updateGroupConfigurationsInCluster() {
-        this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(this.getCloudServiceManager().getGroupConfigurations()));
+    public void updateGroupConfigurationsInCluster(Collection<GroupConfiguration> groupConfigurations, NetworkUpdateType updateType) {
+        this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(groupConfigurations, updateType));
     }
 
     public ITask<Void> sendAllAsync(IPacket packet) {
@@ -1696,17 +1697,30 @@ public final class CloudNet extends CloudNetDriver {
         this.sendAll(new PacketServerClusterNodeInfoUpdate(this.currentNetworkClusterNodeInfoSnapshot));
     }
 
+    public void publishPermissionUserUpdates(Collection<IPermissionUser> permissionUsers, NetworkUpdateType updateType) {
+        if (this.permissionManagement instanceof DefaultJsonFilePermissionManagement) {
+            this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(permissionUsers, updateType));
+        }
+    }
+
+    public void publishPermissionGroupUpdates(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
+        this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(permissionGroups, updateType, true));
+    }
+
     public void publishUpdateJsonPermissionManagement() {
-        if (permissionManagement instanceof DefaultJsonFilePermissionManagement) {
-            clusterNodeServerProvider.sendPacket(new PacketServerSetJsonFilePermissions(
-                    permissionManagement.getUsers(),
-                    permissionManagement.getGroups()
+        if (this.permissionManagement instanceof DefaultJsonFilePermissionManagement) {
+            this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(
+                    this.permissionManagement.getUsers(),
+                    this.permissionManagement.getGroups(),
+                    NetworkUpdateType.ADD
             ));
         }
 
-        if (permissionManagement instanceof DefaultDatabasePermissionManagement) {
-            clusterNodeServerProvider.sendPacket(new PacketServerSetDatabaseGroupFilePermissions(
-                    permissionManagement.getGroups()
+        if (this.permissionManagement instanceof DefaultDatabasePermissionManagement) {
+            this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(
+                    this.permissionManagement.getGroups(),
+                    NetworkUpdateType.ADD,
+                    true
             ));
         }
     }
@@ -1716,7 +1730,7 @@ public final class CloudNet extends CloudNetDriver {
             if (databaseProvider instanceof H2DatabaseProvider) {
                 Map<String, Map<String, JsonDocument>> map = allocateDatabaseData();
 
-                channel.sendPacket(new PacketServerSetH2DatabaseData(map));
+                channel.sendPacket(new PacketServerSetH2DatabaseData(map, NetworkUpdateType.ADD));
 
                 for (Map.Entry<String, Map<String, JsonDocument>> entry : map.entrySet()) {
                     entry.getValue().clear();
@@ -1731,7 +1745,7 @@ public final class CloudNet extends CloudNetDriver {
         if (databaseProvider instanceof H2DatabaseProvider) {
             Map<String, Map<String, JsonDocument>> map = allocateDatabaseData();
 
-            clusterNodeServerProvider.sendPacket(new PacketServerSetH2DatabaseData(map));
+            clusterNodeServerProvider.sendPacket(new PacketServerSetH2DatabaseData(map, NetworkUpdateType.ADD));
 
             for (Map.Entry<String, Map<String, JsonDocument>> entry : map.entrySet()) {
                 entry.getValue().clear();
@@ -1765,8 +1779,7 @@ public final class CloudNet extends CloudNetDriver {
 
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGroupConfigurationListListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetJsonFilePermissionsListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetDatabaseGroupFilePermissionsListener());
+        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetPermissionDataListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetServiceTaskListListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerDeployLocalTemplateListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
