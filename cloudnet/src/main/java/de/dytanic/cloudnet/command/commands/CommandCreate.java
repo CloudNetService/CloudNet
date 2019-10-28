@@ -138,26 +138,6 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
     }
 
-    private void listAndStartServices(ICommandSender sender, Collection<ServiceInfoSnapshot> serviceInfoSnapshots, Properties properties) {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-            if (serviceInfoSnapshot != null) {
-                sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
-            }
-        }
-
-        if (properties.containsKey("start")) {
-            try {
-                CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                    for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                        CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                    }
-                }).get();
-            } catch (InterruptedException | ExecutionException exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
-
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
         return Arrays.asList(
