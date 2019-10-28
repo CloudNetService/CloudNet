@@ -4,14 +4,16 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.network.NetworkUpdateType;
 
 import java.util.Collection;
 
-public final class PacketServerSetDatabaseGroupFilePermissions extends Packet {
+public final class PacketServerSetPermissionData extends Packet {
 
-    public PacketServerSetDatabaseGroupFilePermissions(Collection<IPermissionGroup> permissionGroups) {
+    public PacketServerSetPermissionData(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
         super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument()
                 .append("permissionGroups", permissionGroups)
+                .append("updateType", updateType)
                 .append("set_json_database", true), null);
     }
 }
