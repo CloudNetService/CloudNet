@@ -194,11 +194,13 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
         Validate.checkNotNull(group);
 
         IPermissionGroup permissionGroup = permissionGroupsMap.remove(group);
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
-        }
+        if (permissionGroup != null) {
+            if (permissionManagementHandler != null) {
+                permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+            }
 
-        saveGroups();
+            saveGroups();
+        }
     }
 
     @Override

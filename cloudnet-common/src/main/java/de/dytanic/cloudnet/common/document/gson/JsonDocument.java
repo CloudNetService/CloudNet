@@ -745,8 +745,8 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public JsonDocument write(OutputStream outputStream) {
         try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
             this.write(outputStreamWriter);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return this;
     }

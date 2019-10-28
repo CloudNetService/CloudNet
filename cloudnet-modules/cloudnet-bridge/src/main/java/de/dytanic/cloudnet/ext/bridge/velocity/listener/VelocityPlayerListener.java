@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import net.kyori.text.TextComponent;
 
 public final class VelocityPlayerListener {
 
@@ -67,9 +68,12 @@ public final class VelocityPlayerListener {
     public void handle(KickedFromServerEvent event) {
         String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
 
-        if (event.getOriginalReason().isPresent()) {
-            event.getPlayer().sendMessage(event.getOriginalReason().get());
+        if (VelocityCloudNetHelper.isFallbackServer(event.getServer().getServerInfo())) {
+            event.getPlayer().disconnect(event.getOriginalReason().orElseGet(() -> TextComponent.of("§cNo reason given")));
+            return;
         }
+
+        event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
 
         if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent()) {
             event.setResult(KickedFromServerEvent.RedirectPlayer.create(VelocityCloudNetHelper.getProxyServer().getServer(server).get()));

@@ -29,7 +29,7 @@ public final class SignConfigurationReaderAndWriter {
         JsonDocument document = JsonDocument.newDocument(file);
 
         if (!document.contains("config")) {
-            write(new SignConfiguration(
+            SignConfiguration signConfiguration = new SignConfiguration(
                     Collections.singletonList(new SignConfigurationEntry(
                             "Lobby",
                             true,
@@ -193,11 +193,18 @@ public final class SignConfigurationReaderAndWriter {
                             new Pair<>("command-cloudsign-remove-success", "&7The target sign will removed! Please wait..."),
                             new Pair<>("command-cloudsign-sign-already-exist", "&7The sign is already set. If you want to remove that, use the /cloudsign remove command")
                     )
-            ), file);
+            );
 
-            document = JsonDocument.newDocument(file);
+            write(signConfiguration, file);
+            return signConfiguration;
         }
 
-        return document.get("config", SignConfiguration.TYPE);
+        SignConfiguration signConfiguration = document.get("config", SignConfiguration.TYPE);
+
+        // new properties in the configuration will be saved
+        document.append("config", signConfiguration);
+        document.write(file);
+
+        return signConfiguration;
     }
 }

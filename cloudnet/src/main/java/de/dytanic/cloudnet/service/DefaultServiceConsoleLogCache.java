@@ -25,6 +25,7 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
 
     private boolean autoPrintReceivedInput;
+    private boolean screenEnabled;
 
 
     private int len;
@@ -82,7 +83,7 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
         CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(new PacketServerConsoleLogEntryReceive(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
 
-        if (this.autoPrintReceivedInput || printErrorIntoConsole) {
+        if (this.autoPrintReceivedInput || this.screenEnabled || printErrorIntoConsole) {
             CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO), "[" + cloudService.getServiceId().getName() + "] " + text);
         }
     }
@@ -113,5 +114,15 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
     public void setAutoPrintReceivedInput(boolean autoPrintReceivedInput) {
         this.autoPrintReceivedInput = autoPrintReceivedInput;
+    }
+
+    @Override
+    public boolean isScreenEnabled() {
+        return this.screenEnabled;
+    }
+
+    @Override
+    public void setScreenEnabled(boolean screenEnabled) {
+        this.screenEnabled = screenEnabled;
     }
 }
