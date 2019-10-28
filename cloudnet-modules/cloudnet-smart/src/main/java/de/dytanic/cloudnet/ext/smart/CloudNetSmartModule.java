@@ -59,7 +59,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                             oldSmartTasks.get(task.getName()) :
                             config != null ? config : new SmartServiceTaskConfig()
             );
-            this.getCloudNet().getCloudServiceManager().addPermanentServiceTask(task);
+            this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(task);
         }
     }
 

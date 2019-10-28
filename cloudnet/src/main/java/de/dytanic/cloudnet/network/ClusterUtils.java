@@ -46,7 +46,7 @@ public class ClusterUtils {
             byte[] bytes;
             for (ServiceTemplate serviceTemplate : templateStorage.getTemplates()) {
                 bytes = templateStorage.toZipByteArray(serviceTemplate);
-                channel.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, bytes));
+                channel.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, bytes, false));
             }
 
             CloudNet.getInstance().publishH2DatabaseDataToCluster(channel);

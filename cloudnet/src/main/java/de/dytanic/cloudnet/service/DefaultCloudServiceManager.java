@@ -19,6 +19,7 @@ import de.dytanic.cloudnet.util.PortValidator;
 import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
@@ -89,12 +90,13 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         if (!serviceTaskAddEvent.isCancelled()) {
             if (isTaskPresent(task.getName())) {
-                removePermanentServiceTask(task);
+                this.config.getTasks().stream().filter(serviceTask -> serviceTask.getName().equalsIgnoreCase(task.getName())).findFirst()
+                        .ifPresent(this.config.getTasks()::remove);
             }
 
             this.config.getTasks().add(task);
 
-            this.config.save();
+            this.config.writeTask(task);
             return true;
         }
         return false;

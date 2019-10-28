@@ -28,6 +28,10 @@ public interface ICloudServiceManager {
 
     void setServiceTasksWithoutClusterSync(Collection<ServiceTask> tasks);
 
+    default void updatePermanentServiceTask(ServiceTask task) {
+        this.addPermanentServiceTask(task);
+    }
+
     boolean addPermanentServiceTask(ServiceTask task);
 
     void removePermanentServiceTask(ServiceTask task);
@@ -47,6 +51,10 @@ public interface ICloudServiceManager {
     boolean isTaskPresent(String name);
 
     //-
+
+    default void updateGroupConfiguration(GroupConfiguration groupConfiguration) {
+        this.addGroupConfiguration(groupConfiguration);
+    }
 
     List<GroupConfiguration> getGroupConfigurations();
 

@@ -88,10 +88,14 @@ final class DefaultCloudServiceManagerConfiguration {
 
     public void deleteTask(String name) {
         try {
-            Files.deleteIfExists(TASKS_DIRECTORY.resolve(name + ".json"));
+            Files.delete(TASKS_DIRECTORY.resolve(name + ".json"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void writeTask(ServiceTask task) {
+        new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
     }
 
     public void save() {
@@ -102,7 +106,7 @@ final class DefaultCloudServiceManagerConfiguration {
         }
 
         for (ServiceTask task : this.tasks) {
-            new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
+            this.writeTask(task);
         }
 
         try {
