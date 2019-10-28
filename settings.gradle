@@ -39,6 +39,4 @@ findProject(':cloudnet-plugins:cloudnet-chat')?.name = 'cloudnet-chat'
 include 'cloudnet-examples'
 include 'cloudnet-modules:cloudnet-rest'
 findProject(':cloudnet-modules:cloudnet-rest')?.name = 'cloudnet-rest'
-include 'cloudnet-plugins:cloudnet-bridge-test'
-findProject(':cloudnet-plugins:cloudnet-bridge-test')?.name = 'cloudnet-bridge-test'
 
