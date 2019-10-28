@@ -131,7 +131,7 @@ public final class BungeeCloudNetListener {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("kickMessage") != null) {
-                    proxiedPlayer.disconnect(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage") + ""));
+                    proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage") + "")));
                 }
             }
             break;
@@ -139,7 +139,7 @@ public final class BungeeCloudNetListener {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("message") != null) {
-                    proxiedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + ""));
+                    proxiedPlayer.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + "")));
                 }
             }
             break;

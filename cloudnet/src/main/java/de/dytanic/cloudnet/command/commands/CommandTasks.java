@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
@@ -255,9 +256,13 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     if (args[2].equalsIgnoreCase("add")) {
                         switch (args[3].toLowerCase()) {
                             case "group":
-                                serviceTask.getGroups().add(args[4]);
-                                this.updateServiceTask(serviceTask);
-                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                if (CloudNet.getInstance().getGroupConfigurations().stream().anyMatch(groupConfiguration -> groupConfiguration.getName().equals(args[4]))) {
+                                    serviceTask.getGroups().add(args[4]);
+                                    this.updateServiceTask(serviceTask);
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                } else {
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-no-group-found"));
+                                }
                                 break;
                             case "node":
                                 serviceTask.getAssociatedNodes().add(args[4]);

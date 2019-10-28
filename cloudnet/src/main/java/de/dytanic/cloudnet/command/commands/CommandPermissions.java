@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
@@ -512,6 +513,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             sender.sendMessage("- " + groupInfo.getGroup() + ": " + (groupInfo.getTimeOutMillis() > 0 ?
                     dateFormat.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
+        }
+        if (permissionUser.getGroups().isEmpty() && CloudNet.getInstance().getPermissionManagement() != null) {
+            sender.sendMessage("- " + CloudNet.getInstance().getPermissionManagement().getDefaultPermissionGroup().getName() + ": LIFETIME");
         }
 
         sender.sendMessage(" ");

@@ -265,8 +265,6 @@ public final class CloudNet extends CloudNetDriver {
 
         this.unloadAll();
 
-        this.registerDefaultCommands();
-        this.registerDefaultServices();
         this.enableModules();
 
         this.logger.info(LanguageManager.getMessage("reload-end-message"));
@@ -405,6 +403,9 @@ public final class CloudNet extends CloudNetDriver {
 
         try {
             NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = searchLogicNode(serviceTask);
+            if (networkClusterNodeInfoSnapshot == null) {
+                return null;
+            }
 
             if (getConfig().getIdentity().getUniqueId().equals(networkClusterNodeInfoSnapshot.getNode().getUniqueId())) {
                 ICloudService cloudService = this.cloudServiceManager.runTask(serviceTask);
@@ -1832,7 +1833,7 @@ public final class CloudNet extends CloudNetDriver {
 
     private void launchServices() {
         for (ServiceTask serviceTask : cloudServiceManager.getServiceTasks()) {
-            if (!serviceTask.isMaintenance()) {
+            if (serviceTask.canStartServices()) {
                 if ((serviceTask.getAssociatedNodes().isEmpty() || (serviceTask.getAssociatedNodes().contains(getConfig().getIdentity().getUniqueId()))) &&
                         serviceTask.getMinServiceCount() > cloudServiceManager.getServiceInfoSnapshots(serviceTask.getName()).size()) {
                     if (competeWithCluster(serviceTask)) {
@@ -1871,41 +1872,37 @@ public final class CloudNet extends CloudNetDriver {
 
     private void unloadAll() {
         this.unloadModules();
-
-        this.commandMap.unregisterCommands();
-        this.eventManager.unregisterAll();
-        this.servicesRegistry.unregisterAll();
-        this.httpServer.clearHandlers();
     }
 
     private void unloadModules() {
         for (IModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
             if (!moduleWrapper.getModuleConfiguration().isRuntimeModule()) {
-                //unregister packet listeners
-                this.unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
-
-                moduleWrapper.unloadModule();
-                this.logger.info(LanguageManager.getMessage("cloudnet-unload-module")
-                        .replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
-                        .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())
-                        .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
-                        .replace("%module_author%", moduleWrapper.getModuleConfiguration().getAuthor()));
+                this.unloadModule(moduleWrapper);
             }
         }
     }
 
     private void unloadAllModules0() {
         for (IModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
-            //unregister packet listeners
-            this.unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
-
-            moduleWrapper.unloadModule();
-            this.logger.info(LanguageManager.getMessage("cloudnet-unload-module")
-                    .replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
-                    .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())
-                    .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
-                    .replace("%module_author%", moduleWrapper.getModuleConfiguration().getAuthor()));
+            this.unloadModule(moduleWrapper);
         }
+    }
+
+    private void unloadModule(IModuleWrapper moduleWrapper) {
+        this.unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
+        this.eventManager.unregisterListeners(moduleWrapper.getClassLoader());
+        this.commandMap.unregisterCommands(moduleWrapper.getClassLoader());
+        this.servicesRegistry.unregisterAll(moduleWrapper.getClassLoader());
+        this.httpServer.removeHandler(moduleWrapper.getClassLoader());
+        this.getNetworkClient().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
+        this.getNetworkServer().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
+
+        moduleWrapper.unloadModule();
+        this.logger.info(LanguageManager.getMessage("cloudnet-unload-module")
+                .replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
+                .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())
+                .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
+                .replace("%module_author%", moduleWrapper.getModuleConfiguration().getAuthor()));
     }
 
     private void initDefaultConfigDefaultHostAddress() throws Exception {
