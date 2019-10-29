@@ -815,6 +815,11 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return docProperty.tester.test(this);
     }
 
+    @Override
+    public JsonDocument getProperties() {
+        return this;
+    }
+
     public JsonObject toJsonObject() {
         return jsonObject;
     }
