@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.wrapper.log.WrapperLogFormatter;
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public final class Main {
@@ -26,7 +27,7 @@ public final class Main {
 
         logger.setLevel(LogLevel.DEBUG);
 
-        Wrapper wrapper = new Wrapper(Arrays.asList(args), logger);
+        Wrapper wrapper = new Wrapper(new ArrayList<>(Arrays.asList(args)), logger);
         wrapper.start();
     }
 

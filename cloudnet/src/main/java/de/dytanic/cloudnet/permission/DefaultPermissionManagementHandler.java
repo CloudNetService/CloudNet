@@ -43,34 +43,29 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
     public void handleAddGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionAddGroupEvent(permissionManagement, permissionGroup));
         sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.ADD_GROUP, permissionGroup));
-        CloudNet.getInstance().publishUpdateJsonPermissionManagement();
     }
 
     @Override
     public void handleUpdateGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionUpdateGroupEvent(permissionManagement, permissionGroup));
         sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.UPDATE_GROUP, permissionGroup));
-        CloudNet.getInstance().publishUpdateJsonPermissionManagement();
     }
 
     @Override
     public void handleDeleteGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionDeleteGroupEvent(permissionManagement, permissionGroup));
         sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.DELETE_GROUP, permissionGroup));
-        CloudNet.getInstance().publishUpdateJsonPermissionManagement();
     }
 
     @Override
     public void handleSetGroups(IPermissionManagement permissionManagement, Collection<? extends IPermissionGroup> groups) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionSetGroupsEvent(permissionManagement, groups));
         sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_GROUPS, groups));
-        CloudNet.getInstance().publishUpdateJsonPermissionManagement();
     }
 
     @Override
     public void handleReloaded(IPermissionManagement permissionManagement) {
         sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_GROUPS, permissionManagement.getGroups()));
-        CloudNet.getInstance().publishUpdateJsonPermissionManagement();
     }
 
     private void sendAll(IPacket packet) {

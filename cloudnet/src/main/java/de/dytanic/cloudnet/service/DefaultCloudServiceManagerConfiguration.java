@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
@@ -66,12 +67,13 @@ final class DefaultCloudServiceManagerConfiguration {
             }
             Files.walkFileTree(TASKS_DIRECTORY, new SimpleFileVisitor<Path>() {
                 @Override
-                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
+                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                     System.out.println(LanguageManager.getMessage("cloudnet-load-task").replace("%path%", path.toString()));
                     JsonDocument document = JsonDocument.newDocument(path);
                     ServiceTask task = document.toInstanceOf(ServiceTask.class);
                     if (task != null && task.getName() != null) {
                         tasks.add(task);
+                        Files.write(path, new JsonDocument(task).toPrettyJson().getBytes(StandardCharsets.UTF_8));
                         System.out.println(LanguageManager.getMessage("cloudnet-load-task-success").replace("%path%", path.toString()).replace("%name%", task.getName()));
                     } else {
                         System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed").replace("%path%", path.toString()));
@@ -84,6 +86,18 @@ final class DefaultCloudServiceManagerConfiguration {
         }
     }
 
+    public void deleteTask(String name) {
+        try {
+            Files.delete(TASKS_DIRECTORY.resolve(name + ".json"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeTask(ServiceTask task) {
+        new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
+    }
+
     public void save() {
         try {
             Files.createDirectories(TASKS_DIRECTORY);
@@ -92,7 +106,7 @@ final class DefaultCloudServiceManagerConfiguration {
         }
 
         for (ServiceTask task : this.tasks) {
-            new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
+            this.writeTask(task);
         }
 
         try {

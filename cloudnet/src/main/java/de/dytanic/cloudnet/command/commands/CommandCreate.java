@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
@@ -49,43 +50,33 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
             if (serviceTask != null) {
                 int count = Integer.parseInt(args[2]);
 
-                Collection<ServiceInfoSnapshot> serviceInfoSnapshots = runCloudService(
-                        properties,
-                        count,
-                        serviceTask.getName(),
-                        serviceTask.getRuntime(),
-                        serviceTask.isAutoDeleteOnStop(),
-                        serviceTask.isStaticServices(),
-                        serviceTask.getAssociatedNodes(),
-                        serviceTask.getIncludes(),
-                        serviceTask.getTemplates(),
-                        serviceTask.getDeployments(),
-                        serviceTask.getGroups(),
-                        serviceTask.getDeletedFilesAfterStop(),
-                        serviceTask.getProcessConfiguration(),
-                        serviceTask.getStartPort()
-                );
+                CloudNet.getInstance().getTaskScheduler().schedule(() -> {
+                    sender.sendMessage(LanguageManager.getMessage("command-create-start"));
+                    Collection<ServiceInfoSnapshot> serviceInfoSnapshots = runCloudService(
+                            properties,
+                            count,
+                            serviceTask.getName(),
+                            serviceTask.getRuntime(),
+                            serviceTask.isAutoDeleteOnStop(),
+                            serviceTask.isStaticServices(),
+                            serviceTask.getAssociatedNodes(),
+                            serviceTask.getIncludes(),
+                            serviceTask.getTemplates(),
+                            serviceTask.getDeployments(),
+                            serviceTask.getGroups(),
+                            serviceTask.getDeletedFilesAfterStop(),
+                            serviceTask.getProcessConfiguration(),
+                            serviceTask.getStartPort()
+                    );
 
-                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                    if (serviceInfoSnapshot != null) {
-                        sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
+                    if (serviceInfoSnapshots.isEmpty()) {
+                        sender.sendMessage(LanguageManager.getMessage("command-create-by-task-failed"));
+                        return;
                     }
-                }
+                    this.listAndStartServices(sender, serviceInfoSnapshots, properties);
 
-                if (properties.containsKey("start")) {
-                    try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                            }
-
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                sender.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
+                    sender.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
+                });
             }
             return;
         }
@@ -99,51 +90,51 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                 return;
             }
 
-            try {
-                Collection<ServiceInfoSnapshot> serviceInfoSnapshots = this.runCloudService(
-                        properties,
-                        Integer.parseInt(args[2]),
-                        args[1],
-                        null,
-                        false,
-                        false,
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        new ProcessConfiguration(
-                                environmentType,
-                                372,
-                                Iterables.newArrayList()
-                        ),
-                        46949
-                );
+            CloudNet.getInstance().getTaskScheduler().schedule(() -> {
+                sender.sendMessage(LanguageManager.getMessage("command-create-start"));
+                try {
+                    Collection<ServiceInfoSnapshot> serviceInfoSnapshots = this.runCloudService(
+                            properties,
+                            Integer.parseInt(args[2]),
+                            args[1],
+                            null,
+                            false,
+                            false,
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            new ProcessConfiguration(
+                                    environmentType,
+                                    372,
+                                    Iterables.newArrayList()
+                            ),
+                            46949
+                    );
 
-                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                    if (serviceInfoSnapshot != null) {
-                        sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
-                    }
+                    this.listAndStartServices(sender, serviceInfoSnapshots, properties);
+
+                    sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
+            });
+        }
+    }
 
-                if (properties.containsKey("start")) {
-                    try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                            }
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
+    private void listAndStartServices(ICommandSender sender, Collection<ServiceInfoSnapshot> serviceInfoSnapshots, Properties properties) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+            if (serviceInfoSnapshot != null) {
+                sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
             }
+        }
 
-            sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
+        if (properties.containsKey("start")) {
+            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+            }
         }
     }
 

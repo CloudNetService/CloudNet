@@ -43,15 +43,11 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -171,7 +167,7 @@ public final class Wrapper extends CloudNetDriver {
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-        this.start0();
+        this.mainloop();
     }
 
     @Override
@@ -179,8 +175,8 @@ public final class Wrapper extends CloudNetDriver {
         try {
             this.networkClient.close();
             this.logger.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         this.taskScheduler.shutdown();
@@ -2251,21 +2247,19 @@ public final class Wrapper extends CloudNetDriver {
         }
     }
 
-    private synchronized void start0() throws Exception {
+    private synchronized void mainloop() throws Exception {
         long value = System.currentTimeMillis();
         long millis = 1000 / TPS;
         int tps5 = TPS * 5, start1Tick = tps5;
 
         if (this.startApplication()) {
-            Runtime.getRuntime().addShutdownHook(new Thread(mainThread::interrupt));
-
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     long diff = System.currentTimeMillis() - value;
                     if (diff < millis) {
                         try {
                             Thread.sleep(millis - diff);
-                        } catch (Exception exception) {
+                        } catch (InterruptedException exception) {
                             exception.printStackTrace();
                         }
                     }
@@ -2283,22 +2277,17 @@ public final class Wrapper extends CloudNetDriver {
                     }
 
                     if (start1Tick++ >= tps5) {
-                        this.start1();
+                        this.publishServiceInfoUpdate();
                         start1Tick = 0;
                     }
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         }
 
-        this.stop();
         System.exit(0);
-    }
-
-    private void start1() {
-        this.publishServiceInfoUpdate();
     }
 
     private void enableModules() {
@@ -2321,41 +2310,31 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     private boolean startApplication() throws Exception {
-        File entry = new File(commandLineArguments.get(0));
+        File applicationFile = new File(this.commandLineArguments.remove(0));
+        String mainClass = this.commandLineArguments.remove(0);
 
-        if (entry.exists()) {
-            return this.startApplication0(entry);
-        } else {
-            return false;
-        }
+        return applicationFile.exists() && this.startApplication(applicationFile, mainClass);
     }
 
-    private boolean startApplication0(File file) throws Exception {
-        JarFile jarFile = new JarFile(file);
-        Manifest manifest = jarFile.getManifest();
-        String mainClazz = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
-
-        ClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()}, Thread.currentThread().getContextClassLoader());
-        Class<?> main = Class.forName(mainClazz, true, classLoader);
+    private boolean startApplication(File applicationFile, String mainClass) throws Exception {
+        Class<?> main = Class.forName(mainClass);
         Method method = main.getMethod("main", String[].class);
 
         Collection<String> arguments = Iterables.newArrayList(this.commandLineArguments);
 
-        this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, manifest, arguments));
+        this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, applicationFile, arguments));
 
         Thread applicationThread = new Thread(() -> {
             try {
                 logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
                 method.invoke(null, new Object[]{arguments.toArray(new String[0])});
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }, "Application-Thread");
-
-        applicationThread.setContextClassLoader(classLoader);
         applicationThread.start();
 
-        eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, classLoader));
+        eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
         return true;
     }
 

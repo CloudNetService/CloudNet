@@ -14,4 +14,8 @@ public interface IServiceConsoleLogCache {
 
     void setAutoPrintReceivedInput(boolean value);
 
+    boolean isScreenEnabled();
+
+    void setScreenEnabled(boolean value);
+
 }

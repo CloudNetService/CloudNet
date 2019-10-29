@@ -1,6 +1,6 @@
 jar {
 
-    archiveName = cloudnetDriverOutFileName
+    archiveFileName.set(cloudnetDriverOutFileName)
 
     from {
 

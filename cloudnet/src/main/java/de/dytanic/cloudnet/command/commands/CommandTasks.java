@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
@@ -31,12 +32,15 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     "tasks reload",
                     "tasks create group <name>",
                     "tasks create task <name> <" + Arrays.toString(ServiceEnvironmentType.values()) + ">",
-                    "tasks delete group <name>", //TODO
-                    "tasks delete task <name>", //TODO
+                    "tasks delete group <name>",
+                    "tasks delete task <name>",
                     "tasks group <group>",
                     "tasks group <group> add inclusion <url> <target>",
                     "tasks group <group> add template <storage> <prefix> <name>",
                     "tasks group <group> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]",
+                    "tasks group <group> remove inclusion <url> <target>",
+                    "tasks group <group> remove template <storage> <prefix> <name>",
+                    "tasks group <group> remove deployment <storage> <prefix> <name>",
                     "tasks task <name>",
                     "tasks task <name> set maxHeapMemory <mb>",
                     "tasks task <name> set maintenance <true : false>",
@@ -51,7 +55,10 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     "tasks task <name> remove node <name>",
                     "tasks task <name> add inclusion <url> <target>",
                     "tasks task <name> add template <storage> <prefix> <name>",
-                    "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]"
+                    "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]",
+                    "tasks task <name> remove inclusion <url> <target>",
+                    "tasks task <name> remove template <storage> <prefix> <name>",
+                    "tasks task <name> remove deployment <storage> <prefix> <name>"
             );
             return;
         }
@@ -249,13 +256,17 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     if (args[2].equalsIgnoreCase("add")) {
                         switch (args[3].toLowerCase()) {
                             case "group":
-                                serviceTask.getGroups().add(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
-                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                if (CloudNet.getInstance().getGroupConfigurations().stream().anyMatch(groupConfiguration -> groupConfiguration.getName().equals(args[4]))) {
+                                    serviceTask.getGroups().add(args[4]);
+                                    this.updateServiceTask(serviceTask);
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                } else {
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-no-group-found"));
+                                }
                                 break;
                             case "node":
                                 serviceTask.getAssociatedNodes().add(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
                                 break;
                             case "template":
@@ -309,13 +320,54 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         switch (args[3].toLowerCase()) {
                             case "group":
                                 serviceTask.getGroups().remove(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-group-success"));
                                 break;
                             case "node":
                                 serviceTask.getAssociatedNodes().remove(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-node-success"));
+                                break;
+                            case "template":
+                                if (args.length == 7) {
+                                    serviceTask.getTemplates().removeAll(serviceTask.getTemplates().stream()
+                                            .filter(template ->
+                                                    template.getPrefix().equals(args[5]) &&
+                                                            template.getName().equals(args[6]) &&
+                                                            template.getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateServiceTask(serviceTask);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
+                                }
+                                break;
+                            case "deployment":
+                                if (args.length == 7) {
+                                    serviceTask.getDeployments().removeAll(serviceTask.getDeployments().stream()
+                                            .filter(deployment ->
+                                                    deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                            deployment.getTemplate().getName().equals(args[6]) &&
+                                                            deployment.getTemplate().getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateServiceTask(serviceTask);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
+                                }
+                                break;
+                            case "inclusion":
+                                if (args.length == 6) {
+                                    serviceTask.getIncludes().removeAll(serviceTask.getIncludes().stream()
+                                            .filter(inclusion ->
+                                                    inclusion.getUrl().equals(args[4]) &&
+                                                            inclusion.getDestination().equals(args[5])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateServiceTask(serviceTask);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
+                                }
                                 break;
                         }
                     }
@@ -377,6 +429,52 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                     updateGroupConfiguration(groupConfiguration);
 
                                     sender.sendMessage(LanguageManager.getMessage("command-tasks-add-inclusion-success"));
+                                }
+                                break;
+                        }
+                    }
+
+                    if (args[2].equalsIgnoreCase("remove")) {
+                        switch (args[3].toLowerCase()) {
+                            case "template":
+                                if (args.length == 7) {
+                                    groupConfiguration.getTemplates().removeAll(groupConfiguration.getTemplates().stream()
+                                            .filter(template ->
+                                                    template.getPrefix().equals(args[5]) &&
+                                                            template.getName().equals(args[6]) &&
+                                                            template.getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
+                                }
+                                break;
+                            case "deployment":
+                                if (args.length == 7) {
+                                    groupConfiguration.getDeployments().removeAll(groupConfiguration.getDeployments().stream()
+                                            .filter(deployment ->
+                                                    deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                            deployment.getTemplate().getName().equals(args[6]) &&
+                                                            deployment.getTemplate().getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
+                                }
+                                break;
+                            case "inclusion":
+                                if (args.length == 6) {
+                                    groupConfiguration.getIncludes().removeAll(groupConfiguration.getIncludes().stream()
+                                            .filter(inclusion ->
+                                                    inclusion.getUrl().equals(args[4]) &&
+                                                            inclusion.getDestination().equals(args[5])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
                                 }
                                 break;
                         }

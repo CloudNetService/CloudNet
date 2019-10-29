@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.cluster;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -100,7 +99,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
-        this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource));
+        this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 
     @Override
@@ -109,8 +108,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
+                ServiceTask clone = serviceTask.makeClone();
+                clone.getAssociatedNodes().clear();
+                clone.getAssociatedNodes().add(this.nodeInfo.getUniqueId());
+                JsonDocument data = new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", clone);
                 return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
-                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), new byte[0],
+                        data, new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -451,28 +454,6 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public Collection<Integer> getReservedTaskIds(String task) {
-        Validate.checkNotNull(task);
-
-        if (this.channel != null) {
-            try {
-                return CloudNetDriver.getInstance().sendCallablePacket(this.channel,
-                        PacketConstants.CLUSTER_NODE_SYNC_PACKET_CHANNEL_NAME,
-                        new JsonDocument()
-                                .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_reserved_task_ids")
-                                .append("task", task),
-                        new byte[0],
-                        (Function<Pair<JsonDocument, byte[]>, Collection<Integer>>) documentPair -> documentPair.getFirst().get("taskIds", TYPE_COLLECTION_INTEGER)
-                ).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return Iterables.newArrayList();
     }
 
     @Override

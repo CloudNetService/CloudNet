@@ -17,8 +17,8 @@ public interface IPersistable {
     default IPersistable write(Path path) {
         try (OutputStream outputStream = new FileOutputStream(path.toFile())) {
             this.write(outputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return this;
