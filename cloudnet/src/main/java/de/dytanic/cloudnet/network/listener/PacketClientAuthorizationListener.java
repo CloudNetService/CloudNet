@@ -67,7 +67,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
                                 getCloudNet().getLogger().info(
                                         LanguageManager.getMessage("cluster-server-networking-connected")
-                                                .replace("%id%", clusterNode.getUniqueId() )
+                                                .replace("%id%", clusterNode.getUniqueId())
                                                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                                                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                                 );
@@ -106,8 +106,8 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                             CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthCloudServiceSuccessEvent(cloudService, channel));
 
                             getCloudNet().getLogger().info(LanguageManager.getMessage("cloud-service-networking-connected")
-                                    .replace("%id%", cloudService.getServiceId().getUniqueId().toString() )
-                                    .replace("%task%", cloudService.getServiceId().getTaskName() )
+                                    .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
+                                    .replace("%task%", cloudService.getServiceId().getTaskName())
                                     .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))
                                     .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                                     .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())

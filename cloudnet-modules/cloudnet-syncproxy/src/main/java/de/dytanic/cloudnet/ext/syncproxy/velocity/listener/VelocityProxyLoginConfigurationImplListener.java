@@ -94,7 +94,7 @@ public final class VelocityProxyLoginConfigurationImplListener {
                 }
 
                 event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages()
-                        .get("player-login-not-whitelisted") ).replace("&", "§"))));
+                        .get("player-login-not-whitelisted")).replace("&", "§"))));
                 return;
             }
 

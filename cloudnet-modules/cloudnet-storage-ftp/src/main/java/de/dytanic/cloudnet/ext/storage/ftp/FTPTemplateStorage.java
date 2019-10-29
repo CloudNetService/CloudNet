@@ -406,11 +406,11 @@ public final class FTPTemplateStorage implements ITemplateStorage {
             );
 
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
-                    .replace("%user%", this.document.getString("username") )
+                    .replace("%user%", this.document.getString("username"))
             );
             ftpClient.login(this.document.getString("username"), this.document.getString("password"));
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login-success")
-                    .replace("%user%", this.document.getString("username") )
+                    .replace("%user%", this.document.getString("username"))
             );
 
             ftpClient.setAutodetectUTF8(true);

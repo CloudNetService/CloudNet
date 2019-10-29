@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
@@ -19,23 +18,17 @@ import de.dytanic.cloudnet.util.PortValidator;
 import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     private static final ICloudServiceFactory DEFAULT_FACTORY = new JVMCloudServiceFactory();
-
+    protected final DefaultCloudServiceManagerConfiguration config = new DefaultCloudServiceManagerConfiguration();
     private final File
             tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
             persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
-
     private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = Maps.newConcurrentHashMap();
-
     private final Map<UUID, ICloudService> cloudServices = Maps.newConcurrentHashMap();
-
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = Maps.newConcurrentHashMap();
-
-    protected final DefaultCloudServiceManagerConfiguration config = new DefaultCloudServiceManagerConfiguration();
 
     @Override
     public void init() {

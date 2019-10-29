@@ -26,23 +26,20 @@ public final class ApplicationPreStartEvent extends DriverEvent {
      * The class, which is set in the manifest as 'Main-Class' by the archive of the wrapped application
      */
     private final Class<?> clazz;
-
+    /**
+     * The arguments for the main method of the application
+     */
+    private final Collection<String> arguments;
     /**
      * The manifest properties of the jar archive by the original application
      *
      * @see Manifest
      */
     private Manifest manifest;
-
     /**
      * The file of the original application
      */
     private File applicationFile;
-
-    /**
-     * The arguments for the main method of the application
-     */
-    private final Collection<String> arguments;
 
     /**
      * @deprecated the manifest of the application file is not available in the wrapper anymore and has been replaced by the whole application file

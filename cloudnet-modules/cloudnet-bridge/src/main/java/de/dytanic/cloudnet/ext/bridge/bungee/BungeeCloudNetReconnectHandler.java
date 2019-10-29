@@ -6,7 +6,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class BungeeCloudNetReconnectHandler implements ReconnectHandler {
-    
+
     @Override
     public ServerInfo getServer(ProxiedPlayer player) {
         String server = BungeeCloudNetHelper.filterServiceForProxiedPlayer(player, player.getServer() != null ? player.getServer().getInfo().getName() : null);
@@ -24,5 +24,5 @@ public class BungeeCloudNetReconnectHandler implements ReconnectHandler {
     @Override
     public void close() {
     }
-    
+
 }

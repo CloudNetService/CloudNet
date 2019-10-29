@@ -64,7 +64,7 @@ public final class ProxProxProxyLoginConfigurationImplListener implements Listen
                     return;
                 }
 
-                event.deny(ChatColor.toANSI((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") )));
+                event.deny(ChatColor.toANSI((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted"))));
                 return;
             }
 

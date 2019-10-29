@@ -11,33 +11,33 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
+      - uses: actions/checkout@v1
 
-    - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java }}
-        architecture: x64
-        
-    - name: Test with Gradle
-      run: ./gradlew test
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          architecture: x64
 
-    - name: Build with Gradle
-      run: ./gradlew jar
-        
-    - name: Release ZIP
-      run: |
-        echo 'Creating CloudNet.zip file...';
-        mkdir -p temp/;
-        cp -r .template/* temp/;
-        mkdir temp/dev;
-        mkdir temp/dev/examples;
-        cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples;
-        mkdir temp/plugins;
-        cp cloudnet-plugins/**/build/libs/*.jar temp/plugins/;
-        cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar;
-        
-    - uses: actions/upload-artifact@master
-      with:
-        name: CloudNet-v3
-        path: temp/
+      - name: Test with Gradle
+        run: ./gradlew test
+
+      - name: Build with Gradle
+        run: ./gradlew jar
+
+      - name: Release ZIP
+        run: |
+          echo 'Creating CloudNet.zip file...';
+          mkdir -p temp/;
+          cp -r .template/* temp/;
+          mkdir temp/dev;
+          mkdir temp/dev/examples;
+          cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples;
+          mkdir temp/plugins;
+          cp cloudnet-plugins/**/build/libs/*.jar temp/plugins/;
+          cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar;
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: CloudNet-v3
+          path: temp/

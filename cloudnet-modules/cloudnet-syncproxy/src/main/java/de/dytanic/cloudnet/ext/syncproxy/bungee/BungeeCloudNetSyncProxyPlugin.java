@@ -119,12 +119,12 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
         proxiedPlayer.setTabHeader(
                 TextComponent.fromLegacyText(tabListHeader != null ?
                         replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                ChatColor.translateAlternateColorCodes('&', tabListHeader ))
+                                ChatColor.translateAlternateColorCodes('&', tabListHeader))
                         : ""
                 ),
                 TextComponent.fromLegacyText(tabListFooter != null ?
                         replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                ChatColor.translateAlternateColorCodes('&', tabListFooter ))
+                                ChatColor.translateAlternateColorCodes('&', tabListFooter))
                         : ""
                 )
         );

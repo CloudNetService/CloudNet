@@ -23,12 +23,9 @@ public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
     protected String version;
 
     protected int currentServicesCount, usedMemory, reservedMemory, maxMemory;
-
-    private double systemCpuUsage;
-
     protected ProcessSnapshot processSnapshot;
-
     protected Collection<NetworkClusterNodeExtensionSnapshot> extensions;
+    private double systemCpuUsage;
 
     public NetworkClusterNodeInfoSnapshot(long creationTime, NetworkClusterNode node, String version, int currentServicesCount, int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot, Collection<NetworkClusterNodeExtensionSnapshot> extensions, double systemCpuUsage) {
         this.creationTime = creationTime;

@@ -111,7 +111,7 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                     !loginEventCommandSender.hasPermission("cloudnet.syncproxy.fullljoin")) {
                 event.setCancelled(true);
                 event.setCancelReason(ChatColor.translateAlternateColorCodes('&', SyncProxyConfigurationProvider.load().getMessages()
-                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network") ));
+                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network")));
             }
         }
     }

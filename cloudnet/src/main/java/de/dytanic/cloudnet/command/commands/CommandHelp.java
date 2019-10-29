@@ -1,11 +1,11 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.command.Command;
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.common.command.CommandInfo;
 
 import java.util.Arrays;
 import java.util.Collection;
