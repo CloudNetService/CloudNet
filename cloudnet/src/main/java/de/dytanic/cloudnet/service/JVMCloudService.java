@@ -656,7 +656,6 @@ final class JVMCloudService implements ICloudService {
         commandArguments.addAll(this.serviceConfiguration.getProcessConfig().getJvmOptions());
         commandArguments.addAll(Arrays.asList(
                 "-Xmx" + this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize() + "M",
-                "-javaagent:" + wrapperFile.getAbsolutePath(),
                 "-cp", wrapperFile.getAbsolutePath() + File.pathSeparator + applicationFile.getAbsolutePath())
         );
 
