@@ -122,6 +122,7 @@ public final class CloudNetTickListener {
                     System.out.println(LanguageManager.getMessage("module-smart-stop-service-automatically")
                             .replace("%id%", serviceInfoSnapshot.getServiceId().getUniqueId().toString())
                             .replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName())
+                            .replace("%serviceId%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()))
                     );
                     CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
                 }

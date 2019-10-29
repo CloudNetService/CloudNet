@@ -27,7 +27,7 @@ public final class JLine2Console implements IConsole {
         String input = this.consoleReader.readLine(
                 ConsoleColor.toColouredString('&', prompt)
                         .replace("%version%", version)
-                        .replace("%screen%", screenName + "")
+                        .replace("%screen%", screenName )
                         .replace("%user%", user)
                         + ConsoleColor.DEFAULT
         );

@@ -103,10 +103,10 @@ public class CAProgressBar {
 
     protected String insertPatterns(String value, int percent) {
         return value
-                .replace("%percent%", percent + "")
+                .replace("%percent%", String.valueOf(percent))
                 .replace("%time%", new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - barStart))
-                .replace("%target%", targetGoal + "")
-                .replace("%value%", this.progressValue + "");
+                .replace("%target%", String.valueOf(this.targetGoal))
+                .replace("%value%", String.valueOf(this.progressValue));
     }
 
     public long getUpdateInterval() {

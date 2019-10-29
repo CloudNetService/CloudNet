@@ -124,7 +124,7 @@ public final class GoMintCloudNetHelper {
                                 try {
                                     field.setAccessible(true);
                                     Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
-                                    gameRules.put(gameRule.getNbtName(), world.getGamerule(gameRule) + "");
+                                    gameRules.put(gameRule.getNbtName(), String.valueOf(world.getGamerule(gameRule)));
 
                                 } catch (IllegalAccessException e) {
                                     e.printStackTrace();

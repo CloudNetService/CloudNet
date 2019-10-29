@@ -110,16 +110,16 @@ public final class NukkitCloudNetHelper {
 
                         switch (type.getType()) {
                             case FLOAT:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getFloat(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getFloat(gameRule)));
                                 break;
                             case BOOLEAN:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getBoolean(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getBoolean(gameRule)));
                                 break;
                             case INTEGER:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getInteger(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getInteger(gameRule)));
                                 break;
                             default:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getString(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getString(gameRule)));
                                 break;
                         }
                     }

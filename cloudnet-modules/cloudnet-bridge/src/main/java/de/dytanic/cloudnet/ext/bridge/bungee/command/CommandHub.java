@@ -44,7 +44,7 @@ public final class CommandHub extends Command {
             proxiedPlayer.connect(serverInfo);
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     BridgeConfigurationProvider.load().getMessages().get("command-hub-success-connect"))
-                    .replace("%server%", server + "")
+                    .replace("%server%", server )
             );
         } else {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-no-server-found")));

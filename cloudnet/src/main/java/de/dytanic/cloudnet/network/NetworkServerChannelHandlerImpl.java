@@ -73,8 +73,9 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
     private void closeAsCloudService(ICloudService cloudService, INetworkChannel channel) {
         cloudService.setNetworkChannel(null);
         System.out.println(LanguageManager.getMessage("cloud-service-networking-disconnected")
-                .replace("%id%", cloudService.getServiceId().getUniqueId().toString() + "")
-                .replace("%task%", cloudService.getServiceId().getTaskName() + "")
+                .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
+                .replace("%task%", cloudService.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         );

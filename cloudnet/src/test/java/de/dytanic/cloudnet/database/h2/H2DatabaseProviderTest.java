@@ -45,12 +45,12 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
             document.append("val", i).append("name", i == 50 ? "Albert" : i > 70 ? "Luzifer" : "Peter Parker").append("age", i > 70 ? 20 : 18).append("uniqueId", UUID.randomUUID()).append("random", new Random().nextLong());
 
             Assert.assertEquals(5, document.size());
-            Assert.assertTrue(database.insert(i + "", document));
+            Assert.assertTrue(database.insert(String.valueOf(i), document));
         }
 
         Assert.assertEquals(100, database.documents().size());
-        Assert.assertTrue(database.update(10 + "", new JsonDocument("val", 10)));
-        Assert.assertEquals(1, database.get(10 + "").size());
+        Assert.assertTrue(database.update(String.valueOf(10), new JsonDocument("val", 10)));
+        Assert.assertEquals(1, database.get(String.valueOf(10)).size());
 
         Assert.assertEquals(1, database.get("val", 61).size());
         Assert.assertEquals(1, database.get(new JsonDocument("name", "Albert").append("val", 50)).size());

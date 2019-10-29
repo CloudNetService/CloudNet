@@ -31,7 +31,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
 
                                 CloudNet.getInstance().getLogger().info(
                                         LanguageManager.getMessage("cluster-server-networking-connected")
-                                                .replace("%id%", node.getUniqueId() + "")
+                                                .replace("%id%", node.getUniqueId() )
                                                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                                                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                                 );
