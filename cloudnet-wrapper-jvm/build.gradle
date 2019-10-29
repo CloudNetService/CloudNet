@@ -12,7 +12,6 @@ apply plugin: 'com.github.johnrengelman.shadow'
 jar {
     manifest {
         attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
-        attributes 'Premain-Class': 'de.dytanic.cloudnet.wrapper.runtime.RuntimeAgent'
         attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
         attributes 'Implementation-Title': cloudNetCodeName
     }
