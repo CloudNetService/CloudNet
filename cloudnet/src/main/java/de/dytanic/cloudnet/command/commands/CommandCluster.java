@@ -146,7 +146,8 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                     "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage " +
                             node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory() + "/" + node.getNodeInfoSnapshot().getMaxMemory() + "MB",
                     " ",
-                    "CPU usage: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
+                    "CPU usage process: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
+                    "CPU usage system: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getSystemCpuUsage()) + "%",
                     "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().getThreads().size(),
                     "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +
                             (node.getNodeInfoSnapshot().getProcessSnapshot().getMaxHeapMemory() / 1048576) + "MB",

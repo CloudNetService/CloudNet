@@ -87,6 +87,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public final class CloudNet extends CloudNetDriver {
 
@@ -1618,7 +1619,8 @@ public final class CloudNet extends CloudNetDriver {
                         moduleWrapper.getModuleConfiguration().getAuthor(),
                         moduleWrapper.getModuleConfiguration().getWebsite(),
                         moduleWrapper.getModuleConfiguration().getDescription()
-                ))
+                )),
+                ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
         );
     }
 
@@ -1631,23 +1633,16 @@ public final class CloudNet extends CloudNetDriver {
     public NetworkClusterNodeInfoSnapshot searchLogicNode(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
-        Collection<IClusterNodeServer> clusterNodeServers = this.getValidClusterNodeServers(serviceTask);
-        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
-
-        for (IClusterNodeServer node : clusterNodeServers) {
-            if (node.getNodeInfoSnapshot() != null &&
-                    (node.getNodeInfoSnapshot().getMaxMemory() - node.getNodeInfoSnapshot().getReservedMemory())
-                            > (networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getReservedMemory()) &&
-                    //
-                    (node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage() * node.getNodeInfoSnapshot().getCurrentServicesCount())
-                            < (networkClusterNodeInfoSnapshot.getProcessSnapshot().getCpuUsage() *
-                            networkClusterNodeInfoSnapshot.getCurrentServicesCount())
-            ) {
-                networkClusterNodeInfoSnapshot = node.getNodeInfoSnapshot();
-            }
+        Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(serviceTask).stream().map(IClusterNodeServer::getNodeInfoSnapshot).filter(Objects::nonNull).collect(Collectors.toList());
+        if (serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(this.config.getIdentity().getUniqueId())) {
+            nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
         }
-
-        return networkClusterNodeInfoSnapshot;
+        boolean windows = nodes.stream().anyMatch(node -> node.getSystemCpuUsage() == -1); //on windows the systemCpuUsage will be always -1, so we cannot find the node with the lowest cpu usage
+        return nodes.stream().max(Comparator.comparingDouble(
+                value -> windows ?
+                        value.getMaxMemory() - value.getReservedMemory() :
+                        (value.getMaxMemory() - value.getReservedMemory()) + (100 - value.getSystemCpuUsage())
+        )).orElse(null);
     }
 
     public boolean competeWithCluster(ServiceTask serviceTask) {
@@ -1775,7 +1770,6 @@ public final class CloudNet extends CloudNetDriver {
         // Node server API
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientSyncAPIPacketListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClusterSyncAPIPacketListener());
 
         this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL, new PacketServerClusterChannelMessageListener());
 

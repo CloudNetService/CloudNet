@@ -262,17 +262,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         int taskId = 1;
 
-        Collection<Integer> taskIdList = Iterables.newArrayList();
-
-        for (IClusterNodeServer clusterNodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-            Collection<Integer> ids = clusterNodeServer.getReservedTaskIds(name);
-
-            if (ids != null) {
-                taskIdList.addAll(ids);
-            }
-        }
-
-        taskIdList.addAll(getReservedTaskIds(name));
+        Collection<Integer> taskIdList = this.getReservedTaskIds(name);
 
         while (taskIdList.contains(taskId)) {
             taskId++;

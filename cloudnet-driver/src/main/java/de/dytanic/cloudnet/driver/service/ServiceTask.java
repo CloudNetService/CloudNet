@@ -172,4 +172,26 @@ public class ServiceTask extends ServiceConfigurationBase {
         this.minServiceCount = minServiceCount;
     }
 
+    public ServiceTask makeClone() {
+        return new ServiceTask(
+                new ArrayList<>(this.includes),
+                new ArrayList<>(this.templates),
+                new ArrayList<>(this.deployments),
+                this.name,
+                this.runtime,
+                this.maintenance,
+                this.autoDeleteOnStop,
+                this.staticServices,
+                new ArrayList<>(this.associatedNodes),
+                new ArrayList<>(this.groups),
+                new ArrayList<>(this.deletedFilesAfterStop),
+                new ProcessConfiguration(
+                        this.processConfiguration.getEnvironment(),
+                        this.processConfiguration.getMaxHeapMemorySize(),
+                        new ArrayList<>(this.processConfiguration.getJvmOptions())
+                ),
+                this.startPort,
+                this.minServiceCount
+        );
+    }
 }
