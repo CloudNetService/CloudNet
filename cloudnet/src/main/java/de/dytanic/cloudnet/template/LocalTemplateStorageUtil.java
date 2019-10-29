@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public final class LocalTemplateStorageUtil {
 
