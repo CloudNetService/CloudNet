@@ -38,7 +38,7 @@ public enum ConsoleColor {
         }
 
         for (ConsoleColor consoleColour : values()) {
-            text = text.replace(String.valueOf(triggerChar + consoleColour.index), String.valueOf(consoleColour.ansiCode));
+            text = text.replace(triggerChar + "" + consoleColour.index, consoleColour.ansiCode);
         }
 
         return text;
