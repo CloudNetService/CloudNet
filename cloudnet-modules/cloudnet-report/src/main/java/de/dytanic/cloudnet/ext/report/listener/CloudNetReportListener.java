@@ -31,8 +31,8 @@ public final class CloudNetReportListener {
                 subDir.mkdirs();
 
                 System.out.println(LanguageManager.getMessage("module-report-create-record-start")
-                        .replace("%service%", event.getCloudService().getServiceId().getName() + "")
-                        .replace("%file%", subDir.getAbsolutePath() + "")
+                        .replace("%service%", event.getCloudService().getServiceId().getName())
+                        .replace("%file%", subDir.getAbsolutePath())
                 );
 
                 copyLogFiles(subDir, event.getCloudService());
@@ -43,8 +43,8 @@ public final class CloudNetReportListener {
                 writeServiceInfoSnapshot(subDir, event.getCloudService());
 
                 System.out.println(LanguageManager.getMessage("module-report-create-record-success")
-                        .replace("%service%", event.getCloudService().getServiceId().getName() + "")
-                        .replace("%file%", subDir.getAbsolutePath() + "")
+                        .replace("%service%", event.getCloudService().getServiceId().getName())
+                        .replace("%file%", subDir.getAbsolutePath())
                 );
             }
         }

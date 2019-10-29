@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.ext.syncproxy.bungee.util.LoginPendingConnectionComma
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -42,11 +43,11 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
             if (syncProxyMotd != null) {
                 String protocolText = syncProxyMotd.getProtocolText();
 
-                String motd = ChatColor.translateAlternateColorCodes('&', syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine() + "")
-                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                        .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId() + "")
-                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId() + "");
+                String motd = ChatColor.translateAlternateColorCodes('&', syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
+                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                        .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId());
 
                 int onlinePlayers = BungeeCloudNetSyncProxyPlugin.getInstance().getSyncProxyOnlineCount();
 
@@ -62,13 +63,13 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                 ServerPing serverPing = new ServerPing(
                         new ServerPing.Protocol(ChatColor.translateAlternateColorCodes('&',
                                 (protocolText == null ? event.getResponse().getVersion().getName() : protocolText)
-                                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                                        .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId() + "")
-                                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId() + "")
-                                        .replace("%online_players%", onlinePlayers + "")
-                                        .replace("%max_players%", maxPlayers + "")
-                                        + ""),
+                                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                                        .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+                                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+                                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                                        .replace("%online_players%", String.valueOf(onlinePlayers))
+                                        .replace("%max_players%", String.valueOf(maxPlayers))
+                        ),
                                 (protocolText == null ? event.getResponse().getVersion().getProtocol() : 1)),
                         new ServerPing.Players(maxPlayers, onlinePlayers, playerInfo),
                         motd,
@@ -100,8 +101,9 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                 }
 
                 event.setCancelled(true);
-                event.setCancelReason(ChatColor.translateAlternateColorCodes('&',
-                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + ""));
+                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted"))
+                ));
                 return;
             }
 
@@ -109,7 +111,7 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                     !loginEventCommandSender.hasPermission("cloudnet.syncproxy.fullljoin")) {
                 event.setCancelled(true);
                 event.setCancelReason(ChatColor.translateAlternateColorCodes('&', SyncProxyConfigurationProvider.load().getMessages()
-                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network") + ""));
+                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network")));
             }
         }
     }

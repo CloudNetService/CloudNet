@@ -396,21 +396,21 @@ public final class FTPTemplateStorage implements ITemplateStorage {
             HostAndPort address = this.document.get("address", HostAndPort.class);
 
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect")
-                    .replace("%host%", address.getHost() + "")
-                    .replace("%port%", address.getPort() + "")
+                    .replace("%host%", address.getHost())
+                    .replace("%port%", String.valueOf(address.getPort()))
             );
             ftpClient.connect(address.getHost(), address.getPort());
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-success")
-                    .replace("%host%", address.getHost() + "")
-                    .replace("%port%", address.getPort() + "")
+                    .replace("%host%", address.getHost())
+                    .replace("%port%", String.valueOf(address.getPort()))
             );
 
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
-                    .replace("%user%", this.document.getString("username") + "")
+                    .replace("%user%", this.document.getString("username"))
             );
             ftpClient.login(this.document.getString("username"), this.document.getString("password"));
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login-success")
-                    .replace("%user%", this.document.getString("username") + "")
+                    .replace("%user%", this.document.getString("username"))
             );
 
             ftpClient.setAutodetectUTF8(true);

@@ -66,11 +66,11 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                                 packet.getUniqueId(),
                                 new JsonDocument()
                                         .append(
-                                        "commandInfo",
-                                        getCloudNet().getConsoleCommand(
-                                                packet.getHeader().getString("commandLine")
+                                                "commandInfo",
+                                                getCloudNet().getConsoleCommand(
+                                                        packet.getHeader().getString("commandLine")
+                                                )
                                         )
-                                )
                         );
                     } else {
                         this.sendResponse(
@@ -80,7 +80,7 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                         );
                     }
                 }
-                    break;
+                break;
                 case "send_commandLine": {
                     String[] messages = getCloudNet().sendCommandLine(packet.getHeader().getString("commandLine"));
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("responseMessages", messages));

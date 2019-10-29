@@ -119,12 +119,12 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
         proxiedPlayer.setTabHeader(
                 TextComponent.fromLegacyText(tabListHeader != null ?
                         replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                ChatColor.translateAlternateColorCodes('&', tabListHeader + ""))
+                                ChatColor.translateAlternateColorCodes('&', tabListHeader))
                         : ""
                 ),
                 TextComponent.fromLegacyText(tabListFooter != null ?
                         replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                ChatColor.translateAlternateColorCodes('&', tabListFooter + ""))
+                                ChatColor.translateAlternateColorCodes('&', tabListFooter))
                         : ""
                 )
         );
@@ -134,17 +134,10 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
         input = input
                 .replace("%server%", proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : "")
-                .replace("%online_players%",
-                        (
-                                syncProxyProxyLoginConfiguration != null ? getSyncProxyOnlineCount() : ProxyServer.getInstance().getOnlineCount()
-                        ) + "")
-                .replace("%max_players%",
-                        (
-                                syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
-                                        proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()
-                        ) + "")
-                .replace("%name%", proxiedPlayer.getName() + "")
-                .replace("%ping%", proxiedPlayer.getPing() + "");
+                .replace("%online_players%", String.valueOf(syncProxyProxyLoginConfiguration != null ? getSyncProxyOnlineCount() : ProxyServer.getInstance().getOnlineCount()))
+                .replace("%max_players%", String.valueOf(syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() : proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()))
+                .replace("%name%", proxiedPlayer.getName())
+                .replace("%ping%", String.valueOf(proxiedPlayer.getPing()));
 
         return SyncProxyTabList.replaceTabListItem(input, proxiedPlayer.getUniqueId());
     }

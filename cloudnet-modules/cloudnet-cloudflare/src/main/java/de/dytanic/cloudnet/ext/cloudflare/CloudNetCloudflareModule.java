@@ -79,8 +79,8 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
                 if (response.getFirst() < 400) {
                     CloudNetDriver.getInstance().getLogger().info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
-                            .replace("%service%", getCloudNet().getConfig().getIdentity().getUniqueId() + "")
-                            .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
+                            .replace("%service%", getCloudNet().getConfig().getIdentity().getUniqueId())
+                            .replace("%domain%", cloudflareConfigurationEntry.getDomainName())
                             .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
                     );
                 }

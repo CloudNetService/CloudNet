@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 
 public final class CommandCreate extends CommandDefault implements ITabCompleter {
 
@@ -227,8 +226,8 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                     deploy,
                     properties.getOrDefault("name", name),
                     properties.getOrDefault("runtime", runtime),
-                    properties.getOrDefault("autoDeleteOnStop", autoDeleteOnStop + "").equalsIgnoreCase("true"),
-                    properties.getOrDefault("static", staticServices + "").equalsIgnoreCase("true"),
+                    properties.getOrDefault("autoDeleteOnStop", String.valueOf(autoDeleteOnStop)).equalsIgnoreCase("true"),
+                    properties.getOrDefault("static", String.valueOf(staticServices)).equalsIgnoreCase("true"),
                     properties.containsKey("node") ? Arrays.asList(properties.get("node").split(";")) : nodes,
                     properties.containsKey("groups") ? Arrays.asList(properties.get("groups").split(";")) : groups,
                     properties.containsKey("deletedFilesAfterStop") ? Arrays.asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop,
@@ -240,8 +239,8 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                                     Arrays.asList(properties.get("jvmOptions").split(";")) :
                                     processConfiguration.getJvmOptions()
                     ),
-                    Validate.testStringParseToInt(properties.getOrDefault("port", startPort + "")) ?
-                            Integer.parseInt(properties.getOrDefault("port", startPort + ""))
+                    Validate.testStringParseToInt(properties.getOrDefault("port", String.valueOf(startPort))) ?
+                            Integer.parseInt(properties.getOrDefault("port", String.valueOf(startPort)))
                             :
                             46949,
                     0

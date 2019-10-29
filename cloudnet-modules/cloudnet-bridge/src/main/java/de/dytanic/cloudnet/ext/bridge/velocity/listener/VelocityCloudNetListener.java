@@ -135,7 +135,7 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("kickMessage") != null) {
-                    player.disconnect(TextComponent.of((event.getData().getString("kickMessage") + "").replace("&", "§")));
+                    player.disconnect(TextComponent.of((event.getData().getString("kickMessage")).replace("&", "§")));
                 }
             }
             break;
@@ -143,7 +143,7 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("message") != null) {
-                    player.sendMessage(TextComponent.of((event.getData().getString("message") + "").replace("&", "§")));
+                    player.sendMessage(TextComponent.of((event.getData().getString("message")).replace("&", "§")));
                 }
             }
             break;

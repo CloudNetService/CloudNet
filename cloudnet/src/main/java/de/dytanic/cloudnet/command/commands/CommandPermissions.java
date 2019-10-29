@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -174,7 +173,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                         if (args[2].equalsIgnoreCase("check")) {
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-user-check-password")
                                     .replace("%name%", permissionUser.getName())
-                                    .replace("%checked%", permissionUser.checkPassword(args[3]) + "")
+                                    .replace("%checked%", String.valueOf(permissionUser.checkPassword(args[3])))
                             );
                         }
 
@@ -202,8 +201,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                     permissionManagement.updateUser(permissionUser);
                                     sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
-                                            .replace("%name%", args[1] + "")
-                                            .replace("%group%", args[4] + "")
+                                            .replace("%name%", args[1])
+                                            .replace("%group%", args[4])
                                     );
                                 } else {
                                     sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-group-not-exists")
@@ -219,8 +218,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionManagement.updateUser(permissionUser);
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-user-remove-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
+                                        .replace("%name%", args[1])
+                                        .replace("%group%", args[4])
                                 );
                                 return;
                             }
@@ -235,8 +234,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 permissionManagement.updateUser(permissionUser);
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-user-remove-permission-successful")
-                                        .replace("%name%", permissionUser.getName() + "")
-                                        .replace("%permission%", args[4] + "")
+                                        .replace("%name%", permissionUser.getName())
+                                        .replace("%permission%", args[4])
                                 );
                                 return;
                             }
@@ -275,8 +274,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-permission-successful")
                                         .replace("%name%", permissionUser.getName())
-                                        .replace("%permission%", args[4] + "")
-                                        .replace("%potency%", args[5] + "")
+                                        .replace("%permission%", args[4])
+                                        .replace("%potency%", args[5])
                                 );
                             } catch (Exception exception) {
                                 exception.printStackTrace();
@@ -389,8 +388,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionManagement.updateGroup(permissionGroup);
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
+                                        .replace("%name%", args[1])
+                                        .replace("%group%", args[4])
                                 );
                                 return;
                             }
@@ -401,8 +400,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionManagement.updateGroup(permissionGroup);
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
+                                        .replace("%name%", args[1])
+                                        .replace("%group%", args[4])
                                 );
                                 return;
                             }
@@ -417,8 +416,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 permissionManagement.updateGroup(permissionGroup);
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
-                                        .replace("%name%", permissionGroup.getName() + "")
-                                        .replace("%permission%", args[4] + "")
+                                        .replace("%name%", permissionGroup.getName())
+                                        .replace("%permission%", args[4])
                                 );
                                 return;
                             }
@@ -461,8 +460,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-permission-successful")
                                         .replace("%name%", permissionGroup.getName())
-                                        .replace("%permission%", args[4] + "")
-                                        .replace("%potency%", args[5] + "")
+                                        .replace("%permission%", args[4])
+                                        .replace("%potency%", args[5])
                                 );
                             } catch (Exception exception) {
                                 exception.printStackTrace();
@@ -475,8 +474,8 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                             permissionManagement.updateGroup(permissionGroup);
 
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
-                                    .replace("%name%", permissionGroup.getName() + "")
-                                    .replace("%permission%", args[4] + "")
+                                    .replace("%name%", permissionGroup.getName())
+                                    .replace("%permission%", args[4])
                             );
                             return;
                         }

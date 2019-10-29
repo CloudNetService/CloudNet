@@ -124,7 +124,8 @@ public final class BungeeSyncProxyCloudNetListener {
 
                     if (!proxiedPlayer.hasPermission("cloudnet.syncproxy.maintenance")) {
                         proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
-                                SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + "")));
+                                SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted")))
+                        );
                     }
                 }
             }

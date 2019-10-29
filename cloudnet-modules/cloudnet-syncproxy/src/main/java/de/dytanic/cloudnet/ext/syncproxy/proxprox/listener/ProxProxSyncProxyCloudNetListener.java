@@ -115,7 +115,7 @@ public final class ProxProxSyncProxyCloudNetListener {
                                 !syncProxyProxyLoginConfiguration.getWhitelist().contains(player.getName()) &&
                                 !syncProxyProxyLoginConfiguration.getWhitelist().contains(player.getUUID().toString()) &&
                                 !player.hasPermission("cloudnet.syncproxy.maintenance")) {
-                    player.kick(ChatColor.toANSI(SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + ""));
+                    player.kick(ChatColor.toANSI(SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted")));
                 }
             }
         }

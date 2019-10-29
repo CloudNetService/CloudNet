@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveServiceTasksUpdateEvent;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
 
-import java.util.Collection;
 import java.util.List;
 
 public final class PacketServerSetServiceTaskListListener implements IPacketListener {

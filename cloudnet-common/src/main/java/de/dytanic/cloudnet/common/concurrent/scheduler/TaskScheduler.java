@@ -444,6 +444,24 @@ public class TaskScheduler {
         return entry.drop();
     }
 
+    private static final class VoidTaskEntry extends TaskEntry<Void> {
+
+        public VoidTaskEntry(Callable<Void> task, IVoidCallback<Void> complete, long delay, long repeat) {
+            super(task, complete, delay, repeat);
+        }
+
+
+        public VoidTaskEntry(Runnable task, IVoidCallback<Void> complete, long delay, long repeat) {
+            super(() -> {
+
+                if (task != null) {
+                    task.run();
+                }
+
+                return null;
+            }, complete, delay, repeat);
+        }
+    }
 
     public class Worker extends Thread {
 
@@ -545,25 +563,6 @@ public class TaskScheduler {
             }
         }
 
-    }
-
-    private static final class VoidTaskEntry extends TaskEntry<Void> {
-
-        public VoidTaskEntry(Callable<Void> task, IVoidCallback<Void> complete, long delay, long repeat) {
-            super(task, complete, delay, repeat);
-        }
-
-
-        public VoidTaskEntry(Runnable task, IVoidCallback<Void> complete, long delay, long repeat) {
-            super(() -> {
-
-                if (task != null) {
-                    task.run();
-                }
-
-                return null;
-            }, complete, delay, repeat);
-        }
     }
 
 }

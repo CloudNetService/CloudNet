@@ -75,9 +75,9 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
-                        .replace("%group%", dependency.getGroup() + "")
-                        .replace("%name%", dependency.getName() + "")
-                        .replace("%version%", dependency.getVersion() + "")
+                        .replace("%group%", dependency.getGroup())
+                        .replace("%name%", dependency.getName())
+                        .replace("%version%", dependency.getVersion())
                 , this.getModuleProvider(), moduleWrapper));
     }
 
@@ -85,9 +85,9 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
-                        .replace("%group%", dependency.getGroup() + "")
-                        .replace("%name%", dependency.getName() + "")
-                        .replace("%version%", dependency.getVersion() + "")
+                        .replace("%group%", dependency.getGroup())
+                        .replace("%name%", dependency.getName())
+                        .replace("%version%", dependency.getVersion())
                 , this.getModuleProvider(), moduleWrapper));
     }
 

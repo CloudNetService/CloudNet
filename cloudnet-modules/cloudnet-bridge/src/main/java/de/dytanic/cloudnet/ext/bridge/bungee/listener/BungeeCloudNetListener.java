@@ -131,7 +131,7 @@ public final class BungeeCloudNetListener {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("kickMessage") != null) {
-                    proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage") + "")));
+                    proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage"))));
                 }
             }
             break;

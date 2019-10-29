@@ -232,8 +232,9 @@ final class JVMCloudService implements ICloudService {
         if (this.lifeCycle == ServiceLifeCycle.DEFINED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
             System.out.println(LanguageManager.getMessage("cloud-service-pre-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePrePrepareEvent(this));
 
             new File(this.directory, ".wrapper").mkdirs();
@@ -279,9 +280,10 @@ final class JVMCloudService implements ICloudService {
             CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 
             System.out.println(LanguageManager.getMessage("cloud-service-post-prepared-message")
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
         }
     }
 
@@ -294,8 +296,9 @@ final class JVMCloudService implements ICloudService {
 
             System.out.println(LanguageManager.getMessage("cloud-service-pre-start-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartPrepareEvent(this));
 
             this.includeInclusions();
@@ -332,13 +335,15 @@ final class JVMCloudService implements ICloudService {
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartPrepareEvent(this));
             System.out.println(LanguageManager.getMessage("cloud-service-post-start-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
 
             System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartEvent(this));
 
             this.configureServiceEnvironment();
@@ -347,9 +352,10 @@ final class JVMCloudService implements ICloudService {
             this.lifeCycle = ServiceLifeCycle.RUNNING;
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartEvent(this));
             System.out.println(LanguageManager.getMessage("cloud-service-post-start-message")
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
 
             this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.RUNNING);
             CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
@@ -423,11 +429,11 @@ final class JVMCloudService implements ICloudService {
             if (inclusion != null && inclusion.getDestination() != null && inclusion.getUrl() != null) {
                 try {
                     System.out.println(LanguageManager.getMessage("cloud-service-include-inclusion-message")
-                            .replace("%task%", this.serviceId.getTaskName() + "")
-                            .replace("%id%", this.serviceId.getUniqueId().toString() + "")
-                            .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                            .replace("%url%", inclusion.getUrl() + "")
-                            .replace("%destination%", inclusion.getDestination() + "")
+                            .replace("%task%", this.serviceId.getTaskName())
+                            .replace("%id%", this.serviceId.getUniqueId().toString())
+                            .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                            .replace("%url%", inclusion.getUrl())
+                            .replace("%destination%", inclusion.getDestination())
                     );
 
                     File cacheDestination = new File(
@@ -517,7 +523,7 @@ final class JVMCloudService implements ICloudService {
                         System.out.println(LanguageManager.getMessage("cloud-service-include-template-message")
                                 .replace("%task%", this.serviceId.getTaskName())
                                 .replace("%id%", this.serviceId.getUniqueId().toString())
-                                .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
+                                .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                                 .replace("%template%", template.getTemplatePath())
                                 .replace("%storage%", template.getStorage())
                         );
@@ -551,11 +557,11 @@ final class JVMCloudService implements ICloudService {
                     }
 
                     System.out.println(LanguageManager.getMessage("cloud-service-deploy-message")
-                            .replace("%task%", this.serviceId.getTaskName() + "")
-                            .replace("%id%", this.serviceId.getUniqueId().toString() + "")
-                            .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                            .replace("%template%", deployment.getTemplate().getTemplatePath() + "")
-                            .replace("%storage%", deployment.getTemplate().getStorage() + "")
+                            .replace("%task%", this.serviceId.getTaskName())
+                            .replace("%id%", this.serviceId.getUniqueId().toString())
+                            .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                            .replace("%template%", deployment.getTemplate().getTemplatePath())
+                            .replace("%storage%", deployment.getTemplate().getStorage())
                     );
 
                     storage.deploy(
@@ -634,7 +640,7 @@ final class JVMCloudService implements ICloudService {
         if (!applicationFileOptional.isPresent()) {
             CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%id%", this.serviceId.getUniqueId().toString())
                     .replace("%time%", String.valueOf(SERVICE_ERROR_RESTART_DELAY)));
 
@@ -754,7 +760,7 @@ final class JVMCloudService implements ICloudService {
                 }
 
                 properties.setProperty("server-name", this.serviceId.getName());
-                properties.setProperty("server-port", this.serviceConfiguration.getPort() + "");
+                properties.setProperty("server-port", String.valueOf(this.serviceConfiguration.getPort()));
                 properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
 
                 try (OutputStream outputStream = new FileOutputStream(file);
@@ -789,7 +795,7 @@ final class JVMCloudService implements ICloudService {
                     properties.load(inputStream);
                 }
 
-                properties.setProperty("server-port", this.serviceConfiguration.getPort() + "");
+                properties.setProperty("server-port", String.valueOf(this.serviceConfiguration.getPort()));
                 properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
 
                 try (OutputStream outputStream = new FileOutputStream(file);
@@ -873,8 +879,9 @@ final class JVMCloudService implements ICloudService {
 
             System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStopEvent(this));
 
             int exitValue = this.stopProcess(force);
@@ -903,9 +910,10 @@ final class JVMCloudService implements ICloudService {
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStopEvent(this, exitValue));
             System.out.println(LanguageManager.getMessage("cloud-service-post-stop-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%id%", this.serviceId.getUniqueId().toString())
-                    .replace("%exit_value%", exitValue + ""));
+                    .replace("%exit_value%", String.valueOf(exitValue))
+            );
 
             this.serviceInfoSnapshot = createServiceInfoSnapshot(ServiceLifeCycle.STOPPED);
 
@@ -968,8 +976,9 @@ final class JVMCloudService implements ICloudService {
 
         System.out.println(LanguageManager.getMessage("cloud-service-pre-delete-message")
                 .replace("%task%", this.serviceId.getTaskName())
-                .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                .replace("%id%", this.serviceId.getUniqueId().toString()));
+                .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                .replace("%id%", this.serviceId.getUniqueId().toString())
+        );
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreDeleteEvent(this));
 
         this.deployResources();
@@ -985,8 +994,9 @@ final class JVMCloudService implements ICloudService {
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostDeleteEvent(this));
         System.out.println(LanguageManager.getMessage("cloud-service-post-delete-message")
                 .replace("%task%", this.serviceId.getTaskName())
-                .replace("%serviceId%", this.serviceId.getTaskServiceId() + "")
-                .replace("%id%", this.serviceId.getUniqueId().toString()));
+                .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                .replace("%id%", this.serviceId.getUniqueId().toString())
+        );
 
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.DELETED);
         CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();

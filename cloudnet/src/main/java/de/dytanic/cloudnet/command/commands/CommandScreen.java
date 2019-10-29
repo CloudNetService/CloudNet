@@ -48,13 +48,13 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
                         }
 
                         sender.sendMessage(LanguageManager.getMessage("command-screen-enable-for-service")
-                                .replace("%name%", cloudService.getServiceId().getName() + "")
-                                .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0] + "")
+                                .replace("%name%", cloudService.getServiceId().getName())
+                                .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0])
                         );
                     } else {
                         sender.sendMessage(LanguageManager.getMessage("command-screen-disable-for-service")
-                                .replace("%name%", cloudService.getServiceId().getName() + "")
-                                .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0] + "")
+                                .replace("%name%", cloudService.getServiceId().getName())
+                                .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0])
                         );
                     }
                 }

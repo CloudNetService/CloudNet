@@ -44,8 +44,8 @@ public final class InstallableAppVersion {
             "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.9.4-R0.1-SNAPSHOT-latest.jar"),
     CRAFTBUKKIT_1_8_8 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT, "craftbukkit-1.8.8",
             "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.8.8-R0.1-SNAPSHOT-latest.jar"),*/
-            SPONGE_VANILLA_1_12_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.12.2", //Sponge
-                    "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"),
+    SPONGE_VANILLA_1_12_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.12.2", //Sponge
+            "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"),
             SPONGE_VANILLA_1_11_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.11.2",
                     "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.11.2-6.1.0-BETA-27/spongevanilla-1.11.2-6.1.0-BETA-27.jar"),
             SPONGE_VANILLA_1_10_2 = new InstallableAppVersion(ServiceEnvironmentType.MINECRAFT_SERVER, ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA, "spongevanilla-1.10.2",

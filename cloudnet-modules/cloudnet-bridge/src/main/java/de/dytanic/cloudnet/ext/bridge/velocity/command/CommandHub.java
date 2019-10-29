@@ -48,7 +48,7 @@ public final class CommandHub implements Command {
         player.createConnectionRequest(registeredServer.get()).connect();
         source.sendMessage(TextComponent.of(
                 BridgeConfigurationProvider.load().getMessages().get("command-hub-success-connect")
-                        .replace("%server%", server + "")
+                        .replace("%server%", server)
                         .replace("&", "§")
         ));
     }

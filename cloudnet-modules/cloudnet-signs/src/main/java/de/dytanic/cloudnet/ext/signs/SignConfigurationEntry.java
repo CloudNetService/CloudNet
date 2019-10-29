@@ -89,6 +89,10 @@ public class SignConfigurationEntry {
         return this.startingLayouts;
     }
 
+    public void setStartingLayouts(SignLayoutConfiguration startingLayouts) {
+        this.startingLayouts = startingLayouts;
+    }
+
     public double getKnockbackDistance() {
         return knockbackDistance;
     }
@@ -103,10 +107,6 @@ public class SignConfigurationEntry {
 
     public void setKnockbackStrength(double knockbackStrength) {
         this.knockbackStrength = knockbackStrength;
-    }
-
-    public void setStartingLayouts(SignLayoutConfiguration startingLayouts) {
-        this.startingLayouts = startingLayouts;
     }
 
     public SignLayoutConfiguration getSearchLayouts() {

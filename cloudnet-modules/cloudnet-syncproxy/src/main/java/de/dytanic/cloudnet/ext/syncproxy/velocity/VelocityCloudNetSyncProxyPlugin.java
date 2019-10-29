@@ -135,17 +135,10 @@ public final class VelocityCloudNetSyncProxyPlugin {
     private String replaceTabListItem(Player player, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
         input = input
                 .replace("%server%", player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : "")
-                .replace("%online_players%",
-                        (
-                                syncProxyProxyLoginConfiguration != null ? getSyncProxyOnlineCount() : proxyServer.getPlayerCount()
-                        ) + "")
-                .replace("%max_players%",
-                        (
-                                syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
-                                        proxyServer.getConfiguration().getShowMaxPlayers()
-                        ) + "")
-                .replace("%name%", player.getUsername() + "")
-                .replace("%ping%", player.getPing() + "");
+                .replace("%online_players%", String.valueOf(syncProxyProxyLoginConfiguration != null ? getSyncProxyOnlineCount() : proxyServer.getPlayerCount()))
+                .replace("%max_players%", String.valueOf(syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() : proxyServer.getConfiguration().getShowMaxPlayers()))
+                .replace("%name%", player.getUsername())
+                .replace("%ping%", String.valueOf(player.getPing()));
 
         return SyncProxyTabList.replaceTabListItem(input, player.getUniqueId());
     }

@@ -32,8 +32,8 @@ public final class CommandCloudNet extends Command {
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!sender.hasPermission(commandInfo.getPermission())) {
                     sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
-                                    BridgeConfigurationProvider.load().getMessages().get("command-cloud-sub-command-no-permission")
-                                            .replace("%command%", stringBuilder))));
+                            BridgeConfigurationProvider.load().getMessages().get("command-cloud-sub-command-no-permission")
+                                    .replace("%command%", stringBuilder))));
                     return;
                 }
             }

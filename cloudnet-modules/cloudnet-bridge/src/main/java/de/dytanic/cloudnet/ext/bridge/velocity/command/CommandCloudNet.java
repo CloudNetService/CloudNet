@@ -5,15 +5,10 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
-import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import net.kyori.text.TextComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.optional.qual.MaybePresent;
-
-import java.util.UUID;
 
 public final class CommandCloudNet implements Command {
 

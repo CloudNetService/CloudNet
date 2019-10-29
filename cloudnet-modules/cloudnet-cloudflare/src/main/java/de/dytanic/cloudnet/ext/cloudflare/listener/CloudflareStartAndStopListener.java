@@ -47,8 +47,8 @@ public final class CloudflareStartAndStopListener {
 
             if (response.getFirst() < 400) {
                 CloudNetDriver.getInstance().getLogger().info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
-                        .replace("%service%", event.getCloudService().getServiceId().getName() + "")
-                        .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
+                        .replace("%service%", event.getCloudService().getServiceId().getName())
+                        .replace("%domain%", cloudflareConfigurationEntry.getDomainName())
                         .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
                 );
             }
@@ -70,8 +70,8 @@ public final class CloudflareStartAndStopListener {
 
                 if (response.getFirst() < 400) {
                     CloudNetDriver.getInstance().getLogger().info(LanguageManager.getMessage("module-cloudflare-delete-dns-record-for-service")
-                            .replace("%service%", event.getCloudService().getServiceId().getName() + "")
-                            .replace("%domain%", cloudflareConfigurationEntry.getDomainName() + "")
+                            .replace("%service%", event.getCloudService().getServiceId().getName())
+                            .replace("%domain%", cloudflareConfigurationEntry.getDomainName())
                             .replace("%recordId%", response.getSecond().getDocument("result").getString("id"))
                     );
                 }
