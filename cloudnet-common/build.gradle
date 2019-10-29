@@ -1,5 +1,5 @@
 jar {
-    archiveName = cloudnetCommonFile
+    archiveFileName.set(cloudnetCommonFile)
 }
 
 dependencies {

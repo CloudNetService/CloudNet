@@ -74,7 +74,7 @@ public final class BungeeSyncProxyCloudNetListener {
             String message = ChatColor.translateAlternateColorCodes('&', configuration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()));
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
-                    player.sendMessage(message);
+                    player.sendMessage(TextComponent.fromLegacyText(message));
                 }
             }
         }
@@ -124,7 +124,8 @@ public final class BungeeSyncProxyCloudNetListener {
 
                     if (!proxiedPlayer.hasPermission("cloudnet.syncproxy.maintenance")) {
                         proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
-                                SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted"))));
+                                SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted")))
+                        );
                     }
                 }
             }

@@ -7,5 +7,5 @@
   "authors": [
     "CloudNetService"
   ],
-  "main": "de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissionsPlugin"
+  "main": "de.dytanic.cloudnet.ext.syncproxy.velocity.VelocityCloudNetSyncProxyPlugin"
 }

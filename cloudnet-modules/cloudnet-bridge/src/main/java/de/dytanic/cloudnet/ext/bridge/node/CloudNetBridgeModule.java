@@ -29,6 +29,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
             new Pair<>("command-hub-already-in-hub", "&cYou are already connected"),
             new Pair<>("command-hub-no-server-found", "&7Hub server cannot be found"),
             new Pair<>("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server"),
+            new Pair<>("server-join-cancel-because-maintenance", "&7This task is currently in maintenance mode"),
             new Pair<>("command-cloud-sub-command-no-permission", "&7You are not allowed to use &e%command%")
     );
 
@@ -50,6 +51,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
         this.bridgeConfiguration = getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
                 "&7Cloud &8| &b",
+                true,
                 Iterables.newArrayList(),
                 Iterables.newArrayList(),
                 Collections.singletonList(
@@ -63,10 +65,6 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                 true
         ));
 
-        if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null) {
-            this.bridgeConfiguration.setExcludedOnlyProxyWalkableGroups(Iterables.newArrayList());
-        }
-
         if (this.bridgeConfiguration.getMessages() != null) {
             for (Map.Entry<String, String> entry : DEFAULT_MESSAGES.entrySet()) {
                 if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
@@ -77,6 +75,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
             this.bridgeConfiguration.setMessages(new HashMap<>(DEFAULT_MESSAGES));
         }
 
+        getConfig().append("config", this.bridgeConfiguration);
         saveConfig();
     }
 

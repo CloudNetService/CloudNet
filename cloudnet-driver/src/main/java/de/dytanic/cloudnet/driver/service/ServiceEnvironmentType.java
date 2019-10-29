@@ -4,16 +4,12 @@ public enum ServiceEnvironmentType {
 
     MINECRAFT_SERVER(new ServiceEnvironment[]{
             ServiceEnvironment.MINECRAFT_SERVER_MODPACK,
-            ServiceEnvironment.MINECRAFT_SERVER_CAULDRON,
             ServiceEnvironment.MINECRAFT_SERVER_FORGE,
             ServiceEnvironment.MINECRAFT_SERVER_SPONGE_FORGE,
             ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA,
             ServiceEnvironment.MINECRAFT_SERVER_SPONGE,
-            ServiceEnvironment.MINECRAFT_SERVER_TORCH,
-            ServiceEnvironment.MINECRAFT_SERVER_HOSE,
             ServiceEnvironment.MINECRAFT_SERVER_TACO,
             ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
-            ServiceEnvironment.MINECRAFT_SERVER_CRAFTBUKKIT,
             ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
             ServiceEnvironment.MINECRAFT_SERVER_AKARIN,
             ServiceEnvironment.MINECRAFT_SERVER_DEFAULT,

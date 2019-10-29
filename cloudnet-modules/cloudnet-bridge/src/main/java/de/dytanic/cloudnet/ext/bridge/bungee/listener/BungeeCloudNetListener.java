@@ -15,9 +15,12 @@ import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
@@ -135,8 +138,24 @@ public final class BungeeCloudNetListener {
             case "send_message_to_proxy_player": {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
-                if (proxiedPlayer != null && event.getData().getString("message") != null) {
-                    proxiedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + ""));
+                if (proxiedPlayer != null) {
+                    BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
+                            ComponentSerializer.parse(event.getData().getString("messages"));
+                    proxiedPlayer.sendMessage(messages);
+                }
+            }
+            break;
+
+            case "broadcast_message": {
+                String permission = event.getData().getString("permission");
+
+                BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
+                        ComponentSerializer.parse(event.getData().getString("messages"));
+
+                for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
+                    if (permission == null || proxiedPlayer.hasPermission(permission)) {
+                        proxiedPlayer.sendMessage(messages);
+                    }
                 }
             }
             break;

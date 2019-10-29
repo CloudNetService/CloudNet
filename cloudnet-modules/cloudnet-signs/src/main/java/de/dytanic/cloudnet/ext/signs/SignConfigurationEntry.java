@@ -13,6 +13,10 @@ public class SignConfigurationEntry {
 
     protected boolean switchToSearchingWhenServiceIsFull;
 
+    protected double knockbackDistance = 1.0;
+
+    protected double knockbackStrength = 0.8;
+
     protected Collection<SignConfigurationTaskEntry> taskLayouts;
 
     protected SignLayout defaultOnlineLayout, defaultEmptyLayout, defaultFullLayout;
@@ -83,6 +87,22 @@ public class SignConfigurationEntry {
 
     public SignLayoutConfiguration getStartingLayouts() {
         return this.startingLayouts;
+    }
+
+    public double getKnockbackDistance() {
+        return knockbackDistance;
+    }
+
+    public void setKnockbackDistance(double knockbackDistance) {
+        this.knockbackDistance = knockbackDistance;
+    }
+
+    public double getKnockbackStrength() {
+        return knockbackStrength;
+    }
+
+    public void setKnockbackStrength(double knockbackStrength) {
+        this.knockbackStrength = knockbackStrength;
     }
 
     public void setStartingLayouts(SignLayoutConfiguration startingLayouts) {

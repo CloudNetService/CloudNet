@@ -2,16 +2,21 @@ package de.dytanic.cloudnet.ext.bridge.velocity;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.*;
+import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
+import de.dytanic.cloudnet.ext.bridge.PluginInfo;
+import de.dytanic.cloudnet.ext.bridge.ProxyCloudNetHelper;
+import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Collection;
 import java.util.List;
@@ -90,22 +95,19 @@ public final class VelocityCloudNetHelper {
     }
 
     public static boolean isOnAFallbackInstance(Player player) {
-        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(player.getCurrentServer().get().getServerInfo().getName());
+        return player.getCurrentServer().isPresent() && isFallbackServer(player.getCurrentServer().get().getServerInfo());
+    }
 
-        for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
-            if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                    bungeeFallbackConfiguration.getTargetGroup(),
-                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            )) {
-                for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks()) {
-                    if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
-                        return true;
-                    }
-                }
-            }
+    public static boolean isFallbackServer(ServerInfo serverInfo) {
+        if (serverInfo == null) {
+            return false;
+        }
+        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(serverInfo.getName());
+        if (serviceInfoSnapshot == null) {
+            return false;
         }
 
-        return false;
+        return ProxyCloudNetHelper.isFallbackService(serviceInfoSnapshot);
     }
 
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {

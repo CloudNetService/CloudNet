@@ -105,6 +105,7 @@ public final class NettyNetworkClient implements INetworkClient {
                     .option(ChannelOption.AUTO_READ, true)
                     .option(ChannelOption.IP_TOS, 24)
                     .option(ChannelOption.TCP_NODELAY, true)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2500)
                     .channel(NettyUtils.getSocketChannelClass())
                     .handler(new NettyNetworkClientInitializer(this, hostAndPort))
                     .connect(hostAndPort.getHost(), hostAndPort.getPort())

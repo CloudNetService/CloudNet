@@ -147,6 +147,19 @@ public final class VelocityCloudNetListener {
                 }
             }
             break;
+            case "broadcast_message": {
+                String permission = event.getData().getString("permission");
+
+                if (event.getData().getString("message") != null) {
+                    TextComponent message = TextComponent.of(event.getData().getString("message").replace("&", "§"));
+                    for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
+                        if (permission == null || player.hasPermission(permission)) {
+                            player.sendMessage(message);
+                        }
+                    }
+                }
+            }
+            break;
         }
     }
 
