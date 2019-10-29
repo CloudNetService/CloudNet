@@ -2007,108 +2007,93 @@ public final class CloudNet extends CloudNetDriver {
 
                 switch (input.trim().toLowerCase()) {
                     case "recommended":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy bungeecord");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Test-Proxy bungeecord");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Test-Lobby minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task TestServer minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task CityBuild minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
 
                         //Create groups
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create group Global-Server");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create group Global-Proxy");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create group Global-Server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create group Global-Proxy");
 
                         //Add groups
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy add group Global-Proxy");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Test-Proxy add group Global-Proxy");
-
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby add group Global-Server");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Test-Lobby add group Global-Server");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task TestServer add group Global-Server");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task CityBuild add group Global-Server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy add group Global-Proxy");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby add group Global-Server");
 
                         //Install
-                        commandMap.dispatchCommand(consoleCommandSender, "lt create Global bukkit minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Global bukkit minecraft_server paperspigot-1.12.2");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt create Global bukkit minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Global bukkit minecraft_server paperspigot-1.12.2");
 
-                        commandMap.dispatchCommand(consoleCommandSender, "lt create Global proxy bungeecord");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Global proxy bungeecord default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt create Global proxy bungeecord");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Global proxy bungeecord default");
 
                         //Add templates
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks group Global-Server add template local Global bukkit");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks group Global-Proxy add template local Global proxy");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks group Global-Server add template local Global bukkit");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks group Global-Proxy add template local Global proxy");
 
                         //Set configurations
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
 
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task TestServer set maxHeapMemory 256");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task TestServer set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task TestServer set autoDeleteOnStop false");
-
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task CityBuild set maxHeapMemory 512");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task CityBuild set static true");
                         doBreak = true;
                         break;
                     case "java-bungee-1.7.10":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy bungeecord");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default bungeecord travertine");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.7.10");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord travertine");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.7.10");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
                         break;
                     case "java-bungee-1.8.8":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy bungeecord");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default bungeecord default");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.8.8");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.8.8");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
                         break;
                     case "java-bungee-1.13.2":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy bungeecord");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default bungeecord default");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.13.2");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.13.2");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
                         break;
                     case "java-velocity-1.8.8":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy velocity");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default velocity default");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.8.8");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy velocity");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default velocity default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.8.8");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
                         break;
                     case "java-velocity-1.13.2":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy velocity");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default velocity default");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.13.2");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy velocity");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default velocity default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.13.2");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
                         break;
                     case "bedrock":
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Proxy waterdog");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks create task Lobby nukkit");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Proxy default waterdog default");
-                        commandMap.dispatchCommand(consoleCommandSender, "lt install Lobby default nukkit default");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Proxy set minServiceCount 1");
-                        commandMap.dispatchCommand(consoleCommandSender, "tasks task Lobby set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy waterdog");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby nukkit");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default waterdog default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default nukkit default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
                         break;
                     case "nothing":
                         doBreak = true;
                         break;
                     default:
-                        logger.warning(ConsoleColor.RED + LanguageManager.getMessage("cloudnet-init-default-tasks-input-invalid"));
+                        this.logger.warning(ConsoleColor.RED + LanguageManager.getMessage("cloudnet-init-default-tasks-input-invalid"));
                         break;
                 }
 
