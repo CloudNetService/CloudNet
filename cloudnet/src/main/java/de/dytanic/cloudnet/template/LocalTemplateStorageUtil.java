@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.commands.CommandLocalTemplate;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.util.InstallableAppVersion;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Objects;
 
 public final class LocalTemplateStorageUtil {
 
@@ -56,11 +59,25 @@ public final class LocalTemplateStorageUtil {
             }
         }
 
-        return installApplicationJar0(
-                installableAppVersion.getUrl(),
-                new File(System.getProperty("cloudnet.storage.local", "local/templates") + "/" +
-                        serviceTemplate.getTemplatePath() + "/" + installableAppVersion.getEnvironmentType().getName() + ".jar")
-        );
+        File file = new File(System.getProperty("cloudnet.storage.local", "local/templates") + "/" +
+                serviceTemplate.getTemplatePath() + "/" + installableAppVersion.getEnvironmentType().getName() + ".jar");
+        boolean success = installApplicationJar0(installableAppVersion.getUrl(), file);
+        if (success) {
+            //delete all old application files if they exist to prevent that they are used to start the server
+            Arrays.stream(Objects.requireNonNull(file.getParentFile().listFiles()))
+                    .filter(listFile -> listFile.getName().endsWith(".jar"))
+                    .filter(listFile -> !listFile.getName().equals(file.getName()))
+                    .filter(listFile -> {
+                        for (ServiceEnvironment environment : installableAppVersion.getServiceEnvironment().getEnvironments()) {
+                            if (listFile.getName().toLowerCase().contains(environment.getName().toLowerCase())) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }).forEach(File::delete);
+            return true;
+        }
+        return false;
     }
 
     private static boolean installApplicationJar0(String url, File destination) {
