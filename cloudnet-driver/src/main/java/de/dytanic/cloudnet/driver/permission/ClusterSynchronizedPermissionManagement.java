@@ -1,7 +1,4 @@
 package de.dytanic.cloudnet.driver.permission;
-/*
- * Created by derrop on 28.10.2019
- */
 
 import de.dytanic.cloudnet.common.Validate;
 

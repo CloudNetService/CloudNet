@@ -26,7 +26,6 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
             return;
         }
 
-        System.out.println(connectionWhichSendRequest.get());
         channel.sendPacket(new PacketClientAuthorization(
                 PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
                 new JsonDocument("clusterNode", CloudNet.getInstance().getConfig().getIdentity())

@@ -1,7 +1,4 @@
 package de.dytanic.cloudnet.network;
-/*
- * Created by derrop on 28.10.2019
- */
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
