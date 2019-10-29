@@ -99,7 +99,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
-        this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource));
+        this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 
     @Override

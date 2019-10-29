@@ -13,7 +13,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-public final class DefaultDatabasePermissionManagement implements IPermissionManagement {
+public final class DefaultDatabasePermissionManagement implements ClusterSynchronizedPermissionManagement {
 
     private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 
@@ -31,7 +31,7 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public IPermissionUser addUser(IPermissionUser permissionUser) {
+    public IPermissionUser addUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
@@ -39,18 +39,14 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public void updateUser(IPermissionUser permissionUser) {
+    public void updateUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
-
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleUpdateUser(this, permissionUser);
-        }
 
         getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
     }
 
     @Override
-    public void deleteUser(String name) {
+    public void deleteUserWithoutClusterSync(String name) {
         Validate.checkNotNull(name);
 
         for (IPermissionUser permissionUser : getUser(name)) {
@@ -59,7 +55,7 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public void deleteUser(IPermissionUser permissionUser) {
+    public void deleteUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         getDatabase().delete(permissionUser.getUniqueId().toString());
@@ -128,7 +124,7 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public void setUsers(Collection<? extends IPermissionUser> users) {
+    public void setUsersWithoutClusterSync(Collection<? extends IPermissionUser> users) {
         Validate.checkNotNull(users);
 
         getDatabase().clear();
@@ -160,15 +156,13 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
 
     @Override
-    public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
+    public IPermissionGroup addGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleAddGroup(this, permissionGroup);
-        }
-
         testPermissionGroup(permissionGroup);
-        deleteGroup(permissionGroup.getName());
+        if (this.getGroup(permissionGroup.getName()) != null) {
+            deleteGroup(permissionGroup.getName());
+        }
         permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
         saveGroups();
 
@@ -176,12 +170,8 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public void updateGroup(IPermissionGroup permissionGroup) {
+    public void updateGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
-
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
-        }
 
         testPermissionGroup(permissionGroup);
         permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
@@ -190,24 +180,20 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public void deleteGroup(String group) {
+    public void deleteGroupWithoutClusterSync(String group) {
         Validate.checkNotNull(group);
 
         IPermissionGroup permissionGroup = permissionGroupsMap.remove(group);
         if (permissionGroup != null) {
-            if (permissionManagementHandler != null) {
-                permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
-            }
-
             saveGroups();
         }
     }
 
     @Override
-    public void deleteGroup(IPermissionGroup group) {
+    public void deleteGroupWithoutClusterSync(IPermissionGroup group) {
         Validate.checkNotNull(group);
 
-        deleteGroup(group.getName());
+        deleteGroupWithoutClusterSync(group.getName());
     }
 
     @Override
@@ -242,14 +228,17 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public void setGroups(Collection<? extends IPermissionGroup> groups) {
+    public void setGroupsWithoutClusterSync(Collection<? extends IPermissionGroup> groups) {
         Validate.checkNotNull(groups);
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleSetGroups(this, groups);
+        permissionGroupsMap.clear();
+
+        for (IPermissionGroup group : groups) {
+            testPermissionGroup(group);
+            permissionGroupsMap.put(group.getName(), group);
         }
 
-        setGroups0(groups);
+        saveGroups();
     }
 
     @Override
@@ -262,18 +251,6 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
         return true;
     }
-
-    public void setGroups0(Collection<? extends IPermissionGroup> groups) {
-        permissionGroupsMap.clear();
-
-        for (IPermissionGroup group : groups) {
-            testPermissionGroup(group);
-            permissionGroupsMap.put(group.getName(), group);
-        }
-
-        saveGroups();
-    }
-
 
     private void saveGroups() {
         List<IPermissionGroup> permissionGroups = Iterables.newArrayList(permissionGroupsMap.values());

@@ -16,7 +16,11 @@ public final class PacketServerDeployLocalTemplateListener implements IPacketLis
                 packet.getHeader().contains("serviceTemplate")) {
             ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
-            storage.deploy(packet.getBody(), packet.getHeader().get("serviceTemplate", ServiceTemplate.class));
+            ServiceTemplate template = packet.getHeader().get("serviceTemplate", ServiceTemplate.class);
+            if (packet.getHeader().getBoolean("preClear")) {
+                storage.delete(template);
+            }
+            storage.deploy(packet.getBody(), template);
         }
     }
 }

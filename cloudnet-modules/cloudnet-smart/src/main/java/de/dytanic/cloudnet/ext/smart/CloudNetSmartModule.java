@@ -59,7 +59,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                             oldSmartTasks.get(task.getName()) :
                             config != null ? config : new SmartServiceTaskConfig()
             );
-            this.getCloudNet().getCloudServiceManager().addPermanentServiceTask(task);
+            this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(task);
         }
     }
 
@@ -86,11 +86,11 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
         if (networkClusterNodeInfoSnapshot != null && !networkClusterNodeInfoSnapshot.getNode()
                 .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
-            return (((networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100) /
-                    networkClusterNodeInfoSnapshot.getMaxMemory());
+            int memory = (networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100;
+            return networkClusterNodeInfoSnapshot.getMaxMemory() > 0 ? memory / networkClusterNodeInfoSnapshot.getMaxMemory() : memory;
         } else {
-            return (((getCloudNet().getConfig().getMaxMemory() - getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100) /
-                    getCloudNet().getConfig().getMaxMemory());
+            int memory = (getCloudNet().getConfig().getMaxMemory() - getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100;
+            return getCloudNet().getConfig().getMaxMemory() > 0 ? memory / getCloudNet().getConfig().getMaxMemory() : memory;
         }
     }
 
