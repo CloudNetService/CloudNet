@@ -1936,12 +1936,8 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
-    private boolean hasOneNodeToConnect() {
-        return !getConfig().getClusterConfig().getNodes().isEmpty();
-    }
-
     private void initDefaultPermissionGroups() {
-        if (!hasOneNodeToConnect() && permissionManagement.getGroups().isEmpty() && System.getProperty("cloudnet.default.permissions.skip") == null) {
+        if (permissionManagement.getGroups().isEmpty() && System.getProperty("cloudnet.default.permissions.skip") == null) {
             IPermissionGroup adminPermissionGroup = new PermissionGroup("Admin", 100);
             adminPermissionGroup.addPermission("*");
             adminPermissionGroup.addPermission("Proxy", "*");
@@ -1967,7 +1963,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void initDefaultTasks() throws Exception {
-        if (!hasOneNodeToConnect() && cloudServiceManager.getGroupConfigurations().isEmpty() && cloudServiceManager.getServiceTasks().isEmpty() &&
+        if (cloudServiceManager.getGroupConfigurations().isEmpty() && cloudServiceManager.getServiceTasks().isEmpty() &&
                 System.getProperty("cloudnet.default.tasks.skip") == null) {
             boolean value = false;
             String input;
