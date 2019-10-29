@@ -27,6 +27,7 @@ public final class BukkitPlayerListener implements Listener {
         this.bridgeConfiguration = BridgeConfigurationProvider.load();
         this.onlyProxyProtection = !Bukkit.getOnlineMode()
                 && this.bridgeConfiguration != null
+                && this.bridgeConfiguration.isOnlyProxyProtection()
                 && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null
                 && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
                 .noneMatch(group -> Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups()));

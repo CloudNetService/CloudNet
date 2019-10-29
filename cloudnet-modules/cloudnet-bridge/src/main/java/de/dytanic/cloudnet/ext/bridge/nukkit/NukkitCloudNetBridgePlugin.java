@@ -28,7 +28,7 @@ public final class NukkitCloudNetBridgePlugin extends PluginBase {
 
     private void initListeners() {
         //NukkitAPI
-        Server.getInstance().getPluginManager().registerEvents(new NukkitPlayerListener(this), this);
+        Server.getInstance().getPluginManager().registerEvents(new NukkitPlayerListener(), this);
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new NukkitCloudNetListener());
