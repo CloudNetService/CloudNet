@@ -51,6 +51,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
         this.bridgeConfiguration = getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
                 "&7Cloud &8| &b",
+                true,
                 Iterables.newArrayList(),
                 Iterables.newArrayList(),
                 Collections.singletonList(
@@ -63,10 +64,6 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                 DEFAULT_MESSAGES,
                 true
         ));
-
-        if (this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() == null) {
-            this.bridgeConfiguration.setExcludedOnlyProxyWalkableGroups(Iterables.newArrayList());
-        }
 
         if (this.bridgeConfiguration.getMessages() != null) {
             for (Map.Entry<String, String> entry : DEFAULT_MESSAGES.entrySet()) {
