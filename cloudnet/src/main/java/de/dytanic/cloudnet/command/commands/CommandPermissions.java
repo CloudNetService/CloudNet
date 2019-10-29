@@ -197,18 +197,24 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 5) {
                         if (args[2].equalsIgnoreCase("add")) {
                             if (args[3].equalsIgnoreCase("group")) {
-                                if (args.length == 6 && Validate.testStringParseToInt(args[5])) {
-                                    permissionUser.addGroup(args[4], Integer.parseInt(args[5]), TimeUnit.DAYS);
-                                } else {
-                                    permissionUser.addGroup(args[4]);
-                                }
+                                if (permissionManagement.getGroup(args[4]) != null) {
+                                    if (args.length == 6 && Validate.testStringParseToInt(args[5])) {
+                                        permissionUser.addGroup(args[4], Integer.parseInt(args[5]), TimeUnit.DAYS);
+                                    } else {
+                                        permissionUser.addGroup(args[4]);
+                                    }
 
-                                permissionManagement.updateUser(permissionUser);
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
-                                );
-                                this.updateClusterNetwork();
+                                    permissionManagement.updateUser(permissionUser);
+                                    sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
+                                            .replace("%name%", args[1] + "")
+                                            .replace("%group%", args[4] + "")
+                                    );
+                                    this.updateClusterNetwork();
+                                } else {
+                                    sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-group-not-exists")
+                                            .replace("%group%", args[4])
+                                    );
+                                }
                                 return;
                             }
                         }
