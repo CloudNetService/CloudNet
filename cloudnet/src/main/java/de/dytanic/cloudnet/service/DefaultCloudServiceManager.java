@@ -411,21 +411,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     @Override
-    public Collection<ICloudService> getCloudServices(String taskName) {
+    public Collection<ICloudService> getLocalCloudServices(String taskName) {
         Validate.checkNotNull(taskName);
 
         return Iterables.filter(this.cloudServices.values(), iCloudService -> iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName));
     }
 
     @Override
-    public Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate) {
+    public Collection<ICloudService> getLocalCloudServices(Predicate<ICloudService> predicate) {
         Validate.checkNotNull(predicate);
 
         return Iterables.filter(this.cloudServices.values(), predicate);
     }
 
     @Override
-    public Collection<ICloudService> getServices() {
+    public Collection<ICloudService> getLocalCloudServices() {
         return Collections.unmodifiableCollection(this.cloudServices.values());
     }
 

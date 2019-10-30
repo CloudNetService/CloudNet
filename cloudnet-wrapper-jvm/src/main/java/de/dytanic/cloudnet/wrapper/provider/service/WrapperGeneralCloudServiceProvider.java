@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.wrapper.provider;
+package de.dytanic.cloudnet.wrapper.provider.service;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
@@ -7,7 +7,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Collection;

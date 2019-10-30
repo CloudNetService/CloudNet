@@ -11,7 +11,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.provider.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 
 import java.util.Collection;
 import java.util.UUID;

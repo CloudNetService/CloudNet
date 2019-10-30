@@ -158,11 +158,35 @@ public interface ICloudServiceManager {
 
     ICloudService getCloudService(Predicate<ICloudService> predicate);
 
-    Collection<ICloudService> getCloudServices(String taskName);
+    /**
+     * @deprecated moved to {@link #getLocalCloudServices(String)}
+     */
+    @Deprecated
+    default Collection<ICloudService> getCloudServices(String taskName) {
+        return this.getLocalCloudServices(taskName);
+    }
 
-    Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate);
+    /**
+     * @deprecated moved to {@link #getLocalCloudServices(Predicate)}
+     */
+    @Deprecated
+    default Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate) {
+        return this.getCloudServices(predicate);
+    }
 
-    Collection<ICloudService> getServices();
+    /**
+     * @deprecated moved to {@link #getLocalCloudServices()}
+     */
+    @Deprecated
+    default Collection<ICloudService> getServices() {
+        return this.getLocalCloudServices();
+    }
+
+    Collection<ICloudService> getLocalCloudServices(String taskName);
+
+    Collection<ICloudService> getLocalCloudServices(Predicate<ICloudService> predicate);
+
+    Collection<ICloudService> getLocalCloudServices();
 
     ServiceInfoSnapshot getServiceInfoSnapshot(UUID uniqueId);
 

@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.provider;
+package de.dytanic.cloudnet.provider.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.provider.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.Collection;
