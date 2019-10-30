@@ -27,14 +27,14 @@ public final class LanguageManager {
      * Resolve and returns the following message in the language which is currently set as member "language"
      *
      * @param property the following message property, which should sort out
-     * @return the message which is defined in language cache or a fallback message like "MESSAGE OR LANGUAGE NOT FOUND!"
+     * @return the message which is defined in language cache or a fallback message like "<language LANGUAGE not found>" or "<message {@code property} not found in LANGUAGE>"
      */
     public static String getMessage(String property) {
         if (language == null || !LANGUAGE_CACHE.containsKey(language)) {
-            return "MESSAGE OR LANGUAGE NOT FOUND!";
+            return "<language " + language + " not found>";
         }
 
-        return LANGUAGE_CACHE.get(language).get(property);
+        return LANGUAGE_CACHE.get(language).getOrDefault(property, "<message " + property + " not found in language " + language + ">");
     }
 
     /**
