@@ -83,7 +83,7 @@ public final class CloudNetTickListener {
             }
             if (smartTask.getAutoStopTimeByUnusedServiceInSeconds() > 0 &&
                     smartTask.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture() > -1 &&
-                    getPercentOf(
+                    this.getPercentOf(
                             serviceInfoSnapshot.getProperties().getInt("Online-Count"),
                             serviceInfoSnapshot.getProperties().getInt("Max-Players")
                     ) <= smartTask.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture()) {
@@ -121,7 +121,7 @@ public final class CloudNetTickListener {
                 }
 
                 if (smartTask != null && smartTask.getPercentOfPlayersForANewServiceByInstance() > 0 && !this.newInstanceDelay.contains(cloudService.getServiceId().getUniqueId()) &&
-                        getPercentOf(
+                        this.getPercentOf(
                                 cloudService.getServiceInfoSnapshot().getProperties().getInt("Online-Count"),
                                 cloudService.getServiceInfoSnapshot().getProperties().getInt("Max-Players")
                         ) >= smartTask.getPercentOfPlayersForANewServiceByInstance()) {
