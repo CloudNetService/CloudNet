@@ -321,7 +321,7 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
         Validate.checkNotNull(serviceInfoSnapshot);
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
+        this.getCloudServiceProvider(serviceInfoSnapshot).setCloudServiceLifeCycle(lifeCycle);
     }
 
     /**
@@ -334,7 +334,7 @@ public final class Wrapper extends CloudNetDriver {
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
+        this.getCloudServiceProvider(serviceInfoSnapshot).restart();
     }
 
     /**
@@ -347,7 +347,7 @@ public final class Wrapper extends CloudNetDriver {
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
+        this.getCloudServiceProvider(serviceInfoSnapshot).kill();
     }
 
     /**
@@ -360,7 +360,7 @@ public final class Wrapper extends CloudNetDriver {
     public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
+        this.getCloudServiceProvider(serviceInfoSnapshot).runCommand(command);
     }
 
     /**

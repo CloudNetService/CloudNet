@@ -44,10 +44,13 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         if (this.name != null) {
             return this.cloudNet.getCloudServiceProvider().getCloudServiceByName(this.name);
         }
-        throw new IllegalArgumentException("Cannot get ServiceInfoSnapshot without uniqueId or name");
+        throw new IllegalArgumentException("Cannot get ServiceInfoSnapshot without uniqueId, name or ServiceInfoSnapshot");
     }
 
     private ICloudService getCloudService() {
+        if (this.serviceInfoSnapshot != null) {
+            return this.cloudNet.getCloudServiceManager().getCloudService(this.serviceInfoSnapshot.getServiceId().getUniqueId());
+        }
         if (this.uniqueId != null) {
             return this.cloudNet.getCloudServiceManager().getCloudService(this.uniqueId);
         }

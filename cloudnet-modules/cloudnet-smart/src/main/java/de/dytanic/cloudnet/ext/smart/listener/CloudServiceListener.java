@@ -34,14 +34,14 @@ public final class CloudServiceListener {
 
     @EventListener
     public void handle(CloudServicePostPrepareEvent event) {
-        ServiceTask task = CloudNet.getInstance().getServiceTask(event.getCloudService().getServiceId().getTaskName());
+        ServiceTask task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(event.getCloudService().getServiceId().getTaskName());
         if (task != null && CloudNetSmartModule.getInstance().hasSmartServiceTaskConfig(task)) {
             SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(task);
 
             UUID uniqueId = event.getCloudService().getServiceId().getUniqueId();
 
             if (smartTask.isDirectTemplatesAndInclusionsSetup()) {
-                SpecificCloudServiceProvider cloudServiceProvider = CloudNetDriver.getInstance().getCloudServiceProvider(uniqueId);
+                SpecificCloudServiceProvider cloudServiceProvider = CloudNetDriver.getInstance().getCloudServiceProvider(event.getCloudService().getServiceInfoSnapshot());
                 cloudServiceProvider.includeWaitingServiceTemplates();
                 cloudServiceProvider.includeWaitingServiceInclusions();
             }
