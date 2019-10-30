@@ -38,7 +38,7 @@ public final class CloudNetTickListener {
     }
 
     private void handleSmartTasksConfigItems() {
-        CloudNet.getInstance().getPermanentServiceTasks().stream()
+        CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
                 .filter(CloudNetSmartModule.getInstance()::hasSmartServiceTaskConfig)
                 .sorted(
                         Comparator.comparingInt(
