@@ -62,7 +62,7 @@ public final class GoMintCloudNetHelper {
         if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
             CloudNetDriver.getInstance().getServiceTaskAsync(task).onComplete(serviceTask -> {
                 if (serviceTask != null) {
-                    CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
+                    CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
                         if (serviceInfoSnapshot != null) {
                             CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
                         }

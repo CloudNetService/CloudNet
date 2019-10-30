@@ -21,7 +21,7 @@ public final class ExampleIncludeTemplate {
         ));
 
         //Create service with custom template
-        ServiceInfoSnapshot newService = CloudNetDriver.getInstance().createCloudService(
+        ServiceInfoSnapshot newService = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(
                 "PS-" + playerUniqueId.toString(),
                 "jvm",
                 true,

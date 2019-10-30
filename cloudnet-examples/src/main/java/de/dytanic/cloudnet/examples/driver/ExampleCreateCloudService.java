@@ -62,14 +62,14 @@ public final class ExampleCreateCloudService {
     public void createCloudServiceByTask() {
         if (DRIVER.isServiceTaskPresent("Lobby")) {
             ServiceTask serviceTask = DRIVER.getServiceTask("Lobby"); //getDef ServiceTask instance
-            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().createCloudService(serviceTask); //Creates a service on cluster and returns the initial snapshot
+            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(serviceTask); //Creates a service on cluster and returns the initial snapshot
 
             DRIVER.startCloudService(serviceInfoSnapshot); //Starting service
         }
     }
 
     public void createCustomCloudService() {
-        ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.createCloudService(
+        ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.getCloudServiceFactory().createCloudService(
                 "Lobby", //task name
                 "jvm", //runtime null or jvm or an custom from a custom module
                 false, //auto delete on stop
@@ -98,7 +98,7 @@ public final class ExampleCreateCloudService {
         DRIVER.getNodesAsync().onComplete(networkClusterNodes -> {
             NetworkClusterNode node = networkClusterNodes[0];
 
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().createCloudService(
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(
                     node.getUniqueId(),
                     2,
                     "PremiumLobby",
@@ -161,7 +161,7 @@ public final class ExampleCreateCloudService {
                             serviceTask.getTemplates()
             );
 
-            ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.createCloudService(serviceTask);
+            ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.getCloudServiceFactory().createCloudService(serviceTask);
             DRIVER.startCloudService(serviceInfoSnapshot);
         });
     }

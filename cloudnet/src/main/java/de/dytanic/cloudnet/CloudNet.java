@@ -74,6 +74,7 @@ import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
@@ -129,6 +130,7 @@ public final class CloudNet extends CloudNetDriver {
     private IHttpServer httpServer;
     private IPermissionManagement permissionManagement;
 
+    private CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
 
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
@@ -320,6 +322,11 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    public CloudServiceFactory getCloudServiceFactory() {
+        return this.cloudServiceFactory;
+    }
+
+    @Override
     public String[] sendCommandLine(String commandLine) {
         Validate.checkNotNull(commandLine);
 
@@ -396,108 +403,6 @@ public final class CloudNet extends CloudNetDriver {
     public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudService(targetServiceTask.getName())) {
             this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
-        }
-    }
-
-    @Override
-    public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
-
-        try {
-            NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = searchLogicNode(serviceTask);
-            if (networkClusterNodeInfoSnapshot == null) {
-                return null;
-            }
-
-            if (getConfig().getIdentity().getUniqueId().equals(networkClusterNodeInfoSnapshot.getNode().getUniqueId())) {
-                ICloudService cloudService = this.cloudServiceManager.runTask(serviceTask);
-                return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
-            } else {
-                IClusterNodeServer clusterNodeServer = getClusterNodeServerProvider().getNodeServer(networkClusterNodeInfoSnapshot.getNode().getUniqueId());
-
-                if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
-                    return clusterNodeServer.createCloudService(serviceTask);
-                }
-            }
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
-    public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
-
-        if (serviceConfiguration.getServiceId() == null || serviceConfiguration.getServiceId().getNodeUniqueId() == null) {
-            return null;
-        }
-
-        if (getConfig().getIdentity().getUniqueId().equals(serviceConfiguration.getServiceId().getNodeUniqueId())) {
-            ICloudService cloudService = this.cloudServiceManager.runTask(serviceConfiguration);
-            return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
-        } else {
-            IClusterNodeServer clusterNodeServer = getClusterNodeServerProvider().getNodeServer(serviceConfiguration.getServiceId().getNodeUniqueId());
-
-            if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
-                return clusterNodeServer.createCloudService(serviceConfiguration);
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
-                                                  Collection<ServiceTemplate> templates,
-                                                  Collection<ServiceDeployment> deployments,
-                                                  Collection<String> groups,
-                                                  ProcessConfiguration processConfiguration,
-                                                  JsonDocument properties, Integer port) {
-        ICloudService cloudService = this.cloudServiceManager.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
-        return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-                                                              Collection<ServiceRemoteInclusion> includes,
-                                                              Collection<ServiceTemplate> templates,
-                                                              Collection<ServiceDeployment> deployments,
-                                                              Collection<String> groups,
-                                                              ProcessConfiguration processConfiguration,
-                                                              JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        if (this.getConfig().getIdentity().getUniqueId().equals(nodeUniqueId)) {
-            Collection<ServiceInfoSnapshot> collection = Iterables.newArrayList();
-
-            for (int i = 0; i < amount; i++) {
-                ICloudService cloudService = this.cloudServiceManager.runTask(
-                        name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port != null ? port++ : null
-                );
-
-                if (cloudService != null) {
-                    collection.add(cloudService.getServiceInfoSnapshot());
-                }
-            }
-
-            return collection;
-        }
-
-        IClusterNodeServer clusterNodeServer = getClusterNodeServerProvider().getNodeServer(nodeUniqueId);
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
-        } else {
-            return null;
         }
     }
 
@@ -1138,50 +1043,6 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
         return scheduleTask(() -> CloudNet.this.sendCommandLine(nodeUniqueId, commandLine));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
-        return scheduleTask(() -> CloudNet.this.createCloudService(serviceTask));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
-        return scheduleTask(() -> CloudNet.this.createCloudService(serviceConfiguration));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-                                                              Collection<ServiceRemoteInclusion> includes,
-                                                              Collection<ServiceTemplate> templates,
-                                                              Collection<ServiceDeployment> deployments,
-                                                              Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        return scheduleTask(() -> CloudNet.this.createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port));
-    }
-
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
-            String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        return scheduleTask(() -> CloudNet.this.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port));
     }
 
     @Override
@@ -2128,7 +1989,7 @@ public final class CloudNet extends CloudNetDriver {
         );
     }
 
-    private <T> ITask<T> scheduleTask(Callable<T> callable) {
+    public <T> ITask<T> scheduleTask(Callable<T> callable) {
         ITask<T> task = new ListenableTask<>(callable);
 
         taskScheduler.schedule(task);

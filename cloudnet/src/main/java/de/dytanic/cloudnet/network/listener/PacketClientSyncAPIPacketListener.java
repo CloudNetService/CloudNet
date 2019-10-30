@@ -87,15 +87,16 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "create_CloudService_by_serviceTask": {
-                    ServiceInfoSnapshot serviceInfoSnapshot = getCloudNet().
-                            createCloudService((ServiceTask) packet.getHeader().get("serviceTask", new TypeToken<ServiceTask>() {
+                    ServiceInfoSnapshot serviceInfoSnapshot = getCloudNet().getCloudServiceFactory()
+                            .createCloudService((ServiceTask) packet.getHeader().get("serviceTask", new TypeToken<ServiceTask>() {
                             }.getType()));
 
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceInfoSnapshot", serviceInfoSnapshot));
                 }
                 break;
                 case "create_CloudService_by_serviceConfiguration": {
-                    ServiceInfoSnapshot serviceInfoSnapshot = getCloudNet().createCloudService(
+                    ServiceInfoSnapshot serviceInfoSnapshot = getCloudNet().getCloudServiceFactory()
+                            .createCloudService(
                             (ServiceConfiguration) packet.getHeader().get("serviceConfiguration", new TypeToken<ServiceConfiguration>() {
                             }.getType())
                     );
@@ -209,7 +210,7 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 break;
                 case "create_cloud_service_custom": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshot", getCloudNet().createCloudService(
+                            new JsonDocument("serviceInfoSnapshot", getCloudNet().getCloudServiceFactory().createCloudService(
                                     packet.getHeader().getString("name"),
                                     packet.getHeader().getString("runtime"),
                                     packet.getHeader().getBoolean("autoDeleteOnStop"),
@@ -233,7 +234,7 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 break;
                 case "create_cloud_service_custom_selected_node_and_amount": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshot", getCloudNet().createCloudService(
+                            new JsonDocument("serviceInfoSnapshot", getCloudNet().getCloudServiceFactory().createCloudService(
                                     packet.getHeader().getString("nodeUniqueId"),
                                     packet.getHeader().getInt("amount"),
                                     packet.getHeader().getString("name"),

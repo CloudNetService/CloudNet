@@ -61,6 +61,8 @@ public abstract class CloudNetDriver {
     public abstract void stop();
 
 
+    public abstract CloudServiceFactory getCloudServiceFactory();
+
     public abstract INetworkClient getNetworkClient();
 
     public abstract Collection<CommandInfo> getConsoleCommands();
@@ -77,39 +79,209 @@ public abstract class CloudNetDriver {
 
     public abstract void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data);
 
-    public abstract ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudService(ServiceTask)
+     * @deprecated use {@link CloudServiceFactory#createCloudService(ServiceTask)} instead
+     */
+    @Deprecated
+    public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
+        return this.getCloudServiceFactory().createCloudService(serviceTask);
+    }
 
-    public abstract ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudService(ServiceConfiguration)
+     * @deprecated use {@link CloudServiceFactory#createCloudService(ServiceConfiguration)} instead
+     */
+    @Deprecated
+    public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
+        return this.getCloudServiceFactory().createCloudService(serviceConfiguration);
+    }
 
-    public abstract ServiceInfoSnapshot createCloudService(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    );
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     */
+    @Deprecated
+    public ServiceInfoSnapshot createCloudService(String name,
+                                                  String runtime,
+                                                  boolean autoDeleteOnStop,
+                                                  boolean staticService,
+                                                  Collection<ServiceRemoteInclusion> includes,
+                                                  Collection<ServiceTemplate> templates,
+                                                  Collection<ServiceDeployment> deployments,
+                                                  Collection<String> groups,
+                                                  ProcessConfiguration processConfiguration,
+                                                  Integer port) {
+        return this.getCloudServiceFactory().createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
 
-    public abstract Collection<ServiceInfoSnapshot> createCloudService(
-            String nodeUniqueId,
-            int amount,
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    );
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}  instead
+     */
+    @Deprecated
+    public ServiceInfoSnapshot createCloudService(String name,
+                                                  String runtime,
+                                                  boolean autoDeleteOnStop,
+                                                  boolean staticService,
+                                                  Collection<ServiceRemoteInclusion> includes,
+                                                  Collection<ServiceTemplate> templates,
+                                                  Collection<ServiceDeployment> deployments,
+                                                  Collection<String> groups,
+                                                  ProcessConfiguration processConfiguration,
+                                                  JsonDocument properties,
+                                                  Integer port) {
+        return this.getCloudServiceFactory().createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     */
+    @Deprecated
+    public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
+                                                              int amount,
+                                                              String name,
+                                                              String runtime,
+                                                              boolean autoDeleteOnStop,
+                                                              boolean staticService,
+                                                              Collection<ServiceRemoteInclusion> includes,
+                                                              Collection<ServiceTemplate> templates,
+                                                              Collection<ServiceDeployment> deployments,
+                                                              Collection<String> groups,
+                                                              ProcessConfiguration processConfiguration,
+                                                              Integer port) {
+        return this.getCloudServiceFactory().createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} instead
+     */
+    @Deprecated
+    public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
+                                                              int amount,
+                                                              String name,
+                                                              String runtime,
+                                                              boolean autoDeleteOnStop,
+                                                              boolean staticService,
+                                                              Collection<ServiceRemoteInclusion> includes,
+                                                              Collection<ServiceTemplate> templates,
+                                                              Collection<ServiceDeployment> deployments,
+                                                              Collection<String> groups,
+                                                              ProcessConfiguration processConfiguration,
+                                                              JsonDocument properties,
+                                                              Integer port) {
+        return this.getCloudServiceFactory().createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudServiceAsync(ServiceTask)
+     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(ServiceTask)} instead
+     */
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
+        return this.getCloudServiceFactory().createCloudServiceAsync(serviceTask);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)
+     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)} instead
+     */
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
+        return this.getCloudServiceFactory().createCloudServiceAsync(serviceConfiguration);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     */
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
+                                                              String runtime,
+                                                              boolean autoDeleteOnStop,
+                                                              boolean staticService,
+                                                              Collection<ServiceRemoteInclusion> includes,
+                                                              Collection<ServiceTemplate> templates,
+                                                              Collection<ServiceDeployment> deployments,
+                                                              Collection<String> groups,
+                                                              ProcessConfiguration processConfiguration,
+                                                              Integer port) {
+        return this.getCloudServiceFactory().createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} instead
+     */
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
+                                                              String runtime,
+                                                              boolean autoDeleteOnStop,
+                                                              boolean staticService,
+                                                              Collection<ServiceRemoteInclusion> includes,
+                                                              Collection<ServiceTemplate> templates,
+                                                              Collection<ServiceDeployment> deployments,
+                                                              Collection<String> groups,
+                                                              ProcessConfiguration processConfiguration,
+                                                              JsonDocument properties,
+                                                              Integer port) {
+        return this.getCloudServiceFactory().createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     */
+    @Deprecated
+    public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
+                                                                          int amount,
+                                                                          String name,
+                                                                          String runtime,
+                                                                          boolean autoDeleteOnStop,
+                                                                          boolean staticService,
+                                                                          Collection<ServiceRemoteInclusion> includes,
+                                                                          Collection<ServiceTemplate> templates,
+                                                                          Collection<ServiceDeployment> deployments,
+                                                                          Collection<String> groups,
+                                                                          ProcessConfiguration processConfiguration,
+                                                                          Integer port) {
+        return this.getCloudServiceFactory().createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    /**
+     * @see #getCloudServiceFactory()
+     * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
+     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} instead
+     */
+    @Deprecated
+    public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
+                                                                          int amount,
+                                                                          String name,
+                                                                          String runtime,
+                                                                          boolean autoDeleteOnStop,
+                                                                          boolean staticService,
+                                                                          Collection<ServiceRemoteInclusion> includes,
+                                                                          Collection<ServiceTemplate> templates,
+                                                                          Collection<ServiceDeployment> deployments,
+                                                                          Collection<String> groups,
+                                                                          ProcessConfiguration processConfiguration,
+                                                                          JsonDocument properties,
+                                                                          Integer port) {
+        return this.getCloudServiceFactory().createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
+    }
 
     public abstract ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine);
 
@@ -254,40 +426,6 @@ public abstract class CloudNetDriver {
 
     public abstract ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine);
 
-    public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask);
-
-    public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration);
-
-    public abstract ITask<ServiceInfoSnapshot> createCloudServiceAsync(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    );
-
-    public abstract ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
-            String nodeUniqueId,
-            int amount,
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    );
-
     public abstract ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine);
 
     public abstract ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate);
@@ -421,70 +559,6 @@ public abstract class CloudNetDriver {
         });
 
         return listenableTask;
-    }
-
-    public ServiceInfoSnapshot createCloudService(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            Integer port
-    ) {
-        return createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
-    }
-
-    public Collection<ServiceInfoSnapshot> createCloudService(
-            String nodeUniqueId,
-            int amount,
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            Integer port
-    ) {
-        return createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
-    }
-
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            Integer port
-    ) {
-        return createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
-    }
-
-    public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
-            String nodeUniqueId,
-            int amount,
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            Integer port
-    ) {
-        return createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     public void deployResources(UUID uniqueId) {

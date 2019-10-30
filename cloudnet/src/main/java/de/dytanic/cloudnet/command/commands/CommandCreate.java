@@ -220,7 +220,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         for (int i = 0; i < count; i++) {
-            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().createCloudService(new ServiceTask(
+            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(new ServiceTask(
                     includes,
                     temps,
                     deploy,

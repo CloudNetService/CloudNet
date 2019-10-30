@@ -67,7 +67,7 @@ public final class CloudNetTickListener {
                 ServiceInfoSnapshot serviceInfoSnapshot = CloudNetSmartModule.getInstance().getFreeNonStartedService(serviceTask.getName());
 
                 if (serviceInfoSnapshot == null) {
-                    serviceInfoSnapshot = CloudNet.getInstance().createCloudService(serviceTask);
+                    serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceFactory().createCloudService(serviceTask);
                 }
 
                 if (serviceInfoSnapshot != null) {
@@ -85,7 +85,7 @@ public final class CloudNetTickListener {
 
         if (task.getPreparedServices() > 0 && preparedServices < task.getPreparedServices()) {
             if (preparedServices < task.getPreparedServices()) {
-                CloudNet.getInstance().createCloudService(serviceTask);
+                CloudNet.getInstance().getCloudServiceFactory().createCloudService(serviceTask);
             }
         }
     }
@@ -154,7 +154,7 @@ public final class CloudNetTickListener {
                     ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTask(cloudService.getServiceId().getTaskName());
 
                     if (serviceInfoSnapshot == null && serviceTask != null && !serviceTask.isMaintenance()) {
-                        serviceInfoSnapshot = CloudNet.getInstance().createCloudService(serviceTask);
+                        serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceFactory().createCloudService(serviceTask);
                     }
 
                     if (serviceInfoSnapshot != null) {

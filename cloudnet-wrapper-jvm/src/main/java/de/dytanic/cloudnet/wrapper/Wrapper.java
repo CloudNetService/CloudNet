@@ -38,6 +38,7 @@ import de.dytanic.cloudnet.wrapper.module.WrapperModuleProviderHandler;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
+import de.dytanic.cloudnet.wrapper.service.WrapperCloudServiceFactory;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -77,6 +78,8 @@ public final class Wrapper extends CloudNetDriver {
      * The commandline arguments from the main() method of Main class by the application wrapper
      */
     private final List<String> commandLineArguments;
+
+    private CloudServiceFactory cloudServiceFactory = new WrapperCloudServiceFactory(this);
 
     /**
      * CloudNetDriver.getNetworkClient()
@@ -185,6 +188,11 @@ public final class Wrapper extends CloudNetDriver {
         this.servicesRegistry.unregisterAll();
     }
 
+    @Override
+    public CloudServiceFactory getCloudServiceFactory() {
+        return this.cloudServiceFactory;
+    }
+
     /**
      * Application wrapper implementation of this method. See the full documentation at the
      * CloudNetDriver class.
@@ -266,94 +274,6 @@ public final class Wrapper extends CloudNetDriver {
         Validate.checkNotNull(data);
 
         this.networkClient.sendPacket(new PacketClientServerChannelMessage(targetServiceTask.getName(), channel, message, data));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
-
-        try {
-            return this.createCloudServiceAsync(serviceTask).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    //port can be null
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
-
-        try {
-            return this.createCloudServiceAsync(serviceConfiguration).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-                                                  Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        try {
-            return this.createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
-                                                              Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments, Collection<String> groups,
-                                                              ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        try {
-            return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     @Override
@@ -1354,111 +1274,6 @@ public final class Wrapper extends CloudNetDriver {
                         .append("nodeUniqueId", nodeUniqueId)
                         .append("commandLine", commandLine), null,
                 documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
-                                                              Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-                                                              Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom")
-                        .append("name", name)
-                        .append("runtime", runtime)
-                        .append("autoDeleteOnStop", autoDeleteOnStop)
-                        .append("staticService", staticService)
-                        .append("includes", includes)
-                        .append("templates", templates)
-                        .append("deployments", deployments)
-                        .append("groups", groups)
-                        .append("processConfiguration", processConfiguration)
-                        .append("properties", properties)
-                        .append("port", port),
-                null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-                                                                          Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-                                                                          Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom_selected_node_and_amount")
-                        .append("nodeUniqueId", nodeUniqueId)
-                        .append("amount", amount)
-                        .append("name", name)
-                        .append("runtime", runtime)
-                        .append("autoDeleteOnStop", autoDeleteOnStop)
-                        .append("staticService", staticService)
-                        .append("includes", includes)
-                        .append("templates", templates)
-                        .append("deployments", deployments)
-                        .append("groups", groups)
-                        .append("processConfiguration", processConfiguration)
-                        .append("properties", properties)
-                        .append("port", port),
-                null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                 }.getType()));
     }
 
