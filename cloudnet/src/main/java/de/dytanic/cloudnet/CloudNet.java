@@ -826,7 +826,7 @@ public final class CloudNet extends CloudNetDriver {
                 .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
                 .replace("%module_author%", moduleWrapper.getModuleConfiguration().getAuthor()));
     }
-
+    
     private void registerDefaultCommands() {
         this.logger.info(LanguageManager.getMessage("reload-register-defaultCommands"));
 

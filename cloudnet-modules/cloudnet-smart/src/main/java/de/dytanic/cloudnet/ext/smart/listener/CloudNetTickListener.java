@@ -87,7 +87,7 @@ public final class CloudNetTickListener {
             }
             if (smartTask.getAutoStopTimeByUnusedServiceInSeconds() > 0 &&
                     smartTask.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture() > -1 &&
-                    this.getPercentOf(
+                    getPercentOf(
                             serviceInfoSnapshot.getProperties().getInt("Online-Count"),
                             serviceInfoSnapshot.getProperties().getInt("Max-Players")
                     ) <= smartTask.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture()) {
@@ -120,12 +120,12 @@ public final class CloudNetTickListener {
                     cloudService.getServiceInfoSnapshot().getProperties().contains("Max-Players")) {
                 SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(cloudService.getServiceInfoSnapshot());
 
-                if (this.isIngameService(cloudService.getServiceInfoSnapshot())) {
+                if (isIngameService(cloudService.getServiceInfoSnapshot())) {
                     continue;
                 }
 
                 if (smartTask != null && smartTask.getPercentOfPlayersForANewServiceByInstance() > 0 && !this.newInstanceDelay.contains(cloudService.getServiceId().getUniqueId()) &&
-                        this.getPercentOf(
+                        getPercentOf(
                                 cloudService.getServiceInfoSnapshot().getProperties().getInt("Online-Count"),
                                 cloudService.getServiceInfoSnapshot().getProperties().getInt("Max-Players")
                         ) >= smartTask.getPercentOfPlayersForANewServiceByInstance()) {
@@ -134,7 +134,7 @@ public final class CloudNetTickListener {
                     ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTask(cloudService.getServiceId().getTaskName());
 
                     if (serviceInfoSnapshot == null && serviceTask != null && serviceTask.canStartServices()) {
-                        serviceInfoSnapshot = CloudNet.getInstance().createCloudService(serviceTask);
+                        serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceFactory().createCloudService(serviceTask);
                     }
 
                     if (serviceInfoSnapshot != null) {
@@ -155,9 +155,9 @@ public final class CloudNetTickListener {
     }
 
     private boolean isIngameService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return (serviceInfoSnapshot.getProperties().contains("State") && this.isIngameService0(serviceInfoSnapshot.getProperties().getString("State"))) ||
-                (serviceInfoSnapshot.getProperties().contains("Motd") && this.isIngameService0(serviceInfoSnapshot.getProperties().getString("Motd"))) ||
-                (serviceInfoSnapshot.getProperties().contains("Extra") && this.isIngameService0(serviceInfoSnapshot.getProperties().getString("Extra")));
+        return (serviceInfoSnapshot.getProperties().contains("State") && isIngameService0(serviceInfoSnapshot.getProperties().getString("State"))) ||
+                (serviceInfoSnapshot.getProperties().contains("Motd") && isIngameService0(serviceInfoSnapshot.getProperties().getString("Motd"))) ||
+                (serviceInfoSnapshot.getProperties().contains("Extra") && isIngameService0(serviceInfoSnapshot.getProperties().getString("Extra")));
     }
 
     private boolean isIngameService0(String text) {
