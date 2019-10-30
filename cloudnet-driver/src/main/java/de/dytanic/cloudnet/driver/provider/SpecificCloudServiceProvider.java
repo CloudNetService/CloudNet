@@ -44,7 +44,7 @@ public interface SpecificCloudServiceProvider {
     Queue<String> getCachedLogMessages();
 
     /**
-     * Stops this service if it is running.
+     * Stops this service by executing the "stop" and "end" commands in its console if it is running.
      */
     default void stop() {
         this.setCloudServiceLifeCycle(ServiceLifeCycle.STOPPED);
@@ -76,16 +76,49 @@ public interface SpecificCloudServiceProvider {
      */
     void restart();
 
+    /**
+     * Tries to stop this service like {@link #stop()} but if the service is still running after 5 seconds, it is destroyed forcibly
+     */
     void kill();
 
+    /**
+     * Executes the given command in the console of this service if it is running
+     *
+     * @param command the command to be executed
+     */
     void runCommand(String command);
 
+    /**
+     * Copies all templates of this service into the directory where this service is located in
+     *
+     * @see #addServiceTemplate(ServiceTemplate)
+     * @see #addServiceTemplateAsync(ServiceTemplate)
+     */
     void includeWaitingServiceTemplates();
 
+    /**
+     * Copies all inclusions of this service into the directory where this service is located in
+     *
+     * @see #addServiceRemoteInclusion(ServiceRemoteInclusion)
+     * @see #addServiceRemoteInclusionAsync(ServiceRemoteInclusion)
+     */
     void includeWaitingServiceInclusions();
 
+    /**
+     * Writes all deployments to their defined templates of this service.
+     *
+     * @param removeDeployments whether the deployments should be removed after deploying or not
+     * @see #addServiceDeployment(ServiceDeployment)
+     * @see #addServiceDeploymentAsync(ServiceDeployment)
+     */
     void deployResources(boolean removeDeployments);
 
+    /**
+     * Writes all deployments to their defined templates of this service and removes them after writing.
+     *
+     * @see #addServiceDeployment(ServiceDeployment)
+     * @see #addServiceDeploymentAsync(ServiceDeployment)
+     */
     default void deployResources() {
         this.deployResources(true);
     }
@@ -127,7 +160,7 @@ public interface SpecificCloudServiceProvider {
     ITask<Queue<String>> getCachedLogMessagesAsync();
 
     /**
-     * Stops this service if it is running.
+     * Stops this service by executing the "stop" and "end" commands in its console if it is running.
      */
     default ITask<Void> stopAsync() {
         return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.STOPPED);
@@ -159,16 +192,49 @@ public interface SpecificCloudServiceProvider {
      */
     ITask<Void> restartAsync();
 
+    /**
+     * Tries to stop this service like {@link #stop()} but if the service is still running after 5 seconds, it is destroyed forcibly
+     */
     ITask<Void> killAsync();
 
+    /**
+     * Executes the given command in the console of this service if it is running
+     *
+     * @param command the command to be executed
+     */
     ITask<Void> runCommandAsync(String command);
 
+    /**
+     * Copies all templates of this service into the directory where this service is located in
+     *
+     * @see #addServiceTemplate(ServiceTemplate)
+     * @see #addServiceTemplateAsync(ServiceTemplate)
+     */
     ITask<Void> includeWaitingServiceTemplatesAsync();
 
+    /**
+     * Copies all inclusions of this service into the directory where this service is located in
+     *
+     * @see #addServiceRemoteInclusion(ServiceRemoteInclusion)
+     * @see #addServiceRemoteInclusionAsync(ServiceRemoteInclusion)
+     */
     ITask<Void> includeWaitingServiceInclusionsAsync();
 
+    /**
+     * Writes all deployments to their defined templates of this service.
+     *
+     * @param removeDeployments whether the deployments should be removed after deploying or not
+     * @see #addServiceDeployment(ServiceDeployment)
+     * @see #addServiceDeploymentAsync(ServiceDeployment)
+     */
     ITask<Void> deployResourcesAsync(boolean removeDeployments);
 
+    /**
+     * Writes all deployments to their defined templates of this service and removes them after writing.
+     *
+     * @see #addServiceDeployment(ServiceDeployment)
+     * @see #addServiceDeploymentAsync(ServiceDeployment)
+     */
     default ITask<Void> deployResourcesAsync() {
         return this.deployResourcesAsync(true);
     }

@@ -81,6 +81,8 @@ public final class Wrapper extends CloudNetDriver {
     private ServiceTaskProvider serviceTaskProvider = new WrapperServiceTaskProvider(this);
     private GroupConfigurationProvider groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
     private PermissionProvider permissionProvider = new WrapperPermissionProvider(this);
+    private NodeInfoProvider nodeInfoProvider = new WrapperNodeInfoProvider(this);
+    private CloudMessenger messenger = new WrapperMessenger(this);
 
     /**
      * CloudNetDriver.getNetworkClient()
@@ -205,6 +207,11 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     @Override
+    public NodeInfoProvider getNodeInfoProvider() {
+        return this.nodeInfoProvider;
+    }
+
+    @Override
     public GroupConfigurationProvider getGroupConfigurationProvider() {
         return this.groupConfigurationProvider;
     }
@@ -229,206 +236,9 @@ public final class Wrapper extends CloudNetDriver {
         return this.generalCloudServiceProvider;
     }
 
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
     @Override
-    public String[] sendCommandLine(String commandLine) {
-        Validate.checkNotNull(commandLine);
-
-        try {
-            return this.sendCommandLineAsync(commandLine).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
-        Validate.checkNotNull(nodeUniqueId, commandLine);
-
-        try {
-            return this.sendCommandLineAsync(nodeUniqueId, commandLine).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void sendChannelMessage(String channel, String message, JsonDocument data) {
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(message);
-        Validate.checkNotNull(data);
-
-        this.networkClient.sendPacket(new PacketClientServerChannelMessage(channel, message, data));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data) {
-        Validate.checkNotNull(targetServiceInfoSnapshot);
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(message);
-        Validate.checkNotNull(data);
-
-        this.networkClient.sendPacket(new PacketClientServerChannelMessage(targetServiceInfoSnapshot.getServiceId().getUniqueId(), channel, message, data));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
-        Validate.checkNotNull(targetServiceTask);
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(message);
-        Validate.checkNotNull(data);
-
-        this.networkClient.sendPacket(new PacketClientServerChannelMessage(targetServiceTask.getName(), channel, message, data));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        this.getCloudServiceProvider(serviceInfoSnapshot).setCloudServiceLifeCycle(lifeCycle);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-
-        this.getCloudServiceProvider(serviceInfoSnapshot).restart();
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-
-        this.getCloudServiceProvider(serviceInfoSnapshot).kill();
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-
-        this.getCloudServiceProvider(serviceInfoSnapshot).runCommand(command);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public NetworkClusterNode[] getNodes() {
-        try {
-            return this.getNodesAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public NetworkClusterNode getNode(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        try {
-            return this.getNodeAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
-        try {
-            return this.getNodeInfoSnapshotsAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        try {
-            return this.getNodeInfoSnapshotAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public CloudMessenger getMessenger() {
+        return this.messenger;
     }
 
     /**
@@ -482,118 +292,6 @@ public final class Wrapper extends CloudNetDriver {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
-        return this.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "console_commands"),
-                new byte[0],
-                pair -> pair.getFirst().get("commandInfos", new TypeToken<Collection<CommandInfo>>() {
-                }.getType())
-        );
-    }
-
-    @Override
-    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
-        return this.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "console_commands")
-                        .append("commandLine", commandLine),
-                new byte[0],
-                pair -> pair.getFirst().get("commandInfo", CommandInfo.class)
-        );
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<String[]> sendCommandLineAsync(String commandLine) {
-        Validate.checkNotNull(commandLine);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine").append("commandLine", commandLine), null,
-                documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine_on_node")
-                        .append("nodeUniqueId", nodeUniqueId)
-                        .append("commandLine", commandLine), null,
-                documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<NetworkClusterNode[]> getNodesAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_nodes"), null,
-                documentPair -> documentPair.getFirst().get("nodes", new TypeToken<NetworkClusterNode[]>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_by_uniqueId").append("uniqueId", uniqueId), null,
-                documentPair -> documentPair.getFirst().get("clusterNode", new TypeToken<NetworkClusterNode>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_info_snapshots"), null,
-                documentPair -> documentPair.getFirst().get("nodeInfoSnapshots", new TypeToken<NetworkClusterNodeInfoSnapshot[]>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_info_snapshot_by_uniqueId").append("uniqueId", uniqueId), null,
-                documentPair -> documentPair.getFirst().get("clusterNodeInfoSnapshot", new TypeToken<NetworkClusterNodeInfoSnapshot>() {
-                }.getType()));
     }
 
     /**
@@ -861,16 +559,6 @@ public final class Wrapper extends CloudNetDriver {
 
     public INetworkClient getNetworkClient() {
         return this.networkClient;
-    }
-
-    @Override
-    public Collection<CommandInfo> getConsoleCommands() {
-        return this.getConsoleCommandsAsync().getDef(Collections.emptyList());
-    }
-
-    @Override
-    public CommandInfo getConsoleCommand(String commandLine) {
-        return this.getConsoleCommandAsync(commandLine).getDef(null);
     }
 
     public Thread getMainThread() {

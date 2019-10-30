@@ -68,7 +68,11 @@ public abstract class CloudNetDriver {
 
     public abstract ServiceTaskProvider getServiceTaskProvider();
 
+    public abstract NodeInfoProvider getNodeInfoProvider();
+
     public abstract GroupConfigurationProvider getGroupConfigurationProvider();
+
+    public abstract CloudMessenger getMessenger();
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -102,19 +106,106 @@ public abstract class CloudNetDriver {
 
     public abstract INetworkClient getNetworkClient();
 
-    public abstract Collection<CommandInfo> getConsoleCommands();
+    public String[] sendCommandLine(String commandLine) {
+        return this.getNodeInfoProvider().sendCommandLine(commandLine);
+    }
 
-    public abstract CommandInfo getConsoleCommand(String commandLine);
+    public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
+        return this.getNodeInfoProvider().sendCommandLine(nodeUniqueId, commandLine);
+    }
 
-    public abstract String[] sendCommandLine(String commandLine);
+    @Deprecated
+    public Collection<CommandInfo> getConsoleCommands() {
+        return this.getNodeInfoProvider().getConsoleCommands();
+    }
 
-    public abstract String[] sendCommandLine(String nodeUniqueId, String commandLine);
+    @Deprecated
+    public CommandInfo getConsoleCommand(String commandLine) {
+        return this.getNodeInfoProvider().getConsoleCommand(commandLine);
+    }
 
-    public abstract void sendChannelMessage(String channel, String message, JsonDocument data);
+    @Deprecated
+    public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
+        return this.getNodeInfoProvider().getConsoleCommandsAsync();
+    }
 
-    public abstract void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data);
+    @Deprecated
+    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
+        return this.getNodeInfoProvider().getConsoleCommandAsync(commandLine);
+    }
 
-    public abstract void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data);
+    @Deprecated
+    public ITask<String[]> sendCommandLineAsync(String commandLine) {
+        return this.getNodeInfoProvider().sendCommandLineAsync(commandLine);
+    }
+
+    @Deprecated
+    public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
+        return this.getNodeInfoProvider().sendCommandLineAsync(nodeUniqueId, commandLine);
+    }
+
+    @Deprecated
+    public ITask<NetworkClusterNode[]> getNodesAsync() {
+        return this.getNodeInfoProvider().getNodesAsync();
+    }
+
+    @Deprecated
+    public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
+        return this.getNodeInfoProvider().getNodeAsync(uniqueId);
+    }
+
+    @Deprecated
+    public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
+        return this.getNodeInfoProvider().getNodeInfoSnapshotsAsync();
+    }
+
+    @Deprecated
+    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
+        return this.getNodeInfoProvider().getNodeInfoSnapshotAsync(uniqueId);
+    }
+
+    @Deprecated
+    public NetworkClusterNode[] getNodes() {
+        return this.getNodeInfoProvider().getNodes();
+    }
+
+    @Deprecated
+    public NetworkClusterNode getNode(String uniqueId) {
+        return this.getNodeInfoProvider().getNode(uniqueId);
+    }
+
+    @Deprecated
+    public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
+        return this.getNodeInfoProvider().getNodeInfoSnapshots();
+    }
+
+    @Deprecated
+    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
+        return this.getNodeInfoProvider().getNodeInfoSnapshot(uniqueId);
+    }
+
+    public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
+
+    public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName);
+
+    public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
+
+    public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName);
+
+    @Deprecated
+    public void sendChannelMessage(String channel, String message, JsonDocument data) {
+        this.getMessenger().sendChannelMessage(channel, message, data);
+    }
+
+    @Deprecated
+    public void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data) {
+        this.getMessenger().sendChannelMessage(targetServiceInfoSnapshot, channel, message, data);
+    }
+
+    @Deprecated
+    public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
+        this.getMessenger().sendChannelMessage(targetServiceTask, channel, message, data);
+    }
 
     /**
      * @see #getCloudServiceFactory()
@@ -857,19 +948,6 @@ public abstract class CloudNetDriver {
         return this.getGroupConfigurationProvider().isGroupConfigurationPresentAsync(name);
     }
 
-    public abstract NetworkClusterNode[] getNodes();
-
-    public abstract NetworkClusterNode getNode(String uniqueId);
-
-    public abstract NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots();
-
-    public abstract NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId);
-
-    public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
-
-
-    public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName);
-
     public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(UUID uniqueId, String commandLine);
 
     @Deprecated
@@ -1017,26 +1095,6 @@ public abstract class CloudNetDriver {
         return this.getPermissionProvider().getGroupsAsync();
     }
 
-
-    public abstract ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
-
-    public abstract ITask<CommandInfo> getConsoleCommandAsync(String commandLine);
-
-    public abstract ITask<String[]> sendCommandLineAsync(String commandLine);
-
-    public abstract ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine);
-
-    public abstract ITask<NetworkClusterNode[]> getNodesAsync();
-
-    public abstract ITask<NetworkClusterNode> getNodeAsync(String uniqueId);
-
-    public abstract ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync();
-
-    public abstract ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId);
-
-    public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
-
-    public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName);
 
     public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine);
 

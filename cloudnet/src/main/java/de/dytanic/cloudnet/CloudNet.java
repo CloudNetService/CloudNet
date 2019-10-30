@@ -3,7 +3,9 @@ package de.dytanic.cloudnet;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
-import de.dytanic.cloudnet.command.*;
+import de.dytanic.cloudnet.command.ConsoleCommandSender;
+import de.dytanic.cloudnet.command.DefaultCommandMap;
+import de.dytanic.cloudnet.command.ICommandMap;
 import de.dytanic.cloudnet.command.commands.*;
 import de.dytanic.cloudnet.command.jline2.JLine2CommandCompleter;
 import de.dytanic.cloudnet.common.Properties;
@@ -11,7 +13,6 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
@@ -45,7 +46,6 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
@@ -90,7 +90,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -138,6 +137,8 @@ public final class CloudNet extends CloudNetDriver {
     private ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
     private GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
     private PermissionProvider permissionProvider = new NodePermissionProvider(this);
+    private NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
+    private CloudMessenger messenger = new NodeMessenger(this);
 
     private DefaultInstallation defaultInstallation = new DefaultInstallation(this);
 
@@ -346,6 +347,11 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    public NodeInfoProvider getNodeInfoProvider() {
+        return this.nodeInfoProvider;
+    }
+
+    @Override
     public GroupConfigurationProvider getGroupConfigurationProvider() {
         return this.groupConfigurationProvider;
     }
@@ -371,126 +377,8 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public String[] sendCommandLine(String commandLine) {
-        Validate.checkNotNull(commandLine);
-
-        Collection<String> collection = Iterables.newArrayList();
-
-        if (this.isMainThread()) {
-            this.sendCommandLine0(collection, commandLine);
-        } else {
-            try {
-                runTask((Callable<Void>) () -> {
-                    sendCommandLine0(collection, commandLine);
-                    return null;
-                }).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return collection.toArray(new String[0]);
-    }
-
-    @Override
-    public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(commandLine);
-
-        if (this.getConfig().getIdentity().getUniqueId().equals(nodeUniqueId)) {
-            return this.sendCommandLine(commandLine);
-        }
-
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(nodeUniqueId);
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.sendCommandLine(commandLine);
-        }
-
-        return null;
-    }
-
-    private void sendCommandLine0(Collection<String> collection, String commandLine) {
-        this.commandMap.dispatchCommand(new DriverCommandSender(collection), commandLine);
-    }
-
-    @Override
-    public void sendChannelMessage(String channel, String message, JsonDocument data) {
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(message);
-        Validate.checkNotNull(data);
-
-        this.sendAll(new PacketClientServerChannelMessage(channel, message, data));
-    }
-
-    @Override
-    public void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data) {
-        if (targetServiceInfoSnapshot.getServiceId().getNodeUniqueId().equals(this.config.getIdentity().getUniqueId())) {
-            ICloudService cloudService = this.getCloudServiceManager().getCloudService(targetServiceInfoSnapshot.getServiceId().getUniqueId());
-            if (cloudService != null && cloudService.getNetworkChannel() != null) {
-                cloudService.getNetworkChannel().sendPacket(new PacketClientServerChannelMessage(channel, message, data));
-            }
-        } else {
-            IClusterNodeServer nodeServer = this.clusterNodeServerProvider.getNodeServer(targetServiceInfoSnapshot.getServiceId().getNodeUniqueId());
-            if (nodeServer != null) {
-                nodeServer.saveSendPacket(new PacketClientServerChannelMessage(
-                        targetServiceInfoSnapshot.getServiceId().getUniqueId(),
-                        channel,
-                        message,
-                        data
-                ));
-            }
-        }
-    }
-
-    @Override
-    public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudServiceProvider().getCloudServices(targetServiceTask.getName())) {
-            this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
-        }
-    }
-
-    @Override
-    public NetworkClusterNode[] getNodes() {
-        return this.config.getClusterConfig().getNodes().toArray(new NetworkClusterNode[0]);
-    }
-
-    @Override
-    public NetworkClusterNode getNode(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        if (uniqueId.equals(this.config.getIdentity().getUniqueId())) {
-            return this.config.getIdentity();
-        }
-        return Iterables.first(this.config.getClusterConfig().getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId));
-    }
-
-    @Override
-    public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
-        Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots = Iterables.newArrayList();
-
-        for (IClusterNodeServer clusterNodeServer : this.clusterNodeServerProvider.getNodeServers()) {
-            if (clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null) {
-                nodeInfoSnapshots.add(clusterNodeServer.getNodeInfoSnapshot());
-            }
-        }
-
-        return nodeInfoSnapshots.toArray(new NetworkClusterNodeInfoSnapshot[0]);
-    }
-
-    @Override
-    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
-        if (uniqueId.equals(this.config.getIdentity().getUniqueId())) {
-            return this.currentNetworkClusterNodeInfoSnapshot;
-        }
-
-        for (IClusterNodeServer clusterNodeServer : this.clusterNodeServerProvider.getNodeServers()) {
-            if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null) {
-                return clusterNodeServer.getNodeInfoSnapshot();
-            }
-        }
-
-        return null;
+    public CloudMessenger getMessenger() {
+        return this.messenger;
     }
 
     @Override
@@ -525,88 +413,6 @@ public final class CloudNet extends CloudNetDriver {
         } else {
             return new Pair<>(false, new String[0]);
         }
-    }
-
-    @Override
-    public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
-        return this.scheduleTask(this::getConsoleCommands);
-    }
-
-    @Override
-    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
-        return this.scheduleTask(() -> this.getConsoleCommand(commandLine));
-    }
-
-    @Override
-    public ITask<String[]> sendCommandLineAsync(String commandLine) {
-        return scheduleTask(() -> CloudNet.this.sendCommandLine(commandLine));
-    }
-
-    @Override
-    public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
-        return scheduleTask(() -> CloudNet.this.sendCommandLine(nodeUniqueId, commandLine));
-    }
-
-    @Override
-    public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-        return scheduleTask(CloudNet.this::getPermanentServiceTasks);
-    }
-
-    @Override
-    public ITask<ServiceTask> getServiceTaskAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.getServiceTask(name));
-    }
-
-    @Override
-    public ITask<Boolean> isServiceTaskPresentAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.isServiceTaskPresent(name));
-    }
-
-    @Override
-    public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-        return scheduleTask(CloudNet.this::getGroupConfigurations);
-    }
-
-    @Override
-    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.getGroupConfiguration(name));
-    }
-
-    @Override
-    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.isGroupConfigurationPresent(name));
-    }
-
-    @Override
-    public ITask<NetworkClusterNode[]> getNodesAsync() {
-        return scheduleTask(CloudNet.this::getNodes);
-    }
-
-    @Override
-    public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return scheduleTask(() -> CloudNet.this.getNode(uniqueId));
-    }
-
-    @Override
-    public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-        return scheduleTask(CloudNet.this::getNodeInfoSnapshots);
-    }
-
-    @Override
-    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return scheduleTask(() -> CloudNet.this.getNodeInfoSnapshot(uniqueId));
     }
 
     @Override
@@ -1168,17 +974,6 @@ public final class CloudNet extends CloudNetDriver {
 
     public INetworkClient getNetworkClient() {
         return this.networkClient;
-    }
-
-    @Override
-    public Collection<CommandInfo> getConsoleCommands() {
-        return this.commandMap.getCommandInfos();
-    }
-
-    @Override
-    public CommandInfo getConsoleCommand(String commandLine) {
-        Command command = this.commandMap.getCommandFromLine(commandLine);
-        return command != null ? command.getInfo() : null;
     }
 
     public INetworkServer getNetworkServer() {
