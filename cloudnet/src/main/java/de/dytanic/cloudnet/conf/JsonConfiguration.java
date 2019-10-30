@@ -119,7 +119,9 @@ public final class JsonConfiguration implements IConfiguration {
         this.parallelServiceStartSequence = this.document.getBoolean("parallelServiceStartSequence", true);
         this.runBlockedServiceStartTryLaterAutomatic = this.document.getBoolean("runBlockedServiceStartTryLaterAutomatic", true);
 
-        this.maxMemory = this.document.getInt("maxMemory", (int) ((CPUUsageResolver.getSystemMemory() / 1048576) - 2048));
+        long systemMaxMemory = (CPUUsageResolver.getSystemMemory() / 1048576);
+        this.maxMemory = this.document.getInt("maxMemory", (int) (systemMaxMemory - Math.min(systemMaxMemory, 2048)));
+
         this.maxServiceConsoleLogCacheSize = this.document.getInt("maxServiceConsoleLogCacheSize", 64);
         this.printErrorStreamLinesFromServices = this.document.getBoolean("printErrorStreamLinesFromServices", true);
         this.defaultJVMOptionParameters = this.document.getBoolean("defaultJVMOptionParameters", true);

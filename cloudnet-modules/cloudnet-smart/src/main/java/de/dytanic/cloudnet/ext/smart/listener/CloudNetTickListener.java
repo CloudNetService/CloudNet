@@ -52,31 +52,11 @@ public final class CloudNetTickListener {
                                     serviceTask.getAssociatedNodes().isEmpty())) {
 
                         SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask);
-                        this.handleMinOnlineCount(serviceTask);
                         this.autoGeneratePreparedServices(smartTask, serviceTask);
                     }
                 });
     }
-
-    private void handleMinOnlineCount(ServiceTask serviceTask) {
-        Collection<ServiceInfoSnapshot> services = Iterables.filter(
-                CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(serviceTask.getName()), serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING);
-
-        if (serviceTask.getMinServiceCount() > 0 && services.size() < serviceTask.getMinServiceCount()) {
-            if (services.size() < serviceTask.getMinServiceCount()) {
-                ServiceInfoSnapshot serviceInfoSnapshot = CloudNetSmartModule.getInstance().getFreeNonStartedService(serviceTask.getName());
-
-                if (serviceInfoSnapshot == null) {
-                    serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceFactory().createCloudService(serviceTask);
-                }
-
-                if (serviceInfoSnapshot != null) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
-                }
-            }
-        }
-    }
-
+  
     private void autoGeneratePreparedServices(SmartServiceTaskConfig task, ServiceTask serviceTask) {
         long preparedServices = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(serviceTask.getName()).stream()
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED ||
