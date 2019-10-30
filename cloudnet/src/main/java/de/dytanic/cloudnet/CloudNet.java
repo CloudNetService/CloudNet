@@ -175,6 +175,10 @@ public final class CloudNet extends CloudNetDriver {
         initDefaultConfigDefaultHostAddress();
         this.config.load();
 
+        if (this.config.getMaxMemory() < 2048) {
+            CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
+        }
+
         this.networkClient = new NettyNetworkClient(NetworkClientChannelHandlerImpl::new,
                 this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null,
                 networkTaskScheduler
@@ -1841,16 +1845,40 @@ public final class CloudNet extends CloudNetDriver {
     private void launchServices() {
         for (ServiceTask serviceTask : cloudServiceManager.getServiceTasks()) {
             if (serviceTask.canStartServices()) {
+
+                Collection<ServiceInfoSnapshot> taskServices = this.getCloudService(serviceTask.getName());
+
+                long runningTaskServices = taskServices.stream()
+                        .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
+                        .count();
+
                 if ((serviceTask.getAssociatedNodes().isEmpty() || (serviceTask.getAssociatedNodes().contains(getConfig().getIdentity().getUniqueId()))) &&
-                        serviceTask.getMinServiceCount() > cloudServiceManager.getServiceInfoSnapshots(serviceTask.getName()).size()) {
-                    if (competeWithCluster(serviceTask)) {
+                        serviceTask.getMinServiceCount() > runningTaskServices) {
+
+                    // there are still less running services of this task than the specified minServiceCount, so looking for a local service which isn't started yet
+                    Optional<ICloudService> nonStartedServiceOptional = this.getCloudServiceManager().getCloudServices(serviceTask.getName())
+                            .stream()
+                            .filter(cloudService -> cloudService.getLifeCycle() == ServiceLifeCycle.DEFINED
+                                    || cloudService.getLifeCycle() == ServiceLifeCycle.PREPARED)
+                            .findFirst();
+
+                    if (nonStartedServiceOptional.isPresent()) {
+                        try {
+                            nonStartedServiceOptional.get().start();
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                        }
+                    } else if (serviceTask.getMinServiceCount() > taskServices.size() && this.competeWithCluster(serviceTask)) {
+                        // There is no local existing service to start and there are less services existing of this task
+                        // than the specified minServiceCount, so starting a new service, because this is the best node to do so
+
                         ICloudService cloudService = cloudServiceManager.runTask(serviceTask);
 
                         if (cloudService != null) {
                             try {
                                 cloudService.start();
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                            } catch (Exception exception) {
+                                exception.printStackTrace();
                             }
                         }
                     }
@@ -2035,11 +2063,11 @@ public final class CloudNet extends CloudNetDriver {
 
                         doBreak = true;
                         break;
-                    case "java-bungee-1.7.10":
+                    case "java-bungee-1.14.4":
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord travertine");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.7.10");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server paperspigot-1.14.4");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
