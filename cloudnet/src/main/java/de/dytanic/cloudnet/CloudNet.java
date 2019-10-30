@@ -26,7 +26,6 @@ import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfigurationRegistry;
-import de.dytanic.cloudnet.console.ConsoleColor;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -52,9 +51,12 @@ import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.permission.*;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.permission.DefaultJsonFilePermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.*;
+import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -72,10 +74,10 @@ import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.command.DefaultPermissionUserCommandSender;
 import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
+import de.dytanic.cloudnet.provider.*;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
-import de.dytanic.cloudnet.provider.*;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
@@ -497,13 +499,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
-        Validate.checkNotNull(environment);
-
-        return cloudServiceManager.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getEnvironment() == environment);
-    }
-
-    @Override
     public Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName) {
         Validate.checkNotNull(serviceName);
 
@@ -617,13 +612,6 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
         return scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
-    }
-
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
-        Validate.checkNotNull(environment);
-
-        return scheduleTask(() -> CloudNet.this.getCloudServices(environment));
     }
 
     @Override

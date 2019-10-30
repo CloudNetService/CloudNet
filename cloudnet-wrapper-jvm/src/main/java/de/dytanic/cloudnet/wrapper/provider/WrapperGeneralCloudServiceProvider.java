@@ -1,9 +1,11 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -66,6 +68,18 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     public Collection<ServiceInfoSnapshot> getCloudServices(String taskName) {
         try {
             return this.getCloudServicesAsync(taskName).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
+        Validate.checkNotNull(environment);
+
+        try {
+            return this.getCloudServicesAsync(environment).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -157,6 +171,16 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
         return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_taskName").append("taskName", taskName), null,
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
+                }.getType()));
+    }
+
+    @Override
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
+        Validate.checkNotNull(environment);
+
+        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloud_services_with_environment").append("serviceEnvironment", environment), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                 }.getType()));
     }

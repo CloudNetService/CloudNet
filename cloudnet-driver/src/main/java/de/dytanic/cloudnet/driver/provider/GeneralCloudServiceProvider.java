@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.provider;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 import java.util.Collection;
@@ -36,6 +37,15 @@ public interface GeneralCloudServiceProvider {
      * @return a list containing the infos of every service with the given task in the whole cloud
      */
     Collection<ServiceInfoSnapshot> getCloudServices(String taskName);
+
+
+    /**
+     * Gets a list with the infos of all services in the cloud that have the given environment
+     *
+     * @param environment the environment every service in the list should have
+     * @return a list containing the infos of every service with the given environment in the whole cloud
+     */
+    Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment);
 
     /**
      * Gets a list with the infos of all services in the cloud that have the given group
@@ -114,6 +124,14 @@ public interface GeneralCloudServiceProvider {
      * @return a list containing the infos of every service with the given task in the whole cloud
      */
     ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName);
+
+    /**
+     * Gets a list with the infos of all services in the cloud that have the given environment
+     *
+     * @param environment the environment every service in the list should have
+     * @return a list containing the infos of every service with the given environment in the whole cloud
+     */
+    ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment);
 
     /**
      * Gets a list with the infos of all services in the cloud that have the given group

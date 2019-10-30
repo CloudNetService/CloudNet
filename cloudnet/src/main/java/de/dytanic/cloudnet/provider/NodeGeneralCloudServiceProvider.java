@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.provider.GeneralCloudServiceProvider;
@@ -48,6 +49,13 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
         Validate.checkNotNull(taskName);
 
         return this.cloudNet.getCloudServiceManager().getServiceInfoSnapshots(taskName);
+    }
+
+    @Override
+    public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
+        Validate.checkNotNull(environment);
+
+        return this.cloudNet.getCloudServiceManager().getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getEnvironment() == environment);
     }
 
     @Override
@@ -124,6 +132,11 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
         Validate.checkNotNull(taskName);
 
         return this.cloudNet.scheduleTask(() -> this.getCloudServices(taskName));
+    }
+
+    @Override
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
+        return this.cloudNet.scheduleTask(() -> this.getCloudServices(environment));
     }
 
     @Override

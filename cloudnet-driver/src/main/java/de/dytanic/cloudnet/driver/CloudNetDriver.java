@@ -605,6 +605,15 @@ public abstract class CloudNetDriver {
 
     /**
      * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServices(ServiceEnvironmentType)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServices(ServiceEnvironmentType)}
+     */
+    public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
+        return this.getCloudServiceProvider().getCloudServices();
+    }
+
+    /**
+     * @see #getCloudServiceProvider()
      * @see GeneralCloudServiceProvider#getCloudServicesByGroup(String)
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesByGroup(String)}
      */
@@ -754,6 +763,11 @@ public abstract class CloudNetDriver {
     }
 
     @Deprecated
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
+        return this.getCloudServiceProvider().getCloudServicesAsync(environment);
+    }
+
+    @Deprecated
     public Collection<ServiceTask> getPermanentServiceTasks() {
         return this.getServiceTaskProvider().getPermanentServiceTasks();
     }
@@ -853,7 +867,6 @@ public abstract class CloudNetDriver {
 
     public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
 
-    public abstract Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment);
 
     public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName);
 
@@ -1022,8 +1035,6 @@ public abstract class CloudNetDriver {
     public abstract ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId);
 
     public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
-
-    public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment);
 
     public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName);
 
