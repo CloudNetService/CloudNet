@@ -54,9 +54,7 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.service.provider.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.service.provider.GeneralCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.provider.*;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -77,9 +75,7 @@ import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
-import de.dytanic.cloudnet.service.provider.NodeCloudServiceFactory;
-import de.dytanic.cloudnet.service.provider.NodeGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.service.provider.NodeSpecificCloudServiceProvider;
+import de.dytanic.cloudnet.service.provider.*;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
@@ -137,6 +133,8 @@ public final class CloudNet extends CloudNetDriver {
 
     private CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
     private GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
+    private ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
+    private GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
 
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
@@ -333,6 +331,16 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    public ServiceTaskProvider getServiceTaskProvider() {
+        return this.serviceTaskProvider;
+    }
+
+    @Override
+    public GroupConfigurationProvider getGroupConfigurationProvider() {
+        return this.groupConfigurationProvider;
+    }
+
+    @Override
     public SpecificCloudServiceProvider getCloudServiceProvider(String name) {
         return new NodeSpecificCloudServiceProvider(this, name);
     }
@@ -430,86 +438,6 @@ public final class CloudNet extends CloudNetDriver {
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudServiceProvider().getCloudServices(targetServiceTask.getName())) {
             this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
         }
-    }
-
-    @Override
-    public Collection<ServiceTask> getPermanentServiceTasks() {
-        return this.cloudServiceManager.getServiceTasks();
-    }
-
-    @Override
-    public ServiceTask getServiceTask(String name) {
-        Validate.checkNotNull(name);
-
-        return this.cloudServiceManager.getServiceTask(name);
-    }
-
-    @Override
-    public boolean isServiceTaskPresent(String name) {
-        Validate.checkNotNull(name);
-
-        return this.cloudServiceManager.isTaskPresent(name);
-    }
-
-    @Override
-    public void addPermanentServiceTask(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
-
-        this.cloudServiceManager.addPermanentServiceTask(serviceTask);
-    }
-
-    @Override
-    public void removePermanentServiceTask(String name) {
-        Validate.checkNotNull(name);
-
-        this.cloudServiceManager.removePermanentServiceTask(name);
-    }
-
-    @Override
-    public void removePermanentServiceTask(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
-
-        this.cloudServiceManager.removePermanentServiceTask(serviceTask);
-    }
-
-    @Override
-    public Collection<GroupConfiguration> getGroupConfigurations() {
-        return this.cloudServiceManager.getGroupConfigurations();
-    }
-
-    @Override
-    public GroupConfiguration getGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
-
-        return this.cloudServiceManager.getGroupConfiguration(name);
-    }
-
-    @Override
-    public boolean isGroupConfigurationPresent(String name) {
-        Validate.checkNotNull(name);
-
-        return this.cloudServiceManager.isGroupConfigurationPresent(name);
-    }
-
-    @Override
-    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
-
-        this.cloudServiceManager.addGroupConfiguration(groupConfiguration);
-    }
-
-    @Override
-    public void removeGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
-
-        this.cloudServiceManager.removeGroupConfiguration(name);
-    }
-
-    @Override
-    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
-
-        this.cloudServiceManager.removeGroupConfiguration(groupConfiguration);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.wrapper.service;
+package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;

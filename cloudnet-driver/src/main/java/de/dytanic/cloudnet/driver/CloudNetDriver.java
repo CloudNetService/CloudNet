@@ -22,9 +22,7 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.service.provider.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.service.provider.GeneralCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.provider.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -65,6 +63,10 @@ public abstract class CloudNetDriver {
 
 
     public abstract CloudServiceFactory getCloudServiceFactory();
+
+    public abstract ServiceTaskProvider getServiceTaskProvider();
+
+    public abstract GroupConfigurationProvider getGroupConfigurationProvider();
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -749,29 +751,95 @@ public abstract class CloudNetDriver {
         return this.getCloudServiceProvider().getCloudServiceAsync(uniqueId);
     }
 
-    public abstract Collection<ServiceTask> getPermanentServiceTasks();
+    @Deprecated
+    public Collection<ServiceTask> getPermanentServiceTasks() {
+        return this.getServiceTaskProvider().getPermanentServiceTasks();
+    }
 
-    public abstract ServiceTask getServiceTask(String name);
+    @Deprecated
+    public ServiceTask getServiceTask(String name) {
+        return this.getServiceTaskProvider().getServiceTask(name);
+    }
 
-    public abstract boolean isServiceTaskPresent(String name);
+    @Deprecated
+    public boolean isServiceTaskPresent(String name) {
+        return this.getServiceTaskProvider().isServiceTaskPresent(name);
+    }
 
-    public abstract void addPermanentServiceTask(ServiceTask serviceTask);
+    @Deprecated
+    public void addPermanentServiceTask(ServiceTask serviceTask) {
+        this.getServiceTaskProvider().addPermanentServiceTask(serviceTask);
+    }
 
-    public abstract void removePermanentServiceTask(String name);
+    @Deprecated
+    public void removePermanentServiceTask(String name) {
+        this.getServiceTaskProvider().removePermanentServiceTask(name);
+    }
 
-    public abstract void removePermanentServiceTask(ServiceTask serviceTask);
+    @Deprecated
+    public void removePermanentServiceTask(ServiceTask serviceTask) {
+        this.getServiceTaskProvider().removePermanentServiceTask(serviceTask);
+    }
 
-    public abstract Collection<GroupConfiguration> getGroupConfigurations();
+    @Deprecated
+    public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
+        return this.getServiceTaskProvider().getPermanentServiceTasksAsync();
+    }
 
-    public abstract GroupConfiguration getGroupConfiguration(String name);
+    @Deprecated
+    public ITask<ServiceTask> getServiceTaskAsync(String name) {
+        return this.getServiceTaskProvider().getServiceTaskAsync(name);
+    }
 
-    public abstract boolean isGroupConfigurationPresent(String name);
+    @Deprecated
+    public ITask<Boolean> isServiceTaskPresentAsync(String name) {
+        return this.getServiceTaskProvider().isServiceTaskPresentAsync(name);
+    }
 
-    public abstract void addGroupConfiguration(GroupConfiguration groupConfiguration);
+    @Deprecated
+    public Collection<GroupConfiguration> getGroupConfigurations() {
+        return this.getGroupConfigurationProvider().getGroupConfigurations();
+    }
 
-    public abstract void removeGroupConfiguration(String name);
+    @Deprecated
+    public GroupConfiguration getGroupConfiguration(String name) {
+        return this.getGroupConfigurationProvider().getGroupConfiguration(name);
+    }
 
-    public abstract void removeGroupConfiguration(GroupConfiguration groupConfiguration);
+    @Deprecated
+    public boolean isGroupConfigurationPresent(String name) {
+        return this.getGroupConfigurationProvider().isGroupConfigurationPresent(name);
+    }
+
+    @Deprecated
+    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
+        this.getGroupConfigurationProvider().addGroupConfiguration(groupConfiguration);
+    }
+
+    @Deprecated
+    public void removeGroupConfiguration(String name) {
+        this.getGroupConfigurationProvider().removeGroupConfiguration(name);
+    }
+
+    @Deprecated
+    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
+        this.getGroupConfigurationProvider().removeGroupConfiguration(groupConfiguration);
+    }
+
+    @Deprecated
+    public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
+        return this.getGroupConfigurationProvider().getGroupConfigurationsAsync();
+    }
+
+    @Deprecated
+    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
+        return this.getGroupConfigurationProvider().getGroupConfigurationAsync(name);
+    }
+
+    @Deprecated
+    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
+        return this.getGroupConfigurationProvider().isGroupConfigurationPresentAsync(name);
+    }
 
     public abstract NetworkClusterNode[] getNodes();
 
@@ -835,18 +903,6 @@ public abstract class CloudNetDriver {
     public abstract ITask<String[]> sendCommandLineAsync(String commandLine);
 
     public abstract ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine);
-
-    public abstract ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync();
-
-    public abstract ITask<ServiceTask> getServiceTaskAsync(String name);
-
-    public abstract ITask<Boolean> isServiceTaskPresentAsync(String name);
-
-    public abstract ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync();
-
-    public abstract ITask<GroupConfiguration> getGroupConfigurationAsync(String name);
-
-    public abstract ITask<Boolean> isGroupConfigurationPresentAsync(String name);
 
     public abstract ITask<NetworkClusterNode[]> getNodesAsync();
 

@@ -27,9 +27,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.service.provider.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.service.provider.GeneralCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.provider.*;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
@@ -41,9 +39,7 @@ import de.dytanic.cloudnet.wrapper.module.WrapperModuleProviderHandler;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
-import de.dytanic.cloudnet.wrapper.service.WrapperCloudServiceFactory;
-import de.dytanic.cloudnet.wrapper.service.WrapperGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.wrapper.service.WrapperSpecificCloudServiceProvider;
+import de.dytanic.cloudnet.wrapper.provider.*;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -86,6 +82,8 @@ public final class Wrapper extends CloudNetDriver {
 
     private CloudServiceFactory cloudServiceFactory = new WrapperCloudServiceFactory(this);
     private GeneralCloudServiceProvider generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
+    private ServiceTaskProvider serviceTaskProvider = new WrapperServiceTaskProvider(this);
+    private GroupConfigurationProvider groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
 
     /**
      * CloudNetDriver.getNetworkClient()
@@ -197,6 +195,16 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     public CloudServiceFactory getCloudServiceFactory() {
         return this.cloudServiceFactory;
+    }
+
+    @Override
+    public ServiceTaskProvider getServiceTaskProvider() {
+        return this.serviceTaskProvider;
+    }
+
+    @Override
+    public GroupConfigurationProvider getGroupConfigurationProvider() {
+        return this.groupConfigurationProvider;
     }
 
     @Override
@@ -351,190 +359,6 @@ public final class Wrapper extends CloudNetDriver {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceTask> getPermanentServiceTasks() {
-        try {
-            return this.getPermanentServiceTasksAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceTask getServiceTask(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.getServiceTaskAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public boolean isServiceTaskPresent(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.isServiceTaskPresentAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void addPermanentServiceTask(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
-                VOID_FUNCTION);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void removePermanentServiceTask(String name) {
-        Validate.checkNotNull(name);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
-                VOID_FUNCTION);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void removePermanentServiceTask(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
-        this.removePermanentServiceTask(serviceTask.getName());
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<GroupConfiguration> getGroupConfigurations() {
-        try {
-            return this.getGroupConfigurationsAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public GroupConfiguration getGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.getGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public boolean isGroupConfigurationPresent(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.isGroupConfigurationPresentAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_group_configuration").append("groupConfiguration", groupConfiguration), null,
-                VOID_FUNCTION);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void removeGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_group_configuration").append("name", name), null,
-                VOID_FUNCTION);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
-        this.removeGroupConfiguration(groupConfiguration.getName());
     }
 
     /**
@@ -1023,98 +847,6 @@ public final class Wrapper extends CloudNetDriver {
                         .append("nodeUniqueId", nodeUniqueId)
                         .append("commandLine", commandLine), null,
                 documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_permanent_serviceTasks"), null,
-                documentPair -> documentPair.getFirst().get("serviceTasks", new TypeToken<Collection<ServiceTask>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceTask> getServiceTaskAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_service_task").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("serviceTask", new TypeToken<ServiceTask>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Boolean> isServiceTaskPresentAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_service_task_present").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_groupConfigurations"), null,
-                documentPair -> documentPair.getFirst().get("groupConfigurations", new TypeToken<Collection<GroupConfiguration>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_group_configuration").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("groupConfiguration", new TypeToken<GroupConfiguration>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_group_configuration_present").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
                 }.getType()));
     }
 
