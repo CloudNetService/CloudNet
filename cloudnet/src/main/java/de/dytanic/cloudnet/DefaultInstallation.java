@@ -5,9 +5,24 @@ import de.dytanic.cloudnet.console.ConsoleColor;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DefaultInstallation {
 
     private CloudNet cloudNet;
+
+    private final Map<String, Runnable> defaultTaskInstallations = new HashMap<>();
+
+    {
+        this.defaultTaskInstallations.put("nothing", () -> {});
+        this.defaultTaskInstallations.put("recommended", this::installRecommended);
+        this.defaultTaskInstallations.put("bedrock", this::installBedrock);
+        this.defaultTaskInstallations.put("java-bungee-1.8.8", () -> this.installJavaBungee("default", "spigot-1.8.8"));
+        this.defaultTaskInstallations.put("java-bungee-1.13.2", () -> this.installJavaBungee("default", "spigot-1.13.2"));
+        this.defaultTaskInstallations.put("java-velocity-1.8.8", () -> this.installJavaVelocity("default", "spigot-1.8.8"));
+        this.defaultTaskInstallations.put("java-velocity-1.13.2", () -> this.installJavaVelocity("default", "spigot-1.13.2"));
+    }
 
     public DefaultInstallation(CloudNet cloudNet) {
         this.cloudNet = cloudNet;
@@ -77,133 +92,97 @@ public class DefaultInstallation {
     public void initDefaultTasks() throws Exception {
         if (this.cloudNet.getCloudServiceManager().getGroupConfigurations().isEmpty() && this.cloudNet.getCloudServiceManager().getServiceTasks().isEmpty() &&
                 System.getProperty("cloudnet.default.tasks.skip") == null) {
-            boolean value = false;
-            String input;
+            while (this.shouldTryAgain()) {
 
-            do {
-                if (value) {
+                String input = this.readTaskInput().trim().toLowerCase();
+                if (this.defaultTaskInstallations.containsKey(input)) {
+                    this.defaultTaskInstallations.get(input).run();
                     break;
-                }
-
-                if (System.getProperty("cloudnet.default.tasks.installation") != null) {
-                    input = System.getProperty("cloudnet.default.tasks.installation");
-                    value = true;
-
-                } else if (System.getenv("CLOUDNET_DEFAULT_TASKS_INSTALLATION") != null) {
-                    input = System.getenv("CLOUDNET_DEFAULT_TASKS_INSTALLATION");
-                    value = true;
-
                 } else {
-                    this.cloudNet.getLogger().info(ConsoleColor.DARK_GRAY + LanguageManager.getMessage("cloudnet-init-default-tasks-input"));
-                    this.cloudNet.getLogger().info(ConsoleColor.DARK_GRAY + LanguageManager.getMessage("cloudnet-init-default-tasks-input-list"));
-
-                    this.cloudNet.getConsole().resetPrompt();
-                    this.cloudNet.getConsole().setPrompt(ConsoleColor.WHITE.toString());
-                    input = this.cloudNet.getConsole().readLineNoPrompt();
-                    this.cloudNet.getConsole().setPrompt(ConsoleColor.DEFAULT.toString());
-                    this.cloudNet.getConsole().resetPrompt();
+                    this.cloudNet.getLogger().warning(ConsoleColor.RED + LanguageManager.getMessage("cloudnet-init-default-tasks-input-invalid"));
                 }
-
-                boolean doBreak = false;
-
-                switch (input.trim().toLowerCase()) {
-                    case "recommended":
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-
-                        //Create groups
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create group Global-Server");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create group Global-Proxy");
-
-                        //Add groups
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy add group Global-Proxy");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby add group Global-Server");
-
-                        //Install
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt create Global bukkit minecraft_server");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Global bukkit minecraft_server paperspigot-1.12.2");
-
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt create Global proxy bungeecord");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Global proxy bungeecord default");
-
-                        //Add templates
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks group Global-Server add template local Global bukkit");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks group Global-Proxy add template local Global proxy");
-
-                        //Set configurations
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
-
-                        doBreak = true;
-                        break;
-                    case "java-bungee-1.7.10":
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default bungeecord travertine");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default minecraft_server spigot-1.7.10");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
-                        doBreak = true;
-                        break;
-                    case "java-bungee-1.8.8":
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default bungeecord default");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default minecraft_server spigot-1.8.8");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
-                        doBreak = true;
-                        break;
-                    case "java-bungee-1.13.2":
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default bungeecord default");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default minecraft_server spigot-1.13.2");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
-                        doBreak = true;
-                        break;
-                    case "java-velocity-1.8.8":
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy velocity");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default velocity default");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default minecraft_server spigot-1.8.8");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
-                        doBreak = true;
-                        break;
-                    case "java-velocity-1.13.2":
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy velocity");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default velocity default");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default minecraft_server spigot-1.13.2");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
-                        doBreak = true;
-                        break;
-                    case "bedrock":
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy waterdog");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby nukkit");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default waterdog default");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default nukkit default");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
-                        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
-                        doBreak = true;
-                        break;
-                    case "nothing":
-                        doBreak = true;
-                        break;
-                    default:
-                        this.cloudNet.getLogger().warning(ConsoleColor.RED + LanguageManager.getMessage("cloudnet-init-default-tasks-input-invalid"));
-                        break;
-                }
-
-                if (doBreak) {
-                    break;
-                }
-
-            } while (true);
+            }
         }
+    }
+
+    private void installRecommended() {
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
+
+        //Create groups
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create group Global-Server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create group Global-Proxy");
+
+        //Add groups
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy add group Global-Proxy");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby add group Global-Server");
+
+        //Install
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt create Global bukkit minecraft_server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Global bukkit minecraft_server paperspigot-1.12.2");
+
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt create Global proxy bungeecord");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Global proxy bungeecord default");
+
+        //Add templates
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks group Global-Server add template local Global bukkit");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks group Global-Proxy add template local Global proxy");
+
+        //Set configurations
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
+    }
+
+    private void installBedrock() {
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy waterdog");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby nukkit");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default waterdog default");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default nukkit default");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
+    }
+
+    private void installJavaBungee(String bungeeVersion, String spigotVersion) {
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default bungeecord " + bungeeVersion);
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default minecraft_server " + spigotVersion);
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
+    }
+
+    private void installJavaVelocity(String velocityVersion, String spigotVersion) {
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy velocity");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Proxy default velocity " + velocityVersion);
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "lt install Lobby default minecraft_server " + spigotVersion);
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
+    }
+
+    private String readTaskInput() throws Exception {
+        String input;
+
+        if (System.getProperty("cloudnet.default.tasks.installation") != null) {
+            input = System.getProperty("cloudnet.default.tasks.installation");
+        } else if (System.getenv("CLOUDNET_DEFAULT_TASKS_INSTALLATION") != null) {
+            input = System.getenv("CLOUDNET_DEFAULT_TASKS_INSTALLATION");
+        } else {
+            this.cloudNet.getLogger().info(ConsoleColor.DARK_GRAY + LanguageManager.getMessage("cloudnet-init-default-tasks-input"));
+            this.cloudNet.getLogger().info(ConsoleColor.DARK_GRAY + String.join(", ", this.defaultTaskInstallations.keySet()));
+
+            this.cloudNet.getConsole().resetPrompt();
+            this.cloudNet.getConsole().setPrompt(ConsoleColor.WHITE.toString());
+            input = this.cloudNet.getConsole().readLineNoPrompt();
+            this.cloudNet.getConsole().setPrompt(ConsoleColor.DEFAULT.toString());
+            this.cloudNet.getConsole().resetPrompt();
+        }
+
+        return input;
+    }
+
+    public boolean shouldTryAgain() {
+        return System.getProperty("cloudnet.default.tasks.installation") == null && System.getenv("CLOUDNET_DEFAULT_TASKS_INSTALLATION") == null;
     }
     
 }
