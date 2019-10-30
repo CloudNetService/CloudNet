@@ -19,7 +19,7 @@ public final class CloudServiceListener {
 
     @EventListener
     public void handleCreateCloudService(CloudServiceCreateEvent event) {
-        ServiceTask serviceTask = CloudNet.getInstance().getServiceTask(event.getServiceConfiguration().getServiceId().getTaskName());
+        ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(event.getServiceConfiguration().getServiceId().getTaskName());
         if (serviceTask != null && CloudNetSmartModule.getInstance().hasSmartServiceTaskConfig(serviceTask)) {
             SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask);
             if (smartTask.getMaxServiceCount() > 0 &&

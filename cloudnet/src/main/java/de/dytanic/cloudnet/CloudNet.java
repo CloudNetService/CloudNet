@@ -733,7 +733,7 @@ public final class CloudNet extends CloudNetDriver {
         for (ServiceTask serviceTask : cloudServiceManager.getServiceTasks()) {
             if (serviceTask.canStartServices()) {
 
-                Collection<ServiceInfoSnapshot> taskServices = this.getCloudService(serviceTask.getName());
+                Collection<ServiceInfoSnapshot> taskServices = this.getCloudServiceProvider().getCloudServices(serviceTask.getName());
 
                 long runningTaskServices = taskServices.stream()
                         .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
@@ -743,7 +743,7 @@ public final class CloudNet extends CloudNetDriver {
                         serviceTask.getMinServiceCount() > runningTaskServices) {
 
                     // there are still less running services of this task than the specified minServiceCount, so looking for a local service which isn't started yet
-                    Optional<ICloudService> nonStartedServiceOptional = this.getCloudServiceManager().getCloudServices(serviceTask.getName())
+                    Optional<ICloudService> nonStartedServiceOptional = this.getCloudServiceManager().getLocalCloudServices(serviceTask.getName())
                             .stream()
                             .filter(cloudService -> cloudService.getLifeCycle() == ServiceLifeCycle.DEFINED
                                     || cloudService.getLifeCycle() == ServiceLifeCycle.PREPARED)

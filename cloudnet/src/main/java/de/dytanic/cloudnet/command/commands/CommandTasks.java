@@ -256,7 +256,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     if (args[2].equalsIgnoreCase("add")) {
                         switch (args[3].toLowerCase()) {
                             case "group":
-                                if (CloudNet.getInstance().getGroupConfigurations().stream().anyMatch(groupConfiguration -> groupConfiguration.getName().equals(args[4]))) {
+                                if (CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream().anyMatch(groupConfiguration -> groupConfiguration.getName().equals(args[4]))) {
                                     serviceTask.getGroups().add(args[4]);
                                     this.updateServiceTask(serviceTask);
                                     sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
@@ -617,20 +617,20 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 return Arrays.asList("group", "task");
             }
             if (args[0].equalsIgnoreCase("group")) {
-                return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                return getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
             }
             if (args[0].equalsIgnoreCase("task")) {
-                return getCloudNet().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
+                return getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
             }
         }
 
         if (args.length == 3) {
             if (args[0].equalsIgnoreCase("delete")) {
                 if (args[1].equalsIgnoreCase("group")) {
-                    return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                    return getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
                 }
                 if (args[1].equalsIgnoreCase("task")) {
-                    return getCloudNet().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
+                    return getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
                 }
             }
             if (args[0].equalsIgnoreCase("group")) {
@@ -686,13 +686,13 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 }
                 if (args[2].equalsIgnoreCase("remove")) {
                     if (args[3].equalsIgnoreCase("group")) {
-                        ServiceTask serviceTask = getCloudNet().getServiceTask(args[1]);
+                        ServiceTask serviceTask = getCloudNet().getServiceTaskProvider().getServiceTask(args[1]);
                         if (serviceTask == null)
                             return null;
                         return serviceTask.getGroups();
                     }
                     if (args[3].equalsIgnoreCase("node")) {
-                        ServiceTask serviceTask = getCloudNet().getServiceTask(args[1]);
+                        ServiceTask serviceTask = getCloudNet().getServiceTaskProvider().getServiceTask(args[1]);
                         if (serviceTask == null)
                             return null;
                         return serviceTask.getAssociatedNodes();

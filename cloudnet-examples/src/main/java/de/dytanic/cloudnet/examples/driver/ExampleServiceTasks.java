@@ -41,19 +41,19 @@ public final class ExampleServiceTasks {
                 0 //min services count with auto creation
         );
 
-        CloudNetDriver.getInstance().addPermanentServiceTask(serviceTask);
+        CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
     }
 
     public void updateServiceTask() {
-        if (CloudNetDriver.getInstance().isServiceTaskPresent("TestTask")) {
-            CloudNetDriver.getInstance().getServiceTaskAsync("TestTask").onComplete(result -> {
+        if (CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent("TestTask")) {
+            CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTaskAsync("TestTask").onComplete(result -> {
                 result.setMinServiceCount(1);
-                CloudNetDriver.getInstance().addPermanentServiceTask(result);
+                CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(result);
             });
         }
     }
 
     public void removeServiceTask() {
-        CloudNetDriver.getInstance().removePermanentServiceTask("TestTask");
+        CloudNetDriver.getInstance().getServiceTaskProvider().removePermanentServiceTask("TestTask");
     }
 }

@@ -51,7 +51,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
             FileUtils.delete(getModuleWrapper().getDataFolder());
         }
 
-        for (ServiceTask task : this.getCloudNet().getPermanentServiceTasks()) {
+        for (ServiceTask task : this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks()) {
             SmartServiceTaskConfig config = task.getProperties().get(SMART_CONFIG_ENTRY, SmartServiceTaskConfig.class);
             task.getProperties().append(
                     SMART_CONFIG_ENTRY,
@@ -73,7 +73,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public SmartServiceTaskConfig getSmartServiceTaskConfig(ServiceInfoSnapshot serviceInfoSnapshot) {
-        ServiceTask task = this.getCloudNet().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
+        ServiceTask task = this.getCloudNet().getServiceTaskProvider().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
         return task != null ? this.getSmartServiceTaskConfig(task) : null;
     }
 
@@ -82,7 +82,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public int getPercentOfFreeMemory(String nodeId, ServiceTask serviceTask) {
-        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().getNodeInfoSnapshot(nodeId);
+        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().getNodeInfoProvider().getNodeInfoSnapshot(nodeId);
 
         if (networkClusterNodeInfoSnapshot != null && !networkClusterNodeInfoSnapshot.getNode()
                 .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {

@@ -171,7 +171,7 @@ public interface ICloudServiceManager {
      */
     @Deprecated
     default Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate) {
-        return this.getCloudServices(predicate);
+        return this.getLocalCloudServices(predicate);
     }
 
     /**

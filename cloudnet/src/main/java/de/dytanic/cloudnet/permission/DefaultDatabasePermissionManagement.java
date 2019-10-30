@@ -95,7 +95,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public List<IPermissionUser> getUser(String name) {
+    public List<IPermissionUser> getUsers(String name) {
         Validate.checkNotNull(name);
 
         return Iterables.map(getDatabase().get("name", name), strings -> {
@@ -137,7 +137,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public Collection<IPermissionUser> getUserByGroup(String group) {
+    public Collection<IPermissionUser> getUsersByGroup(String group) {
         Validate.checkNotNull(group);
 
         Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();

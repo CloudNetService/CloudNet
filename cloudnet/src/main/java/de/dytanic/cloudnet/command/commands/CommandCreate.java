@@ -44,7 +44,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         if (args[0].equalsIgnoreCase("by") && args.length > 2 && Validate.testStringParseToInt(args[2])) {
-            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
+            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
 
             if (serviceTask != null) {
                 int count = Integer.parseInt(args[2]);

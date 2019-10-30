@@ -24,13 +24,30 @@ public interface IPermissionManagement {
 
     IPermissionUser getUser(UUID uniqueId);
 
-    List<IPermissionUser> getUser(String name);
+    /**
+     * @deprecated use {@link #getUsers(String)} instead
+     */
+    @Deprecated
+    default List<IPermissionUser> getUser(String name) {
+        return this.getUsers(name);
+    }
+
+    List<IPermissionUser> getUsers(String name);
+
 
     Collection<IPermissionUser> getUsers();
 
     void setUsers(Collection<? extends IPermissionUser> users);
 
-    Collection<IPermissionUser> getUserByGroup(String group);
+    /**
+     * @deprecated use {@link #getUsersByGroup(String)} instead
+     */
+    @Deprecated
+    default Collection<IPermissionUser> getUserByGroup(String group) {
+        return this.getUsersByGroup(group);
+    }
+
+    Collection<IPermissionUser> getUsersByGroup(String group);
 
     IPermissionGroup addGroup(IPermissionGroup permissionGroup);
 

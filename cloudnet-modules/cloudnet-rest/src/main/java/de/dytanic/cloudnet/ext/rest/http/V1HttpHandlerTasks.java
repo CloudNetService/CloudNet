@@ -33,7 +33,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(new JsonDocument("task", Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name")))).toByteArray())
+                    .body(new JsonDocument("task", Iterables.first(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name")))).toByteArray())
                     .context()
                     .closeAfter(true)
                     .cancelNext()
@@ -43,7 +43,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask -> !context.request().queryParameters().containsKey("name") ||
+                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask -> !context.request().queryParameters().containsKey("name") ||
                             containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName()))))
                     .context()
                     .closeAfter(true)
@@ -81,12 +81,12 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
             serviceTask.setDeployments(Iterables.newArrayList());
         }
 
-        int status = !CloudNetDriver.getInstance().isServiceTaskPresent(serviceTask.getName()) ?
+        int status = !CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(serviceTask.getName()) ?
                 HttpResponseCode.HTTP_OK
                 :
                 HttpResponseCode.HTTP_CREATED;
 
-        CloudNetDriver.getInstance().addPermanentServiceTask(serviceTask);
+        CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
         context
                 .response()
                 .statusCode(status)
@@ -104,8 +104,8 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
 
         String name = context.request().pathParameters().get("name");
 
-        if (CloudNetDriver.getInstance().isServiceTaskPresent(name)) {
-            CloudNetDriver.getInstance().removePermanentServiceTask(name);
+        if (CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(name)) {
+            CloudNetDriver.getInstance().getServiceTaskProvider().removePermanentServiceTask(name);
         }
 
         context

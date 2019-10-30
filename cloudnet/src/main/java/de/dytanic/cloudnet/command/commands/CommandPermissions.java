@@ -621,7 +621,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
             if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
                 if (args[2].equalsIgnoreCase("add")) {
                     if (args[3].equalsIgnoreCase("permission")) {
-                        return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                        return getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
                     }
                 }
             }

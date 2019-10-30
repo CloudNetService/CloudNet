@@ -61,8 +61,8 @@ public final class ExampleCreateCloudService {
     }
 
     public void createCloudServiceByTask() {
-        if (DRIVER.isServiceTaskPresent("Lobby")) {
-            ServiceTask serviceTask = DRIVER.getServiceTask("Lobby"); //getDef ServiceTask instance
+        if (DRIVER.getServiceTaskProvider().isServiceTaskPresent("Lobby")) {
+            ServiceTask serviceTask = DRIVER.getServiceTaskProvider().getServiceTask("Lobby"); //getDef ServiceTask instance
             ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(serviceTask); //Creates a service on cluster and returns the initial snapshot
 
             DRIVER.getCloudServiceProvider(serviceInfoSnapshot).start(); //Starting service
@@ -138,11 +138,11 @@ public final class ExampleCreateCloudService {
     }
 
     public void createCloudServiceViaCommand(String task) {
-        DRIVER.sendCommandLineAsync("create by " + task + " 1 --start"); //send the commandline to the provided node from the service that you the commandline send
+        DRIVER.getNodeInfoProvider().sendCommandLineAsync("create by " + task + " 1 --start"); //send the commandline to the provided node from the service that you the commandline send
     }
 
     public void createCloudServiceFromATaskWithRandomTemplate(String serviceTaskName) {
-        DRIVER.getServiceTaskAsync(serviceTaskName).onComplete(serviceTask -> {
+        DRIVER.getServiceTaskProvider().getServiceTaskAsync(serviceTaskName).onComplete(serviceTask -> {
             if (serviceTask == null) {
                 return;
             }

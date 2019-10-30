@@ -41,8 +41,8 @@ public final class NukkitCloudNetHelper {
 
         String task = Wrapper.getInstance().getServiceId().getTaskName();
 
-        if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).onComplete(serviceTask -> {
+        if (!CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(task)) {
+            CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTaskAsync(task).onComplete(serviceTask -> {
                 if (serviceTask != null) {
                     CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
                         if (serviceInfoSnapshot != null) {

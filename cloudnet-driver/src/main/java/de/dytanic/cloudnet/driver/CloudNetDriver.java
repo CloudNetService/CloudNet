@@ -788,7 +788,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServices(ServiceEnvironmentType)}
      */
     public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
-        return this.getCloudServiceProvider().getCloudServices();
+        return this.getCloudServiceProvider().getCloudServices(environment);
     }
 
     /**
@@ -1131,8 +1131,6 @@ public abstract class CloudNetDriver {
         return this.getGroupConfigurationProvider().isGroupConfigurationPresentAsync(name);
     }
 
-    public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(UUID uniqueId, String commandLine);
-
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#addUser(IPermissionUser)
@@ -1423,6 +1421,8 @@ public abstract class CloudNetDriver {
         return this.getPermissionProvider().getGroupsAsync();
     }
 
+
+    public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(UUID uniqueId, String commandLine);
 
     public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine);
 

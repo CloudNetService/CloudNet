@@ -33,7 +33,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(new JsonDocument("group", GSON.toJson(Iterables.first(CloudNetDriver.getInstance().getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName().toLowerCase().contains(context.request().pathParameters().get("name"))))).toByteArray())
+                    .body(new JsonDocument("group", GSON.toJson(Iterables.first(CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName().toLowerCase().contains(context.request().pathParameters().get("name"))))).toByteArray())
                     .context()
                     .closeAfter(true)
                     .cancelNext()
@@ -43,7 +43,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getGroupConfigurations(), groupConfiguration -> !context.request().queryParameters().containsKey("name") ||
+                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations(), groupConfiguration -> !context.request().queryParameters().containsKey("name") ||
                             containsStringElementInCollection(context.request().queryParameters().get("name"), groupConfiguration.getName()))))
                     .context()
                     .closeAfter(true)
@@ -73,12 +73,12 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
             groupConfiguration.setDeployments(Iterables.newArrayList());
         }
 
-        int status = !CloudNetDriver.getInstance().isGroupConfigurationPresent(groupConfiguration.getName()) ?
+        int status = !CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(groupConfiguration.getName()) ?
                 HttpResponseCode.HTTP_OK
                 :
                 HttpResponseCode.HTTP_CREATED;
 
-        CloudNetDriver.getInstance().addGroupConfiguration(groupConfiguration);
+        CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(groupConfiguration);
         context.response().statusCode(status);
     }
 
@@ -91,8 +91,8 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
 
         String name = context.request().pathParameters().get("name");
 
-        if (CloudNetDriver.getInstance().isGroupConfigurationPresent(name)) {
-            CloudNetDriver.getInstance().removeGroupConfiguration(name);
+        if (CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name)) {
+            CloudNetDriver.getInstance().getGroupConfigurationProvider().removeGroupConfiguration(name);
         }
 
         context.response().statusCode(HttpResponseCode.HTTP_OK);

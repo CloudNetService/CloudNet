@@ -32,7 +32,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
                     }
                 }
             } else if (packet.getHeader().contains("task")) { //this is only sent by the services
-                ServiceTask serviceTask = CloudNet.getInstance().getServiceTask(packet.getHeader().getString("task"));
+                ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(packet.getHeader().getString("task"));
                 if (serviceTask != null) {
                     CloudNet.getInstance().sendChannelMessage(
                             serviceTask,
