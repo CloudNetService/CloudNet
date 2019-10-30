@@ -49,24 +49,16 @@ public final class CommandService extends CommandDefault implements ITabComplete
 
         if (args[0].equalsIgnoreCase("list")) {
 
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
-                if (properties.containsKey("id") &&
-                        !serviceInfoSnapshot.getServiceId().getUniqueId().toString()
-                                .toLowerCase().contains(properties.get("id").toLowerCase())) {
-                    continue;
-                }
+            Collection<ServiceInfoSnapshot> targetServiceInfoSnapshots = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                    .filter(serviceInfoSnapshot -> !properties.containsKey("id")
+                            || serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(properties.get("id").toLowerCase()))
+                    .filter(serviceInfoSnapshot -> !properties.containsKey("group")
+                            || Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
+                    .filter(serviceInfoSnapshot -> !properties.containsKey("task")
+                            || properties.get("task").toLowerCase().contains(serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase()))
+                    .collect(Collectors.toSet());
 
-                if (properties.containsKey("group") &&
-                        !Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups())) {
-                    continue;
-                }
-
-                if (properties.containsKey("task") &&
-                        !properties.get("task").toLowerCase().contains(
-                                serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase())) {
-                    continue;
-                }
-
+            for (ServiceInfoSnapshot serviceInfoSnapshot : targetServiceInfoSnapshots) {
                 if (!properties.containsKey("names")) {
                     sender.sendMessage(
                             serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0] +
@@ -82,6 +74,8 @@ public final class CommandService extends CommandDefault implements ITabComplete
                             " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
                 }
             }
+            sender.sendMessage(String.format("=> Showing %d service(s)", targetServiceInfoSnapshots.size()));
+
             return;
         }
 
