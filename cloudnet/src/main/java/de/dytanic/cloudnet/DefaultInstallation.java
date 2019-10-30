@@ -20,7 +20,7 @@ public class DefaultInstallation {
         this.defaultTaskInstallations.put("bedrock", this::installBedrock);
         this.defaultTaskInstallations.put("java-bungee-1.8.8", () -> this.installJavaBungee("default", "spigot-1.8.8"));
         this.defaultTaskInstallations.put("java-bungee-1.13.2", () -> this.installJavaBungee("default", "spigot-1.13.2"));
-        this.defaultTaskInstallations.put("java-bungee-latest", () -> this.installJavaBungee("default", "paperspigot-latest"));
+        this.defaultTaskInstallations.put("java-bungee-1.14.4", () -> this.installJavaBungee("default", "paperspigot-1.14.4"));
         this.defaultTaskInstallations.put("java-velocity-1.8.8", () -> this.installJavaVelocity("default", "spigot-1.8.8"));
         this.defaultTaskInstallations.put("java-velocity-1.13.2", () -> this.installJavaVelocity("default", "spigot-1.13.2"));
     }
