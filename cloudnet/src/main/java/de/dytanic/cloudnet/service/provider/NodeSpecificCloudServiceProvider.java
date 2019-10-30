@@ -220,6 +220,14 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    public ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle) {
+        return this.cloudNet.scheduleTask(() -> {
+            this.setCloudServiceLifeCycle(lifeCycle);
+            return null;
+        });
+    }
+
+    @Override
     public void restart() {
         ICloudService cloudService = this.getCloudService();
         if (cloudService != null) {

@@ -1,34 +1,27 @@
 package de.dytanic.cloudnet.driver.service.provider;
 
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.*;
 
-import java.util.Collection;
 import java.util.Queue;
-import java.util.UUID;
 
 public interface SpecificCloudServiceProvider {
 
+    /**
+     * Gets the info of the service this provider is for
+     *
+     * @return the info or {@code null}, if the service doesn't exist
+     * @throws IllegalArgumentException if no uniqueId/name was given on creating this provider
+     */
     ServiceInfoSnapshot getServiceInfoSnapshot();
-
-    ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync();
 
     void addServiceTemplate(ServiceTemplate serviceTemplate);
 
-    ITask<Void> addServiceTemplateAsync(ServiceTemplate serviceTemplate);
-
     void addServiceRemoteInclusion(ServiceRemoteInclusion serviceRemoteInclusion);
-
-    ITask<Void> addServiceRemoteInclusionAsync(ServiceRemoteInclusion serviceRemoteInclusion);
 
     void addServiceDeployment(ServiceDeployment serviceDeployment);
 
-    ITask<Void> addServiceDeploymentAsync(ServiceDeployment serviceDeployment);
-
     Queue<String> getCachedLogMessages();
-
-    ITask<Queue<String>> getCachedLogMessagesAsync();
 
     default void stop() {
         this.setCloudServiceLifeCycle(ServiceLifeCycle.STOPPED);
@@ -46,15 +39,9 @@ public interface SpecificCloudServiceProvider {
 
     void restart();
 
-    ITask<Void> restartAsync();
-
     void kill();
 
-    ITask<Void> killAsync();
-
     void runCommand(String command);
-
-    ITask<Void> runCommandAsync(String command);
 
     void includeWaitingServiceTemplates();
 
@@ -65,6 +52,42 @@ public interface SpecificCloudServiceProvider {
     default void deployResources() {
         this.deployResources(true);
     }
+
+    /**
+     * Gets the info of the service this provider is for
+     *
+     * @return the info or {@code null}, if the service doesn't exist
+     * @throws IllegalArgumentException if no uniqueId/name was given on creating this provider
+     */
+    ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync();
+
+    ITask<Void> addServiceTemplateAsync(ServiceTemplate serviceTemplate);
+
+    ITask<Void> addServiceRemoteInclusionAsync(ServiceRemoteInclusion serviceRemoteInclusion);
+
+    ITask<Void> addServiceDeploymentAsync(ServiceDeployment serviceDeployment);
+
+    ITask<Queue<String>> getCachedLogMessagesAsync();
+
+    default ITask<Void> stopAsync() {
+        return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.STOPPED);
+    }
+
+    default ITask<Void> startAsync() {
+        return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.RUNNING);
+    }
+
+    default ITask<Void> deleteAsync() {
+        return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.DELETED);
+    }
+
+    ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle);
+
+    ITask<Void> restartAsync();
+
+    ITask<Void> killAsync();
+
+    ITask<Void> runCommandAsync(String command);
 
     ITask<Void> includeWaitingServiceTemplatesAsync();
 

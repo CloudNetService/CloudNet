@@ -152,9 +152,18 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public void setCloudServiceLifeCycle(ServiceLifeCycle lifeCycle) {
+        try {
+            this.setCloudServiceLifeCycleAsync(lifeCycle).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle) {
         Validate.checkNotNull(lifeCycle);
 
-        this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "set_service_life_cycle")
                         .append("lifeCycle", lifeCycle),
@@ -203,8 +212,6 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public void runCommand(String command) {
-        Validate.checkNotNull(command);
-
         try {
             this.runCommandAsync(command).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -214,6 +221,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> runCommandAsync(String command) {
+        Validate.checkNotNull(command);
+
         return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service")

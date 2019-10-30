@@ -330,8 +330,8 @@ public abstract class CloudNetDriver {
 
     /**
      * @see #getCloudServiceProvider(UUID)
-     * @see SpecificCloudServiceProvider#addServiceTemplateToCloudService(UUID, ServiceTemplate)
-     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceTemplateToCloudService(UUID, ServiceTemplate)}
+     * @see SpecificCloudServiceProvider#addServiceTemplate(ServiceTemplate)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceTemplate(ServiceTemplate)}
      */
     @Deprecated
     public ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate) {
@@ -341,8 +341,8 @@ public abstract class CloudNetDriver {
 
     /**
      * @see #getCloudServiceProvider(UUID)
-     * @see SpecificCloudServiceProvider#addServiceRemoteInclusionToCloudService(UUID, ServiceRemoteInclusion)
-     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceRemoteInclusionToCloudService(UUID, ServiceRemoteInclusion)}
+     * @see SpecificCloudServiceProvider#addServiceRemoteInclusion(ServiceRemoteInclusion)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceRemoteInclusion(ServiceRemoteInclusion)}
      */
     @Deprecated
     public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
@@ -352,8 +352,8 @@ public abstract class CloudNetDriver {
 
     /**
      * @see #getCloudServiceProvider(UUID)
-     * @see SpecificCloudServiceProvider#addServiceDeploymentToCloudService(UUID, ServiceDeployment)
-     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceDeploymentToCloudService(UUID, ServiceDeployment)}
+     * @see SpecificCloudServiceProvider#addServiceDeployment(ServiceDeployment)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceDeployment(ServiceDeployment)}
      */
     @Deprecated
     public ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment) {
@@ -363,14 +363,19 @@ public abstract class CloudNetDriver {
 
     /**
      * @see #getCloudServiceProvider(UUID)
-     * @see SpecificCloudServiceProvider#getCachedLogMessagesFromService(UUID)
-     * @deprecated moved to {@link SpecificCloudServiceProvider#getCachedLogMessagesFromService(UUID)}
+     * @see SpecificCloudServiceProvider#getCachedLogMessages()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#getCachedLogMessages()}
      */
     @Deprecated
     public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
         return this.getCloudServiceProvider(uniqueId).getCachedLogMessages();
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#stop()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#stop()}
+     */
     @Deprecated
     public void stopCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
@@ -378,6 +383,11 @@ public abstract class CloudNetDriver {
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#start()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#start()}
+     */
     @Deprecated
     public void startCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
@@ -385,6 +395,11 @@ public abstract class CloudNetDriver {
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#delete()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#delete()}
+     */
     @Deprecated
     public void deleteCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
@@ -392,6 +407,11 @@ public abstract class CloudNetDriver {
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#setCloudServiceLifeCycle(ServiceLifeCycle)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#setCloudServiceLifeCycle(ServiceLifeCycle)}
+     */
     @Deprecated
     public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
         Validate.checkNotNull(serviceInfoSnapshot);
@@ -399,6 +419,11 @@ public abstract class CloudNetDriver {
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#restart()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#restart()}
+     */
     @Deprecated
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
@@ -406,6 +431,11 @@ public abstract class CloudNetDriver {
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#kill()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#kill()}
+     */
     @Deprecated
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
@@ -413,6 +443,11 @@ public abstract class CloudNetDriver {
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#runCommand(String)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#runCommand(String)}
+     */
     @Deprecated
     public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
         Validate.checkNotNull(serviceInfoSnapshot);
@@ -420,150 +455,295 @@ public abstract class CloudNetDriver {
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#runCommand(String)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#runCommand(String)}
+     */
     @Deprecated
     public ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine) {
         this.getCloudServiceProvider(uniqueId).runCommandAsync(commandLine);
         return this.getCloudServicesAsync(uniqueId);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#addServiceTemplateAsync(ServiceTemplate)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceTemplateAsync(ServiceTemplate)}
+     */
     @Deprecated
     public ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate) {
         this.getCloudServiceProvider(uniqueId).addServiceTemplateAsync(serviceTemplate);
         return this.getCloudServicesAsync(uniqueId);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#addServiceRemoteInclusionAsync(ServiceRemoteInclusion)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceRemoteInclusionAsync(ServiceRemoteInclusion)}
+     */
     @Deprecated
     public ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
         this.getCloudServiceProvider(uniqueId).addServiceRemoteInclusionAsync(serviceRemoteInclusion);
         return this.getCloudServicesAsync(uniqueId);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#addServiceDeploymentAsync(ServiceDeployment)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceDeploymentAsync(ServiceDeployment)}
+     */
     @Deprecated
     public ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(UUID uniqueId, ServiceDeployment serviceDeployment) {
         this.getCloudServiceProvider(uniqueId).addServiceDeploymentAsync(serviceDeployment);
         return this.getCloudServicesAsync(uniqueId);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#getCachedLogMessages()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#getCachedLogMessages()}
+     */
     @Deprecated
     public ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId) {
         return this.getCloudServiceProvider(uniqueId).getCachedLogMessagesAsync();
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#includeWaitingServiceTemplates()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}
+     */
     @Deprecated
     public void includeWaitingServiceTemplates(UUID uniqueId) {
         this.getCloudServiceProvider(uniqueId).includeWaitingServiceTemplates();
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#includeWaitingServiceInclusions()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}
+     */
     @Deprecated
     public void includeWaitingServiceInclusions(UUID uniqueId) {
         this.getCloudServiceProvider(uniqueId).includeWaitingServiceInclusions();
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#deployResources(boolean)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#deployResources(boolean)}
+     */
     @Deprecated
     public void deployResources(UUID uniqueId, boolean removeDeployments) {
         this.getCloudServiceProvider(uniqueId).deployResources(removeDeployments);
     }
 
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#deployResources()
+     * @deprecated moved to {@link SpecificCloudServiceProvider#deployResources()}
+     */
     @Deprecated
     public void deployResources(UUID uniqueId) {
         this.deployResources(uniqueId, true);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesAsUniqueId()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesAsUniqueId()}
+     */
     @Deprecated
     public Collection<UUID> getServicesAsUniqueId() {
         return this.getCloudServiceProvider().getServicesAsUniqueId();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServiceByName(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServiceByName(String)}
+     */
     @Deprecated
     public ServiceInfoSnapshot getCloudServiceByName(String name) {
         return this.getCloudServiceProvider().getCloudServiceByName(name);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServices()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServices()}
+     */
     @Deprecated
     public Collection<ServiceInfoSnapshot> getCloudServices() {
         return this.getCloudServiceProvider().getCloudServices();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getStartedCloudServices()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getStartedCloudServices()}
+     */
     @Deprecated
     public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
         return this.getCloudServiceProvider().getStartedCloudServices();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServices(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServices(String)}
+     */
     @Deprecated
     public Collection<ServiceInfoSnapshot> getCloudService(String taskName) {
         return this.getCloudServiceProvider().getCloudServices(taskName);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServicesByGroup(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesByGroup(String)}
+     */
     @Deprecated
     public Collection<ServiceInfoSnapshot> getCloudServiceByGroup(String group) {
         return this.getCloudServiceProvider().getCloudServicesByGroup(group);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudService(UUID)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudService(UUID)}
+     */
     @Deprecated
     public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
         return this.getCloudServiceProvider().getCloudService(uniqueId);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesCount()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCount()}
+     */
     @Deprecated
     public Integer getServicesCount() {
         return this.getCloudServiceProvider().getServicesCount();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesCountByGroup(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByGroup(String)}
+     */
     @Deprecated
     public Integer getServicesCountByGroup(String group) {
         return this.getCloudServiceProvider().getServicesCountByGroup(group);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesCountByTask(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByTask(String)}
+     */
     @Deprecated
     public Integer getServicesCountByTask(String taskName) {
         return this.getCloudServiceProvider().getServicesCountByTask(taskName);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesAsUniqueIdAsync()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesAsUniqueIdAsync()}
+     */
     @Deprecated
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
         return this.getCloudServiceProvider().getServicesAsUniqueIdAsync();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServiceByNameAsync(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServiceByName(String)}
+     */
     @Deprecated
     public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
         return this.getCloudServiceProvider().getCloudServiceByNameAsync(name);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServicesAsync()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync()}
+     */
     @Deprecated
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
         return this.getCloudServiceProvider().getCloudServicesAsync();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getStartedCloudServicesAsync()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getStartedCloudServicesAsync()}
+     */
     @Deprecated
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
         return this.getCloudServiceProvider().getStartedCloudServicesAsync();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServicesAsync(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(String)}
+     */
     @Deprecated
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
         return this.getCloudServiceProvider().getCloudServicesAsync(taskName);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServicesByGroupAsync(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesByGroupAsync(String)}
+     */
     @Deprecated
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
         return this.getCloudServiceProvider().getCloudServicesByGroupAsync(group);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesCountAsync()
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountAsync()}
+     */
     @Deprecated
     public ITask<Integer> getServicesCountAsync() {
         return this.getCloudServiceProvider().getServicesCountAsync();
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesCountByGroupAsync(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByGroupAsync(String)}
+     */
     @Deprecated
     public ITask<Integer> getServicesCountByGroupAsync(String group) {
         return this.getCloudServiceProvider().getServicesCountByGroupAsync(group);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getServicesCountByTaskAsync(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByTaskAsync(String)}
+     */
     @Deprecated
     public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
         return this.getCloudServiceProvider().getServicesCountByTaskAsync(taskName);
     }
 
+    /**
+     * @see #getCloudServiceProvider()
+     * @see GeneralCloudServiceProvider#getCloudServicesAsync(String)
+     * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(String)}
+     */
     @Deprecated
     public ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId) {
         return this.getCloudServiceProvider().getCloudServiceAsync(uniqueId);
