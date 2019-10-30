@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.service;
+package de.dytanic.cloudnet.service.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
@@ -8,6 +8,8 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.provider.CloudServiceFactory;
+import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.Collection;
 
@@ -39,7 +41,6 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
                     return clusterNodeServer.createCloudService(serviceTask);
                 }
             }
-
         } catch (Exception exception) {
             exception.printStackTrace();
         }

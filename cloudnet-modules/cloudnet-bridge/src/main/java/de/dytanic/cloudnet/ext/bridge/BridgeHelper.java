@@ -113,7 +113,7 @@ public final class BridgeHelper {
 
         // checking if the player is on a proxy managed by CloudNet
         if (cloudPlayer != null && cloudPlayer.getLoginService() != null) {
-            ServiceInfoSnapshot proxyService = Wrapper.getInstance().getCloudService(cloudPlayer.getLoginService().getUniqueId());
+            ServiceInfoSnapshot proxyService = Wrapper.getInstance().getCloudServiceProvider().getCloudService(cloudPlayer.getLoginService().getUniqueId());
             if (proxyService != null) {
                 try {
                     InetAddress proxyAddress = InetAddress.getByName(proxyService.getAddress().getHost());

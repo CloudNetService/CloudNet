@@ -27,6 +27,9 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.provider.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.service.provider.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
@@ -39,6 +42,8 @@ import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
 import de.dytanic.cloudnet.wrapper.service.WrapperCloudServiceFactory;
+import de.dytanic.cloudnet.wrapper.service.WrapperGeneralCloudServiceProvider;
+import de.dytanic.cloudnet.wrapper.service.WrapperSpecificCloudServiceProvider;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -80,6 +85,7 @@ public final class Wrapper extends CloudNetDriver {
     private final List<String> commandLineArguments;
 
     private CloudServiceFactory cloudServiceFactory = new WrapperCloudServiceFactory(this);
+    private GeneralCloudServiceProvider generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
 
     /**
      * CloudNetDriver.getNetworkClient()
@@ -193,6 +199,26 @@ public final class Wrapper extends CloudNetDriver {
         return this.cloudServiceFactory;
     }
 
+    @Override
+    public SpecificCloudServiceProvider getCloudServiceProvider(String name) {
+        return new WrapperSpecificCloudServiceProvider(this, name);
+    }
+
+    @Override
+    public SpecificCloudServiceProvider getCloudServiceProvider(UUID uniqueId) {
+        return new WrapperSpecificCloudServiceProvider(this, uniqueId);
+    }
+
+    @Override
+    public SpecificCloudServiceProvider getCloudServiceProvider(ServiceInfoSnapshot serviceInfoSnapshot) {
+        return new WrapperSpecificCloudServiceProvider(this, serviceInfoSnapshot);
+    }
+
+    @Override
+    public GeneralCloudServiceProvider getCloudServiceProvider() {
+        return this.generalCloudServiceProvider;
+    }
+
     /**
      * Application wrapper implementation of this method. See the full documentation at the
      * CloudNetDriver class.
@@ -276,94 +302,6 @@ public final class Wrapper extends CloudNetDriver {
         this.networkClient.sendPacket(new PacketClientServerChannelMessage(targetServiceTask.getName(), channel, message, data));
     }
 
-    @Override
-    public ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
-
-        try {
-            return this.sendCommandLineToCloudServiceAsync(uniqueId, commandLine).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceTemplate);
-
-        try {
-            return this.addServiceTemplateToCloudServiceAsync(uniqueId, serviceTemplate).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceRemoteInclusion);
-
-        try {
-            return this.addServiceRemoteInclusionToCloudServiceAsync(uniqueId, serviceRemoteInclusion).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceDeployment);
-
-        try {
-            return this.addServiceDeploymentToCloudServiceAsync(uniqueId, serviceDeployment).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        try {
-            return this.getCachedLogMessagesFromServiceAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     /**
      * Application wrapper implementation of this method. See the full documentation at the
      * CloudNetDriver class.
@@ -373,10 +311,7 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
         Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(lifeCycle);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "set_service_life_cycle").append("serviceInfoSnapshot", serviceInfoSnapshot).append("lifeCycle", lifeCycle), null,
-                VOID_FUNCTION);
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
     }
 
     /**
@@ -389,11 +324,7 @@ public final class Wrapper extends CloudNetDriver {
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "restart_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot),
-                null,
-                documentPair -> null
-        );
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
     }
 
     /**
@@ -406,11 +337,7 @@ public final class Wrapper extends CloudNetDriver {
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot),
-                null,
-                documentPair -> null
-        );
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
     }
 
     /**
@@ -422,186 +349,8 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
         Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(command);
 
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot)
-                        .append("command", command),
-                null,
-                documentPair -> null
-        );
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<UUID> getServicesAsUniqueId() {
-        try {
-            return this.getServicesAsUniqueIdAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot getCloudServiceByName(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.getCloudServiceByNameAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices() {
-        try {
-            return this.getCloudServicesAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
-        try {
-            return this.getStartedCloudServiceInfoSnapshotsAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceInfoSnapshot> getCloudService(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        try {
-            return this.getCloudServicesAsync(taskName).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceInfoSnapshot> getCloudServiceByGroup(String group) {
-        Validate.checkNotNull(group);
-
-        try {
-            return this.getCloudServicesByGroupAsync(group).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        try {
-            return this.getCloudServicesAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Integer getServicesCount() {
-        try {
-            return this.getServicesCountAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Integer getServicesCountByGroup(String group) {
-        Validate.checkNotNull(group);
-
-        try {
-            return this.getServicesCountByGroupAsync(group).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Integer getServicesCountByTask(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        try {
-            return this.getServicesCountByTaskAsync(taskName).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        return null;
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
     }
 
     /**
@@ -1274,293 +1023,6 @@ public final class Wrapper extends CloudNetDriver {
                         .append("nodeUniqueId", nodeUniqueId)
                         .append("commandLine", commandLine), null,
                 documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_to_cloud_service")
-                        .append("uniqueId", uniqueId)
-                        .append("commandLine", commandLine), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceTemplate);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_template_to_cloud_service")
-                        .append("uniqueId", uniqueId)
-                        .append("serviceTemplate", serviceTemplate), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceRemoteInclusion);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_remote_inclusion_to_cloud_service")
-                        .append("uniqueId", uniqueId)
-                        .append("serviceRemoteInclusion", serviceRemoteInclusion), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(UUID uniqueId, ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceDeployment);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_deployment_to_cloud_service")
-                        .append("uniqueId", uniqueId)
-                        .append("serviceDeployment", serviceDeployment), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service")
-                        .append("uniqueId", uniqueId), null,
-                documentPair -> documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void includeWaitingServiceTemplates(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_templates").append("uniqueId", uniqueId), null,
-                VOID_FUNCTION);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void includeWaitingServiceInclusions(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_inclusions").append("uniqueId", uniqueId), null,
-                VOID_FUNCTION);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public void deployResources(UUID uniqueId, boolean removeDeployments) {
-        Validate.checkNotNull(uniqueId);
-
-        sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
-                        .append("uniqueId", uniqueId).append("removeDeployments", removeDeployments), null,
-                VOID_FUNCTION);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_as_uuid"), null,
-                documentPair -> documentPair.getFirst().get("serviceUniqueIds", new TypeToken<Collection<UUID>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudService_by_name").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos"), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_started"), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_taskName").append("taskName", taskName), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
-        Validate.checkNotNull(group);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_group").append("group", group), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Integer> getServicesCountAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count"), null,
-                documentPair -> documentPair.getFirst().getInt("servicesCount"));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Integer> getServicesCountByGroupAsync(String group) {
-        Validate.checkNotNull(group);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_group").append("group", group), null,
-                documentPair -> documentPair.getFirst().getInt("servicesCount"));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_task").append("taskName", taskName), null,
-                documentPair -> documentPair.getFirst().getInt("servicesCount"));
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_uniqueId").append("uniqueId", uniqueId), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                 }.getType()));
     }
 

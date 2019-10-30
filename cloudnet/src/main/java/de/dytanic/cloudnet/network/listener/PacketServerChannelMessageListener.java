@@ -21,7 +21,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
             if (packet.getHeader().contains("uniqueId")) { //this is sent by both the nodes and services
                 UUID uniqueId = packet.getHeader().get("uniqueId", UUID.class);
                 if (uniqueId != null) {
-                    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudService(uniqueId);
+                    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider().getCloudService(uniqueId);
                     if (serviceInfoSnapshot != null) {
                         CloudNet.getInstance().sendChannelMessage(
                                 serviceInfoSnapshot,

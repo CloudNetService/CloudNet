@@ -40,7 +40,7 @@ public final class CommandPaste extends Command {
         if (serviceInfoSnapshot != null) {
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                  PrintWriter printWriter = new PrintWriter(byteArrayOutputStream, true)) {
-                for (String line : CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId())) {
+                for (String line : CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages()) {
                     printWriter.println(line);
                 }
 
@@ -64,10 +64,10 @@ public final class CommandPaste extends Command {
     private ServiceInfoSnapshot getServiceInfoSnapshot(String argument) {
         Validate.checkNotNull(argument);
 
-        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot13 -> serviceInfoSnapshot13.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()));
+        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot13 -> serviceInfoSnapshot13.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()));
 
         if (serviceInfoSnapshot == null) {
-            List<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()));
+            List<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()));
 
             if (!serviceInfoSnapshots.isEmpty()) {
                 if (serviceInfoSnapshots.size() > 1) {

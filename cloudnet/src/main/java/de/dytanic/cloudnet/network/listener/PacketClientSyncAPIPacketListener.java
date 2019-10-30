@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -28,11 +29,7 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 packet.getHeader().getString(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY).equals("cloudnet_driver_sync_api")) {
             switch (packet.getHeader().getString(PacketConstants.SYNC_PACKET_ID_PROPERTY)) {
                 case "set_service_life_cycle":
-                    getCloudNet().setCloudServiceLifeCycle(
-                            packet.getHeader().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                            }.getType()),
-                            packet.getHeader().get("lifeCycle", ServiceLifeCycle.class)
-                    );
+                    this.getCloudServiceProvider(packet.getHeader()).setCloudServiceLifeCycle(packet.getHeader().get("lifeCycle", ServiceLifeCycle.class));
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                     break;
                 case "add_permanent_service_task":
@@ -105,98 +102,78 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "get_cloudServiceInfos": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshots", getCloudNet().getCloudServices()
-                            ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceInfoSnapshots", getCloudNet().getCloudServiceProvider().getCloudServices()));
                 }
                 break;
                 case "get_cloudServiceInfos_started": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshots", getCloudNet().getStartedCloudServices()
-                            ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceInfoSnapshots", getCloudNet().getCloudServiceProvider().getStartedCloudServices()));
                 }
                 break;
                 case "get_cloudServiceInfos_by_taskName": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshots", getCloudNet().getCloudService(packet.getHeader().getString("taskName"))
+                            new JsonDocument("serviceInfoSnapshots", getCloudNet().getCloudServiceProvider().getCloudServices(packet.getHeader().getString("taskName"))
                             ));
                 }
                 break;
                 case "get_cloudServiceInfos_by_group": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshots", getCloudNet().getCloudServiceByGroup(packet.getHeader().getString("group"))),
+                            new JsonDocument("serviceInfoSnapshots", getCloudNet().getCloudServiceProvider().getCloudServicesByGroup(packet.getHeader().getString("group"))),
                             null);
                 }
                 break;
                 case "get_cloudServiceInfos_by_uniqueId": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshot", getCloudNet().getCloudService(packet.getHeader().get("uniqueId", UUID.class))
-                            ));
+                            new JsonDocument("serviceInfoSnapshot", getCloudNet().getCloudServiceProvider().getCloudService(packet.getHeader().get("uniqueId", UUID.class))));
                 }
                 break;
                 case "get_permanent_serviceTasks": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceTasks", getCloudNet().getPermanentServiceTasks()
-                            ));
+                            new JsonDocument("serviceTasks", getCloudNet().getPermanentServiceTasks()));
                 }
                 break;
                 case "get_service_task": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceTask", getCloudNet().getServiceTask(packet.getHeader().getString("name"))
-                            ));
+                            new JsonDocument("serviceTask", getCloudNet().getServiceTask(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "is_service_task_present": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("result", getCloudNet().isServiceTaskPresent(packet.getHeader().getString("name"))
-                            ));
+                            new JsonDocument("result", getCloudNet().isServiceTaskPresent(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "get_groupConfigurations": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("groupConfigurations", getCloudNet().getGroupConfigurations()
-                            ));
+                            new JsonDocument("groupConfigurations", getCloudNet().getGroupConfigurations()));
                 }
                 break;
                 case "get_group_configuration": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("groupConfiguration", getCloudNet().getGroupConfiguration(packet.getHeader().getString("name"))
-                            ));
+                            new JsonDocument("groupConfiguration", getCloudNet().getGroupConfiguration(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "is_group_configuration_present": {
                     sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("result", getCloudNet().isGroupConfigurationPresent(packet.getHeader().getString("name"))
-                            ));
+                            new JsonDocument("result", getCloudNet().isGroupConfigurationPresent(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "get_nodes": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("nodes", getCloudNet().getNodes()
-                            ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("nodes", getCloudNet().getNodes()));
                 }
                 break;
                 case "get_node_by_uniqueId": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("clusterNode", getCloudNet().getNode(packet.getHeader().getString("uniqueId"))
-                            ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("clusterNode", getCloudNet().getNode(packet.getHeader().getString("uniqueId"))));
                 }
                 break;
                 case "get_node_info_snapshots": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("nodeInfoSnapshots", getCloudNet().getNodeInfoSnapshots()
-                            ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("nodeInfoSnapshots", getCloudNet().getNodeInfoSnapshots()));
                 }
                 break;
                 case "get_node_info_snapshot_by_uniqueId": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("clusterNodeInfoSnapshot", getCloudNet().getNodeInfoSnapshot(packet.getHeader().getString("uniqueId"))
-                            ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("clusterNodeInfoSnapshot", getCloudNet().getNodeInfoSnapshot(packet.getHeader().getString("uniqueId"))));
                 }
                 break;
                 case "restart_cloud_service": {
-                    getCloudNet().restartCloudService(packet.getHeader().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                    }.getType()));
+                    this.getCloudServiceProvider(packet.getHeader()).restart();
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
@@ -259,85 +236,63 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "send_commandline_to_cloud_service": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshot", getCloudNet().sendCommandLineToCloudService(
-                                    packet.getHeader().get("uniqueId", UUID.class),
-                                    packet.getHeader().getString("commandLine")
-                            )),
-                            null);
+                    this.getCloudServiceProvider(packet.getHeader())
+                            .runCommand(packet.getHeader().getString("commandLine"));
                 }
                 break;
                 case "add_service_template_to_cloud_service": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshot", getCloudNet().addServiceTemplateToCloudService(
-                                    packet.getHeader().get("uniqueId", UUID.class),
-                                    packet.getHeader().get("serviceTemplate", new TypeToken<ServiceTemplate>() {
-                                    }.getType())
-                            )),
-                            null
-                    );
+                    this.getCloudServiceProvider(packet.getHeader())
+                            .addServiceRemoteInclusion(packet.getHeader().get("serviceTemplate", new TypeToken<ServiceTemplate>() {
+                            }.getType()));
+                    sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "add_service_remote_inclusion_to_cloud_service": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshot", getCloudNet().addServiceRemoteInclusionToCloudService(
-                                    packet.getHeader().get("uniqueId", UUID.class),
-                                    packet.getHeader().get("serviceRemoteInclusion", new TypeToken<ServiceRemoteInclusion>() {
-                                    }.getType())
-                            )),
-                            null
-                    );
+                    this.getCloudServiceProvider(packet.getHeader())
+                            .addServiceRemoteInclusion(packet.getHeader().get("serviceRemoteInclusion", new TypeToken<ServiceRemoteInclusion>() {
+                            }.getType()));
+                    sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "add_service_deployment_to_cloud_service": {
-                    sendResponse(channel, packet.getUniqueId(),
-                            new JsonDocument("serviceInfoSnapshot", getCloudNet().addServiceDeploymentToCloudService(
-                                    packet.getHeader().get("uniqueId", UUID.class),
-                                    packet.getHeader().get("serviceDeployment", new TypeToken<ServiceDeployment>() {
-                                    }.getType())
-                            )),
-                            null
-                    );
+                    this.getCloudServiceProvider(packet.getHeader())
+                            .addServiceDeployment(packet.getHeader().get("serviceDeployment", new TypeToken<ServiceDeployment>() {
+                            }.getType()));
+                    sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "include_all_waiting_service_templates": {
-                    getCloudNet().includeWaitingServiceTemplates(packet.getHeader().get("uniqueId", UUID.class));
+                    this.getCloudServiceProvider(packet.getHeader()).includeWaitingServiceTemplates();
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "include_all_waiting_service_inclusions": {
-                    getCloudNet().includeWaitingServiceInclusions(packet.getHeader().get("uniqueId", UUID.class));
+                    this.getCloudServiceProvider(packet.getHeader()).includeWaitingServiceInclusions();
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "deploy_resources_from_service": {
-                    getCloudNet().deployResources(
-                            packet.getHeader().get("uniqueId", UUID.class),
-                            packet.getHeader().getBoolean("removeDeployments", true));
+                    this.getCloudServiceProvider(packet.getHeader()).deployResources(packet.getHeader().getBoolean("removeDeployments", true));
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "get_services_as_uuid": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceUniqueIds",
-                            getCloudNet().getServicesAsUniqueId()
-                    ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceUniqueIds", getCloudNet().getCloudServiceProvider().getServicesAsUniqueId()));
                 }
                 break;
                 case "get_services_count": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("servicesCount",
-                            getCloudNet().getServicesCount()
-                    ));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("servicesCount", getCloudNet().getCloudServiceProvider().getServicesCount()));
                 }
                 break;
                 case "get_services_count_by_group": {
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("servicesCount",
-                            getCloudNet().getServicesCountByGroup(packet.getHeader().getString("group"))
+                            getCloudNet().getCloudServiceProvider().getServicesCountByGroup(packet.getHeader().getString("group"))
                     ));
                 }
                 break;
                 case "get_services_count_by_task": {
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("servicesCount",
-                            getCloudNet().getServicesCountByTask(packet.getHeader().getString("taskName"))
+                            getCloudNet().getCloudServiceProvider().getServicesCountByTask(packet.getHeader().getString("taskName"))
                     ));
                 }
                 break;
@@ -349,24 +304,19 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "kill_cloud_service": {
-                    CloudNetDriver.getInstance().killCloudService(packet.getHeader().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                    }.getType()));
+                    this.getCloudServiceProvider(packet.getHeader()).kill();
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "run_command_cloud_service": {
-                    CloudNetDriver.getInstance().runCommand(
-                            packet.getHeader().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                            }.getType()),
-                            packet.getHeader().getString("command")
-                    );
+                    this.getCloudServiceProvider(packet.getHeader()).runCommand(packet.getHeader().getString("command"));
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "get_cached_log_messages_from_service": {
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument(
                             "cachedLogMessages",
-                            getCloudNet().getCachedLogMessagesFromService(packet.getHeader().get("uniqueId", UUID.class))
+                            this.getCloudServiceProvider(packet.getHeader()).getCachedLogMessages()
                     ));
                 }
                 break;
@@ -479,7 +429,7 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 break;
                 case "get_cloudService_by_name": {
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceInfoSnapshot",
-                            getCloudNet().getCloudServiceByName(packet.getHeader().getString("name"))));
+                            getCloudNet().getCloudServiceProvider().getCloudServiceByName(packet.getHeader().getString("name"))));
                 }
                 break;
                 default:
@@ -491,6 +441,16 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
 
     private CloudNet getCloudNet() {
         return CloudNet.getInstance();
+    }
+
+    private SpecificCloudServiceProvider getCloudServiceProvider(JsonDocument header) {
+        if (header.contains("uniqueId")) {
+            return this.getCloudNet().getCloudServiceProvider(header.get("uniqueId", UUID.class));
+        }
+        if (header.contains("name")) {
+            return this.getCloudNet().getCloudServiceProvider(header.getString("name"));
+        }
+        throw new IllegalArgumentException("No name or uniqueId provided by the client");
     }
 
     private void sendResponse(INetworkChannel channel, UUID uniqueId, JsonDocument header) {

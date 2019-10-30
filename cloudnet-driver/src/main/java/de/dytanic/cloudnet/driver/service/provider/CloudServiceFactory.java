@@ -1,7 +1,8 @@
-package de.dytanic.cloudnet.driver.service;
+package de.dytanic.cloudnet.driver.service.provider;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.Collection;
 

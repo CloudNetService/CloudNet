@@ -54,6 +54,9 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.provider.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.service.provider.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -74,7 +77,9 @@ import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
-import de.dytanic.cloudnet.service.NodeCloudServiceFactory;
+import de.dytanic.cloudnet.service.provider.NodeCloudServiceFactory;
+import de.dytanic.cloudnet.service.provider.NodeGeneralCloudServiceProvider;
+import de.dytanic.cloudnet.service.provider.NodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
@@ -131,6 +136,7 @@ public final class CloudNet extends CloudNetDriver {
     private IPermissionManagement permissionManagement;
 
     private CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
+    private GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
 
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
@@ -327,6 +333,26 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    public SpecificCloudServiceProvider getCloudServiceProvider(String name) {
+        return new NodeSpecificCloudServiceProvider(this, name);
+    }
+
+    @Override
+    public SpecificCloudServiceProvider getCloudServiceProvider(UUID uniqueId) {
+        return new NodeSpecificCloudServiceProvider(this, uniqueId);
+    }
+
+    @Override
+    public SpecificCloudServiceProvider getCloudServiceProvider(ServiceInfoSnapshot serviceInfoSnapshot) {
+        return new NodeSpecificCloudServiceProvider(this, serviceInfoSnapshot);
+    }
+
+    @Override
+    public GeneralCloudServiceProvider getCloudServiceProvider() {
+        return this.generalCloudServiceProvider;
+    }
+
+    @Override
     public String[] sendCommandLine(String commandLine) {
         Validate.checkNotNull(commandLine);
 
@@ -401,335 +427,9 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudService(targetServiceTask.getName())) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudServiceProvider().getCloudServices(targetServiceTask.getName())) {
             this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
         }
-    }
-
-    @Override
-    public ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return null;
-        }
-
-        ICloudService cloudService = cloudServiceManager.getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            cloudService.runCommand(commandLine);
-            return cloudService.getServiceInfoSnapshot();
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = this.getCloudServiceManager().getServiceInfoSnapshot(uniqueId);
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.sendCommandLineToCloudService(uniqueId, commandLine);
-        }
-
-        return null;
-    }
-
-    @Override
-    public ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceTemplate);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return null;
-        }
-
-        ICloudService cloudService = cloudServiceManager.getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            cloudService.getWaitingTemplates().offer(serviceTemplate);
-            return cloudService.getServiceInfoSnapshot();
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = this.getCloudServiceManager().getServiceInfoSnapshot(uniqueId);
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.addServiceTemplateToCloudService(uniqueId, serviceTemplate);
-        }
-
-        return null;
-    }
-
-    @Override
-    public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceRemoteInclusion);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return null;
-        }
-
-        ICloudService cloudService = cloudServiceManager.getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            cloudService.getWaitingIncludes().offer(serviceRemoteInclusion);
-            return cloudService.getServiceInfoSnapshot();
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = this.getCloudServiceManager().getServiceInfoSnapshot(uniqueId);
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.addServiceRemoteInclusionToCloudService(uniqueId, serviceRemoteInclusion);
-        }
-
-        return null;
-    }
-
-    @Override
-    public ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceDeployment);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return null;
-        }
-
-        ICloudService cloudService = cloudServiceManager.getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            cloudService.getDeployments().add(serviceDeployment);
-            return cloudService.getServiceInfoSnapshot();
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = this.getCloudServiceManager().getServiceInfoSnapshot(uniqueId);
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.addServiceDeploymentToCloudService(uniqueId, serviceDeployment);
-        }
-
-        return null;
-    }
-
-    @Override
-    public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return null;
-        }
-
-        ICloudService cloudService = cloudServiceManager.getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            return cloudService.getServiceConsoleLogCache().getCachedLogMessages();
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = this.getCloudServiceManager().getServiceInfoSnapshot(uniqueId);
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.getCachedLogMessagesFromService(uniqueId);
-        }
-
-        return null;
-    }
-
-    @Override
-    public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(lifeCycle);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(serviceInfoSnapshot.getServiceId().getUniqueId())) {
-            return;
-        }
-
-        ICloudService cloudService = this.cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
-        if (cloudService != null) {
-            switch (lifeCycle) {
-                case RUNNING:
-                    try {
-                        cloudService.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case STOPPED:
-                    scheduleTask((Callable<Void>) () -> {
-                        cloudService.stop();
-                        return null;
-                    });
-                    break;
-                case DELETED:
-                    scheduleTask((Callable<Void>) () -> {
-                        cloudService.delete();
-                        return null;
-                    });
-                    break;
-            }
-        } else {
-            IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-            if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-                clusterNodeServer.setCloudServiceLifeCycle(serviceInfoSnapshot, lifeCycle);
-            }
-        }
-    }
-
-    @Override
-    public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(serviceInfoSnapshot.getServiceId().getUniqueId())) {
-            return;
-        }
-
-        ICloudService cloudService = this.getCloudServiceManager().getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
-
-        if (cloudService != null) {
-            try {
-                cloudService.restart();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return;
-        }
-
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            clusterNodeServer.restartCloudService(serviceInfoSnapshot);
-        }
-    }
-
-    @Override
-    public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(serviceInfoSnapshot.getServiceId().getUniqueId())) {
-            return;
-        }
-
-        ICloudService cloudService = this.getCloudServiceManager().getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
-
-        if (cloudService != null) {
-            try {
-                cloudService.kill();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return;
-        }
-
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            clusterNodeServer.killCloudService(serviceInfoSnapshot);
-        }
-    }
-
-    @Override
-    public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(serviceInfoSnapshot.getServiceId().getUniqueId())) {
-            return;
-        }
-
-        ICloudService cloudService = this.getCloudServiceManager().getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
-
-        if (cloudService != null) {
-            try {
-                cloudService.runCommand(command);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return;
-        }
-
-        IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            clusterNodeServer.runCommand(serviceInfoSnapshot, command);
-        }
-    }
-
-    @Override
-    public Collection<UUID> getServicesAsUniqueId() {
-        return Collections.unmodifiableCollection(this.cloudServiceManager.getGlobalServiceInfoSnapshots().keySet());
-    }
-
-    @Override
-    public ServiceInfoSnapshot getCloudServiceByName(String name) {
-        return this.cloudServiceManager.getGlobalServiceInfoSnapshots().values().stream()
-                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices() {
-        return this.cloudServiceManager.getServiceInfoSnapshots();
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
-        return Iterables.filter(this.getCloudServices(), serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING);
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getCloudService(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        return this.cloudServiceManager.getServiceInfoSnapshots(taskName);
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getCloudServiceByGroup(String group) {
-        Validate.checkNotNull(group);
-
-        return Iterables.filter(this.cloudServiceManager.getGlobalServiceInfoSnapshots().values(), serviceInfoSnapshot -> Iterables.contains(group, serviceInfoSnapshot.getConfiguration().getGroups()));
-    }
-
-    @Override
-    public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return this.cloudServiceManager.getServiceInfoSnapshot(uniqueId);
-    }
-
-    @Override
-    public Integer getServicesCount() {
-        return this.getCloudServiceManager().getGlobalServiceInfoSnapshots().size();
-    }
-
-    @Override
-    public Integer getServicesCountByGroup(String group) {
-        Validate.checkNotNull(group);
-
-        int amount = 0;
-
-        for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudServiceManager().getGlobalServiceInfoSnapshots().values()) {
-            if (Iterables.contains(group, serviceInfoSnapshot.getConfiguration().getGroups())) {
-                amount++;
-            }
-        }
-
-        return amount;
-    }
-
-    @Override
-    public Integer getServicesCountByTask(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        int amount = 0;
-
-        for (ServiceInfoSnapshot serviceInfoSnapshot : this.getCloudServiceManager().getGlobalServiceInfoSnapshots().values()) {
-            if (serviceInfoSnapshot.getServiceId().getTaskName().equals(taskName)) {
-                amount++;
-            }
-        }
-
-        return amount;
     }
 
     @Override
@@ -1043,183 +743,6 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
         return scheduleTask(() -> CloudNet.this.sendCommandLine(nodeUniqueId, commandLine));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
-
-        return scheduleTask(() -> CloudNet.this.sendCommandLineToCloudService(uniqueId, commandLine));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceTemplate);
-
-        return scheduleTask(() -> CloudNet.this.addServiceTemplateToCloudService(uniqueId, serviceTemplate));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceRemoteInclusion);
-
-        return scheduleTask(() -> CloudNet.this.addServiceRemoteInclusionToCloudService(uniqueId, serviceRemoteInclusion));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(UUID uniqueId, ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceDeployment);
-
-        return scheduleTask(() -> CloudNet.this.addServiceDeploymentToCloudService(uniqueId, serviceDeployment));
-    }
-
-    @Override
-    public ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return scheduleTask(() -> CloudNet.this.getCachedLogMessagesFromService(uniqueId));
-    }
-
-    @Override
-    public void includeWaitingServiceTemplates(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return;
-        }
-
-        ICloudService cloudService = getCloudServiceManager().getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            cloudService.includeTemplates();
-            return;
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = getCloudServiceManager().getGlobalServiceInfoSnapshots().get(uniqueId);
-
-        if (serviceInfoSnapshot != null) {
-            IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-            if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-                clusterNodeServer.includeWaitingServiceTemplates(uniqueId);
-            }
-        }
-    }
-
-    @Override
-    public void includeWaitingServiceInclusions(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return;
-        }
-
-        ICloudService cloudService = getCloudServiceManager().getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            cloudService.includeInclusions();
-            return;
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = getCloudServiceManager().getGlobalServiceInfoSnapshots().get(uniqueId);
-
-        if (serviceInfoSnapshot != null) {
-            IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-            if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-                clusterNodeServer.includeWaitingServiceInclusions(uniqueId);
-            }
-        }
-    }
-
-    @Override
-    public void deployResources(UUID uniqueId, boolean removeDeployments) {
-        Validate.checkNotNull(uniqueId);
-
-        if (!getCloudServiceManager().getGlobalServiceInfoSnapshots().containsKey(uniqueId)) {
-            return;
-        }
-
-        ICloudService cloudService = getCloudServiceManager().getCloudService(uniqueId);
-
-        if (cloudService != null) {
-            cloudService.deployResources(removeDeployments);
-            return;
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = getCloudServiceManager().getGlobalServiceInfoSnapshots().get(uniqueId);
-
-        if (serviceInfoSnapshot != null) {
-            IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-
-            if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-                clusterNodeServer.deployResources(uniqueId);
-            }
-        }
-    }
-
-    @Override
-    public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-        return scheduleTask(CloudNet.this::getServicesAsUniqueId);
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
-        return scheduleTask(() -> CloudNet.this.getCloudServiceByName(name));
-    }
-
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-        return scheduleTask(CloudNet.this::getCloudServices);
-    }
-
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
-        return scheduleTask(CloudNet.this::getStartedCloudServices);
-    }
-
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        return scheduleTask(() -> CloudNet.this.getCloudService(taskName));
-    }
-
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
-        Validate.checkNotNull(group);
-
-        return scheduleTask(() -> CloudNet.this.getCloudServiceByGroup(group));
-    }
-
-    @Override
-    public ITask<Integer> getServicesCountAsync() {
-        return scheduleTask(CloudNet.this::getServicesCount);
-    }
-
-    @Override
-    public ITask<Integer> getServicesCountByGroupAsync(String group) {
-        Validate.checkNotNull(group);
-
-        return scheduleTask(() -> CloudNet.this.getServicesCountByGroup(group));
-    }
-
-    @Override
-    public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
-        Validate.checkNotNull(taskName);
-
-        return scheduleTask(() -> CloudNet.this.getServicesCountByTask(taskName));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return scheduleTask(() -> CloudNet.this.getCloudService(uniqueId));
     }
 
     @Override

@@ -22,6 +22,9 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.provider.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.service.provider.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
 
 import java.util.Collection;
 import java.util.List;
@@ -63,6 +66,36 @@ public abstract class CloudNetDriver {
 
     public abstract CloudServiceFactory getCloudServiceFactory();
 
+    /**
+     * Returns a new service specific CloudServiceProvider
+     *
+     * @param name the name of the service
+     * @return the new instance of the {@link SpecificCloudServiceProvider}
+     */
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(String name);
+
+    /**
+     * Returns a new service specific CloudServiceProvider
+     *
+     * @param uniqueId the uniqueId of the service
+     * @return the new instance of the {@link SpecificCloudServiceProvider}
+     */
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(UUID uniqueId);
+
+    /**
+     * Returns a new service specific CloudServiceProvider
+     *
+     * @param serviceInfoSnapshot the info of the service to create a provider for
+     * @return the new instance of the {@link SpecificCloudServiceProvider}
+     */
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(ServiceInfoSnapshot serviceInfoSnapshot);
+
+    /**
+     * Returns the general CloudServiceProvider
+     * @return the instance of the {@link GeneralCloudServiceProvider}
+     */
+    public abstract GeneralCloudServiceProvider getCloudServiceProvider();
+
     public abstract INetworkClient getNetworkClient();
 
     public abstract Collection<CommandInfo> getConsoleCommands();
@@ -82,7 +115,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudService(ServiceTask)
-     * @deprecated use {@link CloudServiceFactory#createCloudService(ServiceTask)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudService(ServiceTask)}
      */
     @Deprecated
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
@@ -92,7 +125,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudService(ServiceConfiguration)
-     * @deprecated use {@link CloudServiceFactory#createCloudService(ServiceConfiguration)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudService(ServiceConfiguration)}
      */
     @Deprecated
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
@@ -102,7 +135,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
     public ServiceInfoSnapshot createCloudService(String name,
@@ -121,7 +154,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}  instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} 
      */
     @Deprecated
     public ServiceInfoSnapshot createCloudService(String name,
@@ -141,7 +174,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
@@ -162,7 +195,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
@@ -184,7 +217,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudServiceAsync(ServiceTask)
-     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(ServiceTask)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(ServiceTask)}
      */
     @Deprecated
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
@@ -194,7 +227,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)
-     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)}
      */
     @Deprecated
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
@@ -204,7 +237,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
@@ -223,7 +256,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
@@ -243,7 +276,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
@@ -264,7 +297,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
-     * @deprecated use {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} instead
+     * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
@@ -283,61 +316,258 @@ public abstract class CloudNetDriver {
         return this.getCloudServiceFactory().createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
     }
 
-    public abstract ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine);
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#runCommand(String)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#runCommand(String)}
+     */
+    @Deprecated
+    public ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine) {
+        SpecificCloudServiceProvider cloudServiceProvider = this.getCloudServiceProvider(uniqueId);
+        cloudServiceProvider.runCommand(commandLine);
+        return cloudServiceProvider.getServiceInfoSnapshot();
+    }
 
-    public abstract ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate);
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#addServiceTemplateToCloudService(UUID, ServiceTemplate)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceTemplateToCloudService(UUID, ServiceTemplate)}
+     */
+    @Deprecated
+    public ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate) {
+        this.getCloudServiceProvider(uniqueId).addServiceTemplate(serviceTemplate);
+        return this.getCloudService(uniqueId);
+    }
 
-    public abstract ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion);
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#addServiceRemoteInclusionToCloudService(UUID, ServiceRemoteInclusion)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceRemoteInclusionToCloudService(UUID, ServiceRemoteInclusion)}
+     */
+    @Deprecated
+    public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
+        this.getCloudServiceProvider(uniqueId).addServiceRemoteInclusion(serviceRemoteInclusion);
+        return this.getCloudService(uniqueId);
+    }
 
-    public abstract ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment);
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#addServiceDeploymentToCloudService(UUID, ServiceDeployment)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceDeploymentToCloudService(UUID, ServiceDeployment)}
+     */
+    @Deprecated
+    public ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment) {
+        this.getCloudServiceProvider(uniqueId).addServiceDeployment(serviceDeployment);
+        return this.getCloudService(uniqueId);
+    }
 
-    public abstract Queue<String> getCachedLogMessagesFromService(UUID uniqueId);
+    /**
+     * @see #getCloudServiceProvider(UUID)
+     * @see SpecificCloudServiceProvider#getCachedLogMessagesFromService(UUID)
+     * @deprecated moved to {@link SpecificCloudServiceProvider#getCachedLogMessagesFromService(UUID)}
+     */
+    @Deprecated
+    public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
+        return this.getCloudServiceProvider(uniqueId).getCachedLogMessages();
+    }
 
+    @Deprecated
     public void stopCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
     }
 
+    @Deprecated
     public void startCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
     }
 
+    @Deprecated
     public void deleteCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
     }
 
-    public abstract void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle);
+    @Deprecated
+    public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
+        Validate.checkNotNull(serviceInfoSnapshot);
 
-    public abstract void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot);
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
+    }
 
-    public abstract void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot);
+    @Deprecated
+    public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
+        Validate.checkNotNull(serviceInfoSnapshot);
 
-    public abstract void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command);
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
+    }
 
-    public abstract Collection<UUID> getServicesAsUniqueId();
+    @Deprecated
+    public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
+        Validate.checkNotNull(serviceInfoSnapshot);
 
-    public abstract ServiceInfoSnapshot getCloudServiceByName(String name);
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
+    }
 
-    public abstract Collection<ServiceInfoSnapshot> getCloudServices();
+    @Deprecated
+    public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
+        Validate.checkNotNull(serviceInfoSnapshot);
 
-    public abstract Collection<ServiceInfoSnapshot> getStartedCloudServices();
+        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
+    }
 
-    public abstract Collection<ServiceInfoSnapshot> getCloudService(String taskName);
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine) {
+        this.getCloudServiceProvider(uniqueId).runCommandAsync(commandLine);
+        return this.getCloudServicesAsync(uniqueId);
+    }
 
-    public abstract Collection<ServiceInfoSnapshot> getCloudServiceByGroup(String group);
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate) {
+        this.getCloudServiceProvider(uniqueId).addServiceTemplateAsync(serviceTemplate);
+        return this.getCloudServicesAsync(uniqueId);
+    }
 
-    public abstract ServiceInfoSnapshot getCloudService(UUID uniqueId);
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
+        this.getCloudServiceProvider(uniqueId).addServiceRemoteInclusionAsync(serviceRemoteInclusion);
+        return this.getCloudServicesAsync(uniqueId);
+    }
 
-    public abstract Integer getServicesCount();
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(UUID uniqueId, ServiceDeployment serviceDeployment) {
+        this.getCloudServiceProvider(uniqueId).addServiceDeploymentAsync(serviceDeployment);
+        return this.getCloudServicesAsync(uniqueId);
+    }
 
-    public abstract Integer getServicesCountByGroup(String group);
+    @Deprecated
+    public ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId) {
+        return this.getCloudServiceProvider(uniqueId).getCachedLogMessagesAsync();
+    }
 
-    public abstract Integer getServicesCountByTask(String taskName);
+    @Deprecated
+    public void includeWaitingServiceTemplates(UUID uniqueId) {
+        this.getCloudServiceProvider(uniqueId).includeWaitingServiceTemplates();
+    }
+
+    @Deprecated
+    public void includeWaitingServiceInclusions(UUID uniqueId) {
+        this.getCloudServiceProvider(uniqueId).includeWaitingServiceInclusions();
+    }
+
+    @Deprecated
+    public void deployResources(UUID uniqueId, boolean removeDeployments) {
+        this.getCloudServiceProvider(uniqueId).deployResources(removeDeployments);
+    }
+
+    @Deprecated
+    public void deployResources(UUID uniqueId) {
+        this.deployResources(uniqueId, true);
+    }
+
+    @Deprecated
+    public Collection<UUID> getServicesAsUniqueId() {
+        return this.getCloudServiceProvider().getServicesAsUniqueId();
+    }
+
+    @Deprecated
+    public ServiceInfoSnapshot getCloudServiceByName(String name) {
+        return this.getCloudServiceProvider().getCloudServiceByName(name);
+    }
+
+    @Deprecated
+    public Collection<ServiceInfoSnapshot> getCloudServices() {
+        return this.getCloudServiceProvider().getCloudServices();
+    }
+
+    @Deprecated
+    public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
+        return this.getCloudServiceProvider().getStartedCloudServices();
+    }
+
+    @Deprecated
+    public Collection<ServiceInfoSnapshot> getCloudService(String taskName) {
+        return this.getCloudServiceProvider().getCloudServices(taskName);
+    }
+
+    @Deprecated
+    public Collection<ServiceInfoSnapshot> getCloudServiceByGroup(String group) {
+        return this.getCloudServiceProvider().getCloudServicesByGroup(group);
+    }
+
+    @Deprecated
+    public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
+        return this.getCloudServiceProvider().getCloudService(uniqueId);
+    }
+
+    @Deprecated
+    public Integer getServicesCount() {
+        return this.getCloudServiceProvider().getServicesCount();
+    }
+
+    @Deprecated
+    public Integer getServicesCountByGroup(String group) {
+        return this.getCloudServiceProvider().getServicesCountByGroup(group);
+    }
+
+    @Deprecated
+    public Integer getServicesCountByTask(String taskName) {
+        return this.getCloudServiceProvider().getServicesCountByTask(taskName);
+    }
+
+    @Deprecated
+    public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
+        return this.getCloudServiceProvider().getServicesAsUniqueIdAsync();
+    }
+
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
+        return this.getCloudServiceProvider().getCloudServiceByNameAsync(name);
+    }
+
+    @Deprecated
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
+        return this.getCloudServiceProvider().getCloudServicesAsync();
+    }
+
+    @Deprecated
+    public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
+        return this.getCloudServiceProvider().getStartedCloudServicesAsync();
+    }
+
+    @Deprecated
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
+        return this.getCloudServiceProvider().getCloudServicesAsync(taskName);
+    }
+
+    @Deprecated
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
+        return this.getCloudServiceProvider().getCloudServicesByGroupAsync(group);
+    }
+
+    @Deprecated
+    public ITask<Integer> getServicesCountAsync() {
+        return this.getCloudServiceProvider().getServicesCountAsync();
+    }
+
+    @Deprecated
+    public ITask<Integer> getServicesCountByGroupAsync(String group) {
+        return this.getCloudServiceProvider().getServicesCountByGroupAsync(group);
+    }
+
+    @Deprecated
+    public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
+        return this.getCloudServiceProvider().getServicesCountByTaskAsync(taskName);
+    }
+
+    @Deprecated
+    public ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId) {
+        return this.getCloudServiceProvider().getCloudServiceAsync(uniqueId);
+    }
 
     public abstract Collection<ServiceTask> getPermanentServiceTasks();
 
@@ -425,42 +655,6 @@ public abstract class CloudNetDriver {
     public abstract ITask<String[]> sendCommandLineAsync(String commandLine);
 
     public abstract ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine);
-
-    public abstract ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine);
-
-    public abstract ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate);
-
-    public abstract ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion);
-
-    public abstract ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(UUID uniqueId, ServiceDeployment serviceDeployment);
-
-    public abstract ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId);
-
-    public abstract void includeWaitingServiceTemplates(UUID uniqueId);
-
-    public abstract void includeWaitingServiceInclusions(UUID uniqueId);
-
-    public abstract void deployResources(UUID uniqueId, boolean removeDeployments);
-
-    public abstract ITask<Collection<UUID>> getServicesAsUniqueIdAsync();
-
-    public abstract ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name);
-
-    public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync();
-
-    public abstract ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync();
-
-    public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName);
-
-    public abstract ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group);
-
-    public abstract ITask<Integer> getServicesCountAsync();
-
-    public abstract ITask<Integer> getServicesCountByGroupAsync(String group);
-
-    public abstract ITask<Integer> getServicesCountByTaskAsync(String taskName);
-
-    public abstract ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId);
 
     public abstract ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync();
 
@@ -559,10 +753,6 @@ public abstract class CloudNetDriver {
         });
 
         return listenableTask;
-    }
-
-    public void deployResources(UUID uniqueId) {
-        this.deployResources(uniqueId, true);
     }
 
     public IServicesRegistry getServicesRegistry() {

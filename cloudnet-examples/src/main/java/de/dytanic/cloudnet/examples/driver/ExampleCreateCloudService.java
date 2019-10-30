@@ -15,7 +15,7 @@ public final class ExampleCreateCloudService {
 
     public void getServiceByName(String name) {
         //node filter with name parameter
-        ServiceInfoSnapshot service = CloudNetDriver.getInstance().getCloudServiceByName(name);
+        ServiceInfoSnapshot service = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServiceByName(name);
 
         if (service != null) {
             //service exist
@@ -24,9 +24,10 @@ public final class ExampleCreateCloudService {
         }
 
         //wrapper filter is more specific
-        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudService("Lobby"), serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
-                serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
-                serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name));
+        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby"),
+                serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
+                        serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
+                        serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name));
 
         if (serviceInfoSnapshot != null) {
             //Service is online and exists
@@ -37,7 +38,7 @@ public final class ExampleCreateCloudService {
 
     public void getServiceByNameAsync(String name) {
         //use the short cut async
-        CloudNetDriver.getInstance().getCloudServiceByNameAsync(name).onComplete(serviceInfoSnapshot -> {
+        CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServiceByNameAsync(name).onComplete(serviceInfoSnapshot -> {
             if (serviceInfoSnapshot != null) {
                 //service exist
             } else {
@@ -46,7 +47,7 @@ public final class ExampleCreateCloudService {
         });
 
         //use this as alternative filtering
-        CloudNetDriver.getInstance().getCloudServicesAsync("Lobby").onComplete(serviceInfoSnapshots -> {
+        CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync("Lobby").onComplete(serviceInfoSnapshots -> {
             ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
                     serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
                     serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name));
@@ -64,7 +65,7 @@ public final class ExampleCreateCloudService {
             ServiceTask serviceTask = DRIVER.getServiceTask("Lobby"); //getDef ServiceTask instance
             ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(serviceTask); //Creates a service on cluster and returns the initial snapshot
 
-            DRIVER.startCloudService(serviceInfoSnapshot); //Starting service
+            DRIVER.getCloudServiceProvider(serviceInfoSnapshot).start(); //Starting service
         }
     }
 
@@ -91,7 +92,7 @@ public final class ExampleCreateCloudService {
                 null //automatic defined port or the start port
         );
 
-        DRIVER.startCloudService(serviceInfoSnapshot);
+        DRIVER.getCloudServiceProvider(serviceInfoSnapshot).start();
     }
 
     public void createCustomCloudServiceCountsOnOneSpecificNode() {
@@ -121,27 +122,19 @@ public final class ExampleCreateCloudService {
                     JsonDocument.newDocument().append("votes", "10"), //define useful properties to call up later
                     null //automatic defined port or the start port
             )) {
-                DRIVER.startCloudService(serviceInfoSnapshot); //start the services
+                DRIVER.getCloudServiceProvider(serviceInfoSnapshot).start(); //start the services
             }
         });
     }
 
     public void stopCloudService(UUID serviceUniqueId) //stop the cloud service. if the configuration for the service autoDeleteOnStop not enabled. You can restart the service
     {
-        DRIVER.getCloudServicesAsync(serviceUniqueId).onComplete(serviceInfoSnapshot -> {
-            if (serviceInfoSnapshot != null) {
-                DRIVER.stopCloudService(serviceInfoSnapshot);
-            }
-        }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+        DRIVER.getCloudServiceProvider(serviceUniqueId).stop();
     }
 
     public void stopAndDeleteService(UUID serviceUniqueId) //stops and deletes the service gracefully
     {
-        DRIVER.getCloudServicesAsync(serviceUniqueId).onComplete(serviceInfoSnapshot -> {
-            if (serviceInfoSnapshot != null) {
-                DRIVER.deleteCloudService(serviceInfoSnapshot);
-            }
-        }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+        DRIVER.getCloudServiceProvider(serviceUniqueId).delete();
     }
 
     public void createCloudServiceViaCommand(String task) {
@@ -162,7 +155,7 @@ public final class ExampleCreateCloudService {
             );
 
             ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.getCloudServiceFactory().createCloudService(serviceTask);
-            DRIVER.startCloudService(serviceInfoSnapshot);
+            DRIVER.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).start();
         });
     }
 }

@@ -19,7 +19,7 @@ final class CommandTest implements CommandExecutor {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("test1")) {
                 int counter = 0;
-                for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
+                for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
                     commandSender.sendMessage(counter++ + ": " + serviceInfoSnapshot.getServiceId().getName());
 
                     ServiceInfoSnapshot snapshot = CloudNetDriver.getInstance().getCloudServiceByName(serviceInfoSnapshot.getServiceId().getName());

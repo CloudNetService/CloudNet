@@ -66,7 +66,7 @@ public final class VelocityCloudNetBridgePlugin {
     }
 
     private void initServers() {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
             if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer()) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
                         serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {

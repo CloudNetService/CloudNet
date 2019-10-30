@@ -132,7 +132,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
         if (properties.containsKey("start")) {
             for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
             }
         }
     }

@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePostDeleteEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePostPrepareEvent;
@@ -22,7 +23,7 @@ public final class CloudServiceListener {
         if (serviceTask != null && CloudNetSmartModule.getInstance().hasSmartServiceTaskConfig(serviceTask)) {
             SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask);
             if (smartTask.getMaxServiceCount() > 0 &&
-                    CloudNet.getInstance().getCloudService(serviceTask.getName()).size() >= smartTask.getMaxServiceCount()) {
+                    CloudNet.getInstance().getCloudServiceProvider().getCloudServices(serviceTask.getName()).size() >= smartTask.getMaxServiceCount()) {
                 event.setCancelled(true);
                 return;
             }
@@ -40,8 +41,9 @@ public final class CloudServiceListener {
             UUID uniqueId = event.getCloudService().getServiceId().getUniqueId();
 
             if (smartTask.isDirectTemplatesAndInclusionsSetup()) {
-                CloudNetDriver.getInstance().includeWaitingServiceTemplates(uniqueId);
-                CloudNetDriver.getInstance().includeWaitingServiceInclusions(uniqueId);
+                SpecificCloudServiceProvider cloudServiceProvider = CloudNetDriver.getInstance().getCloudServiceProvider(uniqueId);
+                cloudServiceProvider.includeWaitingServiceTemplates();
+                cloudServiceProvider.includeWaitingServiceInclusions();
             }
 
             CloudNetSmartModule.getInstance().getProvidedSmartServices().put(uniqueId, new CloudNetServiceSmartProfile(

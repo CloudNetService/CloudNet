@@ -24,10 +24,10 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
     @Override
     public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("uuid")) {
-            ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid")));
+            ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid")));
 
             if (serviceInfoSnapshot == null) {
-                serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().contains(context.request().pathParameters().get("uuid")));
+                serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().contains(context.request().pathParameters().get("uuid")));
             }
 
             if (serviceInfoSnapshot == null) {
@@ -45,7 +45,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
             if (context.request().pathParameters().containsKey("operation")) {
                 switch (context.request().pathParameters().get("operation").toLowerCase()) {
                     case "start": {
-                        CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -55,7 +55,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "stop": {
-                        CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
+                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).stop();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -65,7 +65,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "delete": {
-                        CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
+                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).delete();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -75,7 +75,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "log": {
-                        Queue<String> queue = CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId());
+                        Queue<String> queue = CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages();
 
                         StringBuilder stringBuilder = new StringBuilder();
 
@@ -92,7 +92,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "log_json": {
-                        Queue<String> queue = CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId());
+                        Queue<String> queue = CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages();
 
                         context
                                 .response()
@@ -122,7 +122,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
         context
                 .response()
                 .header("Content-Type", "application/json")
-                .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), serviceInfoSnapshot -> {
+                .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot -> {
                     if (context.request().queryParameters().containsKey("name") &&
                             !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName())) {
                         return false;

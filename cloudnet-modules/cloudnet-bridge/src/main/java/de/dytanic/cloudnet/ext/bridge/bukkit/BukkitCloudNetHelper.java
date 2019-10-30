@@ -53,7 +53,7 @@ public final class BukkitCloudNetHelper {
                 if (serviceTask != null) {
                     CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
                         if (serviceInfoSnapshot != null) {
-                            CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
+                            CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
                         }
                     });
                 }
