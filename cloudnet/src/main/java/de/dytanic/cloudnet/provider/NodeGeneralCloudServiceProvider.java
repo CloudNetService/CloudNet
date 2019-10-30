@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.service.provider;
+package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.driver.service.provider.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.GeneralCloudServiceProvider;
 
 import java.util.Collection;
 import java.util.Collections;

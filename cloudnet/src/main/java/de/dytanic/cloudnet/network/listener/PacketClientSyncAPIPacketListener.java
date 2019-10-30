@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.network.listener;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -12,7 +11,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.service.provider.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.SpecificCloudServiceProvider;
 
 import java.util.Collection;
 import java.util.UUID;

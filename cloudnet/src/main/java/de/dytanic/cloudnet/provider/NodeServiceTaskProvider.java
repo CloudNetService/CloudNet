@@ -1,9 +1,10 @@
-package de.dytanic.cloudnet.service.provider;
+package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.driver.service.provider.ServiceTaskProvider;
+import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 
 import java.util.Collection;
 
@@ -53,6 +54,45 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         Validate.checkNotNull(serviceTask);
 
         this.cloudNet.getCloudServiceManager().removePermanentServiceTask(serviceTask);
+    }
+
+    @Override
+    public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
+        return this.cloudNet.scheduleTask(this::getPermanentServiceTasks);
+    }
+
+    @Override
+    public ITask<ServiceTask> getServiceTaskAsync(String name) {
+        return this.cloudNet.scheduleTask(() -> this.getServiceTask(name));
+    }
+
+    @Override
+    public ITask<Boolean> isServiceTaskPresentAsync(String name) {
+        return this.cloudNet.scheduleTask(() -> this.isServiceTaskPresent(name));
+    }
+
+    @Override
+    public ITask<Void> addPermanentServiceTaskAsync(ServiceTask serviceTask) {
+        return this.cloudNet.scheduleTask(() -> {
+            this.addPermanentServiceTask(serviceTask);
+            return null;
+        });
+    }
+
+    @Override
+    public ITask<Void> removePermanentServiceTaskAsync(String name) {
+        return this.cloudNet.scheduleTask(() -> {
+            this.removePermanentServiceTask(name);
+            return null;
+        });
+    }
+
+    @Override
+    public ITask<Void> removePermanentServiceTaskAsync(ServiceTask serviceTask) {
+        return this.cloudNet.scheduleTask(() -> {
+            this.removePermanentServiceTask(serviceTask);
+            return null;
+        });
     }
 
 }

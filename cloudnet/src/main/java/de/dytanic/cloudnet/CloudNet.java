@@ -54,7 +54,7 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.service.provider.*;
+import de.dytanic.cloudnet.driver.provider.*;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -75,7 +75,7 @@ import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
-import de.dytanic.cloudnet.service.provider.*;
+import de.dytanic.cloudnet.provider.*;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
@@ -135,6 +135,7 @@ public final class CloudNet extends CloudNetDriver {
     private GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
     private ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
     private GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
+    private PermissionProvider permissionProvider = new NodePermissionProvider(this);
 
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
@@ -323,6 +324,11 @@ public final class CloudNet extends CloudNetDriver {
         if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
             System.exit(0);
         }
+    }
+
+    @Override
+    public PermissionProvider getPermissionProvider() {
+        return this.permissionProvider;
     }
 
     @Override
@@ -525,135 +531,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public void addUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
-
-        getPermissionManagement().addUser(permissionUser);
-    }
-
-    @Override
-    public void updateUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
-
-        getPermissionManagement().updateUser(permissionUser);
-    }
-
-    @Override
-    public void deleteUser(String name) {
-        Validate.checkNotNull(name);
-
-        getPermissionManagement().deleteUser(name);
-    }
-
-    @Override
-    public void deleteUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
-
-        getPermissionManagement().deleteUser(permissionUser);
-    }
-
-    @Override
-    public boolean containsUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return getPermissionManagement().containsUser(uniqueId);
-    }
-
-    @Override
-    public boolean containsUser(String name) {
-        Validate.checkNotNull(name);
-
-        return getPermissionManagement().containsUser(name);
-    }
-
-    @Override
-    public IPermissionUser getUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return getPermissionManagement().getUser(uniqueId);
-    }
-
-    @Override
-    public List<IPermissionUser> getUser(String name) {
-        Validate.checkNotNull(name);
-
-        return getPermissionManagement().getUser(name);
-    }
-
-    @Override
-    public Collection<IPermissionUser> getUsers() {
-        return getPermissionManagement().getUsers();
-    }
-
-    @Override
-    public void setUsers(Collection<? extends IPermissionUser> users) {
-        Validate.checkNotNull(users);
-
-        getPermissionManagement().setUsers(users);
-    }
-
-    @Override
-    public Collection<IPermissionUser> getUserByGroup(String group) {
-        Validate.checkNotNull(group);
-
-        return getPermissionManagement().getUserByGroup(group);
-    }
-
-    @Override
-    public void addGroup(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
-
-        getPermissionManagement().addGroup(permissionGroup);
-    }
-
-    @Override
-    public void updateGroup(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
-
-        getPermissionManagement().updateGroup(permissionGroup);
-    }
-
-    @Override
-    public void deleteGroup(String group) {
-        Validate.checkNotNull(group);
-
-        getPermissionManagement().deleteGroup(group);
-    }
-
-    @Override
-    public void deleteGroup(IPermissionGroup group) {
-        Validate.checkNotNull(group);
-
-        getPermissionManagement().deleteGroup(group);
-    }
-
-    @Override
-    public boolean containsGroup(String group) {
-        Validate.checkNotNull(group);
-
-        return getPermissionManagement().containsGroup(group);
-    }
-
-    @Override
-    public IPermissionGroup getGroup(String name) {
-        Validate.checkNotNull(name);
-
-        return getPermissionManagement().getGroup(name);
-    }
-
-    @Override
-    public Collection<IPermissionGroup> getGroups() {
-        return getPermissionManagement().getGroups();
-    }
-
-    @Override
-    public void setGroups(Collection<? extends IPermissionGroup> groups) {
-        Validate.checkNotNull(groups);
-
-        getPermissionManagement().setGroups(groups);
-    }
-
-    @Override
     public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
         return this.scheduleTask(this::getConsoleCommands);
     }
@@ -760,72 +637,6 @@ public final class CloudNet extends CloudNetDriver {
         Validate.checkNotNull(commandLine);
 
         return scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
-    }
-
-    @Override
-    public ITask<Void> addUserAsync(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
-
-        return scheduleTask(() -> null);
-    }
-
-    @Override
-    public ITask<Boolean> containsUserAsync(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return scheduleTask(() -> CloudNet.this.containsUser(uniqueId));
-    }
-
-    @Override
-    public ITask<Boolean> containsUserAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.containsUser(name));
-    }
-
-    @Override
-    public ITask<IPermissionUser> getUserAsync(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
-        return scheduleTask(() -> CloudNet.this.getUser(uniqueId));
-    }
-
-    @Override
-    public ITask<List<IPermissionUser>> getUserAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.getUser(name));
-    }
-
-    @Override
-    public ITask<Collection<IPermissionUser>> getUsersAsync() {
-        return scheduleTask(CloudNet.this::getUsers);
-    }
-
-    @Override
-    public ITask<Collection<IPermissionUser>> getUserByGroupAsync(String group) {
-        Validate.checkNotNull(group);
-
-        return scheduleTask(() -> CloudNet.this.getUserByGroup(group));
-    }
-
-    @Override
-    public ITask<Boolean> containsGroupAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.containsGroup(name));
-    }
-
-    @Override
-    public ITask<IPermissionGroup> getGroupAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return scheduleTask(() -> CloudNet.this.getGroup(name));
-    }
-
-    @Override
-    public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return scheduleTask(CloudNet.this::getGroups);
     }
 
     public <T> ITask<T> runTask(Callable<T> runnable) {

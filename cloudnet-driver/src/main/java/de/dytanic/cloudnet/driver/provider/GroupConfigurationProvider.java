@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.service.provider;
+package de.dytanic.cloudnet.driver.provider;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;

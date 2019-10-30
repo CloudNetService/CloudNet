@@ -21,8 +21,8 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.provider.*;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.driver.service.provider.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -61,6 +61,8 @@ public abstract class CloudNetDriver {
 
     public abstract void stop();
 
+
+    public abstract PermissionProvider getPermissionProvider();
 
     public abstract CloudServiceFactory getCloudServiceFactory();
 
@@ -857,43 +859,150 @@ public abstract class CloudNetDriver {
 
     public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(UUID uniqueId, String commandLine);
 
-    public abstract void addUser(IPermissionUser permissionUser);
+    @Deprecated
+    public void addUser(IPermissionUser permissionUser) {
+        this.getPermissionProvider().addUser(permissionUser);
+    }
 
-    public abstract void updateUser(IPermissionUser permissionUser);
+    @Deprecated
+    public void updateUser(IPermissionUser permissionUser) {
+        this.getPermissionProvider().updateUser(permissionUser);
+    }
 
-    public abstract void deleteUser(String name);
+    @Deprecated
+    public void deleteUser(String name) {
+        this.getPermissionProvider().deleteUser(name);
+    }
 
-    public abstract void deleteUser(IPermissionUser permissionUser);
+    @Deprecated
+    public void deleteUser(IPermissionUser permissionUser) {
+        this.getPermissionProvider().deleteUser(permissionUser);
+    }
 
-    public abstract boolean containsUser(UUID uniqueId);
+    @Deprecated
+    public boolean containsUser(UUID uniqueId) {
+        return this.getPermissionProvider().containsUser(uniqueId);
+    }
 
-    public abstract boolean containsUser(String name);
+    @Deprecated
+    public boolean containsUser(String name) {
+        return this.getPermissionProvider().containsUser(name);
+    }
 
-    public abstract IPermissionUser getUser(UUID uniqueId);
+    @Deprecated
+    public IPermissionUser getUser(UUID uniqueId) {
+        return this.getPermissionProvider().getUser(uniqueId);
+    }
 
-    public abstract List<IPermissionUser> getUser(String name);
+    @Deprecated
+    public List<IPermissionUser> getUser(String name) {
+        return this.getPermissionProvider().getUsers(name);
+    }
 
-    public abstract Collection<IPermissionUser> getUsers();
+    @Deprecated
+    public Collection<IPermissionUser> getUsers() {
+        return this.getPermissionProvider().getUsers();
+    }
 
-    public abstract void setUsers(Collection<? extends IPermissionUser> users);
+    @Deprecated
+    public void setUsers(Collection<? extends IPermissionUser> users) {
+        this.getPermissionProvider().setUsers(users);
+    }
 
-    public abstract Collection<IPermissionUser> getUserByGroup(String group);
+    @Deprecated
+    public Collection<IPermissionUser> getUserByGroup(String group) {
+        return this.getPermissionProvider().getUsersByGroup(group);
+    }
 
-    public abstract void addGroup(IPermissionGroup permissionGroup);
+    @Deprecated
+    public void addGroup(IPermissionGroup permissionGroup) {
+        this.getPermissionProvider().addGroup(permissionGroup);
+    }
 
-    public abstract void updateGroup(IPermissionGroup permissionGroup);
+    @Deprecated
+    public void updateGroup(IPermissionGroup permissionGroup) {
+        this.getPermissionProvider().updateGroup(permissionGroup);
+    }
 
-    public abstract void deleteGroup(String group);
+    @Deprecated
+    public void deleteGroup(String group) {
+        this.getPermissionProvider().deleteGroup(group);
+    }
 
-    public abstract void deleteGroup(IPermissionGroup group);
+    @Deprecated
+    public void deleteGroup(IPermissionGroup group) {
+        this.getPermissionProvider().deleteGroup(group);
+    }
 
-    public abstract boolean containsGroup(String group);
+    @Deprecated
+    public boolean containsGroup(String group) {
+        return this.getPermissionProvider().containsGroup(group);
+    }
 
-    public abstract IPermissionGroup getGroup(String name);
+    @Deprecated
+    public IPermissionGroup getGroup(String name) {
+        return this.getPermissionProvider().getGroup(name);
+    }
 
-    public abstract Collection<IPermissionGroup> getGroups();
+    @Deprecated
+    public Collection<IPermissionGroup> getGroups() {
+        return this.getPermissionProvider().getGroups();
+    }
 
-    public abstract void setGroups(Collection<? extends IPermissionGroup> groups);
+    @Deprecated
+    public void setGroups(Collection<? extends IPermissionGroup> groups) {
+        this.getPermissionProvider().setGroups(groups);
+    }
+
+    @Deprecated
+    public ITask<Void> addUserAsync(IPermissionUser permissionUser) {
+        return this.getPermissionProvider().addUserAsync(permissionUser);
+    }
+
+    @Deprecated
+    public ITask<Boolean> containsUserAsync(UUID uniqueId) {
+        return this.getPermissionProvider().containsUserAsync(uniqueId);
+    }
+
+    @Deprecated
+    public ITask<Boolean> containsUserAsync(String name) {
+        return this.getPermissionProvider().containsUserAsync(name);
+    }
+
+    @Deprecated
+    public ITask<IPermissionUser> getUserAsync(UUID uniqueId) {
+        return this.getPermissionProvider().getUserAsync(uniqueId);
+    }
+
+    @Deprecated
+    public ITask<List<IPermissionUser>> getUserAsync(String name) {
+        return this.getPermissionProvider().getUsersAsync(name);
+    }
+
+    @Deprecated
+    public ITask<Collection<IPermissionUser>> getUsersAsync() {
+        return this.getPermissionProvider().getUsersAsync();
+    }
+
+    @Deprecated
+    public ITask<Collection<IPermissionUser>> getUserByGroupAsync(String group) {
+        return this.getPermissionProvider().getUsersByGroupAsync(group);
+    }
+
+    @Deprecated
+    public ITask<Boolean> containsGroupAsync(String name) {
+        return this.getPermissionProvider().containsGroupAsync(name);
+    }
+
+    @Deprecated
+    public ITask<IPermissionGroup> getGroupAsync(String name) {
+        return this.getPermissionProvider().getGroupAsync(name);
+    }
+
+    @Deprecated
+    public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
+        return this.getPermissionProvider().getGroupsAsync();
+    }
 
 
     public abstract ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
@@ -919,26 +1028,6 @@ public abstract class CloudNetDriver {
     public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName);
 
     public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine);
-
-    public abstract ITask<Void> addUserAsync(IPermissionUser permissionUser);
-
-    public abstract ITask<Boolean> containsUserAsync(UUID uniqueId);
-
-    public abstract ITask<Boolean> containsUserAsync(String name);
-
-    public abstract ITask<IPermissionUser> getUserAsync(UUID uniqueId);
-
-    public abstract ITask<List<IPermissionUser>> getUserAsync(String name);
-
-    public abstract ITask<Collection<IPermissionUser>> getUsersAsync();
-
-    public abstract ITask<Collection<IPermissionUser>> getUserByGroupAsync(String group);
-
-    public abstract ITask<Boolean> containsGroupAsync(String name);
-
-    public abstract ITask<IPermissionGroup> getGroupAsync(String name);
-
-    public abstract ITask<Collection<IPermissionGroup>> getGroupsAsync();
 
 
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
