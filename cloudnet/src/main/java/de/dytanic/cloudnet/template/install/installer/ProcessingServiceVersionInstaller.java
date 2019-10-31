@@ -1,11 +1,6 @@
 package de.dytanic.cloudnet.template.install.installer;
-/*
- * Created by derrop on 31.10.2019
- */
 
-import de.dytanic.cloudnet.template.install.InvalidServiceVersionException;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
-import de.dytanic.cloudnet.template.install.ServiceVersionInstaller;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,29 +15,37 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.regex.Pattern;
 
 public class ProcessingServiceVersionInstaller implements ServiceVersionInstaller {
+
     @Override
-    public void install(ServiceVersion version, Path workingDirectory, OutputStream targetStream) throws Exception {
+    public void install(ServiceVersion version, Path workingDirectory, OutputStream targetStream) throws IOException {
         String command = version.getProperties().getString("command");
         String copy = version.getProperties().getString("copy");
+
         if (command == null || copy == null) {
-            throw new InvalidServiceVersionException(version, "Missing command or copy property");
+            throw new IllegalStateException(String.format("Missing command or copy property on service version %s!", version.getName()));
         }
 
         this.download(version.getUrl(), workingDirectory.resolve("download.jar"));
 
         Process process = Runtime.getRuntime().exec(command, null, workingDirectory.toFile());
-        process.waitFor();
+        try {
+            process.waitFor();
+        } catch (InterruptedException exception) {
+            exception.printStackTrace();
+        }
 
         Pattern pattern = Pattern.compile(copy);
 
         Files.walkFileTree(workingDirectory, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Path relativeFile = workingDirectory.relativize(file);
-                if (pattern.matcher(relativeFile.toString()).matches()) {
-                    Files.copy(relativeFile, targetStream);
+            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+                Path relativePath = workingDirectory.relativize(filePath);
+
+                if (pattern.matcher(relativePath.toString()).matches()) {
+                    Files.copy(relativePath, targetStream);
                     return FileVisitResult.TERMINATE;
                 }
+
                 return FileVisitResult.CONTINUE;
             }
         });

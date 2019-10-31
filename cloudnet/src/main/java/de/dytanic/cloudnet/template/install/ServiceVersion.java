@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.template.install;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 public class ServiceVersion {
-
     private String name;
     private String url;
     private JsonDocument properties;
@@ -29,4 +28,5 @@ public class ServiceVersion {
     public JsonDocument getProperties() {
         return properties;
     }
+
 }

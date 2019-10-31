@@ -1,34 +1,48 @@
 package de.dytanic.cloudnet.template.install;
 
+import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
+
 import java.util.Collection;
+import java.util.Optional;
 
 public class ServiceVersionType {
-
     private String name;
-    private String fileName;
-    private String installer;
+    private ServiceEnvironment targetEnvironment;
+    private InstallerType installerType;
     private Collection<ServiceVersion> versions;
 
-    public ServiceVersionType(String name, String fileName, String installer, Collection<ServiceVersion> versions) {
+    public ServiceVersionType(String name, ServiceEnvironment targetEnvironment, InstallerType installerType, Collection<ServiceVersion> versions) {
         this.name = name;
-        this.fileName = fileName;
-        this.installer = installer;
+        this.targetEnvironment = targetEnvironment;
+        this.installerType = installerType;
         this.versions = versions;
+    }
+
+    public Optional<ServiceVersion> getVersion(String name) {
+        return this.versions.stream()
+                .filter(serviceVersion -> serviceVersion.getName().equalsIgnoreCase(name))
+                .findFirst();
     }
 
     public String getName() {
         return name;
     }
 
-    public String getFileName() {
-        return fileName;
+    public ServiceEnvironment getTargetEnvironment() {
+        return targetEnvironment;
     }
 
-    public String getInstaller() {
-        return installer;
+    public InstallerType getInstallerType() {
+        return installerType;
     }
 
     public Collection<ServiceVersion> getVersions() {
         return versions;
     }
+
+    public enum InstallerType {
+        DOWNLOAD,
+        BUILD
+    }
+
 }

@@ -183,32 +183,23 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public OutputStream appendOutputStream(ServiceTemplate template, String path) {
-        try {
-            Path file = Paths.get(template.getTemplatePath(), path);
-            if (!Files.exists(file)) {
-                Files.createDirectories(file.getParent());
-                Files.createFile(file);
-            }
-            return Files.newOutputStream(file, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public OutputStream appendOutputStream(ServiceTemplate template, String path) throws IOException {
+        Path file = Paths.get(template.getTemplatePath(), path);
+        if (!Files.exists(file)) {
+            Files.createDirectories(file.getParent());
+            Files.createFile(file);
         }
-        return null;
+
+        return Files.newOutputStream(file, StandardOpenOption.APPEND);
     }
 
     @Override
-    public OutputStream newOutputStream(ServiceTemplate template, String path) {
-        try {
-            Path file = Paths.get(template.getTemplatePath(), path);
-            if (!Files.exists(file)) {
-                Files.createDirectories(file.getParent());
-            }
-            return Files.newOutputStream(file, StandardOpenOption.CREATE);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public OutputStream newOutputStream(ServiceTemplate template, String path) throws IOException {
+        Path file = Paths.get(template.getTemplatePath(), path);
+        if (!Files.exists(file)) {
+            Files.createDirectories(file.getParent());
         }
-        return null;
+        return Files.newOutputStream(file, StandardOpenOption.CREATE);
     }
 
     @Override

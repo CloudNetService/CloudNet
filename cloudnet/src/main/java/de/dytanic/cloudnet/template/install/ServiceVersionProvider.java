@@ -3,9 +3,11 @@ package de.dytanic.cloudnet.template.install;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.install.installer.ProcessingServiceVersionInstaller;
+import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.SimpleDownloadingServiceVersionInstaller;
 
 import java.io.IOException;
@@ -20,17 +22,17 @@ import java.util.*;
 
 public class ServiceVersionProvider {
 
-    private final Map<String, ServiceVersionInstaller> installers = new HashMap<>();
+    private final Map<ServiceVersionType.InstallerType, ServiceVersionInstaller> installers = new HashMap<>();
 
-    {
-        this.installers.put("download", new SimpleDownloadingServiceVersionInstaller());
-        this.installers.put("processing", new ProcessingServiceVersionInstaller());
+    private final Map<String, ServiceVersionType> serviceVersionTypes = new HashMap<>();
+
+    public ServiceVersionProvider() {
+        this.installers.put(ServiceVersionType.InstallerType.DOWNLOAD, new SimpleDownloadingServiceVersionInstaller());
+        this.installers.put(ServiceVersionType.InstallerType.BUILD, new ProcessingServiceVersionInstaller());
     }
 
-    private Map<String, ServiceVersionType> installableVersions = new HashMap<>();
-
-    public boolean loadVersions(String url) {
-        this.installableVersions.clear();
+    public boolean loadServiceVersionTypes(String url) {
+        this.serviceVersionTypes.clear();
 
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -43,15 +45,15 @@ public class ServiceVersionProvider {
             try (InputStream inputStream = connection.getInputStream()) {
                 JsonDocument document = new JsonDocument().read(inputStream);
 
-                Collection<ServiceVersionType> versions = document.get("versions", TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType());
+                if (document.contains("versions")) {
+                    Collection<ServiceVersionType> versions = document.get("versions", TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType());
 
-                if (versions != null) {
-                    for (ServiceVersionType version : versions) {
-                        this.registerVersion(version);
+                    for (ServiceVersionType serviceVersionType : versions) {
+                        this.registerServiceVersionType(serviceVersionType);
                     }
+
                     success = true;
                 }
-
             }
 
             connection.disconnect();
@@ -61,26 +63,47 @@ public class ServiceVersionProvider {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-        for (ServiceVersionType version : this.getDefaultVersionTypes()) {
-            this.registerVersion(version);
+
+        for (ServiceVersionType serviceVersionType : this.createDefaultVersionTypes()) {
+            this.registerServiceVersionType(serviceVersionType);
         }
+
         return false;
     }
 
-    public void registerVersion(ServiceVersionType versionType) {
-        this.installableVersions.put(versionType.getName(), versionType);
+    public void registerServiceVersionType(ServiceVersionType serviceVersionType) {
+        this.serviceVersionTypes.put(serviceVersionType.getName().toLowerCase(), serviceVersionType);
     }
 
-    public Map<String, ServiceVersionType> getInstallableVersions() {
-        return this.installableVersions;
+    public Optional<ServiceVersionType> getServiceVersionType(String name) {
+        return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
     }
 
-    public Collection<ServiceVersionType> getDefaultVersionTypes() {
+    public void installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+        ServiceVersionInstaller installer = this.installers.get(serviceVersionType.getInstallerType());
+
+        if (installer == null) {
+            throw new IllegalArgumentException("Installer for type " + serviceVersionType.getInstallerType() + " not found");
+        }
+
+        Path workingDirectory = Paths.get("temp/build/" + UUID.randomUUID());
+        try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, serviceVersionType.getTargetEnvironment().getName() + ".jar")) {
+            Files.createDirectories(workingDirectory.getParent());
+
+            installer.install(serviceVersion, workingDirectory, outputStream);
+
+            FileUtils.delete(workingDirectory.toFile());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public Collection<ServiceVersionType> createDefaultVersionTypes() {
         return Arrays.asList(
                 new ServiceVersionType(
                         "paperspigot",
-                        "paper",
-                        "processing",
+                        ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
+                        ServiceVersionType.InstallerType.BUILD,
                         Arrays.asList(
                                 new ServiceVersion(
                                         "1.14.4",
@@ -94,8 +117,8 @@ public class ServiceVersionProvider {
                 ),
                 new ServiceVersionType(
                         "spigot",
-                        "spigot",
-                        "download",
+                        ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
+                        ServiceVersionType.InstallerType.DOWNLOAD,
                         Arrays.asList(
                                 new ServiceVersion(
                                         "1.13.2",
@@ -106,24 +129,8 @@ public class ServiceVersionProvider {
         );
     }
 
-    public void installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
-        ServiceVersionInstaller installer = this.installers.get(serviceVersionType.getInstaller());
-        if (installer == null) {
-            throw new IllegalArgumentException("Installer " + serviceVersionType.getInstaller() + " not found");
-        }
-
-        Path workingDirectory = Paths.get("temp/build/" + UUID.randomUUID());
-        try {
-            Files.createDirectories(workingDirectory.getParent());
-
-            try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, serviceVersionType.getName())) {
-                installer.install(serviceVersion, workingDirectory, outputStream);
-            }
-
-            FileUtils.delete(workingDirectory.toFile());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Map<String, ServiceVersionType> getServiceVersionTypes() {
+        return serviceVersionTypes;
     }
 
     /*
