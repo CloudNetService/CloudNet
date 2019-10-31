@@ -20,11 +20,7 @@ public final class DefaultLogFormatter implements IFormatter {
     @Override
     public String format(LogEntry logEntry) {
         StringBuilder builder = new StringBuilder();
-        if (logEntry.getThrowable() != null) {
-            StringWriter writer = new StringWriter();
-            logEntry.getThrowable().printStackTrace(new PrintWriter(writer));
-            builder.append(writer).append(System.lineSeparator());
-        }
+        LoggingUtils.printStackTraceToStringBuilder(builder, logEntry.getThrowable());
 
         StringBuilder stringBuilder = new StringBuilder();
 

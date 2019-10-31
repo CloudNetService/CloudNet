@@ -96,7 +96,7 @@ public final class ExampleCreateCloudService {
     }
 
     public void createCustomCloudServiceCountsOnOneSpecificNode() {
-        DRIVER.getNodesAsync().onComplete(networkClusterNodes -> {
+        DRIVER.getNodeInfoProvider().getNodesAsync().onComplete(networkClusterNodes -> {
             NetworkClusterNode node = networkClusterNodes[0];
 
             for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(

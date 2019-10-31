@@ -25,7 +25,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
 
     default void deleteUser(String name) {
         Validate.checkNotNull(name);
-        for (IPermissionUser permissionUser : this.getUser(name)) {
+        for (IPermissionUser permissionUser : this.getUsers(name)) {
             this.deleteUser(permissionUser);
         }
     }

@@ -87,7 +87,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     }
 
     public void updateSyncProxyConfigurationInNetwork(SyncProxyConfiguration syncProxyConfiguration) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                 SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                 new JsonDocument(
@@ -148,20 +148,20 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
 
         if (syncProxyTabListConfiguration != null && syncProxyTabListConfiguration.getEntries() != null &&
                 !syncProxyTabListConfiguration.getEntries().isEmpty()) {
-            if (tabListEntryIndex.get() == -1) {
-                tabListEntryIndex.set(0);
+            if (this.tabListEntryIndex.get() == -1) {
+                this.tabListEntryIndex.set(0);
             }
 
-            if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
-                tabListEntryIndex.incrementAndGet();
+            if ((this.tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
+                this.tabListEntryIndex.incrementAndGet();
             } else {
-                tabListEntryIndex.set(0);
+                this.tabListEntryIndex.set(0);
             }
 
-            SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(tabListEntryIndex.get());
+            SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(this.tabListEntryIndex.get());
 
-            tabListHeader = tabList.getHeader();
-            tabListFooter = tabList.getFooter();
+            this.tabListHeader = tabList.getHeader();
+            this.tabListFooter = tabList.getFooter();
 
             ProxyServer.getInstance().getScheduler().schedule(
                     this,
@@ -170,7 +170,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                     TimeUnit.MILLISECONDS
             );
         } else {
-            tabListEntryIndex.set(-1);
+            this.tabListEntryIndex.set(-1);
             ProxyServer.getInstance().getScheduler().schedule(this, this::scheduleTabList, 500, TimeUnit.MILLISECONDS);
         }
 

@@ -43,7 +43,7 @@ public abstract class AbstractSignManagement {
     public void sendSignAddUpdate(Sign sign) {
         Validate.checkNotNull(sign);
 
-        CloudNetDriver.getInstance()
+        CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
                         SignConstants.SIGN_CHANNEL_NAME,
                         SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE,
@@ -54,7 +54,7 @@ public abstract class AbstractSignManagement {
     public void sendSignRemoveUpdate(Sign sign) {
         Validate.checkNotNull(sign);
 
-        CloudNetDriver.getInstance()
+        CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
                         SignConstants.SIGN_CHANNEL_NAME,
                         SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE,

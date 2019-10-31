@@ -391,6 +391,22 @@ public final class CloudNet extends CloudNetDriver {
         return this.messenger;
     }
 
+    public ServiceInfoSnapshot getCloudServiceByNameOrUniqueId(String argument) {
+        Validate.checkNotNull(argument);
+
+        return this.getCloudServiceProvider().getCloudServices().stream()
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()))
+                .findFirst()
+                .orElseGet(() -> this.getCloudServiceProvider().getCloudServices().stream()
+                        .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(argument))
+                        .findFirst()
+                        .orElseGet(() -> this.getCloudServiceProvider().getCloudServices().stream()
+                                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()))
+                                .findFirst().orElse(null)
+                        )
+                );
+    }
+
     @Override
     public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
         return this.getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE).getTemplates();

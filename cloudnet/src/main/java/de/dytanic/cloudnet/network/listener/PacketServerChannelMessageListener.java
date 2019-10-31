@@ -23,7 +23,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
                 if (uniqueId != null) {
                     ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider().getCloudService(uniqueId);
                     if (serviceInfoSnapshot != null) {
-                        CloudNet.getInstance().sendChannelMessage(
+                        CloudNet.getInstance().getMessenger().sendChannelMessage(
                                 serviceInfoSnapshot,
                                 packet.getHeader().getString("channel"),
                                 packet.getHeader().getString("message"),
@@ -34,7 +34,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
             } else if (packet.getHeader().contains("task")) { //this is only sent by the services
                 ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(packet.getHeader().getString("task"));
                 if (serviceTask != null) {
-                    CloudNet.getInstance().sendChannelMessage(
+                    CloudNet.getInstance().getMessenger().sendChannelMessage(
                             serviceTask,
                             packet.getHeader().getString("channel"),
                             packet.getHeader().getString("message"),

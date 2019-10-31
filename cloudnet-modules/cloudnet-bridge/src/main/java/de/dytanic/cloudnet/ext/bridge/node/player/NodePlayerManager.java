@@ -134,7 +134,7 @@ public final class NodePlayerManager implements IPlayerManager {
         Validate.checkNotNull(cloudOfflinePlayer);
 
         updateOfflinePlayer0(cloudOfflinePlayer);
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "update_offline_cloud_player",
                 new JsonDocument(
@@ -152,7 +152,7 @@ public final class NodePlayerManager implements IPlayerManager {
         Validate.checkNotNull(cloudPlayer);
 
         updateOnlinePlayer0(cloudPlayer);
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "update_online_cloud_player",
                 new JsonDocument(
@@ -170,7 +170,7 @@ public final class NodePlayerManager implements IPlayerManager {
         Validate.checkNotNull(cloudPlayer);
         Validate.checkNotNull(serviceName);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "send_on_proxy_player_to_server",
                 new JsonDocument()
@@ -184,7 +184,7 @@ public final class NodePlayerManager implements IPlayerManager {
         Validate.checkNotNull(cloudPlayer);
         Validate.checkNotNull(message);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "send_message_to_proxy_player",
                 new JsonDocument()
@@ -199,7 +199,7 @@ public final class NodePlayerManager implements IPlayerManager {
         Validate.checkNotNull(cloudPlayer);
         Validate.checkNotNull(kickMessage);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "kick_on_proxy_player_from_network",
                 new JsonDocument()
@@ -213,7 +213,7 @@ public final class NodePlayerManager implements IPlayerManager {
     public void broadcastMessage(String message) {
         Validate.checkNotNull(message);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "broadcast_message",
                 new JsonDocument()
@@ -226,7 +226,7 @@ public final class NodePlayerManager implements IPlayerManager {
         Validate.checkNotNull(message);
         Validate.checkNotNull(permission);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "broadcast_message",
                 new JsonDocument()

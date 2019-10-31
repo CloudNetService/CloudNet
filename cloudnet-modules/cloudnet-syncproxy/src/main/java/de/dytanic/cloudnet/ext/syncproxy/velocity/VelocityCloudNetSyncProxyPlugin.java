@@ -78,7 +78,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
     }
 
     public void updateSyncProxyConfigurationInNetwork(SyncProxyConfiguration syncProxyConfiguration) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                 SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                 new JsonDocument(
@@ -158,28 +158,28 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
         if (syncProxyTabListConfiguration != null && syncProxyTabListConfiguration.getEntries() != null &&
                 !syncProxyTabListConfiguration.getEntries().isEmpty()) {
-            if (tabListEntryIndex.get() == -1) {
-                tabListEntryIndex.set(0);
+            if (this.tabListEntryIndex.get() == -1) {
+                this.tabListEntryIndex.set(0);
             }
 
-            if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
-                tabListEntryIndex.incrementAndGet();
+            if ((this.tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
+                this.tabListEntryIndex.incrementAndGet();
             } else {
-                tabListEntryIndex.set(0);
+                this.tabListEntryIndex.set(0);
             }
 
-            SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(tabListEntryIndex.get());
+            SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(this.tabListEntryIndex.get());
 
-            tabListHeader = tabList.getHeader();
-            tabListFooter = tabList.getFooter();
+            this.tabListHeader = tabList.getHeader();
+            this.tabListFooter = tabList.getFooter();
 
-            proxyServer.getScheduler()
+            this.proxyServer.getScheduler()
                     .buildTask(this, this::scheduleTabList)
                     .delay(1000 / syncProxyTabListConfiguration.getAnimationsPerSecond(), TimeUnit.MILLISECONDS)
                     .schedule();
         } else {
-            tabListEntryIndex.set(-1);
-            proxyServer.getScheduler()
+            this.tabListEntryIndex.set(-1);
+            this.proxyServer.getScheduler()
                     .buildTask(this, this::scheduleTabList)
                     .delay(500, TimeUnit.MILLISECONDS)
                     .schedule();

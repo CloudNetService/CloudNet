@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.proxprox.listener;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import io.gomint.proxprox.api.event.PermissionCheckEvent;
 import io.gomint.proxprox.api.event.PlayerLoginEvent;
@@ -13,25 +13,7 @@ public final class ProxProxCloudNetCloudPermissionsPlayerListener implements Lis
 
     @EventHandler(priority = -64)
     public void handle(PlayerLoginEvent event) {
-        IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUUID());
-
-        if (permissionUser == null) {
-            CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                    event.getPlayer().getUUID(),
-                    event.getPlayer().getName(),
-                    null,
-                    0
-            ));
-
-            permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(event.getPlayer().getUUID());
-        }
-
-        if (permissionUser != null) {
-            CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
-
-            permissionUser.setName(event.getPlayer().getName());
-            CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
-        }
+        CloudPermissionsHelper.initPermissionUser(event.getPlayer().getUUID(), event.getPlayer().getName());
     }
 
     @EventHandler

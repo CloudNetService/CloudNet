@@ -367,7 +367,6 @@ public class TaskScheduler {
     }
 
 
-    @SuppressWarnings("deprecation")
     public Collection<TaskEntry<?>> shutdown() {
 
         for (Worker worker : workers) {

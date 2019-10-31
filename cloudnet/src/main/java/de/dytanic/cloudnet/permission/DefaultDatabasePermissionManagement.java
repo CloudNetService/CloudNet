@@ -26,15 +26,15 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public DefaultDatabasePermissionManagement(Callable<AbstractDatabaseProvider> databaseProviderCallable) {
         this.databaseProviderCallable = databaseProviderCallable;
 
-        file.getParentFile().mkdirs();
-        loadGroups();
+        this.file.getParentFile().mkdirs();
+        this.loadGroups();
     }
 
     @Override
     public IPermissionUser addUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+        this.getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
         return permissionUser;
     }
 
@@ -42,15 +42,15 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public void updateUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+        this.getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
     }
 
     @Override
     public void deleteUserWithoutClusterSync(String name) {
         Validate.checkNotNull(name);
 
-        for (IPermissionUser permissionUser : getUser(name)) {
-            getDatabase().delete(permissionUser.getUniqueId().toString());
+        for (IPermissionUser permissionUser : this.getUsers(name)) {
+            this.getDatabase().delete(permissionUser.getUniqueId().toString());
         }
     }
 
@@ -58,34 +58,34 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public void deleteUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        getDatabase().delete(permissionUser.getUniqueId().toString());
+        this.getDatabase().delete(permissionUser.getUniqueId().toString());
     }
 
     @Override
     public boolean containsUser(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return getDatabase().contains(uniqueId.toString());
+        return this.getDatabase().contains(uniqueId.toString());
     }
 
     @Override
     public boolean containsUser(String name) {
         Validate.checkNotNull(name);
 
-        return getUser(name).size() > 0;
+        return this.getUsers(name).size() > 0;
     }
 
     @Override
     public IPermissionUser getUser(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        JsonDocument jsonDocument = getDatabase().get(uniqueId.toString());
+        JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
 
         if (jsonDocument != null) {
             IPermissionUser permissionUser = jsonDocument.toInstanceOf(PermissionUser.TYPE);
 
-            if (testPermissionUser(permissionUser)) {
-                updateUser(permissionUser);
+            if (this.testPermissionUser(permissionUser)) {
+                this.updateUser(permissionUser);
             }
 
             return permissionUser;
@@ -98,11 +98,11 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public List<IPermissionUser> getUsers(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.map(getDatabase().get("name", name), strings -> {
+        return Iterables.map(this.getDatabase().get("name", name), strings -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
-            if (testPermissionUser(permissionUser)) {
-                updateUser(permissionUser);
+            if (this.testPermissionUser(permissionUser)) {
+                this.updateUser(permissionUser);
             }
 
             return permissionUser;
@@ -113,9 +113,9 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public Collection<IPermissionUser> getUsers() {
         Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
 
-        getDatabase().iterate((s, strings) -> {
+        this.getDatabase().iterate((s, strings) -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
-            testPermissionUser(permissionUser);
+            this.testPermissionUser(permissionUser);
 
             permissionUsers.add(permissionUser);
         });
@@ -127,11 +127,11 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public void setUsersWithoutClusterSync(Collection<? extends IPermissionUser> users) {
         Validate.checkNotNull(users);
 
-        getDatabase().clear();
+        this.getDatabase().clear();
 
         for (IPermissionUser permissionUser : users) {
             if (permissionUser != null) {
-                getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+                this.getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
             }
         }
     }
@@ -142,10 +142,10 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
         Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
 
-        getDatabase().iterate((s, strings) -> {
+        this.getDatabase().iterate((s, strings) -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
-            testPermissionUser(permissionUser);
+            this.testPermissionUser(permissionUser);
             if (permissionUser.inGroup(group)) {
                 permissionUsers.add(permissionUser);
             }
@@ -159,12 +159,12 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public IPermissionGroup addGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        testPermissionGroup(permissionGroup);
+        this.testPermissionGroup(permissionGroup);
         if (this.getGroup(permissionGroup.getName()) != null) {
-            deleteGroup(permissionGroup.getName());
+            this.deleteGroup(permissionGroup.getName());
         }
-        permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
-        saveGroups();
+        this.permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
+        this.saveGroups();
 
         return permissionGroup;
     }
@@ -173,19 +173,19 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public void updateGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        testPermissionGroup(permissionGroup);
-        permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
+        this.testPermissionGroup(permissionGroup);
+        this.permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
 
-        saveGroups();
+        this.saveGroups();
     }
 
     @Override
     public void deleteGroupWithoutClusterSync(String group) {
         Validate.checkNotNull(group);
 
-        IPermissionGroup permissionGroup = permissionGroupsMap.remove(group);
+        IPermissionGroup permissionGroup = this.permissionGroupsMap.remove(group);
         if (permissionGroup != null) {
-            saveGroups();
+            this.saveGroups();
         }
     }
 
@@ -193,7 +193,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public void deleteGroupWithoutClusterSync(IPermissionGroup group) {
         Validate.checkNotNull(group);
 
-        deleteGroupWithoutClusterSync(group.getName());
+        this.deleteGroupWithoutClusterSync(group.getName());
     }
 
     @Override
@@ -207,10 +207,10 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public IPermissionGroup getGroup(String name) {
         Validate.checkNotNull(name);
 
-        IPermissionGroup permissionGroup = permissionGroupsMap.get(name);
+        IPermissionGroup permissionGroup = this.permissionGroupsMap.get(name);
 
-        if (testPermissionGroup(permissionGroup)) {
-            updateGroup(permissionGroup);
+        if (this.testPermissionGroup(permissionGroup)) {
+            this.updateGroup(permissionGroup);
         }
 
         return permissionGroup;
@@ -218,49 +218,49 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public Collection<IPermissionGroup> getGroups() {
-        for (IPermissionGroup permissionGroup : permissionGroupsMap.values()) {
-            if (testPermissionGroup(permissionGroup)) {
-                updateGroup(permissionGroup);
+        for (IPermissionGroup permissionGroup : this.permissionGroupsMap.values()) {
+            if (this.testPermissionGroup(permissionGroup)) {
+                this.updateGroup(permissionGroup);
             }
         }
 
-        return permissionGroupsMap.values();
+        return this.permissionGroupsMap.values();
     }
 
     @Override
     public void setGroupsWithoutClusterSync(Collection<? extends IPermissionGroup> groups) {
         Validate.checkNotNull(groups);
 
-        permissionGroupsMap.clear();
+        this.permissionGroupsMap.clear();
 
         for (IPermissionGroup group : groups) {
-            testPermissionGroup(group);
-            permissionGroupsMap.put(group.getName(), group);
+            this.testPermissionGroup(group);
+            this.permissionGroupsMap.put(group.getName(), group);
         }
 
-        saveGroups();
+        this.saveGroups();
     }
 
     @Override
     public boolean reload() {
         loadGroups();
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleReloaded(this);
+        if (this.permissionManagementHandler != null) {
+            this.permissionManagementHandler.handleReloaded(this);
         }
 
         return true;
     }
 
     private void saveGroups() {
-        List<IPermissionGroup> permissionGroups = Iterables.newArrayList(permissionGroupsMap.values());
+        List<IPermissionGroup> permissionGroups = Iterables.newArrayList(this.permissionGroupsMap.values());
         Collections.sort(permissionGroups);
 
-        new JsonDocument("groups", permissionGroups).write(file);
+        new JsonDocument("groups", permissionGroups).write(this.file);
     }
 
     private void loadGroups() {
-        JsonDocument document = JsonDocument.newDocument(file);
+        JsonDocument document = JsonDocument.newDocument(this.file);
 
         if (document.contains("groups")) {
             Collection<PermissionGroup> permissionGroups = document.get("groups", new TypeToken<Collection<PermissionGroup>>() {
@@ -279,12 +279,12 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     public IDatabase getDatabase() {
-        return getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
+        return this.getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
     }
 
     private AbstractDatabaseProvider getDatabaseProvider() {
         try {
-            return databaseProviderCallable.call();
+            return this.databaseProviderCallable.call();
         } catch (Exception e) {
             e.printStackTrace();
         }

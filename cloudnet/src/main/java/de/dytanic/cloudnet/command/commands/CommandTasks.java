@@ -272,16 +272,11 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             case "template":
                                 if (args.length == 7) {
                                     if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
-                                        ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
-                                        ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
-
-                                        if (!templateStorage.has(serviceTemplate)) {
-                                            if (!templateStorage.create(serviceTemplate)) {
-                                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
-                                                break;
-                                            }
+                                        ServiceTemplate serviceTemplate = this.getAndValidateTemplate(args);
+                                        if (serviceTemplate == null) {
+                                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
+                                            break;
                                         }
-
                                         serviceTask.getTemplates().add(serviceTemplate);
                                         updateServiceTask(serviceTask);
 
@@ -391,16 +386,11 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         switch (args[3].toLowerCase()) {
                             case "template":
                                 if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
-                                    ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
-                                    ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
-
-                                    if (!templateStorage.has(serviceTemplate)) {
-                                        if (!templateStorage.create(serviceTemplate)) {
-                                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
-                                            break;
-                                        }
+                                    ServiceTemplate serviceTemplate = this.getAndValidateTemplate(args);
+                                    if (serviceTemplate == null) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
+                                        break;
                                     }
-
                                     groupConfiguration.getTemplates().add(serviceTemplate);
                                     updateGroupConfiguration(groupConfiguration);
 
@@ -486,9 +476,9 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
     }
 
     private void display(ICommandSender sender, ServiceTask serviceTask) {
-        Collection<String> list = Iterables.newArrayList();
+        Collection<String> messages = Iterables.newArrayList();
 
-        list.addAll(Arrays.asList(
+        messages.addAll(Arrays.asList(
                 " ",
                 "* Name: " + serviceTask.getName(),
                 "* Minimal Services: " + serviceTask.getMinServiceCount(),
@@ -503,73 +493,52 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 " "
         ));
 
-        list.add("* Includes:");
+        this.applyDisplayMessagesForServiceConfigurationBase(messages, serviceTask);
 
-        for (ServiceRemoteInclusion inclusion : serviceTask.getIncludes()) {
-            list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
-        }
-
-        list.add(" ");
-        list.add("* Templates:");
-
-        for (ServiceTemplate template : serviceTask.getTemplates()) {
-            list.add("- " + template.getStorage() + ":" + template.getTemplatePath());
-        }
-
-        list.add(" ");
-        list.add("* Deployments:");
-
-        for (ServiceDeployment deployment : serviceTask.getDeployments()) {
-            list.add("- ");
-            list.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
-            list.add("Excludes: " + deployment.getExcludes());
-        }
-
-        list.add(" ");
-
-        list.addAll(Arrays.asList(serviceTask.getProperties().toPrettyJson().split("\n")));
-        list.add(" ");
-
-        sender.sendMessage(list.toArray(new String[0]));
+        sender.sendMessage(messages.toArray(new String[0]));
     }
 
     private void display(ICommandSender sender, GroupConfiguration groupConfiguration) {
-        Collection<String> list = Iterables.newArrayList();
+        Collection<String> messages = Iterables.newArrayList();
 
-        list.addAll(Arrays.asList(
+        messages.addAll(Arrays.asList(
                 " ",
                 "* Name: " + groupConfiguration.getName(),
                 " "
         ));
 
-        list.add("* Includes:");
+        this.applyDisplayMessagesForServiceConfigurationBase(messages, groupConfiguration);
 
-        for (ServiceRemoteInclusion inclusion : groupConfiguration.getIncludes()) {
-            list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+        sender.sendMessage(messages.toArray(new String[0]));
+    }
+
+    private void applyDisplayMessagesForServiceConfigurationBase(Collection<String> messages, ServiceConfigurationBase configurationBase) {
+        messages.add("* Includes:");
+
+        for (ServiceRemoteInclusion inclusion : configurationBase.getIncludes()) {
+            messages.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
         }
 
-        list.add(" ");
-        list.add("* Templates:");
+        messages.add(" ");
+        messages.add("* Templates:");
 
-        for (ServiceTemplate template : groupConfiguration.getTemplates()) {
-            list.add("- " + template.getStorage() + ":" + template.getTemplatePath());
+        for (ServiceTemplate template : configurationBase.getTemplates()) {
+            messages.add("- " + template.getStorage() + ":" + template.getTemplatePath());
         }
 
-        list.add(" ");
-        list.add("* Deployments:");
+        messages.add(" ");
+        messages.add("* Deployments:");
 
-        for (ServiceDeployment deployment : groupConfiguration.getDeployments()) {
-            list.add("- ");
-            list.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
-            list.add("Excludes: " + deployment.getExcludes());
+        for (ServiceDeployment deployment : configurationBase.getDeployments()) {
+            messages.add("- ");
+            messages.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
+            messages.add("Excludes: " + deployment.getExcludes());
         }
 
-        list.add(" ");
+        messages.add(" ");
 
-        list.addAll(Arrays.asList(groupConfiguration.getProperties().toPrettyJson().split("\n")));
-        list.add(" ");
-
-        sender.sendMessage(list.toArray(new String[0]));
+        messages.addAll(Arrays.asList(configurationBase.getProperties().toPrettyJson().split("\n")));
+        messages.add(" ");
     }
 
     private void updateServiceTask(ServiceTask serviceTask) {
@@ -604,6 +573,18 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         }
 
         return value;
+    }
+
+    private ServiceTemplate getAndValidateTemplate(String[] args) {
+        ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
+        ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
+
+        if (!templateStorage.has(serviceTemplate)) {
+            if (!templateStorage.create(serviceTemplate)) {
+                return null;
+            }
+        }
+        return serviceTemplate;
     }
 
     @Override

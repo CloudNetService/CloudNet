@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
@@ -134,7 +135,7 @@ public final class CommandService extends CommandDefault implements ITabComplete
             }
         }
 
-        ServiceInfoSnapshot serviceInfoSnapshot = getServiceInfoSnapshot(args[0]);
+        ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceByNameOrUniqueId(args[0]);
 
         //Handle service
         if (serviceInfoSnapshot != null) {
@@ -308,25 +309,5 @@ public final class CommandService extends CommandDefault implements ITabComplete
         return CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
                 .map(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName())
                 .collect(Collectors.toList());
-    }
-
-    private ServiceInfoSnapshot getServiceInfoSnapshot(String argument) {
-        Validate.checkNotNull(argument);
-
-        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot13 -> serviceInfoSnapshot13.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()));
-
-        if (serviceInfoSnapshot == null) {
-            List<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()));
-
-            if (!serviceInfoSnapshots.isEmpty()) {
-                if (serviceInfoSnapshots.size() > 1) {
-                    serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(argument));
-                } else {
-                    serviceInfoSnapshot = serviceInfoSnapshots.get(0);
-                }
-            }
-        }
-
-        return serviceInfoSnapshot;
     }
 }

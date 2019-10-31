@@ -103,7 +103,7 @@ public final class BungeeSyncProxyCloudNetListener {
                 SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
             }
 
-            handlePlayerNotWhitelisted();
+            this.handlePlayerNotWhitelisted();
         }
     }
 

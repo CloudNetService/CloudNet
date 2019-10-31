@@ -75,7 +75,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
             case "users":
                 if (args.length >= 3) {
                     if (args[1].equalsIgnoreCase("group")) {
-                        for (IPermissionUser permissionUser : permissionManagement.getUserByGroup(args[2])) {
+                        for (IPermissionUser permissionUser : permissionManagement.getUsersByGroup(args[2])) {
                             this.displayUser(sender, permissionUser);
                         }
                     }
@@ -151,7 +151,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     return;
                 }
 
-                List<IPermissionUser> permissionUsers = permissionManagement.getUser(args[1]);
+                List<IPermissionUser> permissionUsers = permissionManagement.getUsers(args[1]);
                 IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
 
                 if (permissionUser != null) {
@@ -244,31 +244,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
                         if (args[2].equalsIgnoreCase("add")) {
                             try {
-                                if (!Validate.testStringParseToInt(args[5])) {
-                                    return;
-                                }
-
-                                switch (args.length) {
-                                    case 6:
-                                        permissionUser.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        break;
-                                    case 7:
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionUser.addPermission(new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionUser.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                    case 8:
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionUser.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionUser.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                }
+                                this.addPermission(permissionUser, args);
 
                                 permissionManagement.updateUser(permissionUser);
 
@@ -428,33 +404,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
                         if (args[2].equalsIgnoreCase("add")) {
                             try {
-                                if (!Validate.testStringParseToInt(args[5])) {
-                                    return;
-                                }
-
-                                switch (args.length) {
-                                    case 6:
-                                        permissionGroup.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        break;
-                                    case 7:
-
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionGroup.addPermission(new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionGroup.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                    case 8:
-
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionGroup.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionGroup.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                }
+                                this.addPermission(permissionGroup, args);
 
                                 permissionManagement.updateGroup(permissionGroup);
 
@@ -630,12 +580,42 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
         return null;
     }
 
+    private void addPermission(IPermissible permissible, String[] args) {
+        if (!Validate.testStringParseToInt(args[5])) {
+            return;
+        }
+
+        switch (args.length) {
+            case 6:
+                permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
+                break;
+            case 7:
+
+                if (Validate.testStringParseToInt(args[6])) {
+                    permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
+                } else {
+                    permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
+                }
+
+                break;
+            case 8:
+
+                if (Validate.testStringParseToInt(args[6])) {
+                    permissible.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
+                } else {
+                    permissible.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5])));
+                }
+
+                break;
+        }
+    }
+
     private Collection<String> getGroupNames() {
         return getCloudNet().getPermissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList());
     }
 
     private Collection<String> getUserPermissions(String user) {
-        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUser(user);
+        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUsers(user);
         IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
         if (permissionUser != null) {
             Collection<String> outNames = new ArrayList<>(permissionUser.getPermissionNames());
@@ -648,7 +628,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
     }
 
     private Collection<String> getGroupsForUserPermission(String user, String permissionName) {
-        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUser(user);
+        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUsers(user);
         IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
         return this.getGroupsForPermission(permissionUser, permissionName);
     }

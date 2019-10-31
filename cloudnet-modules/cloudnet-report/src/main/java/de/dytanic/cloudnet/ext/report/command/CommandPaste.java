@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.report.command;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
@@ -35,7 +36,7 @@ public final class CommandPaste extends Command {
             return;
         }
 
-        ServiceInfoSnapshot serviceInfoSnapshot = getServiceInfoSnapshot(args[0]);
+        ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceByNameOrUniqueId(args[0]);
 
         if (serviceInfoSnapshot != null) {
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -50,34 +51,16 @@ public final class CommandPaste extends Command {
 
                 printWriter.println(new JsonDocument(serviceInfoSnapshot).toPrettyJson());
 
-                sender.sendMessage(LanguageManager.getMessage("module-report-command-paste-success")
-                        .replace("%url%", CloudNetReportModule.getInstance()
-                                .executePaste(new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8)))
-                );
+                String url = CloudNetReportModule.getInstance().executePaste(new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
+                if (url != null) {
+                    sender.sendMessage(LanguageManager.getMessage("module-report-command-paste-success").replace("%url%", url));
+                } else {
+                    sender.sendMessage(LanguageManager.getMessage("module-report-command-paste-failed").replace("%url%", CloudNetReportModule.getInstance().getPasteURL()));
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private ServiceInfoSnapshot getServiceInfoSnapshot(String argument) {
-        Validate.checkNotNull(argument);
-
-        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot13 -> serviceInfoSnapshot13.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()));
-
-        if (serviceInfoSnapshot == null) {
-            List<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()));
-
-            if (!serviceInfoSnapshots.isEmpty()) {
-                if (serviceInfoSnapshots.size() > 1) {
-                    serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(argument));
-                } else {
-                    serviceInfoSnapshot = serviceInfoSnapshots.get(0);
-                }
-            }
-        }
-
-        return serviceInfoSnapshot;
     }
 }

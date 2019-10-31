@@ -26,7 +26,7 @@ public final class SyncProxyConfigUpdateListener {
 
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                 SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                 new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())

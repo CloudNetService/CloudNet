@@ -77,7 +77,7 @@ public class NodePermissionProvider implements PermissionProvider {
     public List<IPermissionUser> getUsers(String name) {
         Validate.checkNotNull(name);
 
-        return this.getPermissionManagement().getUser(name);
+        return this.getPermissionManagement().getUsers(name);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class NodePermissionProvider implements PermissionProvider {
     public Collection<IPermissionUser> getUsersByGroup(String group) {
         Validate.checkNotNull(group);
 
-        return this.getPermissionManagement().getUserByGroup(group);
+        return this.getPermissionManagement().getUsersByGroup(group);
     }
 
     @Override

@@ -224,8 +224,6 @@ public interface CloudServiceFactory {
     /**
      * Creates and prepares (= copies the templates) a new cloud service
      *
-     * @param nodeUniqueId         the uniqueId of the node where the services should be started on
-     * @param amount               the amount of services to be created
      * @param name                 the name of the task of the new cloud services (the name of the service will be name-id)
      * @param runtime              the runtime of the new cloud services (normally this is "jvm")
      * @param autoDeleteOnStop     should the services be automatically deleted on stop?
@@ -265,7 +263,6 @@ public interface CloudServiceFactory {
      * @param deployments          the deployments that should be added to the services by default
      * @param groups               the groups for the services
      * @param processConfiguration the process configuration for the services
-     * @param properties           the properties for the services (those are not used by the cloud, you can define whatever you want as the properties)
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
      */
