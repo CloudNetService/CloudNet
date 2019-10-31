@@ -76,8 +76,10 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
+import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -128,6 +130,8 @@ public final class CloudNet extends CloudNetDriver {
     private INetworkServer networkServer;
     private IHttpServer httpServer;
     private IPermissionManagement permissionManagement;
+
+    private ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
 
 
     private AbstractDatabaseProvider databaseProvider;
@@ -198,6 +202,8 @@ public final class CloudNet extends CloudNetDriver {
         this.registerDefaultCommands();
         this.registerDefaultServices();
 
+        this.initServiceVersions();
+
         this.currentNetworkClusterNodeInfoSnapshot = createClusterNodeInfoSnapshot();
         this.lastNetworkClusterNodeInfoSnapshot = currentNetworkClusterNodeInfoSnapshot;
 
@@ -260,6 +266,30 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
+    private void initServiceVersions() {
+        String url = System.getProperty("cloudnet.versions.url", "https://cloudnetservice.eu/cloudnet/versions.json");
+        System.out.println(LanguageManager.getMessage("versions-load").replace("%url%", url));
+        try {
+            if (this.serviceVersionProvider.loadServiceVersionTypes(url)) {
+                System.out.println(LanguageManager.getMessage("versions-load-success")
+                        .replace("%url%", url)
+                        .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
+                );
+            } else {
+                System.err.println(LanguageManager.getMessage("versions-load-failed-invalid-json")
+                        .replace("%url%", url)
+                        .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
+                );
+            }
+        } catch (IOException e) {
+            System.err.println(LanguageManager.getMessage("versions-load-failed")
+                    .replace("%url%", url)
+                    .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
+                    .replace("%error%", e.getClass().getName() + ": " + e.getMessage())
+            );
+        }
+    }
+
     public void reload() {
         this.logger.info(LanguageManager.getMessage("reload-start-message"));
 
@@ -270,6 +300,8 @@ public final class CloudNet extends CloudNetDriver {
         this.cloudServiceManager.reload();
 
         this.unloadAll();
+
+        this.initServiceVersions();
 
         this.enableModules();
 

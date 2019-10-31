@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 
-public class SimpleDownloadingServiceVersionInstaller implements ServiceVersionInstaller {
+public class SimpleDownloadingServiceVersionInstaller extends ServiceVersionInstaller {
 
     @Override
     public void install(ServiceVersion version, Path workingDirectory, OutputStream targetStream) throws IOException {
