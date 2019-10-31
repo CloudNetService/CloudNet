@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -17,22 +18,23 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
     }.getType();
 
     private String prefix;
-
-    private Collection<String> excludedOnlyProxyWalkableGroups, excludedGroups;
-
+    private boolean onlyProxyProtection = true;
+    private Collection<String> excludedOnlyProxyWalkableGroups = Iterables.newArrayList(), excludedGroups;
     private Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations;
-
     private Map<String, String> messages;
+    private boolean logPlayerConnections = true;
 
-    private boolean logPlayerConnections;
-
-    public BridgeConfiguration(String prefix, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups, Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Map<String, String> messages, boolean logPlayerConnections) {
+    public BridgeConfiguration(String prefix, boolean onlyProxyProtection, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups,
+                               Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Map<String, String> messages, boolean logPlayerConnections) {
         this.prefix = prefix;
+        this.onlyProxyProtection = onlyProxyProtection;
         this.excludedOnlyProxyWalkableGroups = excludedOnlyProxyWalkableGroups;
         this.excludedGroups = excludedGroups;
         this.bungeeFallbackConfigurations = bungeeFallbackConfigurations;
         this.messages = messages;
-        this.logPlayerConnections = logPlayerConnections;
+    }
+
+    public BridgeConfiguration() {
     }
 
     public String getPrefix() {
@@ -41,6 +43,14 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public boolean isOnlyProxyProtection() {
+        return onlyProxyProtection;
+    }
+
+    public void setOnlyProxyProtection(boolean onlyProxyProtection) {
+        this.onlyProxyProtection = onlyProxyProtection;
     }
 
     public Collection<String> getExcludedOnlyProxyWalkableGroups() {

@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
@@ -17,7 +18,7 @@ public final class CommandCloudNet extends Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            sender.sendMessages(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getPrefix()) + "/cloudnet <command>");
+            sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getPrefix()) + "/cloudnet <command>"));
             return;
         }
 
@@ -30,13 +31,9 @@ public final class CommandCloudNet extends Command {
             CommandInfo commandInfo = CloudNetDriver.getInstance().getConsoleCommand(stringBuilder.toString());
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!sender.hasPermission(commandInfo.getPermission())) {
-                    sender.sendMessage(
-                            ChatColor.translateAlternateColorCodes(
-                                    '&',
-                                    BridgeConfigurationProvider.load().getMessages().get("command-cloud-sub-command-no-permission")
-                                            .replace("%command%", stringBuilder)
-                            )
-                    );
+                    sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                            BridgeConfigurationProvider.load().getMessages().get("command-cloud-sub-command-no-permission")
+                                    .replace("%command%", stringBuilder))));
                     return;
                 }
             }
@@ -47,9 +44,8 @@ public final class CommandCloudNet extends Command {
         if (messages != null) {
             for (String message : messages) {
                 if (message != null) {
-                    sender.sendMessages(
-                            ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getPrefix() + message)
-                    );
+                    sender.sendMessage(TextComponent.fromLegacyText(
+                            ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getPrefix() + message)));
                 }
             }
         }

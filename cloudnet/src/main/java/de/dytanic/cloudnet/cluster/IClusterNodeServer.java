@@ -107,6 +107,4 @@ public interface IClusterNodeServer extends AutoCloseable {
     default void deployResources(UUID uniqueId) {
         deployResources(uniqueId, true);
     }
-
-    Collection<Integer> getReservedTaskIds(String task);
 }

@@ -44,12 +44,12 @@ public final class VelocityProxyLoginConfigurationImplListener {
                 event.setPing(new ServerPing(
                         syncProxyMotd.getProtocolText() != null ? new ServerPing.Version(1,
                                 syncProxyMotd.getProtocolText()
-                                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                                        .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId() + "")
-                                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId() + "")
-                                        .replace("%online_players%", onlinePlayers + "")
-                                        .replace("%max_players%", syncProxyProxyLoginConfiguration.getMaxPlayers() + "")
+                                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                                        .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+                                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+                                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                                        .replace("%online_players%", String.valueOf(onlinePlayers))
+                                        .replace("%max_players%", String.valueOf(syncProxyProxyLoginConfiguration.getMaxPlayers()))
                                         .replace("&", "§")) :
                                 event.getPing().getVersion(),
                         new ServerPing.Players(
@@ -68,11 +68,11 @@ public final class VelocityProxyLoginConfigurationImplListener {
                                         :
                                         Collections.EMPTY_LIST
                         ),
-                        TextComponent.of((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine() + "")
-                                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId() + "")
-                                .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                                .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId() + "")
+                        TextComponent.of((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
+                                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                                .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+                                .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+                                .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
                                 .replace("&", "§")),
                         event.getPing().getFavicon().isPresent() ? event.getPing().getFavicon().get() : null,
                         event.getPing().getModinfo().isPresent() ? event.getPing().getModinfo().get() : null
@@ -94,7 +94,7 @@ public final class VelocityProxyLoginConfigurationImplListener {
                 }
 
                 event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages()
-                        .get("player-login-not-whitelisted") + "").replace("&", "§"))));
+                        .get("player-login-not-whitelisted")).replace("&", "§"))));
                 return;
             }
 

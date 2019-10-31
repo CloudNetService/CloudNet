@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -24,7 +25,7 @@ public final class CommandHub extends Command {
         ProxiedPlayer proxiedPlayer = (ProxiedPlayer) sender;
 
         if (BungeeCloudNetHelper.isOnAFallbackInstance(proxiedPlayer)) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-already-in-hub")));
+            sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-already-in-hub"))));
             return;
         }
 
@@ -37,17 +38,17 @@ public final class CommandHub extends Command {
             ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(server);
 
             if (serverInfo == null) {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-no-server-found")));
+                sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-no-server-found"))));
                 return;
             }
 
             proxiedPlayer.connect(serverInfo);
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+            sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
                     BridgeConfigurationProvider.load().getMessages().get("command-hub-success-connect"))
-                    .replace("%server%", server + "")
-            );
+                    .replace("%server%", server)
+            ));
         } else {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-no-server-found")));
+            sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-no-server-found"))));
         }
     }
 

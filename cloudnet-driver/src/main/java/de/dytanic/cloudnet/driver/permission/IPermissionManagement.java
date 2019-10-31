@@ -176,6 +176,10 @@ public interface IPermissionManagement {
             }
         }
 
+        if (permissionGroups.isEmpty()) {
+            permissionGroups.add(this.getDefaultPermissionGroup());
+        }
+
         return permissionGroups;
     }
 

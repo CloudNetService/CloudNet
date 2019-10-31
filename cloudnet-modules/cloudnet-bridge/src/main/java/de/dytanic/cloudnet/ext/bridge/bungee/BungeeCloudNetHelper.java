@@ -8,7 +8,9 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.ext.bridge.*;
+import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
+import de.dytanic.cloudnet.ext.bridge.PluginInfo;
+import de.dytanic.cloudnet.ext.bridge.ProxyCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -33,22 +35,19 @@ public final class BungeeCloudNetHelper {
 
 
     public static boolean isOnAFallbackInstance(ProxiedPlayer proxiedPlayer) {
-        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(proxiedPlayer.getServer().getInfo().getName());
+        return proxiedPlayer.getServer() != null && isFallbackServer(proxiedPlayer.getServer().getInfo());
+    }
 
-        for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
-            if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                    bungeeFallbackConfiguration.getTargetGroup(),
-                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            )) {
-                for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks()) {
-                    if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
-                        return true;
-                    }
-                }
-            }
+    public static boolean isFallbackServer(ServerInfo serverInfo) {
+        if (serverInfo == null) {
+            return false;
+        }
+        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(serverInfo.getName());
+        if (serviceInfoSnapshot == null) {
+            return false;
         }
 
-        return false;
+        return ProxyCloudNetHelper.isFallbackService(serviceInfoSnapshot);
     }
 
     public static String filterServiceForProxiedPlayer(ProxiedPlayer proxiedPlayer, String currentServer) {

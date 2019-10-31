@@ -23,12 +23,11 @@ public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
     protected String version;
 
     protected int currentServicesCount, usedMemory, reservedMemory, maxMemory;
-
     protected ProcessSnapshot processSnapshot;
-
     protected Collection<NetworkClusterNodeExtensionSnapshot> extensions;
+    private double systemCpuUsage;
 
-    public NetworkClusterNodeInfoSnapshot(long creationTime, NetworkClusterNode node, String version, int currentServicesCount, int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot, Collection<NetworkClusterNodeExtensionSnapshot> extensions) {
+    public NetworkClusterNodeInfoSnapshot(long creationTime, NetworkClusterNode node, String version, int currentServicesCount, int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot, Collection<NetworkClusterNodeExtensionSnapshot> extensions, double systemCpuUsage) {
         this.creationTime = creationTime;
         this.node = node;
         this.version = version;
@@ -38,6 +37,7 @@ public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
         this.maxMemory = maxMemory;
         this.processSnapshot = processSnapshot;
         this.extensions = extensions;
+        this.systemCpuUsage = systemCpuUsage;
     }
 
     public NetworkClusterNodeInfoSnapshot() {
@@ -115,4 +115,11 @@ public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
         this.extensions = extensions;
     }
 
+    public double getSystemCpuUsage() {
+        return this.systemCpuUsage;
+    }
+
+    public void setSystemCpuUsage(double systemCpuUsage) {
+        this.systemCpuUsage = systemCpuUsage;
+    }
 }

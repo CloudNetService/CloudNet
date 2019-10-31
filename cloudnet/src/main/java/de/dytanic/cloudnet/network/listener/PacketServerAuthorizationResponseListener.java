@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
+import de.dytanic.cloudnet.network.ClusterUtils;
 
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
@@ -27,11 +28,13 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
 
                             if (nodeServer != null && nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
                                 nodeServer.setChannel(channel);
+                                ClusterUtils.sendSetupInformationPackets(channel);
+
                                 CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(nodeServer, channel));
 
                                 CloudNet.getInstance().getLogger().info(
                                         LanguageManager.getMessage("cluster-server-networking-connected")
-                                                .replace("%id%", node.getUniqueId() + "")
+                                                .replace("%id%", node.getUniqueId())
                                                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                                                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                                 );

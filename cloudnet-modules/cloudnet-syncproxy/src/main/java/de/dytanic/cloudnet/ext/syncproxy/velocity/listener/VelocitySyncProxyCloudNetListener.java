@@ -113,7 +113,7 @@ public final class VelocitySyncProxyCloudNetListener {
                                 !syncProxyProxyLoginConfiguration.getWhitelist().contains(player.getUsername()) &&
                                 !syncProxyProxyLoginConfiguration.getWhitelist().contains(player.getUniqueId().toString()) &&
                                 !player.hasPermission("cloudnet.syncproxy.maintenance")) {
-                    player.disconnect(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + "").replace("&", "§")));
+                    player.disconnect(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted")).replace("&", "§")));
                 }
             }
         }

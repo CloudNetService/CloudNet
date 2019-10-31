@@ -81,7 +81,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
     @Override
     public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
-        this.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource));
+        this.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 
     @Override

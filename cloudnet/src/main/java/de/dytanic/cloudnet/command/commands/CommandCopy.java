@@ -29,6 +29,7 @@ public class CommandCopy extends CommandDefault {
                         serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(args[0]) ||
                                 serviceInfoSnapshot.getServiceId().getUniqueId().toString().equals(args[0])
                 ).findFirst().ifPresent(cloudService -> {
+
             ServiceTemplate targetTemplate = null;
 
             if (properties.containsKey("template")) {
@@ -44,15 +45,17 @@ public class CommandCopy extends CommandDefault {
                         targetTemplate = new ServiceTemplate(prefix, name, storage);
                     }
                 }
+            } else {
+                targetTemplate = cloudService.getTemplates()
+                        .stream()
+                        .filter(serviceTemplate -> serviceTemplate.getPrefix().equalsIgnoreCase(cloudService.getServiceId().getTaskName())
+                                && serviceTemplate.getName().equalsIgnoreCase("default"))
+                        .findFirst().orElse(null);
             }
 
             if (targetTemplate == null) {
-                if (cloudService.getTemplates().size() != 1) {
-                    sender.sendMessage(LanguageManager.getMessage("command-copy-service-not-one-template").replace("%name%", cloudService.getServiceId().getName()));
-                    return;
-                }
-
-                targetTemplate = cloudService.getTemplates().get(0);
+                sender.sendMessage(LanguageManager.getMessage("command-copy-service-no-default-template").replace("%name%", cloudService.getServiceId().getName()));
+                return;
             }
 
             List<ServiceDeployment> oldDeployments = new ArrayList<>(cloudService.getDeployments());

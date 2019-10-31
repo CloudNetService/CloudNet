@@ -52,7 +52,7 @@ public final class CommandPaste extends Command {
 
                 sender.sendMessage(LanguageManager.getMessage("module-report-command-paste-success")
                         .replace("%url%", CloudNetReportModule.getInstance()
-                                .executePaste(new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8)) + "")
+                                .executePaste(new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8)))
                 );
 
             } catch (IOException e) {

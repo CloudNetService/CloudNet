@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.console;
 
 import jline.console.ConsoleReader;
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
 public final class JLine2Console implements IConsole {
@@ -27,7 +28,7 @@ public final class JLine2Console implements IConsole {
         String input = this.consoleReader.readLine(
                 ConsoleColor.toColouredString('&', prompt)
                         .replace("%version%", version)
-                        .replace("%screen%", screenName + "")
+                        .replace("%screen%", screenName)
                         .replace("%user%", user)
                         + ConsoleColor.DEFAULT
         );
@@ -51,7 +52,7 @@ public final class JLine2Console implements IConsole {
         text = ConsoleColor.toColouredString('&', text);
 
         try {
-            this.consoleReader.print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
+            this.consoleReader.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
             this.consoleReader.flush();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -73,7 +74,7 @@ public final class JLine2Console implements IConsole {
         }
 
         try {
-            this.consoleReader.print(ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
+            this.consoleReader.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
             this.consoleReader.drawLine();
             this.consoleReader.flush();
         } catch (Exception exception) {

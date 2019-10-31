@@ -30,10 +30,10 @@ public class SyncProxyTabList {
 
     public static String replaceTabListItem(String input, UUID playerUniqueId) {
         input = input
-                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
-                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "");
+                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString())
+                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName())
+                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()));
 
         if (SyncProxyConstants.PERMISSION_MANAGEMENT != null && playerUniqueId != null) {
             IPermissionUser permissionUser = SyncProxyConstants.PERMISSION_MANAGEMENT.getUser(playerUniqueId);

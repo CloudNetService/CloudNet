@@ -24,7 +24,7 @@ public final class HeaderReader {
 
             String input;
             while ((input = bufferedReader.readLine()) != null) {
-                console.writeLine(input.replace("%codename%", codename + "").replace("%version%", version + ""));
+                console.writeLine(input.replace("%codename%", codename).replace("%version%", version));
             }
 
         } catch (IOException e) {

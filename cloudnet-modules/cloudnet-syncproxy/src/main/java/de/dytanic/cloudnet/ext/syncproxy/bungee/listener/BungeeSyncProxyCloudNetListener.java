@@ -15,6 +15,7 @@ import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeCloudNetSyncProxyPlugin;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.UUID;
@@ -73,7 +74,7 @@ public final class BungeeSyncProxyCloudNetListener {
             String message = ChatColor.translateAlternateColorCodes('&', configuration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()));
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
-                    player.sendMessage(message);
+                    player.sendMessage(TextComponent.fromLegacyText(message));
                 }
             }
         }
@@ -122,10 +123,8 @@ public final class BungeeSyncProxyCloudNetListener {
                     }
 
                     if (!proxiedPlayer.hasPermission("cloudnet.syncproxy.maintenance")) {
-                        proxiedPlayer.disconnect(
-                                ChatColor.translateAlternateColorCodes('&',
-                                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + ""
-                                )
+                        proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                                SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted")))
                         );
                     }
                 }

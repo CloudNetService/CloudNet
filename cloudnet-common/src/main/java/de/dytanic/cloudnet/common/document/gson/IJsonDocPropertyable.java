@@ -13,4 +13,6 @@ public interface IJsonDocPropertyable {
 
     <E> boolean hasProperty(JsonDocProperty<E> docProperty);
 
+    JsonDocument getProperties();
+
 }

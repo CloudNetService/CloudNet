@@ -13,6 +13,7 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
@@ -66,19 +67,19 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                 }
 
                 if (args[1].equalsIgnoreCase("local-perms")) {
-                    getCloudNet().publishUpdateJsonPermissionManagement();
+                    getCloudNet().publishPermissionGroupUpdates(getCloudNet().getPermissionManagement().getGroups(), NetworkUpdateType.SET);
 
                     sender.sendMessage(LanguageManager.getMessage("command-cluster-push-permissions-success"));
                 }
 
                 if (args[1].equalsIgnoreCase("tasks")) {
-                    getCloudNet().updateServiceTasksInCluster();
+                    getCloudNet().updateServiceTasksInCluster(getCloudNet().getPermanentServiceTasks(), NetworkUpdateType.SET);
                     sender.sendMessage(LanguageManager.getMessage("command-cluster-push-tasks-success"));
                     return;
                 }
 
                 if (args[1].equalsIgnoreCase("groups")) {
-                    getCloudNet().updateGroupConfigurationsInCluster();
+                    getCloudNet().updateGroupConfigurationsInCluster(getCloudNet().getGroupConfigurations(), NetworkUpdateType.SET);
                     sender.sendMessage(LanguageManager.getMessage("command-cluster-push-groups-success"));
                     return;
                 }
@@ -114,6 +115,7 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                             new HostAndPort(args[2], Integer.parseInt(args[3]))
                     }
             ));
+            getCloudNet().getConfig().getIpWhitelist().add(args[2]); //setClusterConfig already saves, so we don't have to call the save method again to save the ipWhitelist
             getCloudNet().getConfig().setClusterConfig(networkCluster);
             getCloudNet().getClusterNodeServerProvider().setClusterServers(networkCluster);
 
@@ -146,7 +148,8 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                     "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage " +
                             node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory() + "/" + node.getNodeInfoSnapshot().getMaxMemory() + "MB",
                     " ",
-                    "CPU usage: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
+                    "CPU usage process: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
+                    "CPU usage system: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getSystemCpuUsage()) + "%",
                     "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().getThreads().size(),
                     "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +
                             (node.getNodeInfoSnapshot().getProcessSnapshot().getMaxHeapMemory() / 1048576) + "MB",

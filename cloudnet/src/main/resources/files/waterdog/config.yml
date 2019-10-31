@@ -1,6 +1,6 @@
 replace_username_spaces: true
 forge_support: true
-player_limit: -1
+player_limit: 100
 use_xuid_for_uuid: true
 bedrock_encryption: true
 permissions:
@@ -41,7 +41,7 @@ listeners:
       - fallback
     bind_local_address: true
     host: 0.0.0.0:19132
-    max_players: -1
+    max_players: 100
     tab_size: 60
     force_default_server: false
 ip_forward: true

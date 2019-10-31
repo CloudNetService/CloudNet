@@ -74,7 +74,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             }
 
             try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-                JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
 
                 moduleConfigurationSource = new JsonDocument(jsonObject);
                 moduleConfiguration = GSON.fromJson(jsonObject, MODULE_CONFIGURATION_TYPE);
