@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.template;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 
@@ -51,6 +52,10 @@ public interface ITemplateStorage extends AutoCloseable {
     boolean create(ServiceTemplate template);
 
     boolean has(ServiceTemplate template);
+
+    OutputStream appendOutputStream(ServiceTemplate template, String path);
+
+    OutputStream newOutputStream(ServiceTemplate template, String path);
 
     Collection<ServiceTemplate> getTemplates();
 

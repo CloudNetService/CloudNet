@@ -7,7 +7,11 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -176,6 +180,35 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(template);
 
         return new File(this.storageDirectory, template.getTemplatePath()).exists();
+    }
+
+    @Override
+    public OutputStream appendOutputStream(ServiceTemplate template, String path) {
+        try {
+            Path file = Paths.get(template.getTemplatePath(), path);
+            if (!Files.exists(file)) {
+                Files.createDirectories(file.getParent());
+                Files.createFile(file);
+            }
+            return Files.newOutputStream(file, StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public OutputStream newOutputStream(ServiceTemplate template, String path) {
+        try {
+            Path file = Paths.get(template.getTemplatePath(), path);
+            if (!Files.exists(file)) {
+                Files.createDirectories(file.getParent());
+            }
+            return Files.newOutputStream(file, StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

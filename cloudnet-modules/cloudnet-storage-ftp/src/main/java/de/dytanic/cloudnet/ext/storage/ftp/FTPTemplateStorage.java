@@ -3,7 +3,9 @@ package de.dytanic.cloudnet.ext.storage.ftp;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -22,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -317,6 +320,30 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         });
 
         return result.getValue();
+    }
+
+    @Override
+    public OutputStream appendOutputStream(ServiceTemplate template, String path) {
+        Value<OutputStream> value = new Value<>();
+        ITask<OutputStream> task = new ListenableTask<>(value::getValue);
+        this.handleWithFTPClient(ftpClient -> {
+            value.setValue(ftpClient.appendFileStream(template.getTemplatePath() + "/" + path));
+            task.call();
+            return null;
+        });
+        return task.get(15, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    public OutputStream newOutputStream(ServiceTemplate template, String path) {
+        Value<OutputStream> value = new Value<>();
+        ITask<OutputStream> task = new ListenableTask<>(value::getValue);
+        this.handleWithFTPClient(ftpClient -> {
+            value.setValue(ftpClient.storeFileStream(template.getTemplatePath() + "/" + path));
+            task.call();
+            return null;
+        });
+        return task.get(15, TimeUnit.SECONDS, null);
     }
 
     @Override
