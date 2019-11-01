@@ -269,6 +269,7 @@ public final class CloudNet extends CloudNetDriver {
     private void initServiceVersions() {
         String url = System.getProperty("cloudnet.versions.url", "https://cloudnetservice.eu/cloudnet/versions.json");
         System.out.println(LanguageManager.getMessage("versions-load").replace("%url%", url));
+
         try {
             if (this.serviceVersionProvider.loadServiceVersionTypes(url)) {
                 System.out.println(LanguageManager.getMessage("versions-load-success")
@@ -276,16 +277,21 @@ public final class CloudNet extends CloudNetDriver {
                         .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
                 );
             } else {
-                System.err.println(LanguageManager.getMessage("versions-load-failed-invalid-json")
+                this.serviceVersionProvider.loadDefaultVersionTypes();
+
+                System.err.println(LanguageManager.getMessage("versions-load-failed")
                         .replace("%url%", url)
                         .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
+                        .replace("%error%", "invalid json")
                 );
             }
-        } catch (IOException e) {
+        } catch (IOException exception) {
+            this.serviceVersionProvider.loadDefaultVersionTypes();
+
             System.err.println(LanguageManager.getMessage("versions-load-failed")
                     .replace("%url%", url)
                     .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
-                    .replace("%error%", e.getClass().getName() + ": " + e.getMessage())
+                    .replace("%error%", exception.getClass().getName() + ": " + exception.getMessage())
             );
         }
     }

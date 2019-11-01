@@ -50,9 +50,10 @@ public class ServiceVersionType {
             this.requiresSpecificJavaVersionToExecute = requiresSpecificJavaVersionToExecute;
         }
 
-        public boolean requiresSpecificJavaVersionToExecute() {
-            return this.requiresSpecificJavaVersionToExecute;
+        public boolean canInstall(ServiceVersion serviceVersion) {
+            return !this.requiresSpecificJavaVersionToExecute || serviceVersion.canRun();
         }
+
     }
 
 }

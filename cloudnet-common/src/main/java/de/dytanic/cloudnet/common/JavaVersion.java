@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum JavaVersion {
-    JAVA_7(7, 51D, "Java 7"),
     JAVA_8(8, 52D, "Java 8"),
     JAVA_9(9, 53D, "Java 9"),
     JAVA_10(10, 54D, "Java 10"),
@@ -39,12 +38,12 @@ public enum JavaVersion {
         return this.versionId >= minJavaVersion.versionId && this.versionId <= maxJavaVersion.versionId;
     }
 
-    public boolean isMinimalVersion(JavaVersion minJavaVersion) {
-        return this.versionId >= minJavaVersion.versionId;
+    public boolean isSupportedByMin(JavaVersion minRequiredJavaVersion) {
+        return this.versionId >= minRequiredJavaVersion.versionId;
     }
 
-    public boolean isMaximalVersion(JavaVersion maxJavaVersion) {
-        return this.versionId <= maxJavaVersion.versionId;
+    public boolean isSupportedByMax(JavaVersion maxRequiredJavaVersion) {
+        return this.versionId <= maxRequiredJavaVersion.versionId;
     }
 
     public static JavaVersion getRuntimeVersion() {
