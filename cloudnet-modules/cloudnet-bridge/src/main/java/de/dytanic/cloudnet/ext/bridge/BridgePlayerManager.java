@@ -113,7 +113,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<? extends ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return getCloudNetDriver().getPacketStation().sendCallablePacket(
+        return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_uuid",
@@ -128,7 +128,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(String name) {
         Validate.checkNotNull(name);
 
-        return getCloudNetDriver().getPacketStation().sendCallablePacket(
+        return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_name_as_list",
@@ -143,7 +143,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return getCloudNetDriver().getPacketStation().sendCallablePacket(
+        return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_environment_as_list",
@@ -156,7 +156,7 @@ public final class BridgePlayerManager implements IPlayerManager {
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-        return getCloudNetDriver().getPacketStation().sendCallablePacket(
+        return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_online_players_as_list",
@@ -169,7 +169,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return getCloudNetDriver().getPacketStation().sendCallablePacket(
+        return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_offline_player_by_uuid",
@@ -184,7 +184,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(String name) {
         Validate.checkNotNull(name);
 
-        return getCloudNetDriver().getPacketStation().sendCallablePacket(
+        return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_offline_player_by_name_as_list",
@@ -197,7 +197,7 @@ public final class BridgePlayerManager implements IPlayerManager {
 
     @Override
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
-        return getCloudNetDriver().getPacketStation().sendCallablePacket(
+        return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_registered_offline_players_as_list",

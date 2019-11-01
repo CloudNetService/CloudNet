@@ -15,6 +15,7 @@ import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
@@ -129,6 +130,7 @@ public final class Wrapper extends CloudNetDriver {
         } else {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
         }
+        super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
 
         //- Packet client registry
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
@@ -243,6 +245,7 @@ public final class Wrapper extends CloudNetDriver {
         return this.messenger;
     }
 
+
     /**
      * Application wrapper implementation of this method. See the full documentation at the
      * CloudNetDriver class.
@@ -304,7 +307,7 @@ public final class Wrapper extends CloudNetDriver {
      */
     @Override
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_local_template_storage_templates"), null,
                 documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
                 }.getType()));
@@ -320,7 +323,7 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName) {
         Validate.checkNotNull(serviceName);
 
-        return getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_template_storage_templates").append("serviceName", serviceName), null,
                 documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
                 }.getType()));
@@ -337,7 +340,7 @@ public final class Wrapper extends CloudNetDriver {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
-        return getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_as_permission_user").append("uniqueId", uniqueId).append("commandLine", commandLine), null,
                 documentPair -> documentPair.getFirst().get("executionResponse", new TypeToken<Pair<Boolean, String[]>>() {
                 }.getType()));

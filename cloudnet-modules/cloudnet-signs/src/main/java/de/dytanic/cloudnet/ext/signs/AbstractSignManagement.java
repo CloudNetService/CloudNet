@@ -63,7 +63,7 @@ public abstract class AbstractSignManagement {
     }
 
     public Collection<Sign> getSignsFromNode() {
-        ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketStation().sendCallablePacket(
+        ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
                 CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
