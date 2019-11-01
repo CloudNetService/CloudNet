@@ -41,8 +41,18 @@ public class ServiceVersionType {
     }
 
     public enum InstallerType {
-        DOWNLOAD,
-        BUILD
+        DOWNLOAD(false),
+        BUILD(true);
+
+        private boolean requiresSpecificJavaVersionToExecute;
+
+        InstallerType(boolean requiresSpecificJavaVersionToExecute) {
+            this.requiresSpecificJavaVersionToExecute = requiresSpecificJavaVersionToExecute;
+        }
+
+        public boolean requiresSpecificJavaVersionToExecute() {
+            return this.requiresSpecificJavaVersionToExecute;
+        }
     }
 
 }

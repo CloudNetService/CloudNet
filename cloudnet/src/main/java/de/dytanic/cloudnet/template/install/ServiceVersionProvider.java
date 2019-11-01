@@ -76,13 +76,13 @@ public class ServiceVersionProvider {
         return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
     }
 
-    public boolean canBuildVersion(ServiceVersion serviceVersion) {
-        return serviceVersion.canRunOn(JavaVersion.getRuntimeVersion());
+    public boolean canBuildVersion(ServiceVersion serviceVersion, ServiceVersionType.InstallerType installerType) {
+        return !installerType.requiresSpecificJavaVersionToExecute() || serviceVersion.canRunOn(JavaVersion.getRuntimeVersion());
     }
 
     public void installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
-        if (!this.canBuildVersion(serviceVersion)) {
-            throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + " on " + JavaVersion.getRuntimeVersion().getName());
+        if (!this.canBuildVersion(serviceVersion, serviceVersionType.getInstallerType())) {
+            throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + "#" + serviceVersionType.getInstallerType() + " on " + JavaVersion.getRuntimeVersion().getName());
         }
 
         ServiceVersionInstaller installer = this.installers.get(serviceVersionType.getInstallerType());
