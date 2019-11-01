@@ -98,8 +98,8 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             return this.getPasteURL() + "/" + jsonDocument.getString("key") +
                     (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return null;

@@ -43,8 +43,8 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
         for (IWebSocketListener listener : webSocketServerChannel.getListeners()) {
             try {
                 listener.handle(webSocketServerChannel, type, bytes);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }

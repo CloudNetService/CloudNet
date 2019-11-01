@@ -32,8 +32,8 @@ public final class EncryptTo {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             messageDigest.update(bytes);
             return messageDigest.digest();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -58,8 +58,8 @@ public final class EncryptTo {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
             messageDigest.update(bytes);
             return messageDigest.digest();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
         }
 
         return null;

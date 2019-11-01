@@ -4,8 +4,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.Queue;
@@ -193,8 +193,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
                 case RUNNING:
                     try {
                         cloudService.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
                     break;
                 case STOPPED:
@@ -236,8 +236,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         if (cloudService != null) {
             try {
                 cloudService.restart();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         } else {
             ServiceInfoSnapshot serviceInfoSnapshot = this.getServiceInfoSnapshot();
@@ -265,8 +265,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         if (cloudService != null) {
             try {
                 cloudService.kill();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         } else {
             ServiceInfoSnapshot serviceInfoSnapshot = this.getServiceInfoSnapshot();

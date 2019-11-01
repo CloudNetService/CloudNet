@@ -4,8 +4,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -16,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public final class CommandPaste extends Command {
 
@@ -58,8 +55,8 @@ public final class CommandPaste extends Command {
                     sender.sendMessage(LanguageManager.getMessage("module-report-command-paste-failed").replace("%url%", CloudNetReportModule.getInstance().getPasteURL()));
                 }
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         }
     }

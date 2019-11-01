@@ -32,8 +32,8 @@ public final class DefaultRepositoryUpdater implements IUpdater {
             }
             return true;
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return false;
@@ -133,8 +133,8 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
             return true;
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return false;

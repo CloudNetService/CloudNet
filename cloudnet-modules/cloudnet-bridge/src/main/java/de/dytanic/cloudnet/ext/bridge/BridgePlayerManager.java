@@ -35,8 +35,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ICloudPlayer getOnlinePlayer(UUID uniqueId) {
         try {
             return getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -46,8 +46,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     public List<? extends ICloudPlayer> getOnlinePlayer(String name) {
         try {
             return getOnlinePlayerAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return Iterables.newArrayList();
@@ -57,8 +57,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     public List<? extends ICloudPlayer> getOnlinePlayers(ServiceEnvironmentType environment) {
         try {
             return getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return Iterables.newArrayList();
@@ -68,8 +68,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     public List<? extends ICloudPlayer> getOnlinePlayers() {
         try {
             return getOnlinePlayersAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return Iterables.newArrayList();
@@ -79,8 +79,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ICloudOfflinePlayer getOfflinePlayer(UUID uniqueId) {
         try {
             return getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -90,8 +90,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     public List<? extends ICloudOfflinePlayer> getOfflinePlayer(String name) {
         try {
             return getOfflinePlayerAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return Iterables.newArrayList();
@@ -101,8 +101,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
         try {
             return getRegisteredPlayersAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return Iterables.newArrayList();
@@ -113,7 +113,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<? extends ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return getCloudNetDriver().sendCallablePacket(
+        return getCloudNetDriver().getPacketStation().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_uuid",
@@ -128,7 +128,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(String name) {
         Validate.checkNotNull(name);
 
-        return getCloudNetDriver().sendCallablePacket(
+        return getCloudNetDriver().getPacketStation().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_name_as_list",
@@ -143,7 +143,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return getCloudNetDriver().sendCallablePacket(
+        return getCloudNetDriver().getPacketStation().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_environment_as_list",
@@ -156,7 +156,7 @@ public final class BridgePlayerManager implements IPlayerManager {
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-        return getCloudNetDriver().sendCallablePacket(
+        return getCloudNetDriver().getPacketStation().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_online_players_as_list",
@@ -169,7 +169,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return getCloudNetDriver().sendCallablePacket(
+        return getCloudNetDriver().getPacketStation().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_offline_player_by_uuid",
@@ -184,7 +184,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(String name) {
         Validate.checkNotNull(name);
 
-        return getCloudNetDriver().sendCallablePacket(
+        return getCloudNetDriver().getPacketStation().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_offline_player_by_name_as_list",
@@ -197,7 +197,7 @@ public final class BridgePlayerManager implements IPlayerManager {
 
     @Override
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
-        return getCloudNetDriver().sendCallablePacket(
+        return getCloudNetDriver().getPacketStation().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_registered_offline_players_as_list",

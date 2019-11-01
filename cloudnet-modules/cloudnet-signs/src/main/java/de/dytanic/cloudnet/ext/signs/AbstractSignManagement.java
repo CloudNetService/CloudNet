@@ -63,7 +63,7 @@ public abstract class AbstractSignManagement {
     }
 
     public Collection<Sign> getSignsFromNode() {
-        ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().sendCallablePacket(
+        ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketStation().sendCallablePacket(
                 CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
@@ -73,8 +73,8 @@ public abstract class AbstractSignManagement {
 
         try {
             return signs.get(5, TimeUnit.SECONDS);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -83,7 +83,7 @@ public abstract class AbstractSignManagement {
     public void updateSignConfiguration(SignConfiguration signConfiguration) {
         Validate.checkNotNull(signConfiguration);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SignConstants.SIGN_CHANNEL_NAME,
                 SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
                 new JsonDocument("signConfiguration", signConfiguration)

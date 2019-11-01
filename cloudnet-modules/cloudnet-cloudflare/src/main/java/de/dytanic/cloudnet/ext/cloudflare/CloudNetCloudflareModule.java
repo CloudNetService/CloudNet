@@ -111,8 +111,8 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
         if (CloudflareAPI.getInstance() != null) {
             try {
                 CloudflareAPI.getInstance().close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }

@@ -6,8 +6,8 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Collection;
@@ -30,8 +30,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     public Collection<GroupConfiguration> getGroupConfigurations() {
         try {
             return this.getGroupConfigurationsAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -42,8 +42,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
         try {
             return this.getGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -54,8 +54,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
         try {
             return this.isGroupConfigurationPresentAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return false;
     }
@@ -66,8 +66,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
         try {
             this.addGroupConfigurationAsync(groupConfiguration).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -77,8 +77,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
         try {
             this.removeGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -90,7 +90,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
     @Override
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_groupConfigurations"), null,
                 documentPair -> documentPair.getFirst().get("groupConfigurations", new TypeToken<Collection<GroupConfiguration>>() {
                 }.getType()));
@@ -100,7 +100,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_group_configuration").append("name", name), null,
                 documentPair -> documentPair.getFirst().get("groupConfiguration", new TypeToken<GroupConfiguration>() {
                 }.getType()));
@@ -110,7 +110,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_group_configuration_present").append("name", name), null,
                 documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
                 }.getType()));
@@ -120,7 +120,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     public ITask<Void> addGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_group_configuration").append("groupConfiguration", groupConfiguration), null,
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_group_configuration").append("groupConfiguration", groupConfiguration), null,
                 VOID_FUNCTION);
     }
 
@@ -128,7 +128,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     public ITask<Void> removeGroupConfigurationAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_group_configuration").append("name", name), null,
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_group_configuration").append("name", name), null,
                 VOID_FUNCTION);
     }
 

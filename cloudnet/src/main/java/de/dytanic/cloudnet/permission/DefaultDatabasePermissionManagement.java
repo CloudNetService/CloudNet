@@ -285,8 +285,8 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     private AbstractDatabaseProvider getDatabaseProvider() {
         try {
             return this.databaseProviderCallable.call();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;

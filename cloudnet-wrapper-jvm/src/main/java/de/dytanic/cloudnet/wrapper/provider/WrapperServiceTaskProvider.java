@@ -6,8 +6,8 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Collection;
@@ -30,8 +30,8 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public Collection<ServiceTask> getPermanentServiceTasks() {
         try {
             return this.getPermanentServiceTasksAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -42,8 +42,8 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
         try {
             return this.getServiceTaskAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -54,8 +54,8 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
         try {
             return this.isServiceTaskPresentAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return false;
     }
@@ -64,8 +64,8 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public void addPermanentServiceTask(ServiceTask serviceTask) {
         try {
             this.addPermanentServiceTaskAsync(serviceTask).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -73,8 +73,8 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public void removePermanentServiceTask(String name) {
         try {
             this.removePermanentServiceTaskAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -86,7 +86,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_permanent_serviceTasks"), null,
                 documentPair -> documentPair.getFirst().get("serviceTasks", new TypeToken<Collection<ServiceTask>>() {
                 }.getType()));
@@ -96,7 +96,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<ServiceTask> getServiceTaskAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_service_task").append("name", name), null,
                 documentPair -> documentPair.getFirst().get("serviceTask", new TypeToken<ServiceTask>() {
                 }.getType()));
@@ -106,7 +106,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<Boolean> isServiceTaskPresentAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_service_task_present").append("name", name), null,
                 documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
                 }.getType()));
@@ -116,7 +116,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<Void> addPermanentServiceTaskAsync(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
                 VOID_FUNCTION);
     }
 
@@ -124,7 +124,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<Void> removePermanentServiceTaskAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
                 VOID_FUNCTION);
     }
 

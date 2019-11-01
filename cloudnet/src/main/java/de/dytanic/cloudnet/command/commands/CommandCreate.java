@@ -116,8 +116,8 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                     this.listAndStartServices(sender, serviceInfoSnapshots, properties);
 
                     sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             });
         }

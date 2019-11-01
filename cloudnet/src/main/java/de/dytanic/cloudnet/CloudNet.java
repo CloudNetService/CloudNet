@@ -314,8 +314,8 @@ public final class CloudNet extends CloudNetDriver {
             if (this.databaseProvider != null) {
                 try {
                     this.databaseProvider.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
 
@@ -330,8 +330,8 @@ public final class CloudNet extends CloudNetDriver {
 
             this.networkTaskScheduler.shutdown();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         FileUtils.delete(new File("temp"));
@@ -739,8 +739,8 @@ public final class CloudNet extends CloudNetDriver {
 
                 eventManager.callEvent(new CloudNetTickEvent());
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }

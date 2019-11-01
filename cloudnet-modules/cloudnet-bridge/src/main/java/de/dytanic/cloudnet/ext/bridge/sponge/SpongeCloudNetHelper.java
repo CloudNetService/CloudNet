@@ -42,7 +42,7 @@ public final class SpongeCloudNetHelper {
         serviceInfoSnapshot.getProperties()
                 .append("Online", true)
                 .append("Version", Sponge.getPlatform().getMinecraftVersion())
-                .append("Sponge-Version", Sponge.getPlatform().getApi().getVersion())
+                .append("Sponge-Version", Sponge.getPlatform().getContainer(Platform.Component.API).getVersion())
                 .append("Online-Count", Sponge.getServer().getOnlinePlayers().size())
                 .append("Max-Players", maxPlayers)
                 .append("Motd", apiMotd)

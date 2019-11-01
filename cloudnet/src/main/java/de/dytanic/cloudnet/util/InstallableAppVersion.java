@@ -100,8 +100,8 @@ public final class InstallableAppVersion {
                 try {
                     field.setAccessible(true);
                     VERSIONS.add((InstallableAppVersion) field.get(null));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                } catch (IllegalAccessException exception) {
+                    exception.printStackTrace();
                 }
             }
         }

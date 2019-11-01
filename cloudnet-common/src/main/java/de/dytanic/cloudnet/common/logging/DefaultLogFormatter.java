@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.common.logging;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 

@@ -86,8 +86,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
                     sendCommandLine0(collection, commandLine);
                     return null;
                 }).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException exception) {
+                exception.printStackTrace();
             }
         }
 

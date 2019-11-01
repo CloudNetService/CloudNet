@@ -57,8 +57,8 @@ public final class NettyNetworkClient implements INetworkClient {
 
         try {
             this.init();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -115,8 +115,8 @@ public final class NettyNetworkClient implements INetworkClient {
                     .channel();
 
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return false;
@@ -139,8 +139,8 @@ public final class NettyNetworkClient implements INetworkClient {
         for (INetworkChannel channel : this.channels) {
             try {
                 channel.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
 

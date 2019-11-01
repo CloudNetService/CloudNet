@@ -368,8 +368,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.start();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -379,8 +379,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.stop();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -390,8 +390,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.delete();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }

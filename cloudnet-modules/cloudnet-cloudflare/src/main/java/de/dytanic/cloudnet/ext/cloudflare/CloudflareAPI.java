@@ -62,8 +62,8 @@ public final class CloudflareAPI implements AutoCloseable {
             httpURLConnection.setRequestMethod("POST");
 
             return this.getJsonResponse(httpURLConnection, email, apiKey, dnsRecord, serviceName, zoneId);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -81,8 +81,8 @@ public final class CloudflareAPI implements AutoCloseable {
             httpURLConnection.setRequestMethod("PUT");
 
             return this.getJsonResponse(httpURLConnection, email, apiKey, dnsRecord, serviceName, zoneId);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -133,8 +133,8 @@ public final class CloudflareAPI implements AutoCloseable {
 
             return new Pair<>(statusCode, document);
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;

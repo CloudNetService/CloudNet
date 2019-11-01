@@ -6,13 +6,14 @@ import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
-import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
-import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import org.h2.Driver;
 
 import java.io.File;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -90,8 +91,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
         try (PreparedStatement preparedStatement = this.connection.prepareStatement("DROP TABLE " + name)) {
             return preparedStatement.executeUpdate() != -1;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
 
         return false;

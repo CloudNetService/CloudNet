@@ -28,8 +28,8 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
             return preparedStatement.executeUpdate();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
 
         return -1;

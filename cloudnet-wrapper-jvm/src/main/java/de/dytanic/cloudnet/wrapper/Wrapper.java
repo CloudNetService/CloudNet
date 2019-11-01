@@ -253,8 +253,8 @@ public final class Wrapper extends CloudNetDriver {
     public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
         try {
             return this.getLocalTemplateStorageTemplatesAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -271,8 +271,8 @@ public final class Wrapper extends CloudNetDriver {
 
         try {
             return this.getTemplateStorageTemplatesAsync(serviceName).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -290,8 +290,8 @@ public final class Wrapper extends CloudNetDriver {
 
         try {
             return this.sendCommandLineAsPermissionUserAsync(uniqueId, commandLine).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -304,7 +304,7 @@ public final class Wrapper extends CloudNetDriver {
      */
     @Override
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_local_template_storage_templates"), null,
                 documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
                 }.getType()));
@@ -320,7 +320,7 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName) {
         Validate.checkNotNull(serviceName);
 
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_template_storage_templates").append("serviceName", serviceName), null,
                 documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
                 }.getType()));
@@ -337,7 +337,7 @@ public final class Wrapper extends CloudNetDriver {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
-        return sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_as_permission_user").append("uniqueId", uniqueId).append("commandLine", commandLine), null,
                 documentPair -> documentPair.getFirst().get("executionResponse", new TypeToken<Pair<Boolean, String[]>>() {
                 }.getType()));

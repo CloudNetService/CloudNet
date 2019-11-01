@@ -40,8 +40,8 @@ final class DefaultCloudServiceManagerConfiguration {
 
             try {
                 Files.delete(OLD_TASK_CONFIG_FILE);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -89,8 +89,8 @@ final class DefaultCloudServiceManagerConfiguration {
     public void deleteTask(String name) {
         try {
             Files.delete(TASKS_DIRECTORY.resolve(name + ".json"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 

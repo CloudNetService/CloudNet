@@ -43,8 +43,8 @@ public final class DefaultModuleHelper {
                 FileUtils.copy(inputStream, fileOutputStream);
             }
             return true;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         return false;
     }

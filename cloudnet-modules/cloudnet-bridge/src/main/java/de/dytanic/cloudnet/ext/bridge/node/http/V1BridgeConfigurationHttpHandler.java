@@ -46,7 +46,7 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
                     CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);
                     CloudNetBridgeModule.getInstance().writeConfiguration(bridgeConfiguration);
 
-                    CloudNetDriver.getInstance().sendChannelMessage(
+                    CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                             BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                             "update_bridge_configuration",
                             new JsonDocument("bridgeConfiguration", bridgeConfiguration)

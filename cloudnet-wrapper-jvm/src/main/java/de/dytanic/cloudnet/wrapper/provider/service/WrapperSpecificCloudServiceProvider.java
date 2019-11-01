@@ -6,8 +6,8 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Queue;
@@ -48,8 +48,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         }
         try {
             return this.getServiceInfoSnapshotAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
@@ -72,8 +72,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void addServiceTemplate(ServiceTemplate serviceTemplate) {
         try {
             this.addServiceTemplateAsync(serviceTemplate).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -81,7 +81,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public ITask<Void> addServiceTemplateAsync(ServiceTemplate serviceTemplate) {
         Validate.checkNotNull(serviceTemplate);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_template_to_cloud_service")
                         .append("serviceTemplate", serviceTemplate), null,
@@ -93,8 +93,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void addServiceRemoteInclusion(ServiceRemoteInclusion serviceRemoteInclusion) {
         try {
             this.addServiceRemoteInclusionAsync(serviceRemoteInclusion).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -102,7 +102,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public ITask<Void> addServiceRemoteInclusionAsync(ServiceRemoteInclusion serviceRemoteInclusion) {
         Validate.checkNotNull(serviceRemoteInclusion);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_remote_inclusion_to_cloud_service")
                         .append("serviceRemoteInclusion", serviceRemoteInclusion), null,
@@ -114,8 +114,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void addServiceDeployment(ServiceDeployment serviceDeployment) {
         try {
             this.addServiceDeploymentAsync(serviceDeployment).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -123,7 +123,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public ITask<Void> addServiceDeploymentAsync(ServiceDeployment serviceDeployment) {
         Validate.checkNotNull(serviceDeployment);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_deployment_to_cloud_service")
                         .append("serviceDeployment", serviceDeployment), null,
@@ -135,15 +135,15 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public Queue<String> getCachedLogMessages() {
         try {
             return this.getCachedLogMessagesAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
         return null;
     }
 
     @Override
     public ITask<Queue<String>> getCachedLogMessagesAsync() {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service")
                         .append("uniqueId", uniqueId), null,
                 documentPair -> documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
@@ -154,8 +154,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void setCloudServiceLifeCycle(ServiceLifeCycle lifeCycle) {
         try {
             this.setCloudServiceLifeCycleAsync(lifeCycle).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -163,7 +163,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle) {
         Validate.checkNotNull(lifeCycle);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "set_service_life_cycle")
                         .append("lifeCycle", lifeCycle),
@@ -176,14 +176,14 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void restart() {
         try {
             this.restartAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
     @Override
     public ITask<Void> restartAsync() {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "restart_cloud_service"),
                 null,
@@ -195,14 +195,14 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void kill() {
         try {
             this.killAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
     @Override
     public ITask<Void> killAsync() {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service"),
                 null,
@@ -214,8 +214,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void runCommand(String command) {
         try {
             this.runCommandAsync(command).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -223,7 +223,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public ITask<Void> runCommandAsync(String command) {
         Validate.checkNotNull(command);
 
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service")
                         .append("command", command),
@@ -236,8 +236,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void includeWaitingServiceTemplates() {
         try {
             this.includeWaitingServiceTemplatesAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -245,8 +245,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void includeWaitingServiceInclusions() {
         try {
             this.includeWaitingServiceInclusionsAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -254,14 +254,14 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     public void deployResources(boolean removeDeployments) {
         try {
             this.deployResourcesAsync(removeDeployments).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
     }
 
     @Override
     public ITask<Void> includeWaitingServiceTemplatesAsync() {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_templates"),
                 null,
@@ -270,7 +270,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> includeWaitingServiceInclusionsAsync() {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_inclusions"),
                 null,
@@ -279,7 +279,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> deployResourcesAsync(boolean removeDeployments) {
-        return this.wrapper.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
                         .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
                         .append("removeDeployments", removeDeployments), null,

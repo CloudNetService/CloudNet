@@ -70,8 +70,8 @@ public final class CloudPermissionsPermissionManagement implements IPermissionMa
 
         try {
             getDriver().getPermissionProvider().addUserAsync(permissionUser).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return permissionUser;

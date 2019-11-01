@@ -518,8 +518,8 @@ public class TaskScheduler {
 
                 try {
                     taskEntry.invoke();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
 
                 if (checkEntry()) {

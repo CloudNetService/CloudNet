@@ -5,8 +5,8 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgeCloudNetHelper;
+import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
@@ -111,8 +111,8 @@ public final class GoMintCloudNetHelper {
                                     Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
                                     gameRules.put(gameRule.getNbtName(), String.valueOf(world.getGamerule(gameRule)));
 
-                                } catch (IllegalAccessException e) {
-                                    e.printStackTrace();
+                                } catch (IllegalAccessException exception) {
+                                    exception.printStackTrace();
                                 }
                             }
                         }

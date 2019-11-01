@@ -74,8 +74,8 @@ public final class CommandReport extends Command {
                     .replace("%file%", file.getAbsolutePath())
             );
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 

@@ -241,8 +241,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
         try {
             this.classLoader.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         this.classLoader = null;

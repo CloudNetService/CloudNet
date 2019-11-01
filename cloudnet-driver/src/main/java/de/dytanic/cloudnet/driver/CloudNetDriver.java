@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.driver;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.command.CommandInfo;
-import de.dytanic.cloudnet.common.concurrent.*;
+import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
@@ -15,10 +16,9 @@ import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.PacketStation;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.*;
@@ -36,6 +36,8 @@ import java.util.function.Function;
 public abstract class CloudNetDriver {
 
     private static CloudNetDriver instance;
+
+    private final PacketStation packetStation = new PacketStation(this.getNetworkClient());
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
 
@@ -103,6 +105,7 @@ public abstract class CloudNetDriver {
 
     /**
      * Returns the general CloudServiceProvider
+     *
      * @return the instance of the {@link GeneralCloudServiceProvider}
      */
     public abstract GeneralCloudServiceProvider getCloudServiceProvider();
@@ -337,7 +340,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getCloudServiceFactory()
      * @see CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)
-     * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)} 
+     * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
     public ServiceInfoSnapshot createCloudService(String name,
@@ -1426,7 +1429,12 @@ public abstract class CloudNetDriver {
 
     public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine);
 
-
+    /**
+     * @see #getPacketStation()
+     * @see PacketStation#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)
+     * @deprecated moved to {@link PacketStation#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)}
+     */
+    @Deprecated
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
         Validate.checkNotNull(networkChannel);
         Validate.checkNotNull(channel);
@@ -1434,47 +1442,42 @@ public abstract class CloudNetDriver {
         Validate.checkNotNull(data);
         Validate.checkNotNull(function);
 
-        return this.sendCallablePacket(networkChannel, channel, data.append(PacketConstants.SYNC_PACKET_ID_PROPERTY, id), null, jsonDocumentPair -> function.apply(jsonDocumentPair.getFirst()));
+        return this.packetStation.sendCallablePacket(networkChannel, channel, id, data, function);
     }
 
+    /**
+     * @see #getPacketStation()
+     * @see PacketStation#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)
+     * @deprecated moved to {@link PacketStation#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)}
+     */
+    @Deprecated
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
-        return this.sendCallablePacketWithAsDriverSyncAPI(this.getNetworkClient().getChannels().iterator().next(), header, body, function);
+        return this.packetStation.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(header, body, function);
     }
 
+    /**
+     * @see #getPacketStation()
+     * @see PacketStation#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)
+     * @deprecated moved to {@link PacketStation#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)}
+     */
+    @Deprecated
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPI(INetworkChannel channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
-        return this.sendCallablePacket(channel, "cloudnet_driver_sync_api", header, body, function);
+        return this.packetStation.sendCallablePacketWithAsDriverSyncAPI(channel, header, body, function);
     }
 
+    /**
+     * @see #getPacketStation()
+     * @see PacketStation#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)
+     * @deprecated moved to {@link PacketStation#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)}
+     */
+    @Deprecated
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
-        return sendCallablePacket0(networkChannel, channel, header, body, function);
+        return this.packetStation.sendCallablePacket(networkChannel, channel, header, body, function);
     }
 
-    private <R> ITask<R> sendCallablePacket0(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
-        header.append(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY, channel);
 
-        Value<R> value = new Value<>();
-
-        ITask<R> listenableTask = new ListenableTask<>(value::getValue);
-
-        InternalSyncPacketChannel.sendCallablePacket(networkChannel, header, body, new ITaskListener<Pair<JsonDocument, byte[]>>() {
-
-            @Override
-            public void onComplete(ITask<Pair<JsonDocument, byte[]>> task, Pair<JsonDocument, byte[]> result) {
-                value.setValue(function.apply(result));
-                try {
-                    listenableTask.call();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(ITask<Pair<JsonDocument, byte[]>> task, Throwable th) {
-                th.printStackTrace();
-            }
-        });
-
-        return listenableTask;
+    public PacketStation getPacketStation() {
+        return packetStation;
     }
 
     public IServicesRegistry getServicesRegistry() {

@@ -32,7 +32,7 @@ public final class SignConfigurationProvider {
     }
 
     private static SignConfiguration load0() {
-        ITask<SignConfiguration> task = CloudNetDriver.getInstance().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+        ITask<SignConfiguration> task = CloudNetDriver.getInstance().getPacketStation().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
                 SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_CONFIGURATION_PROPERTY,
                 new JsonDocument(),
@@ -40,8 +40,8 @@ public final class SignConfigurationProvider {
 
         try {
             return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return null;
