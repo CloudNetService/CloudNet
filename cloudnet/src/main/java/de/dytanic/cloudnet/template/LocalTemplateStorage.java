@@ -8,12 +8,12 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public final class LocalTemplateStorage implements ITemplateStorage {
 
@@ -203,6 +203,78 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
+    public boolean createFile(ServiceTemplate template, String path) throws IOException {
+        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        if (Files.exists(file)) {
+            return false;
+        }
+        Files.createDirectories(file.getParent());
+        Files.createFile(file);
+        return true;
+    }
+
+    @Override
+    public boolean createDirectory(ServiceTemplate template, String path) throws IOException {
+        Path dir = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        if (Files.exists(dir)) {
+            return false;
+        }
+        Files.createDirectories(dir);
+        return true;
+    }
+
+    @Override
+    public boolean hasFile(ServiceTemplate template, String path) throws IOException {
+        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        return Files.exists(file);
+    }
+
+    @Override
+    public boolean deleteFile(ServiceTemplate template, String path) throws IOException {
+        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        if (!Files.exists(file)) {
+            return false;
+        }
+        if (Files.isDirectory(file)) {
+            Files.walkFileTree(file, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+        Files.delete(file);
+        return true;
+    }
+
+    @Override
+    public String[] listFiles(ServiceTemplate template, String dir) throws IOException {
+        List<String> files = new ArrayList<>();
+        Path directory = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(dir);
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                files.add(directory.relativize(file).toString());
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                files.add(directory.relativize(dir).toString());
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        return files.toArray(new String[0]);
+    }
+
+    @Override
     public Collection<ServiceTemplate> getTemplates() {
         Collection<ServiceTemplate> templates = Iterables.newArrayList();
 
@@ -233,5 +305,10 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     public File getStorageDirectory() {
         return this.storageDirectory;
+    }
+
+    @Override
+    public String getName() {
+        return LOCAL_TEMPLATE_STORAGE;
     }
 }

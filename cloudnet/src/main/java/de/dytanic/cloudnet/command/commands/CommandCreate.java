@@ -179,16 +179,9 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
             for (String item : templateEntries) {
                 if (item.length() > 3 && item.contains(":") && item.contains("/")) {
-                    String[] split = item.split(":");
-
-                    if (split.length == 2 && split[1].contains("/")) {
-                        String[] split0 = split[1].split("/");
-
-                        temps.add(new ServiceTemplate(
-                                split0[0],
-                                split0[1],
-                                split[0]
-                        ));
+                    ServiceTemplate template = ServiceTemplate.parse(item);
+                    if (template != null) {
+                        temps.add(template);
                     }
                 }
             }
@@ -201,17 +194,9 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
             for (String item : templateEntries) {
                 if (item.length() > 3 && item.contains(":") && item.contains("/")) {
-                    String[] split = item.split(":");
-
-                    if (split.length == 2 && split[1].contains("/")) {
-                        String[] split0 = split[1].split("/");
-
-                        deploy.add(
-                                new ServiceDeployment(new ServiceTemplate(
-                                        split0[0],
-                                        split0[1],
-                                        split[0]
-                                ), Iterables.newArrayList()));
+                    ServiceTemplate template = ServiceTemplate.parse(item);
+                    if (template != null) {
+                        deploy.add(new ServiceDeployment(template, Iterables.newArrayList()));
                     }
                 }
             }

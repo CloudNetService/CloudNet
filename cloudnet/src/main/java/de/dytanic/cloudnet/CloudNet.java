@@ -361,6 +361,10 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
+    public ServiceVersionProvider getServiceVersionProvider() {
+        return this.serviceVersionProvider;
+    }
+
     @Override
     public String[] sendCommandLine(String commandLine) {
         Validate.checkNotNull(commandLine);
@@ -2085,11 +2089,11 @@ public final class CloudNet extends CloudNetDriver {
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby add group Global-Server");
 
                         //Install
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt create Global bukkit minecraft_server");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Global bukkit minecraft_server paperspigot-1.12.2");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t create Global/bukkit minecraft_server");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Global/bukkit paperspigot 1.13.2");
 
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt create Global proxy bungeecord");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Global proxy bungeecord default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t create Global/proxy bungeecord");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Global/proxy bungeecord latest");
 
                         //Add templates
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks group Global-Server add template local Global bukkit");
@@ -2104,8 +2108,8 @@ public final class CloudNet extends CloudNetDriver {
                     case "java-bungee-1.14.4":
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord default");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server paperspigot-1.14.4");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Proxy/default bungeecord latest");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Lobby/default paperspigot 1.14.4");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
@@ -2113,8 +2117,8 @@ public final class CloudNet extends CloudNetDriver {
                     case "java-bungee-1.8.8":
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord default");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.8.8");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Proxy default bungeecord latest");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Lobby default paperspigot 1.8.8");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
@@ -2122,8 +2126,8 @@ public final class CloudNet extends CloudNetDriver {
                     case "java-bungee-1.13.2":
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy bungeecord");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default bungeecord default");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.13.2");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Proxy default bungeecord latest");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Lobby default paperspigot 1.13.2");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
@@ -2131,8 +2135,8 @@ public final class CloudNet extends CloudNetDriver {
                     case "java-velocity-1.8.8":
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy velocity");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default velocity default");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.8.8");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Proxy default velocity latest");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Lobby default paperspigot 1.8.8");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
@@ -2140,8 +2144,8 @@ public final class CloudNet extends CloudNetDriver {
                     case "java-velocity-1.13.2":
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy velocity");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby minecraft_server");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default velocity default");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default minecraft_server spigot-1.13.2");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Proxy default velocity latest");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Lobby default paperspigot 1.13.2");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
@@ -2149,8 +2153,8 @@ public final class CloudNet extends CloudNetDriver {
                     case "bedrock":
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Proxy waterdog");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks create task Lobby nukkit");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Proxy default waterdog default");
-                        this.commandMap.dispatchCommand(this.consoleCommandSender, "lt install Lobby default nukkit default");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Proxy default waterdog latest");
+                        this.commandMap.dispatchCommand(this.consoleCommandSender, "t install Lobby default nukkit latest");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Proxy set minServiceCount 1");
                         this.commandMap.dispatchCommand(this.consoleCommandSender, "tasks task Lobby set minServiceCount 1");
                         doBreak = true;
@@ -2186,7 +2190,7 @@ public final class CloudNet extends CloudNetDriver {
                 new CommandCreate(),
                 new CommandCluster(),
                 new CommandModules(),
-                new CommandLocalTemplate(),
+                new CommandTemplate(),
                 new CommandMe(),
                 new CommandScreen(),
                 new CommandPermissions(),

@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.template;
 
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 import java.io.File;
@@ -14,7 +15,7 @@ import java.util.Collection;
  * <p>
  * The implementation allows to deploy, copy and convert to a zip compressed array any template that should handle
  */
-public interface ITemplateStorage extends AutoCloseable {
+public interface ITemplateStorage extends AutoCloseable, INameable {
 
     /**
      * Deploys a zip compressed into a target template storage that should decompressed and deploy on the target template
@@ -57,6 +58,16 @@ public interface ITemplateStorage extends AutoCloseable {
     OutputStream appendOutputStream(ServiceTemplate template, String path) throws IOException;
 
     OutputStream newOutputStream(ServiceTemplate template, String path) throws IOException;
+
+    boolean createFile(ServiceTemplate template, String path) throws IOException;
+
+    boolean createDirectory(ServiceTemplate template, String path) throws IOException;
+
+    boolean hasFile(ServiceTemplate template, String path) throws IOException;
+
+    boolean deleteFile(ServiceTemplate template, String path) throws IOException;
+
+    String[] listFiles(ServiceTemplate template, String dir) throws IOException;
 
     Collection<ServiceTemplate> getTemplates();
 

@@ -27,8 +27,13 @@ public class ServiceTemplate implements INameable {
         return this.alwaysCopyToStaticServices;
     }
 
+    @Override
+    public String toString() {
+        return this.storage + ":" + this.prefix + "/" + this.name;
+    }
+
     public String getTemplatePath() {
-        return prefix + "/" + name;
+        return this.prefix + "/" + this.name;
     }
 
     public String getPrefix() {
@@ -41,5 +46,19 @@ public class ServiceTemplate implements INameable {
 
     public String getStorage() {
         return this.storage;
+    }
+
+    public static ServiceTemplate parse(String template) {
+        String[] base = template.split(":");
+        if (base.length > 2) {
+            return null;
+        }
+        String path = base.length == 2 ? base[1] : base[0];
+        String storage = base.length == 2 ? base[0] : "local";
+        String[] splitPath = path.split("/");
+        if (splitPath.length != 2) {
+            return null;
+        }
+        return new ServiceTemplate(splitPath[0], splitPath[1], storage);
     }
 }

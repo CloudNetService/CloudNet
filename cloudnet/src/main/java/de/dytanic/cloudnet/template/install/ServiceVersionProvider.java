@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
@@ -94,13 +95,30 @@ public class ServiceVersionProvider {
             storage.create(serviceTemplate);
         }
 
+        String fileName = serviceVersionType.getTargetEnvironment().getName() + ".jar";
         Path workingDirectory = Paths.get(System.getProperty("cloudnet.tempDir.build", "temp/build"), UUID.randomUUID().toString());
-        try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, serviceVersionType.getTargetEnvironment().getName() + ".jar")) {
+        try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, fileName)) {
             Files.createDirectories(workingDirectory);
 
             installer.install(serviceVersion, workingDirectory, outputStream);
 
             FileUtils.delete(workingDirectory.toFile());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        try {
+            //delete all old application files if they exist to prevent that they are used to start the server
+            for (String file : storage.listFiles(serviceTemplate, "")) {
+                if (file.equals(fileName)) {
+                    continue;
+                }
+                for (ServiceEnvironment environment : ServiceEnvironment.values()) {
+                    if (file.equalsIgnoreCase(environment.getName() + ".jar")) {
+                        storage.deleteFile(serviceTemplate, file);
+                    }
+                }
+            }
         } catch (IOException exception) {
             exception.printStackTrace();
         }

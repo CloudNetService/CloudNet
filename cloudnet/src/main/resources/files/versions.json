@@ -9,42 +9,42 @@
           "name": "1.14.4",
           "url": "https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar",
           "properties": {
-            "copy": "cache/patches.*\\.jar"
+            "copy": "cache/patched.*\\.jar"
           }
         },
         {
           "name": "1.13.2",
           "url": "https://papermc.io/ci/job/Paper-1.13/lastSuccessfulBuild/artifact/paperclip.jar",
           "properties": {
-            "copy": "cache/patches.*\\.jar"
+            "copy": "cache/patched.*\\.jar"
           }
         },
         {
           "name": "1.12.2",
           "url": "https://papermc.io/ci/job/Paper/lastSuccessfulBuild/artifact/paperclip-1618.jar",
           "properties": {
-            "copy": "cache/patches.*\\.jar"
+            "copy": "cache/patched.*\\.jar"
           }
         },
         {
           "name": "1.11.2",
           "url": "https://papermc.io/ci/job/Paper/1104/artifact/paperclip.jar",
           "properties": {
-            "copy": "cache/patches.*\\.jar"
+            "copy": "cache/patched.*\\.jar"
           }
         },
         {
           "name": "1.10.2",
           "url": "https://papermc.io/ci/job/Paper/916/artifact/paperclip-916.2.jar",
           "properties": {
-            "copy": "cache/patches.*\\.jar"
+            "copy": "cache/patched.*\\.jar"
           }
         },
         {
           "name": "1.9.4",
           "url": "https://papermc.io/ci/job/Paper/773/artifact/paperclip-773.jar",
           "properties": {
-            "copy": "cache/patches.*\\.jar"
+            "copy": "cache/patched.*\\.jar"
           }
         },
         {
@@ -53,7 +53,7 @@
           "minJavaVersion": 7,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": "cache/patches.*\\.jar"
+            "copy": "cache/patched.*\\.jar"
           }
         }
       ]
@@ -216,6 +216,54 @@
         {
           "name": "latest",
           "url": "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar"
+        }
+      ]
+    },
+    {
+      "name": "bungeecord",
+      "targetEnvironment": "BUNGEECORD_DEFAULT",
+      "installerType": "DOWNLOAD",
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
+        }
+      ]
+    },
+    {
+      "name": "travertine",
+      "targetEnvironment": "BUNGEECORD_TRAVERTINE",
+      "installerType": "DOWNLOAD",
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://papermc.io/ci/view/WaterfallMC/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"
+        }
+      ]
+    },
+    {
+      "name": "hexacord",
+      "targetEnvironment": "BUNGEECORD_HEXACORD",
+      "installerType": "DOWNLOAD",
+      "versions": [
+        {
+          "name": "v246",
+          "url": "https://yivesmirror.com/files/hexacord/HexaCord-v246.jar"
+        },
+        {
+          "name": "default",
+          "url": "https://yivesmirror.com/files/hexacord/HexaCord-v246.jar"
+        }
+      ]
+    },
+    {
+      "name": "waterfall",
+      "targetEnvironment": "BUNGEECORD_WATERFALL",
+      "installerType": "DOWNLOAD",
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://ci.destroystokyo.com/job/Waterfall/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterfall.jar"
         }
       ]
     },

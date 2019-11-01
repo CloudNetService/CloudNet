@@ -23,6 +23,6 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
     public void registerStorage() {
-        registerTemplateStorage(getConfig().getString("storage"), new FTPTemplateStorage(this.getConfig()));
+        registerTemplateStorage(getConfig().getString("storage"), new FTPTemplateStorage(getConfig().getString("storage"), this.getConfig()));
     }
 }

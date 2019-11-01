@@ -13,7 +13,7 @@ import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorageUtil;
+import de.dytanic.cloudnet.template.TemplateStorageUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,7 +135,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 0
                         ));
 
-                        LocalTemplateStorageUtil.createAndPrepareTemplate(
+                        TemplateStorageUtil.createAndPrepareTemplate(
                                 CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE),
                                 args[2],
                                 "default",

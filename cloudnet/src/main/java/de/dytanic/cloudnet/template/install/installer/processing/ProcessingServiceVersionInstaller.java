@@ -42,6 +42,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
         this.download(version.getUrl(), workingDirectory.resolve(DOWNLOAD_ARTIFACT_NAME));
 
         List<String> processArguments = new ArrayList<>();
+        processArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
         processArguments.add("-jar");
         processArguments.add(DOWNLOAD_ARTIFACT_NAME);
         processArguments.addAll(
@@ -50,7 +51,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                         .collect(Collectors.toList())
         );
 
-        int exitCode = this.buildProcessAndWait(CloudNet.getInstance().getConfig().getJVMCommand(), processArguments, workingDirectory);
+        int exitCode = this.buildProcessAndWait(processArguments, workingDirectory);
         if (exitCode != 0) {
             throw new IllegalStateException("ExitCode was " + exitCode + ", not 0");
         }
@@ -86,9 +87,9 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
         connection.disconnect();
     }
 
-    protected int buildProcessAndWait(String javaCommand, List<String> arguments, Path workingDir) {
+    protected int buildProcessAndWait(List<String> arguments, Path workingDir) {
         try {
-            Process process = new ProcessBuilder(javaCommand)
+            Process process = new ProcessBuilder()
                     .command(arguments)
                     .directory(workingDir.toFile())
                     .start();

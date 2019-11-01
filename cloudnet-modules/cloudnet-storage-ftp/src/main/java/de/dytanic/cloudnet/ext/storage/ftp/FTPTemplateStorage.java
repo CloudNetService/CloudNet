@@ -22,6 +22,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -30,9 +33,11 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
     private static final LogLevel LOG_LEVEL = new LogLevel("ftp/ftps", "FTP/FTPS", 1, true);
 
+    private final String name;
     private final JsonDocument document;
 
-    public FTPTemplateStorage(JsonDocument document) {
+    public FTPTemplateStorage(String name, JsonDocument document) {
+        this.name = name;
         this.document = document;
     }
 
@@ -344,6 +349,53 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     }
 
     @Override
+    public boolean createFile(ServiceTemplate template, String path) throws IOException {
+        AtomicBoolean success = new AtomicBoolean();
+        this.handleWithFTPClient(ftpClient -> {
+            success.set(ftpClient.storeFile(template.getTemplatePath() + "/" + path, new ByteArrayInputStream(new byte[0])));
+            return null;
+        });
+        return success.get();
+    }
+
+    @Override
+    public boolean createDirectory(ServiceTemplate template, String path) throws IOException {
+        return this.handleWithFTPClient(ftpClient -> {
+            this.makeDirectories(ftpClient, template.getTemplatePath() + "/" + path);
+            return null;
+        });
+    }
+
+    @Override
+    public boolean hasFile(ServiceTemplate template, String path) throws IOException {
+        AtomicBoolean hasFile = new AtomicBoolean();
+        this.handleWithFTPClient(ftpClient -> {
+            FTPFile file = ftpClient.mlistFile(template.getTemplatePath() + "/" + path);
+            hasFile.set(file != null);
+            return null;
+        });
+        return hasFile.get();
+    }
+
+    @Override
+    public boolean deleteFile(ServiceTemplate template, String path) throws IOException {
+        return this.handleWithFTPClient(ftpClient -> {
+            ftpClient.deleteFile(template.getTemplatePath() + "/" + path);
+            return null;
+        });
+    }
+
+    @Override
+    public String[] listFiles(ServiceTemplate template, String dir) throws IOException {
+        AtomicReference<String[]> files = new AtomicReference<>();
+        this.handleWithFTPClient(ftpClient -> {
+            files.set(ftpClient.listNames(dir));
+            return null;
+        });
+        return files.get() != null ? files.get() : new String[0];
+    }
+
+    @Override
     public Collection<ServiceTemplate> getTemplates() {
         Collection<ServiceTemplate> templates = Iterables.newArrayList();
 
@@ -463,4 +515,10 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     public JsonDocument getDocument() {
         return this.document;
     }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
 }
