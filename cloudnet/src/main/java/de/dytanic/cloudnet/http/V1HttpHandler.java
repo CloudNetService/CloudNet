@@ -94,8 +94,8 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
                 this.send403Response(context, "permission required " + permission);
                 return false;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return true;

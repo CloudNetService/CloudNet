@@ -149,7 +149,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             throw new IllegalArgumentException("Invalid module class type");
         }
 
-        this.module = (DefaultModule) clazz.newInstance();
+        this.module = (DefaultModule) clazz.getDeclaredConstructor().newInstance();
 
         this.module.moduleWrapper = this;
         this.module.moduleConfig = this.moduleConfiguration;
@@ -241,8 +241,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
         try {
             this.classLoader.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         this.classLoader = null;

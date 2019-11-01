@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 public final class ExampleChannelPublishAndSubscribe {
 
     public void publishMessage() {
-        CloudNetDriver.getInstance().sendChannelMessage("user_channel", "user_info_publishing", new JsonDocument()
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage("user_channel", "user_info_publishing", new JsonDocument()
                 .append("name", "Peter Parker")
                 .append("age", 17)
         );

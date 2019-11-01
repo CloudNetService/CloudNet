@@ -26,7 +26,7 @@ public final class CommandReloadBridge extends Command {
         BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().reloadConfig().get("config", BridgeConfiguration.TYPE);
         CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "update_bridge_configuration",
                 new JsonDocument("bridgeConfiguration", bridgeConfiguration)

@@ -127,8 +127,8 @@ final class JVMCloudService implements ICloudService {
                 OutputStream outputStream = this.process.getOutputStream();
                 outputStream.write((commandLine + "\n").getBytes(StandardCharsets.UTF_8));
                 outputStream.flush();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -267,8 +267,8 @@ final class JVMCloudService implements ICloudService {
                             FileUtils.copy(file, new File(this.directory, ".wrapper/trustCertificate"));
                         }
                     }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
 
@@ -368,8 +368,8 @@ final class JVMCloudService implements ICloudService {
                 CloudNet.getInstance().runTask(() -> {
                     try {
                         start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
                 });
             } else {
@@ -384,8 +384,8 @@ final class JVMCloudService implements ICloudService {
                 CloudNet.getInstance().runTask(() -> {
                     try {
                         start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
                 });
             } else {
@@ -459,8 +459,8 @@ final class JVMCloudService implements ICloudService {
 
                     this.includes.add(inclusion);
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         }
@@ -533,8 +533,8 @@ final class JVMCloudService implements ICloudService {
 
                     this.templates.add(template);
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         }

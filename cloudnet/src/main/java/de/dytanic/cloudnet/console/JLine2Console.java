@@ -54,8 +54,8 @@ public final class JLine2Console implements IConsole {
         try {
             this.consoleReader.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
             this.consoleReader.flush();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return this;

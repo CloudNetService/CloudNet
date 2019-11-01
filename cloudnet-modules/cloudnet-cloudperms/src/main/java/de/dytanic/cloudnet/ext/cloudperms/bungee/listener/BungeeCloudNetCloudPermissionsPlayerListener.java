@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -17,28 +17,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(LoginEvent event) {
-        UUID uniqueId = event.getConnection().getUniqueId();
-
-        IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
-
-        if (permissionUser == null) {
-            CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                    uniqueId,
-                    event.getConnection().getName(),
-                    null,
-                    0
-            ));
-
-            permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
-        }
-
-        if (permissionUser != null) {
-            CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
-
-            permissionUser.setName(event.getConnection().getName());
-            CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
-        }
-
+        CloudPermissionsHelper.initPermissionUser(event.getConnection().getUniqueId(), event.getConnection().getName());
     }
 
     @EventHandler

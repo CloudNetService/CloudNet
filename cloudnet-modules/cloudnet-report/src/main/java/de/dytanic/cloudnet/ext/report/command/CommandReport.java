@@ -74,8 +74,8 @@ public final class CommandReport extends Command {
                     .replace("%file%", file.getAbsolutePath())
             );
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -148,14 +148,14 @@ public final class CommandReport extends Command {
             }
 
             writer.println("###################################################################################");
-            writer.println("Services: " + CloudNetDriver.getInstance().getCloudServices().size());
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
+            writer.println("Services: " + CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().size());
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
                 writer.println("* Service " + serviceInfoSnapshot.getServiceId().getName() + " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
                 gson.toJson(serviceInfoSnapshot, writer);
                 writer.println();
 
                 writer.println("Console receivedMessages:");
-                for (String entry : CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId())) {
+                for (String entry : CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages()) {
                     writer.println(entry);
                 }
 

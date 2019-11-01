@@ -368,8 +368,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.start();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -379,8 +379,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.stop();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -390,8 +390,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         for (ICloudService cloudService : this.cloudServices.values()) {
             try {
                 cloudService.delete();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -411,21 +411,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     @Override
-    public Collection<ICloudService> getCloudServices(String taskName) {
+    public Collection<ICloudService> getLocalCloudServices(String taskName) {
         Validate.checkNotNull(taskName);
 
         return Iterables.filter(this.cloudServices.values(), iCloudService -> iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName));
     }
 
     @Override
-    public Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate) {
+    public Collection<ICloudService> getLocalCloudServices(Predicate<ICloudService> predicate) {
         Validate.checkNotNull(predicate);
 
         return Iterables.filter(this.cloudServices.values(), predicate);
     }
 
     @Override
-    public Collection<ICloudService> getServices() {
+    public Collection<ICloudService> getLocalCloudServices() {
         return Collections.unmodifiableCollection(this.cloudServices.values());
     }
 

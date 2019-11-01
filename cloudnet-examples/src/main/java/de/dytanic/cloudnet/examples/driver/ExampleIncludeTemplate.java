@@ -15,13 +15,13 @@ public final class ExampleIncludeTemplate {
 
     public void exampleIncludeTemplates(UUID playerUniqueId, ServiceInfoSnapshot serviceInfoSnapshot) {
         //Add serviceTemplate to existing service
-        CloudNetDriver.getInstance().addServiceTemplateToCloudService(serviceInfoSnapshot.getServiceId().getUniqueId(), new ServiceTemplate(
+        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).addServiceTemplate(new ServiceTemplate(
                 "Lobby", "test1",
                 "local"
         ));
 
         //Create service with custom template
-        ServiceInfoSnapshot newService = CloudNetDriver.getInstance().createCloudService(
+        ServiceInfoSnapshot newService = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(
                 "PS-" + playerUniqueId.toString(),
                 "jvm",
                 true,
@@ -44,6 +44,6 @@ public final class ExampleIncludeTemplate {
                 null
         );
 
-        CloudNetDriver.getInstance().startCloudService(newService);
+        CloudNetDriver.getInstance().getCloudServiceProvider(newService).start();
     }
 }

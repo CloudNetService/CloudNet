@@ -29,7 +29,7 @@ public final class CommandCloudNet implements Command {
         }
 
         if (source instanceof Player) {
-            CommandInfo commandInfo = CloudNetDriver.getInstance().getConsoleCommand(stringBuilder.toString());
+            CommandInfo commandInfo = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(stringBuilder.toString());
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!source.hasPermission(commandInfo.getPermission())) {
                     source.sendMessage(

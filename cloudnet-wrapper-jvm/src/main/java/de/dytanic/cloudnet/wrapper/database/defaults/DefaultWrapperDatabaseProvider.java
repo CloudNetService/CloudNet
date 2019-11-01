@@ -79,7 +79,7 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
     }
 
     <V> ITask<V> executeQuery(JsonDocument header, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
-        return Wrapper.getInstance().sendCallablePacket(
+        return Wrapper.getInstance().getPacketStation().sendCallablePacket(
                 Wrapper.getInstance().getNetworkClient().getChannels().iterator().next(),
                 null,
                 header, Packet.EMPTY_PACKET_BYTE_ARRAY, responseMapper

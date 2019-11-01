@@ -39,8 +39,8 @@ public final class BukkitSignInteractionListener implements Listener {
                         dataOutputStream.writeUTF(sign.getServiceInfoSnapshot().getServiceId().getName());
                         event.getPlayer().sendPluginMessage(BukkitSignManagement.getInstance().getPlugin(), "BungeeCord", byteArrayOutputStream.toByteArray());
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
                     }
 
                     event.getPlayer().sendMessage(

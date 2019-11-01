@@ -16,25 +16,25 @@ public final class ExampleGroups {
     }
 
     public void addGroupConfiguration() {
-        CloudNetDriver.getInstance().addGroupConfiguration(new GroupConfiguration("TestGroup")); //Creates a group without default includes, templates and deployments
+        CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(new GroupConfiguration("TestGroup")); //Creates a group without default includes, templates and deployments
     }
 
     public void updateGroupConfiguration() {
-        if (CloudNetDriver.getInstance().isGroupConfigurationPresent("TestGroup")) {
-            CloudNetDriver.getInstance().getGroupConfigurationAsync("TestGroup").onComplete(result -> {
+        if (CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent("TestGroup")) {
+            CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurationAsync("TestGroup").onComplete(result -> {
                 result.getTemplates().add(new ServiceTemplate( //add a new ServiceTemplate to the group
                         "Lobby",
                         "default",
                         "local"
                 ));
 
-                CloudNetDriver.getInstance().addGroupConfiguration(result); //add or update the group configuration
+                CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(result); //add or update the group configuration
             }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
         }
     }
 
     public void removeGroupConfiguration() {
-        CloudNetDriver.getInstance().removeGroupConfiguration("TestGroup"); //remove the group configuration in network
+        CloudNetDriver.getInstance().getGroupConfigurationProvider().removeGroupConfiguration("TestGroup"); //remove the group configuration in network
     }
 
     public void checkGroupConfiguration(ServiceConfiguration serviceConfiguration) {

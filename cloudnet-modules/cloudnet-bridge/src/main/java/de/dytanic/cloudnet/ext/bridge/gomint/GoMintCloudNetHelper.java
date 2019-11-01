@@ -2,10 +2,10 @@ package de.dytanic.cloudnet.ext.bridge.gomint;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.BridgeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -54,22 +54,7 @@ public final class GoMintCloudNetHelper {
     }
 
     public static void changeToIngame() {
-        state = "INGAME";
-        BridgeHelper.updateServiceInfo();
-
-        String task = Wrapper.getInstance().getServiceId().getTaskName();
-
-        if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).onComplete(serviceTask -> {
-                if (serviceTask != null) {
-                    CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
-                        if (serviceInfoSnapshot != null) {
-                            CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
-                        }
-                    });
-                }
-            });
-        }
+        BridgeCloudNetHelper.changeToIngame(s -> GoMintCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -126,8 +111,8 @@ public final class GoMintCloudNetHelper {
                                     Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
                                     gameRules.put(gameRule.getNbtName(), String.valueOf(world.getGamerule(gameRule)));
 
-                                } catch (IllegalAccessException e) {
-                                    e.printStackTrace();
+                                } catch (IllegalAccessException exception) {
+                                    exception.printStackTrace();
                                 }
                             }
                         }

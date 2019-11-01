@@ -62,8 +62,8 @@ public final class CloudNetReportListener {
                     for (File file : files) {
                         try {
                             FileUtils.copy(file, new File(subDir, file.getName()));
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
                         }
                     }
                 }
@@ -71,8 +71,8 @@ public final class CloudNetReportListener {
                 FileUtils.copyFilesToDirectory(new File(cloudService.getDirectory(), "logs"), new File(directory, "logs"));
             }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -81,12 +81,12 @@ public final class CloudNetReportListener {
             FileUtils.workFileTree(cloudService.getDirectory(), file -> {
                 try {
                     fileWriter.write(file.getAbsolutePath() + " | " + file.length() + " Bytes\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException exception) {
+                    exception.printStackTrace();
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -112,8 +112,8 @@ public final class CloudNetReportListener {
                 fileWriter.write(message + "\n");
                 fileWriter.flush();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 

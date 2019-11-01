@@ -13,6 +13,7 @@ import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -59,25 +60,10 @@ public final class CloudflareAPI implements AutoCloseable {
         try {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records").openConnection();
             httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setDoOutput(true);
 
-            initRequestProperties(httpURLConnection, email, apiKey);
-            httpURLConnection.connect();
-
-            try (DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream())) {
-                dataOutputStream.writeBytes(GsonUtil.GSON.toJson(dnsRecord));
-                dataOutputStream.flush();
-            }
-
-            int statusCode = httpURLConnection.getResponseCode();
-            JsonDocument document = JsonDocument.newDocument(readResponse(httpURLConnection));
-            httpURLConnection.disconnect();
-
-            this.update(serviceName, statusCode, email, apiKey, zoneId, document);
-            return new Pair<>(statusCode, document);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            return this.getJsonResponse(httpURLConnection, email, apiKey, dnsRecord, serviceName, zoneId);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -93,28 +79,32 @@ public final class CloudflareAPI implements AutoCloseable {
         try {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records/" + recordId).openConnection();
             httpURLConnection.setRequestMethod("PUT");
-            httpURLConnection.setDoOutput(true);
 
-            initRequestProperties(httpURLConnection, email, apiKey);
-            httpURLConnection.connect();
-
-            try (DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream())) {
-                dataOutputStream.writeBytes(GsonUtil.GSON.toJson(dnsRecord));
-                dataOutputStream.flush();
-            }
-
-            int statusCode = httpURLConnection.getResponseCode();
-            JsonDocument document = JsonDocument.newDocument(readResponse(httpURLConnection));
-            httpURLConnection.disconnect();
-
-            this.update(serviceName, statusCode, email, apiKey, zoneId, document);
-            return new Pair<>(statusCode, document);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            return this.getJsonResponse(httpURLConnection, email, apiKey, dnsRecord, serviceName, zoneId);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;
+    }
+
+    private Pair<Integer, JsonDocument> getJsonResponse(HttpURLConnection httpURLConnection, String email, String apiKey, DNSRecord dnsRecord, String serviceName, String zoneId) throws IOException {
+        httpURLConnection.setDoOutput(true);
+
+        initRequestProperties(httpURLConnection, email, apiKey);
+        httpURLConnection.connect();
+
+        try (DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream())) {
+            dataOutputStream.writeBytes(GsonUtil.GSON.toJson(dnsRecord));
+            dataOutputStream.flush();
+        }
+
+        int statusCode = httpURLConnection.getResponseCode();
+        JsonDocument document = JsonDocument.newDocument(readResponse(httpURLConnection));
+        httpURLConnection.disconnect();
+
+        this.update(serviceName, statusCode, email, apiKey, zoneId, document);
+        return new Pair<>(statusCode, document);
     }
 
     public Pair<Integer, JsonDocument> deleteRecord(String email, String apiKey, String zoneId, String recordId) {
@@ -143,8 +133,8 @@ public final class CloudflareAPI implements AutoCloseable {
 
             return new Pair<>(statusCode, document);
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;

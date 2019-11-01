@@ -57,8 +57,8 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
         try {
             this.init();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -95,8 +95,8 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
                         .closeFuture()));
 
                 return true;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -125,8 +125,8 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         for (INetworkChannel channel : this.channels) {
             try {
                 channel.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
 

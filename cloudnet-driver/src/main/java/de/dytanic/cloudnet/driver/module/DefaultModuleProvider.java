@@ -88,8 +88,8 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
         try {
             return loadModule(path.toUri().toURL());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        } catch (MalformedURLException exception) {
+            exception.printStackTrace();
         }
 
         return null;

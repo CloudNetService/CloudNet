@@ -74,8 +74,8 @@ public final class LanguageManager {
     public static void addLanguageFile(String language, Path file) {
         try (InputStream inputStream = new FileInputStream(file.toFile())) {
             addLanguageFile(language, inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -88,8 +88,8 @@ public final class LanguageManager {
     public static void addLanguageFile(String language, InputStream inputStream) {
         try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             addLanguageFile(language, reader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -104,8 +104,8 @@ public final class LanguageManager {
 
         try {
             properties.load(reader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         addLanguageFile(language, properties);

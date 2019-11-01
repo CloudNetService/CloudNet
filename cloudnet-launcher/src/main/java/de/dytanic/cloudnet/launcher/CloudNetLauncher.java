@@ -265,8 +265,8 @@ public final class CloudNetLauncher {
                     IOUtils.copy(buffer, inputStream, dest.toPath());
                 }
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }

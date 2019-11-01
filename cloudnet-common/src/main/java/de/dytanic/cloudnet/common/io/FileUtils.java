@@ -52,8 +52,8 @@ public final class FileUtils {
 
             return byteArrayOutputStream.toByteArray();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -240,8 +240,8 @@ public final class FileUtils {
 
             return byteBuffer.toByteArray();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return emptyZipByteArray();
@@ -319,8 +319,8 @@ public final class FileUtils {
 
             bytes = byteArrayOutputStream.toByteArray();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return bytes;

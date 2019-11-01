@@ -36,7 +36,7 @@ public final class CommandSigns extends Command {
                     CloudNetSignsModule.getInstance().getConfigurationFile()
             ));
 
-            CloudNetDriver.getInstance().sendChannelMessage(
+            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                     SignConstants.SIGN_CHANNEL_NAME,
                     SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
                     new JsonDocument("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration())

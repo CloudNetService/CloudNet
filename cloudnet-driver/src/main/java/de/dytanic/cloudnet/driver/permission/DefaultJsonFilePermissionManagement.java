@@ -101,7 +101,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public List<IPermissionUser> getUser(String name) {
+    public List<IPermissionUser> getUsers(String name) {
         Validate.checkNotNull(name);
 
         List<IPermissionUser> permissionUsers = Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name));
@@ -154,7 +154,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public Collection<IPermissionUser> getUserByGroup(String group) {
+    public Collection<IPermissionUser> getUsersByGroup(String group) {
         Validate.checkNotNull(group);
 
         return Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.inGroup(group));

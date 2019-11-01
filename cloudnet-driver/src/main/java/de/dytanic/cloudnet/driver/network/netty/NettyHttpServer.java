@@ -73,8 +73,8 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
                         .closeFuture()));
 
                 return true;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
 

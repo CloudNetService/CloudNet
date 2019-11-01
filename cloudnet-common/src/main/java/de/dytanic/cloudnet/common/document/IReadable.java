@@ -25,8 +25,8 @@ public interface IReadable {
         if (Files.exists(path)) {
             try (InputStream inputStream = new FileInputStream(path.toFile())) {
                 this.read(inputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         }
 

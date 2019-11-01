@@ -29,8 +29,8 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         try {
             FileUtils.extract(zipInput, new File(this.storageDirectory, target.getTemplatePath()).toPath());
             return true;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return false;
@@ -48,8 +48,8 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         try {
             FileUtils.copyFilesToDirectory(directory, new File(this.storageDirectory, target.getTemplatePath()));
             return true;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return false;

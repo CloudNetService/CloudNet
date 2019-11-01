@@ -54,8 +54,8 @@ public final class LocalTemplateStorageUtil {
         if (!storage.has(serviceTemplate)) {
             try {
                 createAndPrepareTemplate(storage, serviceTemplate.getPrefix(), serviceTemplate.getName(), installableAppVersion.getServiceEnvironment());
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -102,8 +102,8 @@ public final class LocalTemplateStorageUtil {
             httpURLConnection.disconnect();
 
             return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return false;

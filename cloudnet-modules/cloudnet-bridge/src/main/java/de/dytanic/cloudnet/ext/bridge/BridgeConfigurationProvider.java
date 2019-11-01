@@ -25,7 +25,7 @@ public final class BridgeConfigurationProvider {
     public static BridgeConfiguration update(BridgeConfiguration bridgeConfiguration) {
         Validate.checkNotNull(bridgeConfiguration);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "update_bridge_configuration",
                 new JsonDocument("bridgeConfiguration", bridgeConfiguration)
@@ -50,7 +50,7 @@ public final class BridgeConfigurationProvider {
     }
 
     private static BridgeConfiguration load0() {
-        ITask<BridgeConfiguration> task = CloudNetDriver.getInstance().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+        ITask<BridgeConfiguration> task = CloudNetDriver.getInstance().getPacketStation().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME,
                 BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION,
                 new JsonDocument(),
@@ -58,8 +58,8 @@ public final class BridgeConfigurationProvider {
 
         try {
             return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
         }
 
         return null;
