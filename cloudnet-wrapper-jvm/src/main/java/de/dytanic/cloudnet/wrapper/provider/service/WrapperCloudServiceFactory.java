@@ -107,7 +107,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                 }.getType()));
@@ -117,7 +117,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
         Validate.checkNotNull(serviceConfiguration);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                 }.getType()));
@@ -142,7 +142,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom")
                         .append("name", name)
                         .append("runtime", runtime)
@@ -182,7 +182,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         Validate.checkNotNull(groups);
         Validate.checkNotNull(processConfiguration);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom_selected_node_and_amount")
                         .append("nodeUniqueId", nodeUniqueId)
                         .append("amount", amount)

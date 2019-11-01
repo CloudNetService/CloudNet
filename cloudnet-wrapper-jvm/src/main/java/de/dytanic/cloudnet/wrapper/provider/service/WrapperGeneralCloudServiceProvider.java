@@ -138,7 +138,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_as_uuid"), null,
                 documentPair -> documentPair.getFirst().get("serviceUniqueIds", new TypeToken<Collection<UUID>>() {
                 }.getType()));
@@ -146,14 +146,14 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudService_by_name").append("name", name), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE));
     }
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos"), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                 }.getType()));
@@ -161,7 +161,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServicesAsync() {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_started"), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                 }.getType()));
@@ -169,7 +169,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_taskName").append("taskName", taskName), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                 }.getType()));
@@ -179,7 +179,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloud_services_with_environment").append("serviceEnvironment", environment), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                 }.getType()));
@@ -187,7 +187,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_group").append("group", group), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                 }.getType()));
@@ -195,28 +195,28 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public ITask<Integer> getServicesCountAsync() {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count"), null,
                 documentPair -> documentPair.getFirst().getInt("servicesCount"));
     }
 
     @Override
     public ITask<Integer> getServicesCountByGroupAsync(String group) {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_group").append("group", group), null,
                 documentPair -> documentPair.getFirst().getInt("servicesCount"));
     }
 
     @Override
     public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_task").append("taskName", taskName), null,
                 documentPair -> documentPair.getFirst().getInt("servicesCount"));
     }
 
     @Override
     public ITask<ServiceInfoSnapshot> getCloudServiceAsync(UUID uniqueId) {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_uniqueId").append("uniqueId", uniqueId), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                 }.getType()));

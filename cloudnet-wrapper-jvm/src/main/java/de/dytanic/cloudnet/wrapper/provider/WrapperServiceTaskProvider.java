@@ -86,7 +86,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_permanent_serviceTasks"), null,
                 documentPair -> documentPair.getFirst().get("serviceTasks", new TypeToken<Collection<ServiceTask>>() {
                 }.getType()));
@@ -96,7 +96,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<ServiceTask> getServiceTaskAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_service_task").append("name", name), null,
                 documentPair -> documentPair.getFirst().get("serviceTask", new TypeToken<ServiceTask>() {
                 }.getType()));
@@ -106,7 +106,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<Boolean> isServiceTaskPresentAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_service_task_present").append("name", name), null,
                 documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
                 }.getType()));
@@ -116,7 +116,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<Void> addPermanentServiceTaskAsync(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
                 VOID_FUNCTION);
     }
 
@@ -124,7 +124,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     public ITask<Void> removePermanentServiceTaskAsync(String name) {
         Validate.checkNotNull(name);
 
-        return this.wrapper.getPacketStation().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
                 VOID_FUNCTION);
     }
 

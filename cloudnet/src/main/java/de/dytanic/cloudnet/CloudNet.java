@@ -38,10 +38,7 @@ import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -205,6 +202,8 @@ public final class CloudNet extends CloudNetDriver {
                 this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null,
                 networkTaskScheduler
         );
+        super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
+
         this.networkServer = new NettyNetworkServer(NetworkServerChannelHandlerImpl::new,
                 this.config.getClientSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
                 networkTaskScheduler

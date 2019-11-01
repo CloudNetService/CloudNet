@@ -16,7 +16,7 @@ import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.PacketStation;
+import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
@@ -37,7 +37,7 @@ public abstract class CloudNetDriver {
 
     private static CloudNetDriver instance;
 
-    private final PacketStation packetStation = new PacketStation(this.getNetworkClient());
+    protected PacketQueryProvider packetQueryProvider;
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
 
@@ -78,6 +78,7 @@ public abstract class CloudNetDriver {
     public abstract GroupConfigurationProvider getGroupConfigurationProvider();
 
     public abstract CloudMessenger getMessenger();
+
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -1430,9 +1431,9 @@ public abstract class CloudNetDriver {
     public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine);
 
     /**
-     * @see #getPacketStation()
-     * @see PacketStation#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)
-     * @deprecated moved to {@link PacketStation#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)}
+     * @see #getPacketQueryProvider()
+     * @see PacketQueryProvider#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)
+     * @deprecated moved to {@link PacketQueryProvider#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)}
      */
     @Deprecated
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
@@ -1442,42 +1443,41 @@ public abstract class CloudNetDriver {
         Validate.checkNotNull(data);
         Validate.checkNotNull(function);
 
-        return this.packetStation.sendCallablePacket(networkChannel, channel, id, data, function);
+        return this.getPacketQueryProvider().sendCallablePacket(networkChannel, channel, id, data, function);
     }
 
     /**
-     * @see #getPacketStation()
-     * @see PacketStation#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)
-     * @deprecated moved to {@link PacketStation#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)}
+     * @see #getPacketQueryProvider()
+     * @see PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)
+     * @deprecated moved to {@link PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)}
      */
     @Deprecated
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
-        return this.packetStation.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(header, body, function);
+        return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(header, body, function);
     }
 
     /**
-     * @see #getPacketStation()
-     * @see PacketStation#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)
-     * @deprecated moved to {@link PacketStation#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)}
+     * @see #getPacketQueryProvider()
+     * @see PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)
+     * @deprecated moved to {@link PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)}
      */
     @Deprecated
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPI(INetworkChannel channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
-        return this.packetStation.sendCallablePacketWithAsDriverSyncAPI(channel, header, body, function);
+        return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(channel, header, body, function);
     }
 
     /**
-     * @see #getPacketStation()
-     * @see PacketStation#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)
-     * @deprecated moved to {@link PacketStation#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)}
+     * @see #getPacketQueryProvider()
+     * @see PacketQueryProvider#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)
+     * @deprecated moved to {@link PacketQueryProvider#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)}
      */
     @Deprecated
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
-        return this.packetStation.sendCallablePacket(networkChannel, channel, header, body, function);
+        return this.getPacketQueryProvider().sendCallablePacket(networkChannel, channel, header, body, function);
     }
 
-
-    public PacketStation getPacketStation() {
-        return packetStation;
+    public PacketQueryProvider getPacketQueryProvider() {
+        return packetQueryProvider;
     }
 
     public IServicesRegistry getServicesRegistry() {

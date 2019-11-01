@@ -12,11 +12,11 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 
 import java.util.function.Function;
 
-public class PacketStation {
+public class PacketQueryProvider {
 
     private INetworkClient defaultNetworkClient;
 
-    public PacketStation(INetworkClient defaultNetworkClient) {
+    public PacketQueryProvider(INetworkClient defaultNetworkClient) {
         this.defaultNetworkClient = defaultNetworkClient;
     }
 
