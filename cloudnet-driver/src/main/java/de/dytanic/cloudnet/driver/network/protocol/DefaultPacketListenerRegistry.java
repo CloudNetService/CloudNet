@@ -116,8 +116,8 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
             for (IPacketListener listener : this.listeners.get(packet.getChannel())) {
                 try {
                     listener.handle(channel, packet);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         }

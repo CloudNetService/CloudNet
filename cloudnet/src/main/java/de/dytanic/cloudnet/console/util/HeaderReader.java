@@ -27,8 +27,8 @@ public final class HeaderReader {
                 console.writeLine(input.replace("%codename%", codename).replace("%version%", version));
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 }

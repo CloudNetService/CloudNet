@@ -115,7 +115,7 @@ public final class CommandSyncProxy extends Command {
                     CloudNetSyncProxyModule.getInstance().getConfigurationFile()
             ));
 
-            CloudNetDriver.getInstance().sendChannelMessage(
+            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                     SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                     SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                     new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
@@ -129,7 +129,7 @@ public final class CommandSyncProxy extends Command {
         SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
 
         CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                 SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                 new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())

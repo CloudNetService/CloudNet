@@ -171,8 +171,8 @@ public class WorkerThread extends Thread implements ExecutorService {
         while (!this.tasks.isEmpty()) {
             try {
                 this.tasks.take().call();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
 

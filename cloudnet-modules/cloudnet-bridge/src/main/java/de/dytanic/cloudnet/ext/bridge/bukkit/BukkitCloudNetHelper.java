@@ -3,14 +3,10 @@ package de.dytanic.cloudnet.ext.bridge.bukkit;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
-import de.dytanic.cloudnet.ext.bridge.PluginInfo;
-import de.dytanic.cloudnet.ext.bridge.WorldInfo;
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import de.dytanic.cloudnet.ext.bridge.*;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
@@ -43,22 +39,7 @@ public final class BukkitCloudNetHelper {
     }
 
     public static void changeToIngame() {
-        state = "INGAME";
-        BridgeHelper.updateServiceInfo();
-
-        String task = Wrapper.getInstance().getServiceId().getTaskName();
-
-        if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).onComplete(serviceTask -> {
-                if (serviceTask != null) {
-                    CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
-                        if (serviceInfoSnapshot != null) {
-                            CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
-                        }
-                    });
-                }
-            });
-        }
+        BridgeCloudNetHelper.changeToIngame(s -> BukkitCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {

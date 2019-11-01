@@ -184,8 +184,8 @@ public class WrapperDatabase implements IDatabase {
             response.forEach(consumer);
             try {
                 task.call();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         });
         return task;

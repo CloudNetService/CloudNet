@@ -39,7 +39,7 @@ public final class V1HttpSession {
             return false;
         }
 
-        List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUser(credentials[0]);
+        List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
         IPermissionUser permissionUser = Iterables.first(permissionUsers, iPermissionUser -> iPermissionUser.checkPassword(credentials[1]));
 
         if (permissionUser == null) {

@@ -367,7 +367,6 @@ public class TaskScheduler {
     }
 
 
-    @SuppressWarnings("deprecation")
     public Collection<TaskEntry<?>> shutdown() {
 
         for (Worker worker : workers) {
@@ -519,8 +518,8 @@ public class TaskScheduler {
 
                 try {
                     taskEntry.invoke();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
 
                 if (checkEntry()) {

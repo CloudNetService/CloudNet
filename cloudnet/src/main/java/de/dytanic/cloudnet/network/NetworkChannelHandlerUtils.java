@@ -31,8 +31,8 @@ final class NetworkChannelHandlerUtils {
         if (networkChannelInitEvent.isCancelled()) {
             try {
                 channel.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
             return false;
         }
@@ -43,8 +43,8 @@ final class NetworkChannelHandlerUtils {
     static void handleRemoveDisconnectedClusterInNetwork(INetworkChannel channel, IClusterNodeServer clusterNodeServer) {
         try {
             clusterNodeServer.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         Collection<Packet> removed = Iterables.newArrayList();

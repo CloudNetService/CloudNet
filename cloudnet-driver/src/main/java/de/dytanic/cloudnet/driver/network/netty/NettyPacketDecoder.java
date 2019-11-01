@@ -24,8 +24,8 @@ final class NettyPacketDecoder extends ByteToMessageDecoder {
                     JsonDocument.newDocument(NettyUtils.readString(byteBuf)),
                     NettyUtils.toByteArray(byteBuf, NettyUtils.readVarInt(byteBuf))
             ));
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 }

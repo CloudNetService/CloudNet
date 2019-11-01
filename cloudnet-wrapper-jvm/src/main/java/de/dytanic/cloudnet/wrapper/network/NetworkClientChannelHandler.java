@@ -23,8 +23,8 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
         if (networkChannelInitEvent.isCancelled()) {
             try {
                 channel.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
             return;
         }

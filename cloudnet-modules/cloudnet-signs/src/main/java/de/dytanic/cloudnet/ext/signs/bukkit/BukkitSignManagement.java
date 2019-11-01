@@ -21,6 +21,7 @@ import org.bukkit.material.MaterialData;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public final class BukkitSignManagement extends AbstractSignManagement {
 
@@ -52,8 +53,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         return BukkitSignManagement.instance;
     }
 
-    @Override
-    public void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction) {
         if (!isImportantCloudService(serviceInfoSnapshot)) {
             return;
         }
@@ -63,83 +63,38 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             return;
         }
 
-        services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STOPPED));
+        this.services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, stateFunction.apply(entry)));
         this.updateSigns();
+    }
+
+    @Override
+    public void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
     @Override
     public void onStartService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) {
-            return;
-        }
-
-        SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) {
-            return;
-        }
-
-        services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STARTING));
-        this.updateSigns();
+        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STARTING);
     }
 
     @Override
     public void onConnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) {
-            return;
-        }
-
-        SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) {
-            return;
-        }
-
-        services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, fromServiceInfoSnapshot(serviceInfoSnapshot, entry)));
-        this.updateSigns();
+        this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
     }
 
     @Override
     public void onUpdateServiceInfo(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) {
-            return;
-        }
-
-        SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) {
-            return;
-        }
-
-        services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, fromServiceInfoSnapshot(serviceInfoSnapshot, entry)));
-        this.updateSigns();
+        this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
     }
 
     @Override
     public void onDisconnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) {
-            return;
-        }
-
-        SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) {
-            return;
-        }
-
-        services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STOPPED));
-        this.updateSigns();
+        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
     @Override
     public void onStopService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!isImportantCloudService(serviceInfoSnapshot)) {
-            return;
-        }
-
-        SignConfigurationEntry entry = getOwnSignConfigurationEntry();
-        if (entry == null) {
-            return;
-        }
-
-        services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, ServiceInfoState.STOPPED));
-        this.updateSigns();
+        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
     @Override
@@ -170,10 +125,10 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     public void onSignRemove(Sign sign) {
         Validate.checkNotNull(sign);
 
-        Sign signEntry = Iterables.first(signs, s -> s.getSignId() == sign.getSignId());
+        Sign signEntry = Iterables.first(this.signs, s -> s.getSignId() == sign.getSignId());
 
         if (signEntry != null) {
-            signs.remove(signEntry);
+            this.signs.remove(signEntry);
         }
 
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
@@ -193,117 +148,127 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         }
 
         List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = Iterables.newArrayList();
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = Iterables.newArrayList(Iterables.filter(services.entrySet(),
+        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = Iterables.newArrayList(Iterables.filter(this.services.entrySet(),
                 item -> item.getValue().getSecond() != ServiceInfoState.STOPPED));
 
         entries.sort(ENTRY_COMPARATOR);
 
         for (Sign sign : signs) {
+            this.updateSign(sign, signConfiguration, cachedFilter, entries);
+        }
+    }
 
-            Iterables.filter(entries, entry -> {
-                boolean access = Iterables.contains(sign.getTargetGroup(), entry.getValue().getFirst().getConfiguration().getGroups());
+    private void updateSign(Sign sign,
+                            SignConfigurationEntry signConfiguration,
+                            List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter,
+                            List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries) {
+        Iterables.filter(entries, entry -> {
+            boolean access = Iterables.contains(sign.getTargetGroup(), entry.getValue().getFirst().getConfiguration().getGroups());
 
-                if (sign.getTemplatePath() != null) {
-                    boolean condition = false;
+            if (sign.getTemplatePath() != null) {
+                boolean condition = false;
 
-                    for (ServiceTemplate template : entry.getValue().getFirst().getConfiguration().getTemplates()) {
-                        if (sign.getTemplatePath().equals(template.getTemplatePath())) {
-                            condition = true;
-                            break;
-                        }
+                for (ServiceTemplate template : entry.getValue().getFirst().getConfiguration().getTemplates()) {
+                    if (sign.getTemplatePath().equals(template.getTemplatePath())) {
+                        condition = true;
+                        break;
                     }
-
-                    access = condition;
                 }
 
-                return access;
-            }, cachedFilter);
+                access = condition;
+            }
 
-            cachedFilter.sort(ENTRY_COMPARATOR_2);
+            return access;
+        }, cachedFilter);
 
-            if (!cachedFilter.isEmpty()) {
-                Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> entry = cachedFilter.get(0);
+        cachedFilter.sort(ENTRY_COMPARATOR_2);
 
-                sign.setServiceInfoSnapshot(entry.getValue().getFirst());
+        if (!cachedFilter.isEmpty()) {
+            Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> entry = cachedFilter.get(0);
 
-                switch (entry.getValue().getSecond()) {
-                    case STOPPED: {
-                        sign.setServiceInfoSnapshot(null);
+            sign.setServiceInfoSnapshot(entry.getValue().getFirst());
 
-                        if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty()) {
-                            updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
-                        }
-                    }
-                    break;
-                    case STARTING: {
-                        sign.setServiceInfoSnapshot(null);
+            this.applyState(sign, signConfiguration, entry.getValue().getFirst(), entry.getValue().getSecond());
 
-                        if (!signConfiguration.getStartingLayouts().getSignLayouts().isEmpty()) {
-                            updateSignNext(sign, signConfiguration.getStartingLayouts().getSignLayouts().get(indexes[0].get()), entry.getValue().getFirst());
-                        }
-                    }
-                    break;
-                    case EMPTY_ONLINE: {
-                        SignLayout signLayout = null;
+            entries.remove(entry);
 
-                        SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
+        } else {
+            sign.setServiceInfoSnapshot(null);
 
-                        if (taskEntry != null) {
-                            signLayout = taskEntry.getEmptyLayout();
-                        }
+            if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty()) {
+                updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
+            }
+        }
 
-                        if (signLayout == null) {
-                            signLayout = signConfiguration.getDefaultEmptyLayout();
-                        }
+        cachedFilter.clear();
+    }
 
-                        updateSignNext(sign, signLayout, entry.getValue().getFirst());
-                    }
-                    break;
-                    case ONLINE: {
-                        SignLayout signLayout = null;
-
-                        SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
-
-                        if (taskEntry != null) {
-                            signLayout = taskEntry.getOnlineLayout();
-                        }
-
-                        if (signLayout == null) {
-                            signLayout = signConfiguration.getDefaultOnlineLayout();
-                        }
-
-                        updateSignNext(sign, signLayout, entry.getValue().getFirst());
-                    }
-                    break;
-                    case FULL_ONLINE: {
-                        SignLayout signLayout = null;
-
-                        SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
-
-                        if (taskEntry != null) {
-                            signLayout = taskEntry.getFullLayout();
-                        }
-
-                        if (signLayout == null) {
-                            signLayout = signConfiguration.getDefaultFullLayout();
-                        }
-
-                        updateSignNext(sign, signLayout, entry.getValue().getFirst());
-                    }
-                    break;
-                }
-
-                entries.remove(entry);
-
-            } else {
+    private void applyState(Sign sign, SignConfigurationEntry signConfiguration, ServiceInfoSnapshot serviceInfoSnapshot, ServiceInfoState state) {
+        switch (state) {
+            case STOPPED: {
                 sign.setServiceInfoSnapshot(null);
 
                 if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty()) {
                     updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(indexes[1].get()), null);
                 }
             }
+            break;
+            case STARTING: {
+                sign.setServiceInfoSnapshot(null);
 
-            cachedFilter.clear();
+                if (!signConfiguration.getStartingLayouts().getSignLayouts().isEmpty()) {
+                    updateSignNext(sign, signConfiguration.getStartingLayouts().getSignLayouts().get(indexes[0].get()), serviceInfoSnapshot);
+                }
+            }
+            break;
+            case EMPTY_ONLINE: {
+                SignLayout signLayout = null;
+
+                SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
+
+                if (taskEntry != null) {
+                    signLayout = taskEntry.getEmptyLayout();
+                }
+
+                if (signLayout == null) {
+                    signLayout = signConfiguration.getDefaultEmptyLayout();
+                }
+
+                updateSignNext(sign, signLayout, serviceInfoSnapshot);
+            }
+            break;
+            case ONLINE: {
+                SignLayout signLayout = null;
+
+                SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
+
+                if (taskEntry != null) {
+                    signLayout = taskEntry.getOnlineLayout();
+                }
+
+                if (signLayout == null) {
+                    signLayout = signConfiguration.getDefaultOnlineLayout();
+                }
+
+                updateSignNext(sign, signLayout, serviceInfoSnapshot);
+            }
+            break;
+            case FULL_ONLINE: {
+                SignLayout signLayout = null;
+
+                SignConfigurationTaskEntry taskEntry = getValidSignConfigurationTaskEntryFromSignConfigurationEntry(signConfiguration, sign.getTargetGroup());
+
+                if (taskEntry != null) {
+                    signLayout = taskEntry.getFullLayout();
+                }
+
+                if (signLayout == null) {
+                    signLayout = signConfiguration.getDefaultFullLayout();
+                }
+
+                updateSignNext(sign, signLayout, serviceInfoSnapshot);
+            }
+            break;
         }
     }
 

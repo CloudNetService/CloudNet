@@ -38,7 +38,7 @@ public final class NukkitPlayerListener implements Listener {
         Player player = event.getPlayer();
 
         String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
-        ServiceTask serviceTask = Wrapper.getInstance().getServiceTask(currentTaskName);
+        ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
         if (serviceTask != null && serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
             event.setCancelled(true);

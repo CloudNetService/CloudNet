@@ -3,10 +3,9 @@ package de.dytanic.cloudnet.console.log;
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.logging.LoggingUtils;
 import de.dytanic.cloudnet.console.ConsoleColor;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -17,11 +16,7 @@ public final class ColouredLogFormatter implements IFormatter {
     @Override
     public String format(LogEntry logEntry) {
         StringBuilder builder = new StringBuilder();
-        if (logEntry.getThrowable() != null) {
-            StringWriter writer = new StringWriter();
-            logEntry.getThrowable().printStackTrace(new PrintWriter(writer));
-            builder.append(writer).append(System.lineSeparator());
-        }
+        LoggingUtils.printStackTraceToStringBuilder(builder, logEntry.getThrowable());
 
         StringBuilder stringBuilder = new StringBuilder();
 

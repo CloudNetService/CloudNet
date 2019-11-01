@@ -44,7 +44,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         if (args[0].equalsIgnoreCase("by") && args.length > 2 && Validate.testStringParseToInt(args[2])) {
-            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
+            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
 
             if (serviceTask != null) {
                 int count = Integer.parseInt(args[2]);
@@ -116,8 +116,8 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                     this.listAndStartServices(sender, serviceInfoSnapshots, properties);
 
                     sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             });
         }
@@ -132,7 +132,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
         if (properties.containsKey("start")) {
             for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
             }
         }
     }
@@ -205,7 +205,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         for (int i = 0; i < count; i++) {
-            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().createCloudService(new ServiceTask(
+            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(new ServiceTask(
                     includes,
                     temps,
                     deploy,

@@ -37,8 +37,8 @@ public class AsyncPrintStream extends PrintStream {
                 try {
                     Runnable runnable = ASYNC_QUEUE.take();
                     runnable.run();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException exception) {
+                    exception.printStackTrace();
                 }
             }
         }

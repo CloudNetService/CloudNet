@@ -28,7 +28,7 @@ public final class CommandCloudNet extends Command {
         }
 
         if (sender instanceof ProxiedPlayer) {
-            CommandInfo commandInfo = CloudNetDriver.getInstance().getConsoleCommand(stringBuilder.toString());
+            CommandInfo commandInfo = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(stringBuilder.toString());
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!sender.hasPermission(commandInfo.getPermission())) {
                     sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',

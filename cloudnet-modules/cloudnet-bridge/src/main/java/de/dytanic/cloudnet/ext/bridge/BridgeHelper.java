@@ -27,7 +27,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -35,7 +35,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageProxyLoginSuccess(NetworkConnectionInfo networkConnectionInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_SUCCESS,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -43,7 +43,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageProxyDisconnect(NetworkConnectionInfo networkConnectionInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_DISCONNECT,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -51,7 +51,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageProxyServerSwitch(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_SWITCH,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -60,7 +60,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageProxyServerConnectRequest(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_CONNECT_REQUEST,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -69,7 +69,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageServerLoginRequest(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -78,7 +78,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageServerLoginSuccess(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -87,7 +87,7 @@ public final class BridgeHelper {
     }
 
     public static void sendChannelMessageServerDisconnect(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT,
                 new JsonDocument("networkConnectionInfo", networkConnectionInfo)
@@ -113,7 +113,7 @@ public final class BridgeHelper {
 
         // checking if the player is on a proxy managed by CloudNet
         if (cloudPlayer != null && cloudPlayer.getLoginService() != null) {
-            ServiceInfoSnapshot proxyService = Wrapper.getInstance().getCloudService(cloudPlayer.getLoginService().getUniqueId());
+            ServiceInfoSnapshot proxyService = Wrapper.getInstance().getCloudServiceProvider().getCloudService(cloudPlayer.getLoginService().getUniqueId());
             if (proxyService != null) {
                 try {
                     InetAddress proxyAddress = InetAddress.getByName(proxyService.getAddress().getHost());

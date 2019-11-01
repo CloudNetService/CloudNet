@@ -98,7 +98,7 @@ public final class VelocitySyncProxyCloudNetListener {
                 SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
             }
 
-            handlePlayerNotWhitelisted();
+            this.handlePlayerNotWhitelisted();
         }
     }
 

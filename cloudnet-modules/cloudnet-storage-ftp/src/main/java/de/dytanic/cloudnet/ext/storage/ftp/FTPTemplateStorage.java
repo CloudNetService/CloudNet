@@ -65,8 +65,8 @@ public final class FTPTemplateStorage implements ITemplateStorage {
                 return null;
             });
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return false;
@@ -247,8 +247,8 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
             return byteArrayOutputStream.toByteArray();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return FileUtils.emptyZipByteArray();

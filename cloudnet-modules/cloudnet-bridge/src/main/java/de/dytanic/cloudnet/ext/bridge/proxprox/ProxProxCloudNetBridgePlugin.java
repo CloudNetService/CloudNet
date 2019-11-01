@@ -65,7 +65,7 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
     }
 
     private void initServers() {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
             if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer()) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
                         serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {

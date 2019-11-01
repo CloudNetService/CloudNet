@@ -8,7 +8,7 @@ import java.util.Collection;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable {
+public abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable {
 
     protected Collection<ServiceRemoteInclusion> includes;
 

@@ -93,8 +93,8 @@ public final class NettyWebSocketServerExample {
                                         if (!webSocketClientHandshaker.isHandshakeComplete() && msg instanceof FullHttpResponse) {
                                             try {
                                                 webSocketClientHandshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);
-                                            } catch (Exception ex) {
-                                                ex.printStackTrace();
+                                            } catch (Exception exception) {
+                                                exception.printStackTrace();
                                             }
 
                                             ctx.channel().eventLoop().execute(() -> ctx.channel().writeAndFlush(new PingWebSocketFrame(Unpooled.buffer().writeBytes(PING_STRING.getBytes()))));

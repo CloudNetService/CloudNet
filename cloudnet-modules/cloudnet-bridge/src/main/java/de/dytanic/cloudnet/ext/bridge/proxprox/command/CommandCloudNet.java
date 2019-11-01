@@ -31,7 +31,7 @@ public final class CommandCloudNet extends Command {
         }
 
         if (sender instanceof Player) {
-            CommandInfo commandInfo = CloudNetDriver.getInstance().getConsoleCommand(stringBuilder.toString());
+            CommandInfo commandInfo = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(stringBuilder.toString());
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!sender.hasPermission(commandInfo.getPermission())) {
                     sender.sendMessage(

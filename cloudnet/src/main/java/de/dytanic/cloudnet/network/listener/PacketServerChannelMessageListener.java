@@ -21,9 +21,9 @@ public final class PacketServerChannelMessageListener implements IPacketListener
             if (packet.getHeader().contains("uniqueId")) { //this is sent by both the nodes and services
                 UUID uniqueId = packet.getHeader().get("uniqueId", UUID.class);
                 if (uniqueId != null) {
-                    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudService(uniqueId);
+                    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider().getCloudService(uniqueId);
                     if (serviceInfoSnapshot != null) {
-                        CloudNet.getInstance().sendChannelMessage(
+                        CloudNet.getInstance().getMessenger().sendChannelMessage(
                                 serviceInfoSnapshot,
                                 packet.getHeader().getString("channel"),
                                 packet.getHeader().getString("message"),
@@ -32,9 +32,9 @@ public final class PacketServerChannelMessageListener implements IPacketListener
                     }
                 }
             } else if (packet.getHeader().contains("task")) { //this is only sent by the services
-                ServiceTask serviceTask = CloudNet.getInstance().getServiceTask(packet.getHeader().getString("task"));
+                ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(packet.getHeader().getString("task"));
                 if (serviceTask != null) {
-                    CloudNet.getInstance().sendChannelMessage(
+                    CloudNet.getInstance().getMessenger().sendChannelMessage(
                             serviceTask,
                             packet.getHeader().getString("channel"),
                             packet.getHeader().getString("message"),

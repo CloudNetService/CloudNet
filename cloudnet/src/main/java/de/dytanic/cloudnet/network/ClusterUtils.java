@@ -23,8 +23,8 @@ public class ClusterUtils {
     public static void sendSetupInformationPackets(INetworkChannel channel, boolean secondNodeConnection) {
         channel.sendPacket(new PacketServerSetGlobalServiceInfoList(CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().values()));
         if (!secondNodeConnection) {
-            channel.sendPacket(new PacketServerSetGroupConfigurationList(CloudNet.getInstance().getGroupConfigurations(), NetworkUpdateType.ADD));
-            channel.sendPacket(new PacketServerSetServiceTaskList(CloudNet.getInstance().getPermanentServiceTasks(), NetworkUpdateType.ADD));
+            channel.sendPacket(new PacketServerSetGroupConfigurationList(CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations(), NetworkUpdateType.ADD));
+            channel.sendPacket(new PacketServerSetServiceTaskList(CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), NetworkUpdateType.ADD));
 
             if (CloudNet.getInstance().getPermissionManagement() instanceof DefaultJsonFilePermissionManagement) {
                 channel.sendPacket(new PacketServerSetPermissionData(

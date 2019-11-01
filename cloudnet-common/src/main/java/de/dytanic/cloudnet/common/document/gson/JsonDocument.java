@@ -316,8 +316,8 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public JsonDocument append(InputStream inputStream) {
         try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             return append(reader);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return this;
     }
@@ -471,7 +471,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
         JsonElement jsonElement = this.jsonObject.get(key);
 
         if (jsonElement.isJsonPrimitive()) {
-            return jsonElement.getAsCharacter();
+            return jsonElement.getAsString().charAt(0);
         } else {
             return 0;
         }
@@ -760,8 +760,8 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public JsonDocument read(InputStream inputStream) {
         try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             return this.read(inputStreamReader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         return this;
     }
@@ -786,8 +786,8 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public JsonDocument read(String input) {
         try {
             this.append(JsonParser.parseReader(new BufferedReader(new StringReader(input))).getAsJsonObject());
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return this;
     }

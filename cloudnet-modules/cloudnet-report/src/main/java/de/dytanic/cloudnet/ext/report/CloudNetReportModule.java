@@ -64,12 +64,16 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         registerCommand(new CommandPaste());
     }
 
+    public String getPasteURL() {
+        return this.getConfig().getString("pasteServerUrl");
+    }
+
 
     public String executePaste(String context) {
         Validate.checkNotNull(context);
 
         try {
-            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(getConfig().getString("pasteServerUrl") + "/documents").openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(this.getPasteURL() + "/documents").openConnection();
 
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0");
@@ -91,11 +95,11 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
             JsonDocument jsonDocument = JsonDocument.newDocument(input);
 
-            return getConfig().getString("pasteServerUrl") + "/" + jsonDocument.getString("key") +
+            return this.getPasteURL() + "/" + jsonDocument.getString("key") +
                     (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return null;

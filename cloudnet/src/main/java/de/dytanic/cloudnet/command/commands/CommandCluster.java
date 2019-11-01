@@ -73,13 +73,13 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                 }
 
                 if (args[1].equalsIgnoreCase("tasks")) {
-                    getCloudNet().updateServiceTasksInCluster(getCloudNet().getPermanentServiceTasks(), NetworkUpdateType.SET);
+                    getCloudNet().updateServiceTasksInCluster(getCloudNet().getServiceTaskProvider().getPermanentServiceTasks(), NetworkUpdateType.SET);
                     sender.sendMessage(LanguageManager.getMessage("command-cluster-push-tasks-success"));
                     return;
                 }
 
                 if (args[1].equalsIgnoreCase("groups")) {
-                    getCloudNet().updateGroupConfigurationsInCluster(getCloudNet().getGroupConfigurations(), NetworkUpdateType.SET);
+                    getCloudNet().updateGroupConfigurationsInCluster(getCloudNet().getGroupConfigurationProvider().getGroupConfigurations(), NetworkUpdateType.SET);
                     sender.sendMessage(LanguageManager.getMessage("command-cluster-push-groups-success"));
                     return;
                 }
