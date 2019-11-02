@@ -6,7 +6,7 @@
 
 **CloudNet** is an alternative application that can dynamically and easy deploy Minecraft oriented software. It should greatly simplify the work and the technical processes within a Minecraft server network or with standalone servers. The program should be the basis for a **Minecraft network**. With a **very extensive** API and a **very modular** architecture, the program should be easily extensible in all its capabilities. It should be a solution to the most creative ideas that brighten our Minecraft world. From minigame networks, CityBuild servers to private servers with CloudNet is the work **low**. If it needs to be developed for CloudNet, it will provide an **API** (Driver) that can be used to develop Bukkit / Sponge / Nukkit plugins or to develop modules to extend the core system. The **application wrapper** for the **JVM** allows support for a wide variety of Minecraft server software and allows direct inclusion of the API to retain it throughout the lifetime of the application.
 
-###### **CloudNet 3.X** is the next generation of Minecraft Java and Bedrock cloud systems
+###### **CloudNet v3** is the next generation of Minecraft Java and Bedrock cloud systems
 
 ## Features
 
@@ -33,7 +33,7 @@
 - Multi system support and synchronizing in a network cluster
 - Support for Minecraft **vanilla 1.0+**
 - Application support for [Nukkit Project 1.0+ for Bedrock Edition 1.7](https://github.com/NukkitX/Nukkit)
-- Application support for [Bukkit based Minecraft **1.8.8+** (Craftbukkit, Spigot, PaperSpigot and more...)](https://github.com/Bukkit/Bukkit)
+- Application support for [Bukkit based Minecraft **1.8.8+** (Spigot, PaperSpigot and more...)](https://github.com/Bukkit/Bukkit)
 - Application support for [Sponge based Minecraft servers with the SpongeAPI **7.0.0+**](https://www.spongepowered.org/)
 - Application support for [BungeeCord proxy server and forks for MC **1.8.8+**](https://github.com/SpigotMC/BungeeCord)
 - Application support for [GlowStone Minecraft server for MC **1.8.9+**](https://glowstone.net)

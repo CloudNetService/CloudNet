@@ -57,6 +57,16 @@ pipeline {
         sh './gradlew install';
       }
     }
+    stage('Javadoc') {
+        steps {
+          echo 'Creating javadoc...';
+          sh './gradlew allJavadoc';
+          sh 'mkdir -p temp';
+          sh 'cp -r build/javadoc/de temp/';
+          zip archive: true, dir: 'temp', glob: '', zipFile: 'Javadoc.zip';
+          sh 'rm -r temp/';
+        }
+    }
     stage('Archive') {
       steps {
         archiveArtifacts artifacts: '**/build/libs/*.jar'
