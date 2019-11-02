@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.SimpleDownloadingServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.processing.ProcessingServiceVersionInstaller;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -80,7 +81,7 @@ public class ServiceVersionProvider {
     }
 
 
-    public void installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
         if (!serviceVersionType.getInstallerType().canInstall(serviceVersion)) {
             throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + "#" + serviceVersionType.getInstallerType() + " on " + JavaVersion.getRuntimeVersion().getName());
         }
@@ -97,19 +98,42 @@ public class ServiceVersionProvider {
 
         String fileName = serviceVersionType.getTargetEnvironment().getName() + ".jar";
         Path workingDirectory = Paths.get(System.getProperty("cloudnet.tempDir.build", "temp/build"), UUID.randomUUID().toString());
+
+        Path versionTypeCacheDir = Paths.get(
+                System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
+                serviceVersionType.getName()
+        );
+        Path versionCacheFile = Paths.get(versionTypeCacheDir.toString(), serviceVersion.getName() + ".jar");
+
         try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, fileName)) {
-            Files.createDirectories(workingDirectory);
 
-            installer.install(serviceVersion, workingDirectory, outputStream);
+            if (Files.exists(versionCacheFile)) {
+                Files.copy(versionCacheFile, outputStream);
+            } else {
+                Files.createDirectories(workingDirectory);
 
+                if (!serviceVersion.isLatest()) {
+                    Files.createDirectories(versionTypeCacheDir);
+
+                    try (OutputStream cacheFileStream = new FileOutputStream(versionCacheFile.toFile())) {
+                        installer.install(serviceVersion, workingDirectory, outputStream, cacheFileStream);
+                    }
+
+                } else {
+                    installer.install(serviceVersion, workingDirectory, outputStream);
+                }
+            }
+
+        } catch (Exception exception) {
+            FileUtils.delete(versionCacheFile.toFile());
+            return false;
+        } finally {
             FileUtils.delete(workingDirectory.toFile());
-        } catch (IOException exception) {
-            exception.printStackTrace();
         }
 
         try {
             //delete all old application files if they exist to prevent that they are used to start the server
-            for (String file : storage.listFiles(serviceTemplate, "")) {
+            for (String file : storage.listFiles(serviceTemplate)) {
                 if (file.equals(fileName)) {
                     continue;
                 }
@@ -122,8 +146,9 @@ public class ServiceVersionProvider {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-    }
 
+        return true;
+    }
 
     public Map<String, ServiceVersionType> getServiceVersionTypes() {
         return this.serviceVersionTypes;

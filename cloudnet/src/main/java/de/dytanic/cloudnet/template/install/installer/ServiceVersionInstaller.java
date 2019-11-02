@@ -8,6 +8,6 @@ import java.nio.file.Path;
 
 public interface ServiceVersionInstaller {
 
-    void install(ServiceVersion version, Path workingDirectory, OutputStream targetStream) throws IOException;
+    void install(ServiceVersion version, Path workingDirectory, OutputStream... targetStream) throws IOException;
 
 }

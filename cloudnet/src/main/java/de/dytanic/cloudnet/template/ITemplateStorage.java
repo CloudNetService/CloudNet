@@ -69,6 +69,10 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
 
     String[] listFiles(ServiceTemplate template, String dir) throws IOException;
 
+    default String[] listFiles(ServiceTemplate template) throws IOException {
+        return this.listFiles(template, "");
+    }
+
     Collection<ServiceTemplate> getTemplates();
 
 }

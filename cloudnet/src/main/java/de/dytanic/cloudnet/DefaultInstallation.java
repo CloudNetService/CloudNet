@@ -14,7 +14,9 @@ public class DefaultInstallation {
 
     private final Map<String, Runnable> defaultTaskInstallations = new HashMap<>();
 
-    {
+    public DefaultInstallation(CloudNet cloudNet) {
+        this.cloudNet = cloudNet;
+
         this.defaultTaskInstallations.put("nothing", () -> {});
         this.defaultTaskInstallations.put("recommended", this::installRecommended);
         this.defaultTaskInstallations.put("bedrock", this::installBedrock);
@@ -23,10 +25,6 @@ public class DefaultInstallation {
         this.defaultTaskInstallations.put("java-bungee-1.14.4", () -> this.installJavaBungee("latest", "1.14.4"));
         this.defaultTaskInstallations.put("java-velocity-1.8.8", () -> this.installJavaVelocity("latest", "1.8.8"));
         this.defaultTaskInstallations.put("java-velocity-1.13.2", () -> this.installJavaVelocity("latest", "1.13.2"));
-    }
-
-    public DefaultInstallation(CloudNet cloudNet) {
-        this.cloudNet = cloudNet;
     }
 
     public void initDefaultConfigDefaultHostAddress() throws Exception {

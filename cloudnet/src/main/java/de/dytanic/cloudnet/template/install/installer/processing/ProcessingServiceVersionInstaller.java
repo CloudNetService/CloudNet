@@ -31,13 +31,14 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newFixedThreadPool(2);
 
     @Override
-    public void install(ServiceVersion version, Path workingDirectory, OutputStream targetStream) throws IOException {
+    public void install(ServiceVersion version, Path workingDirectory, OutputStream... targetStreams) throws IOException {
         String copy = version.getProperties().getString("copy");
-        List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
-
         if (copy == null) {
             throw new IllegalStateException(String.format("Missing copy property on service version %s!", version.getName()));
         }
+
+        List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
+        int expectedExitCode = version.getProperties().getInt("exitCode", 0);
 
         this.download(version.getUrl(), workingDirectory.resolve(DOWNLOAD_ARTIFACT_NAME));
 
@@ -52,8 +53,9 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
         );
 
         int exitCode = this.buildProcessAndWait(processArguments, workingDirectory);
-        if (exitCode != 0) {
-            throw new IllegalStateException("ExitCode was " + exitCode + ", not 0");
+
+        if (exitCode != expectedExitCode) {
+            throw new IllegalStateException(String.format("Process returned unexpected exit code! Got %d, expected %d", exitCode, expectedExitCode));
         }
 
         Pattern pattern = Pattern.compile(copy);
@@ -64,13 +66,18 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                 Path relativePath = workingDirectory.relativize(path);
 
                 if (pattern.matcher(relativePath.toString().replace("\\", "/")).matches()) {
-                    Files.copy(path, targetStream);
+
+                    for (OutputStream targetStream : targetStreams) {
+                        Files.copy(path, targetStream);
+                    }
+
                     return FileVisitResult.TERMINATE;
                 }
 
                 return FileVisitResult.CONTINUE;
             }
         });
+
     }
 
 

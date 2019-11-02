@@ -224,7 +224,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean hasFile(ServiceTemplate template, String path) throws IOException {
+    public boolean hasFile(ServiceTemplate template, String path) {
         Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
         return Files.exists(file);
     }

@@ -22,16 +22,8 @@ public class ServiceVersion {
     public ServiceVersion() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public JsonDocument getProperties() {
-        return properties;
+    public boolean isLatest() {
+        return this.name.equalsIgnoreCase("latest");
     }
 
     public boolean canRun() {
@@ -52,5 +44,18 @@ public class ServiceVersion {
                         .orElse(true)
                 );
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public JsonDocument getProperties() {
+        return properties;
+    }
+
 
 }
