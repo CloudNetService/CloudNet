@@ -32,8 +32,7 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
     private volatile Task task;
 
     @Override
-    public void onStartup()
-    {
+    public void onStartup() {
         this.initListeners();
         this.registerCommands();
         this.initServers();
@@ -43,21 +42,20 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
     }
 
     @Override
-    public void onUninstall()
-    {
-        if (task != null) task.cancel();
+    public void onUninstall() {
+        if (task != null) {
+            task.cancel();
+        }
 
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    private void registerCommands()
-    {
+    private void registerCommands() {
         registerCommand(new CommandCloudNet());
     }
 
-    private void initListeners()
-    {
+    private void initListeners() {
         //ProxProx API
         registerListener(new ProxProxPlayerListener());
 
@@ -66,42 +64,41 @@ public final class ProxProxCloudNetBridgePlugin extends Plugin {
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 
-    private void initServers()
-    {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices())
-            if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer())
-            {
+    private void initServers() {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
+            if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer()) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
-                    serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING)
+                        serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
                     continue;
+                }
 
                 String name = serviceInfoSnapshot.getServiceId().getName();
                 ProxProxCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
             }
+        }
     }
 
-    private void updateProxProxDefaultServer()
-    {
-        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations())
+    private void updateProxProxDefaultServer() {
+        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
             if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                proxyFallbackConfiguration.getTargetGroup(),
-                Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            ))
-            {
+                    proxyFallbackConfiguration.getTargetGroup(),
+                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+            )) {
                 Map.Entry<String, ServiceInfoSnapshot> server = null;
 
                 List<Map.Entry<String, ServiceInfoSnapshot>> entries = ProxProxCloudNetHelper.getFilteredEntries(proxyFallbackConfiguration.getDefaultFallbackTask(), null);
 
-                if (entries.size() > 0)
+                if (entries.size() > 0) {
                     server = entries.get(new Random().nextInt(entries.size()));
+                }
 
-                if (server != null)
-                {
+                if (server != null) {
                     ProxProxCloudNetHelper.getProxyServer().getConfig().setDefaultServer(
-                        new ServerConfig(server.getValue().getAddress().getHost(), server.getValue().getAddress().getPort())
+                            new ServerConfig(server.getValue().getAddress().getHost(), server.getValue().getAddress().getPort())
                     );
                     return;
                 }
             }
+        }
     }
 }

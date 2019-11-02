@@ -8,28 +8,23 @@ public interface IModule {
 
     ModuleConfiguration getModuleConfig();
 
-    default String getGroup()
-    {
+    default String getGroup() {
         return this.getModuleConfig().group;
     }
 
-    default String getName()
-    {
+    default String getName() {
         return this.getModuleConfig().name;
     }
 
-    default String getVersion()
-    {
+    default String getVersion() {
         return this.getModuleConfig().version;
     }
 
-    default String getWebsite()
-    {
+    default String getWebsite() {
         return this.getModuleConfig().website;
     }
 
-    default String getDescription()
-    {
+    default String getDescription() {
         return this.getModuleConfig().description;
     }
 

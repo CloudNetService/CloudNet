@@ -5,16 +5,12 @@ import java.net.ServerSocket;
 
 public final class PortValidator {
 
-    public static boolean checkPort(int port)
-    {
-        try (ServerSocket serverSocket = new ServerSocket())
-        {
+    public static boolean checkPort(int port) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
             serverSocket.bind(new InetSocketAddress(port));
             return true;
-        } catch (Exception ignored)
-        {
+        } catch (Exception exception) {
+            return false;
         }
-
-        return false;
     }
 }

@@ -5,8 +5,7 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 
 public final class ModulePreLoadEvent extends ModuleEvent {
 
-    public ModulePreLoadEvent(IModuleProvider moduleProvider, IModuleWrapper module)
-    {
+    public ModulePreLoadEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
         super(moduleProvider, module);
     }
 }

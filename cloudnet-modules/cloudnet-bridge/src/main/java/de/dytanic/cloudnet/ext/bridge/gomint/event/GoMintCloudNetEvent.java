@@ -6,13 +6,11 @@ import io.gomint.event.Event;
 
 abstract class GoMintCloudNetEvent extends Event {
 
-    public final CloudNetDriver getDriver()
-    {
+    public final CloudNetDriver getDriver() {
         return CloudNetDriver.getInstance();
     }
 
-    public final Wrapper getWrapper()
-    {
+    public final Wrapper getWrapper() {
         return Wrapper.getInstance();
     }
 

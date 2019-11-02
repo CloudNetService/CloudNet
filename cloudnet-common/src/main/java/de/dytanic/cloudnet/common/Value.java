@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * A class that provides the reference of an object.
@@ -10,9 +9,8 @@ import lombok.NoArgsConstructor;
  *
  * @param <T> the type of value, that you want to set
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Value<T> {
 
     /**
@@ -20,5 +18,20 @@ public class Value<T> {
      * It is protected to allow inherit
      */
     protected volatile T value;
+
+    public Value(T value) {
+        this.value = value;
+    }
+
+    public Value() {
+    }
+
+    public T getValue() {
+        return this.value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
 
 }

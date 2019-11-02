@@ -13,8 +13,7 @@ import java.util.Map;
 public class CNLInterpreterTest {
 
     @Test
-    public void testInterpreter() throws Throwable
-    {
+    public void testInterpreter() throws Throwable {
         Map<String, String> variables = new HashMap<>();
 
         CNLInterpreter.registerCommand(new CNLCommandVar());

@@ -7,8 +7,7 @@ import org.junit.Test;
 public class LanguageManagerTest {
 
     @Test
-    public void test()
-    {
+    public void test() {
         Properties properties = new Properties();
         properties.put("test_message", "Test_Message");
 

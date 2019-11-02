@@ -2,86 +2,106 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee.util;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
-import lombok.Getter;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 
 import java.util.Collection;
 import java.util.UUID;
 
-@Getter
 public class LoginPendingConnectionCommandSender implements CommandSender {
 
     private final Collection<String> permissions = Iterables.newArrayList(), groups = Iterables.newArrayList();
 
-    private final LoginEvent loginEvent;
+    private final PendingConnection pendingConnection;
 
     private final UUID uniqueId;
 
-    public LoginPendingConnectionCommandSender(LoginEvent loginEvent, UUID uniqueId)
-    {
-        this.loginEvent = loginEvent;
-        this.uniqueId = uniqueId;
+    public LoginPendingConnectionCommandSender(PendingConnection pendingConnection) {
+        this.pendingConnection = pendingConnection;
+        this.uniqueId = pendingConnection.getUniqueId();
 
-        this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(loginEvent.getConnection().getName()));
+        this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(pendingConnection.getName()));
 
-        for (String group : groups)
-            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group))
+        for (String group : groups) {
+            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group)) {
                 this.setPermission(permission, true);
+            }
+        }
     }
 
     @Override
-    public String getName()
-    {
-        return loginEvent.getConnection().getName();
+    public String getName() {
+        return this.pendingConnection.getName();
     }
 
     @Override
-    public void sendMessage(String message)
-    {
-        //Not supported
+    public void sendMessage(String message) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
-    public void sendMessages(String... messages)
-    {
-        //Not supported
+    public void sendMessages(String... messages) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
-    public void addGroups(String... groups)
-    {
-        //Not supported
+    public void sendMessage(BaseComponent... message) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
-    public void removeGroups(String... groups)
-    {
-        //Not supported
+    public void sendMessage(BaseComponent message) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
-    public boolean hasPermission(String permission)
-    {
+    public void addGroups(String... groups) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void removeGroups(String... groups) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
         Validate.checkNotNull(permission);
 
         return ProxyServer.getInstance().getPluginManager().callEvent(new PermissionCheckEvent(
-            this,
-            permission,
-            this.permissions.contains(permission.toLowerCase()))
+                this,
+                permission,
+                this.permissions.contains(permission.toLowerCase()))
         ).hasPermission();
     }
 
     @Override
-    public void setPermission(String permission, boolean value)
-    {
+    public void setPermission(String permission, boolean value) {
         Validate.checkNotNull(permission);
 
-        if (value)
+        if (value) {
             this.permissions.add(permission.toLowerCase());
-        else
+        } else {
             this.permissions.remove(permission.toLowerCase());
+        }
+    }
+
+    public Collection<String> getPermissions() {
+        return this.permissions;
+    }
+
+    public Collection<String> getGroups() {
+        return this.groups;
+    }
+
+    public PendingConnection getPendingConnection() {
+        return pendingConnection;
+    }
+
+    public UUID getUniqueId() {
+        return this.uniqueId;
     }
 }

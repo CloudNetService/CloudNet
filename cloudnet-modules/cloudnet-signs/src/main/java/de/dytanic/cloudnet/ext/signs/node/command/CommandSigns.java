@@ -12,8 +12,7 @@ import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 
 public final class CommandSigns extends Command {
 
-    public CommandSigns()
-    {
+    public CommandSigns() {
         super("signs", "sign", "cloud-signs");
 
         this.usage = "signs reload";
@@ -23,27 +22,24 @@ public final class CommandSigns extends Command {
     }
 
     @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-    {
-        if (args.length == 0)
-        {
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
+        if (args.length == 0) {
             sender.sendMessage(
-                "signs reload"
+                    "signs reload"
             );
 
             return;
         }
 
-        if (args[0].equalsIgnoreCase("reload"))
-        {
+        if (args[0].equalsIgnoreCase("reload")) {
             CloudNetSignsModule.getInstance().setSignConfiguration(SignConfigurationReaderAndWriter.read(
-                CloudNetSignsModule.getInstance().getConfigurationFile()
+                    CloudNetSignsModule.getInstance().getConfigurationFile()
             ));
 
-            CloudNetDriver.getInstance().sendChannelMessage(
-                SignConstants.SIGN_CHANNEL_NAME,
-                SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-                new JsonDocument("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration())
+            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
+                    SignConstants.SIGN_CHANNEL_NAME,
+                    SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
+                    new JsonDocument("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration())
             );
 
             sender.sendMessage(LanguageManager.getMessage("module-signs-command-reload-success"));

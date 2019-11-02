@@ -41,16 +41,16 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      */
     boolean hasAsyncSupport();
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * A shortcut method from setLevel(level.getLevel()) to setLevel(level)
      *
      * @param level the LogLevel instance, from that the level integer value should get
      */
-    default void setLevel(LogLevel level)
-    {
-        if (level == null) return;
+    default void setLevel(LogLevel level) {
+        if (level == null) {
+            return;
+        }
 
         setLevel(level.getLevel());
     }
@@ -59,8 +59,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * An wrapper method for the last base method log(LogEntry)
      * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
      */
-    default ILogger log(LogLevel level, String message)
-    {
+    default ILogger log(LogLevel level, String message) {
         return log(level, new String[]{message});
     }
 
@@ -71,8 +70,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogEntry
      * @see ILogHandler
      */
-    default ILogger log(LogLevel level, String... messages)
-    {
+    default ILogger log(LogLevel level, String... messages) {
         return log(level, messages, null);
     }
 
@@ -83,8 +81,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogEntry
      * @see ILogHandler
      */
-    default ILogger log(LogLevel level, Class<?> clazz, String message)
-    {
+    default ILogger log(LogLevel level, Class<?> clazz, String message) {
         return log(level, clazz, new String[]{message});
     }
 
@@ -95,8 +92,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogEntry
      * @see ILogHandler
      */
-    default ILogger log(LogLevel level, Class<?> clazz, String... messages)
-    {
+    default ILogger log(LogLevel level, Class<?> clazz, String... messages) {
         return log(level, clazz, messages, null);
     }
 
@@ -107,8 +103,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogEntry
      * @see ILogHandler
      */
-    default ILogger log(LogLevel level, String message, Throwable throwable)
-    {
+    default ILogger log(LogLevel level, String message, Throwable throwable) {
         return log(level, new String[]{message}, throwable);
     }
 
@@ -119,8 +114,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogEntry
      * @see ILogHandler
      */
-    default ILogger log(LogLevel level, String[] messages, Throwable throwable)
-    {
+    default ILogger log(LogLevel level, String[] messages, Throwable throwable) {
         return log(level, Thread.currentThread().getContextClassLoader().getClass(), messages, throwable);
     }
 
@@ -131,8 +125,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogEntry
      * @see ILogHandler
      */
-    default ILogger log(LogLevel level, Class<?> clazz, String message, Throwable throwable)
-    {
+    default ILogger log(LogLevel level, Class<?> clazz, String message, Throwable throwable) {
         return log(level, clazz, new String[]{message}, throwable);
     }
 
@@ -143,12 +136,10 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogEntry
      * @see ILogHandler
      */
-    default ILogger log(LogLevel level, Class<?> clazz, String[] messages, Throwable throwable)
-    {
+    default ILogger log(LogLevel level, Class<?> clazz, String[] messages, Throwable throwable) {
         return log(new LogEntry(System.currentTimeMillis(), clazz, messages, level, throwable, Thread.currentThread()));
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -160,8 +151,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger info(String message)
-    {
+    default ILogger info(String message) {
         return log(LogLevel.INFO, message);
     }
 
@@ -175,8 +165,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger info(String... messages)
-    {
+    default ILogger info(String... messages) {
         return log(LogLevel.INFO, messages);
     }
 
@@ -190,8 +179,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger info(String message, Class<?> clazz)
-    {
+    default ILogger info(String message, Class<?> clazz) {
         return log(LogLevel.INFO, clazz, message);
     }
 
@@ -205,12 +193,10 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger info(String[] messages, Class<?> clazz)
-    {
+    default ILogger info(String[] messages, Class<?> clazz) {
         return log(LogLevel.INFO, clazz, messages);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -222,8 +208,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String message)
-    {
+    default ILogger warning(String message) {
         return log(LogLevel.WARNING, message);
     }
 
@@ -237,8 +222,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String... messages)
-    {
+    default ILogger warning(String... messages) {
         return log(LogLevel.WARNING, messages);
     }
 
@@ -252,8 +236,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String message, Class<?> clazz)
-    {
+    default ILogger warning(String message, Class<?> clazz) {
         return log(LogLevel.WARNING, clazz, message);
     }
 
@@ -267,8 +250,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String[] messages, Class<?> clazz)
-    {
+    default ILogger warning(String[] messages, Class<?> clazz) {
         return log(LogLevel.WARNING, clazz, messages);
     }
 
@@ -282,8 +264,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String message, Throwable throwable)
-    {
+    default ILogger warning(String message, Throwable throwable) {
         return log(LogLevel.WARNING, message, throwable);
     }
 
@@ -297,8 +278,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String[] messages, Throwable throwable)
-    {
+    default ILogger warning(String[] messages, Throwable throwable) {
         return log(LogLevel.WARNING, messages, throwable);
     }
 
@@ -312,8 +292,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String message, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger warning(String message, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.WARNING, clazz, message, throwable);
     }
 
@@ -327,12 +306,10 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger warning(String[] messages, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger warning(String[] messages, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.WARNING, clazz, messages, throwable);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -344,8 +321,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String message)
-    {
+    default ILogger fatal(String message) {
         return log(LogLevel.FATAL, message);
     }
 
@@ -359,8 +335,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String... messages)
-    {
+    default ILogger fatal(String... messages) {
         return log(LogLevel.FATAL, messages);
     }
 
@@ -374,8 +349,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String message, Class<?> clazz)
-    {
+    default ILogger fatal(String message, Class<?> clazz) {
         return log(LogLevel.FATAL, clazz, message);
     }
 
@@ -389,8 +363,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String[] messages, Class<?> clazz)
-    {
+    default ILogger fatal(String[] messages, Class<?> clazz) {
         return log(LogLevel.FATAL, clazz, messages);
     }
 
@@ -404,8 +377,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String message, Throwable throwable)
-    {
+    default ILogger fatal(String message, Throwable throwable) {
         return log(LogLevel.FATAL, message, throwable);
     }
 
@@ -419,8 +391,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String[] messages, Throwable throwable)
-    {
+    default ILogger fatal(String[] messages, Throwable throwable) {
         return log(LogLevel.FATAL, messages, throwable);
     }
 
@@ -434,8 +405,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String message, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger fatal(String message, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.FATAL, clazz, message, throwable);
     }
 
@@ -449,12 +419,10 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger fatal(String[] messages, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger fatal(String[] messages, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.FATAL, clazz, messages, throwable);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -466,8 +434,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String message)
-    {
+    default ILogger error(String message) {
         return log(LogLevel.ERROR, message);
     }
 
@@ -481,8 +448,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String... messages)
-    {
+    default ILogger error(String... messages) {
         return log(LogLevel.ERROR, messages);
     }
 
@@ -496,8 +462,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String message, Class<?> clazz)
-    {
+    default ILogger error(String message, Class<?> clazz) {
         return log(LogLevel.ERROR, clazz, message);
     }
 
@@ -511,8 +476,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String[] messages, Class<?> clazz)
-    {
+    default ILogger error(String[] messages, Class<?> clazz) {
         return log(LogLevel.ERROR, clazz, messages);
     }
 
@@ -526,8 +490,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String message, Throwable throwable)
-    {
+    default ILogger error(String message, Throwable throwable) {
         return log(LogLevel.ERROR, message, throwable);
     }
 
@@ -541,8 +504,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String[] messages, Throwable throwable)
-    {
+    default ILogger error(String[] messages, Throwable throwable) {
         return log(LogLevel.ERROR, messages, throwable);
     }
 
@@ -556,8 +518,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String message, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger error(String message, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.ERROR, clazz, message, throwable);
     }
 
@@ -571,12 +532,10 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger error(String[] messages, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger error(String[] messages, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.ERROR, clazz, messages, throwable);
     }
 
-    /*= ------------------------------------------------------ =*/
 
     /**
      * An wrapper method for the last base method log(LogEntry)
@@ -588,8 +547,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String message)
-    {
+    default ILogger debug(String message) {
         return log(LogLevel.DEBUG, message);
     }
 
@@ -603,8 +561,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String... messages)
-    {
+    default ILogger debug(String... messages) {
         return log(LogLevel.DEBUG, messages);
     }
 
@@ -618,8 +575,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String message, Class<?> clazz)
-    {
+    default ILogger debug(String message, Class<?> clazz) {
         return log(LogLevel.DEBUG, clazz, message);
     }
 
@@ -633,8 +589,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String[] messages, Class<?> clazz)
-    {
+    default ILogger debug(String[] messages, Class<?> clazz) {
         return log(LogLevel.DEBUG, clazz, messages);
     }
 
@@ -648,8 +603,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String message, Throwable throwable)
-    {
+    default ILogger debug(String message, Throwable throwable) {
         return log(LogLevel.DEBUG, message, throwable);
     }
 
@@ -663,8 +617,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String[] messages, Throwable throwable)
-    {
+    default ILogger debug(String[] messages, Throwable throwable) {
         return log(LogLevel.DEBUG, messages, throwable);
     }
 
@@ -678,8 +631,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String message, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger debug(String message, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.DEBUG, clazz, message, throwable);
     }
 
@@ -693,8 +645,7 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
      * @see LogLevel
      * @see ILogHandler
      */
-    default ILogger debug(String[] messages, Class<?> clazz, Throwable throwable)
-    {
+    default ILogger debug(String[] messages, Class<?> clazz, Throwable throwable) {
         return log(LogLevel.DEBUG, clazz, messages, throwable);
     }
 }

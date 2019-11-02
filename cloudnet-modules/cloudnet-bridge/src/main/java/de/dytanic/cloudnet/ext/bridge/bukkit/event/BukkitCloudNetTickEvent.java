@@ -1,18 +1,20 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.bukkit.event.HandlerList;
 
-@NoArgsConstructor
 public final class BukkitCloudNetTickEvent extends BukkitCloudNetEvent {
 
-    @Getter
     private static HandlerList handlerList = new HandlerList();
 
+    public BukkitCloudNetTickEvent() {
+    }
+
+    public static HandlerList getHandlerList() {
+        return BukkitCloudNetTickEvent.handlerList;
+    }
+
     @Override
-    public HandlerList getHandlers()
-    {
+    public HandlerList getHandlers() {
         return handlerList;
     }
 }

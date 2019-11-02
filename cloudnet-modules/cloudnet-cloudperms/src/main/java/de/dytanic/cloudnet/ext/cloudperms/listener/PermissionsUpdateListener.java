@@ -16,15 +16,14 @@ public final class PermissionsUpdateListener {
     */
 
     @EventListener
-    public void handle(PermissionUpdateUserEvent event)
-    {
-        if (CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().containsKey(event.getPermissionUser().getUniqueId()))
+    public void handle(PermissionUpdateUserEvent event) {
+        if (CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().containsKey(event.getPermissionUser().getUniqueId())) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(event.getPermissionUser().getUniqueId(), event.getPermissionUser());
+        }
     }
 
     @EventListener
-    public void handle(PermissionDeleteUserEvent event)
-    {
+    public void handle(PermissionDeleteUserEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPermissionUser().getUniqueId());
     }
 
@@ -37,29 +36,26 @@ public final class PermissionsUpdateListener {
     */
 
     @EventListener
-    public void handle(PermissionAddGroupEvent event)
-    {
+    public void handle(PermissionAddGroupEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().put(event.getPermissionGroup().getName(), event.getPermissionGroup());
     }
 
     @EventListener
-    public void handle(PermissionUpdateGroupEvent event)
-    {
+    public void handle(PermissionUpdateGroupEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().put(event.getPermissionGroup().getName(), event.getPermissionGroup());
     }
 
     @EventListener
-    public void handle(PermissionDeleteGroupEvent event)
-    {
+    public void handle(PermissionDeleteGroupEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().remove(event.getPermissionGroup().getName());
     }
 
     @EventListener
-    public void handle(PermissionSetGroupsEvent event)
-    {
+    public void handle(PermissionSetGroupsEvent event) {
         CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().clear();
 
-        for (IPermissionGroup permissionGroup : event.getGroups())
+        for (IPermissionGroup permissionGroup : event.getGroups()) {
             CloudPermissionsPermissionManagement.getInstance().getCachedPermissionGroups().put(permissionGroup.getName(), permissionGroup);
+        }
     }
 }

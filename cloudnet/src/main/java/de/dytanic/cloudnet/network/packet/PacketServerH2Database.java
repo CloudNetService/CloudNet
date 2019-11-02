@@ -6,13 +6,12 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public final class PacketServerH2Database extends Packet {
 
-    public PacketServerH2Database(OperationType operationType, String name, String key, JsonDocument document)
-    {
+    public PacketServerH2Database(OperationType operationType, String name, String key, JsonDocument document) {
         super(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new JsonDocument("operationType", operationType)
-                .append("name", name)
-                .append("key", key)
-                .append("document", document),
-            new byte[0]);
+                        .append("name", name)
+                        .append("key", key)
+                        .append("document", document),
+                new byte[0]);
     }
 
     public enum OperationType {

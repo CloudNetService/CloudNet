@@ -3,62 +3,52 @@ package de.dytanic.cloudnet.driver.module;
 public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
 
     @Override
-    public void handlePreModuleLoad(IModuleWrapper moduleWrapper)
-    {
+    public void handlePreModuleLoad(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePostModuleLoad(IModuleWrapper moduleWrapper)
-    {
+    public void handlePostModuleLoad(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePreModuleStart(IModuleWrapper moduleWrapper)
-    {
+    public void handlePreModuleStart(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePostModuleStart(IModuleWrapper moduleWrapper)
-    {
+    public void handlePostModuleStart(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePreModuleStop(IModuleWrapper moduleWrapper)
-    {
+    public void handlePreModuleStop(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePostModuleStop(IModuleWrapper moduleWrapper)
-    {
+    public void handlePostModuleStop(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePreModuleUnload(IModuleWrapper moduleWrapper)
-    {
+    public void handlePreModuleUnload(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePostModuleUnload(IModuleWrapper moduleWrapper)
-    {
+    public void handlePostModuleUnload(IModuleWrapper moduleWrapper) {
 
     }
 
     @Override
-    public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency)
-    {
+    public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
 
     }
 
     @Override
-    public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency)
-    {
+    public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
 
     }
 }

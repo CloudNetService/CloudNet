@@ -40,7 +40,6 @@ public interface IDatabase extends INameable, AutoCloseable {
 
     void clear();
 
-    /*= ----------------------------------------------------------- =*/
 
     ITask<Boolean> insertAsync(String key, JsonDocument document);
 
@@ -66,6 +65,5 @@ public interface IDatabase extends INameable, AutoCloseable {
 
     ITask<Void> clearAsync();
 
-    /*= ----------------------------------------------------------- =*/
 
 }

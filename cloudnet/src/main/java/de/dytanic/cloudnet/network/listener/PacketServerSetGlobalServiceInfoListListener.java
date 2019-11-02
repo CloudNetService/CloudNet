@@ -13,17 +13,17 @@ import java.util.List;
 public final class PacketServerSetGlobalServiceInfoListListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("serviceInfoList"))
-        {
+    public void handle(INetworkChannel channel, IPacket packet) {
+        if (packet.getHeader().contains("serviceInfoList")) {
             Collection<ServiceInfoSnapshot> serviceInfoSnapshots = packet.getHeader().get("serviceInfoList", new TypeToken<List<ServiceInfoSnapshot>>() {
             }.getType());
 
-            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots)
-                if (serviceInfoSnapshot != null)
+            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+                if (serviceInfoSnapshot != null) {
                     CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots()
-                        .put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                            .put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                }
+            }
         }
     }
 }

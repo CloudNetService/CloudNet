@@ -9,8 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultJsonFilePermissionManagementTest {
 
     @Test
-    public void testFilePermissionManager() throws Exception
-    {
+    public void testFilePermissionManager() throws Exception {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
         File permissionsConfig = new File("build/permissions.json");
 
@@ -23,7 +22,7 @@ public class DefaultJsonFilePermissionManagementTest {
         permissionUser.addGroup(groupName);
         permissionManagement.updateUser(permissionUser);
         Assert.assertNotNull(permissionManagement.getUser(permissionUser.getUniqueId()));
-        Assert.assertNotNull(permissionManagement.getUser(permissionUser.getName()));
+        Assert.assertNotNull(permissionManagement.getUsers(permissionUser.getName()));
 
         permissionUser.addPermission(new Permission(permission, 10));
         permissionManagement.updateUser(permissionUser);
@@ -66,13 +65,13 @@ public class DefaultJsonFilePermissionManagementTest {
         permissionManagement.updateGroup(permissionGroup);
         Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("City", new Permission("test.test.91011")).asBoolean());
 
-        Assert.assertEquals(1, permissionManagement.getUserByGroup(groupName).size());
+        Assert.assertEquals(1, permissionManagement.getUsersByGroup(groupName).size());
         permissionUser.removeGroup(groupName);
         permissionManagement.updateUser(permissionUser);
-        Assert.assertFalse(permissionManagement.getUser(permissionUser.getName()).get(0).inGroup(groupName));
+        Assert.assertFalse(permissionManagement.getUsers(permissionUser.getName()).get(0).inGroup(groupName));
 
         permissionManagement.deleteUser(userName);
-        Assert.assertEquals(0, permissionManagement.getUserByGroup(groupName).size());
+        Assert.assertEquals(0, permissionManagement.getUsersByGroup(groupName).size());
         Assert.assertEquals(0, permissionManagement.getUsers().size());
 
         permissionManagement.deleteGroup(groupName);

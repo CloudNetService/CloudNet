@@ -21,12 +21,9 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
     }.getType();
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("permissions_event") && packet.getHeader().contains("updateType"))
-        {
-            switch (packet.getHeader().get("updateType", PacketServerUpdatePermissions.UpdateType.class))
-            {
+    public void handle(INetworkChannel channel, IPacket packet) {
+        if (packet.getHeader().contains("permissions_event") && packet.getHeader().contains("updateType")) {
+            switch (packet.getHeader().get("updateType", PacketServerUpdatePermissions.UpdateType.class)) {
                 case ADD_USER:
                     invoke0(new PermissionAddUserEvent(null, packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
                     break;
@@ -55,8 +52,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
         }
     }
 
-    private void invoke0(Event event)
-    {
+    private void invoke0(Event event) {
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
     }
 }

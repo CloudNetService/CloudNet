@@ -11,10 +11,11 @@ public final class StringUtil {
     /**
      * A char array of all letters from A to Z and 1 to 9
      */
-    public static final char[] DEFAULT_ALPHABET_UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+    private static final char[] DEFAULT_ALPHABET_UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
 
-    private StringUtil()
-    {
+    private static final Random RANDOM = new Random();
+
+    private StringUtil() {
         throw new UnsupportedOperationException();
     }
 
@@ -24,15 +25,13 @@ public final class StringUtil {
      * @param length the length of the generated string
      * @return the string, which was build with all random chars
      */
-    public static String generateRandomString(int length)
-    {
-        Random random = new Random();
+    public static String generateRandomString(int length) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        synchronized (random)
-        {
-            for (int i = 0; i < length; i++)
-                stringBuilder.append(DEFAULT_ALPHABET_UPPERCASE[random.nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
+        synchronized (StringUtil.class) {
+            for (int i = 0; i < length; i++) {
+                stringBuilder.append(DEFAULT_ALPHABET_UPPERCASE[RANDOM.nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
+            }
         }
 
         return stringBuilder.toString();

@@ -9,21 +9,8 @@ public final class DefaultEventManagerTest {
 
     private final AtomicInteger publisherCounter = new AtomicInteger(45);
 
-    private final class TestEvent extends Event {
-
-        public String value;
-
-        public TestEvent(String value)
-        {
-            this.value = value;
-        }
-    }
-
-    /*= -------------------------------------------------------------------------------------- =*/
-
     @Test
-    public void testListenerCall() throws Throwable
-    {
+    public void testListenerCall() throws Throwable {
         IEventManager eventManager = new DefaultEventManager();
 
         Assert.assertNotNull(eventManager.registerListener(new ListenerTest()));
@@ -54,29 +41,8 @@ public final class DefaultEventManagerTest {
         eventManager.unregisterAll();
     }
 
-    private final class ListenerTest {
-
-        @EventListener(channel = "set")
-        public void onTestExecute(TestEvent testEvent)
-        {
-            Assert.assertEquals("Test_value1234", testEvent.value);
-
-            testEvent.value = "test_result";
-            publisherCounter.incrementAndGet();
-        }
-
-        @EventListener(channel = "test_channel")
-        public void onTestExecute2(TestEvent testEvent)
-        {
-            testEvent.value = "test_channel_result";
-        }
-    }
-
-    /*= ----------------------------------------------------------------------------------- =*/
-
     @Test
-    public void testEventPriority()
-    {
+    public void testEventPriority() {
         IEventManager eventManager = new DefaultEventManager();
 
         Assert.assertNotNull(eventManager.registerListener(new ListenerTest2()));
@@ -94,19 +60,43 @@ public final class DefaultEventManagerTest {
         Assert.assertEquals("value_789", testEvent.value);
     }
 
+    private final class TestEvent extends Event {
+
+        public String value;
+
+        public TestEvent(String value) {
+            this.value = value;
+        }
+    }
+
+
+    private final class ListenerTest {
+
+        @EventListener(channel = "set")
+        public void onTestExecute(TestEvent testEvent) {
+            Assert.assertEquals("Test_value1234", testEvent.value);
+
+            testEvent.value = "test_result";
+            publisherCounter.incrementAndGet();
+        }
+
+        @EventListener(channel = "test_channel")
+        public void onTestExecute2(TestEvent testEvent) {
+            testEvent.value = "test_channel_result";
+        }
+    }
+
     private final class ListenerTest2 {
 
         @EventListener(channel = "test_channel_2", priority = EventPriority.HIGHEST)
-        public void onTestExecute(TestEvent testEvent)
-        {
+        public void onTestExecute(TestEvent testEvent) {
             Assert.assertEquals("value_123", testEvent.value);
 
             testEvent.value = "value_456";
         }
 
         @EventListener(channel = "test_channel_3", priority = EventPriority.LOWEST)
-        public void onTestExecute2(TestEvent testEvent)
-        {
+        public void onTestExecute2(TestEvent testEvent) {
             Assert.assertEquals("value_456", testEvent.value);
 
             testEvent.value = "value_789";

@@ -4,17 +4,13 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements ICloudOfflinePlayer {
 
@@ -29,19 +25,29 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
 
     protected NetworkConnectionInfo lastNetworkConnectionInfo;
 
-    /*= --------------------------------------------------------------- =*/
+    public CloudOfflinePlayer(UUID uniqueId, String name, String xBoxId, long firstLoginTimeMillis, long lastLoginTimeMillis, NetworkConnectionInfo lastNetworkConnectionInfo) {
+        this.uniqueId = uniqueId;
+        this.name = name;
+        this.xBoxId = xBoxId;
+        this.firstLoginTimeMillis = firstLoginTimeMillis;
+        this.lastLoginTimeMillis = lastLoginTimeMillis;
+        this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+    }
 
-    public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer)
-    {
+    public CloudOfflinePlayer() {
+    }
+
+
+    public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer) {
         Validate.checkNotNull(cloudPlayer);
 
         CloudOfflinePlayer cloudOfflinePlayer = new CloudOfflinePlayer(
-            cloudPlayer.getUniqueId(),
-            cloudPlayer.getName(),
-            cloudPlayer.getXBoxId(),
-            cloudPlayer.getFirstLoginTimeMillis(),
-            cloudPlayer.getLastLoginTimeMillis(),
-            cloudPlayer.getLastNetworkConnectionInfo()
+                cloudPlayer.getUniqueId(),
+                cloudPlayer.getName(),
+                cloudPlayer.getXBoxId(),
+                cloudPlayer.getFirstLoginTimeMillis(),
+                cloudPlayer.getLastLoginTimeMillis(),
+                cloudPlayer.getLastNetworkConnectionInfo()
         );
 
         cloudOfflinePlayer.setProperties(cloudPlayer.getProperties());
@@ -50,8 +56,56 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     }
 
     @Override
-    public void setProperties(JsonDocument properties)
-    {
+    public void setProperties(JsonDocument properties) {
         this.properties = properties;
     }
+
+    public UUID getUniqueId() {
+        return this.uniqueId;
+    }
+
+    public void setUniqueId(UUID uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getXBoxId() {
+        return this.xBoxId;
+    }
+
+    public void setXBoxId(String xBoxId) {
+        this.xBoxId = xBoxId;
+    }
+
+    public long getFirstLoginTimeMillis() {
+        return this.firstLoginTimeMillis;
+    }
+
+    public void setFirstLoginTimeMillis(long firstLoginTimeMillis) {
+        this.firstLoginTimeMillis = firstLoginTimeMillis;
+    }
+
+    public long getLastLoginTimeMillis() {
+        return this.lastLoginTimeMillis;
+    }
+
+    public void setLastLoginTimeMillis(long lastLoginTimeMillis) {
+        this.lastLoginTimeMillis = lastLoginTimeMillis;
+    }
+
+    public NetworkConnectionInfo getLastNetworkConnectionInfo() {
+        return this.lastNetworkConnectionInfo;
+    }
+
+    public void setLastNetworkConnectionInfo(NetworkConnectionInfo lastNetworkConnectionInfo) {
+        this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+    }
+
 }

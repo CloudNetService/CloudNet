@@ -35,13 +35,13 @@ public interface ICloudService {
 
     File getDirectory();
 
-    void setNetworkChannel(INetworkChannel channel);
-
     INetworkChannel getNetworkChannel();
 
-    void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot);
+    void setNetworkChannel(INetworkChannel channel);
 
     ServiceInfoSnapshot getServiceInfoSnapshot();
+
+    void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot);
 
     ServiceInfoSnapshot getLastServiceInfoSnapshot();
 
@@ -53,7 +53,6 @@ public interface ICloudService {
 
     IServiceConsoleLogCache getServiceConsoleLogCache();
 
-    /*= ------------------------------------------------------------------- =*/
 
     void start() throws Exception;
 
@@ -71,5 +70,9 @@ public interface ICloudService {
 
     void includeTemplates();
 
-    void deployResources();
+    void deployResources(boolean removeDeployments);
+
+    default void deployResources() {
+        deployResources(true);
+    }
 }

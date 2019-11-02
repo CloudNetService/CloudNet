@@ -15,16 +15,14 @@ import io.gomint.proxprox.api.plugin.annotation.Version;
 public final class ProxProxCloudNetCloudPermissionsPlugin extends Plugin {
 
     @Override
-    public void onStartup()
-    {
+    public void onStartup() {
         new CloudPermissionsPermissionManagement();
 
         registerListener(new ProxProxCloudNetCloudPermissionsPlayerListener());
     }
 
     @Override
-    public void onUninstall()
-    {
+    public void onUninstall() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }

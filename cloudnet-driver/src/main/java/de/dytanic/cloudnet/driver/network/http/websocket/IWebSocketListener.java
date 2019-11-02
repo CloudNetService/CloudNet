@@ -6,8 +6,7 @@ public interface IWebSocketListener {
 
     void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception;
 
-    default void handleClose(IWebSocketChannel channel, Value<Integer> statusCode, Value<String> reasonText)
-    {
+    default void handleClose(IWebSocketChannel channel, Value<Integer> statusCode, Value<String> reasonText) {
 
     }
 }

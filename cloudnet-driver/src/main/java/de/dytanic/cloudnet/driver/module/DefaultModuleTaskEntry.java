@@ -1,12 +1,7 @@
 package de.dytanic.cloudnet.driver.module;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.lang.reflect.Method;
 
-@Getter
-@AllArgsConstructor
 public final class DefaultModuleTaskEntry implements IModuleTaskEntry {
 
     private IModuleWrapper moduleWrapper;
@@ -15,9 +10,26 @@ public final class DefaultModuleTaskEntry implements IModuleTaskEntry {
 
     private Method handler;
 
+    public DefaultModuleTaskEntry(IModuleWrapper moduleWrapper, ModuleTask taskInfo, Method handler) {
+        this.moduleWrapper = moduleWrapper;
+        this.taskInfo = taskInfo;
+        this.handler = handler;
+    }
+
     @Override
-    public IModule getModule()
-    {
+    public IModule getModule() {
         return this.moduleWrapper.getModule();
+    }
+
+    public IModuleWrapper getModuleWrapper() {
+        return this.moduleWrapper;
+    }
+
+    public ModuleTask getTaskInfo() {
+        return this.taskInfo;
+    }
+
+    public Method getHandler() {
+        return this.handler;
     }
 }

@@ -8,72 +8,66 @@ import de.dytanic.cloudnet.ext.signs.*;
 public final class BukkitCloudNetSignListener {
 
     @EventListener
-    public void handle(CloudServiceRegisterEvent event)
-    {
+    public void handle(CloudServiceRegisterEvent event) {
         AbstractSignManagement.getInstance().onRegisterService(event.getServiceInfo());
     }
 
     @EventListener
-    public void handle(CloudServiceStartEvent event)
-    {
+    public void handle(CloudServiceStartEvent event) {
         AbstractSignManagement.getInstance().onStartService(event.getServiceInfo());
     }
 
     @EventListener
-    public void handle(CloudServiceConnectNetworkEvent event)
-    {
+    public void handle(CloudServiceConnectNetworkEvent event) {
         AbstractSignManagement.getInstance().onConnectService(event.getServiceInfo());
     }
 
     @EventListener
-    public void handle(CloudServiceDisconnectNetworkEvent event)
-    {
+    public void handle(CloudServiceDisconnectNetworkEvent event) {
         AbstractSignManagement.getInstance().onDisconnectService(event.getServiceInfo());
     }
 
     @EventListener
-    public void handle(CloudServiceInfoUpdateEvent event)
-    {
+    public void handle(CloudServiceInfoUpdateEvent event) {
         AbstractSignManagement.getInstance().onUpdateServiceInfo(event.getServiceInfo());
     }
 
     @EventListener
-    public void handle(CloudServiceUnregisterEvent event)
-    {
+    public void handle(CloudServiceUnregisterEvent event) {
         AbstractSignManagement.getInstance().onUnregisterService(event.getServiceInfo());
     }
 
     @EventListener
-    public void handle(CloudServiceStopEvent event)
-    {
+    public void handle(CloudServiceStopEvent event) {
         AbstractSignManagement.getInstance().onStopService(event.getServiceInfo());
     }
 
     @EventListener
-    public void handle(ChannelMessageReceiveEvent event)
-    {
-        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) return;
+    public void handle(ChannelMessageReceiveEvent event) {
+        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) {
+            return;
+        }
 
-        switch (event.getMessage().toLowerCase())
-        {
-            case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION:
-            {
+        switch (event.getMessage().toLowerCase()) {
+            case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
                 SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
                 SignConfigurationProvider.setLocal(signConfiguration);
             }
             break;
-            case SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE:
-            {
+            case SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE: {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
-                if (sign != null) AbstractSignManagement.getInstance().onSignAdd(sign);
+                if (sign != null) {
+                    AbstractSignManagement.getInstance().onSignAdd(sign);
+                }
             }
             break;
-            case SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE:
-            {
+            case SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE: {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
-                if (sign != null) AbstractSignManagement.getInstance().onSignRemove(sign);
+                if (sign != null) {
+                    AbstractSignManagement.getInstance().onSignRemove(sign);
+                }
             }
             break;
         }

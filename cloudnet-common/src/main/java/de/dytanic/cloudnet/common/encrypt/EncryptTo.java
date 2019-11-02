@@ -10,16 +10,14 @@ import java.security.NoSuchAlgorithmException;
  */
 public final class EncryptTo {
 
-    private EncryptTo()
-    {
+    private EncryptTo() {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Invokes the encryptToSHA256(byte[] bytes) method
      */
-    public static byte[] encryptToSHA256(String text)
-    {
+    public static byte[] encryptToSHA256(String text) {
         return encryptToSHA256(text.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -29,16 +27,13 @@ public final class EncryptTo {
      * @param bytes the following bytes which should encrypt
      * @return the output SHA-256 hash
      */
-    public static byte[] encryptToSHA256(byte[] bytes)
-    {
-        try
-        {
+    public static byte[] encryptToSHA256(byte[] bytes) {
+        try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             messageDigest.update(bytes);
             return messageDigest.digest();
-        } catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
         }
 
         return null;
@@ -47,8 +42,7 @@ public final class EncryptTo {
     /**
      * Invokes the encryptToSHA1(byte[] bytes) method
      */
-    public static byte[] encryptToSHA1(String text)
-    {
+    public static byte[] encryptToSHA1(String text) {
         return encryptToSHA1(text.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -59,16 +53,13 @@ public final class EncryptTo {
      * @param bytes the following bytes which should encrypt
      * @return the output SHA-1 hash
      */
-    public static byte[] encryptToSHA1(byte[] bytes)
-    {
-        try
-        {
+    public static byte[] encryptToSHA1(byte[] bytes) {
+        try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
             messageDigest.update(bytes);
             return messageDigest.digest();
-        } catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
         }
 
         return null;

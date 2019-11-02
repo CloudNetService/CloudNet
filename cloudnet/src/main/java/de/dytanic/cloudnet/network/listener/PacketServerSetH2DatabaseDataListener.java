@@ -18,49 +18,44 @@ public final class PacketServerSetH2DatabaseDataListener implements IPacketListe
     }.getType();
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider && packet.getHeader().contains("set_h2db"))
-        {
+    public void handle(INetworkChannel channel, IPacket packet) {
+        if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider && packet.getHeader().contains("set_h2db")) {
             Map<String, Map<String, JsonDocument>> documents = packet.getHeader().get("documents", TYPE);
 
             H2DatabaseProvider databaseProvider = getH2DatabaseProvider();
 
-            for (String name : databaseProvider.getDatabaseNames())
-            {
-                if (!documents.containsKey(name))
-                {
+            for (String name : databaseProvider.getDatabaseNames()) {
+                if (!documents.containsKey(name)) {
                     databaseProvider.deleteDatabase(name);
                     continue;
                 }
 
                 H2Database database = databaseProvider.getDatabase(name);
 
-                try
-                {
+                try {
                     database.clear0();
-                } catch (Exception ignored)
-                {
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
 
-            for (Map.Entry<String, Map<String, JsonDocument>> db : documents.entrySet())
-            {
+            for (Map.Entry<String, Map<String, JsonDocument>> db : documents.entrySet()) {
                 H2Database database = databaseProvider.getDatabase(db.getKey());
 
-                for (Map.Entry<String, JsonDocument> entry : documents.get(db.getKey()).entrySet())
+                for (Map.Entry<String, JsonDocument> entry : documents.get(db.getKey()).entrySet()) {
                     database.insert0(entry.getKey(), entry.getValue());
+                }
             }
 
-            for (Map.Entry<String, Map<String, JsonDocument>> entry : documents.entrySet())
+            for (Map.Entry<String, Map<String, JsonDocument>> entry : documents.entrySet()) {
                 entry.getValue().clear();
+            }
 
             documents.clear();
         }
     }
 
-    public H2DatabaseProvider getH2DatabaseProvider()
-    {
+    public H2DatabaseProvider getH2DatabaseProvider() {
         return (H2DatabaseProvider) CloudNet.getInstance().getDatabaseProvider();
     }
 }

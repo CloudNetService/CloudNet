@@ -14,15 +14,15 @@ import java.util.Properties;
  * A document is a wrapper to persistence data or read data in the heap or
  * easy into the following implementation format of this interface.
  */
-public interface IDocument<T extends IDocument> extends IJsonDocPropertyable, Serializable, IPersistable, IReadable, Iterable<String> {
+public interface IDocument<Document extends IDocument> extends IJsonDocPropertyable, Serializable, IPersistable, IReadable, Iterable<String> {
 
     Collection<String> keys();
 
     int size();
 
-    T clear();
+    Document clear();
 
-    T remove(String key);
+    Document remove(String key);
 
     boolean contains(String key);
 
@@ -30,31 +30,30 @@ public interface IDocument<T extends IDocument> extends IJsonDocPropertyable, Se
 
     <T> T toInstanceOf(Type clazz);
 
-    /*= --------------------------------------------------- =*/
 
-    T append(String key, Object value);
+    Document append(String key, Object value);
 
-    T append(String key, Number value);
+    Document append(String key, Number value);
 
-    T append(String key, Boolean value);
+    Document append(String key, Boolean value);
 
-    T append(String key, String value);
+    Document append(String key, String value);
 
-    T append(String key, Character value);
+    Document append(String key, Character value);
 
-    T append(String key, T value);
+    Document append(String key, Document value);
 
-    T append(Properties properties);
+    Document append(Properties properties);
 
-    T append(Map<String, Object> map);
+    Document append(Map<String, Object> map);
 
-    T append(String key, Properties properties);
+    Document append(String key, Properties properties);
 
-    T append(String key, byte[] bytes);
+    Document append(String key, byte[] bytes);
 
-    T append(T t);
+    Document append(Document t);
 
-    T getDocument(String key);
+    Document getDocument(String key);
 
     int getInt(String key);
 
@@ -86,10 +85,8 @@ public interface IDocument<T extends IDocument> extends IJsonDocPropertyable, Se
 
     <T> T get(String key, Type type);
 
-    /*= --------------------------------------------------- =*/
 
-    default boolean isEmpty()
-    {
+    default boolean isEmpty() {
         return this.size() == 0;
     }
 }

@@ -1,0 +1,336 @@
+{
+  "config": {
+    "configurations": [
+      {
+        "targetGroup": "Lobby",
+        "switchToSearchingWhenServiceIsFull": true,
+        "taskLayouts": [],
+        "defaultOnlineLayout": {
+          "lines": [
+            "-* %name% *-",
+            "&eLOBBY",
+            "&7%online_players% &8/ &7%max_players%",
+            "%motd%"
+          ],
+          "blockType": "STONE",
+          "subId": -1
+        },
+        "defaultEmptyLayout": {
+          "lines": [
+            "-* %name% *-",
+            "&7LOBBY",
+            "&7%online_players% &8/ &7%max_players%",
+            "%motd%"
+          ],
+          "blockType": "STONE",
+          "subId": -1
+        },
+        "defaultFullLayout": {
+          "lines": [
+            "-* %name% *-",
+            "&6PRIME",
+            "&7%online_players% &8/ &7%max_players%",
+            "%motd%"
+          ],
+          "blockType": "STONE",
+          "subId": -1
+        },
+        "startingLayouts": {
+          "signLayouts": [
+            {
+              "lines": [
+                "&8✖ ✖ ✖ ✖ ✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ ✖ ✖ ✖ ✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&7✖ &8✖ ✖ ✖ ✖",
+                "%name% is",
+                "starting",
+                "&7✖ &8✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&7✖ &8✖ ✖ ✖ ✖",
+                "%name% is",
+                "starting",
+                "&7✖ &8✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ &7✖ &8✖ ✖ ✖",
+                "%name% is",
+                "starting",
+                "&8✖ &7✖ &8✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ &7✖ &8✖ ✖ ✖",
+                "%name% is",
+                "starting",
+                "&8✖ &7✖ &8✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ ✖ &7✖ &8✖ ✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ &7✖ &8✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ ✖ &7✖ &8✖ ✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ &7✖ &8✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ ✖ ✖ &7✖ &8✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ ✖ &7✖ &8✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ ✖ ✖ &7✖ &8✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ ✖ &7✖ &8✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ ✖ ✖ ✖ &7✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ ✖ ✖ &7✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&8✖ ✖ ✖ ✖ &7✖",
+                "%name% is",
+                "starting",
+                "&8✖ ✖ ✖ ✖ &7✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                " ",
+                "%name% is",
+                "starting",
+                " "
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                " ",
+                "%name% is",
+                "starting",
+                " "
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            }
+          ],
+          "animationsPerSecond": 3
+        },
+        "searchLayouts": {
+          "signLayouts": [
+            {
+              "lines": [
+                "&4✖ ✖ ✖ ✖ ✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ ✖ ✖ ✖ ✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&c✖ &4✖ ✖ ✖ ✖",
+                "Waiting for",
+                "server",
+                "&c✖ &4✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&c✖ &4✖ ✖ ✖ ✖",
+                "Waiting for",
+                "server",
+                "&c✖ &4✖ ✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ &c✖ &4✖ ✖ ✖",
+                "Waiting for",
+                "server",
+                "&4✖ &c✖ &4✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ &c✖ &4✖ ✖ ✖",
+                "Waiting for",
+                "server",
+                "&4✖ &c✖ &4✖ ✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ ✖ &c✖ &4✖ ✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ &c✖ &4✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ ✖ &c✖ &4✖ ✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ &c✖ &4✖ ✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ ✖ ✖ &c✖ &4✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ ✖ &c✖ &4✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ ✖ ✖ &c✖ &4✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ ✖ &c✖ &4✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ ✖ ✖ ✖ &c✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ ✖ ✖ &c✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                "&4✖ ✖ ✖ ✖ &c✖",
+                "Waiting for",
+                "server",
+                "&4✖ ✖ ✖ ✖ &c✖"
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                " ",
+                "Waiting for",
+                "server",
+                " "
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            },
+            {
+              "lines": [
+                " ",
+                "Waiting for",
+                "server",
+                " "
+              ],
+              "blockType": "STONE",
+              "subId": -1
+            }
+          ],
+          "animationsPerSecond": 3
+        }
+      }
+    ],
+    "messages": {
+      "command-cloudsign-remove-success": "&7The target sign will removed! Please wait...",
+      "server-connecting-message": "&7You will send to &c%server%&7...",
+      "command-cloudsign-create-success": "&7The target sign with the target group &6%group% &7is successfully created."
+    }
+  }
+}

@@ -6,8 +6,7 @@ import de.dytanic.cloudnet.common.Properties;
 
 public final class ExampleCommand extends Command {
 
-    public ExampleCommand()
-    {
+    public ExampleCommand() {
         super("example", "exm");
 
         this.permission = "cloudnet.console.command.example";
@@ -17,22 +16,18 @@ public final class ExampleCommand extends Command {
     }
 
     @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties)
-    {
-        if (args.length == 0)
-        {
+    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
+        if (args.length == 0) {
             sender.sendMessage("example <test>");
             return;
         }
 
         //exm test-1 get=my_argument
-        if (args[0].equalsIgnoreCase("test-1"))
-        {
+        if (args[0].equalsIgnoreCase("test-1")) {
             sender.sendMessage("Starting Test-1 with the following" + (properties.containsKey("get") ? " default argument: " + properties.get("get") : " no arguments"));
             sender.sendMessage(
-                "Argument is " + properties.get("get")
+                    "Argument is " + properties.get("get")
             );
-            return;
         }
     }
 }

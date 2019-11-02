@@ -4,13 +4,9 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Queue;
 
-@Getter
-@RequiredArgsConstructor
 public final class DefaultPermissionUserCommandSender implements IPermissionUserCommandSender {
 
     protected final IPermissionUser permissionUser;
@@ -19,34 +15,50 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     protected final Queue<String> writtenMessages = Iterables.newConcurrentLinkedQueue();
 
+    public DefaultPermissionUserCommandSender(IPermissionUser permissionUser, IPermissionManagement permissionManagement) {
+        this.permissionUser = permissionUser;
+        this.permissionManagement = permissionManagement;
+    }
+
     @Override
-    public String getName()
-    {
+    public String getName() {
         return permissionUser.getName();
     }
 
     @Override
-    public void sendMessage(String message)
-    {
+    public void sendMessage(String message) {
         Validate.checkNotNull(message);
 
         this.writtenMessages.add(message);
 
-        while (this.writtenMessages.size() > 64) this.writtenMessages.poll();
+        while (this.writtenMessages.size() > 64) {
+            this.writtenMessages.poll();
+        }
     }
 
     @Override
-    public void sendMessage(String... messages)
-    {
+    public void sendMessage(String... messages) {
         Validate.checkNotNull(messages);
 
-        for (String message : messages)
+        for (String message : messages) {
             this.sendMessage(message);
+        }
     }
 
     @Override
-    public boolean hasPermission(String permission)
-    {
+    public boolean hasPermission(String permission) {
         return permissionManagement.hasPermission(this.permissionUser, permission);
+    }
+
+    public IPermissionUser getPermissionUser() {
+        return this.permissionUser;
+    }
+
+    public IPermissionManagement getPermissionManagement() {
+        return this.permissionManagement;
+    }
+
+    public Queue<String> getWrittenMessages() {
+        return this.writtenMessages;
     }
 }

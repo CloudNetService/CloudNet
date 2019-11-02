@@ -11,16 +11,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 
-@Getter
-@RequiredArgsConstructor
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     private final List<IWebSocketListener> webSocketListeners = Iterables.newCopyOnWriteArrayList();
@@ -31,74 +26,75 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     private final WebSocketServerHandshaker webSocketServerHandshaker;
 
+    public NettyWebSocketServerChannel(IHttpChannel httpChannel, Channel channel, WebSocketServerHandshaker webSocketServerHandshaker) {
+        this.httpChannel = httpChannel;
+        this.channel = channel;
+        this.webSocketServerHandshaker = webSocketServerHandshaker;
+    }
+
     @Override
-    public IWebSocketChannel addListener(IWebSocketListener... listeners)
-    {
+    public IWebSocketChannel addListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
-        for (IWebSocketListener listener : listeners)
-            if (listener != null)
+        for (IWebSocketListener listener : listeners) {
+            if (listener != null) {
                 webSocketListeners.add(listener);
+            }
+        }
 
         return this;
     }
 
     @Override
-    public IWebSocketChannel removeListener(IWebSocketListener... listeners)
-    {
+    public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
-        for (IWebSocketListener listener : webSocketListeners)
-            if (Iterables.first(listeners, new Predicate<IWebSocketListener>() {
-                @Override
-                public boolean test(IWebSocketListener webSocketListener)
-                {
-                    return webSocketListener != null && webSocketListener.equals(listener);
-                }
-            }) != null)
+        for (IWebSocketListener listener : webSocketListeners) {
+            if (Iterables.first(listeners, webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)) != null) {
                 webSocketListeners.remove(listener);
+            }
+        }
 
         return this;
     }
 
     @Override
-    public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes)
-    {
+    public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes) {
         Validate.checkNotNull(classes);
 
-        for (IWebSocketListener listener : webSocketListeners)
-            if (classes.contains(listener.getClass()))
+        for (IWebSocketListener listener : webSocketListeners) {
+            if (classes.contains(listener.getClass())) {
                 webSocketListeners.remove(listener);
+            }
+        }
 
         return this;
     }
 
     @Override
-    public IWebSocketChannel removeListener(ClassLoader classLoader)
-    {
-        for (IWebSocketListener listener : webSocketListeners)
-            if (listener.getClass().getClassLoader().equals(classLoader))
+    public IWebSocketChannel removeListener(ClassLoader classLoader) {
+        for (IWebSocketListener listener : webSocketListeners) {
+            if (listener.getClass().getClassLoader().equals(classLoader)) {
                 webSocketListeners.remove(listener);
+            }
+        }
 
         return this;
     }
 
     @Override
-    public IWebSocketChannel clearListeners()
-    {
+    public IWebSocketChannel clearListeners() {
         this.webSocketListeners.clear();
         return this;
     }
 
     @Override
-    public Collection<IWebSocketListener> getListeners()
-    {
+    public Collection<IWebSocketListener> getListeners() {
         return this.webSocketListeners;
     }
 
     @Override
-    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, String text)
-    {
+    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, String text) {
         Validate.checkNotNull(webSocketFrameType);
         Validate.checkNotNull(text);
 
@@ -106,15 +102,13 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, byte[] bytes)
-    {
+    public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, byte[] bytes) {
         Validate.checkNotNull(webSocketFrameType);
         Validate.checkNotNull(bytes);
 
         WebSocketFrame webSocketFrame;
 
-        switch (webSocketFrameType)
-        {
+        switch (webSocketFrameType) {
             case PING:
                 webSocketFrame = new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
                 break;
@@ -134,21 +128,18 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public IHttpChannel channel()
-    {
+    public IHttpChannel channel() {
         return httpChannel;
     }
 
     @Override
-    public void close(int statusCode, String reasonText)
-    {
+    public void close(int statusCode, String reasonText) {
         Validate.checkNotNull(statusCode);
 
         Value<Integer> statusCodeWrapper = new Value<>(statusCode);
         Value<String> reasonTextWrapper = new Value<>(reasonText);
 
-        for (IWebSocketListener listener : webSocketListeners)
-        {
+        for (IWebSocketListener listener : webSocketListeners) {
             listener.handleClose(this, statusCodeWrapper, reasonTextWrapper);
         }
 
@@ -156,8 +147,23 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public void close() throws Exception
-    {
+    public void close() {
         this.close(200, "default closing");
+    }
+
+    public List<IWebSocketListener> getWebSocketListeners() {
+        return this.webSocketListeners;
+    }
+
+    public IHttpChannel getHttpChannel() {
+        return this.httpChannel;
+    }
+
+    public Channel getChannel() {
+        return this.channel;
+    }
+
+    public WebSocketServerHandshaker getWebSocketServerHandshaker() {
+        return this.webSocketServerHandshaker;
     }
 }

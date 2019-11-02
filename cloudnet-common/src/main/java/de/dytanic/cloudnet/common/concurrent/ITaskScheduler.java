@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 public interface ITaskScheduler extends IScheduledTaskInvoker, Executor {
 
-    void setThreadLifeMillis(long threadLifeMillis);
-
     long getThreadLifeMillis();
+
+    void setThreadLifeMillis(long threadLifeMillis);
 
     int getCurrentWorkerCount();
 

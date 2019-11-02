@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,39 +9,33 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
-@Getter
 public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
 
     protected File baseDirectory;
 
-    public DefaultPersistableModuleDependencyLoader(File baseDirectory)
-    {
+    public DefaultPersistableModuleDependencyLoader(File baseDirectory) {
         this.baseDirectory = baseDirectory;
         this.baseDirectory.mkdirs();
     }
 
     @Override
-    public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception
-    {
+    public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
         return loadModuleDependency0(moduleDependency, moduleDependency.getUrl());
     }
 
     @Override
-    public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception
-    {
+    public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
         return loadModuleDependency0(moduleDependency, moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
-            moduleDependency.getGroup().replace(".", "/") + "/" +
-            moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
-            moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");
+                moduleDependency.getGroup().replace(".", "/") + "/" +
+                moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
+                moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");
     }
 
-    private URL loadModuleDependency0(ModuleDependency moduleDependency, String url) throws Exception
-    {
+    private URL loadModuleDependency0(ModuleDependency moduleDependency, String url) throws Exception {
         File destFile = new File(this.baseDirectory, moduleDependency.getGroup().replace(".", "/") + "/" + moduleDependency.getName() +
-            "/" + moduleDependency.getVersion() + "/" + moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");
+                "/" + moduleDependency.getVersion() + "/" + moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");
 
-        if (!destFile.exists())
-        {
+        if (!destFile.exists()) {
             destFile.getParentFile().mkdirs();
 
             URLConnection urlConnection = new URL(url).openConnection();
@@ -54,12 +47,15 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
 
             destFile.createNewFile();
             try (InputStream inputStream = urlConnection.getInputStream();
-                 FileOutputStream fileOutputStream = new FileOutputStream(destFile))
-            {
+                 FileOutputStream fileOutputStream = new FileOutputStream(destFile)) {
                 FileUtils.copy(inputStream, fileOutputStream);
             }
         }
 
         return destFile.toURI().toURL();
+    }
+
+    public File getBaseDirectory() {
+        return this.baseDirectory;
     }
 }

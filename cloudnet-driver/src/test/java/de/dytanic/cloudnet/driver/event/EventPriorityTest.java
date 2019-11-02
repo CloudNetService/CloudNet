@@ -10,14 +10,13 @@ import java.util.List;
 public class EventPriorityTest {
 
     @Test
-    public void testEventPriorityComparator()
-    {
+    public void testEventPriorityComparator() {
         List<EventPriority> eventPriorities = Arrays.asList(
-            EventPriority.HIGH,
-            EventPriority.LOWEST,
-            EventPriority.LOW,
-            EventPriority.NORMAL,
-            EventPriority.HIGHEST
+                EventPriority.HIGH,
+                EventPriority.LOWEST,
+                EventPriority.LOW,
+                EventPriority.NORMAL,
+                EventPriority.HIGHEST
         );
 
         Collections.sort(eventPriorities);

@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,18 +16,16 @@ public class NettyHttpServerTest {
     private static final String TEST_STRING = "Response Text", TEST_STRING_2 = "Bernd", TEST_STRING_2_MESSAGE = "Eine Test Nachricht";
 
     @Test
-    public void testHttpServerWithParameters() throws Exception
-    {
+    public void testHttpServerWithParameters() throws Exception {
+        int port = NettyTestUtil.generateRandomPort();
+
         IHttpServer httpServer = new NettyHttpServer();
 
-        Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", new IHttpHandler() {
-            @Override
-            public void handle(String path, IHttpContext context) throws Exception
-            {
-                if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
+        Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", (path, context) -> {
+            if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
                     context.request().pathParameters().get("id").equals("64") && context.request().pathParameters().get("name").equals("Albert") &&
-                    context.request().method().toUpperCase().equals("GET"))
-                    context
+                    context.request().method().toUpperCase().equals("GET")) {
+                context
                         .response()
                         .header("Content-Type", "text/plain")
                         .header("Custom-Header", "true")
@@ -37,20 +33,20 @@ public class NettyHttpServerTest {
                         .statusCode(200)
                         .context()
                         .cancelNext()
-                        ;
-                else
-                    context.response()
+                ;
+            } else {
+                context.response()
                         .statusCode(404)
                         .context()
                         .cancelNext()
-                        ;
+                ;
             }
         }));
 
         Assert.assertEquals(1, httpServer.getHttpHandlers().size());
-        Assert.assertTrue(httpServer.addListener(2917));
+        Assert.assertTrue(httpServer.addListener(port));
 
-        HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("http://localhost:2917/person/64/Albert/info").openConnection();
+        HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("http://localhost:" + port + "/person/64/Albert/info").openConnection();
         httpURLConnection.setRequestMethod("GET");
         httpURLConnection.setDoOutput(false);
         httpURLConnection.setUseCaches(false);
@@ -60,9 +56,8 @@ public class NettyHttpServerTest {
         Assert.assertEquals("true", httpURLConnection.getHeaderField("Custom-Header"));
 
         try (InputStream inputStream = httpURLConnection.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-            inputStream
-        )))
-        {
+                inputStream
+        ))) {
             Assert.assertEquals(TEST_STRING, bufferedReader.readLine());
         }
 
@@ -73,16 +68,14 @@ public class NettyHttpServerTest {
     }
 
     @Test
-    public void testHttpServerWithWildCard() throws Exception
-    {
+    public void testHttpServerWithWildCard() throws Exception {
+        int port = NettyTestUtil.generateRandomPort();
+
         IHttpServer httpServer = new NettyHttpServer();
 
-        Assert.assertNotNull(httpServer.registerHandler("/person/*/test", new IHttpHandler() {
-            @Override
-            public void handle(String path, IHttpContext context) throws Exception
-            {
-                if (context.request().method().toUpperCase().equals("POST"))
-                    context
+        Assert.assertNotNull(httpServer.registerHandler("/person/*/test", (path, context) -> {
+            if (context.request().method().toUpperCase().equals("POST")) {
+                context
                         .response()
                         .header("Content-Type", "text/plain")
                         .header("Request-Text-Example", path.split("/")[2])
@@ -90,21 +83,20 @@ public class NettyHttpServerTest {
                         .statusCode(200)
                         .context()
                         .cancelNext()
-                        ;
+                ;
             }
         }));
 
         Assert.assertEquals(1, httpServer.getHttpHandlers().size());
-        Assert.assertTrue(httpServer.addListener(2917));
+        Assert.assertTrue(httpServer.addListener(port));
 
-        HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("http://localhost:2917/person/" + TEST_STRING_2 + "/test").openConnection();
+        HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("http://localhost:" + port + "/person/" + TEST_STRING_2 + "/test").openConnection();
         httpURLConnection.setRequestMethod("POST");
         httpURLConnection.setDoOutput(true);
         httpURLConnection.setUseCaches(false);
         httpURLConnection.connect();
 
-        try (OutputStream outputStream = httpURLConnection.getOutputStream())
-        {
+        try (OutputStream outputStream = httpURLConnection.getOutputStream()) {
             outputStream.write(TEST_STRING_2_MESSAGE.getBytes());
             outputStream.flush();
         }
@@ -113,9 +105,8 @@ public class NettyHttpServerTest {
         Assert.assertEquals(TEST_STRING_2, httpURLConnection.getHeaderField("Request-Text-Example"));
 
         try (InputStream inputStream = httpURLConnection.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-            inputStream
-        )))
-        {
+                inputStream
+        ))) {
             Assert.assertEquals(TEST_STRING_2_MESSAGE, bufferedReader.readLine());
         }
 

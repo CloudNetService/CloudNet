@@ -15,18 +15,17 @@ import java.io.IOException;
 public class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
 
     @Override
-    public void write(JsonWriter jsonWriter, JsonDocument document) throws IOException
-    {
+    public void write(JsonWriter jsonWriter, JsonDocument document) throws IOException {
         TypeAdapters.JSON_ELEMENT.write(jsonWriter, document == null ? new JsonObject() : document.jsonObject);
     }
 
     @Override
-    public JsonDocument read(JsonReader jsonReader) throws IOException
-    {
+    public JsonDocument read(JsonReader jsonReader) throws IOException {
         JsonElement jsonElement = TypeAdapters.JSON_ELEMENT.read(jsonReader);
-        if (jsonElement != null && jsonElement.isJsonObject())
+        if (jsonElement != null && jsonElement.isJsonObject()) {
             return new JsonDocument(jsonElement);
-        else
+        } else {
             return null;
+        }
     }
 }

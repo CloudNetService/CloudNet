@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.examples.bridge;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -14,38 +12,34 @@ import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
 public final class PlayerAPIExample {
 
     //Returns the player online count from a task synchronized
-    public int countServiceInfoSnapshotPlayerCount()
-    {
+    public int countServiceInfoSnapshotPlayerCount() {
         int counter = 0;
 
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby"))
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby")) {
             counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+        }
 
         return counter;
     }
 
     //Asynchronous variant of count the player count from a task
-    public void countServiceInfoSnapshotPlayerCount(Consumer<Integer> consumer)
-    {
-        CloudNetDriver.getInstance().getCloudServicesAsync("Lobby").addListener(new ITaskListener<Collection<ServiceInfoSnapshot>>() {
-            @Override
-            public void onComplete(ITask<Collection<ServiceInfoSnapshot>> task, Collection<ServiceInfoSnapshot> serviceInfoSnapshots)
-            {
-                int counter = 0;
+    public void countServiceInfoSnapshotPlayerCount(Consumer<Integer> consumer) {
+        CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync("Lobby").onComplete(serviceInfoSnapshots -> {
+            int counter = 0;
 
-                if (serviceInfoSnapshots != null)
-                    for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudService("Lobby"))
-                        counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
-
-                consumer.accept(counter);
+            if (serviceInfoSnapshots != null) {
+                for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby")) {
+                    counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+                }
             }
+
+            consumer.accept(counter);
         });
     }
 
@@ -72,7 +66,6 @@ public final class PlayerAPIExample {
             cloudOfflinePlayer.getLastLoginTimeMillis(); //Last login or the current login in milliseconds
         }
 
-        /*= ---------------------------------------------------------------- =*/
 
         List<? extends ICloudPlayer> cloudPlayers = BridgePlayerManager.getInstance().getOnlinePlayer(player.getName());
 
@@ -91,10 +84,9 @@ public final class PlayerAPIExample {
     {
         ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId());
 
-        if (cloudPlayer != null)
-        {
+        if (cloudPlayer != null) {
             cloudPlayer.getProperties()
-                .append("my custom property", 42)
+                    .append("my custom property", 42)
             ;
 
             BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
@@ -103,8 +95,7 @@ public final class PlayerAPIExample {
 
     //Handles an online player update only
     @EventListener
-    public void handle(BridgeUpdateCloudPlayerEvent event)
-    {
+    public void handle(BridgeUpdateCloudPlayerEvent event) {
         ICloudPlayer cloudPlayer = event.getCloudPlayer();
 
         int myCustomProperty = cloudPlayer.getProperties().getInt("my custom property"); //42
@@ -112,8 +103,7 @@ public final class PlayerAPIExample {
 
     //Handles an offline player update only
     @EventListener
-    public void handle(BridgeUpdateCloudOfflinePlayerEvent event)
-    {
+    public void handle(BridgeUpdateCloudOfflinePlayerEvent event) {
         ICloudOfflinePlayer cloudPlayer = event.getCloudOfflinePlayer();
 
         /* ... */ //do something

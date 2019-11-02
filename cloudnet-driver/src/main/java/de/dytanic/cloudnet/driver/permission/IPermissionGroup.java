@@ -8,21 +8,25 @@ public interface IPermissionGroup extends IPermissible {
 
     boolean isDefaultGroup();
 
-    int getSortId();
-
-    String getPrefix();
-
-    String getSuffix();
-
-    String getDisplay();
-
     void setDefaultGroup(boolean defaultGroup);
+
+    int getSortId();
 
     void setSortId(int sortId);
 
+    String getPrefix();
+
     void setPrefix(String prefix);
 
+    String getColor();
+
+    void setColor(String color);
+
+    String getSuffix();
+
     void setSuffix(String suffix);
+
+    String getDisplay();
 
     void setDisplay(String display);
 

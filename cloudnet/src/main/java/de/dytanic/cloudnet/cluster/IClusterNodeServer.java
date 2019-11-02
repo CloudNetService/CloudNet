@@ -45,14 +45,40 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
 
-    ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
-                                           Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
-                                           Collection<String> groups, ProcessConfiguration processConfiguration, Integer port);
+    ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
+                                           Collection<ServiceRemoteInclusion> includes,
+                                           Collection<ServiceTemplate> templates,
+                                           Collection<ServiceDeployment> deployments,
+                                           Collection<String> groups,
+                                           ProcessConfiguration processConfiguration,
+                                           JsonDocument properties, Integer port);
 
     Collection<ServiceInfoSnapshot> createCloudService(
-        String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-        Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-        Collection<ServiceDeployment> deployments, Collection<String> groups, ProcessConfiguration processConfiguration, Integer port);
+            String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties, Integer port);
+
+    default ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
+                                                   Collection<ServiceRemoteInclusion> includes,
+                                                   Collection<ServiceTemplate> templates,
+                                                   Collection<ServiceDeployment> deployments,
+                                                   Collection<String> groups,
+                                                   ProcessConfiguration processConfiguration, Integer port) {
+        return createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
+
+    default Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
+                                                               Collection<ServiceRemoteInclusion> includes,
+                                                               Collection<ServiceTemplate> templates,
+                                                               Collection<ServiceDeployment> deployments,
+                                                               Collection<String> groups,
+                                                               ProcessConfiguration processConfiguration, Integer port) {
+        return createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+    }
 
     ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine);
 
@@ -76,7 +102,9 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     void includeWaitingServiceTemplates(UUID uniqueId);
 
-    void deployResources(UUID uniqueId);
+    void deployResources(UUID uniqueId, boolean removeDeployments);
 
-    Collection<Integer> getReservedTaskIds(String task);
+    default void deployResources(UUID uniqueId) {
+        deployResources(uniqueId, true);
+    }
 }

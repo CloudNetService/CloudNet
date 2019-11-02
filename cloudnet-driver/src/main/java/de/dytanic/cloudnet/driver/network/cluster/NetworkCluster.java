@@ -1,19 +1,41 @@
 package de.dytanic.cloudnet.driver.network.cluster;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Collection;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class NetworkCluster {
 
     private UUID clusterId;
 
     private Collection<NetworkClusterNode> nodes;
+
+    public NetworkCluster(UUID clusterId, Collection<NetworkClusterNode> nodes) {
+        this.clusterId = clusterId;
+        this.nodes = nodes;
+    }
+
+    public NetworkCluster() {
+    }
+
+    public UUID getClusterId() {
+        return this.clusterId;
+    }
+
+    public void setClusterId(UUID clusterId) {
+        this.clusterId = clusterId;
+    }
+
+    public Collection<NetworkClusterNode> getNodes() {
+        return this.nodes;
+    }
+
+    public void setNodes(Collection<NetworkClusterNode> nodes) {
+        this.nodes = nodes;
+    }
 
 }

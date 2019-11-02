@@ -5,13 +5,11 @@ import java.net.URLClassLoader;
 
 public final class RuntimeClassLoader extends URLClassLoader {
 
-    static
-    {
+    static {
         ClassLoader.registerAsParallelCapable();
     }
 
-    public RuntimeClassLoader(URL[] urls, ClassLoader parent)
-    {
+    public RuntimeClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
 }

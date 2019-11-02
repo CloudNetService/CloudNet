@@ -3,7 +3,7 @@
   "group": "de.dytanic.cloudnet.modules",
   "name": "CloudNet-Smart",
   "version": "1.0",
-  "author": "Dytanic",
+  "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
   "description": "CloudNet extension, which implement smart network handling and automatic services providing",
   "main": "de.dytanic.cloudnet.ext.smart.CloudNetSmartModule",

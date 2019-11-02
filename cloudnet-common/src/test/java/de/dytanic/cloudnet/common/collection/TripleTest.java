@@ -6,8 +6,7 @@ import org.junit.Test;
 public final class TripleTest {
 
     @Test
-    public void testTriple()
-    {
+    public void testTriple() {
         Triple<String, Integer, Boolean> pair = new Triple<>();
 
         Assert.assertNull(pair.getFirst());

@@ -13,24 +13,12 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.Getter;
 
 import java.lang.reflect.Field;
 
-@Getter
-@Plugin(
-    id = "cloudnet_cloudperms_velocity",
-    name = "CloudNet-CloudPerms",
-    version = "1.0",
-    description = "Velocity extension which implement the permission management system from CloudNet into Velocity for players",
-    url = "https://cloudnetservice.eu",
-    authors = {
-        "Dytanic"
-    }
-)
+@Plugin(id = "cloudnet_cloudperms_velocity")
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
-    @Getter
     private static VelocityCloudNetCloudPermissionsPlugin instance;
 
     private final ProxyServer proxyServer;
@@ -38,16 +26,18 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
     private final PermissionProvider permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider();
 
     @Inject
-    public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer)
-    {
+    public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer) {
         instance = this;
 
         this.proxyServer = proxyServer;
     }
 
+    public static VelocityCloudNetCloudPermissionsPlugin getInstance() {
+        return VelocityCloudNetCloudPermissionsPlugin.instance;
+    }
+
     @Subscribe
-    public void handleProxyInit(ProxyInitializeEvent event)
-    {
+    public void handleProxyInit(ProxyInitializeEvent event) {
         new CloudPermissionsPermissionManagement();
         initPlayersPermissionFunction();
 
@@ -55,33 +45,37 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
     }
 
     @Subscribe
-    public void handleShutdown(ProxyShutdownEvent event)
-    {
+    public void handleShutdown(ProxyShutdownEvent event) {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    /*= -------------------------------------------------------------------------------------------------- =*/
 
-    private void initPlayersPermissionFunction()
-    {
-        for (Player player : proxyServer.getAllPlayers()) injectPermissionFunction(player);
+    private void initPlayersPermissionFunction() {
+        for (Player player : proxyServer.getAllPlayers()) {
+            injectPermissionFunction(player);
+        }
     }
 
-    public void injectPermissionFunction(Player player)
-    {
+    public void injectPermissionFunction(Player player) {
         Validate.checkNotNull(player);
 
-        try
-        {
+        try {
 
             Field field = player.getClass().getDeclaredField("permissionFunction");
             field.setAccessible(true);
             field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId()));
 
-        } catch (Exception ignored)
-        {
-
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
+    }
+
+    public ProxyServer getProxyServer() {
+        return this.proxyServer;
+    }
+
+    public PermissionProvider getPermissionProvider() {
+        return this.permissionProvider;
     }
 }

@@ -1,0 +1,5 @@
+name: CloudNet-Chat
+version: '1.0'
+author: CloudNetService
+
+main: de.dytanic.cloudnet.ext.chat.CloudNetChatPlugin

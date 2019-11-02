@@ -1,9 +1,6 @@
 package de.dytanic.cloudnet.common.logging;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,172 +16,175 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class DefaultAsyncLogger implements ILogger {
 
     protected final Collection<ILogHandler> handlers = Iterables.newArrayList();
-
-    @Getter
-    @Setter
-    protected int level = -1;
-
     private final BlockingQueue<LogHandlerRunnable> entries = new LinkedBlockingQueue<>();
-
     private final Thread logThread = new Thread() {
 
         @Override
-        public void run()
-        {
-            while (!isInterrupted())
-                try
-                {
+        public void run() {
+            while (!isInterrupted()) {
+                try {
                     LogHandlerRunnable logHandlerRunnable = entries.take();
                     logHandlerRunnable.call();
 
-                } catch (Throwable e)
-                {
+                } catch (Throwable e) {
                     break;
                 }
+            }
 
-            while (!entries.isEmpty())
+            while (!entries.isEmpty()) {
                 entries.poll().call();
+            }
         }
     };
+    protected int level = -1;
 
-    public DefaultAsyncLogger()
-    {
+    public DefaultAsyncLogger() {
         logThread.setPriority(Thread.MIN_PRIORITY);
         logThread.start();
     }
 
     @Override
-    public ILogger log(LogEntry logEntry)
-    {
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    @Override
+    public ILogger log(LogEntry logEntry) {
         handleLogEntry(logEntry);
 
         return this;
     }
 
     @Override
-    public ILogger log(LogEntry... logEntries)
-    {
-        for (LogEntry logEntry : logEntries)
+    public ILogger log(LogEntry... logEntries) {
+        for (LogEntry logEntry : logEntries) {
             handleLogEntry(logEntry);
+        }
 
         return this;
     }
 
     @Override
-    public boolean hasAsyncSupport()
-    {
+    public boolean hasAsyncSupport() {
         return true;
     }
 
     @Override
-    public synchronized ILogger addLogHandler(ILogHandler logHandler)
-    {
+    public synchronized ILogger addLogHandler(ILogHandler logHandler) {
 
         this.handlers.add(logHandler);
         return this;
     }
 
     @Override
-    public synchronized ILogger addLogHandlers(ILogHandler... logHandlers)
-    {
+    public synchronized ILogger addLogHandlers(ILogHandler... logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) addLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            addLogHandler(logHandler);
+        }
         return this;
     }
 
     @Override
-    public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers)
-    {
+    public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) addLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            addLogHandler(logHandler);
+        }
         return this;
     }
 
     @Override
-    public synchronized ILogger removeLogHandler(ILogHandler logHandler)
-    {
+    public synchronized ILogger removeLogHandler(ILogHandler logHandler) {
 
         this.handlers.remove(logHandler);
         return this;
     }
 
     @Override
-    public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers)
-    {
+    public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) removeLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            removeLogHandler(logHandler);
+        }
         return this;
     }
 
     @Override
-    public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers)
-    {
+    public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers) {
 
-        for (ILogHandler logHandler : logHandlers) removeLogHandler(logHandler);
+        for (ILogHandler logHandler : logHandlers) {
+            removeLogHandler(logHandler);
+        }
         return this;
     }
 
     @Override
-    public Iterable<ILogHandler> getLogHandlers()
-    {
+    public Iterable<ILogHandler> getLogHandlers() {
         return new ArrayList<>(this.handlers);
     }
 
     @Override
-    public boolean hasLogHandler(ILogHandler logHandler)
-    {
+    public boolean hasLogHandler(ILogHandler logHandler) {
         return this.handlers.contains(logHandler);
     }
 
     @Override
-    public boolean hasLogHandlers(ILogHandler... logHandlers)
-    {
-        for (ILogHandler logHandler : logHandlers)
-            if (!this.handlers.contains(logHandler)) return false;
+    public boolean hasLogHandlers(ILogHandler... logHandlers) {
+        for (ILogHandler logHandler : logHandlers) {
+            if (!this.handlers.contains(logHandler)) {
+                return false;
+            }
+        }
 
         return true;
     }
 
     @Override
-    public void close() throws Exception
-    {
-        for (ILogHandler logHandler : this.handlers) logHandler.close();
+    public void close() throws Exception {
+        for (ILogHandler logHandler : this.handlers) {
+            logHandler.close();
+        }
 
         this.logThread.interrupt();
         this.logThread.join();
         this.handlers.clear();
     }
 
-    /*= ---------------------------------------------------- =*/
 
-    private void handleLogEntry(LogEntry logEntry)
-    {
-        if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level))
-        {
-            if (logEntry.getLogLevel().isAsync())
+    private void handleLogEntry(LogEntry logEntry) {
+        if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level)) {
+            if (logEntry.getLogLevel().isAsync()) {
                 entries.offer(new LogHandlerRunnable(logEntry));
-            else
+            } else {
                 new LogHandlerRunnable(logEntry).call();
+            }
         }
     }
 
-    @AllArgsConstructor
     public class LogHandlerRunnable implements Callable<Void> {
 
         private final LogEntry logEntry;
 
-        @Override
-        public Void call()
-        {
+        public LogHandlerRunnable(LogEntry logEntry) {
+            this.logEntry = logEntry;
+        }
 
-            for (ILogHandler iLogHandler : handlers)
-                try
-                {
+        @Override
+        public Void call() {
+
+            for (ILogHandler iLogHandler : handlers) {
+                try {
                     iLogHandler.handle(logEntry);
-                } catch (Exception ex)
-                {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
+            }
             return null;
         }
     }

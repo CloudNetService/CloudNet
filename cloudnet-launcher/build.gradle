@@ -38,8 +38,6 @@ jar {
 
     //cloudNet default modules
 
-    //*= --------------------------------------------------------------
-
     from('../cloudnet-modules/cloudnet-bridge/build/libs') {
         include cloudnetModuleBridgeFileName
     }

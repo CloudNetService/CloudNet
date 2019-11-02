@@ -9,27 +9,19 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultDatabasePermissionManagementTest {
 
     @Test
-    public void testFilePermissionManager() throws Exception
-    {
+    public void testFilePermissionManager() throws Exception {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
         AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database");
         Assert.assertTrue(databaseProvider.init());
 
         System.setProperty("cloudnet.permissions.json.path", "build/group_permissions.json");
 
-        IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(new Callable<AbstractDatabaseProvider>() {
-            @Override
-            public AbstractDatabaseProvider call() throws Exception
-            {
-                return databaseProvider;
-            }
-        });
+        IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(() -> databaseProvider);
 
         IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", (byte) 5);
         Assert.assertNotNull(permissionUser);
@@ -38,7 +30,7 @@ public class DefaultDatabasePermissionManagementTest {
         permissionUser.addGroup(groupName);
         permissionManagement.updateUser(permissionUser);
         Assert.assertNotNull(permissionManagement.getUser(permissionUser.getUniqueId()));
-        Assert.assertNotNull(permissionManagement.getUser(permissionUser.getName()));
+        Assert.assertNotNull(permissionManagement.getUsers(permissionUser.getName()));
 
         permissionUser.addPermission(new Permission(permission, 10));
         permissionManagement.updateUser(permissionUser);
@@ -81,13 +73,13 @@ public class DefaultDatabasePermissionManagementTest {
         permissionManagement.updateGroup(permissionGroup);
         Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("City", new Permission("test.test.91011")).asBoolean());
 
-        Assert.assertEquals(1, permissionManagement.getUserByGroup(groupName).size());
+        Assert.assertEquals(1, permissionManagement.getUsersByGroup(groupName).size());
         permissionUser.removeGroup(groupName);
         permissionManagement.updateUser(permissionUser);
-        Assert.assertFalse(permissionManagement.getUser(permissionUser.getName()).get(0).inGroup(groupName));
+        Assert.assertFalse(permissionManagement.getUsers(permissionUser.getName()).get(0).inGroup(groupName));
 
         permissionManagement.deleteUser(userName);
-        Assert.assertEquals(0, permissionManagement.getUserByGroup(groupName).size());
+        Assert.assertEquals(0, permissionManagement.getUsersByGroup(groupName).size());
         Assert.assertEquals(0, permissionManagement.getUsers().size());
 
         permissionManagement.deleteGroup(groupName);

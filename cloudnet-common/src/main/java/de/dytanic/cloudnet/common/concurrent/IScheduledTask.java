@@ -8,13 +8,13 @@ public interface IScheduledTask<V> extends ITask<V> {
 
     long getDelayedTimeStamp();
 
-    IScheduledTask<V> setDelayMillis(long delayMillis);
-
     long getDelayMillis();
 
-    IScheduledTask<V> setRepeatMillis(long repeatMillis);
+    IScheduledTask<V> setDelayMillis(long delayMillis);
 
     long getRepeatMillis();
+
+    IScheduledTask<V> setRepeatMillis(long repeatMillis);
 
     IScheduledTask<V> cancel();
 

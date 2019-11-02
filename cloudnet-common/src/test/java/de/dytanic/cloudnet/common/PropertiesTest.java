@@ -6,8 +6,7 @@ import org.junit.Test;
 public class PropertiesTest {
 
     @Test
-    public void testPropertiesParser()
-    {
+    public void testPropertiesParser() {
         Properties properties = Properties.parseLine("test=true --foo -xfy");
 
         Assert.assertEquals(3, properties.size());

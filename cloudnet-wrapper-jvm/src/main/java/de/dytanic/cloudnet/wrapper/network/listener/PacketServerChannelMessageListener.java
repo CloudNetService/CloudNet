@@ -9,16 +9,14 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("channel") && packet.getHeader().contains("message") && packet.getHeader().contains("data"))
-        {
+    public void handle(INetworkChannel channel, IPacket packet) {
+        if (packet.getHeader().contains("channel") && packet.getHeader().contains("message") && packet.getHeader().contains("data")) {
             CloudNetDriver.getInstance().getEventManager().callEvent(
-                new ChannelMessageReceiveEvent(
-                    packet.getHeader().getString("channel"),
-                    packet.getHeader().getString("message"),
-                    packet.getHeader().getDocument("data")
-                ));
+                    new ChannelMessageReceiveEvent(
+                            packet.getHeader().getString("channel"),
+                            packet.getHeader().getString("message"),
+                            packet.getHeader().getDocument("data")
+                    ));
         }
     }
 }

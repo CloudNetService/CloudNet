@@ -2,49 +2,49 @@ forge_support: true
 player_limit: -1
 permissions:
   default:
-  - bungeecord.command.server
-  - bungeecord.command.list
+    - bungeecord.command.server
+    - bungeecord.command.list
   admin:
-  - bungeecord.command.alert
-  - bungeecord.command.end
-  - bungeecord.command.ip
-  - bungeecord.command.reload
-  - cloudnet.command.cloudnet
-  - cloudnet.syncproxy.fullljoin
-  - cloudnet.syncproxy.maintenance
+    - bungeecord.command.alert
+    - bungeecord.command.end
+    - bungeecord.command.ip
+    - bungeecord.command.reload
+    - cloudnet.command.cloudnet
+    - cloudnet.syncproxy.fullljoin
+    - cloudnet.syncproxy.maintenance
 timeout: 30000
 log_commands: true
 online_mode: true
 disabled_commands:
-- disabledcommandhere
+  - disabledcommandhere
 servers:
   fallback:
     motd: '&7Just another &bCloudNet &7service - Forced Host'
     address: localhost:16073
     restricted: false
 listeners:
-- query_port: 25577
-  motd: '&bCloudNet &7v&b3 &8[&9TSUNAMI&8] &7BungeeCord &cProxy &7instance              &7Support for BungeeCord &e1.5.2 &7- &e1.13.2'
-  tab_list: GLOBAL_PING
-  query_enabled: false
-  proxy_protocol: false
-  forced_hosts:
-    pvp.md-5.net: pvp
-  ping_passthrough: false
-  priorities:
-  - fallback
-  default_server: fallback
-  fallback_server: fallback
-  bind_local_address: true
-  host: 0.0.0.0:25577
-  max_players: -1
-  tab_size: 60
-  force_default_server: false
+  - query_port: 25577
+    motd: '&bCloudNet &7v&b3 &8[&9TSUNAMI&8] &7BungeeCord &cProxy &7instance              &7Support for BungeeCord &e1.8.8 &7- &e1.14.4'
+    tab_list: GLOBAL_PING
+    query_enabled: false
+    proxy_protocol: false
+    forced_hosts:
+      pvp.md-5.net: pvp
+    ping_passthrough: false
+    priorities:
+      - fallback
+    default_server: fallback
+    fallback_server: fallback
+    bind_local_address: true
+    host: 0.0.0.0:25577
+    max_players: -1
+    tab_size: 60
+    force_default_server: false
 ip_forward: true
 network_compression_threshold: 256
 prevent_proxy_connections: false
 groups:
   Dytanic:
-  - admin
+    - admin
 connection_throttle: 0
 log_pings: true

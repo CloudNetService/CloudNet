@@ -11,26 +11,29 @@ import java.io.File;
 public final class IncludePluginListener {
 
     @EventListener
-    public void handle(CloudServicePreStartEvent event)
-    {
-        if (!CloudNetCloudPermissionsModule.getInstance().getConfig().getBoolean("enabled")) return;
+    public void handle(CloudServicePreStartEvent event) {
+        if (!CloudNetCloudPermissionsModule.getInstance().getConfig().getBoolean("enabled")) {
+            return;
+        }
 
-        try
-        {
-            for (String group : CloudNetCloudPermissionsModule.getInstance().getExcludedGroups())
-                if (Iterables.contains(group, event.getCloudService().getServiceConfiguration().getGroups()))
+        try {
+            for (String group : CloudNetCloudPermissionsModule.getInstance().getExcludedGroups()) {
+                if (Iterables.contains(group, event.getCloudService().getServiceConfiguration().getGroups())) {
                     return;
+                }
+            }
 
-        } catch (Exception ignored)
-        {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         new File(event.getCloudService().getDirectory(), "plugins").mkdirs();
         File file = new File(event.getCloudService().getDirectory(), "plugins/cloudnet-cloudperms.jar");
         file.delete();
 
-        if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file))
+        if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
             DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(IncludePluginListener.class,
-                event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
+                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
+        }
     }
 }

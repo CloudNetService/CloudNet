@@ -23,22 +23,24 @@ cluster add e760a2c3 127.0.0.1 1411
 
 or in config.json
 
-```javascript
-  "cluster": {
-    "clusterId": "d5e96e6d-ce98-43fc-a33d-a456eeb43561",
-    "nodes": [
-      {
-        "uniqueId": "e760a2c3",
-        "listeners": [
-          {
-            "host": "127.0.0.1",
-            "port": 1411
-          }
-        ],
-        "properties": {}
-      }
-    ]
-  },
+```json
+  {
+     "cluster": {
+      "clusterId": "d5e96e6d-ce98-43fc-a33d-a456eeb43561",
+      "nodes": [
+        {
+          "uniqueId": "e760a2c3",
+          "listeners": [
+            {
+              "host": "127.0.0.1",
+              "port": 1411
+            }
+          ],
+          "properties": {}
+        }
+      ]
+    }
+  }
 ```
    
 The node with the specified name must not be online at the time, because the latter must then connect,   

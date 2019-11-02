@@ -11,7 +11,7 @@ import java.util.UUID;
  * its listeners for handle the IPacket instance
  * <p>
  * The default implementation of the IPacket class is the Packet class in the same package
- *
+ * <p>
  * All packets require a channel, header and a body.
  * <p>
  * The channel id is the id from that the listeners should be filter

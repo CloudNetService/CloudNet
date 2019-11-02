@@ -3,14 +3,12 @@ package de.dytanic.cloudnet.conf;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Getter
 @ToString
 @EqualsAndHashCode
 public final class JsonConfigurationRegistry implements IConfigurationRegistry {
@@ -21,15 +19,13 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     private JsonDocument entries = new JsonDocument();
 
-    public JsonConfigurationRegistry(Path path)
-    {
+    public JsonConfigurationRegistry(Path path) {
         this.path = path;
         this.load();
     }
 
     @Override
-    public IConfigurationRegistry put(String key, Object object)
-    {
+    public IConfigurationRegistry put(String key, Object object) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(object);
 
@@ -40,8 +36,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public IConfigurationRegistry put(String key, String string)
-    {
+    public IConfigurationRegistry put(String key, String string) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(string);
 
@@ -52,8 +47,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public IConfigurationRegistry put(String key, Number number)
-    {
+    public IConfigurationRegistry put(String key, Number number) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(number);
 
@@ -64,8 +58,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public IConfigurationRegistry put(String key, Boolean bool)
-    {
+    public IConfigurationRegistry put(String key, Boolean bool) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(bool);
 
@@ -76,8 +69,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public IConfigurationRegistry put(String key, byte[] bytes)
-    {
+    public IConfigurationRegistry put(String key, byte[] bytes) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(bytes);
 
@@ -88,8 +80,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public IConfigurationRegistry remove(String key)
-    {
+    public IConfigurationRegistry remove(String key) {
         Validate.checkNotNull(key);
 
         entries.remove(key);
@@ -99,16 +90,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public boolean contains(String key)
-    {
+    public boolean contains(String key) {
         Validate.checkNotNull(key);
 
         return entries.contains(key);
     }
 
     @Override
-    public <T> T getObject(String key, Class<T> clazz)
-    {
+    public <T> T getObject(String key, Class<T> clazz) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(clazz);
 
@@ -116,8 +105,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public <T> T getObject(String key, Type type)
-    {
+    public <T> T getObject(String key, Type type) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(type);
 
@@ -125,16 +113,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public String getString(String key)
-    {
+    public String getString(String key) {
         Validate.checkNotNull(key);
 
         return entries.getString(key);
     }
 
     @Override
-    public String getString(String key, String def)
-    {
+    public String getString(String key, String def) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(def);
 
@@ -142,16 +128,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public Integer getInt(String key)
-    {
+    public Integer getInt(String key) {
         Validate.checkNotNull(key);
 
         return entries.getInt(key);
     }
 
     @Override
-    public Integer getInt(String key, Integer def)
-    {
+    public Integer getInt(String key, Integer def) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(def);
 
@@ -159,16 +143,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public Double getDouble(String key)
-    {
+    public Double getDouble(String key) {
         Validate.checkNotNull(key);
 
         return entries.getDouble(key);
     }
 
     @Override
-    public Double getDouble(String key, Double def)
-    {
+    public Double getDouble(String key, Double def) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(def);
 
@@ -176,16 +158,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public Short getShort(String key)
-    {
+    public Short getShort(String key) {
         Validate.checkNotNull(key);
 
         return entries.getShort(key);
     }
 
     @Override
-    public Short getShort(String key, Short def)
-    {
+    public Short getShort(String key, Short def) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(def);
 
@@ -193,16 +173,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public Long getLong(String key)
-    {
+    public Long getLong(String key) {
         Validate.checkNotNull(key);
 
         return entries.getLong(key);
     }
 
     @Override
-    public Long getLong(String key, Long def)
-    {
+    public Long getLong(String key, Long def) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(def);
 
@@ -210,16 +188,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public Boolean getBoolean(String key)
-    {
+    public Boolean getBoolean(String key) {
         Validate.checkNotNull(key);
 
         return entries.getBoolean(key);
     }
 
     @Override
-    public Boolean getBoolean(String key, Boolean def)
-    {
+    public Boolean getBoolean(String key, Boolean def) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(def);
 
@@ -227,16 +203,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public byte[] getBytes(String key)
-    {
+    public byte[] getBytes(String key) {
         Validate.checkNotNull(key);
 
         return entries.getBinary(key);
     }
 
     @Override
-    public byte[] getBytes(String key, byte[] bytes)
-    {
+    public byte[] getBytes(String key, byte[] bytes) {
         Validate.checkNotNull(key);
         Validate.checkNotNull(bytes);
 
@@ -244,30 +218,46 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     }
 
     @Override
-    public IConfigurationRegistry save()
-    {
+    public IConfigurationRegistry save() {
         new JsonDocument()
-            .append("registryVersion", registryVersion)
-            .append("entries", entries)
-            .write(path);
+                .append("registryVersion", registryVersion)
+                .append("entries", entries)
+                .write(path);
 
         return this;
     }
 
     @Override
-    public IConfigurationRegistry load()
-    {
-        if (!Files.exists(path))
-        {
+    public IConfigurationRegistry load() {
+        if (!Files.exists(path)) {
             path.toFile().getParentFile().mkdirs();
             this.save();
         }
 
         JsonDocument loaded = JsonDocument.newDocument(this.path);
-        if (loaded.contains("registryVersion") && loaded.contains("entries"))
-            if (lowestSupportedVersion <= loaded.getInt("registryVersion"))
+        if (loaded.contains("registryVersion") && loaded.contains("entries")) {
+            if (lowestSupportedVersion <= loaded.getInt("registryVersion")) {
                 this.entries = loaded.getDocument("entries");
+            }
+        }
 
         return this;
     }
+
+    public int getRegistryVersion() {
+        return this.registryVersion;
+    }
+
+    public int getLowestSupportedVersion() {
+        return this.lowestSupportedVersion;
+    }
+
+    public Path getPath() {
+        return this.path;
+    }
+
+    public JsonDocument getEntries() {
+        return this.entries;
+    }
+
 }

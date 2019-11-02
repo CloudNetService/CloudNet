@@ -1,25 +1,23 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-@Getter
 @ToString
 @EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
 public class ModuleConfiguration {
 
     protected boolean runtimeModule;
 
     protected String
-        group,
-        name,
-        version,
-        main,
-        description,
-        author,
-        website;
+            group,
+            name,
+            version,
+            main,
+            description,
+            author,
+            website;
 
     //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
 
@@ -29,9 +27,69 @@ public class ModuleConfiguration {
 
     protected JsonDocument properties;
 
-    public String getMainClass()
-    {
+    public ModuleConfiguration(boolean runtimeModule, String group, String name, String version, String main, String description, String author, String website, ModuleRepository[] repos, ModuleDependency[] dependencies, JsonDocument properties) {
+        this.runtimeModule = runtimeModule;
+        this.group = group;
+        this.name = name;
+        this.version = version;
+        this.main = main;
+        this.description = description;
+        this.author = author;
+        this.website = website;
+        this.repos = repos;
+        this.dependencies = dependencies;
+        this.properties = properties;
+    }
+
+    public ModuleConfiguration() {
+    }
+
+    public String getMainClass() {
         return this.main;
+    }
+
+    public boolean isRuntimeModule() {
+        return this.runtimeModule;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public String getMain() {
+        return this.main;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public String getAuthor() {
+        return this.author;
+    }
+
+    public String getWebsite() {
+        return this.website;
+    }
+
+    public ModuleRepository[] getRepos() {
+        return this.repos;
+    }
+
+    public ModuleDependency[] getDependencies() {
+        return this.dependencies;
+    }
+
+    public JsonDocument getProperties() {
+        return this.properties;
     }
 
 }

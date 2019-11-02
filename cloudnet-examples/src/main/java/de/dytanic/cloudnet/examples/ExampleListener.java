@@ -11,14 +11,12 @@ import de.dytanic.cloudnet.driver.service.*;
 public final class ExampleListener {
 
     @EventListener
-    public void handleServiceStart(CloudServiceStartEvent event)
-    {
+    public void handleServiceStart(CloudServiceStartEvent event) {
         event.getDriver().getLogger().log(LogLevel.INFO, "Service " + event.getServiceInfo().getServiceId().getName() + " is starting...");
     }
 
     @EventListener
-    public void handleServiceConnected(CloudServiceConnectNetworkEvent event)
-    {
+    public void handleServiceConnected(CloudServiceConnectNetworkEvent event) {
         ServiceInfoSnapshot serviceInfoSnapshot = event.getServiceInfo(); //The serviceInfoSnapshot with all important information from a service
 
         ServiceId serviceId = serviceInfoSnapshot.getServiceId();
@@ -33,8 +31,7 @@ public final class ExampleListener {
 
         ServiceLifeCycle serviceLifeCycle = serviceInfoSnapshot.getLifeCycle();
 
-        if (serviceLifeCycle == ServiceLifeCycle.RUNNING)
-        {
+        if (serviceLifeCycle == ServiceLifeCycle.RUNNING) {
             event.getDriver().getLogger().info("Service is running");
         }
 
@@ -44,8 +41,7 @@ public final class ExampleListener {
         processSnapshot.getHeapUsageMemory();
         processSnapshot.getMaxHeapMemory();
 
-        for (ThreadSnapshot threadSnapshot : processSnapshot.getThreads())
-        {
+        for (ThreadSnapshot threadSnapshot : processSnapshot.getThreads()) {
             threadSnapshot.getName();
             threadSnapshot.isDaemon();
             threadSnapshot.getPriority();
@@ -68,22 +64,19 @@ public final class ExampleListener {
         serviceConfiguration.getProcessConfig();
         serviceConfiguration.getServiceId();
 
-        for (ServiceTemplate serviceTemplate : serviceConfiguration.getTemplates())
-        {
+        for (ServiceTemplate serviceTemplate : serviceConfiguration.getTemplates()) {
             serviceTemplate.getStorage();
             serviceTemplate.getPrefix();
             serviceTemplate.getName();
         }
 
-        for (ServiceDeployment serviceDeployment : serviceConfiguration.getDeployments())
-        {
+        for (ServiceDeployment serviceDeployment : serviceConfiguration.getDeployments()) {
             serviceDeployment.getExcludes();
 
             ServiceTemplate serviceTemplate = serviceDeployment.getTemplate();
         }
 
-        for (ServiceRemoteInclusion serviceRemoteInclusion : serviceConfiguration.getIncludes())
-        {
+        for (ServiceRemoteInclusion serviceRemoteInclusion : serviceConfiguration.getIncludes()) {
             serviceRemoteInclusion.getUrl();
             serviceRemoteInclusion.getDestination();
         }
@@ -94,8 +87,7 @@ public final class ExampleListener {
     }
 
     @EventListener(channel = "test_channel") //listen the ExampleOwnEvent, which called on "test_channel"
-    public void handleExampleOwnEvent(ExampleOwnEvent event)
-    {
+    public void handleExampleOwnEvent(ExampleOwnEvent event) {
         System.out.println(event.getModuleWrapper().getModule().getName()); //print the module name
     }
 
@@ -106,8 +98,7 @@ public final class ExampleListener {
     }
 
     @EventListener
-    public void handleServiceStop(CloudServiceStopEvent event)
-    {
+    public void handleServiceStop(CloudServiceStopEvent event) {
         event.getDriver().getLogger().log(LogLevel.INFO, "Service " + event.getServiceInfo().getServiceId().getName() + " is stopped...");
     }
 }

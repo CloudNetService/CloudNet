@@ -11,28 +11,27 @@ import org.junit.Test;
 public class NettyNetworkClientServerTest {
 
     private boolean
-        connectedClient = false,
-        connectedServer = false;
+            connectedClient = false,
+            connectedServer = false;
 
     private volatile String
-        cliPacketServerReceive = null,
-        cliPacketClientReceive = null;
+            cliPacketServerReceive = null,
+            cliPacketClientReceive = null;
 
     @Test
-    public void testNettyConnectorServer() throws Throwable
-    {
+    public void testNettyConnectorServer() throws Throwable {
         INetworkServer networkServer = new NettyNetworkServer(NetworkChannelServerHandler::new);
         INetworkClient networkClient = new NettyNetworkClient(NetworkChannelClientHandler::new);
 
         networkClient.getPacketRegistry().addListener(6, new PacketListenerImpl());
         networkServer.getPacketRegistry().addListener(6, new PacketListenerImpl());
 
-        HostAndPort address = new HostAndPort("127.0.0.1", 43206);
+        HostAndPort address = new HostAndPort("127.0.0.1", NettyTestUtil.generateRandomPort());
 
         Assert.assertTrue(networkServer.addListener(address));
         Assert.assertTrue(networkClient.connect(address));
 
-        Thread.sleep(5);
+        Thread.sleep(50);
         Assert.assertTrue(connectedClient);
         Assert.assertTrue(connectedServer);
 
@@ -42,7 +41,7 @@ public class NettyNetworkClientServerTest {
         networkServer.sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
         networkClient.sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
 
-        Thread.sleep(50);
+        Thread.sleep(500);
 
         Assert.assertNotNull(cliPacketClientReceive);
         Assert.assertNotNull(cliPacketServerReceive);
@@ -60,22 +59,19 @@ public class NettyNetworkClientServerTest {
     private final class NetworkChannelClientHandler implements INetworkChannelHandler {
 
         @Override
-        public void handleChannelInitialize(INetworkChannel channel)
-        {
+        public void handleChannelInitialize(INetworkChannel channel) {
             connectedClient = true;
         }
 
         @Override
-        public boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-        {
+        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
             cliPacketServerReceive = new String(packet.getBody());
 
             return true;
         }
 
         @Override
-        public void handleChannelClose(INetworkChannel channel)
-        {
+        public void handleChannelClose(INetworkChannel channel) {
 
         }
     }
@@ -83,20 +79,17 @@ public class NettyNetworkClientServerTest {
     private final class NetworkChannelServerHandler implements INetworkChannelHandler {
 
         @Override
-        public void handleChannelInitialize(INetworkChannel channel)
-        {
+        public void handleChannelInitialize(INetworkChannel channel) {
             connectedServer = true;
         }
 
         @Override
-        public boolean handlePacketReceive(INetworkChannel channel, Packet packet)
-        {
+        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
             return true;
         }
 
         @Override
-        public void handleChannelClose(INetworkChannel channel)
-        {
+        public void handleChannelClose(INetworkChannel channel) {
 
         }
     }
@@ -104,8 +97,7 @@ public class NettyNetworkClientServerTest {
     private final class PacketListenerImpl implements IPacketListener {
 
         @Override
-        public void handle(INetworkChannel channel, IPacket packet)
-        {
+        public void handle(INetworkChannel channel, IPacket packet) {
             cliPacketClientReceive = new String(packet.getBody());
         }
     }

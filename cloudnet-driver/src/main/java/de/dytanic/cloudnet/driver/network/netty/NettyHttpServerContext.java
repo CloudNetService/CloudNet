@@ -12,13 +12,10 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import lombok.Setter;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 final class NettyHttpServerContext implements IHttpContext {
 
@@ -40,11 +37,9 @@ final class NettyHttpServerContext implements IHttpContext {
 
     protected volatile NettyWebSocketServerChannel webSocketServerChannel;
 
-    @Setter
     protected IHttpHandler lastHandler;
 
-    public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri, Map<String, String> pathParameters, HttpRequest httpRequest)
-    {
+    public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri, Map<String, String> pathParameters, HttpRequest httpRequest) {
         this.nettyHttpServer = nettyHttpServer;
         this.channel = channel;
         this.httpRequest = httpRequest;
@@ -53,34 +48,27 @@ final class NettyHttpServerContext implements IHttpContext {
         this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
         this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
-        if (this.httpRequest.headers().contains("Cookie"))
-            this.cookies.addAll(Iterables.map(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")), new Function<Cookie, HttpCookie>() {
-                @Override
-                public HttpCookie apply(Cookie cookie)
-                {
-                    return new HttpCookie(
-                        cookie.name(),
-                        cookie.value(),
-                        cookie.domain(),
-                        cookie.path(),
-                        cookie.maxAge()
-                    );
-                }
-            }));
+        if (this.httpRequest.headers().contains("Cookie")) {
+            this.cookies.addAll(Iterables.map(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")), cookie -> new HttpCookie(
+                    cookie.name(),
+                    cookie.value(),
+                    cookie.domain(),
+                    cookie.path(),
+                    cookie.maxAge()
+            )));
+        }
 
         this.updateHeaderResponse();
     }
 
     @Override
-    public IWebSocketChannel upgrade()
-    {
-        if (webSocketServerChannel == null)
-        {
+    public IWebSocketChannel upgrade() {
+        if (webSocketServerChannel == null) {
             cancelSendResponse = true;
             WebSocketServerHandshakerFactory webSocketServerHandshakerFactory = new WebSocketServerHandshakerFactory(
-                httpRequest.uri(),
-                null,
-                false
+                    httpRequest.uri(),
+                    null,
+                    false
             );
 
             nettyChannel.pipeline().remove("http-server-handler");
@@ -98,97 +86,72 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IWebSocketChannel webSocketChanel()
-    {
+    public IWebSocketChannel webSocketChanel() {
         return webSocketServerChannel;
     }
 
     @Override
-    public IHttpChannel channel()
-    {
+    public IHttpChannel channel() {
         return this.channel;
     }
 
     @Override
-    public IHttpRequest request()
-    {
+    public IHttpRequest request() {
         return this.httpServerRequest;
     }
 
     @Override
-    public IHttpResponse response()
-    {
+    public IHttpResponse response() {
         return this.httpServerResponse;
     }
 
     @Override
-    public boolean cancelNext()
-    {
+    public boolean cancelNext() {
         return this.cancelNext = true;
     }
 
     @Override
-    public IHttpHandler peekLast()
-    {
+    public IHttpHandler peekLast() {
         return this.lastHandler;
     }
 
     @Override
-    public IHttpComponent<IHttpServer> component()
-    {
+    public IHttpComponent<IHttpServer> component() {
         return this.nettyHttpServer;
     }
 
     @Override
-    public IHttpContext closeAfter(boolean value)
-    {
+    public IHttpContext closeAfter(boolean value) {
         this.closeAfter = value;
         return this;
     }
 
     @Override
-    public boolean closeAfter()
-    {
+    public boolean closeAfter() {
         return closeAfter;
     }
 
     @Override
-    public HttpCookie cookie(String name)
-    {
+    public HttpCookie cookie(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.cookies, new Predicate<HttpCookie>() {
-            @Override
-            public boolean test(HttpCookie httpCookie)
-            {
-                return httpCookie.getName().equalsIgnoreCase(name);
-            }
-        });
+        return Iterables.first(this.cookies, httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
     }
 
     @Override
-    public Collection<HttpCookie> cookies()
-    {
+    public Collection<HttpCookie> cookies() {
         return this.cookies;
     }
 
     @Override
-    public boolean hasCookie(String name)
-    {
+    public boolean hasCookie(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.cookies, new Predicate<HttpCookie>() {
-            @Override
-            public boolean test(HttpCookie httpCookie)
-            {
-                return httpCookie.getName().equalsIgnoreCase(name);
-            }
-        }) != null;
+        return Iterables.first(this.cookies, httpCookie -> httpCookie.getName().equalsIgnoreCase(name)) != null;
     }
 
     @Override
-    public IHttpContext setCookies(Collection<HttpCookie> cookies)
-    {
+    public IHttpContext setCookies(Collection<HttpCookie> cookies) {
         Validate.checkNotNull(cookies);
 
         this.cookies.clear();
@@ -199,13 +162,14 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IHttpContext addCookie(HttpCookie httpCookie)
-    {
+    public IHttpContext addCookie(HttpCookie httpCookie) {
         Validate.checkNotNull(httpCookie);
 
         HttpCookie cookie = cookie(httpCookie.getName());
 
-        if (cookie != null) this.removeCookie(cookie.getName());
+        if (cookie != null) {
+            this.removeCookie(cookie.getName());
+        }
         this.cookies.add(httpCookie);
         this.updateHeaderResponse();
 
@@ -213,42 +177,42 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IHttpContext removeCookie(String name)
-    {
+    public IHttpContext removeCookie(String name) {
         Validate.checkNotNull(name);
 
         HttpCookie cookie = cookie(name);
-        if (cookie != null) cookie.setMaxAge(-1);
+        if (cookie != null) {
+            cookie.setMaxAge(-1);
+        }
 
         this.updateHeaderResponse();
         return this;
     }
 
     @Override
-    public IHttpContext clearCookies()
-    {
+    public IHttpContext clearCookies() {
         this.cookies.clear();
         this.updateHeaderResponse();
         return this;
     }
 
-    private void updateHeaderResponse()
-    {
-        if (cookies.isEmpty())
+    private void updateHeaderResponse() {
+        if (cookies.isEmpty()) {
             this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
-        else
+        } else {
             this.httpServerResponse.httpResponse.headers()
-                .set("Set-Cookie", ServerCookieEncoder.LAX.encode(Iterables.map(this.cookies, new Function<HttpCookie, Cookie>() {
-                    @Override
-                    public Cookie apply(HttpCookie httpCookie)
-                    {
+                    .set("Set-Cookie", ServerCookieEncoder.LAX.encode(Iterables.map(this.cookies, httpCookie -> {
                         Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
                         cookie.setDomain(httpCookie.getDomain());
                         cookie.setMaxAge(httpCookie.getMaxAge());
                         cookie.setPath(httpCookie.getPath());
 
                         return cookie;
-                    }
-                })));
+                    })));
+        }
+    }
+
+    public void setLastHandler(IHttpHandler lastHandler) {
+        this.lastHandler = lastHandler;
     }
 }

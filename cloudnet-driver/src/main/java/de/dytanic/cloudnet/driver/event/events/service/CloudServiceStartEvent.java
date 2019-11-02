@@ -4,8 +4,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 public class CloudServiceStartEvent extends CloudServiceEvent {
 
-    public CloudServiceStartEvent(ServiceInfoSnapshot serviceInfo)
-    {
+    public CloudServiceStartEvent(ServiceInfoSnapshot serviceInfo) {
         super(serviceInfo);
     }
 }

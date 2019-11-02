@@ -12,8 +12,7 @@ import java.net.URISyntaxException;
 @UnsafeClass
 public final class ResourceResolver {
 
-    private ResourceResolver()
-    {
+    private ResourceResolver() {
         throw new UnsupportedOperationException();
     }
 
@@ -26,16 +25,13 @@ public final class ResourceResolver {
      * @see java.security.ProtectionDomain
      * @see java.security.CodeSource
      */
-    public static URI resolveURIFromResourceByClass(Class<?> clazz)
-    {
+    public static URI resolveURIFromResourceByClass(Class<?> clazz) {
         Validate.checkNotNull(clazz);
 
-        try
-        {
+        try {
             return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
-        } catch (URISyntaxException e)
-        {
-            e.printStackTrace();
+        } catch (URISyntaxException exception) {
+            exception.printStackTrace();
         }
 
         return null;

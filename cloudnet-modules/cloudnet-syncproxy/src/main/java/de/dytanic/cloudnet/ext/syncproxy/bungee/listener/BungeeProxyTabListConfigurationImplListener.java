@@ -13,29 +13,29 @@ import net.md_5.bungee.event.EventHandler;
 public final class BungeeProxyTabListConfigurationImplListener implements Listener {
 
     @EventHandler
-    public void handle(PostLoginEvent event)
-    {
+    public void handle(PostLoginEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = BungeeCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null && ProxyServer.getInstance().getPluginManager().getPlugin("CloudNet-Bridge") == null)
+        if (syncProxyTabListConfiguration != null && ProxyServer.getInstance().getPluginManager().getPlugin("CloudNet-Bridge") == null) {
             Wrapper.getInstance().publishServiceInfoUpdate();
+        }
     }
 
     @EventHandler
-    public void handle(ServerConnectedEvent event)
-    {
+    public void handle(ServerConnectedEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = BungeeCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null)
+        if (syncProxyTabListConfiguration != null) {
             BungeeCloudNetSyncProxyPlugin.getInstance().setTabList(event.getPlayer());
+        }
     }
 
     @EventHandler
-    public void handle(PlayerDisconnectEvent event)
-    {
+    public void handle(PlayerDisconnectEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = BungeeCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null && ProxyServer.getInstance().getPluginManager().getPlugin("CloudNet-Bridge") == null)
+        if (syncProxyTabListConfiguration != null && ProxyServer.getInstance().getPluginManager().getPlugin("CloudNet-Bridge") == null) {
             Wrapper.getInstance().publishServiceInfoUpdate();
+        }
     }
 }

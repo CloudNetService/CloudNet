@@ -1,12 +1,7 @@
 package de.dytanic.cloudnet.driver.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.Comparator;
 
-@Getter
-@AllArgsConstructor
 public enum EventPriority implements Comparator<EventPriority> {
 
     HIGHEST(128),
@@ -17,9 +12,16 @@ public enum EventPriority implements Comparator<EventPriority> {
 
     private int value;
 
+    EventPriority(int value) {
+        this.value = value;
+    }
+
     @Override
-    public int compare(EventPriority o1, EventPriority o2)
-    {
+    public int compare(EventPriority o1, EventPriority o2) {
         return o1.value - o2.value;
+    }
+
+    public int getValue() {
+        return this.value;
     }
 }

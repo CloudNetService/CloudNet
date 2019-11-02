@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.common.collection;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * This class can capture 2 references of 2 types and set or
@@ -13,9 +12,8 @@ import lombok.NoArgsConstructor;
  * @param <F> the first type, which you want to defined
  * @param <S> the second type which you want to defined
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Pair<F, S> {
 
     /**
@@ -31,5 +29,29 @@ public class Pair<F, S> {
      * @see S
      */
     protected S second;
+
+    public Pair(F first, S second) {
+        this.first = first;
+        this.second = second;
+    }
+
+    public Pair() {
+    }
+
+    public F getFirst() {
+        return this.first;
+    }
+
+    public void setFirst(F first) {
+        this.first = first;
+    }
+
+    public S getSecond() {
+        return this.second;
+    }
+
+    public void setSecond(S second) {
+        this.second = second;
+    }
 
 }

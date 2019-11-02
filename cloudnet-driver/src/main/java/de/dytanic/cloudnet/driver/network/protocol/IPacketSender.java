@@ -9,7 +9,7 @@ public interface IPacketSender {
     /**
      * Transport a packet instance into the network to the receiver. The receiver will
      * handle the packet if he knows the channel and has listeners for the channel
-     *
+     * <p>
      * The packet are doesn't allow to be null
      *
      * @param packet the packet, which should transport into the network
@@ -19,7 +19,7 @@ public interface IPacketSender {
     /**
      * Transport packet instances into the network to the receiver. The receiver will
      * handle the packets if he knows the channel and has listeners for the channel
-     *
+     * <p>
      * A packet are doesn't allow to be null
      * All elements should be checked that be not null and send after that
      *

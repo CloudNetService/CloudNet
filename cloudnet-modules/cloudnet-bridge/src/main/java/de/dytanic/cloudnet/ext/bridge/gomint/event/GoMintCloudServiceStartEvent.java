@@ -1,12 +1,16 @@
 package de.dytanic.cloudnet.ext.bridge.gomint.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public final class GoMintCloudServiceStartEvent extends GoMintCloudNetEvent {
 
-    @Getter
     private final ServiceInfoSnapshot serviceInfoSnapshot;
+
+    public GoMintCloudServiceStartEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+
+    public ServiceInfoSnapshot getServiceInfoSnapshot() {
+        return this.serviceInfoSnapshot;
+    }
 }

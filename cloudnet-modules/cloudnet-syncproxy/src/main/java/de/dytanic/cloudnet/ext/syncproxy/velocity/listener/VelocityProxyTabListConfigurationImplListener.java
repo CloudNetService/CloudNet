@@ -11,31 +11,31 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 public final class VelocityProxyTabListConfigurationImplListener {
 
     @Subscribe
-    public void handle(PostLoginEvent event)
-    {
+    public void handle(PostLoginEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
-            .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null)
+        if (syncProxyTabListConfiguration != null && !VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
+                .getPluginManager().getPlugin("cloudnet_bridge_velocity").isPresent()) {
             Wrapper.getInstance().publishServiceInfoUpdate();
+        }
     }
 
     @Subscribe
-    public void handle(ServerConnectedEvent event)
-    {
+    public void handle(ServerConnectedEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null)
+        if (syncProxyTabListConfiguration != null) {
             VelocityCloudNetSyncProxyPlugin.getInstance().setTabList(event.getPlayer());
+        }
     }
 
     @Subscribe
-    public void handle(DisconnectEvent event)
-    {
+    public void handle(DisconnectEvent event) {
         SyncProxyTabListConfiguration syncProxyTabListConfiguration = VelocityCloudNetSyncProxyPlugin.getInstance().getTabListConfiguration();
 
-        if (syncProxyTabListConfiguration != null && VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
-            .getPluginManager().getPlugin("cloudnet_bridge_velocity") == null)
+        if (syncProxyTabListConfiguration != null && !VelocityCloudNetSyncProxyPlugin.getInstance().getProxyServer()
+                .getPluginManager().getPlugin("cloudnet_bridge_velocity").isPresent()) {
             Wrapper.getInstance().publishServiceInfoUpdate();
+        }
     }
 }

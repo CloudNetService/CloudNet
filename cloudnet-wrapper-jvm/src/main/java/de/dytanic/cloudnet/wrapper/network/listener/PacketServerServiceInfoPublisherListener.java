@@ -12,15 +12,12 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 public final class PacketServerServiceInfoPublisherListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception
-    {
-        if (packet.getHeader().contains("serviceInfoSnapshot") && packet.getHeader().contains("type"))
-        {
+    public void handle(INetworkChannel channel, IPacket packet) {
+        if (packet.getHeader().contains("serviceInfoSnapshot") && packet.getHeader().contains("type")) {
             ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
             PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getHeader().get("type", PacketClientServerServiceInfoPublisher.PublisherType.class);
 
-            switch (publisherType)
-            {
+            switch (publisherType) {
                 case UPDATE:
                     this.invoke0(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
                     break;
@@ -46,8 +43,7 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
         }
     }
 
-    private void invoke0(Event event)
-    {
+    private void invoke0(Event event) {
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
     }
 }

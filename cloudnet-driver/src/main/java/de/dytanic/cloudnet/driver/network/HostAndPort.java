@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.driver.network;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -11,9 +9,7 @@ import java.net.SocketAddress;
  * This class holds a easy IP/Hostname and port configuration
  * for a server or a client bind address
  */
-@Getter
 @EqualsAndHashCode
-@AllArgsConstructor
 public class HostAndPort {
 
     /**
@@ -27,17 +23,19 @@ public class HostAndPort {
      */
     protected int port;
 
-    public HostAndPort(InetSocketAddress socketAddress)
-    {
-        if (socketAddress == null) return;
+    public HostAndPort(InetSocketAddress socketAddress) {
+        if (socketAddress == null) {
+            return;
+        }
 
         this.host = socketAddress.getAddress().getHostAddress();
         this.port = socketAddress.getPort();
     }
 
-    public HostAndPort(SocketAddress socketAddress)
-    {
-        if (socketAddress == null) return;
+    public HostAndPort(SocketAddress socketAddress) {
+        if (socketAddress == null) {
+            return;
+        }
 
         String[] address = socketAddress.toString().split(":");
 
@@ -45,9 +43,22 @@ public class HostAndPort {
         this.port = Integer.parseInt(address[1]);
     }
 
+    public HostAndPort(String host, int port) {
+        this.host = host.trim();
+        this.port = port;
+    }
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         return host + ":" + port;
     }
+
+    public String getHost() {
+        return this.host.trim();
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
 }

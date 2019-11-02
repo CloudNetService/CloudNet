@@ -10,30 +10,29 @@ import io.gomint.entity.EntityPlayer;
 import io.gomint.plugin.Plugin;
 import io.gomint.plugin.PluginName;
 import io.gomint.plugin.Version;
-import lombok.Getter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-@Getter
 @PluginName("CloudNet-CloudPerms")
 @Version(major = 1, minor = 0)
 public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
 
-    @Getter
     private static GoMintCloudNetCloudPermissionsPlugin instance;
 
+    public static GoMintCloudNetCloudPermissionsPlugin getInstance() {
+        return GoMintCloudNetCloudPermissionsPlugin.instance;
+    }
+
     @Override
-    public void onInstall()
-    {
+    public void onInstall() {
         instance = this;
     }
 
     @Override
-    public void onStartup()
-    {
+    public void onStartup() {
         new CloudPermissionsPermissionManagement();
         injectEntityPlayersCloudPermissionManager();
 
@@ -41,46 +40,37 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
     }
 
     @Override
-    public void onUninstall()
-    {
+    public void onUninstall() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-    /*= ------------------------------------------------------------------------------- =*/
 
-    private void injectEntityPlayersCloudPermissionManager()
-    {
-        for (EntityPlayer entityPlayer : GoMint.instance().getPlayers())
+    private void injectEntityPlayersCloudPermissionManager() {
+        for (EntityPlayer entityPlayer : GoMint.instance().getPlayers()) {
             injectPermissionManager(entityPlayer);
+        }
     }
 
-    public void injectPermissionManager(EntityPlayer entityPlayer)
-    {
+    public void injectPermissionManager(EntityPlayer entityPlayer) {
         Validate.checkNotNull(entityPlayer);
 
-        try
-        {
+        try {
             Field field = entityPlayer.getClass().getDeclaredField("permissionManager");
             field.setAccessible(true);
 
             Field modifiersField = Field.class.getDeclaredField("modifiers");
 
-            AccessController.doPrivileged(new PrivilegedAction() {
-                @Override
-                public Object run()
-                {
-                    modifiersField.setAccessible(true);
-                    return null;
-                }
+            AccessController.doPrivileged((PrivilegedAction) () -> {
+                modifiersField.setAccessible(true);
+                return null;
             });
 
             modifiersField.setInt(field, modifiersField.getModifiers() & ~Modifier.FINAL);
             field.set(entityPlayer, new GoMintCloudNetCloudPermissionsPermissionManager((io.gomint.server.entity.EntityPlayer) entityPlayer, entityPlayer.getPermissionManager()));
 
-        } catch (Exception ignored)
-        {
-            ignored.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 }

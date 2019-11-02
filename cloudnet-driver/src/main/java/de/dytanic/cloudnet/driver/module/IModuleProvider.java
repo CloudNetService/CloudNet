@@ -7,13 +7,17 @@ import java.util.Collection;
 
 public interface IModuleProvider {
 
-    void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
+    File getModuleDirectory();
+
+    void setModuleDirectory(File moduleDirectory);
 
     IModuleProviderHandler getModuleProviderHandler();
 
-    void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader);
+    void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
 
     IModuleDependencyLoader getModuleDependencyLoader();
+
+    void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader);
 
     Collection<IModuleWrapper> getModules();
 

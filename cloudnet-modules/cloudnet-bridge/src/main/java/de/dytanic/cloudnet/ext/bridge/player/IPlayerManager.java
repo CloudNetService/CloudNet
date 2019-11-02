@@ -22,7 +22,6 @@ public interface IPlayerManager {
 
     List<? extends ICloudOfflinePlayer> getRegisteredPlayers();
 
-    /*= ---------------------------------------------------------------------------- =*/
 
     ITask<? extends ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId);
 
@@ -38,7 +37,6 @@ public interface IPlayerManager {
 
     ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync();
 
-    /*= ---------------------------------------------------------------------------- =*/
 
     void updateOfflinePlayer(ICloudOfflinePlayer cloudOfflinePlayer);
 
@@ -46,7 +44,12 @@ public interface IPlayerManager {
 
     void proxySendPlayer(ICloudPlayer cloudPlayer, String serviceName);
 
+    void proxyKickPlayer(ICloudPlayer cloudPlayer, String message);
+
     void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message);
 
-    void proxyKickPlayer(ICloudPlayer cloudPlayer, String message);
+    void broadcastMessage(String message);
+
+    void broadcastMessage(String message, String permission);
+
 }

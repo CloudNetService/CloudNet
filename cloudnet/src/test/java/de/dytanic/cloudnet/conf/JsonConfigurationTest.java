@@ -9,14 +9,12 @@ import java.util.Random;
 
 public class JsonConfigurationTest {
 
-    static
-    {
+    static {
         System.setProperty("cloudnet.config.json.path", "build/config.json");
     }
 
     @Test
-    public void testDocumentConfiguration()
-    {
+    public void testDocumentConfiguration() {
         IConfiguration configuration = new JsonConfiguration();
         configuration.load();
 
