@@ -61,10 +61,7 @@ pipeline {
         steps {
           echo 'Creating javadoc...';
           sh './gradlew allJavadoc';
-          sh 'mkdir -p temp';
-          sh 'cp -r build/javadoc/de temp/';
-          zip archive: true, dir: 'temp', glob: '', zipFile: 'Javadoc.zip';
-          sh 'rm -r temp/';
+          zip archive: true, dir: 'build/javadoc', glob: '', zipFile: 'Javadoc.zip';
         }
     }
     stage('Archive') {
