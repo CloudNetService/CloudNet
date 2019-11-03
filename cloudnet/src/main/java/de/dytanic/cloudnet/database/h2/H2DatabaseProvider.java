@@ -6,14 +6,12 @@ import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
+import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import org.h2.Driver;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Collection;
 import java.util.Map;
 
@@ -141,4 +139,46 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     public Connection getConnection() {
         return this.connection;
     }
+
+    public int executeUpdate(String query, Object... objects) {
+        Validate.checkNotNull(query);
+        Validate.checkNotNull(objects);
+
+        try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
+            int i = 1;
+            for (Object object : objects) {
+                preparedStatement.setString(i++, object.toString());
+            }
+
+            return preparedStatement.executeUpdate();
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
+        Validate.checkNotNull(query);
+        Validate.checkNotNull(callback);
+        Validate.checkNotNull(objects);
+
+        try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
+            int i = 1;
+            for (Object object : objects) {
+                preparedStatement.setString(i++, object.toString());
+            }
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return callback.call(resultSet);
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 }

@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
@@ -12,6 +13,7 @@ import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -156,4 +158,48 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     public List<MySQLConnectionEndpoint> getAddresses() {
         return this.addresses;
     }
+
+    public int executeUpdate(String query, Object... objects) {
+        Validate.checkNotNull(query);
+        Validate.checkNotNull(objects);
+
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            int i = 1;
+            for (Object object : objects) {
+                preparedStatement.setString(i++, object.toString());
+            }
+
+            return preparedStatement.executeUpdate();
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
+        Validate.checkNotNull(query);
+        Validate.checkNotNull(callback);
+        Validate.checkNotNull(objects);
+
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            int i = 1;
+            for (Object object : objects) {
+                preparedStatement.setString(i++, object.toString());
+            }
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return callback.call(resultSet);
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 }
