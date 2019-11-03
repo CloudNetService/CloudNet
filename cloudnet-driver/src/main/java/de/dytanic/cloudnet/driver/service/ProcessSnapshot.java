@@ -19,7 +19,9 @@ public class ProcessSnapshot {
 
     private double cpuUsage;
 
-    public ProcessSnapshot(long heapUsageMemory, long noHeapUsageMemory, long maxHeapMemory, int currentLoadedClassCount, long totalLoadedClassCount, long unloadedClassCount, Collection<ThreadSnapshot> threads, double cpuUsage) {
+    private int pid;
+
+    public ProcessSnapshot(long heapUsageMemory, long noHeapUsageMemory, long maxHeapMemory, int currentLoadedClassCount, long totalLoadedClassCount, long unloadedClassCount, Collection<ThreadSnapshot> threads, double cpuUsage, int pid) {
         this.heapUsageMemory = heapUsageMemory;
         this.noHeapUsageMemory = noHeapUsageMemory;
         this.maxHeapMemory = maxHeapMemory;
@@ -28,6 +30,7 @@ public class ProcessSnapshot {
         this.unloadedClassCount = unloadedClassCount;
         this.threads = threads;
         this.cpuUsage = cpuUsage;
+        this.pid = pid;
     }
 
     public long getHeapUsageMemory() {
@@ -60,6 +63,10 @@ public class ProcessSnapshot {
 
     public double getCpuUsage() {
         return this.cpuUsage;
+    }
+
+    public int getPid() {
+        return this.pid;
     }
 
 }

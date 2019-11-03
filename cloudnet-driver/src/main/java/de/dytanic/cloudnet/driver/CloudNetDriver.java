@@ -27,6 +27,7 @@ import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 
+import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
@@ -48,6 +49,8 @@ public abstract class CloudNetDriver {
     protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
     protected final ILogger logger;
     protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
+
+    private int pid = -2;
 
     public CloudNetDriver(ILogger logger) {
         this.logger = logger;
@@ -127,6 +130,24 @@ public abstract class CloudNetDriver {
 
     public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
         return this.getNodeInfoProvider().sendCommandLine(nodeUniqueId, commandLine);
+    }
+
+    /**
+     * Fetches the PID of this process.
+     *
+     * @return the PID as an int or -1, if it couldn't be fetched
+     */
+    public int getOwnPID() {
+        if (this.pid == -2) {
+            String runtimeName = ManagementFactory.getRuntimeMXBean().getName();
+            int index = runtimeName.indexOf('@');
+            try {
+                return this.pid = (index < 1 ? -1 : Integer.parseInt(runtimeName.substring(0, index)));
+            } catch (NumberFormatException ignored) {
+                return this.pid = -1;
+            }
+        }
+        return this.pid;
     }
 
     /**
