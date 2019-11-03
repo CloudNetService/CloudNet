@@ -5,7 +5,7 @@
 var cloudnet.launcher.select.version default
 var cloudnet.repository https://cloudnetservice.eu/cloudnet/updates/
 var cloudnet.repository.type default
-var cloudnet.auto-update false
+var cloudnet.auto-update true
 var cloudnet.auto-update.with-embedded true
 var cloudnet.messages.language english
 
@@ -19,7 +19,7 @@ var cloudnet.messages.language english
 #var cloudnet.persistable.services.path local/services
 #var cloudnet.config.task.path local/tasks.json
 #var cloudnet.config.json.path config.json
-#var cloudnet.permissions.json.path local/perms.json
+#var cloudnet.permissions.json.path local/permissions.json
 #var cloudnet.database.h2.path local/database/h2
 #var cloudnet.console.prompt &c%user%&r@&7%screen% &f=>
 #var cloudnet.config.default-address 127.0.0.1

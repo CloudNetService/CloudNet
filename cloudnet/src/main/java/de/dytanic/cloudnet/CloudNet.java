@@ -915,7 +915,7 @@ public final class CloudNet extends CloudNetDriver {
                 new LocalTemplateStorage(new File(System.getProperty("cloudnet.storage.local", "local/templates"))));
 
         this.servicesRegistry.registerService(IPermissionManagement.class, "json_file",
-                new DefaultJsonFilePermissionManagement(new File(System.getProperty("cloudnet.permissions.json.path", "local/perms.json"))));
+                new DefaultJsonFilePermissionManagement(new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"))));
 
         this.servicesRegistry.registerService(IPermissionManagement.class, "json_database",
                 new DefaultDatabasePermissionManagement(this::getDatabaseProvider));

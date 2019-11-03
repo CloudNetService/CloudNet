@@ -29,6 +29,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     protected final JsonObject jsonObject;
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be made private in a future release
+     */
+    @Deprecated
     public JsonDocument(JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
@@ -41,6 +45,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         this(GSON.toJsonTree(toObjectMirror));
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be made private in a future release
+     */
+    @Deprecated
     public JsonDocument(JsonElement jsonElement) {
         this(jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : new JsonObject());
     }
@@ -90,6 +98,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return new JsonDocument();
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public static JsonDocument newDocument(JsonObject jsonObject) {
         return new JsonDocument(jsonObject);
     }
@@ -257,6 +269,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be made private in a future release
+     */
+    @Deprecated
     public JsonDocument append(JsonObject jsonObject) {
         if (jsonObject == null) {
             return this;
@@ -336,7 +352,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
         JsonElement jsonElement = this.jsonObject.get(key);
 
         if (jsonElement.isJsonObject()) {
-            return new JsonDocument(jsonElement.getAsJsonObject());
+            return new JsonDocument(jsonElement);
         } else {
             return null;
         }
@@ -507,6 +523,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonArray getJsonArray(String key) {
         if (!contains(key)) {
             return null;
@@ -521,6 +541,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonObject getJsonObject(String key) {
         if (!contains(key)) {
             return null;
@@ -546,6 +570,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return properties;
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonElement get(String key) {
         if (!contains(key)) {
             return null;
@@ -666,6 +694,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return this.getDocument(key);
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonArray getJsonArray(String key, JsonArray def) {
         if (!this.contains(key)) {
             this.append(key, def);
@@ -674,6 +706,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return this.getJsonArray(key);
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonObject getJsonObject(String key, JsonObject def) {
         if (!this.contains(key)) {
             this.append(key, def);
@@ -819,6 +855,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return this;
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonObject toJsonObject() {
         return jsonObject;
     }
@@ -840,9 +880,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return toJson();
     }
 
-
     @Override
     public Iterator<String> iterator() {
         return this.jsonObject.keySet().iterator();
     }
+
 }
