@@ -1,8 +1,7 @@
-package de.dytanic.cloudnet.ext.storage.ftp;
+package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
@@ -10,6 +9,7 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -30,15 +31,15 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     private static final LogLevel LOG_LEVEL = new LogLevel("ftp/ftps", "FTP/FTPS", 1, true);
 
     private final String name;
-    private final JsonDocument document;
+    private FTPClient ftpClient; //todo use ThreadLocal for FTPClient
 
-    private final FTPClient ftpClient;
+    private FTPCredentials credentials;
 
-    public FTPTemplateStorage(String name, JsonDocument document) {
+    public FTPTemplateStorage(String name, FTPCredentials credentials, boolean ssl) {
         this.name = name;
-        this.document = document;
+        this.credentials = credentials;
 
-        this.ftpClient = document.getBoolean("ssl") ? new FTPSClient() : new FTPClient();
+        this.ftpClient = ssl ? new FTPSClient() : new FTPClient();
     }
 
     @Override
@@ -79,7 +80,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(File directory, ServiceTemplate target) {
+    public boolean deploy(File directory, ServiceTemplate target, Predicate<File> fileFilter) {
         Validate.checkNotNull(directory);
         Validate.checkNotNull(target);
 
@@ -405,7 +406,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
                         if (subPathEntries != null) {
                             for (FTPFile subEntry : subPathEntries) {
                                 if (subEntry.isDirectory()) {
-                                    templates.add(new ServiceTemplate(entry.getName(), subEntry.getName(), document.getString("storage")));
+                                    templates.add(new ServiceTemplate(entry.getName(), subEntry.getName(), this.getName()));
                                 }
                             }
                         }
@@ -458,7 +459,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     }
 
     private void resetWorkingDirectory() throws IOException {
-        this.ftpClient.changeWorkingDirectory(this.document.getString("baseDirectory"));
+        this.ftpClient.changeWorkingDirectory(this.credentials.getBaseDirectory());
     }
 
     private void checkConnection() {
@@ -471,7 +472,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
         ILogger logger = CloudNetDriver.getInstance().getLogger();
 
         try {
-            HostAndPort address = this.document.get("address", HostAndPort.class);
+            HostAndPort address = this.credentials.getAddress();
 
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect")
                     .replace("%host%", address.getHost())
@@ -484,26 +485,22 @@ public final class FTPTemplateStorage implements ITemplateStorage {
             );
 
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
-                    .replace("%user%", this.document.getString("username"))
+                    .replace("%user%", this.credentials.getUsername())
             );
-            this.ftpClient.login(this.document.getString("username"), this.document.getString("password"));
+            this.ftpClient.login(this.credentials.getUsername(), this.credentials.getPassword());
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login-success")
-                    .replace("%user%", this.document.getString("username"))
+                    .replace("%user%", this.credentials.getUsername())
             );
 
             this.ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
             this.ftpClient.setAutodetectUTF8(true);
             this.ftpClient.setKeepAlive(true);
-            this.ftpClient.setBufferSize(this.document.getInt("bufferSize"));
-            this.ftpClient.changeWorkingDirectory(this.document.getString("baseDirectory"));
+            this.ftpClient.setBufferSize(8192);
+            this.ftpClient.changeWorkingDirectory(this.credentials.getBaseDirectory());
 
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-    }
-
-    public JsonDocument getDocument() {
-        return this.document;
     }
 
     @Override

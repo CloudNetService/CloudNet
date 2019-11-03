@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 public final class LocalTemplateStorage implements ITemplateStorage {
 
@@ -41,7 +42,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(File directory, ServiceTemplate target) {
+    public boolean deploy(File directory, ServiceTemplate target, Predicate<File> fileFilter) {
         Validate.checkNotNull(directory);
         Validate.checkNotNull(target);
 
@@ -50,7 +51,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         }
 
         try {
-            FileUtils.copyFilesToDirectory(directory, new File(this.storageDirectory, target.getTemplatePath()));
+            FileUtils.copyFilesToDirectory(directory, new File(this.storageDirectory, target.getTemplatePath()), fileFilter);
             return true;
         } catch (IOException exception) {
             exception.printStackTrace();

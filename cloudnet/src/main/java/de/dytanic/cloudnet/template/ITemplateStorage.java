@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.function.Predicate;
 
 /**
  * The template storage manage the management of service specific templates that should copy or deploy on
@@ -33,7 +34,11 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
      * @param target
      * @return
      */
-    boolean deploy(File directory, ServiceTemplate target);
+    boolean deploy(File directory, ServiceTemplate target, Predicate<File> fileFilter);
+
+    default boolean deploy(File directory, ServiceTemplate target) {
+        return this.deploy(directory, target, null);
+    }
 
     boolean deploy(Path[] paths, ServiceTemplate target);
 

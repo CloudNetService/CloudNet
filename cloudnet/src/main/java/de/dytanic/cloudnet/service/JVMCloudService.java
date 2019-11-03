@@ -564,16 +564,14 @@ final class JVMCloudService implements ICloudService {
                             .replace("%storage%", deployment.getTemplate().getStorage())
                     );
 
-                    storage.deploy(
-                            Objects.requireNonNull(this.directory.listFiles(pathname -> {
+                    storage.deploy(this.directory, deployment.getTemplate(), pathname -> {
                                 if (deployment.getExcludes() != null) {
                                     return !deployment.getExcludes().contains(pathname.isDirectory() ? pathname.getName() + "/" : pathname.getName()) && !pathname
                                             .getName().equals("wrapper.jar") && !pathname.getName().equals(".wrapper");
                                 } else {
                                     return true;
                                 }
-                            })),
-                            deployment.getTemplate()
+                            }
                     );
 
                     if (removeDeployments) {
