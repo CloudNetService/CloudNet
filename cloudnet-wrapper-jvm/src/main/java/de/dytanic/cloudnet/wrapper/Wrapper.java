@@ -416,7 +416,8 @@ public final class Wrapper extends CloudNetDriver {
                         ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
                         Iterables.map(Thread.getAllStackTraces().keySet(), thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority())),
-                        CPUUsageResolver.getProcessCPUUsage()
+                        CPUUsageResolver.getProcessCPUUsage(),
+                        this.getOwnPID()
                 ),
                 this.currentServiceInfoSnapshot.getProperties(),
                 this.getServiceConfiguration()

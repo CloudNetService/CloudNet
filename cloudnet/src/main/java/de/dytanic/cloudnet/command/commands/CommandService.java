@@ -286,6 +286,7 @@ public final class CommandService extends CommandDefault implements ITabComplete
         list.add("* ServiceInfoSnapshot | " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(serviceInfoSnapshot.getCreationTime()));
 
         list.addAll(Arrays.asList(
+                "PID: " + serviceInfoSnapshot.getProcessSnapshot().getPid(),
                 "CPU usage: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()) + "%",
                 "Threads: " + serviceInfoSnapshot.getProcessSnapshot().getThreads().size(),
                 "Heap usage: " + (serviceInfoSnapshot.getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +

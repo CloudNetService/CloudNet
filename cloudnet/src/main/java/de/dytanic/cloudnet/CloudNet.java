@@ -555,7 +555,8 @@ public final class CloudNet extends CloudNetDriver {
                         ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
                         Iterables.map(Thread.getAllStackTraces().keySet(), thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority())),
-                        CPUUsageResolver.getProcessCPUUsage()
+                        CPUUsageResolver.getProcessCPUUsage(),
+                        this.getOwnPID()
                 ),
                 Iterables.map(this.moduleProvider.getModules(), moduleWrapper -> new NetworkClusterNodeExtensionSnapshot(
                         moduleWrapper.getModuleConfiguration().getGroup(),

@@ -413,7 +413,9 @@ final class JVMCloudService implements ICloudService {
                         -1,
                         -1,
                         Collections.emptyList(),
-                        -1),
+                        -1,
+                        -1
+                ),
                 this.serviceConfiguration.getProperties(),
                 this.serviceConfiguration
         );
