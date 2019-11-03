@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.document;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -15,6 +16,14 @@ public interface IPersistable {
 
 
     default IPersistable write(Path path) {
+        Path parent = path.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try (OutputStream outputStream = new FileOutputStream(path.toFile())) {
             this.write(outputStream);
         } catch (IOException exception) {
