@@ -2,4 +2,4 @@ name: CloudNet-Chat
 version: '1.0'
 author: CloudNetService
 
-main: eu.cloudnetservice.cloudnet.ext.bridge.chat.CloudNetChatPlugin
+main: de.dytanic.cloudnet.ext.chat.CloudNetChatPlugin

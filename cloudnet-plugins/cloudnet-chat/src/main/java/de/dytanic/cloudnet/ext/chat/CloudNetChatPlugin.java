@@ -1,4 +1,4 @@
-package eu.cloudnetservice.cloudnet.ext.bridge.chat;
+package de.dytanic.cloudnet.ext.chat;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
