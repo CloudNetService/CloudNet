@@ -12,33 +12,51 @@ import java.util.Arrays;
 
 public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
 
+    private ITemplateStorage templateStorage;
+
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void initConfiguration() {
-        if (getConfig().contains("ssl")) {
-            getConfig().remove("ssl");
+        if (super.getConfig().contains("ssl")) {
+            super.getConfig().remove("ssl");
         }
-        getConfig().get("type", FTPType.class, FTPType.FTP);
-        getConfig().get("address", HostAndPort.class, new HostAndPort("127.0.0.1", 21));
 
-        getConfig().getString("storage", "ftp");
-        getConfig().getString("username", "root");
-        getConfig().getString("password", "123456");
-        getConfig().getInt("bufferSize", 8192);
-        getConfig().getString("baseDirectory", "/home/cloudnet");
+        super.getConfig().get("type", FTPType.class, FTPType.FTP);
+        super.getConfig().get("address", HostAndPort.class, new HostAndPort("127.0.0.1", 21));
 
-        saveConfig();
+        super.getConfig().getString("storage", "ftp");
+        super.getConfig().getString("username", "root");
+        super.getConfig().getString("password", "123456");
+        super.getConfig().getInt("bufferSize", 8192);
+        super.getConfig().getString("baseDirectory", "/home/cloudnet");
+
+        super.saveConfig();
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
     public void registerStorage() {
-        FTPType ftpType = getConfig().get("type", FTPType.class);
+        FTPType ftpType = super.getConfig().get("type", FTPType.class);
+
         if (ftpType == null) {
-            System.err.println("FTP type in the config doesn't exist, disabling FTP template storage");
-            return;
+            super.getModuleWrapper().stopModule();
+
+            throw new IllegalArgumentException("Invalid ftp type! Available types: " + Arrays.toString(FTPType.values()));
         }
-        System.out.println("Using " + ftpType + " for FTP connection (Available types: " + Arrays.toString(FTPType.values()) + ")");
+
         FTPCredentials credentials = getConfig().toInstanceOf(FTPCredentials.class);
-        ITemplateStorage templateStorage = ftpType.createNewTemplateStorage(getConfig().getString("storage"), credentials);
-        registerTemplateStorage(getConfig().getString("storage"), templateStorage);
+        this.templateStorage = ftpType.createNewTemplateStorage(getConfig().getString("storage"), credentials);
+
+        super.registerTemplateStorage(getConfig().getString("storage"), this.templateStorage);
     }
+
+    @ModuleTask(event = ModuleLifeCycle.STOPPED)
+    public void unregisterStorage() {
+        if (this.templateStorage != null) {
+            try {
+                this.templateStorage.close();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
+
 }

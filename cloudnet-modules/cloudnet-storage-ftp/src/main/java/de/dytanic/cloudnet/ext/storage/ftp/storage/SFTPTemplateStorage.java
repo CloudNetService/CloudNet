@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage;
 import com.jcraft.jsch.ChannelSftp;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.ext.storage.ftp.client.SFTPClient;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
+import de.dytanic.cloudnet.ext.storage.ftp.client.SFTPClient;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 
 import java.io.*;
@@ -14,32 +14,34 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 
+// todo: add queue
 public class SFTPTemplateStorage implements ITemplateStorage {
 
     private final String name;
-    private SFTPClient ftpClient; //todo use ThreadLocal for FTPClient
+    private final SFTPClient ftpClient;
     private final String baseDirectory;
 
-    public SFTPTemplateStorage(String name, String baseDirectory) {
-        this.name = name;
-        this.baseDirectory = baseDirectory.endsWith("/") ? baseDirectory.substring(0, baseDirectory.length() - 1) : baseDirectory;
-    }
-
     public SFTPTemplateStorage(String name, FTPCredentials credentials) {
-        this(name, credentials.getBaseDirectory());
-        this.load(credentials);
+        this.ftpClient = new SFTPClient();
+        this.name = name;
+
+        String baseDirectory = credentials.getBaseDirectory();
+
+        this.baseDirectory = baseDirectory.endsWith("/") ? baseDirectory.substring(0, baseDirectory.length() - 1) : baseDirectory;
+
+        this.connect(credentials);
     }
 
-    public boolean load(FTPCredentials credentials) {
-        return this.load(credentials.getAddress().getHost(), credentials.getUsername(), credentials.getPassword(), credentials.getAddress().getPort());
+    private void connect(FTPCredentials credentials) {
+        this.connect(credentials.getAddress().getHost(), credentials.getAddress().getPort(), credentials.getUsername(), credentials.getPassword());
     }
 
-    public boolean load(String host, String username, String password, int port) {
-        if (this.ftpClient != null) {
+    private void connect(String host, int port, String username, String password) {
+        if (this.ftpClient.isConnected()) {
             this.ftpClient.close();
         }
-        this.ftpClient = new SFTPClient();
-        return this.ftpClient.connect(host, username, password, port);
+
+        this.ftpClient.connect(host, port, username, password);
     }
 
     @Override
@@ -77,8 +79,8 @@ public class SFTPTemplateStorage implements ITemplateStorage {
     public boolean copy(ServiceTemplate template, Path directory) {
         try {
             Files.createDirectories(directory);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         return this.ftpClient.downloadDirectory(this.getPath(template), directory.toString());
     }
@@ -88,8 +90,8 @@ public class SFTPTemplateStorage implements ITemplateStorage {
         Path tempDirectory = Paths.get(System.getProperty("cloudnet.tempDir.ftpCache", "temp/ftpCache"));
         try {
             Files.createDirectories(tempDirectory);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         if (!this.ftpClient.downloadDirectory(this.getPath(template), tempDirectory.toString())) {
             FileUtils.delete(tempDirectory.toFile());
@@ -98,8 +100,8 @@ public class SFTPTemplateStorage implements ITemplateStorage {
         for (File directory : directories) {
             try {
                 FileUtils.copyFilesToDirectory(tempDirectory.toFile(), directory);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
                 FileUtils.delete(tempDirectory.toFile());
                 return false;
             }
@@ -122,8 +124,7 @@ public class SFTPTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean delete(ServiceTemplate template) {
-        this.ftpClient.deleteDirectory(this.getPath(template));
-        return true;
+        return this.ftpClient.deleteDirectory(this.getPath(template));
     }
 
     @Override
@@ -138,39 +139,38 @@ public class SFTPTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public OutputStream appendOutputStream(ServiceTemplate template, String path) throws IOException {
+    public OutputStream appendOutputStream(ServiceTemplate template, String path) {
         return this.ftpClient.openOutputStream(this.getPath(template) + "/" + path);
     }
 
     @Override
-    public OutputStream newOutputStream(ServiceTemplate template, String path) throws IOException {
+    public OutputStream newOutputStream(ServiceTemplate template, String path) {
         return this.ftpClient.openOutputStream(this.getPath(template) + "/" + path);
     }
 
     @Override
-    public boolean createFile(ServiceTemplate template, String path) throws IOException {
-        this.ftpClient.createFile(this.getPath(template) + "/" + path);
-        return true;
+    public boolean createFile(ServiceTemplate template, String path) {
+        return this.ftpClient.createFile(this.getPath(template) + "/" + path);
     }
 
     @Override
-    public boolean createDirectory(ServiceTemplate template, String path) throws IOException {
+    public boolean createDirectory(ServiceTemplate template, String path) {
         this.ftpClient.createDirectories(this.getPath(template) + "/" + path);
         return true;
     }
 
     @Override
-    public boolean hasFile(ServiceTemplate template, String path) throws IOException {
+    public boolean hasFile(ServiceTemplate template, String path) {
         return this.ftpClient.existsFile(this.getPath(template) + "/" + path);
     }
 
     @Override
-    public boolean deleteFile(ServiceTemplate template, String path) throws IOException {
+    public boolean deleteFile(ServiceTemplate template, String path) {
         return this.ftpClient.deleteFile(this.getPath(template) + "/" + path);
     }
 
     @Override
-    public String[] listFiles(ServiceTemplate template, String dir) throws IOException {
+    public String[] listFiles(ServiceTemplate template, String dir) {
         List<String> files = new ArrayList<>();
         //todo this method is called by ServiceVersionProvider.installServiceVersion with non-existing directories
         Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(this.getPath(template) + "/" + dir);
@@ -214,7 +214,7 @@ public class SFTPTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (this.ftpClient != null) {
             this.ftpClient.close();
         }

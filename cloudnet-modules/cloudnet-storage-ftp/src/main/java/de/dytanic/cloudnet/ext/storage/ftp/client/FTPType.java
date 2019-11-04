@@ -20,4 +20,5 @@ public enum FTPType {
     public ITemplateStorage createNewTemplateStorage(String storage, FTPCredentials credentials) {
         return this.storageProvider.apply(storage, credentials);
     }
+
 }

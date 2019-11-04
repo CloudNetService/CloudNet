@@ -18,6 +18,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -31,7 +32,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newFixedThreadPool(2);
 
     @Override
-    public void install(ServiceVersion version, Path workingDirectory, OutputStream... targetStreams) throws IOException {
+    public void install(ServiceVersion version, Path workingDirectory, Callable<OutputStream[]> targetStreamCallable) throws Exception {
         String copy = version.getProperties().getString("copy");
         if (copy == null) {
             throw new IllegalStateException(String.format("Missing copy property on service version %s!", version.getName()));
@@ -59,6 +60,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
         }
 
         Pattern pattern = Pattern.compile(copy);
+        OutputStream[] targetStreams = targetStreamCallable.call();
 
         Files.walkFileTree(workingDirectory, new SimpleFileVisitor<Path>() {
             @Override
@@ -69,6 +71,8 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
 
                     for (OutputStream targetStream : targetStreams) {
                         Files.copy(path, targetStream);
+
+                        targetStream.close();
                     }
 
                     return FileVisitResult.TERMINATE;
@@ -79,7 +83,6 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
         });
 
     }
-
 
     protected void download(String url, Path targetFile) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();

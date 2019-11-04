@@ -7,8 +7,8 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.template.install.installer.DownloadingServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
-import de.dytanic.cloudnet.template.install.installer.SimpleDownloadingServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.processing.ProcessingServiceVersionInstaller;
 
 import java.io.FileOutputStream;
@@ -29,7 +29,7 @@ public class ServiceVersionProvider {
     private final Map<String, ServiceVersionType> serviceVersionTypes = new HashMap<>();
 
     public ServiceVersionProvider() {
-        this.installers.put(ServiceVersionType.InstallerType.DOWNLOAD, new SimpleDownloadingServiceVersionInstaller());
+        this.installers.put(ServiceVersionType.InstallerType.DOWNLOAD, new DownloadingServiceVersionInstaller());
         this.installers.put(ServiceVersionType.InstallerType.BUILD, new ProcessingServiceVersionInstaller());
     }
 
@@ -99,33 +99,26 @@ public class ServiceVersionProvider {
         String fileName = serviceVersionType.getTargetEnvironment().getName() + ".jar";
         Path workingDirectory = Paths.get(System.getProperty("cloudnet.tempDir.build", "temp/build"), UUID.randomUUID().toString());
 
-        Path versionTypeCacheDir = Paths.get(
-                System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
-                serviceVersionType.getName()
-        );
-        Path versionCacheFile = Paths.get(versionTypeCacheDir.toString(), serviceVersion.getName() + ".jar");
+        Path versionCacheFile = Paths.get(System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
+                serviceVersionType.getName() + "-" + serviceVersion.getName() + ".jar");
 
-        try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, fileName)) {
-
+        try {
             if (Files.exists(versionCacheFile)) {
-                Files.copy(versionCacheFile, outputStream);
+                try (OutputStream targetStream = storage.newOutputStream(serviceTemplate, fileName)) {
+                    Files.copy(versionCacheFile, targetStream);
+                }
             } else {
                 Files.createDirectories(workingDirectory);
 
                 if (!serviceVersion.isLatest()) {
-                    Files.createDirectories(versionTypeCacheDir);
-
-                    try (OutputStream cacheFileStream = new FileOutputStream(versionCacheFile.toFile())) {
-                        installer.install(serviceVersion, workingDirectory, outputStream, cacheFileStream);
-                    }
-
+                    installer.install(serviceVersion, workingDirectory,
+                            () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName), new FileOutputStream(versionCacheFile.toFile())});
                 } else {
-                    installer.install(serviceVersion, workingDirectory, outputStream);
+                    installer.install(serviceVersion, workingDirectory, () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName)});
                 }
             }
-
         } catch (Exception exception) {
-            FileUtils.delete(versionCacheFile.toFile());
+            exception.printStackTrace();
             return false;
         } finally {
             FileUtils.delete(workingDirectory.toFile());
