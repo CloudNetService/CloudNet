@@ -101,7 +101,7 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
         return this.pendingConnection;
     }
 
-    public UUID getUniqueId() { //this method is REQUIRED, do NOT DELETE
+    public UUID getUniqueId() {
         return this.uniqueId;
     }
 }
