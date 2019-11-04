@@ -98,10 +98,10 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
     }
 
     public PendingConnection getPendingConnection() {
-        return pendingConnection;
+        return this.pendingConnection;
     }
 
-    public UUID getUniqueId() {
+    public UUID getUniqueId() { //this method is REQUIRED, do NOT DELETE
         return this.uniqueId;
     }
 }
