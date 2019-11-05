@@ -15,6 +15,7 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -149,7 +150,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             return;
                         }
 
-                    } catch (Exception exception) {
+                    } catch (IOException exception) {
                         exception.printStackTrace();
                     }
                 }

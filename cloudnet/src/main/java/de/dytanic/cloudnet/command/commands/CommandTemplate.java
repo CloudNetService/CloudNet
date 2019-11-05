@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -146,7 +147,7 @@ public class CommandTemplate extends CommandDefault {
                                 .replace("%storage%", template.getStorage())
                         );
                     }
-                } catch (Exception exception) {
+                } catch (IOException exception) {
                     sender.sendMessage(LanguageManager.getMessage("command-template-create-failed")
                             .replace("%template%", template.getTemplatePath())
                             .replace("%storage%", template.getStorage())

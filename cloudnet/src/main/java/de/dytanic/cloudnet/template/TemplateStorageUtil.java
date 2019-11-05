@@ -42,7 +42,7 @@ public final class TemplateStorageUtil {
         }
     }
 
-    public static boolean createAndPrepareTemplate(ITemplateStorage storage, String prefix, String name, ServiceEnvironmentType environment) throws Exception {
+    public static boolean createAndPrepareTemplate(ITemplateStorage storage, String prefix, String name, ServiceEnvironmentType environment) throws IOException {
         Validate.checkNotNull(storage);
         Validate.checkNotNull(prefix);
         Validate.checkNotNull(name);

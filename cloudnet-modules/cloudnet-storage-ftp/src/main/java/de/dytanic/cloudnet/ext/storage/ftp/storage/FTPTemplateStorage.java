@@ -90,9 +90,7 @@ public final class FTPTemplateStorage implements ITemplateStorage {
                     .replace("%ftpType%", this.ftpType.toString())
             );
 
-            this.ftpClient.sendNoOp();
             this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-
             this.ftpClient.changeWorkingDirectory(this.baseDirectory);
 
         } catch (IOException exception) {
@@ -414,8 +412,9 @@ public final class FTPTemplateStorage implements ITemplateStorage {
             path = path.substring(0, path.length() - 1);
         }
         int slash = path.lastIndexOf('/');
+
         if (slash > 0) {
-            this.createDirectories(path.substring(0, slash + 1));
+            this.createDirectories(path.substring(0, slash));
         }
     }
 
@@ -471,36 +470,22 @@ public final class FTPTemplateStorage implements ITemplateStorage {
     }
 
 
-    // todo: something seems to be wrong here
-    private void createDirectories(String pathname) throws IOException {
-        boolean dirExists = true;
+    private void createDirectories(String path) throws IOException {
+        StringBuilder pathBuilder = new StringBuilder();
 
-        String[] directories = pathname.startsWith("/") ? pathname.split("/") : ("/" + pathname).split("/");
-        for (String dir : directories) {
-            if (!dir.isEmpty()) {
-                if (dirExists) {
-                    dirExists = this.ftpClient.changeWorkingDirectory(dir);
-                }
+        for (String pathSegment : path.split("/")) {
+            pathBuilder.append(pathSegment).append('/');
 
-                if (!dirExists) {
-                    if (!this.ftpClient.makeDirectory(dir)) {
-                        CloudNetDriver.getInstance().getLogger().log(LogLevel.WARNING,
-                                "failed to make directory " + dir + " " + this.ftpClient.getReplyString());
-                        return;
-                    }
+            String currentPath = pathBuilder.toString();
 
-                    if (!this.ftpClient.changeWorkingDirectory(dir)) {
-                        CloudNetDriver.getInstance().getLogger().log(LogLevel.WARNING,
-                                "failed to change this directory " + dir + " " + this.ftpClient.getReplyString());
-                        return;
-                    }
-                }
+            if (!this.ftpClient.changeWorkingDirectory(currentPath)) {
+                this.ftpClient.makeDirectory(currentPath);
             }
+
+            this.ftpClient.changeWorkingDirectory(this.baseDirectory);
         }
 
-        this.ftpClient.changeWorkingDirectory(this.baseDirectory);
     }
-
 
     @Override
     public String getName() {
