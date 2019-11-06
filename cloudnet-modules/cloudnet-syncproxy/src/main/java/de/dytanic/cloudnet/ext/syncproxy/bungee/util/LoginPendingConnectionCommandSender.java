@@ -98,7 +98,7 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
     }
 
     public PendingConnection getPendingConnection() {
-        return pendingConnection;
+        return this.pendingConnection;
     }
 
     public UUID getUniqueId() {

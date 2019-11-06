@@ -11,6 +11,8 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
@@ -24,9 +26,21 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
     public void handle(PermissionCheckEvent event) {
         CommandSender sender = event.getSender();
 
-        if (sender instanceof ProxiedPlayer) {
-            UUID uniqueId = ((ProxiedPlayer) sender).getUniqueId();
+        UUID uniqueId = null;
 
+        if (sender instanceof ProxiedPlayer) {
+            uniqueId = ((ProxiedPlayer) sender).getUniqueId();
+        } else {
+            try {
+                Method method = sender.getClass().getDeclaredMethod("getUniqueId");
+                uniqueId = (UUID) method.invoke(sender);
+            } catch (NoSuchMethodException ignored) {
+            } catch (IllegalAccessException | InvocationTargetException exception) {
+                exception.printStackTrace();
+            }
+        }
+
+        if (uniqueId != null) {
             IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
 
             if (permissionUser != null) {
