@@ -2,7 +2,9 @@ package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.Validate;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public class ServiceTemplate implements INameable {
 
     private final String prefix, name, storage;
