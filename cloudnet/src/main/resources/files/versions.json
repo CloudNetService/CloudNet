@@ -36,6 +36,7 @@
         {
           "name": "1.11.2",
           "url": "https://papermc.io/ci/job/Paper/1104/artifact/paperclip.jar",
+          "deprecated": true,
           "properties": {
             "copy": "cache/patched.*\\.jar"
           }
@@ -43,6 +44,7 @@
         {
           "name": "1.10.2",
           "url": "https://papermc.io/ci/job/Paper/916/artifact/paperclip-916.2.jar",
+          "deprecated": true,
           "properties": {
             "copy": "cache/patched.*\\.jar"
           }
@@ -50,6 +52,7 @@
         {
           "name": "1.9.4",
           "url": "https://papermc.io/ci/job/Paper/773/artifact/paperclip-773.jar",
+          "deprecated": true,
           "properties": {
             "copy": "cache/patched.*\\.jar"
           }
@@ -57,6 +60,7 @@
         {
           "name": "1.8.8",
           "url": "https://papermc.io/ci/job/Paper/443/artifact/paperclip-1.8.8-fix.jar",
+          "deprecated": true,
           "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
@@ -111,6 +115,7 @@
         {
           "name": "1.11.2",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "deprecated": true,
           "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
@@ -124,6 +129,7 @@
         {
           "name": "1.10.2",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "deprecated": true,
           "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
@@ -137,6 +143,7 @@
         {
           "name": "1.9.4",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "deprecated": true,
           "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
@@ -150,6 +157,7 @@
         {
           "name": "1.8.8",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "deprecated": true,
           "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {

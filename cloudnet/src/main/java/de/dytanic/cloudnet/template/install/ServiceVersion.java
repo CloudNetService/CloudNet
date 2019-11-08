@@ -9,13 +9,15 @@ public class ServiceVersion {
     private String name;
     private String url;
     private int minJavaVersion, maxJavaVersion;
+    private boolean deprecated;
     private JsonDocument properties = new JsonDocument();
 
-    public ServiceVersion(String name, String url, int minJavaVersion, int maxJavaVersion, JsonDocument properties) {
+    public ServiceVersion(String name, String url, int minJavaVersion, int maxJavaVersion, boolean deprecated, JsonDocument properties) {
         this.name = name;
         this.url = url;
         this.minJavaVersion = minJavaVersion;
         this.maxJavaVersion = maxJavaVersion;
+        this.deprecated = deprecated;
         this.properties = properties;
     }
 
@@ -24,6 +26,10 @@ public class ServiceVersion {
 
     public boolean isLatest() {
         return this.name.equalsIgnoreCase("latest");
+    }
+
+    public boolean isDeprecated() {
+        return this.deprecated;
     }
 
     public boolean canRun() {

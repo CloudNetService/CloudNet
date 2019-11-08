@@ -1,9 +1,11 @@
 package de.dytanic.cloudnet.template.install;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
@@ -90,6 +92,12 @@ public class ServiceVersionProvider {
 
         if (installer == null) {
             throw new IllegalArgumentException("Installer for type " + serviceVersionType.getInstallerType() + " not found");
+        }
+
+        if (serviceVersion.isDeprecated()) {
+            CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage("versions-installer-deprecated-version")
+                    .replace("%version%", serviceVersionType.getName() + "-" + serviceVersion.getName())
+            );
         }
 
         if (!storage.has(serviceTemplate)) {
