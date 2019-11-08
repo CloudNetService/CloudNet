@@ -155,13 +155,35 @@ public class CommandTemplate extends CommandDefault {
                     exception.printStackTrace();
                 }
             });
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("copy")) {
+            this.handleWithTemplateAndStorage(sender, args[1], (sourceTemplate, sourceStorage) -> {
+                this.handleWithTemplateAndStorage(sender, args[2], (targetTemplate, targetStorage) -> {
+                    if (sourceTemplate.equals(targetTemplate)) {
+                        sender.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
+                        return;
+                    }
+                    sender.sendMessage(LanguageManager.getMessage("command-template-copy")
+                            .replace("%sourceTemplate%", sourceTemplate.toString())
+                            .replace("%targetTemplate%", targetTemplate.toString())
+                    );
+                    byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
+                    targetStorage.delete(targetTemplate);
+                    targetStorage.create(targetTemplate);
+                    targetStorage.deploy(zippedTemplate, targetTemplate);
+                    sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
+                            .replace("%sourceTemplate%", sourceTemplate.toString())
+                            .replace("%targetTemplate%", targetTemplate.toString())
+                    );
+                });
+            });
         } else {
             sender.sendMessage(
                     "template install <[storage:]prefix/name> <versionType> <version> | example: template install Lobby/default paperspigot 1.13.2",
                     "template versions",
                     "template list [storage]",
                     "template delete <[storage:]prefix/name>",
-                    "template create <[storage:]prefix/name> <" + Arrays.toString(ServiceEnvironmentType.values()) + ">"
+                    "template create <[storage:]prefix/name> <" + Arrays.toString(ServiceEnvironmentType.values()) + ">",
+                    "template copy <[storage:]prefix/name (sourceTemplate)> <[storage:]prefix/name (targetTemplate)>"
             );
         }
     }
