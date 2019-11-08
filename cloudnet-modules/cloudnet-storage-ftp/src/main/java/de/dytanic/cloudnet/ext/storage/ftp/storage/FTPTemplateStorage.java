@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -26,35 +25,24 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-// todo: use queue
-public final class FTPTemplateStorage implements ITemplateStorage {
+public final class FTPTemplateStorage extends GeneralFTPStorage {
 
     private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true);
 
-    private final FTPType ftpType;
-
-    private final String name;
     private final FTPClient ftpClient;
-    private final String baseDirectory;
 
     public FTPTemplateStorage(String name, FTPCredentials credentials, boolean ssl) {
-        this.ftpType = ssl ? FTPType.FTPS : FTPType.FTP;
+        super(name, credentials, ssl ? FTPType.FTPS : FTPType.FTP);
 
         this.ftpClient = ssl ? new FTPSClient() : new FTPClient();
-        this.name = name;
-
-        String baseDirectory = credentials.getBaseDirectory();
-
-        this.baseDirectory = baseDirectory.endsWith("/") ? baseDirectory.substring(0, baseDirectory.length() - 1) : baseDirectory;
-
-        this.connect(credentials);
     }
 
-    private void connect(FTPCredentials credentials) {
-        this.connect(credentials.getAddress().getHost(), credentials.getUsername(), credentials.getPassword(), credentials.getAddress().getPort());
+    @Override
+    public boolean connect() {
+        return this.connect(super.credentials.getAddress().getHost(), super.credentials.getUsername(), super.credentials.getPassword(), super.credentials.getAddress().getPort());
     }
 
-    private void connect(String host, String username, String password, int port) {
+    private boolean connect(String host, String username, String password, int port) {
         if (this.ftpClient.isConnected()) {
             try {
                 this.ftpClient.disconnect();
@@ -90,12 +78,28 @@ public final class FTPTemplateStorage implements ITemplateStorage {
                     .replace("%ftpType%", this.ftpType.toString())
             );
 
+            this.ftpClient.sendNoOp();
             this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-            this.ftpClient.changeWorkingDirectory(this.baseDirectory);
+            this.ftpClient.changeWorkingDirectory(super.baseDirectory);
 
+            return true;
         } catch (IOException exception) {
             exception.printStackTrace();
+            return true;
         }
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return this.ftpClient.isAvailable() && this.ftpClient.isConnected();
+    }
+
+    @Override
+    public void close() throws IOException {
+        CloudNetDriver.getInstance().getLogger().log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-disconnect")
+                .replace("%ftpType%", this.ftpType.toString())
+        );
+        this.ftpClient.disconnect();
     }
 
     @Override
@@ -437,7 +441,8 @@ public final class FTPTemplateStorage implements ITemplateStorage {
 
     @Override
     public String[] listFiles(ServiceTemplate template, String dir) throws IOException {
-        return this.ftpClient.listNames(dir);
+        String[] fileList = this.ftpClient.listNames(dir);
+        return fileList == null ? new String[0] : fileList;
     }
 
     @Override
@@ -482,20 +487,9 @@ public final class FTPTemplateStorage implements ITemplateStorage {
                 this.ftpClient.makeDirectory(currentPath);
             }
 
-            this.ftpClient.changeWorkingDirectory(this.baseDirectory);
+            this.ftpClient.changeWorkingDirectory(super.baseDirectory);
         }
 
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public void close() throws IOException {
-        CloudNetDriver.getInstance().getLogger().log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-disconnect"));
-        this.ftpClient.disconnect();
     }
 
 }

@@ -5,14 +5,14 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
+import de.dytanic.cloudnet.ext.storage.ftp.storage.queue.FTPQueueStorage;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 
 import java.util.Arrays;
 
 public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
 
-    private ITemplateStorage templateStorage;
+    private FTPQueueStorage templateStorage;
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void initConfiguration() {
@@ -43,9 +43,12 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
         }
 
         FTPCredentials credentials = getConfig().toInstanceOf(FTPCredentials.class);
-        this.templateStorage = ftpType.createNewTemplateStorage(getConfig().getString("storage"), credentials);
+        this.templateStorage = new FTPQueueStorage(ftpType.createNewTemplateStorage(getConfig().getString("storage"), credentials));
 
         super.registerTemplateStorage(getConfig().getString("storage"), this.templateStorage);
+
+        Thread ftpQueueThread = new Thread(this.templateStorage, "FTP queue worker");
+        ftpQueueThread.start();
     }
 
     @ModuleTask(event = ModuleLifeCycle.STOPPED)

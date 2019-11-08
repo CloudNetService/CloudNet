@@ -28,7 +28,7 @@ public class SFTPClient implements Closeable {
     private Session session;
     private ChannelSftp channel;
 
-    public void connect(String host, int port, String username, String password) {
+    public boolean connect(String host, int port, String username, String password) {
         ILogger logger = CloudNetDriver.getInstance().getLogger();
 
         try {
@@ -51,7 +51,7 @@ public class SFTPClient implements Closeable {
 
         } catch (JSchException exception) {
             exception.printStackTrace();
-            return;
+            return false;
         }
 
         try {
@@ -63,14 +63,13 @@ public class SFTPClient implements Closeable {
             this.channel = (ChannelSftp) this.session.openChannel("sftp");
             if (this.channel == null) {
                 this.close();
-
-                return;
+                return false;
             }
             this.channel.connect();
 
         } catch (JSchException exception) {
             exception.printStackTrace();
-            return;
+            return false;
         }
 
         if (this.isConnected()) {
@@ -80,7 +79,7 @@ public class SFTPClient implements Closeable {
             );
         }
 
-        this.isConnected();
+        return this.isConnected();
     }
 
     public boolean isConnected() {
@@ -100,7 +99,9 @@ public class SFTPClient implements Closeable {
                 this.session = null;
             }
 
-            CloudNetDriver.getInstance().getLogger().log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-disconnect"));
+            CloudNetDriver.getInstance().getLogger().log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-disconnect")
+                    .replace("%ftpType%", FTP_TYPE.toString())
+            );
         }
     }
 

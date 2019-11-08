@@ -80,4 +80,6 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
 
     Collection<ServiceTemplate> getTemplates();
 
+    @Override
+    void close() throws IOException;
 }

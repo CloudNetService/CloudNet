@@ -4,8 +4,8 @@ import com.jcraft.jsch.ChannelSftp;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
+import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import de.dytanic.cloudnet.ext.storage.ftp.client.SFTPClient;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -14,34 +14,39 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 
-// todo: add queue
-public class SFTPTemplateStorage implements ITemplateStorage {
+public class SFTPTemplateStorage extends GeneralFTPStorage {
 
-    private final String name;
     private final SFTPClient ftpClient;
-    private final String baseDirectory;
 
     public SFTPTemplateStorage(String name, FTPCredentials credentials) {
+        super(name, credentials, FTPType.SFTP);
+
         this.ftpClient = new SFTPClient();
-        this.name = name;
-
-        String baseDirectory = credentials.getBaseDirectory();
-
-        this.baseDirectory = baseDirectory.endsWith("/") ? baseDirectory.substring(0, baseDirectory.length() - 1) : baseDirectory;
-
-        this.connect(credentials);
     }
 
-    private void connect(FTPCredentials credentials) {
-        this.connect(credentials.getAddress().getHost(), credentials.getAddress().getPort(), credentials.getUsername(), credentials.getPassword());
+    @Override
+    public boolean connect() {
+        return this.connect(super.credentials.getAddress().getHost(), super.credentials.getAddress().getPort(), super.credentials.getUsername(), super.credentials.getPassword());
     }
 
-    private void connect(String host, int port, String username, String password) {
+    private boolean connect(String host, int port, String username, String password) {
         if (this.ftpClient.isConnected()) {
             this.ftpClient.close();
         }
 
-        this.ftpClient.connect(host, port, username, password);
+        return this.ftpClient.connect(host, port, username, password);
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return this.ftpClient.isConnected();
+    }
+
+    @Override
+    public void close() {
+        if (this.ftpClient != null) {
+            this.ftpClient.close();
+        }
     }
 
     @Override
@@ -186,7 +191,7 @@ public class SFTPTemplateStorage implements ITemplateStorage {
 
     @Override
     public Collection<ServiceTemplate> getTemplates() {
-        Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(this.baseDirectory);
+        Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(super.baseDirectory);
         if (entries == null)
             return Collections.emptyList();
 
@@ -195,7 +200,7 @@ public class SFTPTemplateStorage implements ITemplateStorage {
         for (ChannelSftp.LsEntry entry : entries) {
             String prefix = entry.getFilename();
 
-            Collection<ChannelSftp.LsEntry> prefixEntries = this.ftpClient.listFiles(this.baseDirectory + "/" + prefix);
+            Collection<ChannelSftp.LsEntry> prefixEntries = this.ftpClient.listFiles(super.baseDirectory + "/" + prefix);
             if (prefixEntries != null) {
                 for (ChannelSftp.LsEntry nameEntry : prefixEntries) {
                     String name = nameEntry.getFilename();
@@ -206,18 +211,6 @@ public class SFTPTemplateStorage implements ITemplateStorage {
         }
 
         return templates;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public void close() {
-        if (this.ftpClient != null) {
-            this.ftpClient.close();
-        }
     }
 
     private String getPath(ServiceTemplate template) {
