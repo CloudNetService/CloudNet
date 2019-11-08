@@ -57,7 +57,7 @@
         {
           "name": "1.8.8",
           "url": "https://papermc.io/ci/job/Paper/443/artifact/paperclip-1.8.8-fix.jar",
-          "minJavaVersion": 7,
+          "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
             "copy": "cache/patched.*\\.jar"
@@ -111,7 +111,7 @@
         {
           "name": "1.11.2",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "minJavaVersion": 7,
+          "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
             "copy": "spigot-.*\\.jar",
@@ -124,7 +124,7 @@
         {
           "name": "1.10.2",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "minJavaVersion": 7,
+          "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
             "copy": "spigot-.*\\.jar",
@@ -137,7 +137,7 @@
         {
           "name": "1.9.4",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "minJavaVersion": 7,
+          "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
             "copy": "spigot-.*\\.jar",
@@ -150,7 +150,7 @@
         {
           "name": "1.8.8",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "minJavaVersion": 7,
+          "minJavaVersion": 8,
           "maxJavaVersion": 8,
           "properties": {
             "copy": "spigot-.*\\.jar",
