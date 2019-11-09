@@ -15,6 +15,13 @@ class FTPTask<V, T extends Throwable> extends ListenableTask<V> {
         super.onFailure(throwable -> this.throwable = (T) throwable);
     }
 
+    FTPTask(Callable<V> callable, Runnable completeRunnable) {
+        super(callable);
+
+        super.onFailure(throwable -> this.throwable = (T) throwable);
+        super.onComplete(ignored -> completeRunnable.run());
+    }
+
     T getThrowable() {
         return throwable;
     }

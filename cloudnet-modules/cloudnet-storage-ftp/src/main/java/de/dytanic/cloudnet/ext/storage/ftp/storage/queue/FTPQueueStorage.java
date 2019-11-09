@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
+import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.storage.ftp.storage.GeneralFTPStorage;
 import de.dytanic.cloudnet.template.ITemplateStorage;
@@ -152,18 +154,62 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public OutputStream appendOutputStream(ServiceTemplate template, String path) throws IOException {
-        FTPTask<OutputStream, IOException> ftpTask = new FTPTask<>(() -> this.executingStorage.appendOutputStream(template, path));
+        Value<OutputStream> outputStreamValue = new Value<>();
+        ListenableTask<OutputStream> valueTask = new ListenableTask<>(outputStreamValue::getValue);
+
+        FTPTask<Void, IOException> ftpTask = new FTPTask<>(() -> {
+            OutputStreamCloseTask outputStreamCloseTask = new OutputStreamCloseTask(this.executingStorage.appendOutputStream(template, path));
+
+            outputStreamValue.setValue(outputStreamCloseTask);
+            valueTask.call();
+
+            outputStreamCloseTask.get();
+
+            return null;
+        }, valueTask::call);
         this.ftpTaskQueue.add(ftpTask);
 
-        return ftpTask.getOptionalValue(null).orElseThrow(ftpTask::getThrowable);
+        try {
+            OutputStream outputStream = valueTask.get();
+
+            if (ftpTask.getThrowable() != null) {
+                throw ftpTask.getThrowable();
+            }
+
+            return outputStream;
+        } catch (InterruptedException exception) {
+            return null;
+        }
     }
 
     @Override
     public OutputStream newOutputStream(ServiceTemplate template, String path) throws IOException {
-        FTPTask<OutputStream, IOException> ftpTask = new FTPTask<>(() -> this.executingStorage.newOutputStream(template, path));
+        Value<OutputStream> outputStreamValue = new Value<>();
+        ListenableTask<OutputStream> valueTask = new ListenableTask<>(outputStreamValue::getValue);
+
+        FTPTask<Void, IOException> ftpTask = new FTPTask<>(() -> {
+            OutputStreamCloseTask outputStreamCloseTask = new OutputStreamCloseTask(this.executingStorage.newOutputStream(template, path));
+
+            outputStreamValue.setValue(outputStreamCloseTask);
+            valueTask.call();
+
+            outputStreamCloseTask.get();
+
+            return null;
+        }, valueTask::call);
         this.ftpTaskQueue.add(ftpTask);
 
-        return ftpTask.getOptionalValue(null).orElseThrow(ftpTask::getThrowable);
+        try {
+            OutputStream outputStream = valueTask.get();
+
+            if (ftpTask.getThrowable() != null) {
+                throw ftpTask.getThrowable();
+            }
+
+            return outputStream;
+        } catch (InterruptedException exception) {
+            return null;
+        }
     }
 
     @Override
