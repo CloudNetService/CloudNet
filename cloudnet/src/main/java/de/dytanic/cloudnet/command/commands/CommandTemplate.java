@@ -106,6 +106,7 @@ public class CommandTemplate extends CommandDefault {
 
         } else if (args.length == 2 && args[0].equalsIgnoreCase("delete")) {
             this.handleWithTemplateAndStorage(sender, args[1], (template, storage) -> {
+
                 if (!storage.has(template)) {
                     sender.sendMessage(LanguageManager.getMessage("command-template-delete-template-not-found")
                             .replace("%template%", template.getTemplatePath())
@@ -113,11 +114,13 @@ public class CommandTemplate extends CommandDefault {
                     );
                     return;
                 }
+
                 storage.delete(template);
                 sender.sendMessage(LanguageManager.getMessage("command-template-delete-success")
                         .replace("%template%", template.getTemplatePath())
                         .replace("%storage%", template.getStorage())
                 );
+
             });
         } else if (args.length == 3 && args[0].equalsIgnoreCase("create")) {
             this.handleWithTemplateAndStorage(sender, args[1], (template, storage) -> {
@@ -157,24 +160,30 @@ public class CommandTemplate extends CommandDefault {
             });
         } else if (args.length == 3 && args[0].equalsIgnoreCase("copy")) {
             this.handleWithTemplateAndStorage(sender, args[1], (sourceTemplate, sourceStorage) -> {
+
                 this.handleWithTemplateAndStorage(sender, args[2], (targetTemplate, targetStorage) -> {
                     if (sourceTemplate.equals(targetTemplate)) {
                         sender.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
                         return;
                     }
+
                     sender.sendMessage(LanguageManager.getMessage("command-template-copy")
                             .replace("%sourceTemplate%", sourceTemplate.toString())
                             .replace("%targetTemplate%", targetTemplate.toString())
                     );
-                    byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
+
                     targetStorage.delete(targetTemplate);
                     targetStorage.create(targetTemplate);
+
+                    byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
+
                     targetStorage.deploy(zippedTemplate, targetTemplate);
                     sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
                             .replace("%sourceTemplate%", sourceTemplate.toString())
                             .replace("%targetTemplate%", targetTemplate.toString())
                     );
                 });
+
             });
         } else {
             sender.sendMessage(
@@ -194,6 +203,7 @@ public class CommandTemplate extends CommandDefault {
             sender.sendMessage(LanguageManager.getMessage("command-template-invalid-template"));
             return;
         }
+
         ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
         if (storage == null) {
             sender.sendMessage(LanguageManager.getMessage("command-template-storage-not-found").replace("%storage%", template.getStorage()));

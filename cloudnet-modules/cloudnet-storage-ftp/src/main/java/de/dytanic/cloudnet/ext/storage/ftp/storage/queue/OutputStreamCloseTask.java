@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
 
+import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 
@@ -16,12 +17,29 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     private boolean done;
 
     OutputStreamCloseTask(OutputStream outputStream) {
+        Validate.checkNotNull(outputStream, "OutputStream is null!");
+
         this.outputStream = outputStream;
     }
 
     @Override
     public void write(int b) throws IOException {
         this.outputStream.write(b);
+    }
+
+    @Override
+    public void write(byte[] b) throws IOException {
+        this.outputStream.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        this.outputStream.write(b, off, len);
+    }
+
+    @Override
+    public void flush() throws IOException {
+        this.outputStream.flush();
     }
 
     @Override

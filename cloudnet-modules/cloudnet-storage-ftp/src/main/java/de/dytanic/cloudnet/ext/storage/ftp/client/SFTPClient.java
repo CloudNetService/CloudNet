@@ -43,12 +43,6 @@ public class SFTPClient implements Closeable {
             this.session.setConfig("StrictHostKeyChecking", "no");
             this.session.connect(2500);
 
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-success")
-                    .replace("%host%", host)
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%ftpType%", FTP_TYPE.toString())
-            );
-
         } catch (JSchException exception) {
             exception.printStackTrace();
             return false;
@@ -66,17 +60,9 @@ public class SFTPClient implements Closeable {
                 return false;
             }
             this.channel.connect();
-
         } catch (JSchException exception) {
             exception.printStackTrace();
             return false;
-        }
-
-        if (this.isConnected()) {
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login-success")
-                    .replace("%user%", username)
-                    .replace("%ftpType%", FTP_TYPE.toString())
-            );
         }
 
         return this.isConnected();
@@ -98,10 +84,6 @@ public class SFTPClient implements Closeable {
                 this.session.disconnect();
                 this.session = null;
             }
-
-            CloudNetDriver.getInstance().getLogger().log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-disconnect")
-                    .replace("%ftpType%", FTP_TYPE.toString())
-            );
         }
     }
 

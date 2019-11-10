@@ -154,6 +154,10 @@ public class SFTPTemplateStorage extends GeneralFTPStorage {
     }
 
     @Override
+    public void completeDataTransfer() {
+    }
+
+    @Override
     public boolean createFile(ServiceTemplate template, String path) {
         return this.ftpClient.createFile(this.getPath(template) + "/" + path);
     }

@@ -118,11 +118,11 @@ public class ServiceVersionProvider {
             } else {
                 Files.createDirectories(workingDirectory);
 
-                if (!serviceVersion.isLatest()) {
+                if (serviceVersion.isLatest()) {
+                    installer.install(serviceVersion, workingDirectory, () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName)});
+                } else {
                     installer.install(serviceVersion, workingDirectory,
                             () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName), new FileOutputStream(versionCacheFile.toFile())});
-                } else {
-                    installer.install(serviceVersion, workingDirectory, () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName)});
                 }
             }
         } catch (Exception exception) {

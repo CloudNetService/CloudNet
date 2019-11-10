@@ -26,6 +26,8 @@ public abstract class GeneralFTPStorage implements ITemplateStorage {
 
     public abstract boolean isAvailable();
 
+    public abstract void completeDataTransfer();
+
     @Override
     public String getName() {
         return this.name;

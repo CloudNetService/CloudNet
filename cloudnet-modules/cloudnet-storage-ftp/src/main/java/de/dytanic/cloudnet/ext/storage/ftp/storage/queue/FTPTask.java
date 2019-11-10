@@ -5,25 +5,22 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
-class FTPTask<V, T extends Throwable> extends ListenableTask<V> {
+class FTPTask<V> extends ListenableTask<V> {
 
-    private T throwable;
+    private Exception exception;
 
     FTPTask(Callable<V> callable) {
         super(callable);
 
-        super.onFailure(throwable -> this.throwable = (T) throwable);
+        super.onFailure(throwable -> this.exception = (Exception) throwable);
     }
 
-    FTPTask(Callable<V> callable, Runnable completeRunnable) {
+    FTPTask(Callable<V> callable, Runnable finishedRunnable) {
         super(callable);
 
-        super.onFailure(throwable -> this.throwable = (T) throwable);
-        super.onComplete(ignored -> completeRunnable.run());
-    }
-
-    T getThrowable() {
-        return throwable;
+        super.onFailure(throwable -> this.exception = (Exception) throwable);
+        super.onComplete(ignored -> finishedRunnable.run());
+        super.onCancelled(ignored -> finishedRunnable.run());
     }
 
     Optional<V> getOptionalValue(V def) {
@@ -32,6 +29,10 @@ class FTPTask<V, T extends Throwable> extends ListenableTask<V> {
         } catch (InterruptedException ignored) {
             return Optional.ofNullable(def);
         }
+    }
+
+    Exception getException() {
+        return exception;
     }
 
 }

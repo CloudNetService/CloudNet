@@ -62,21 +62,12 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
                     .replace("%ftpType%", this.ftpType.toString())
             );
             this.ftpClient.connect(host, port);
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-success")
-                    .replace("%host%", host)
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%ftpType%", this.ftpType.toString())
-            );
 
             logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
                     .replace("%user%", username)
                     .replace("%ftpType%", this.ftpType.toString())
             );
             this.ftpClient.login(username, password);
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login-success")
-                    .replace("%user%", username)
-                    .replace("%ftpType%", this.ftpType.toString())
-            );
 
             this.ftpClient.sendNoOp();
             this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
@@ -85,7 +76,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
             return true;
         } catch (IOException exception) {
             exception.printStackTrace();
-            return true;
+            return false;
         }
     }
 
@@ -96,9 +87,6 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
     @Override
     public void close() throws IOException {
-        CloudNetDriver.getInstance().getLogger().log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-disconnect")
-                .replace("%ftpType%", this.ftpType.toString())
-        );
         this.ftpClient.disconnect();
     }
 
@@ -108,7 +96,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
         Validate.checkNotNull(target);
 
         if (this.has(target)) {
-            delete(target);
+            this.delete(target);
         }
 
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipInput);
@@ -118,7 +106,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 this.createDirectories(target.getTemplatePath());
 
-                this.deploy0(zipInputStream, zipEntry, target.getTemplatePath());
+                this.deployZip(zipInputStream, zipEntry, target.getTemplatePath());
                 zipInputStream.closeEntry();
             }
 
@@ -129,7 +117,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
         return false;
     }
 
-    private void deploy0(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
+    private void deployZip(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
         if (zipEntry.isDirectory()) {
             this.createDirectories(targetDirectory + "/" + zipEntry.getName());
         } else {
@@ -179,7 +167,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
             for (File file : files) {
                 if (file != null) {
-                    this.deploy0(file, target.getTemplatePath());
+                    this.deployFile(file, target.getTemplatePath());
                 }
             }
 
@@ -192,7 +180,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
     }
 
-    private void deploy0(File file, String targetDirectory) throws IOException {
+    private void deployFile(File file, String targetDirectory) throws IOException {
         if (file.isDirectory()) {
             this.createDirectories(targetDirectory + "/" + file.getName());
 
@@ -200,7 +188,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
             if (files != null) {
                 for (File entry : files) {
-                    deploy0(entry, targetDirectory + "/" + file.getName());
+                    this.deployFile(entry, targetDirectory + "/" + file.getName());
                 }
             }
 
@@ -227,7 +215,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
             if (files != null) {
                 for (FTPFile file : files) {
-                    this.copy0(template.getTemplatePath() + "/" + file.getName(), file, directory);
+                    this.copyFile(template.getTemplatePath() + "/" + file.getName(), file, directory);
                 }
             }
             return true;
@@ -237,7 +225,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
         return false;
     }
 
-    private void copy0(String filePath, FTPFile file, File directory) throws IOException {
+    private void copyFile(String filePath, FTPFile file, File directory) throws IOException {
         directory.mkdirs();
 
         if (file.isDirectory()) {
@@ -246,7 +234,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
             if (files != null) {
                 for (FTPFile entry : files) {
-                    this.copy0(filePath + "/" + entry.getName(), entry, new File(directory, file.getName()));
+                    this.copyFile(filePath + "/" + entry.getName(), entry, new File(directory, file.getName()));
                 }
             }
 
@@ -305,7 +293,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream, StandardCharsets.UTF_8)) {
 
-            this.toByteArray0(zipOutputStream, template.getTemplatePath(), "");
+            this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
 
             return byteArrayOutputStream.toByteArray();
 
@@ -316,14 +304,14 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
         return FileUtils.emptyZipByteArray();
     }
 
-    private void toByteArray0(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {
+    private void toByteArray(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {
         FTPFile[] files = this.ftpClient.listFiles(baseDirectory);
 
         if (files != null) {
             for (FTPFile file : files) {
                 if (file != null) {
                     if (file.isDirectory()) {
-                        toByteArray0(zipOutputStream, baseDirectory + "/" + file.getName(),
+                        toByteArray(zipOutputStream, baseDirectory + "/" + file.getName(),
                                 relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName());
                     } else if (file.isFile()) {
                         zipOutputStream.putNextEntry(new ZipEntry(relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName()));
@@ -401,6 +389,15 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
         this.createParent(fullPath);
         return this.ftpClient.storeFileStream(fullPath);
+    }
+
+    @Override
+    public void completeDataTransfer() {
+        try {
+            this.ftpClient.completePendingCommand();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
