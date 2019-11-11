@@ -18,4 +18,12 @@ public class PluginInfo extends BasicJsonDocPropertyable {
     public String getVersion() {
         return this.version;
     }
+    
+//  public String testIfWebinterfaceinstalled(){
+//      echo "Yea! You are Cool.";    
+//  } else {
+//      echo "You are uncool. :(";
+//  }
+    
 }
+
