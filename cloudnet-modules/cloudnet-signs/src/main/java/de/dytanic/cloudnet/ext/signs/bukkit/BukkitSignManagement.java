@@ -333,34 +333,38 @@ public final class BukkitSignManagement extends AbstractSignManagement {
             return ChatColor.translateAlternateColorCodes('&', input);
         }
 
-        input = input.replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName());
-        input = input.replace("%task_id%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()));
-        input = input.replace("%group%", sign.getTargetGroup());
-        input = input.replace("%name%", serviceInfoSnapshot.getServiceId().getName());
-        input = input.replace("%uuid%", serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0]);
-        input = input.replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-        input = input.replace("%environment%", String.valueOf(serviceInfoSnapshot.getServiceId().getEnvironment()));
-        input = input.replace("%life_cycle%", String.valueOf(serviceInfoSnapshot.getLifeCycle()));
-        input = input.replace("%runtime%", serviceInfoSnapshot.getConfiguration().getRuntime());
-        input = input.replace("%port%", String.valueOf(serviceInfoSnapshot.getConfiguration().getPort()));
-        input = input.replace("%cpu_usage%", CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()));
-        input = input.replace("%threads%", String.valueOf(serviceInfoSnapshot.getProcessSnapshot().getThreads().size()));
-        input = input.replace("%online%",
+        input = this.replace(input, "%task%", serviceInfoSnapshot.getServiceId().getTaskName());
+        input = this.replace(input, "%task_id%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()));
+        input = this.replace(input, "%group%", sign.getTargetGroup());
+        input = this.replace(input, "%name%", serviceInfoSnapshot.getServiceId().getName());
+        input = this.replace(input, "%uuid%", serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0]);
+        input = this.replace(input, "%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId());
+        input = this.replace(input, "%environment%", String.valueOf(serviceInfoSnapshot.getServiceId().getEnvironment()));
+        input = this.replace(input, "%life_cycle%", String.valueOf(serviceInfoSnapshot.getLifeCycle()));
+        input = this.replace(input, "%runtime%", serviceInfoSnapshot.getConfiguration().getRuntime());
+        input = this.replace(input, "%port%", String.valueOf(serviceInfoSnapshot.getConfiguration().getPort()));
+        input = this.replace(input, "%cpu_usage%", CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()));
+        input = this.replace(input, "%threads%", String.valueOf(serviceInfoSnapshot.getProcessSnapshot().getThreads().size()));
+        input = this.replace(input, "%online%",
                 (serviceInfoSnapshot.getProperties().contains("Online") && serviceInfoSnapshot.getProperties().getBoolean("Online")
                         ? "Online" : "Offline"
                 ));
-        input = input.replace("%online_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Online-Count")));
-        input = input.replace("%max_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Max-Players")));
-        input = input.replace("%motd%", serviceInfoSnapshot.getProperties().getString("Motd"));
-        input = input.replace("%extra%", serviceInfoSnapshot.getProperties().getString("Extra"));
-        input = input.replace("%state%", serviceInfoSnapshot.getProperties().getString("State"));
-        input = input.replace("%version%", serviceInfoSnapshot.getProperties().getString("Version"));
-        input = input.replace("%whitelist%", (serviceInfoSnapshot.getProperties().contains("Whitelist-Enabled") &&
+        input = this.replace(input, "%online_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Online-Count")));
+        input = this.replace(input, "%max_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Max-Players")));
+        input = this.replace(input, "%motd%", serviceInfoSnapshot.getProperties().getString("Motd"));
+        input = this.replace(input, "%extra%", serviceInfoSnapshot.getProperties().getString("Extra"));
+        input = this.replace(input, "%state%", serviceInfoSnapshot.getProperties().getString("State"));
+        input = this.replace(input, "%version%", serviceInfoSnapshot.getProperties().getString("Version"));
+        input = this.replace(input, "%whitelist%", (serviceInfoSnapshot.getProperties().contains("Whitelist-Enabled") &&
                 serviceInfoSnapshot.getProperties().getBoolean("Whitelist-Enabled")
                 ? "Enabled" : "Disabled"
         ));
 
         return ChatColor.translateAlternateColorCodes('&', input);
+    }
+
+    private String replace(String input, String key, String value) {
+        return key != null && value != null ? input.replace(key, value) : input;
     }
 
     private void changeBlock(Location location, String blockType, int subId) {
