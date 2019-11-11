@@ -16,9 +16,12 @@ import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public class FTPQueueStorage implements Runnable, ITemplateStorage {
+
+    private static final long EMPTY_QUEUE_TOLERANCE_MILLIS = TimeUnit.SECONDS.toMillis(3);
 
     private GeneralFTPStorage executingStorage;
 
@@ -32,13 +35,16 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     @Override
     public void run() {
 
-        while (!Thread.currentThread().isInterrupted() && this.opened) {
+        ITask nextFTPTask = null;
+        long disconnectTimeMillis = 0;
 
-            ITask nextFTPTask = this.ftpTaskQueue.poll();
+        while (!Thread.currentThread().isInterrupted() && this.opened && (nextFTPTask == null || nextFTPTask.isDone())) {
+
+            nextFTPTask = this.ftpTaskQueue.poll();
 
             try {
                 if (nextFTPTask == null) {
-                    if (this.executingStorage.isAvailable()) {
+                    if (System.currentTimeMillis() >= disconnectTimeMillis && this.executingStorage.isAvailable()) {
                         this.executingStorage.close();
                     }
                 } else {
@@ -47,9 +53,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
                     }
 
                     nextFTPTask.call();
-
-                    nextFTPTask.get();
-                    Thread.sleep(10);
+                    disconnectTimeMillis = System.currentTimeMillis() + EMPTY_QUEUE_TOLERANCE_MILLIS;
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
