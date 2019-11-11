@@ -862,7 +862,8 @@ public final class CloudNet extends CloudNetDriver {
                 new CommandMe(),
                 new CommandScreen(),
                 new CommandPermissions(),
-                new CommandCopy()
+                new CommandCopy(),
+                new CommandCredits()
         );
     }
 

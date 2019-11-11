@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.console.util.HeaderReader;
+import de.dytanic.cloudnet.util.CreditsUtil;
 
 import java.io.File;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ public final class Main {
 
         initLoggerAndConsole(console, logger);
         HeaderReader.readAndPrintHeader(console);
+        CreditsUtil.printContributorNames(null, logger);
 
         CloudNet cloudNet = new CloudNet(Arrays.asList(args), logger, console);
         cloudNet.start();
