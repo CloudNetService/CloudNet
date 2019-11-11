@@ -65,7 +65,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean deploy(byte[] zipInput, ServiceTemplate target) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.deploy(zipInput, target));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(zipInput, target));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -73,7 +73,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean deploy(File directory, ServiceTemplate target, Predicate<File> fileFilter) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -81,7 +81,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean deploy(Path[] paths, ServiceTemplate target) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.deploy(paths, target));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(paths, target));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -89,7 +89,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean deploy(File[] files, ServiceTemplate target) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.deploy(files, target));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(files, target));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -97,7 +97,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean copy(ServiceTemplate template, File directory) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.copy(template, directory));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -105,7 +105,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean copy(ServiceTemplate template, Path directory) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.copy(template, directory));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -113,7 +113,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean copy(ServiceTemplate template, File[] directories) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.copy(template, directories));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directories));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -121,7 +121,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean copy(ServiceTemplate template, Path[] directories) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.copy(template, directories));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directories));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -129,7 +129,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public byte[] toZipByteArray(ServiceTemplate template) {
-        ITask<byte[]> ftpTask = new ListenableTask<>(() -> this.executingStorage.toZipByteArray(template));
+        ITask<byte[]> ftpTask = new FTPTask<>(() -> this.executingStorage.toZipByteArray(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(new byte[0]);
@@ -137,7 +137,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean delete(ServiceTemplate template) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.delete(template));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.delete(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -145,7 +145,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean create(ServiceTemplate template) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.create(template));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.create(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -153,7 +153,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public boolean has(ServiceTemplate template) {
-        ITask<Boolean> ftpTask = new ListenableTask<>(() -> this.executingStorage.has(template));
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.has(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);

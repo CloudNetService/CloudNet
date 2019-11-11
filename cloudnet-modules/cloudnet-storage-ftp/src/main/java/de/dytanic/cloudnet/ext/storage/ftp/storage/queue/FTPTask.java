@@ -23,6 +23,15 @@ class FTPTask<V> extends ListenableTask<V> {
         super.onCancelled(ignored -> finishedRunnable.run());
     }
 
+    @Override
+    public V getDef(V def) {
+        try {
+            return super.get();
+        } catch (Exception exception) {
+            return def;
+        }
+    }
+
     Optional<V> getOptionalValue(V def) {
         try {
             return Optional.ofNullable(super.get());

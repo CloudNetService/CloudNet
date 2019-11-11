@@ -438,8 +438,8 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
     @Override
     public String[] listFiles(ServiceTemplate template, String dir) throws IOException {
-        String[] fileList = this.ftpClient.listNames(dir);
-        return fileList == null ? new String[0] : fileList;
+        FTPFile[] fileList = this.ftpClient.mlistDir(template.getTemplatePath() + "/" + dir);
+        return fileList == null ? new String[0] : Arrays.stream(fileList).map(FTPFile::getName).toArray(String[]::new);
     }
 
     @Override
