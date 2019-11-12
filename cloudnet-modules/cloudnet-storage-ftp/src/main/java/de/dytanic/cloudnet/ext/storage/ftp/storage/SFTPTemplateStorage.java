@@ -180,17 +180,26 @@ public class SFTPTemplateStorage extends GeneralFTPStorage {
 
     @Override
     public String[] listFiles(ServiceTemplate template, String dir) {
+        return this.listFiles(this.getPath(template) + "/" + dir).toArray(new String[0]);
+    }
+
+    private List<String> listFiles(String directory) {
         List<String> files = new ArrayList<>();
-        //todo this method is called by ServiceVersionProvider.installServiceVersion with non-existing directories
-        Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(this.getPath(template) + "/" + dir);
+        Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(directory);
         if (entries != null) {
-            for (ChannelSftp.LsEntry listFile : entries) {
-                if (listFile.getAttrs().isDir()) {
-                    files.addAll(Arrays.asList(this.listFiles(template, listFile.getLongname())));
+            for (ChannelSftp.LsEntry entry : entries) {
+                if (entry.getAttrs().isDir()) {
+                    if (directory.endsWith("/") || entry.getFilename().startsWith("/")) {
+                        files.addAll(this.listFiles(directory + entry.getFilename()));
+                    } else {
+                        files.addAll(this.listFiles(directory + "/" + entry.getFilename()));
+                    }
+                } else {
+                    files.add(entry.getFilename());
                 }
             }
         }
-        return files.toArray(new String[0]);
+        return files;
     }
 
     @Override
