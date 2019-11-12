@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.common.concurrent;
 /**
  * A listener for all tasks, that should handle the process
  *
- * @param <T> the type of the listener, which should accept if the operation from the ITask<V> instance is complete
+ * @param <T> the type of the listener, which should accept if the operation from the ITask instance is complete
  * @see ITask
  */
 public interface ITaskListener<T> {

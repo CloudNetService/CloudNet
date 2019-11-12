@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 /**
  * The ProgressBar represents a progressing situation of a program part.
  * For example
- * <p>
+ * <pre>
  * CAProgressBar progressBar = new CAProgressBar(
  * '█',
  * "[%percent%%] ",
@@ -19,16 +19,17 @@ import java.text.SimpleDateFormat;
  * 2048,
  * false
  * );
- * <p>
  * TaskScheduler.runtimeScheduler().schedule(new Runnable() {
  *
- * @Override public void run()
+ * &#64;Override public void run()
  * {
- * if (progressBar.getProgressValue() < progressBar.getTargetGoal())
+ * if (progressBar.getProgressValue() &lt; progressBar.getTargetGoal())
  * progressBar.setProgressValue(progressBar.getProgressValue() + 1);
  * }
  * }, 5, -1);
  * consoleProvider.invokeConsoleAnimation(progressBar);
+ *
+ * </pre>
  */
 @ToString
 @EqualsAndHashCode
