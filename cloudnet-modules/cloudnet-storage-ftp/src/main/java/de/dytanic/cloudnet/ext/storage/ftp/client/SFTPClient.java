@@ -288,6 +288,7 @@ public class SFTPClient implements Closeable {
                         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                             String path = remotePath + "/" + localPath.relativize(dir).toString();
                             path = path.replace("\\", "/");
+
                             createDirectories(path);
                             return FileVisitResult.CONTINUE;
                         }
@@ -295,13 +296,16 @@ public class SFTPClient implements Closeable {
                         @Override
                         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                             if (fileFilter == null || fileFilter.test(file)) {
+
                                 String path = remotePath + "/" + localPath.relativize(file).toString();
                                 path = path.replace("/..", "").replace("\\", "/");
+
                                 try {
                                     SFTPClient.this.channel.put(file.toString(), path);
                                 } catch (SftpException exception) {
                                     exception.printStackTrace();
                                 }
+
                             }
                             return FileVisitResult.CONTINUE;
                         }

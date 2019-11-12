@@ -159,32 +159,29 @@ public class CommandTemplate extends CommandDefault {
                 }
             });
         } else if (args.length == 3 && args[0].equalsIgnoreCase("copy")) {
-            this.handleWithTemplateAndStorage(sender, args[1], (sourceTemplate, sourceStorage) -> {
+            this.handleWithTemplateAndStorage(sender, args[1], (sourceTemplate, sourceStorage) ->
+                    this.handleWithTemplateAndStorage(sender, args[2], (targetTemplate, targetStorage) -> {
+                        if (sourceTemplate.equals(targetTemplate)) {
+                            sender.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
+                            return;
+                        }
 
-                this.handleWithTemplateAndStorage(sender, args[2], (targetTemplate, targetStorage) -> {
-                    if (sourceTemplate.equals(targetTemplate)) {
-                        sender.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
-                        return;
-                    }
+                        sender.sendMessage(LanguageManager.getMessage("command-template-copy")
+                                .replace("%sourceTemplate%", sourceTemplate.toString())
+                                .replace("%targetTemplate%", targetTemplate.toString())
+                        );
 
-                    sender.sendMessage(LanguageManager.getMessage("command-template-copy")
-                            .replace("%sourceTemplate%", sourceTemplate.toString())
-                            .replace("%targetTemplate%", targetTemplate.toString())
-                    );
+                        targetStorage.delete(targetTemplate);
+                        targetStorage.create(targetTemplate);
 
-                    targetStorage.delete(targetTemplate);
-                    targetStorage.create(targetTemplate);
+                        byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
 
-                    byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
-
-                    targetStorage.deploy(zippedTemplate, targetTemplate);
-                    sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
-                            .replace("%sourceTemplate%", sourceTemplate.toString())
-                            .replace("%targetTemplate%", targetTemplate.toString())
-                    );
-                });
-
-            });
+                        targetStorage.deploy(zippedTemplate, targetTemplate);
+                        sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
+                                .replace("%sourceTemplate%", sourceTemplate.toString())
+                                .replace("%targetTemplate%", targetTemplate.toString())
+                        );
+                    }));
         } else {
             sender.sendMessage(
                     "template install <[storage:]prefix/name> <versionType> <version> | example: template install Lobby/default paperspigot 1.13.2",

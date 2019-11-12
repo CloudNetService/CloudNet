@@ -639,11 +639,13 @@ final class JVMCloudService implements ICloudService {
             CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%task%", this.serviceId.getTaskName())
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
-                    .replace("%id%", this.serviceId.getUniqueId().toString())
-                    .replace("%time%", String.valueOf(SERVICE_ERROR_RESTART_DELAY)));
+                    .replace("%id%", this.serviceId.getUniqueId().toString()));
 
-            ServiceTask serviceTask = this.getCloudServiceManager().getServiceTask(this.getServiceId().getTaskName());
-            serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);
+            ServiceTask serviceTask = this.getCloudServiceManager().getServiceTask(this.serviceId.getTaskName());
+
+            if (serviceTask != null) {
+                serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);
+            }
 
             this.stop();
             return;

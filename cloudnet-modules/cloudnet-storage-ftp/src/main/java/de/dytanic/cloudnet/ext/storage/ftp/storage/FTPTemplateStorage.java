@@ -99,14 +99,14 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
             this.delete(target);
         }
 
+        this.create(target);
+
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipInput);
              ZipInputStream zipInputStream = new ZipInputStream(byteArrayInputStream, StandardCharsets.UTF_8)) {
 
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                this.createDirectories(target.getTemplatePath());
-
-                this.deployZip(zipInputStream, zipEntry, target.getTemplatePath());
+                this.deployZipEntry(zipInputStream, zipEntry, target.getTemplatePath());
                 zipInputStream.closeEntry();
             }
 
@@ -117,11 +117,14 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
         return false;
     }
 
-    private void deployZip(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
+    private void deployZipEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
+        String entryPath = (targetDirectory + "/" + zipEntry.getName()).replace(File.separatorChar, '/');
+
         if (zipEntry.isDirectory()) {
-            this.createDirectories(targetDirectory + "/" + zipEntry.getName());
+            this.createDirectories(entryPath);
         } else {
-            this.ftpClient.storeFile(targetDirectory + "/" + zipEntry.getName(), zipInputStream);
+            this.createParent(entryPath);
+            this.ftpClient.storeFile(entryPath, zipInputStream);
         }
     }
 
@@ -136,7 +139,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
             boolean value = false;
 
             if (files != null) {
-                value = this.deploy(files, target);
+                value = this.deploy(files, target, fileFilter);
             }
 
             return value;
@@ -155,6 +158,10 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
     @Override
     public boolean deploy(File[] files, ServiceTemplate target) {
+        return this.deploy(files, target, null);
+    }
+
+    private boolean deploy(File[] files, ServiceTemplate target, Predicate<File> fileFilter) {
         Validate.checkNotNull(files);
         Validate.checkNotNull(target);
 
@@ -166,7 +173,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
             this.createDirectories(target.getTemplatePath());
 
             for (File file : files) {
-                if (file != null) {
+                if (file != null && (fileFilter == null || fileFilter.test(file))) {
                     this.deployFile(file, target.getTemplatePath());
                 }
             }
@@ -177,7 +184,6 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
             exception.printStackTrace();
             return false;
         }
-
     }
 
     private void deployFile(File file, String targetDirectory) throws IOException {
@@ -311,7 +317,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
             for (FTPFile file : files) {
                 if (file != null) {
                     if (file.isDirectory()) {
-                        toByteArray(zipOutputStream, baseDirectory + "/" + file.getName(),
+                        this.toByteArray(zipOutputStream, baseDirectory + "/" + file.getName(),
                                 relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName());
                     } else if (file.isFile()) {
                         zipOutputStream.putNextEntry(new ZipEntry(relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName()));
@@ -471,9 +477,13 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
         return templates;
     }
 
-
     private void createDirectories(String path) throws IOException {
         StringBuilder pathBuilder = new StringBuilder();
+
+        if (this.ftpClient.changeWorkingDirectory(path)) {
+            this.ftpClient.changeWorkingDirectory(super.baseDirectory);
+            return;
+        }
 
         for (String pathSegment : path.split("/")) {
             pathBuilder.append(pathSegment).append('/');
