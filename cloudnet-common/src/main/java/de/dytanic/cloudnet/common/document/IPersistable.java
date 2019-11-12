@@ -20,8 +20,8 @@ public interface IPersistable {
         if (parent != null && !Files.exists(parent)) {
             try {
                 Files.createDirectories(parent);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         }
         try (OutputStream outputStream = new FileOutputStream(path.toFile())) {

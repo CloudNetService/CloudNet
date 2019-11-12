@@ -20,11 +20,12 @@ public class DefaultInstallation {
         this.defaultTaskInstallations.put("nothing", () -> {});
         this.defaultTaskInstallations.put("recommended", this::installRecommended);
         this.defaultTaskInstallations.put("bedrock", this::installBedrock);
-        this.defaultTaskInstallations.put("java-bungee-1.8.8", () -> this.installJavaBungee("latest", "1.8.8"));
-        this.defaultTaskInstallations.put("java-bungee-1.13.2", () -> this.installJavaBungee("latest", "1.13.2"));
-        this.defaultTaskInstallations.put("java-bungee-1.14.4", () -> this.installJavaBungee("latest", "1.14.4"));
-        this.defaultTaskInstallations.put("java-velocity-1.8.8", () -> this.installJavaVelocity("latest", "1.8.8"));
-        this.defaultTaskInstallations.put("java-velocity-1.13.2", () -> this.installJavaVelocity("latest", "1.13.2"));
+        this.defaultTaskInstallations.put("java-bungee-1.12.2", () -> this.installJavaBungee("1.12.2"));
+        this.defaultTaskInstallations.put("java-bungee-1.13.2", () -> this.installJavaBungee("1.13.2"));
+        this.defaultTaskInstallations.put("java-bungee-1.14.4", () -> this.installJavaBungee("1.14.4"));
+        this.defaultTaskInstallations.put("java-velocity-1.12.2", () -> this.installJavaVelocity("1.12.2"));
+        this.defaultTaskInstallations.put("java-velocity-1.13.2", () -> this.installJavaVelocity("1.13.2"));
+        this.defaultTaskInstallations.put("java-velocity-1.14.4", () -> this.installJavaVelocity("1.14.4"));
     }
 
     public void initDefaultConfigDefaultHostAddress() throws Exception {
@@ -141,19 +142,19 @@ public class DefaultInstallation {
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
     }
 
-    private void installJavaBungee(String bungeeVersion, String spigotVersion) {
+    private void installJavaBungee(String spigotVersion) {
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "t install Proxy/default bungeecord " + bungeeVersion);
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "t install Proxy/default bungeecord latest");
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "t install Lobby/default paperspigot " + spigotVersion);
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");
     }
 
-    private void installJavaVelocity(String velocityVersion, String spigotVersion) {
+    private void installJavaVelocity(String spigotVersion) {
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy velocity");
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "t install Proxy/default velocity " + velocityVersion);
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "t install Proxy/default velocity latest");
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "t install Lobby/default paperspigot " + spigotVersion);
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Lobby set minServiceCount 1");

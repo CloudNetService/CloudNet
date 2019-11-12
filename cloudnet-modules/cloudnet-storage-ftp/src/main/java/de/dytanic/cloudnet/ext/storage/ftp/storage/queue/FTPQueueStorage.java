@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 
 public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
-    private static final long EMPTY_QUEUE_TOLERANCE_MILLIS = TimeUnit.SECONDS.toMillis(3);
+    private static final long EMPTY_QUEUE_TOLERANCE_MILLIS = TimeUnit.SECONDS.toMillis(5);
 
     private GeneralFTPStorage executingStorage;
 

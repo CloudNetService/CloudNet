@@ -42,12 +42,14 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
             throw new IllegalArgumentException("Invalid ftp type! Available types: " + Arrays.toString(FTPType.values()));
         }
 
-        FTPCredentials credentials = getConfig().toInstanceOf(FTPCredentials.class);
-        this.templateStorage = new FTPQueueStorage(ftpType.createNewTemplateStorage(getConfig().getString("storage"), credentials));
+        String storageName = super.getConfig().getString("storage");
+        FTPCredentials credentials = super.getConfig().toInstanceOf(FTPCredentials.class);
 
-        super.registerTemplateStorage(getConfig().getString("storage"), this.templateStorage);
+        this.templateStorage = new FTPQueueStorage(ftpType.createNewTemplateStorage(storageName, credentials));
+        super.registerTemplateStorage(storageName, this.templateStorage);
 
         Thread ftpQueueThread = new Thread(this.templateStorage, "FTP queue worker");
+        ftpQueueThread.setDaemon(true);
         ftpQueueThread.start();
     }
 
