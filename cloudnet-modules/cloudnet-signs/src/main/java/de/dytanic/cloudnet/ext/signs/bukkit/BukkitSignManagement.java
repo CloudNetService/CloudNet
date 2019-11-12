@@ -364,7 +364,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     private String replace(String input, String key, String value) {
-        return key != null && value != null ? input.replace(key, value) : input;
+        return value != null ? input.replace(key, value) : input.replace(key, "");
     }
 
     private void changeBlock(Location location, String blockType, int subId) {
