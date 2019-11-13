@@ -26,3 +26,6 @@ var cloudnet.messages.language english
 #var cloudnet.default.tasks.skip true
 #var cloudnet.default.permissions.skip true
 #var cloudnet.default.tasks.installation java-bungee-1.8.8
+#var cloudnet.credits.maxTopListSize 3
+#var cloudnet.credits.repository.owner CloudNetService
+#var cloudnet.credits.repository.name CloudNet-v3

@@ -47,17 +47,9 @@ public class CreditsUtil {
     }
 
     private static void getDataFromFile(BiConsumer<Pair<String, String>, Integer> acceptor) {
-        Properties properties = new Properties();
-        try (InputStream inputStream = CreditsUtil.class.getClassLoader().getResourceAsStream("files/gitHubContributor.properties")) {
-            if (inputStream != null) {
-                properties.load(inputStream);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int topListSize = Integer.parseInt(properties.getProperty("topListSize", "3"));
-        String repoOwner = properties.getProperty("repoOwner", "CloudNetService");
-        String repo = properties.getProperty("repo", "CloudNet-v3");
+        int topListSize = Integer.getInteger("cloudnet.credits.maxTopListSize", 3);
+        String repoOwner = System.getProperty("cloudnet.credits.repository.owner", "CloudNetService");
+        String repo = System.getProperty("cloudnet.credits.repository.name", "CloudNet-v3");
 
         acceptor.accept(new Pair<>(repoOwner, repo), topListSize);
     }
@@ -104,8 +96,8 @@ public class CreditsUtil {
 
     public static void printContributorImages(ICommandSender sender, ILogger logger, int topListSize, String repoOwner, String repo) throws IOException {
         getTopContributors(repoOwner, repo, topListSize, (contributors, topContributors) -> {
+            displayMessage(sender, logger, LanguageManager.getMessage("cloudnet-creator-display-name").replace("%name%", "Dytanic"));
             try {
-                displayCreator(sender, logger);
                 displayContributors(sender, logger, topContributors);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -117,15 +109,6 @@ public class CreditsUtil {
                             .replace("%contributions%", String.valueOf(contributors.stream().mapToLong(GitHubContributor::getContributions).sum()))
             );
         });
-    }
-
-    private static void displayCreator(ICommandSender sender, ILogger logger) throws IOException {
-        displayMessage(sender, logger, LanguageManager.getMessage("cloudnet-creator-display-image"));
-
-        List<String[]> images = new ArrayList<>(1);
-        addImageToList(images, "Dytanic", CreditsUtil.class.getClassLoader().getResource("files/Dytanic.png"));
-
-        displayImages(images, sender, logger);
     }
 
     private static void displayContributors(ICommandSender sender, ILogger logger, Collection<GitHubContributor> topContributors) throws IOException {
