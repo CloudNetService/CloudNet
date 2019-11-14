@@ -13,14 +13,18 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.ext.smart.listener.CloudNetTickListener;
 import de.dytanic.cloudnet.ext.smart.listener.CloudServiceListener;
 import de.dytanic.cloudnet.ext.smart.listener.TaskDefaultSmartConfigListener;
+import de.dytanic.cloudnet.ext.smart.template.TemplateInstaller;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     public static final String SMART_CONFIG_ENTRY = "smartConfig";
+
+    private static final Random RANDOM = new Random();
 
     private static CloudNetSmartModule instance;
 
@@ -100,46 +104,50 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public void updateAsSmartService(ServiceConfiguration configuration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
-        configuration.setTemplates(this.useSmartConfig(configuration.getTemplates(), smartTask));
+        configuration.setTemplates(this.applyTemplateInstaller(serviceTask, smartTask.getTemplateInstaller()));
         configuration.getProcessConfig().setMaxHeapMemorySize(
-                this.useSmartConfig(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), configuration, serviceTask, smartTask)
+                this.applyDynamicMemory(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), configuration, serviceTask, smartTask)
         );
     }
 
-    private ServiceTemplate[] useSmartConfig(ServiceTemplate[] rawTemplates, SmartServiceTaskConfig smartTask) {
-        List<ServiceTemplate> templates = Arrays.asList(rawTemplates);
-        List<ServiceTemplate> outTemplates = new ArrayList<>();
-        switch (smartTask.getTemplateInstaller()) {
+    private ServiceTemplate[] applyTemplateInstaller(ServiceTask serviceTask, TemplateInstaller templateInstaller) {
+        List<ServiceTemplate> taskTemplates = new ArrayList<>(serviceTask.getTemplates());
+
+        List<ServiceTemplate> outTemplates = super.getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream()
+                .filter(groupConfiguration -> serviceTask.getGroups().contains(groupConfiguration.getName()))
+                .flatMap(groupConfiguration -> groupConfiguration.getTemplates().stream())
+                .collect(Collectors.toList());
+
+        switch (templateInstaller) {
             case INSTALL_ALL: {
-                outTemplates.addAll(templates);
+                outTemplates.addAll(taskTemplates);
                 break;
             }
             case INSTALL_RANDOM: {
-                if (!templates.isEmpty()) {
-                    Random random = new Random();
-
-                    int size = random.nextInt(templates.size());
+                if (!taskTemplates.isEmpty()) {
+                    int size = RANDOM.nextInt(taskTemplates.size());
 
                     for (int i = 0; i < size; ++i) {
-                        ServiceTemplate item = templates.get(random.nextInt(templates.size()));
-                        templates.remove(item);
+                        ServiceTemplate item = taskTemplates.get(RANDOM.nextInt(taskTemplates.size()));
+                        taskTemplates.remove(item);
                         outTemplates.add(item);
                     }
                 }
                 break;
             }
             case INSTALL_RANDOM_ONCE: {
-                if (!templates.isEmpty()) {
-                    ServiceTemplate item = templates.get(new Random().nextInt(templates.size()));
+                if (!taskTemplates.isEmpty()) {
+                    ServiceTemplate item = taskTemplates.get(RANDOM.nextInt(taskTemplates.size()));
                     outTemplates.add(item);
                 }
                 break;
             }
         }
+
         return outTemplates.toArray(new ServiceTemplate[0]);
     }
 
-    private int useSmartConfig(int maxMemory, ServiceConfiguration serviceConfiguration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
+    private int applyDynamicMemory(int maxMemory, ServiceConfiguration serviceConfiguration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
         if (smartTask.isDynamicMemoryAllocation()) {
             int percent = getPercentOfFreeMemory(serviceConfiguration.getServiceId().getNodeUniqueId(), serviceTask);
 
@@ -149,6 +157,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                 maxMemory = maxMemory + ((percent * smartTask.getDynamicMemoryAllocationRange()) / 100);
             }
         }
+
         return maxMemory;
     }
 
