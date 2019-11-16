@@ -9,9 +9,15 @@
   "main": "de.dytanic.cloudnet.ext.storage.ftp.CloudNetStorageFTPModule",
   "dependencies": [
     {
+      "group": "com.jcraft",
+      "name": "jsch",
+      "version": "0.1.53",
+      "repo": "maven"
+    },
+    {
       "group": "commons-net",
       "name": "commons-net",
-      "version": "3.3",
+      "version": "3.6",
       "repo": "maven"
     }
   ]
