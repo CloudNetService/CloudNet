@@ -52,15 +52,24 @@ public class VaultPermissionImplementation extends Permission {
     public boolean playerAdd(String world, String player, String permission) {
         Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
-        return optionalPermissionUser.map(permissionUser -> permissionUser.addPermission(permission)).orElse(false);
+        return optionalPermissionUser.map(permissionUser -> {
+            boolean success = permissionUser.addPermission(permission);
+            this.permissionManagement.updateUser(permissionUser);
+
+            return success;
+        }).orElse(false);
     }
 
     @Override
     public boolean playerRemove(String world, String player, String permission) {
         Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
-        return optionalPermissionUser.map(permissionUser -> permissionUser.removePermission(permission)).orElse(false);
+        return optionalPermissionUser.map(permissionUser -> {
+            boolean success = permissionUser.removePermission(permission);
+            this.permissionManagement.updateUser(permissionUser);
 
+            return success;
+        }).orElse(false);
     }
 
     @Override
@@ -74,14 +83,24 @@ public class VaultPermissionImplementation extends Permission {
     public boolean groupAdd(String world, String group, String permission) {
         Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
 
-        return optionalPermissionGroup.map(permissionGroup -> permissionGroup.addPermission(permission)).orElse(false);
+        return optionalPermissionGroup.map(permissionGroup -> {
+            boolean success = permissionGroup.addPermission(permission);
+            this.permissionManagement.updateGroup(permissionGroup);
+
+            return success;
+        }).orElse(false);
     }
 
     @Override
     public boolean groupRemove(String world, String group, String permission) {
         Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
 
-        return optionalPermissionGroup.map(permissionGroup -> permissionGroup.removePermission(permission)).orElse(false);
+        return optionalPermissionGroup.map(permissionGroup -> {
+            boolean success = permissionGroup.removePermission(permission);
+            this.permissionManagement.updateGroup(permissionGroup);
+
+            return success;
+        }).orElse(false);
     }
 
     @Override
@@ -95,14 +114,32 @@ public class VaultPermissionImplementation extends Permission {
     public boolean playerAddGroup(String world, String player, String group) {
         Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
-        return optionalPermissionUser.isPresent() && optionalPermissionUser.get().addGroup(group) != null;
+        if (optionalPermissionUser.isPresent()) {
+            IPermissionUser permissionUser = optionalPermissionUser.get();
+
+            permissionUser.addGroup(group);
+            this.permissionManagement.updateUser(permissionUser);
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public boolean playerRemoveGroup(String world, String player, String group) {
         Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
-        return optionalPermissionUser.isPresent() && optionalPermissionUser.get().removeGroup(group) != null;
+        if (optionalPermissionUser.isPresent()) {
+            IPermissionUser permissionUser = optionalPermissionUser.get();
+
+            permissionUser.removeGroup(group);
+            this.permissionManagement.updateUser(permissionUser);
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override

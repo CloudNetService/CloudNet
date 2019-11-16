@@ -24,6 +24,10 @@ public class VaultChatImplementation extends Chat {
         return optionalPermissionUser.map(permissionUser -> this.permissionManagement.getHighestPermissionGroup(permissionUser).getName());
     }
 
+    private Optional<IPermissionUser> permissionUserByName(String name) {
+        return this.permissionManagement.getUsers(name).stream().findFirst();
+    }
+
     private Optional<IPermissionGroup> permissionGroupByName(String name) {
         return Optional.ofNullable(this.permissionManagement.getGroup(name));
     }
@@ -77,7 +81,10 @@ public class VaultChatImplementation extends Chat {
     public void setGroupPrefix(String world, String group, String prefix) {
         Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
 
-        optionalPermissionGroup.ifPresent(permissionGroup -> permissionGroup.setDisplay(prefix));
+        optionalPermissionGroup.ifPresent(permissionGroup -> {
+            permissionGroup.setDisplay(prefix);
+            this.permissionManagement.updateGroup(permissionGroup);
+        });
     }
 
     @Override
@@ -91,87 +98,146 @@ public class VaultChatImplementation extends Chat {
     public void setGroupSuffix(String world, String group, String suffix) {
         Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
 
-        optionalPermissionGroup.ifPresent(permissionGroup -> permissionGroup.setSuffix(suffix));
+        optionalPermissionGroup.ifPresent(permissionGroup -> {
+            permissionGroup.setSuffix(suffix);
+            this.permissionManagement.updateGroup(permissionGroup);
+        });
     }
 
     @Override
     public int getPlayerInfoInteger(String world, String player, String node, int defaultValue) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getInt(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setPlayerInfoInteger(String world, String player, String node, int value) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        optionalPermissionUser.ifPresent(permissionUser -> {
+            permissionUser.getProperties().append(node, value);
+            this.permissionManagement.updateUser(permissionUser);
+        });
     }
 
     @Override
     public int getGroupInfoInteger(String world, String group, String node, int defaultValue) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        return optionalPermissionGroup.map(permissionGroup -> permissionGroup.getProperties().getInt(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setGroupInfoInteger(String world, String group, String node, int value) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        optionalPermissionGroup.ifPresent(permissionGroup -> {
+            permissionGroup.getProperties().append(node, value);
+            this.permissionManagement.updateGroup(permissionGroup);
+        });
     }
 
     @Override
     public double getPlayerInfoDouble(String world, String player, String node, double defaultValue) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getDouble(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setPlayerInfoDouble(String world, String player, String node, double value) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        optionalPermissionUser.ifPresent(permissionUser -> {
+            permissionUser.getProperties().append(node, value);
+            this.permissionManagement.updateUser(permissionUser);
+        });
     }
 
     @Override
     public double getGroupInfoDouble(String world, String group, String node, double defaultValue) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        return optionalPermissionGroup.map(permissionGroup -> permissionGroup.getProperties().getDouble(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setGroupInfoDouble(String world, String group, String node, double value) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        optionalPermissionGroup.ifPresent(permissionGroup -> {
+            permissionGroup.getProperties().append(node, value);
+            this.permissionManagement.updateGroup(permissionGroup);
+        });
     }
 
     @Override
     public boolean getPlayerInfoBoolean(String world, String player, String node, boolean defaultValue) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getBoolean(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setPlayerInfoBoolean(String world, String player, String node, boolean value) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        optionalPermissionUser.ifPresent(permissionUser -> {
+            permissionUser.getProperties().append(node, value);
+            this.permissionManagement.updateUser(permissionUser);
+        });
     }
 
     @Override
     public boolean getGroupInfoBoolean(String world, String group, String node, boolean defaultValue) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        return optionalPermissionGroup.map(permissionGroup -> permissionGroup.getProperties().getBoolean(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setGroupInfoBoolean(String world, String group, String node, boolean value) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        optionalPermissionGroup.ifPresent(permissionGroup -> {
+            permissionGroup.getProperties().append(node, value);
+            this.permissionManagement.updateGroup(permissionGroup);
+        });
     }
 
     @Override
     public String getPlayerInfoString(String world, String player, String node, String defaultValue) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getString(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setPlayerInfoString(String world, String player, String node, String value) {
-        throw new UnsupportedOperationException("Player info not supported by " + this.getName());
+        Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+
+        optionalPermissionUser.ifPresent(permissionUser -> {
+            permissionUser.getProperties().append(node, value);
+            this.permissionManagement.updateUser(permissionUser);
+        });
     }
 
     @Override
     public String getGroupInfoString(String world, String group, String node, String defaultValue) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        return optionalPermissionGroup.map(permissionGroup -> permissionGroup.getProperties().getString(node, defaultValue)).orElse(defaultValue);
     }
 
     @Override
     public void setGroupInfoString(String world, String group, String node, String value) {
-        throw new UnsupportedOperationException("Group info not supported by " + this.getName());
+        Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+
+        optionalPermissionGroup.ifPresent(permissionGroup -> {
+            permissionGroup.getProperties().append(node, value);
+            this.permissionManagement.updateGroup(permissionGroup);
+        });
     }
 
 }
