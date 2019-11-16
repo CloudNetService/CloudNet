@@ -6,8 +6,8 @@ import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -57,12 +57,14 @@ public final class BungeePlayerListener implements Listener {
 
     @EventHandler
     public void handle(ServerKickEvent event) {
-        Server previousServer = event.getPlayer().getServer();
-        if (previousServer == null || BungeeCloudNetHelper.isFallbackServer(previousServer.getInfo())) {
+        ServerInfo kickFrom = event.getKickedFrom();
+
+        if (kickFrom == null || BungeeCloudNetHelper.isFallbackServer(kickFrom)) {
             event.getPlayer().disconnect(event.getKickReasonComponent());
             event.setCancelled(true);
             return;
         }
+
         String server = BungeeCloudNetHelper.filterServiceForProxiedPlayer(event.getPlayer(), event.getPlayer().getServer() != null ? event.getPlayer().getServer().getInfo().getName() : null);
 
         if (server != null && ProxyServer.getInstance().getServers().containsKey(server)) {

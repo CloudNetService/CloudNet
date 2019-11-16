@@ -46,7 +46,7 @@ public final class VelocityPlayerListener {
                             serviceInfoSnapshot.getServiceId().getName()));
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(100);
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
@@ -66,13 +66,12 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(KickedFromServerEvent event) {
-        String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
-
         if (VelocityCloudNetHelper.isFallbackServer(event.getServer().getServerInfo())) {
             event.getPlayer().disconnect(event.getOriginalReason().orElseGet(() -> TextComponent.of("§cNo reason given")));
             return;
         }
 
+        String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
         event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
 
         if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent()) {

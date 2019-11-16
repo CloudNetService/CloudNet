@@ -33,18 +33,7 @@ public class CommandCopy extends CommandDefault {
             ServiceTemplate targetTemplate = null;
 
             if (properties.containsKey("template")) {
-                String[] base = properties.get("template").split(":");
-
-                if (base.length == 2) {
-                    String[] path = base[1].split("/");
-                    if (path.length == 2) {
-                        String storage = base[0];
-                        String prefix = path[0];
-                        String name = path[1];
-
-                        targetTemplate = new ServiceTemplate(prefix, name, storage);
-                    }
-                }
+                targetTemplate = ServiceTemplate.parse(properties.get("template"));
             } else {
                 targetTemplate = cloudService.getTemplates()
                         .stream()

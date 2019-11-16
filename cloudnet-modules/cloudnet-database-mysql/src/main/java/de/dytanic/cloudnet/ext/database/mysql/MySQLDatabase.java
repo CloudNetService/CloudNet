@@ -7,4 +7,5 @@ public final class MySQLDatabase extends SQLDatabase {
     public MySQLDatabase(MySQLDatabaseProvider databaseProvider, String name) {
         super(databaseProvider, name);
     }
+
 }

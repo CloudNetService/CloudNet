@@ -83,8 +83,10 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
+import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -144,6 +146,8 @@ public final class CloudNet extends CloudNetDriver {
     private CloudMessenger messenger = new NodeMessenger(this);
 
     private DefaultInstallation defaultInstallation = new DefaultInstallation(this);
+
+    private ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
 
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
@@ -215,6 +219,8 @@ public final class CloudNet extends CloudNetDriver {
         this.registerDefaultCommands();
         this.registerDefaultServices();
 
+        this.initServiceVersions();
+
         this.currentNetworkClusterNodeInfoSnapshot = createClusterNodeInfoSnapshot();
         this.lastNetworkClusterNodeInfoSnapshot = currentNetworkClusterNodeInfoSnapshot;
 
@@ -248,7 +254,7 @@ public final class CloudNet extends CloudNetDriver {
         this.defaultInstallation.initDefaultPermissionGroups();
         this.defaultInstallation.initDefaultTasks();
 
-        eventManager.callEvent(new CloudNetNodePostInitializationEvent());
+        this.eventManager.callEvent(new CloudNetNodePostInitializationEvent());
 
         this.runConsole();
         this.mainloop();
@@ -287,6 +293,8 @@ public final class CloudNet extends CloudNetDriver {
         this.cloudServiceManager.reload();
 
         this.unloadAll();
+
+        this.initServiceVersions();
 
         this.enableModules();
 
@@ -388,6 +396,40 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public CloudMessenger getMessenger() {
         return this.messenger;
+    }
+
+    private void initServiceVersions() {
+        String url = System.getProperty("cloudnet.versions.url", "https://cloudnetservice.eu/cloudnet/versions.json");
+        System.out.println(LanguageManager.getMessage("versions-load").replace("%url%", url));
+
+        try {
+            if (this.serviceVersionProvider.loadServiceVersionTypes(url)) {
+                System.out.println(LanguageManager.getMessage("versions-load-success")
+                        .replace("%url%", url)
+                        .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
+                );
+            } else {
+                this.serviceVersionProvider.loadDefaultVersionTypes();
+
+                System.err.println(LanguageManager.getMessage("versions-load-failed")
+                        .replace("%url%", url)
+                        .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
+                        .replace("%error%", "invalid json")
+                );
+            }
+        } catch (IOException exception) {
+            this.serviceVersionProvider.loadDefaultVersionTypes();
+
+            System.err.println(LanguageManager.getMessage("versions-load-failed")
+                    .replace("%url%", url)
+                    .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
+                    .replace("%error%", exception.getClass().getName() + ": " + exception.getMessage())
+            );
+        }
+    }
+
+    public ServiceVersionProvider getServiceVersionProvider() {
+        return this.serviceVersionProvider;
     }
 
     public ServiceInfoSnapshot getCloudServiceByNameOrUniqueId(String argument) {
@@ -842,7 +884,7 @@ public final class CloudNet extends CloudNetDriver {
                 .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
                 .replace("%module_author%", moduleWrapper.getModuleConfiguration().getAuthor()));
     }
-    
+
     private void registerDefaultCommands() {
         this.logger.info(LanguageManager.getMessage("reload-register-defaultCommands"));
 
@@ -858,7 +900,7 @@ public final class CloudNet extends CloudNetDriver {
                 new CommandCreate(),
                 new CommandCluster(),
                 new CommandModules(),
-                new CommandLocalTemplate(),
+                new CommandTemplate(),
                 new CommandMe(),
                 new CommandScreen(),
                 new CommandPermissions(),
