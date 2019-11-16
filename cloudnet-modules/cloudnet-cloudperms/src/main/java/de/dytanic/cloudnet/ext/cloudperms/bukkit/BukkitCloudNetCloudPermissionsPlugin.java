@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudNetCloudPermissionsPlayerListener;
@@ -34,8 +35,8 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        new CloudPermissionsPermissionManagement();
-        initPlayersCloudPermissible();
+        this.checkForVault(new CloudPermissionsPermissionManagement());
+        this.initPlayersCloudPermissible();
 
         getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(), this);
     }
@@ -200,4 +201,25 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     private void initPlayersCloudPermissible() {
         Bukkit.getOnlinePlayers().forEach(this::injectCloudPermissible);
     }
+
+    private void checkForVault(IPermissionManagement permissionManagement) {
+        if (super.getServer().getPluginManager().isPluginEnabled("Vault")
+                || super.getServer().getPluginManager().isPluginEnabled("VaultAPI")) {
+
+            try {
+
+                Class<?> vaultSupportClass = Class.forName("de.dytanic.cloudnet.ext.cloudperms.bukkit.vault.VaultSupport");
+                Method enableMethod = vaultSupportClass.getDeclaredMethod("enable", JavaPlugin.class, IPermissionManagement.class);
+
+                enableMethod.invoke(null, this, permissionManagement);
+
+                super.getLogger().info("Enabled Vault support!");
+
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+                exception.printStackTrace();
+            }
+
+        }
+    }
+
 }
