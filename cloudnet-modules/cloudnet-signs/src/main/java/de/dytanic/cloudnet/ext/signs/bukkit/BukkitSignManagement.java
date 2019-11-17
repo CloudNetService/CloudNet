@@ -16,9 +16,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -367,14 +370,22 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         Validate.checkNotNull(location);
 
         if (blockType != null && subId != -1) {
+
             BlockState signBlockState = location.getBlock().getState();
-            MaterialData signBlockData = signBlockState.getData();
+            MaterialData signMaterialData = signBlockState.getData();
 
-            if (signBlockData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a sign
+            BlockFace signBlockFace;
 
-                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signBlockData;
+            if (signMaterialData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a sign
+                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signMaterialData;
+                signBlockFace = sign.getFacing();
+            } else { // trying to get the facing over directionals from the 1.13+ api
+                signBlockFace = this.getDirectionalFacing(signBlockState);
+            }
 
-                BlockState backBlockState = location.getBlock().getRelative(sign.getAttachedFace()).getState();
+            if (signBlockFace != null) {
+
+                BlockState backBlockState = location.getBlock().getRelative(signBlockFace.getOppositeFace()).getState();
                 Material backBlockMaterial = Material.getMaterial(blockType.toUpperCase());
 
                 if (backBlockMaterial != null) {
@@ -384,6 +395,35 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 }
 
             }
+
+        }
+    }
+
+    /**
+     * Returns the facing of the specified block face, if its block data is an {@link org.bukkit.block.data.Directional}
+     * from the 1.13+ spigot api
+     *
+     * @param blockState the block state the facing should be returned from
+     * @return the facing of the block state
+     */
+    private BlockFace getDirectionalFacing(BlockState blockState) {
+        try {
+
+            Method getBlockDataMethod = BlockState.class.getDeclaredMethod("getBlockData");
+            Object blockData = getBlockDataMethod.invoke(blockState);
+
+            Class<?> directionalClass = Class.forName("org.bukkit.block.data.Directional");
+
+            if (directionalClass.isInstance(blockData)) {
+                Method getFacingMethod = directionalClass.getDeclaredMethod("getFacing");
+
+                return (BlockFace) getFacingMethod.invoke(blockData);
+            }
+
+            return null;
+
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+            return null;
         }
     }
 
