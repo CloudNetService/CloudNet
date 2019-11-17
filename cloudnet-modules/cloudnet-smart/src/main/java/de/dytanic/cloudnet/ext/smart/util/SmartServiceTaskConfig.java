@@ -8,7 +8,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig> {
 
-    protected boolean enabled = true;
+    protected boolean enabled = false;
 
     protected int priority = 10;
 

@@ -363,7 +363,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     private boolean hasAccessFromNode() {
-        if (cloudServiceManager.getCurrentUsedHeapMemory() >= CloudNet.getInstance().getConfig().getMaxMemory()) {
+        if (cloudServiceManager.getCurrentUsedHeapMemory() + this.configuredMaxHeapMemory >= CloudNet.getInstance().getConfig().getMaxMemory()) {
             if (CloudNet.getInstance().getConfig().isRunBlockedServiceStartTryLaterAutomatic()) {
                 CloudNet.getInstance().runTask(() -> {
                     try {
