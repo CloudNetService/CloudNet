@@ -439,12 +439,11 @@ public final class CloudNet extends CloudNetDriver {
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()))
                 .findFirst()
                 .orElseGet(() -> this.getCloudServiceProvider().getCloudServices().stream()
-                        .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(argument))
-                        .findFirst()
-                        .orElseGet(() -> this.getCloudServiceProvider().getCloudServices().stream()
-                                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()))
-                                .findFirst().orElse(null)
-                        )
+                        .filter(serviceInfoSnapshot ->
+                                serviceInfoSnapshot.getServiceId().getName().toLowerCase().contains(argument.toLowerCase()))
+                        .min(Comparator.comparingInt(serviceInfoSnapshot ->
+                                serviceInfoSnapshot.getServiceId().getName().toLowerCase().replace(argument.toLowerCase(), "").length()))
+                        .orElse(null)
                 );
     }
 
