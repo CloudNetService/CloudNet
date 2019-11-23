@@ -5,6 +5,6 @@ jar {
 dependencies {
     compileOnly project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
-    compileOnly group: 'org.spongepowered', name: 'spongeapi', version: dependencySpongeVersion
+    compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
     compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
 }

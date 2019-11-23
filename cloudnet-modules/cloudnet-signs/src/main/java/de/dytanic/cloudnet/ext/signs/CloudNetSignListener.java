@@ -1,11 +1,10 @@
-package de.dytanic.cloudnet.ext.signs.bukkit.listener;
+package de.dytanic.cloudnet.ext.signs;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
-import de.dytanic.cloudnet.ext.signs.*;
 
-public final class BukkitCloudNetSignListener {
+public final class CloudNetSignListener {
 
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
