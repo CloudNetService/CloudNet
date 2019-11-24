@@ -13,7 +13,8 @@ public final class IncludePluginListener {
 
     @EventListener
     public void handle(CloudServicePreStartEvent event) {
-        if (!event.getCloudService().getServiceConfiguration().getServiceId().getEnvironment().isMinecraftJavaServer()) {
+        if (!event.getCloudService().getServiceConfiguration().getServiceId().getEnvironment().isMinecraftJavaServer()
+                && !event.getCloudService().getServiceConfiguration().getServiceId().getEnvironment().isMinecraftBedrockServer()) {
             return;
         }
 

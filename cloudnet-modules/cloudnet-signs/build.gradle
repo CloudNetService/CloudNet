@@ -5,6 +5,7 @@ jar {
 dependencies {
     compileOnly project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
+    compileOnly project(':cloudnet-modules:cloudnet-bridge')
     compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
     compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
 }

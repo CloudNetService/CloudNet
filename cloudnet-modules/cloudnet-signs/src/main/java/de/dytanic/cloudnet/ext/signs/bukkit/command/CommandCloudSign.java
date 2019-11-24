@@ -20,7 +20,7 @@ public final class CommandCloudSign implements CommandExecutor {
             return false;
         }
 
-        SignConfigurationEntry entry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry entry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
 
         if (entry == null) {
             return false;
@@ -39,7 +39,7 @@ public final class CommandCloudSign implements CommandExecutor {
             Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
+                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
                     if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                         continue;
                     }
@@ -47,7 +47,7 @@ public final class CommandCloudSign implements CommandExecutor {
                     Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
 
                     if (location != null && location.equals(block.getLocation())) {
-                        BukkitSignManagement.getInstance().sendSignRemoveUpdate(sign);
+                        AbstractSignManagement.getInstance().sendSignRemoveUpdate(sign);
 
                         org.bukkit.block.Sign blockSign = (org.bukkit.block.Sign) block.getState();
                         blockSign.setLine(0, "");
@@ -71,7 +71,7 @@ public final class CommandCloudSign implements CommandExecutor {
             Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
+                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
                     if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                         continue;
                     }

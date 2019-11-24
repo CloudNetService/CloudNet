@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.listener;
 
+import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.SignConfigurationProvider;
@@ -11,15 +13,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 public final class BukkitSignInteractionListener implements Listener {
 
     @EventHandler
-    public void handle(PlayerInteractEvent event) {
-        SignConfigurationEntry entry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
+    public void handleInteract(PlayerInteractEvent event) {
+        SignConfigurationEntry entry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
 
         if (entry != null) {
             if ((event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) &&
@@ -33,15 +31,7 @@ public final class BukkitSignInteractionListener implements Listener {
                         continue;
                     }
 
-                    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                         DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
-                        dataOutputStream.writeUTF("Connect");
-                        dataOutputStream.writeUTF(sign.getServiceInfoSnapshot().getServiceId().getName());
-                        event.getPlayer().sendPluginMessage(BukkitSignManagement.getInstance().getPlugin(), "BungeeCord", byteArrayOutputStream.toByteArray());
-
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
-                    }
+                    BridgePlayerManager.getInstance().proxySendPlayer(event.getPlayer().getUniqueId(), sign.getServiceInfoSnapshot().getServiceId().getName());
 
                     event.getPlayer().sendMessage(
                             ChatColor.translateAlternateColorCodes('&',

@@ -53,7 +53,7 @@ public abstract class AbstractSignManagement {
     protected abstract void runTaskLater(Runnable runnable, long delay);
 
     private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction) {
-        if (!this.isImportantCloudService(serviceInfoSnapshot)) {
+        if (!this.isMatchingCloudService(serviceInfoSnapshot)) {
             return;
         }
 
@@ -91,7 +91,7 @@ public abstract class AbstractSignManagement {
     }
 
     public void onUnregisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!this.isImportantCloudService(serviceInfoSnapshot)) {
+        if (!this.isMatchingCloudService(serviceInfoSnapshot)) {
             return;
         }
 
@@ -437,17 +437,22 @@ public abstract class AbstractSignManagement {
         );
     }
 
-    private boolean isImportantCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot != null &&
-                (
-                        serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER ||
-                                serviceInfoSnapshot.getServiceId().getEnvironment() == ServiceEnvironmentType.GLOWSTONE
-                )
-                ;
+    private boolean isMatchingCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
+
+        if (serviceInfoSnapshot != null) {
+
+            ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
+            ServiceEnvironmentType serviceEnvironment = serviceInfoSnapshot.getServiceId().getEnvironment();
+
+            return serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer()
+                    || serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer();
+        }
+
+        return false;
     }
 
     protected void executeStartingTask() {
-        SignConfigurationEntry signConfigurationEntry = getOwnSignConfigurationEntry();
+        SignConfigurationEntry signConfigurationEntry = this.getOwnSignConfigurationEntry();
 
         if (signConfigurationEntry != null && signConfigurationEntry.getStartingLayouts() != null &&
                 signConfigurationEntry.getStartingLayouts().getSignLayouts().size() > 0) {
@@ -474,7 +479,7 @@ public abstract class AbstractSignManagement {
     }
 
     protected void executeSearchingTask() {
-        SignConfigurationEntry signConfigurationEntry = getOwnSignConfigurationEntry();
+        SignConfigurationEntry signConfigurationEntry = this.getOwnSignConfigurationEntry();
 
         if (signConfigurationEntry != null && signConfigurationEntry.getSearchLayouts() != null &&
                 signConfigurationEntry.getSearchLayouts().getSignLayouts().size() > 0) {

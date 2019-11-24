@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
 
+import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
@@ -11,19 +12,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SignKnockbackRunnable implements Runnable {
+public class BukkitSignKnockbackRunnable implements Runnable {
 
     private final Map<SignPosition, Location> signLocations = new HashMap<>();
 
     private final SignConfigurationEntry ownConfigurationEntry;
 
-    SignKnockbackRunnable(SignConfigurationEntry ownConfigurationEntry) {
+    BukkitSignKnockbackRunnable(SignConfigurationEntry ownConfigurationEntry) {
         this.ownConfigurationEntry = ownConfigurationEntry;
     }
 
     @Override
     public void run() {
-        List<Sign> signs = BukkitSignManagement.getInstance().getSigns();
+        List<Sign> signs = AbstractSignManagement.getInstance().getSigns();
 
         for (Sign sign : signs) {
             Location signLocation = signLocations.computeIfAbsent(sign.getWorldPosition(), signPosition -> BukkitSignManagement.getInstance().toLocation(signPosition));

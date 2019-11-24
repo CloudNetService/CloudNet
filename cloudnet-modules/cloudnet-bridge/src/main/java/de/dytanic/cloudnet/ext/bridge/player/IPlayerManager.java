@@ -44,9 +44,15 @@ public interface IPlayerManager {
 
     void proxySendPlayer(ICloudPlayer cloudPlayer, String serviceName);
 
+    void proxySendPlayer(UUID uniqueId, String serviceName);
+
     void proxyKickPlayer(ICloudPlayer cloudPlayer, String message);
 
+    void proxyKickPlayer(UUID uniqueId, String message);
+
     void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message);
+
+    void proxySendPlayerMessage(UUID uniqueId, String message);
 
     void broadcastMessage(String message);
 

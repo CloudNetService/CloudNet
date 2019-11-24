@@ -47,7 +47,7 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
         SignConfigurationEntry signConfigurationEntry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
 
         if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0 && signConfigurationEntry.getKnockbackStrength() > 0) {
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new SignKnockbackRunnable(signConfigurationEntry), 20, 5);
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitSignKnockbackRunnable(signConfigurationEntry), 20, 5);
         }
     }
 

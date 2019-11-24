@@ -3,9 +3,11 @@ package de.dytanic.cloudnet.ext.signs.nukkit;
 
 import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.CloudNetSignListener;
 import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
-import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
+import de.dytanic.cloudnet.ext.signs.nukkit.command.CommandCloudSign;
+import de.dytanic.cloudnet.ext.signs.nukkit.listener.NukkitSignInteractionListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public class NukkitCloudNetSignsPlugin extends PluginBase {
@@ -25,19 +27,19 @@ public class NukkitCloudNetSignsPlugin extends PluginBase {
 
     private void initListeners() {
         //Commands
-        // todo: cloudsign command
+        super.getServer().getCommandMap().register("cloudsign", new CommandCloudSign());
 
         //CloudNet listeners
         CloudNetDriver.getInstance().getEventManager().registerListener(new CloudNetSignListener());
 
         //Nukkit listeners
-        // todo: sign interaction listener
+        super.getServer().getPluginManager().registerEvents(new NukkitSignInteractionListener(), this);
 
         //Sign knockback scheduler
-        SignConfigurationEntry signConfigurationEntry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry signConfigurationEntry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
 
         if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0 && signConfigurationEntry.getKnockbackStrength() > 0) {
-            // todo sign knockback runnable
+            super.getServer().getScheduler().scheduleDelayedRepeatingTask(this, new NukkitSignKnockbackRunnable(signConfigurationEntry), 20, 5);
         }
     }
 

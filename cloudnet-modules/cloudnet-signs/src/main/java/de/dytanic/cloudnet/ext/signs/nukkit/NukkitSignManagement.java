@@ -87,9 +87,16 @@ public final class NukkitSignManagement extends AbstractSignManagement {
             if (block instanceof Faceable) {
                 Faceable faceable = (Faceable) block;
 
-                Block backBlock = block.getSide(faceable.getBlockFace().getOpposite());
+                Location backBlockLocation = block.getSide(faceable.getBlockFace().getOpposite()).getLocation();
 
-                // todo: get item, update backblock
+                int itemId;
+                try {
+                    itemId = Integer.parseInt(blockType);
+                } catch (NumberFormatException exception) {
+                    return;
+                }
+
+                backBlockLocation.getLevel().setBlock(backBlockLocation, Block.get(itemId, subId), true, true);
             }
 
 
