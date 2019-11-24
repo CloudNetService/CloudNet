@@ -188,7 +188,7 @@ public final class SignConfigurationReaderAndWriter {
                             )
                     )),
                     Maps.of(
-                            new Pair<>("server-connecting-message", "&7You will send to &c%server%&7..."),
+                            new Pair<>("server-connecting-message", "&7You will be send to &c%server%&7..."),
                             new Pair<>("command-cloudsign-create-success", "&7The target sign with the target group &6%group% &7is successfully created."),
                             new Pair<>("command-cloudsign-remove-success", "&7The target sign will removed! Please wait..."),
                             new Pair<>("command-cloudsign-sign-already-exist", "&7The sign is already set. If you want to remove that, use the /cloudsign remove command")
