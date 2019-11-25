@@ -27,7 +27,7 @@ public class NukkitCloudNetSignsPlugin extends PluginBase {
 
     private void initListeners() {
         //Commands
-        super.getServer().getCommandMap().register("cloudsign", new CommandCloudSign());
+        super.getServer().getCommandMap().register("CloudNet-Signs", new CommandCloudSign());
 
         //CloudNet listeners
         CloudNetDriver.getInstance().getEventManager().registerListener(new CloudNetSignListener());

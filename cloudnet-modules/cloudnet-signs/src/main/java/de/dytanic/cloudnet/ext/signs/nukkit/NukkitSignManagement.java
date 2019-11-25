@@ -47,7 +47,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
                 return;
             }
 
-            this.updateSign(location, sign, (BlockEntitySign) blockEntity, signLayout, serviceInfoSnapshot);
+            this.updateSign(sign, (BlockEntitySign) blockEntity, signLayout, serviceInfoSnapshot);
         });
     }
 
@@ -56,8 +56,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
         Server.getInstance().getScheduler().scheduleDelayedTask(this.plugin, runnable, Math.toIntExact(delay));
     }
 
-    private void updateSign(Location location, Sign sign, BlockEntitySign nukkitSign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(location);
+    private void updateSign(Sign sign, BlockEntitySign nukkitSign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(nukkitSign);
         Validate.checkNotNull(signLayout);
 
@@ -73,16 +72,16 @@ public final class NukkitSignManagement extends AbstractSignManagement {
 
             nukkitSign.setText(lines);
 
-            this.changeBlock(location, signLayout.getBlockType(), signLayout.getSubId());
+            this.changeBlock(nukkitSign, signLayout.getBlockType(), signLayout.getSubId());
         }
     }
 
-    private void changeBlock(Location location, String blockType, int subId) {
-        Validate.checkNotNull(location);
+    private void changeBlock(BlockEntitySign nukkitSign, String blockType, int subId) {
+        Validate.checkNotNull(nukkitSign);
 
         if (blockType != null && subId != -1) {
 
-            Block block = location.getLevelBlock();
+            Block block = nukkitSign.getBlock();
 
             if (block instanceof Faceable) {
                 Faceable faceable = (Faceable) block;

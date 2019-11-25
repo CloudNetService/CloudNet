@@ -35,18 +35,18 @@ public class NukkitSignKnockbackRunnable implements Runnable {
             if (signLocation != null && signLocation.getLevel() != null) {
                 double knockbackDistance = this.ownConfigurationEntry.getKnockbackDistance();
 
-                AxisAlignedBB boundingBox = new SimpleAxisAlignedBB(signLocation, signLocation).grow(knockbackDistance, knockbackDistance, knockbackDistance);
+                AxisAlignedBB boundingBox = new SimpleAxisAlignedBB(signLocation, signLocation).expand(knockbackDistance, knockbackDistance, knockbackDistance);
 
-                // todo: fix
                 Arrays.stream(signLocation.getLevel().getNearbyEntities(boundingBox))
                         .filter(entity -> entity instanceof Player && !((Player) entity).hasPermission("cloudnet.signs.knockback.bypass"))
                         .forEach(player -> {
                             // pushing the player back with the specified strength
-                            Vector3 vector3 = player.getLocation().subtract(signLocation)
+                            Vector3 vector3 = player.getPosition().subtract(signLocation)
                                     .normalize()
                                     .multiply(this.ownConfigurationEntry.getKnockbackStrength());
+                            vector3.y = 0.2;
 
-                            player.addMotion(vector3.getX(), 0.2, vector3.getZ());
+                            player.setMotion(vector3);
                         });
             }
         }

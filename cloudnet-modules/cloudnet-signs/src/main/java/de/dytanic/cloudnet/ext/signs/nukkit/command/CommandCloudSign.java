@@ -23,6 +23,10 @@ public class CommandCloudSign extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+        if (!super.testPermission(sender)) {
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             return false;
         }
