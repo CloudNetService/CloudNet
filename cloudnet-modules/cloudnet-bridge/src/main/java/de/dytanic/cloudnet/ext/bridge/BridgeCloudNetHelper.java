@@ -23,17 +23,15 @@ public class BridgeCloudNetHelper {
 
         String task = Wrapper.getInstance().getServiceId().getTaskName();
 
-        if (!CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTaskAsync(task).onComplete(serviceTask -> {
-                if (serviceTask != null) {
-                    CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
-                        if (serviceInfoSnapshot != null) {
-                            CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
-                        }
-                    });
-                }
-            });
-        }
+        CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTaskAsync(task).onComplete(serviceTask -> {
+            if (serviceTask != null) {
+                CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
+                    if (serviceInfoSnapshot != null) {
+                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                    }
+                });
+            }
+        });
     }
 
 
