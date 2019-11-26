@@ -82,19 +82,10 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void requestOnlinePlayers(Consumer<ICloudPlayer> playerAcceptor) {
-        try {
-            this.requestOnlinePlayersAsync(playerAcceptor).get();
-        } catch (InterruptedException | ExecutionException exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    @Override
     public ICloudOfflinePlayer getOfflinePlayer(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        JsonDocument jsonDocument = getDatabase().get(uniqueId.toString());
+        JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
 
         return jsonDocument != null ? jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE) : null;
     }
@@ -103,12 +94,17 @@ public final class NodePlayerManager implements IPlayerManager {
     public List<? extends ICloudOfflinePlayer> getOfflinePlayers(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.map(getDatabase().get(new JsonDocument("name", name)), jsonDocument -> jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
+        return Iterables.map(this.getDatabase().get(new JsonDocument("name", name)), jsonDocument -> jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
     }
 
     @Override
-    public void requestRegisteredPlayers(Consumer<ICloudOfflinePlayer> playerAcceptor) {
-        getDatabase().iterate((s, jsonDocument) -> playerAcceptor.accept(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)));
+    @Deprecated
+    public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
+        List<? extends ICloudOfflinePlayer> cloudOfflinePlayers = Iterables.newArrayList();
+
+        this.getDatabase().iterate((s, jsonDocument) -> cloudOfflinePlayers.add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)));
+
+        return cloudOfflinePlayers;
     }
 
     @Override
@@ -142,14 +138,6 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<Void> requestOnlinePlayersAsync(Consumer<ICloudPlayer> playerAcceptor) {
-        return this.schedule(() -> {
-            this.getDatabase().iterate((s, jsonDocument) -> playerAcceptor.accept(jsonDocument.toInstanceOf(CloudPlayer.TYPE)));
-            return null;
-        });
-    }
-
-    @Override
     public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(UUID uniqueId) {
         return this.schedule(() -> this.getOfflinePlayer(uniqueId));
     }
@@ -164,24 +152,11 @@ public final class NodePlayerManager implements IPlayerManager {
         return this.schedule(this::getRegisteredPlayers);
     }
 
-    public List<ICloudOfflinePlayer> getRegisteredPlayersInRange(int from, int to) {
-        return this.getDatabase().documentsInRange(from, to)
-                .stream()
-                .map(document -> (ICloudOfflinePlayer) document.toInstanceOf(CloudOfflinePlayer.TYPE))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public ITask<Void> requestRegisteredPlayersAsync(Consumer<ICloudOfflinePlayer> playerAcceptor) {
-        return null;
-    }
-
-
     @Override
     public void updateOfflinePlayer(ICloudOfflinePlayer cloudOfflinePlayer) {
         Validate.checkNotNull(cloudOfflinePlayer);
 
-        updateOfflinePlayer0(cloudOfflinePlayer);
+        this.updateOfflinePlayer0(cloudOfflinePlayer);
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "update_offline_cloud_player",
@@ -192,14 +167,14 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     public void updateOfflinePlayer0(ICloudOfflinePlayer cloudOfflinePlayer) {
-        getDatabase().update(cloudOfflinePlayer.getUniqueId().toString(), JsonDocument.newDocument(cloudOfflinePlayer));
+        this.getDatabase().update(cloudOfflinePlayer.getUniqueId().toString(), JsonDocument.newDocument(cloudOfflinePlayer));
     }
 
     @Override
     public void updateOnlinePlayer(ICloudPlayer cloudPlayer) {
         Validate.checkNotNull(cloudPlayer);
 
-        updateOnlinePlayer0(cloudPlayer);
+        this.updateOnlinePlayer0(cloudPlayer);
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "update_online_cloud_player",
@@ -210,7 +185,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     public void updateOnlinePlayer0(ICloudPlayer cloudPlayer) {
-        updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
+        this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
     }
 
     @Override

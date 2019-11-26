@@ -226,22 +226,6 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     @Override
-    public Collection<JsonDocument> documentsInRange(int from, int to) {
-        return this.databaseProvider.executeQuery(
-                "SELECT " + TABLE_COLUMN_VALUE + " FROM " + this.name + " LIMIT " + from + ", " + (to - from),
-                resultSet -> {
-                    Collection<JsonDocument> documents = Iterables.newArrayList();
-
-                    while (resultSet.next()) {
-                        documents.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
-                    }
-
-                    return documents;
-                }
-        );
-    }
-
-    @Override
     public Map<String, JsonDocument> entries() {
         return this.databaseProvider.executeQuery(
                 "SELECT * FROM " + this.name,
@@ -348,11 +332,6 @@ public abstract class SQLDatabase implements IDatabase {
     @Override
     public ITask<Collection<JsonDocument>> documentsAsync() {
         return this.schedule(this::documents);
-    }
-
-    @Override
-    public ITask<Collection<JsonDocument>> documentsInRangeAsync(int from, int to) {
-        return this.schedule(() -> this.documentsInRange(from, to));
     }
 
     @Override

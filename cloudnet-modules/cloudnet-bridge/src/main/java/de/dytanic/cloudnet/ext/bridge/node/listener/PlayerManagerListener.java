@@ -139,12 +139,6 @@ public final class PlayerManagerListener {
                 );
             }
             break;
-            case "get_registered_offline_players_chunk": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("offlineCloudPlayers", NodePlayerManager.getInstance().getRegisteredPlayersInRange(event.getHeader().getInt("from"), event.getHeader().getInt("to")))
-                );
-            }
-            break;
         }
     }
 }

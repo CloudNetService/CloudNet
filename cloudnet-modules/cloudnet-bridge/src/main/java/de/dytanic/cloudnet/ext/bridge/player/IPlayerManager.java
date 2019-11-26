@@ -81,14 +81,6 @@ public interface IPlayerManager {
     List<? extends ICloudPlayer> getOnlinePlayers();
 
     /**
-     * Requests all online players from the cloud in chunks of max. 256 players each to not overload the memory.
-     * This process cannot be cancelled with this method, if you want it to be cancellable, use {@link #requestOnlinePlayersAsync(Consumer)} (Consumer)} instead
-     *
-     * @param playerAcceptor the Consumer to accept the players
-     */
-    void requestOnlinePlayers(Consumer<ICloudPlayer> playerAcceptor);
-
-    /**
      * Gets a registered player by its UUID out of the cloud
      *
      * @param uniqueId the UUID of the player
@@ -137,19 +129,7 @@ public interface IPlayerManager {
      * @deprecated This shouldn't be used when you have many players in your database, because it can cause major problems in the cloud
      */
     @Deprecated
-    default List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-        List<ICloudOfflinePlayer> registeredPlayers = new ArrayList<>();
-        this.requestRegisteredPlayers(registeredPlayers::add);
-        return registeredPlayers;
-    }
-
-    /**
-     * Requests all registered players from the cloud in chunks of max. 256 players each to not overload the memory.
-     * This process cannot be cancelled with this method, if you want it to be cancellable, use {@link #requestRegisteredPlayersAsync(Consumer)} instead
-     *
-     * @param playerAcceptor the Consumer to accept the players
-     */
-    void requestRegisteredPlayers(Consumer<ICloudOfflinePlayer> playerAcceptor);
+    List<? extends ICloudOfflinePlayer> getRegisteredPlayers();
 
 
     /**
@@ -225,14 +205,6 @@ public interface IPlayerManager {
     ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync();
 
     /**
-     * Requests all online players from the cloud in chunks of max. 256 players each to not overload the memory.
-     * This process can be cancelled using {@link ITask#cancel(boolean)} with {@code true} as the parameter
-     *
-     * @param playerAcceptor the Consumer to accept the players
-     */
-    ITask<?> requestOnlinePlayersAsync(Consumer<ICloudPlayer> playerAcceptor);
-
-    /**
      * Gets a list of all online players on the whole network.
      *
      * @return a list containing all players that are online on the network
@@ -285,14 +257,6 @@ public interface IPlayerManager {
      */
     @Deprecated
     ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync();
-
-    /**
-     * Requests all registered players from the cloud in chunks of max. 256 players each to not overload the memory.
-     * This process can be cancelled using {@link ITask#cancel(boolean)} with {@code true} as the parameter.
-     *
-     * @param playerAcceptor the Consumer to accept the players
-     */
-    ITask<?> requestRegisteredPlayersAsync(Consumer<ICloudOfflinePlayer> playerAcceptor);
 
     /**
      * Updates the given player to the database of the cloud and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent} on the whole network.
