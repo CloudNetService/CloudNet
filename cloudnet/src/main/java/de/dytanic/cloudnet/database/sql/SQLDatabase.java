@@ -226,6 +226,22 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     @Override
+    public Collection<JsonDocument> documentsInRange(int from, int to) {
+        return this.databaseProvider.executeQuery(
+                "SELECT " + TABLE_COLUMN_VALUE + " FROM " + this.name + " LIMIT " + from + ", " + (to - from),
+                resultSet -> {
+                    Collection<JsonDocument> documents = Iterables.newArrayList();
+
+                    while (resultSet.next()) {
+                        documents.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+                    }
+
+                    return documents;
+                }
+        );
+    }
+
+    @Override
     public Map<String, JsonDocument> entries() {
         return this.databaseProvider.executeQuery(
                 "SELECT * FROM " + this.name,
@@ -335,6 +351,11 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     @Override
+    public ITask<Collection<JsonDocument>> documentsInRangeAsync(int from, int to) {
+        return this.schedule(() -> this.documentsInRange(from, to));
+    }
+
+    @Override
     public ITask<Map<String, JsonDocument>> entriesAsync() {
         return this.schedule(this::entries);
     }
@@ -358,6 +379,19 @@ public abstract class SQLDatabase implements IDatabase {
             this.clear();
             return null;
         });
+    }
+
+    @Override
+    public int getDocumentsCount() {
+        return this.databaseProvider.executeQuery("SELECT COUNT(*) FROM " + this.name, resultSet -> {
+            resultSet.next();
+            return resultSet.getInt(1);
+        });
+    }
+
+    @Override
+    public ITask<Integer> getDocumentsCountAsync() {
+        return this.schedule(this::getDocumentsCount);
     }
 
     private <T> ITask<T> schedule(Callable<T> callable) {

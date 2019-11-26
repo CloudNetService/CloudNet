@@ -4,17 +4,21 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.*;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class BridgePlayerManager implements IPlayerManager {
@@ -32,6 +36,16 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
+    public int getOnlineCount() {
+        return this.getOnlineCountAsync().get(5, TimeUnit.SECONDS, -1);
+    }
+
+    @Override
+    public int getRegisteredCount() {
+        return this.getRegisteredCountAsync().get(5, TimeUnit.SECONDS, -1);
+    }
+
+    @Override
     public ICloudPlayer getOnlinePlayer(UUID uniqueId) {
         try {
             return getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -43,7 +57,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayer(String name) {
+    public List<? extends ICloudPlayer> getOnlinePlayers(String name) {
         try {
             return getOnlinePlayerAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -76,6 +90,11 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
+    public void requestOnlinePlayers(Consumer<ICloudPlayer> playerAcceptor) {
+//todo
+    }
+
+    @Override
     public ICloudOfflinePlayer getOfflinePlayer(UUID uniqueId) {
         try {
             return getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -87,7 +106,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudOfflinePlayer> getOfflinePlayer(String name) {
+    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(String name) {
         try {
             return getOfflinePlayerAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -100,12 +119,43 @@ public final class BridgePlayerManager implements IPlayerManager {
     @Override
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
         try {
-            return getRegisteredPlayersAsync().get(5, TimeUnit.SECONDS);
+            return getRegisteredPlayersAsync().get(5, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
             exception.printStackTrace();
         }
 
         return Iterables.newArrayList();
+    }
+
+    @Override
+    public void requestRegisteredPlayers(Consumer<ICloudOfflinePlayer> playerAcceptor) {
+        try {
+            this.requestRegisteredPlayersAsync(playerAcceptor).get();
+        } catch (InterruptedException | ExecutionException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    @Override
+    public ITask<Integer> getOnlineCountAsync() {
+        return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
+                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                "get_online_count",
+                new JsonDocument(),
+                jsonDocument -> jsonDocument.getInt("onlineCount")
+        );
+    }
+
+    @Override
+    public ITask<Integer> getRegisteredCountAsync() {
+        return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
+                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                "get_registered_count",
+                new JsonDocument(),
+                jsonDocument -> jsonDocument.getInt("registeredCount")
+        );
     }
 
 
@@ -140,6 +190,11 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
+    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(String name) {
+        return null;
+    }
+
+    @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
@@ -163,6 +218,11 @@ public final class BridgePlayerManager implements IPlayerManager {
                 new JsonDocument(),
                 jsonDocument -> jsonDocument.get("cloudPlayers", TYPE_LIST_CLOUD_PLAYERS)
         );
+    }
+
+    @Override
+    public ITask<Void> requestOnlinePlayersAsync(Consumer<ICloudPlayer> playerAcceptor) {
+        return null;
     }
 
     @Override
@@ -196,6 +256,11 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
+    public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(String name) {
+        return null;
+    }
+
+    @Override
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
         return getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
@@ -204,6 +269,43 @@ public final class BridgePlayerManager implements IPlayerManager {
                 new JsonDocument(),
                 jsonDocument -> jsonDocument.get("offlineCloudPlayers", TYPE_LIST_CLOUD_OFFLINE_PLAYERS)
         );
+    }
+
+    @Override
+    public ITask<?> requestRegisteredPlayersAsync(Consumer<ICloudOfflinePlayer> playerAcceptor) {
+        ITask<Void> result = new ListenableTask<>(() -> null);
+        this.getRegisteredCountAsync().onComplete(count -> {
+            int chunks = count / 256; //every full chunk with 256 players
+            boolean hasNonFullChunk = count % 256 != 0; //is there a chunk that has no full 256 players?
+            for (int i = 0; i < chunks; i++) {
+                this.requestRegisteredPlayersChunk(i == 0 ? 0 : i * 256 - 1, (i + 1) * 256, playerAcceptor);
+            }
+            if (hasNonFullChunk) {
+                this.requestRegisteredPlayersChunk(chunks == 0 ? 0 : chunks * 256 - 1, count, playerAcceptor);
+            }
+            try {
+                result.call();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+        return result;
+    }
+
+    private void requestRegisteredPlayersChunk(int from, int to, Consumer<ICloudOfflinePlayer> playerAcceptor) {
+        Collection<?> players = (Collection) this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
+                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                "get_registered_offline_players_chunk",
+                new JsonDocument().append("from", from).append("to", to),
+                document -> document.get("offlineCloudPlayers", TYPE_LIST_CLOUD_OFFLINE_PLAYERS)
+        ).getDef(Collections.emptyList());
+
+        if (players != null) {
+            for (Object player : players) {
+                playerAcceptor.accept((ICloudOfflinePlayer) player);
+            }
+        }
     }
 
 

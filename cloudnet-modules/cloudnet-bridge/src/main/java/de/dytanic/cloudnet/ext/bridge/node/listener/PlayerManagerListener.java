@@ -62,7 +62,7 @@ public final class PlayerManagerListener {
             case "update_offline_cloud_player": {
                 ICloudOfflinePlayer cloudOfflinePlayer = event.getData().get("offlineCloudPlayer", CloudOfflinePlayer.TYPE);
 
-                if (cloudOfflinePlayer != null) {
+                if (cloudOfflinePlayer != null) { //todo shouldn't we call the BridgeUpdateCloudOfflinePlayerEvent here? and if this message comes from a service (and not from a node), call updateOfflinePlayer instead of updateOfflinePlayer0
                     NodePlayerManager.getInstance().updateOfflinePlayer0(cloudOfflinePlayer);
                 }
             }
@@ -70,7 +70,7 @@ public final class PlayerManagerListener {
             case "update_online_cloud_player": {
                 ICloudPlayer cloudPlayer = event.getData().get("cloudPlayer", CloudPlayer.TYPE);
 
-                if (cloudPlayer != null) {
+                if (cloudPlayer != null) { //todo shouldn't we call the BridgeUpdateCloudPlayerEvent here? and if this message comes from a service (and not from a node), call updateOnlinePlayer instead of updateOnlinePlayer0
                     NodePlayerManager.getInstance().updateOnlinePlayer0(cloudPlayer);
                 }
             }
@@ -85,6 +85,18 @@ public final class PlayerManagerListener {
         }
 
         switch (event.getId().toLowerCase()) {
+            case "get_online_count": {
+                event.setCallbackPacket(new JsonDocument()
+                        .append("onlineCount", NodePlayerManager.getInstance().getOnlineCount())
+                );
+            }
+            break;
+            case "get_registered_count": {
+                event.setCallbackPacket(new JsonDocument()
+                        .append("registeredCount", NodePlayerManager.getInstance().getRegisteredCount())
+                );
+            }
+            break;
             case "get_online_players_by_uuid": {
                 event.setCallbackPacket(new JsonDocument()
                         .append("cloudPlayer", NodePlayerManager.getInstance().getOnlinePlayer(event.getHeader().get("uniqueId", UUID.class)))
@@ -124,6 +136,12 @@ public final class PlayerManagerListener {
             case "get_all_registered_offline_players_as_list": {
                 event.setCallbackPacket(new JsonDocument()
                         .append("offlineCloudPlayers", NodePlayerManager.getInstance().getRegisteredPlayers())
+                );
+            }
+            break;
+            case "get_registered_offline_players_chunk": {
+                event.setCallbackPacket(new JsonDocument()
+                        .append("offlineCloudPlayers", NodePlayerManager.getInstance().getRegisteredPlayersInRange(event.getHeader().getInt("from"), event.getHeader().getInt("to")))
                 );
             }
             break;

@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -16,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class NodePlayerManager implements IPlayerManager {
 
@@ -43,28 +47,47 @@ public final class NodePlayerManager implements IPlayerManager {
 
 
     @Override
+    public int getOnlineCount() {
+        return this.onlineCloudPlayers.size();
+    }
+
+    @Override
+    public int getRegisteredCount() {
+        return this.getDatabase().getDocumentsCount();
+    }
+
+    @Override
     public CloudPlayer getOnlinePlayer(UUID uniqueId) {
         return onlineCloudPlayers.get(uniqueId);
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayer(String name) {
+    public List<? extends ICloudPlayer> getOnlinePlayers(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.filter(onlineCloudPlayers.values(), cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name));
+        return Iterables.filter(this.onlineCloudPlayers.values(), cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name));
     }
 
     @Override
     public List<? extends ICloudPlayer> getOnlinePlayers(ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return Iterables.filter(onlineCloudPlayers.values(), cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
+        return Iterables.filter(this.onlineCloudPlayers.values(), cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
                 (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment() == environment));
     }
 
     @Override
     public List<? extends ICloudPlayer> getOnlinePlayers() {
-        return Iterables.newArrayList(onlineCloudPlayers.values());
+        return Iterables.newArrayList(this.onlineCloudPlayers.values());
+    }
+
+    @Override
+    public void requestOnlinePlayers(Consumer<ICloudPlayer> playerAcceptor) {
+        try {
+            this.requestOnlinePlayersAsync(playerAcceptor).get();
+        } catch (InterruptedException | ExecutionException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
@@ -77,55 +100,80 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudOfflinePlayer> getOfflinePlayer(String name) {
+    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(String name) {
         Validate.checkNotNull(name);
 
         return Iterables.map(getDatabase().get(new JsonDocument("name", name)), jsonDocument -> jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
     }
 
     @Override
-    public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-        List<? extends ICloudOfflinePlayer> cloudOfflinePlayers = Iterables.newArrayList();
-
-        getDatabase().iterate((s, jsonDocument) -> cloudOfflinePlayers.add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)));
-
-        return cloudOfflinePlayers;
+    public void requestRegisteredPlayers(Consumer<ICloudOfflinePlayer> playerAcceptor) {
+        getDatabase().iterate((s, jsonDocument) -> playerAcceptor.accept(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)));
     }
 
+    @Override
+    public ITask<Integer> getOnlineCountAsync() {
+        return this.schedule(this::getOnlineCount);
+    }
+
+    @Override
+    public ITask<Integer> getRegisteredCountAsync() {
+        return this.getDatabase().getDocumentsCountAsync();
+    }
 
     @Override
     public ITask<ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
-        return schedule(() -> getOnlinePlayer(uniqueId));
+        return this.schedule(() -> this.getOnlinePlayer(uniqueId));
     }
 
     @Override
-    public ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(String name) {
-        return schedule(() -> getOnlinePlayer(name));
+    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(String name) {
+        return this.schedule(() -> this.getOnlinePlayers(name));
     }
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(ServiceEnvironmentType environment) {
-        return schedule(() -> getOnlinePlayers(environment));
+        return this.schedule(() -> this.getOnlinePlayers(environment));
     }
 
     @Override
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-        return schedule(this::getOnlinePlayers);
+        return this.schedule(this::getOnlinePlayers);
+    }
+
+    @Override
+    public ITask<Void> requestOnlinePlayersAsync(Consumer<ICloudPlayer> playerAcceptor) {
+        return this.schedule(() -> {
+            this.getDatabase().iterate((s, jsonDocument) -> playerAcceptor.accept(jsonDocument.toInstanceOf(CloudPlayer.TYPE)));
+            return null;
+        });
     }
 
     @Override
     public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(UUID uniqueId) {
-        return schedule(() -> getOfflinePlayer(uniqueId));
+        return this.schedule(() -> this.getOfflinePlayer(uniqueId));
     }
 
     @Override
-    public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(String name) {
-        return schedule(() -> getOfflinePlayer(name));
+    public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(String name) {
+        return this.schedule(() -> this.getOfflinePlayers(name));
     }
 
     @Override
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
-        return schedule(this::getRegisteredPlayers);
+        return this.schedule(this::getRegisteredPlayers);
+    }
+
+    public List<ICloudOfflinePlayer> getRegisteredPlayersInRange(int from, int to) {
+        return this.getDatabase().documentsInRange(from, to)
+                .stream()
+                .map(document -> (ICloudOfflinePlayer) document.toInstanceOf(CloudOfflinePlayer.TYPE))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ITask<Void> requestRegisteredPlayersAsync(Consumer<ICloudOfflinePlayer> playerAcceptor) {
+        return null;
     }
 
 

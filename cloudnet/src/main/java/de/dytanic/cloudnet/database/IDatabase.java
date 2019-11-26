@@ -32,6 +32,8 @@ public interface IDatabase extends INameable, AutoCloseable {
 
     Collection<JsonDocument> documents();
 
+    Collection<JsonDocument> documentsInRange(int from, int to); //todo implement in wrapper database
+
     Map<String, JsonDocument> entries();
 
     Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate);
@@ -39,6 +41,8 @@ public interface IDatabase extends INameable, AutoCloseable {
     void iterate(BiConsumer<String, JsonDocument> consumer);
 
     void clear();
+
+    int getDocumentsCount(); //todo implement in wrapper database
 
 
     ITask<Boolean> insertAsync(String key, JsonDocument document);
@@ -57,6 +61,8 @@ public interface IDatabase extends INameable, AutoCloseable {
 
     ITask<Collection<JsonDocument>> documentsAsync();
 
+    ITask<Collection<JsonDocument>> documentsInRangeAsync(int from, int to); //todo implement in wrapper database
+
     ITask<Map<String, JsonDocument>> entriesAsync();
 
     ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate);
@@ -64,6 +70,8 @@ public interface IDatabase extends INameable, AutoCloseable {
     ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer);
 
     ITask<Void> clearAsync();
+
+    ITask<Integer> getDocumentsCountAsync(); //todo implement in wrapper database
 
 
 }
