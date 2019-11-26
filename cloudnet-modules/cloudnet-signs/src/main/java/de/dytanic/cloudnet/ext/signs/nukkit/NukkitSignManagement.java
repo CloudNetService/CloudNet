@@ -2,9 +2,11 @@ package de.dytanic.cloudnet.ext.signs.nukkit;
 
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockWallSign;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.BlockFace;
 import cn.nukkit.utils.Faceable;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -85,8 +87,9 @@ public final class NukkitSignManagement extends AbstractSignManagement {
 
             if (block instanceof Faceable) {
                 Faceable faceable = (Faceable) block;
+                BlockFace blockFace = block instanceof BlockWallSign ? faceable.getBlockFace().getOpposite() : BlockFace.DOWN;
 
-                Location backBlockLocation = block.getSide(faceable.getBlockFace().getOpposite()).getLocation();
+                Location backBlockLocation = block.getSide(blockFace).getLocation();
 
                 int itemId;
                 try {
