@@ -40,7 +40,7 @@ public interface IDatabase extends INameable, AutoCloseable {
 
     void clear();
 
-    int getDocumentsCount(); //todo implement in wrapper database
+    int getDocumentsCount();
 
 
     ITask<Boolean> insertAsync(String key, JsonDocument document);
@@ -67,7 +67,7 @@ public interface IDatabase extends INameable, AutoCloseable {
 
     ITask<Void> clearAsync();
 
-    ITask<Integer> getDocumentsCountAsync(); //todo implement in wrapper database
+    ITask<Integer> getDocumentsCountAsync();
 
 
 }

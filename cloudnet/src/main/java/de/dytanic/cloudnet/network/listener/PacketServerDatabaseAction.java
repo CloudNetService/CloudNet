@@ -128,6 +128,11 @@ public class PacketServerDatabaseAction implements IPacketListener {
                     this.sendEmptyResponse(channel, packet.getUniqueId());
                     return;
                 }
+                if (message.equals("documentsCount")) {
+                    int documentsCount = database.getDocumentsCount();
+                    this.sendResponse(channel, packet.getUniqueId(), new JsonDocument().append("documentsCount", documentsCount));
+                    return;
+                }
                 // actions for the specific database WITH NO SPECIFIC KEY
 
             }
