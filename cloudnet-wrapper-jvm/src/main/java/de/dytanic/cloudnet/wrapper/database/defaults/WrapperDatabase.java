@@ -83,8 +83,9 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
-    public int getDocumentsCount() {
-        return this.getDocumentsCountAsync().getDef(-1);
+    public long getDocumentsCount() {
+        Long result = this.getDocumentsCountAsync().getDef(-1L);
+        return result != null ? result : -1;
     }
 
     @Override
@@ -202,8 +203,8 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
-    public ITask<Integer> getDocumentsCountAsync() {
-        return this.databaseProvider.executeQuery(this.name, "documentsCount", response -> response.getFirst().getInt("documentsCount"));
+    public ITask<Long> getDocumentsCountAsync() {
+        return this.databaseProvider.executeQuery(this.name, "documentsCount", response -> response.getFirst().getLong("documentsCount"));
     }
 
     @Override

@@ -52,7 +52,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public int getRegisteredCount() {
+    public long getRegisteredCount() {
         return this.getDatabase().getDocumentsCount();
     }
 
@@ -113,7 +113,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<Integer> getRegisteredCountAsync() {
+    public ITask<Long> getRegisteredCountAsync() {
         return this.getDatabase().getDocumentsCountAsync();
     }
 

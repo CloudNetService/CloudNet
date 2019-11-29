@@ -37,8 +37,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public int getRegisteredCount() {
-        return this.getRegisteredCountAsync().get(5, TimeUnit.SECONDS, -1);
+    public long getRegisteredCount() {
+        return this.getRegisteredCountAsync().get(5, TimeUnit.SECONDS, -1L);
     }
 
     @Override
@@ -130,13 +130,13 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<Integer> getRegisteredCountAsync() {
+    public ITask<Long> getRegisteredCountAsync() {
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
                 this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_registered_count",
                 new JsonDocument(),
-                jsonDocument -> jsonDocument.getInt("registeredCount")
+                jsonDocument -> jsonDocument.getLong("registeredCount")
         );
     }
 

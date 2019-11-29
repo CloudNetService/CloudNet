@@ -361,15 +361,17 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     @Override
-    public int getDocumentsCount() {
+    public long getDocumentsCount() {
         return this.databaseProvider.executeQuery("SELECT COUNT(*) FROM " + this.name, resultSet -> {
-            resultSet.next();
-            return resultSet.getInt(1);
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return -1L;
         });
     }
 
     @Override
-    public ITask<Integer> getDocumentsCountAsync() {
+    public ITask<Long> getDocumentsCountAsync() {
         return this.schedule(this::getDocumentsCount);
     }
 

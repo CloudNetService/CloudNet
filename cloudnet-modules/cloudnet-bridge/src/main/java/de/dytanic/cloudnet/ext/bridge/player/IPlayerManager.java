@@ -24,7 +24,7 @@ public interface IPlayerManager {
      *
      * @return the registered player count as an int
      */
-    int getRegisteredCount();
+    long getRegisteredCount();
 
     /**
      * Gets an online player by its UUID.
@@ -144,7 +144,7 @@ public interface IPlayerManager {
      *
      * @return the registered player count as an int
      */
-    ITask<Integer> getRegisteredCountAsync();
+    ITask<Long> getRegisteredCountAsync();
 
     /**
      * Gets an online player by its UUID.
