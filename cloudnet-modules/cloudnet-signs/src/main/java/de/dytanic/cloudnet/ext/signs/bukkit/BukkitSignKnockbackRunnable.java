@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.ext.signs.bukkit;
 
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

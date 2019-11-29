@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.examples.sign;
 
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationTaskEntry;
 import de.dytanic.cloudnet.ext.signs.SignLayout;
 import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationTaskEntry;
 import org.bukkit.Material;
 
 public final class ExampleSigns {

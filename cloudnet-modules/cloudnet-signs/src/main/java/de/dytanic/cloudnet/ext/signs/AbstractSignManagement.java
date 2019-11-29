@@ -13,6 +13,10 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationTaskEntry;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.*;
@@ -280,16 +284,18 @@ public abstract class AbstractSignManagement {
         input = input.replace("%port%", String.valueOf(serviceInfoSnapshot.getConfiguration().getPort()));
         input = input.replace("%cpu_usage%", CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()));
         input = input.replace("%threads%", String.valueOf(serviceInfoSnapshot.getProcessSnapshot().getThreads().size()));
+
+
         input = input.replace("%online%",
                 (serviceInfoSnapshot.getProperties().contains("Online") && serviceInfoSnapshot.getProperties().getBoolean("Online")
                         ? "Online" : "Offline"
                 ));
         input = input.replace("%online_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Online-Count")));
         input = input.replace("%max_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Max-Players")));
-        input = input.replace("%motd%", serviceInfoSnapshot.getProperties().getString("Motd"));
-        input = input.replace("%extra%", serviceInfoSnapshot.getProperties().getString("Extra"));
-        input = input.replace("%state%", serviceInfoSnapshot.getProperties().getString("State"));
-        input = input.replace("%version%", serviceInfoSnapshot.getProperties().getString("Version"));
+        input = input.replace("%motd%", serviceInfoSnapshot.getProperties().getString("Motd", ""));
+        input = input.replace("%extra%", serviceInfoSnapshot.getProperties().getString("Extra", ""));
+        input = input.replace("%state%", serviceInfoSnapshot.getProperties().getString("State", ""));
+        input = input.replace("%version%", serviceInfoSnapshot.getProperties().getString("Version", ""));
         input = input.replace("%whitelist%", (serviceInfoSnapshot.getProperties().contains("Whitelist-Enabled") &&
                 serviceInfoSnapshot.getProperties().getBoolean("Whitelist-Enabled")
                 ? "Enabled" : "Disabled"
@@ -358,11 +364,11 @@ public abstract class AbstractSignManagement {
     }
 
     private ServiceInfoState fromServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot, SignConfigurationEntry signConfiguration) {
-        if (isIngameService(serviceInfoSnapshot)) {
+        if (this.isIngameService(serviceInfoSnapshot)) {
             return ServiceInfoState.STOPPED;
         }
 
-        if (isEmptyService(serviceInfoSnapshot)) {
+        if (this.isEmptyService(serviceInfoSnapshot)) {
             return ServiceInfoState.EMPTY_ONLINE;
         }
 

@@ -7,8 +7,8 @@ import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 
 import java.util.Arrays;
 import java.util.HashMap;

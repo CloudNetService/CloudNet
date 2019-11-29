@@ -1,5 +1,6 @@
-package de.dytanic.cloudnet.ext.signs;
+package de.dytanic.cloudnet.ext.signs.configuration.entry;
 
+import de.dytanic.cloudnet.ext.signs.SignLayout;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 

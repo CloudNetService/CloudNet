@@ -5,7 +5,7 @@ import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.CloudNetSignListener;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.nukkit.command.CommandCloudSign;
 import de.dytanic.cloudnet.ext.signs.nukkit.listener.NukkitSignInteractionListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;

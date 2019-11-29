@@ -9,8 +9,8 @@ import cn.nukkit.level.Location;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationEntry;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationProvider;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.nukkit.NukkitSignManagement;
 
 public class NukkitSignInteractionListener implements Listener {

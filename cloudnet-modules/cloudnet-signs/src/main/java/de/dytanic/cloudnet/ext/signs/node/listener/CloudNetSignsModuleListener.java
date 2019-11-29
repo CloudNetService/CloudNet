@@ -6,9 +6,9 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignConfiguration;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.SignConstants;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 
 import java.util.Collection;

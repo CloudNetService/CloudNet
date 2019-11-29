@@ -1,8 +1,12 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.command;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.ext.signs.*;
+import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
+import de.dytanic.cloudnet.ext.signs.Sign;
+import de.dytanic.cloudnet.ext.signs.SignPosition;
 import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
