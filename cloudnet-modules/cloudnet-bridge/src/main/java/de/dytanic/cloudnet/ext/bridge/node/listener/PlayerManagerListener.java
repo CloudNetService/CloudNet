@@ -62,7 +62,7 @@ public final class PlayerManagerListener {
             case "update_offline_cloud_player": {
                 ICloudOfflinePlayer cloudOfflinePlayer = event.getData().get("offlineCloudPlayer", CloudOfflinePlayer.TYPE);
 
-                if (cloudOfflinePlayer != null) { //todo shouldn't we call the BridgeUpdateCloudOfflinePlayerEvent here? and if this message comes from a service (and not from a node), call updateOfflinePlayer instead of updateOfflinePlayer0
+                if (cloudOfflinePlayer != null) {
                     NodePlayerManager.getInstance().updateOfflinePlayer0(cloudOfflinePlayer);
                 }
             }
@@ -70,7 +70,7 @@ public final class PlayerManagerListener {
             case "update_online_cloud_player": {
                 ICloudPlayer cloudPlayer = event.getData().get("cloudPlayer", CloudPlayer.TYPE);
 
-                if (cloudPlayer != null) { //todo shouldn't we call the BridgeUpdateCloudPlayerEvent here? and if this message comes from a service (and not from a node), call updateOnlinePlayer instead of updateOnlinePlayer0
+                if (cloudPlayer != null) {
                     NodePlayerManager.getInstance().updateOnlinePlayer0(cloudPlayer);
                 }
             }
