@@ -34,6 +34,7 @@ public final class CommandCloudSign implements CommandExecutor {
             sender.sendMessage("§7/cloudsign create <targetGroup>");
             sender.sendMessage("§7/cloudsign create <targetGroup> <templatePath>");
             sender.sendMessage("§7/cloudsign remove");
+            sender.sendMessage("§7/cloudsign cleanup");
             return true;
         }
 
@@ -109,6 +110,12 @@ public final class CommandCloudSign implements CommandExecutor {
                         )
                 );
             }
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
+            AbstractSignManagement.getInstance().cleanup();
+
+            sender.sendMessage(
+                    ChatColor.translateAlternateColorCodes('&', SignConfigurationProvider.load().getMessages().get("command-cloudsign-cleanup-success"))
+            );
         }
 
         return true;

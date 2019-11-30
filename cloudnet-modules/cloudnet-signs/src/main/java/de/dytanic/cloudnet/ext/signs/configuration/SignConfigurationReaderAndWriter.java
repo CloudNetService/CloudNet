@@ -36,7 +36,8 @@ public final class SignConfigurationReaderAndWriter {
                             new Pair<>("server-connecting-message", "&7You will be send to &c%server%&7..."),
                             new Pair<>("command-cloudsign-create-success", "&7The target sign with the target group &6%group% &7is successfully created."),
                             new Pair<>("command-cloudsign-remove-success", "&7The target sign will removed! Please wait..."),
-                            new Pair<>("command-cloudsign-sign-already-exist", "&7The sign is already set. If you want to remove that, use the /cloudsign remove command")
+                            new Pair<>("command-cloudsign-sign-already-exist", "&7The sign is already set. If you want to remove that, use the /cloudsign remove command"),
+                            new Pair<>("command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully")
                     )
             );
 
@@ -45,6 +46,10 @@ public final class SignConfigurationReaderAndWriter {
         }
 
         SignConfiguration signConfiguration = document.get("config", SignConfiguration.TYPE);
+
+        if (!signConfiguration.getMessages().containsKey("command-cloudsign-cleanup-success")) {
+            signConfiguration.getMessages().put("command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully");
+        }
 
         // new properties in the configuration will be saved
         document.append("config", signConfiguration);

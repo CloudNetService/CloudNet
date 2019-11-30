@@ -54,6 +54,17 @@ public abstract class AbstractSignManagement {
 
     protected abstract void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot);
 
+    /**
+     * Removes all signs that don't exist anymore
+     */
+    public abstract void cleanup();
+
+    /**
+     * Runs a task on the main thread of the current application
+     *
+     * @param runnable the task
+     * @param delay    the delay the task should have
+     */
     protected abstract void runTaskLater(Runnable runnable, long delay);
 
     private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction) {
@@ -459,17 +470,18 @@ public abstract class AbstractSignManagement {
 
     protected void executeStartingTask() {
         SignConfigurationEntry signConfigurationEntry = this.getOwnSignConfigurationEntry();
+        AtomicInteger startingIndex = indexes[0];
 
         if (signConfigurationEntry != null && signConfigurationEntry.getStartingLayouts() != null &&
                 signConfigurationEntry.getStartingLayouts().getSignLayouts().size() > 0) {
-            if (this.indexes[0].get() == -1) {
-                this.indexes[0].set(0);
+            if (startingIndex.get() == -1) {
+                startingIndex.set(0);
             }
 
-            if ((this.indexes[0].get() + 1) < signConfigurationEntry.getStartingLayouts().getSignLayouts().size()) {
-                this.indexes[0].incrementAndGet();
+            if ((startingIndex.get() + 1) < signConfigurationEntry.getStartingLayouts().getSignLayouts().size()) {
+                startingIndex.incrementAndGet();
             } else {
-                this.indexes[0].set(0);
+                startingIndex.set(0);
             }
 
             this.runTaskLater(
@@ -477,7 +489,7 @@ public abstract class AbstractSignManagement {
                     20 / (Math.min(signConfigurationEntry.getStartingLayouts().getAnimationsPerSecond(), 20))
             );
         } else {
-            this.indexes[0].set(-1);
+            startingIndex.set(-1);
             this.runTaskLater(this::executeStartingTask, 20);
         }
 
@@ -486,17 +498,18 @@ public abstract class AbstractSignManagement {
 
     protected void executeSearchingTask() {
         SignConfigurationEntry signConfigurationEntry = this.getOwnSignConfigurationEntry();
+        AtomicInteger searchingIndex = this.indexes[1];
 
         if (signConfigurationEntry != null && signConfigurationEntry.getSearchLayouts() != null &&
                 signConfigurationEntry.getSearchLayouts().getSignLayouts().size() > 0) {
-            if (this.indexes[1].get() == -1) {
-                this.indexes[1].set(0);
+            if (searchingIndex.get() == -1) {
+                searchingIndex.set(0);
             }
 
-            if ((this.indexes[1].get() + 1) < signConfigurationEntry.getSearchLayouts().getSignLayouts().size()) {
-                this.indexes[1].incrementAndGet();
+            if ((searchingIndex.get() + 1) < signConfigurationEntry.getSearchLayouts().getSignLayouts().size()) {
+                searchingIndex.incrementAndGet();
             } else {
-                this.indexes[1].set(0);
+                searchingIndex.set(0);
             }
 
             this.runTaskLater(
@@ -504,7 +517,7 @@ public abstract class AbstractSignManagement {
                     20 / (Math.min(signConfigurationEntry.getSearchLayouts().getAnimationsPerSecond(), 20))
             );
         } else {
-            this.indexes[1].set(-1);
+            searchingIndex.set(-1);
             this.runTaskLater(this::executeSearchingTask, 20);
         }
 

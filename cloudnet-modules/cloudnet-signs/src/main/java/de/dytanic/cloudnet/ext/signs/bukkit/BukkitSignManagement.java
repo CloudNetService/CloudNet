@@ -40,22 +40,34 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             Location location = this.toLocation(sign.getWorldPosition());
 
-            if (location == null) {
-                super.sendSignRemoveUpdate(sign);
-                return;
+            if (location != null) {
+
+                Block block = location.getBlock();
+
+                if (block.getState() instanceof org.bukkit.block.Sign) {
+                    org.bukkit.block.Sign bukkitSign = (org.bukkit.block.Sign) block.getState();
+
+                    this.updateSign(location, sign, bukkitSign, signLayout, serviceInfoSnapshot);
+                }
+
             }
 
-            Block block = location.getBlock();
-
-            if (!(block.getState() instanceof org.bukkit.block.Sign)) {
-                super.sendSignRemoveUpdate(sign);
-                return;
-            }
-
-            org.bukkit.block.Sign bukkitSign = (org.bukkit.block.Sign) block.getState();
-
-            this.updateSign(location, sign, bukkitSign, signLayout, serviceInfoSnapshot);
         });
+    }
+
+    @Override
+    public void cleanup() {
+
+        for (Sign sign : super.signs) {
+
+            Location location = this.toLocation(sign.getWorldPosition());
+
+            if (location == null || !(location.getBlock().getState() instanceof org.bukkit.block.Sign)) {
+                super.sendSignRemoveUpdate(sign);
+            }
+
+        }
+
     }
 
     @Override

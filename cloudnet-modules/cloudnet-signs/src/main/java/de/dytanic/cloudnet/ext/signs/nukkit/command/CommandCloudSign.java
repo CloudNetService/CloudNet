@@ -16,6 +16,7 @@ import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.nukkit.NukkitSignManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.bukkit.ChatColor;
 
 
 public class CommandCloudSign extends Command {
@@ -115,6 +116,12 @@ public class CommandCloudSign extends Command {
                                 .replace('&', '§')
                 );
             }
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
+            AbstractSignManagement.getInstance().cleanup();
+
+            sender.sendMessage(
+                    ChatColor.translateAlternateColorCodes('&', SignConfigurationProvider.load().getMessages().get("command-cloudsign-cleanup-success"))
+            );
         }
 
         return true;

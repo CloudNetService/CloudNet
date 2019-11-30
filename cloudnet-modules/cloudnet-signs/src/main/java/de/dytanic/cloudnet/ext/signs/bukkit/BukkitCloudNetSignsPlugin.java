@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.CloudNetSignListener;
 import de.dytanic.cloudnet.ext.signs.bukkit.command.CommandCloudSign;
 import de.dytanic.cloudnet.ext.signs.bukkit.listener.BukkitSignInteractionListener;
@@ -16,7 +17,6 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
     public void onEnable() {
         new BukkitSignManagement(this);
 
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         this.initListeners();
     }
 
@@ -44,7 +44,7 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BukkitSignInteractionListener(), this);
 
         //Sign knockback scheduler
-        SignConfigurationEntry signConfigurationEntry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry signConfigurationEntry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
 
         if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0 && signConfigurationEntry.getKnockbackStrength() > 0) {
             Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitSignKnockbackRunnable(signConfigurationEntry), 20, 5);

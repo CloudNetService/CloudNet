@@ -37,20 +37,31 @@ public final class NukkitSignManagement extends AbstractSignManagement {
         Server.getInstance().getScheduler().scheduleTask(this.plugin, () -> {
             Location location = this.toLocation(sign.getWorldPosition());
 
-            if (location == null) {
-                super.sendSignRemoveUpdate(sign);
-                return;
+            if (location != null) {
+
+                BlockEntity blockEntity = location.getLevel().getBlockEntity(location);
+
+                if (blockEntity instanceof BlockEntitySign) {
+                    this.updateSign(sign, (BlockEntitySign) blockEntity, signLayout, serviceInfoSnapshot);
+                }
+
             }
-
-            BlockEntity blockEntity = location.getLevel().getBlockEntity(location);
-
-            if (!(blockEntity instanceof BlockEntitySign)) {
-                super.sendSignRemoveUpdate(sign);
-                return;
-            }
-
-            this.updateSign(sign, (BlockEntitySign) blockEntity, signLayout, serviceInfoSnapshot);
         });
+    }
+
+    @Override
+    public void cleanup() {
+
+        for (Sign sign : super.signs) {
+
+            Location location = this.toLocation(sign.getWorldPosition());
+
+            if (location == null || !(location.getLevel().getBlockEntity(location) instanceof BlockEntitySign)) {
+                super.sendSignAddUpdate(sign);
+            }
+
+        }
+
     }
 
     @Override
