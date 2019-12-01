@@ -57,17 +57,13 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void cleanup() {
-
         for (Sign sign : super.signs) {
-
             Location location = this.toLocation(sign.getWorldPosition());
 
             if (location == null || !(location.getBlock().getState() instanceof org.bukkit.block.Sign)) {
                 super.sendSignRemoveUpdate(sign);
             }
-
         }
-
     }
 
     @Override

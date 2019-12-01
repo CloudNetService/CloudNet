@@ -51,17 +51,13 @@ public final class NukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void cleanup() {
-
         for (Sign sign : super.signs) {
-
             Location location = this.toLocation(sign.getWorldPosition());
 
             if (location == null || !(location.getLevel().getBlockEntity(location) instanceof BlockEntitySign)) {
-                super.sendSignAddUpdate(sign);
+                super.sendSignRemoveUpdate(sign);
             }
-
         }
-
     }
 
     @Override
