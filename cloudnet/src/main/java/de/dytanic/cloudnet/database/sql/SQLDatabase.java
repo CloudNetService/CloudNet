@@ -360,6 +360,21 @@ public abstract class SQLDatabase implements IDatabase {
         });
     }
 
+    @Override
+    public long getDocumentsCount() {
+        return this.databaseProvider.executeQuery("SELECT COUNT(*) FROM " + this.name, resultSet -> {
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return -1L;
+        });
+    }
+
+    @Override
+    public ITask<Long> getDocumentsCountAsync() {
+        return this.schedule(this::getDocumentsCount);
+    }
+
     private <T> ITask<T> schedule(Callable<T> callable) {
         return CloudNetDriver.getInstance().getTaskScheduler().schedule(callable);
     }

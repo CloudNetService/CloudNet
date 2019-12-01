@@ -85,6 +85,18 @@ public final class PlayerManagerListener {
         }
 
         switch (event.getId().toLowerCase()) {
+            case "get_online_count": {
+                event.setCallbackPacket(new JsonDocument()
+                        .append("onlineCount", NodePlayerManager.getInstance().getOnlineCount())
+                );
+            }
+            break;
+            case "get_registered_count": {
+                event.setCallbackPacket(new JsonDocument()
+                        .append("registeredCount", NodePlayerManager.getInstance().getRegisteredCount())
+                );
+            }
+            break;
             case "get_online_players_by_uuid": {
                 event.setCallbackPacket(new JsonDocument()
                         .append("cloudPlayer", NodePlayerManager.getInstance().getOnlinePlayer(event.getHeader().get("uniqueId", UUID.class)))
