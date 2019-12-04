@@ -43,9 +43,6 @@ public abstract class AbstractSignManagement {
 
         this.signs = Iterables.newCopyOnWriteArrayList();
         this.signs.addAll(this.getSignsFromNode());
-
-        this.executeSearchingTask();
-        this.executeStartingTask();
     }
 
     public static AbstractSignManagement getInstance() {
