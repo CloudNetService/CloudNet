@@ -98,7 +98,6 @@ public final class Wrapper extends CloudNetDriver {
      * The single task thread of the scheduler of the wrapper application
      */
     private final Thread mainThread = Thread.currentThread();
-    private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
     private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
     /**
      * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot
