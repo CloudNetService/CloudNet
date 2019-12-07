@@ -10,6 +10,8 @@ public class ModuleConfiguration {
 
     protected boolean runtimeModule;
 
+    protected boolean storesSensitiveData;
+
     protected String
             group,
             name,
@@ -27,8 +29,9 @@ public class ModuleConfiguration {
 
     protected JsonDocument properties;
 
-    public ModuleConfiguration(boolean runtimeModule, String group, String name, String version, String main, String description, String author, String website, ModuleRepository[] repos, ModuleDependency[] dependencies, JsonDocument properties) {
+    public ModuleConfiguration(boolean runtimeModule, boolean storesSensitiveData, String group, String name, String version, String main, String description, String author, String website, ModuleRepository[] repos, ModuleDependency[] dependencies, JsonDocument properties) {
         this.runtimeModule = runtimeModule;
+        this.storesSensitiveData = storesSensitiveData;
         this.group = group;
         this.name = name;
         this.version = version;
@@ -41,6 +44,11 @@ public class ModuleConfiguration {
         this.properties = properties;
     }
 
+    @Deprecated
+    public ModuleConfiguration(boolean runtimeModule, String group, String name, String version, String main, String description, String author, String website, ModuleRepository[] repos, ModuleDependency[] dependencies, JsonDocument properties) {
+        this(runtimeModule, false, group, name, version, main, description, author, website, repos, dependencies, properties);
+    }
+
     public ModuleConfiguration() {
     }
 
@@ -50,6 +58,10 @@ public class ModuleConfiguration {
 
     public boolean isRuntimeModule() {
         return this.runtimeModule;
+    }
+
+    public boolean storesSensitiveData() {
+        return this.storesSensitiveData;
     }
 
     public String getGroup() {
