@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.wrapper.database;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public interface IDatabase extends INameable, AutoCloseable {
+@Deprecated
+public interface IDatabase extends Nameable, AutoCloseable {
 
     boolean insert(String key, JsonDocument document);
 

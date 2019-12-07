@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpServer;
+import de.dytanic.cloudnet.driver.network.http.HttpServer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class NettyHttpServerTest {
     public void testHttpServerWithParameters() throws Exception {
         int port = NettyTestUtil.generateRandomPort();
 
-        IHttpServer httpServer = new NettyHttpServer();
+        HttpServer httpServer = new NettyHttpServer();
 
         Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", (path, context) -> {
             if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
@@ -71,7 +71,7 @@ public class NettyHttpServerTest {
     public void testHttpServerWithWildCard() throws Exception {
         int port = NettyTestUtil.generateRandomPort();
 
-        IHttpServer httpServer = new NettyHttpServer();
+        HttpServer httpServer = new NettyHttpServer();
 
         Assert.assertNotNull(httpServer.registerHandler("/person/*/test", (path, context) -> {
             if (context.request().method().toUpperCase().equals("POST")) {

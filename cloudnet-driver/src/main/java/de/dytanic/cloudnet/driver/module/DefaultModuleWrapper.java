@@ -22,7 +22,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultModuleWrapper implements IModuleWrapper {
+public class DefaultModuleWrapper implements ModuleWrapper {
 
     private static final Type MODULE_CONFIGURATION_TYPE = new TypeToken<ModuleConfiguration>() {
     }.getType();
@@ -34,7 +34,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final String MODULE_CONFIG_PATH = "module.json";
-    private final EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks = Maps.newEnumMap(ModuleLifeCycle.class);
+    private final EnumMap<ModuleLifeCycle, List<ModuleTaskEntry>> moduleTasks = Maps.newEnumMap(ModuleLifeCycle.class);
     private ModuleLifeCycle moduleLifeCycle = ModuleLifeCycle.UNLOADED;
     private URL url;
     private DefaultModule module;
@@ -164,12 +164,12 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
     @Override
-    public EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks() {
+    public EnumMap<ModuleLifeCycle, List<ModuleTaskEntry>> getModuleTasks() {
         return new EnumMap<>(this.moduleTasks);
     }
 
     @Override
-    public IModuleWrapper loadModule() {
+    public ModuleWrapper loadModule() {
         if (moduleLifeCycle == ModuleLifeCycle.UNLOADED) {
             moduleProvider.getModuleProviderHandler().handlePreModuleLoad(this);
             fireTasks(this.moduleTasks.get(ModuleLifeCycle.LOADED));
@@ -181,7 +181,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
     @Override
-    public IModuleWrapper startModule() {
+    public ModuleWrapper startModule() {
         this.loadModule();
 
         if (moduleLifeCycle == ModuleLifeCycle.LOADED || moduleLifeCycle == ModuleLifeCycle.STOPPED) {
@@ -191,7 +191,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                     if (moduleDependency != null && moduleDependency.getGroup() != null && moduleDependency.getName() != null &&
                             moduleDependency.getVersion() != null && moduleDependency.getRepo() == null &&
                             moduleDependency.getUrl() == null) {
-                        IModuleWrapper moduleWrapper = Iterables.first(this.getModuleProvider().getModules(), module -> module.getModuleConfiguration().getGroup().equals(moduleDependency.getGroup()) &&
+                        ModuleWrapper moduleWrapper = Iterables.first(this.getModuleProvider().getModules(), module -> module.getModuleConfiguration().getGroup().equals(moduleDependency.getGroup()) &&
                                 module.getModuleConfiguration().getName().equals(moduleDependency.getName()));
 
                         if (moduleWrapper != null) {
@@ -214,7 +214,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
     @Override
-    public IModuleWrapper stopModule() {
+    public ModuleWrapper stopModule() {
         if (moduleLifeCycle == ModuleLifeCycle.STARTED || moduleLifeCycle == ModuleLifeCycle.LOADED) {
             moduleProvider.getModuleProviderHandler().handlePreModuleStop(this);
             fireTasks(this.moduleTasks.get(ModuleLifeCycle.STOPPED));
@@ -226,7 +226,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
     @Override
-    public IModuleWrapper unloadModule() {
+    public ModuleWrapper unloadModule() {
         if (moduleLifeCycle != ModuleLifeCycle.UNLOADED) {
             stopModule();
         }
@@ -260,10 +260,10 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
 
-    private void fireTasks(List<IModuleTaskEntry> entries) {
+    private void fireTasks(List<ModuleTaskEntry> entries) {
         entries.sort((o1, o2) -> o2.getTaskInfo().order() - o1.getTaskInfo().order());
 
-        for (IModuleTaskEntry entry : entries) {
+        for (ModuleTaskEntry entry : entries) {
             try {
                 entry.getHandler().setAccessible(true);
                 entry.getHandler().invoke(entry.getModule());

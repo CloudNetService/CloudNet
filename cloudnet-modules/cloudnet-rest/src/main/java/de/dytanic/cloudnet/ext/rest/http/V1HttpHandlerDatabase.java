@@ -3,9 +3,9 @@ package de.dytanic.cloudnet.ext.rest.http;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.util.List;
@@ -22,13 +22,13 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         super.sendOptions(context, "GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+    public void handleGet(String path, HttpContext context) {
+        Database database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()
@@ -63,8 +63,8 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+    public void handlePost(String path, HttpContext context) {
+        Database database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()
@@ -96,8 +96,8 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+    public void handleDelete(String path, HttpContext context) {
+        Database database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()

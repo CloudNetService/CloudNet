@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
 
@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible> {
+public interface IPermissible extends Nameable, IJsonDocPropertyable, Comparable<IPermissible> {
 
     void setName(String name);
 

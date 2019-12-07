@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet;
 
+import de.dytanic.cloudnet.cluster.ClusterNodeServer;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
@@ -31,23 +32,23 @@ import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.http.IHttpServer;
+import de.dytanic.cloudnet.driver.network.http.HttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.DefaultJsonFilePermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
@@ -132,7 +133,7 @@ public final class CloudNet extends CloudNetDriver {
     private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
-    private IHttpServer httpServer;
+    private HttpServer httpServer;
     private IPermissionManagement permissionManagement;
 
     private CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
@@ -490,14 +491,14 @@ public final class CloudNet extends CloudNetDriver {
         this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(groupConfigurations, updateType));
     }
 
-    public ITask<Void> sendAllAsync(IPacket packet) {
+    public ITask<Void> sendAllAsync(Packet packet) {
         return scheduleTask(() -> {
             sendAll(packet);
             return null;
         });
     }
 
-    public void sendAll(IPacket packet) {
+    public void sendAll(Packet packet) {
         Validate.checkNotNull(packet);
 
         for (IClusterNodeServer clusterNodeServer : getClusterNodeServerProvider().getNodeServers()) {
@@ -511,18 +512,18 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
-    public ITask<Void> sendAllAsync(IPacket... packets) {
+    public ITask<Void> sendAllAsync(Packet... packets) {
         return scheduleTask(() -> {
             sendAll(packets);
             return null;
         });
     }
 
-    public void sendAll(IPacket... packets) {
+    public void sendAll(Packet... packets) {
         Validate.checkNotNull(packets);
 
         for (IClusterNodeServer clusterNodeServer : getClusterNodeServerProvider().getNodeServers()) {
-            for (IPacket packet : packets) {
+            for (Packet packet : packets) {
                 if (packet != null) {
                     clusterNodeServer.saveSendPacket(packet);
                 }
@@ -569,7 +570,7 @@ public final class CloudNet extends CloudNetDriver {
         );
     }
 
-    public Collection<IClusterNodeServer> getValidClusterNodeServers(ServiceTask serviceTask) {
+    public Collection<ClusterNodeServer> getValidClusterNodeServers(ServiceTask serviceTask) {
         return Iterables.filter(clusterNodeServerProvider.getNodeServers(), clusterNodeServer -> clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null && (
                 serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(clusterNodeServer.getNodeInfo().getUniqueId())
         ));
@@ -591,11 +592,11 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public boolean competeWithCluster(ServiceTask serviceTask) {
-        Collection<IClusterNodeServer> clusterNodeServers = this.getValidClusterNodeServers(serviceTask);
+        Collection<ClusterNodeServer> clusterNodeServers = this.getValidClusterNodeServers(serviceTask);
 
         boolean allow = true;
 
-        for (IClusterNodeServer clusterNodeServer : clusterNodeServers) {
+        for (ClusterNodeServer clusterNodeServer : clusterNodeServers) {
             if (
                     clusterNodeServer.getNodeInfoSnapshot() != null &&
                             (clusterNodeServer.getNodeInfoSnapshot().getMaxMemory() - clusterNodeServer.getNodeInfoSnapshot().getReservedMemory())
@@ -661,7 +662,7 @@ public final class CloudNet extends CloudNetDriver {
             if (!map.containsKey(name)) {
                 map.put(name, Maps.newHashMap());
             }
-            IDatabase database = databaseProvider.getDatabase(name);
+            Database database = databaseProvider.getDatabase(name);
             map.get(name).putAll(database.entries());
         }
 
@@ -812,7 +813,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void unloadModules() {
-        for (IModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
+        for (ModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
             if (!moduleWrapper.getModuleConfiguration().isRuntimeModule()) {
                 this.unloadModule(moduleWrapper);
             }
@@ -820,12 +821,12 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void unloadAllModules0() {
-        for (IModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
+        for (ModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
             this.unloadModule(moduleWrapper);
         }
     }
 
-    private void unloadModule(IModuleWrapper moduleWrapper) {
+    private void unloadModule(ModuleWrapper moduleWrapper) {
         this.unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
         this.eventManager.unregisterListeners(moduleWrapper.getClassLoader());
         this.commandMap.unregisterCommands(moduleWrapper.getClassLoader());
@@ -894,7 +895,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void startModules() {
-        for (IModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
+        for (ModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
             moduleWrapper.startModule();
         }
     }
@@ -1029,7 +1030,7 @@ public final class CloudNet extends CloudNetDriver {
         return this.networkServer;
     }
 
-    public IHttpServer getHttpServer() {
+    public HttpServer getHttpServer() {
         return this.httpServer;
     }
 

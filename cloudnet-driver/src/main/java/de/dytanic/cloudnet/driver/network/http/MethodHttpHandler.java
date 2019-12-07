@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.driver.network.http;
 
-public interface IMethodHttpHandler extends IHttpHandler {
+public interface MethodHttpHandler extends HttpHandler {
 
     @Override
-    default void handle(String path, IHttpContext context) throws Exception {
+    default void handle(String path, HttpContext context) throws Exception {
         switch (context.request().method().toUpperCase()) {
             case "GET":
                 this.handleGet(path, context);
@@ -35,22 +35,22 @@ public interface IMethodHttpHandler extends IHttpHandler {
         }
     }
 
-    void handlePost(String path, IHttpContext context) throws Exception;
+    void handlePost(String path, HttpContext context) throws Exception;
 
-    void handleGet(String path, IHttpContext context) throws Exception;
+    void handleGet(String path, HttpContext context) throws Exception;
 
-    void handlePut(String path, IHttpContext context);
+    void handlePut(String path, HttpContext context);
 
-    void handleHead(String path, IHttpContext context);
+    void handleHead(String path, HttpContext context);
 
-    void handleDelete(String path, IHttpContext context);
+    void handleDelete(String path, HttpContext context);
 
-    void handlePatch(String path, IHttpContext context);
+    void handlePatch(String path, HttpContext context);
 
-    void handleTrace(String path, IHttpContext context);
+    void handleTrace(String path, HttpContext context);
 
-    void handleOptions(String path, IHttpContext context);
+    void handleOptions(String path, HttpContext context);
 
-    void handleConnect(String path, IHttpContext context);
+    void handleConnect(String path, HttpContext context);
 
 }

@@ -2,13 +2,13 @@ package de.dytanic.cloudnet.driver.network.def.packet;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.util.Collection;
 
-public class PacketServerUpdatePermissions extends Packet {
+public class PacketServerUpdatePermissions extends AbstractPacket {
 
     public PacketServerUpdatePermissions(UpdateType updateType, IPermissionUser permissionUser) {
         super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()

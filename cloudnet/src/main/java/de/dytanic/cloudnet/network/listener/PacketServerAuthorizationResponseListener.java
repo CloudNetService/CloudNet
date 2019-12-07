@@ -9,15 +9,15 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.network.ClusterUtils;
 
-public final class PacketServerAuthorizationResponseListener implements IPacketListener {
+public final class PacketServerAuthorizationResponseListener implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         if (packet.getHeader().contains("access")) {
             if (packet.getHeader().getBoolean("access")) {
                 for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {

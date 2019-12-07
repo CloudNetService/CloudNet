@@ -11,9 +11,9 @@ import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
@@ -41,9 +41,9 @@ public abstract class CloudNetDriver {
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
 
-    protected final IEventManager eventManager = new DefaultEventManager();
+    protected final EventManager eventManager = new DefaultEventManager();
 
-    protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
+    protected final ModuleProvider moduleProvider = new DefaultModuleProvider();
 
     protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
     protected final ILogger logger;
@@ -1484,11 +1484,11 @@ public abstract class CloudNetDriver {
         return this.servicesRegistry;
     }
 
-    public IEventManager getEventManager() {
+    public EventManager getEventManager() {
         return this.eventManager;
     }
 
-    public IModuleProvider getModuleProvider() {
+    public ModuleProvider getModuleProvider() {
         return this.moduleProvider;
     }
 

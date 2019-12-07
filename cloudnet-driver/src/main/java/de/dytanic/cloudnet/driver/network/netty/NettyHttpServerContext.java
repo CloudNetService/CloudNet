@@ -3,9 +3,8 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.network.http.*;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketChannel;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -17,7 +16,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
-final class NettyHttpServerContext implements IHttpContext {
+final class NettyHttpServerContext implements HttpContext {
 
     protected final Collection<HttpCookie> cookies = Iterables.newArrayList();
 
@@ -27,7 +26,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
     protected final NettyHttpChannel channel;
 
-    protected final HttpRequest httpRequest;
+    protected final io.netty.handler.codec.http.HttpRequest httpRequest;
 
     protected final NettyHttpServerRequest httpServerRequest;
 
@@ -37,9 +36,9 @@ final class NettyHttpServerContext implements IHttpContext {
 
     protected volatile NettyWebSocketServerChannel webSocketServerChannel;
 
-    protected IHttpHandler lastHandler;
+    protected HttpHandler lastHandler;
 
-    public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri, Map<String, String> pathParameters, HttpRequest httpRequest) {
+    public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri, Map<String, String> pathParameters, io.netty.handler.codec.http.HttpRequest httpRequest) {
         this.nettyHttpServer = nettyHttpServer;
         this.channel = channel;
         this.httpRequest = httpRequest;
@@ -62,7 +61,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IWebSocketChannel upgrade() {
+    public WebSocketChannel upgrade() {
         if (webSocketServerChannel == null) {
             cancelSendResponse = true;
             WebSocketServerHandshakerFactory webSocketServerHandshakerFactory = new WebSocketServerHandshakerFactory(
@@ -86,22 +85,22 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IWebSocketChannel webSocketChanel() {
+    public WebSocketChannel webSocketChanel() {
         return webSocketServerChannel;
     }
 
     @Override
-    public IHttpChannel channel() {
+    public HttpChannel channel() {
         return this.channel;
     }
 
     @Override
-    public IHttpRequest request() {
+    public HttpRequest request() {
         return this.httpServerRequest;
     }
 
     @Override
-    public IHttpResponse response() {
+    public HttpResponse response() {
         return this.httpServerResponse;
     }
 
@@ -111,17 +110,17 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IHttpHandler peekLast() {
+    public HttpHandler peekLast() {
         return this.lastHandler;
     }
 
     @Override
-    public IHttpComponent<IHttpServer> component() {
+    public HttpComponent<HttpServer> component() {
         return this.nettyHttpServer;
     }
 
     @Override
-    public IHttpContext closeAfter(boolean value) {
+    public HttpContext closeAfter(boolean value) {
         this.closeAfter = value;
         return this;
     }
@@ -151,7 +150,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IHttpContext setCookies(Collection<HttpCookie> cookies) {
+    public HttpContext setCookies(Collection<HttpCookie> cookies) {
         Validate.checkNotNull(cookies);
 
         this.cookies.clear();
@@ -162,7 +161,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IHttpContext addCookie(HttpCookie httpCookie) {
+    public HttpContext addCookie(HttpCookie httpCookie) {
         Validate.checkNotNull(httpCookie);
 
         HttpCookie cookie = cookie(httpCookie.getName());
@@ -177,7 +176,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IHttpContext removeCookie(String name) {
+    public HttpContext removeCookie(String name) {
         Validate.checkNotNull(name);
 
         HttpCookie cookie = cookie(name);
@@ -190,7 +189,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
-    public IHttpContext clearCookies() {
+    public HttpContext clearCookies() {
         this.cookies.clear();
         this.updateHeaderResponse();
         return this;
@@ -212,7 +211,7 @@ final class NettyHttpServerContext implements IHttpContext {
         }
     }
 
-    public void setLastHandler(IHttpHandler lastHandler) {
+    public void setLastHandler(HttpHandler lastHandler) {
         this.lastHandler = lastHandler;
     }
 }

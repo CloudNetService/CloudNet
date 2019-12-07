@@ -4,18 +4,18 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveServiceTasksUpdateEvent;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
 
 import java.util.List;
 
-public final class PacketServerSetServiceTaskListListener implements IPacketListener {
+public final class PacketServerSetServiceTaskListListener implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         if (packet.getHeader().contains("taskList") && packet.getHeader().contains("set")) {
             List<ServiceTask> serviceTasks = packet.getHeader().get("taskList", new TypeToken<List<ServiceTask>>() {
             }.getType());

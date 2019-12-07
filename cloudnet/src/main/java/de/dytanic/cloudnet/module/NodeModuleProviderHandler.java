@@ -7,27 +7,27 @@ import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.events.module.*;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleProviderHandler;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
 
-public final class NodeModuleProviderHandler implements IModuleProviderHandler {
+public final class NodeModuleProviderHandler implements ModuleProviderHandler {
 
     @Override
-    public void handlePreModuleLoad(IModuleWrapper moduleWrapper) {
+    public void handlePreModuleLoad(ModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePreLoadEvent(this.getModuleProvider(), moduleWrapper));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-load-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
-    public void handlePostModuleLoad(IModuleWrapper moduleWrapper) {
+    public void handlePostModuleLoad(ModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePostLoadEvent(this.getModuleProvider(), moduleWrapper));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-post-load-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
-    public void handlePreModuleStart(IModuleWrapper moduleWrapper) {
+    public void handlePreModuleStart(ModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePreStartEvent(this.getModuleProvider(), moduleWrapper));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-start-module"), this.getModuleProvider(), moduleWrapper));
 
@@ -35,19 +35,19 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     }
 
     @Override
-    public void handlePostModuleStart(IModuleWrapper moduleWrapper) {
+    public void handlePostModuleStart(ModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePostStartEvent(this.getModuleProvider(), moduleWrapper));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-post-start-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
-    public void handlePreModuleStop(IModuleWrapper moduleWrapper) {
+    public void handlePreModuleStop(ModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePreStopEvent(this.getModuleProvider(), moduleWrapper));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-stop-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
-    public void handlePostModuleStop(IModuleWrapper moduleWrapper) {
+    public void handlePostModuleStop(ModuleWrapper moduleWrapper) {
         CloudNetDriver.getInstance().getServicesRegistry().unregisterAll(moduleWrapper.getClassLoader());
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(moduleWrapper.getClassLoader());
         CloudNet.getInstance().unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
@@ -60,19 +60,19 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     }
 
     @Override
-    public void handlePreModuleUnload(IModuleWrapper moduleWrapper) {
+    public void handlePreModuleUnload(ModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePreUnloadEvent(this.getModuleProvider(), moduleWrapper));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-unload-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
-    public void handlePostModuleUnload(IModuleWrapper moduleWrapper) {
+    public void handlePostModuleUnload(ModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePostUnloadEvent(this.getModuleProvider(), moduleWrapper));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-post-unload-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
-    public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
+    public void handlePreInstallDependency(ModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
                         .replace("%group%", dependency.getGroup())
@@ -82,7 +82,7 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     }
 
     @Override
-    public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
+    public void handlePostInstallDependency(ModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
         this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
                         .replace("%group%", dependency.getGroup())
@@ -95,7 +95,7 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
         return CloudNetDriver.getInstance().getLogger();
     }
 
-    private IModuleProvider getModuleProvider() {
+    private ModuleProvider getModuleProvider() {
         return CloudNetDriver.getInstance().getModuleProvider();
     }
 
@@ -103,7 +103,7 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
     }
 
-    private String replaceAll(String text, IModuleProvider moduleProvider, IModuleWrapper moduleWrapper) {
+    private String replaceAll(String text, ModuleProvider moduleProvider, ModuleWrapper moduleWrapper) {
         Validate.checkNotNull(text);
         Validate.checkNotNull(moduleProvider);
         Validate.checkNotNull(moduleWrapper);

@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.driver.module;
 
-public interface IModule {
+public interface Module {
 
-    IModuleWrapper getModuleWrapper();
+    ModuleWrapper getModuleWrapper();
 
     ClassLoader getClassLoader();
 

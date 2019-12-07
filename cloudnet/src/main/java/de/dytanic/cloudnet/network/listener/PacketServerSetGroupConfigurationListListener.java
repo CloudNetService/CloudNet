@@ -4,18 +4,18 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveGroupConfigurationsUpdateEvent;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
 
 import java.util.List;
 
-public final class PacketServerSetGroupConfigurationListListener implements IPacketListener {
+public final class PacketServerSetGroupConfigurationListListener implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         if (packet.getHeader().contains("groups") && packet.getHeader().contains("set")) {
             List<GroupConfiguration> groupConfigurations = packet.getHeader().get("groups", new TypeToken<List<GroupConfiguration>>() {
             }.getType());

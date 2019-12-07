@@ -4,7 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.wrapper.database.IDatabase;
+import de.dytanic.cloudnet.wrapper.database.Database;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class WrapperDatabase implements IDatabase {
+public class WrapperDatabase implements Database {
 
     private String name;
     private DefaultWrapperDatabaseProvider databaseProvider;

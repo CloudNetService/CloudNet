@@ -6,11 +6,13 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.INetworkChannelAdapter;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterChannelMessage;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-public final class DefaultClusterNodeServer implements IClusterNodeServer {
+public final class DefaultClusterNodeServer implements ClusterNodeServer {
 
     private static final Type TYPE_COLLECTION_INTEGER = new TypeToken<Collection<Integer>>() {
     }.getType();
@@ -36,7 +38,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     private NetworkClusterNode nodeInfo;
 
-    private INetworkChannel channel;
+    private NetworkChannel channel;
 
     DefaultClusterNodeServer(DefaultClusterNodeServerProvider provider, NetworkClusterNode nodeInfo) {
         this.provider = provider;
@@ -63,7 +65,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void saveSendPacket(IPacket packet) {
+    public void saveSendPacket(Packet packet) {
         Validate.checkNotNull(packet);
 
         if (this.channel != null) {
@@ -491,6 +493,10 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     public void setChannel(INetworkChannel channel) {
+        this.channel = new INetworkChannelAdapter(channel);
+    }
+
+    public void setChannel(NetworkChannel channel) {
         this.channel = channel;
     }
 }

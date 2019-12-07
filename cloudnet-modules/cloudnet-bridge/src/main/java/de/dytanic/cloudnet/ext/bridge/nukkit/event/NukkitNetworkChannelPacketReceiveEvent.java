@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.bridge.nukkit.event;
 
 import cn.nukkit.event.HandlerList;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public final class NukkitNetworkChannelPacketReceiveEvent extends NukkitCloudNetEvent {
 
@@ -10,9 +10,9 @@ public final class NukkitNetworkChannelPacketReceiveEvent extends NukkitCloudNet
 
     private final INetworkChannel channel;
 
-    private final IPacket packet;
+    private final Packet packet;
 
-    public NukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+    public NukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, Packet packet) {
         this.channel = channel;
         this.packet = packet;
     }
@@ -25,7 +25,7 @@ public final class NukkitNetworkChannelPacketReceiveEvent extends NukkitCloudNet
         return this.channel;
     }
 
-    public IPacket getPacket() {
+    public Packet getPacket() {
         return this.packet;
     }
 }

@@ -2,9 +2,9 @@ package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.*;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,8 +38,8 @@ public class NettyNetworkClientServerTest {
         Assert.assertEquals(1, networkClient.getChannels().size());
         Assert.assertEquals(1, networkServer.getChannels().size());
 
-        networkServer.sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
-        networkClient.sendPacket(new Packet(6, new JsonDocument(), "TestValue".getBytes()));
+        networkServer.sendPacket(new AbstractPacket(6, new JsonDocument(), "TestValue".getBytes()));
+        networkClient.sendPacket(new AbstractPacket(6, new JsonDocument(), "TestValue".getBytes()));
 
         Thread.sleep(500);
 
@@ -56,7 +56,7 @@ public class NettyNetworkClientServerTest {
         Assert.assertEquals(0, networkServer.getChannels().size());
     }
 
-    private final class NetworkChannelClientHandler implements INetworkChannelHandler {
+    private final class NetworkChannelClientHandler implements NetworkChannelHandler {
 
         @Override
         public void handleChannelInitialize(INetworkChannel channel) {
@@ -64,7 +64,7 @@ public class NettyNetworkClientServerTest {
         }
 
         @Override
-        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+        public boolean handlePacketReceive(INetworkChannel channel, AbstractPacket packet) {
             cliPacketServerReceive = new String(packet.getBody());
 
             return true;
@@ -76,7 +76,7 @@ public class NettyNetworkClientServerTest {
         }
     }
 
-    private final class NetworkChannelServerHandler implements INetworkChannelHandler {
+    private final class NetworkChannelServerHandler implements NetworkChannelHandler {
 
         @Override
         public void handleChannelInitialize(INetworkChannel channel) {
@@ -84,7 +84,7 @@ public class NettyNetworkClientServerTest {
         }
 
         @Override
-        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+        public boolean handlePacketReceive(INetworkChannel channel, AbstractPacket packet) {
             return true;
         }
 
@@ -94,10 +94,10 @@ public class NettyNetworkClientServerTest {
         }
     }
 
-    private final class PacketListenerImpl implements IPacketListener {
+    private final class PacketListenerImpl implements PacketListener {
 
         @Override
-        public void handle(INetworkChannel channel, IPacket packet) {
+        public void handle(INetworkChannel channel, Packet packet) {
             cliPacketClientReceive = new String(packet.getBody());
         }
     }

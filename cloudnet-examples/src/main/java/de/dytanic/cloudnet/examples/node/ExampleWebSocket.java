@@ -7,32 +7,32 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketChannel;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 
 import java.util.Collection;
 
 public class ExampleWebSocket {
 
-    private final Collection<IWebSocketChannel> channels = Iterables.newCopyOnWriteArrayList();
+    private final Collection<WebSocketChannel> channels = Iterables.newCopyOnWriteArrayList();
 
     @EventListener
     public void handlePostEventsToWebSocketChannels(Event event) {
-        for (IWebSocketChannel channel : channels) {
+        for (WebSocketChannel channel : channels) {
             channel.sendWebSocketFrame(WebSocketFrameType.TEXT, GsonUtil.GSON.toJson(event));
         }
     }
 
     public void invokeWebSocketChannel() {
         CloudNet.getInstance().getHttpServer().registerHandler("/http_websocket_example_path", (path, context) -> {
-            IWebSocketChannel channel = context.upgrade(); //upgraded context to WebSocket
+            WebSocketChannel channel = context.upgrade(); //upgraded context to WebSocket
 
             channels.add(channel);
 
-            channel.addListener(new IWebSocketListener() { //Add a listener for received WebSocket channel messages and closing
+            channel.addListener(new WebSocketListener() { //Add a listener for received WebSocket channel messages and closing
                 @Override
-                public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) {
+                public void handle(WebSocketChannel channel, WebSocketFrameType type, byte[] bytes) {
                     switch (type) {
                         case PONG:
                             channel.sendWebSocketFrame(WebSocketFrameType.TEXT, new JsonDocument("message", "Hello, world!").toString());
@@ -46,7 +46,7 @@ public class ExampleWebSocket {
                 }
 
                 @Override
-                public void handleClose(IWebSocketChannel channel, Value<Integer> statusCode, Value<String> reasonText) //handle the closing output
+                public void handleClose(WebSocketChannel channel, Value<Integer> statusCode, Value<String> reasonText) //handle the closing output
                 {
                     if (!channels.contains(channel)) {
                         statusCode.setValue(500);

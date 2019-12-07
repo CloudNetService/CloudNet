@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.network.listener;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.driver.permission.ClusterSynchronizedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.DefaultJsonFilePermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
@@ -13,10 +13,10 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 
 import java.util.List;
 
-public final class PacketServerSetPermissionDataListener implements IPacketListener {
+public final class PacketServerSetPermissionDataListener implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         if (packet.getHeader().contains("permissionGroups") && packet.getHeader().contains("set_json_database")) {
             if (CloudNet.getInstance().getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                 List<PermissionUser> permissionUsers = packet.getHeader().get("permissionUsers", new TypeToken<List<PermissionUser>>() {

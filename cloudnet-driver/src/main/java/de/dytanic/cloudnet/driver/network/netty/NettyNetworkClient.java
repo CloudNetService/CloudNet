@@ -4,13 +4,10 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFutureListener;
@@ -26,15 +23,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-public final class NettyNetworkClient implements INetworkClient {
+public final class NettyNetworkClient implements NetworkClient {
 
-    protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
+    protected final Collection<NetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
 
-    protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
+    protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
     protected final EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
 
-    protected final Callable<INetworkChannelHandler> networkChannelHandler;
+    protected final Callable<NetworkChannelHandler> networkChannelHandler;
 
     protected final ITaskScheduler taskScheduler;
 
@@ -44,11 +41,11 @@ public final class NettyNetworkClient implements INetworkClient {
 
     protected SslContext sslContext;
 
-    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler) {
+    public NettyNetworkClient(Callable<NetworkChannelHandler> networkChannelHandler) {
         this(networkChannelHandler, null, null);
     }
 
-    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+    public NettyNetworkClient(Callable<NetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
         this.networkChannelHandler = networkChannelHandler;
         this.sslConfiguration = sslConfiguration;
 
@@ -130,13 +127,13 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public Collection<INetworkChannel> getChannels() {
+    public Collection<NetworkChannel> getChannels() {
         return Collections.unmodifiableCollection(this.channels);
     }
 
     @Override
     public void closeChannels() {
-        for (INetworkChannel channel : this.channels) {
+        for (NetworkChannel channel : this.channels) {
             try {
                 channel.close();
             } catch (Exception exception) {
@@ -148,24 +145,24 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(Packet packet) {
         Validate.checkNotNull(packet);
 
-        for (INetworkChannel channel : this.channels) {
+        for (NetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
         }
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(Packet... packets) {
         Validate.checkNotNull(packets);
 
-        for (INetworkChannel channel : this.channels) {
+        for (NetworkChannel channel : this.channels) {
             channel.sendPacket(packets);
         }
     }
 
-    public IPacketListenerRegistry getPacketRegistry() {
+    public PacketListenerRegistry getPacketRegistry() {
         return this.packetRegistry;
     }
 }

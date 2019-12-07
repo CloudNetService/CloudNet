@@ -1,49 +1,49 @@
 package de.dytanic.cloudnet.driver.network.http;
 
-public class MethodHttpHandlerAdapter implements IMethodHttpHandler {
+public class MethodHttpHandlerAdapter implements MethodHttpHandler {
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, HttpContext context) throws Exception {
 
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, HttpContext context) throws Exception {
 
     }
 
     @Override
-    public void handlePut(String path, IHttpContext context) {
+    public void handlePut(String path, HttpContext context) {
 
     }
 
     @Override
-    public void handleHead(String path, IHttpContext context) {
+    public void handleHead(String path, HttpContext context) {
 
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) {
+    public void handleDelete(String path, HttpContext context) {
 
     }
 
     @Override
-    public void handlePatch(String path, IHttpContext context) {
+    public void handlePatch(String path, HttpContext context) {
 
     }
 
     @Override
-    public void handleTrace(String path, IHttpContext context) {
+    public void handleTrace(String path, HttpContext context) {
 
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
 
     }
 
     @Override
-    public void handleConnect(String path, IHttpContext context) {
+    public void handleConnect(String path, HttpContext context) {
 
     }
 }

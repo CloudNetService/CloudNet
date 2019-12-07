@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -18,7 +18,7 @@ final class NettyPacketDecoder extends ByteToMessageDecoder {
         }
 
         try {
-            out.add(new Packet(
+            out.add(new AbstractPacket(
                     NettyUtils.readVarInt(byteBuf),
                     UUID.fromString(NettyUtils.readString(byteBuf)),
                     JsonDocument.newDocument(NettyUtils.readString(byteBuf)),

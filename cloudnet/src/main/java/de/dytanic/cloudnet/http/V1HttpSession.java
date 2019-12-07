@@ -5,7 +5,7 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ public final class V1HttpSession {
 
     private final Collection<SessionEntry> entries = Iterables.newCopyOnWriteArrayList();
 
-    public boolean auth(IHttpContext context) throws Exception {
+    public boolean auth(HttpContext context) throws Exception {
         if (isAuthorized(context)) {
             logout(context);
         }
@@ -68,7 +68,7 @@ public final class V1HttpSession {
         return true;
     }
 
-    public boolean isAuthorized(IHttpContext context) throws Exception {
+    public boolean isAuthorized(HttpContext context) throws Exception {
         if (!context.hasCookie(COOKIE_NAME)) {
             return false;
         }
@@ -90,7 +90,7 @@ public final class V1HttpSession {
         return true;
     }
 
-    public SessionEntry getValidSessionEntry(String cookieValue, IHttpContext context) {
+    public SessionEntry getValidSessionEntry(String cookieValue, HttpContext context) {
         if (cookieValue == null || context == null) {
             return null;
         }
@@ -104,7 +104,7 @@ public final class V1HttpSession {
         return null;
     }
 
-    public void logout(IHttpContext context) {
+    public void logout(HttpContext context) {
         Validate.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
@@ -115,7 +115,7 @@ public final class V1HttpSession {
         context.removeCookie(COOKIE_NAME);
     }
 
-    public IPermissionUser getUser(IHttpContext context) {
+    public IPermissionUser getUser(HttpContext context) {
         Validate.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
@@ -123,7 +123,7 @@ public final class V1HttpSession {
         return getUser(sessionEntry, context);
     }
 
-    private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) {
+    private IPermissionUser getUser(SessionEntry sessionEntry, HttpContext context) {
         if (sessionEntry == null || context == null) {
             return null;
         }
@@ -131,7 +131,7 @@ public final class V1HttpSession {
         return CloudNet.getInstance().getPermissionManagement().getUser(UUID.fromString(sessionEntry.userUniqueId));
     }
 
-    private String getCookieValue(IHttpContext context) {
+    private String getCookieValue(HttpContext context) {
         HttpCookie httpCookie = context.cookie(COOKIE_NAME);
 
         if (httpCookie != null) {
@@ -141,7 +141,7 @@ public final class V1HttpSession {
         }
     }
 
-    private String createKey(SessionEntry sessionEntry, IHttpContext context) {
+    private String createKey(SessionEntry sessionEntry, HttpContext context) {
         return Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(sessionEntry.creationTime +
                 ":" +
                 context.channel().clientAddress().getHost() +

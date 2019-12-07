@@ -9,7 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
-public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
+public class DefaultPersistableModuleDependencyLoader implements ModuleDependencyLoader {
 
     protected File baseDirectory;
 

@@ -6,13 +6,13 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class DefaultEventManager implements IEventManager {
+public final class DefaultEventManager implements EventManager {
 
     //Map<Channel, Listeners>
-    private final Map<String, List<IRegisteredEventListener>> registeredListeners = new HashMap<>();
+    private final Map<String, List<RegisteredEventListener>> registeredListeners = new HashMap<>();
 
     @Override
-    public IEventManager registerListener(Object listener) {
+    public EventManager registerListener(Object listener) {
         Validate.checkNotNull(listener);
 
         this.registerListener0(listener);
@@ -20,11 +20,11 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     @Override
-    public IEventManager unregisterListener(Object listener) {
+    public EventManager unregisterListener(Object listener) {
         Validate.checkNotNull(listener);
 
-        for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
+        for (Map.Entry<String, List<RegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
+            for (RegisteredEventListener registeredEventListener : listeners.getValue()) {
                 if (registeredEventListener.getInstance().equals(listener)) {
                     listeners.getValue().remove(registeredEventListener);
                 }
@@ -35,11 +35,11 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     @Override
-    public IEventManager unregisterListener(Class<?> listener) {
+    public EventManager unregisterListener(Class<?> listener) {
         Validate.checkNotNull(listener);
 
-        for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
+        for (Map.Entry<String, List<RegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
+            for (RegisteredEventListener registeredEventListener : listeners.getValue()) {
                 if (registeredEventListener.getInstance().getClass().equals(listener)) {
                     listeners.getValue().remove(registeredEventListener);
                 }
@@ -50,11 +50,11 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     @Override
-    public IEventManager unregisterListeners(ClassLoader classLoader) {
+    public EventManager unregisterListeners(ClassLoader classLoader) {
         Validate.checkNotNull(classLoader);
 
-        for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
+        for (Map.Entry<String, List<RegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
+            for (RegisteredEventListener registeredEventListener : listeners.getValue()) {
                 if (registeredEventListener.getInstance().getClass().getClassLoader().equals(classLoader)) {
                     listeners.getValue().remove(registeredEventListener);
                 }
@@ -65,7 +65,7 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     @Override
-    public IEventManager unregisterListeners(Object... listeners) {
+    public EventManager unregisterListeners(Object... listeners) {
         Validate.checkNotNull(listeners);
 
         for (Object listener : listeners) {
@@ -76,7 +76,7 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     @Override
-    public IEventManager unregisterListeners(Class<?>... classes) {
+    public EventManager unregisterListeners(Class<?>... classes) {
         Validate.checkNotNull(classes);
 
         for (Object listener : classes) {
@@ -87,7 +87,7 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     @Override
-    public IEventManager unregisterAll() {
+    public EventManager unregisterAll() {
         this.registeredListeners.clear();
         return this;
     }
@@ -106,9 +106,9 @@ public final class DefaultEventManager implements IEventManager {
 
     private void fireEvent(String channel, Event event) {
         if (channel.equals("*")) {
-            List<IRegisteredEventListener> listeners = new ArrayList<>();
+            List<RegisteredEventListener> listeners = new ArrayList<>();
 
-            for (List<IRegisteredEventListener> entry : this.registeredListeners.values()) {
+            for (List<RegisteredEventListener> entry : this.registeredListeners.values()) {
                 listeners.addAll(entry);
             }
 
@@ -119,10 +119,10 @@ public final class DefaultEventManager implements IEventManager {
         }
     }
 
-    private void fireEvent0(List<IRegisteredEventListener> listeners, Event event) {
+    private void fireEvent0(List<RegisteredEventListener> listeners, Event event) {
         Collections.sort(listeners);
 
-        for (IRegisteredEventListener listener : listeners) {
+        for (RegisteredEventListener listener : listeners) {
             listener.fireEvent(event);
         }
     }
@@ -135,7 +135,7 @@ public final class DefaultEventManager implements IEventManager {
                             Event.class.isAssignableFrom(method.getParameters()[0].getType())) {
                 EventListener eventListener = method.getAnnotation(EventListener.class);
 
-                IRegisteredEventListener registeredEventListener = new DefaultRegisteredEventListener(
+                RegisteredEventListener registeredEventListener = new DefaultRegisteredEventListener(
                         eventListener,
                         eventListener.priority(),
                         listener,

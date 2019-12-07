@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
+import de.dytanic.cloudnet.driver.network.http.HttpChannel;
 import io.netty.channel.Channel;
 
-final class NettyHttpChannel implements IHttpChannel {
+final class NettyHttpChannel implements HttpChannel {
 
     protected final Channel channel;
 

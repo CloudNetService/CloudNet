@@ -10,7 +10,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 
@@ -47,7 +47,7 @@ final class NetworkChannelHandlerUtils {
             exception.printStackTrace();
         }
 
-        Collection<Packet> removed = Iterables.newArrayList();
+        Collection<AbstractPacket> removed = Iterables.newArrayList();
 
         for (Map.Entry<UUID, ServiceInfoSnapshot> entry : CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().entrySet()) {
             if (entry.getValue().getServiceId().getNodeUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId())) {
@@ -59,7 +59,7 @@ final class NetworkChannelHandlerUtils {
 
         for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
-                for (Packet packet : removed) {
+                for (AbstractPacket packet : removed) {
                     cloudService.getNetworkChannel().sendPacket(packet);
                 }
             }

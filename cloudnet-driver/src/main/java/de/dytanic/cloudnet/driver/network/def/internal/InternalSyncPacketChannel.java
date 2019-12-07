@@ -10,7 +10,7 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 
 import java.util.Map;
 import java.util.UUID;
@@ -32,7 +32,7 @@ public final class InternalSyncPacketChannel {
         throw new UnsupportedOperationException();
     }
 
-    public static boolean handleIncomingChannel(Packet packet) {
+    public static boolean handleIncomingChannel(AbstractPacket packet) {
         Validate.checkNotNull(packet);
 
         if (WAITING_PACKETS.containsKey(packet.getUniqueId())) {
@@ -61,7 +61,7 @@ public final class InternalSyncPacketChannel {
         Validate.checkNotNull(channel);
         Validate.checkNotNull(header);
 
-        Packet packet = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
+        AbstractPacket packet = new AbstractPacket(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
         checkCachedValidation();
 
         SynchronizedCallback syncEntry = new SynchronizedCallback();

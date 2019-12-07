@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -40,7 +40,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     private void invoke0(WebSocketFrameType type, WebSocketFrame webSocketFrame) {
         byte[] bytes = readContentFromWebSocketFrame(webSocketFrame);
 
-        for (IWebSocketListener listener : webSocketServerChannel.getListeners()) {
+        for (WebSocketListener listener : webSocketServerChannel.getListeners()) {
             try {
                 listener.handle(webSocketServerChannel, type, bytes);
             } catch (Exception exception) {

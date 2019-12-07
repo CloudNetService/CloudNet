@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -611,7 +611,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
     }
 
     private Collection<String> getGroupNames() {
-        return getCloudNet().getPermissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList());
+        return getCloudNet().getPermissionManagement().getGroups().stream().map(Nameable::getName).collect(Collectors.toList());
     }
 
     private Collection<String> getUserPermissions(String user) {

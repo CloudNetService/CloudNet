@@ -1,12 +1,13 @@
 package de.dytanic.cloudnet.driver.network;
 
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.PacketSender;
 
 /**
  * A NetworkChannel instance represents an open connection
  */
-public interface INetworkChannel extends IPacketSender, AutoCloseable {
+@Deprecated
+public interface INetworkChannel extends PacketSender, AutoCloseable {
 
     /**
      * Returns the unique channelId.
@@ -27,7 +28,7 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
     /**
      * Returns the networkChannelHandler from this channel
      */
-    INetworkChannelHandler getHandler();
+    NetworkChannelHandler getHandler();
 
     /**
      * Sets the channel handler for the channels. That is important for the handling of
@@ -35,13 +36,18 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
      *
      * @param handler the handler, that should handle this channel
      */
+    @Deprecated
     void setHandler(INetworkChannelHandler handler);
+
+    default void setHandler(NetworkChannelHandler handler) {
+        setHandler((INetworkChannelHandler) handler);
+    }
 
     /**
      * Returns the own packet listener registry. The packetRegistry is a sub registry of
      * the network component packet listener registry
      */
-    IPacketListenerRegistry getPacketRegistry();
+    PacketListenerRegistry getPacketRegistry();
 
     /**
      * Returns that, the channel based of the client site connection

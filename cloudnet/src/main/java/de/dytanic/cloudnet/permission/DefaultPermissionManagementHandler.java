@@ -5,7 +5,7 @@ import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.permission.*;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerUpdatePermissions;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
@@ -68,7 +68,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
         sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_GROUPS, permissionManagement.getGroups()));
     }
 
-    private void sendAll(IPacket packet) {
+    private void sendAll(Packet packet) {
         CloudNet.getInstance().sendAllAsync(packet).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 }

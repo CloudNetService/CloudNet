@@ -7,9 +7,9 @@ public final class DefaultModuleProviderTest {
 
     @Test
     public void testModule() throws Throwable {
-        IModuleProvider moduleProvider = new DefaultModuleProvider();
+        ModuleProvider moduleProvider = new DefaultModuleProvider();
 
-        IModuleWrapper moduleWrapper = moduleProvider.loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar"));
+        ModuleWrapper moduleWrapper = moduleProvider.loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar"));
         Assert.assertNull(moduleProvider.loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar")));
 
         Assert.assertNotNull(moduleWrapper);

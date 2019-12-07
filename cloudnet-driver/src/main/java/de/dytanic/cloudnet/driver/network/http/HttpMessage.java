@@ -2,9 +2,9 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import java.util.Map;
 
-public interface IHttpMessage<T extends IHttpMessage> {
+public interface HttpMessage<T extends HttpMessage> {
 
-    IHttpContext context();
+    HttpContext context();
 
     String header(String name);
 

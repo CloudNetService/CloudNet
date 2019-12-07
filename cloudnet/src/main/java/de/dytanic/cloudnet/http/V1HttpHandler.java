@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
 import de.dytanic.cloudnet.driver.permission.Permission;
 
@@ -30,7 +30,7 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
     }
 
     @Override
-    public void handle(String path, IHttpContext context) throws Exception {
+    public void handle(String path, HttpContext context) throws Exception {
         context.response().header("Access-Control-Allow-Origin", "*");
 
         if (this.permission != null && !this.checkPermission(context, this.permission + "." + context.request().method().toLowerCase())) {
@@ -41,7 +41,7 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
         super.handle(path, context);
     }
 
-    protected IHttpContext send400Response(IHttpContext context, String reason) {
+    protected HttpContext send400Response(HttpContext context, String reason) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_BAD_REQUEST)
@@ -55,7 +55,7 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
         return context;
     }
 
-    protected IHttpContext send403Response(IHttpContext context, String reason) {
+    protected HttpContext send403Response(HttpContext context, String reason) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_FORBIDDEN)
@@ -69,7 +69,7 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
         return context;
     }
 
-    protected IHttpContext sendOptions(IHttpContext context, String allowedMethods) {
+    protected HttpContext sendOptions(HttpContext context, String allowedMethods) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -88,7 +88,7 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
         return context;
     }
 
-    protected boolean checkPermission(IHttpContext context, String permission) {
+    protected boolean checkPermission(HttpContext context, String permission) {
         try {
             if (!permission.isEmpty() && !getCloudNet().getPermissionManagement().hasPermission(HTTP_SESSION.getUser(context), new Permission(permission, 1))) {
                 this.send403Response(context, "permission required " + permission);

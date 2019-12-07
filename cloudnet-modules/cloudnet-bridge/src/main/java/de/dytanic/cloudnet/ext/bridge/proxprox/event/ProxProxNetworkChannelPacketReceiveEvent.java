@@ -1,15 +1,15 @@
 package de.dytanic.cloudnet.ext.bridge.proxprox.event;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public final class ProxProxNetworkChannelPacketReceiveEvent extends ProxProxCloudNetEvent {
 
     private final INetworkChannel channel;
 
-    private final IPacket packet;
+    private final Packet packet;
 
-    public ProxProxNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+    public ProxProxNetworkChannelPacketReceiveEvent(INetworkChannel channel, Packet packet) {
         this.channel = channel;
         this.packet = packet;
     }
@@ -18,7 +18,7 @@ public final class ProxProxNetworkChannelPacketReceiveEvent extends ProxProxClou
         return this.channel;
     }
 
-    public IPacket getPacket() {
+    public Packet getPacket() {
         return this.packet;
     }
 }

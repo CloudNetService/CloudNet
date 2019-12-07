@@ -8,12 +8,13 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.NetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
-public class NetworkClientChannelHandler implements INetworkChannelHandler {
+public class NetworkClientChannelHandler implements NetworkChannelHandler {
 
     @Override
     public void handleChannelInitialize(INetworkChannel channel) {
@@ -38,7 +39,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
     }
 
     @Override
-    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+    public boolean handlePacketReceive(INetworkChannel channel, AbstractPacket packet) {
         if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
             return false;
         }

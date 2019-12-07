@@ -14,8 +14,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.module.IModuleTaskEntry;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleTaskEntry;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
@@ -171,17 +171,17 @@ public final class CommandReport extends Command {
 
             writer.println("###################################################################################");
             writer.println("Modules:");
-            for (IModuleWrapper moduleWrapper : CloudNetDriver.getInstance().getModuleProvider().getModules()) {
+            for (ModuleWrapper moduleWrapper : CloudNetDriver.getInstance().getModuleProvider().getModules()) {
                 writer.println(moduleWrapper.getModuleConfiguration().getName() + " | " + moduleWrapper.getModuleLifeCycle());
                 writer.println();
                 gson.toJson(moduleWrapper.getModuleConfigurationSource(), writer);
                 writer.println();
                 writer.println("- ModuleTasks");
 
-                for (Map.Entry<ModuleLifeCycle, List<IModuleTaskEntry>> moduleLifeCycleListEntry : moduleWrapper.getModuleTasks().entrySet()) {
+                for (Map.Entry<ModuleLifeCycle, List<ModuleTaskEntry>> moduleLifeCycleListEntry : moduleWrapper.getModuleTasks().entrySet()) {
                     writer.println("ModuleTask: " + moduleLifeCycleListEntry.getKey());
 
-                    for (IModuleTaskEntry moduleTaskEntry : moduleLifeCycleListEntry.getValue()) {
+                    for (ModuleTaskEntry moduleTaskEntry : moduleLifeCycleListEntry.getValue()) {
                         writer.println("Order: " + moduleTaskEntry.getTaskInfo().order() + " | " + moduleTaskEntry.getHandler().getName());
                     }
                 }

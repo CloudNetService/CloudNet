@@ -2,9 +2,9 @@ package de.dytanic.cloudnet.ext.rest.http;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 public final class V1HttpHandlerModules extends V1HttpHandler {
@@ -14,12 +14,12 @@ public final class V1HttpHandlerModules extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "OPTIONS, GET");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) {
+    public void handleGet(String path, HttpContext context) {
         if (context.request().pathParameters().containsKey("name")) {
             context
                     .response()
@@ -32,7 +32,7 @@ public final class V1HttpHandlerModules extends V1HttpHandler {
                     .response()
                     .header("Content-Type", "application/json")
                     .statusCode(200)
-                    .body(GSON.toJson(Iterables.filter(Iterables.map(CloudNetDriver.getInstance().getModuleProvider().getModules(), IModuleWrapper::getModuleConfiguration), moduleConfiguration -> {
+                    .body(GSON.toJson(Iterables.filter(Iterables.map(CloudNetDriver.getInstance().getModuleProvider().getModules(), ModuleWrapper::getModuleConfiguration), moduleConfiguration -> {
                         if (context.request().queryParameters().containsKey("group") &&
                                 !containsStringElementInCollection(context.request().queryParameters().get("group"), moduleConfiguration.getGroup())) {
                             return false;

@@ -5,7 +5,7 @@ import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
 
 import java.io.File;
@@ -50,11 +50,11 @@ public class DriverModule extends DefaultModule {
         return getLogger().log(level, message);
     }
 
-    public final IEventManager registerListener(Object listener) {
+    public final EventManager registerListener(Object listener) {
         return getEventManager().registerListener(listener);
     }
 
-    public final IEventManager registerListeners(Object... listeners) {
+    public final EventManager registerListeners(Object... listeners) {
         return getEventManager().registerListeners(listeners);
     }
 
@@ -66,7 +66,7 @@ public class DriverModule extends DefaultModule {
         return this.getDriver().getLogger();
     }
 
-    public final IEventManager getEventManager() {
+    public final EventManager getEventManager() {
         return this.getDriver().getEventManager();
     }
 

@@ -4,13 +4,14 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.Collection;
 import java.util.Queue;
 import java.util.UUID;
 
+@Deprecated
 public interface IClusterNodeServer extends AutoCloseable {
 
     void sendClusterChannelMessage(String channel, String message, JsonDocument header, byte[] body);
@@ -33,7 +34,7 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     boolean isConnected();
 
-    void saveSendPacket(IPacket packet);
+    void saveSendPacket(Packet packet);
 
     boolean isAcceptableConnection(INetworkChannel channel, String nodeId);
 

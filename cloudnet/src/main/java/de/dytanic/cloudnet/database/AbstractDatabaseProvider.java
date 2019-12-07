@@ -1,16 +1,17 @@
 package de.dytanic.cloudnet.database;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
+import jline.internal.Nullable;
 
 import java.util.Collection;
 
-public abstract class AbstractDatabaseProvider implements INameable, AutoCloseable {
+public abstract class AbstractDatabaseProvider implements Nameable, AutoCloseable {
 
-    protected IDatabaseHandler databaseHandler;
+    protected DatabaseHandler databaseHandler;
 
     public abstract boolean init() throws Exception;
 
-    public abstract IDatabase getDatabase(String name);
+    public abstract Database getDatabase(String name);
 
     public abstract boolean containsDatabase(String name);
 
@@ -18,11 +19,16 @@ public abstract class AbstractDatabaseProvider implements INameable, AutoCloseab
 
     public abstract Collection<String> getDatabaseNames();
 
-    public IDatabaseHandler getDatabaseHandler() {
+    public DatabaseHandler getDatabaseHandler() {
         return this.databaseHandler;
     }
 
+    @Deprecated
     public void setDatabaseHandler(IDatabaseHandler databaseHandler) {
+        this.databaseHandler = new IDatabaseHandlerAdapter(databaseHandler);
+    }
+
+    public void setDatabaseHandler(DatabaseHandler databaseHandler) {
         this.databaseHandler = databaseHandler;
     }
 }

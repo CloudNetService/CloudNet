@@ -18,6 +18,8 @@ public class PacketQueryProvider {
 
     public PacketQueryProvider(INetworkClient defaultNetworkClient) {
         this.defaultNetworkClient = defaultNetworkClient;
+
+
     }
 
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {

@@ -2,11 +2,11 @@ package de.dytanic.cloudnet.driver.module;
 
 import java.lang.reflect.Method;
 
-public interface IModuleTaskEntry {
+public interface ModuleTaskEntry {
 
-    IModuleWrapper getModuleWrapper();
+    ModuleWrapper getModuleWrapper();
 
-    IModule getModule();
+    Module getModule();
 
     ModuleTask getTaskInfo();
 

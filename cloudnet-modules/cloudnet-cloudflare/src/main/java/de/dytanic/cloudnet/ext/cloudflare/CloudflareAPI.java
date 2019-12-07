@@ -7,7 +7,7 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
 
@@ -34,11 +34,11 @@ public final class CloudflareAPI implements AutoCloseable {
     @Getter
     private final File file;
     */
-    private final IDatabase database;
+    private final Database database;
 
     private final Map<String, Pair<String, JsonDocument>> createdRecords = Maps.newConcurrentHashMap();
 
-    protected CloudflareAPI(IDatabase database) {
+    protected CloudflareAPI(Database database) {
         instance = this;
 
         this.database = database;
@@ -222,7 +222,7 @@ public final class CloudflareAPI implements AutoCloseable {
         return null;
     }
 
-    public IDatabase getDatabase() {
+    public Database getDatabase() {
         return this.database;
     }
 

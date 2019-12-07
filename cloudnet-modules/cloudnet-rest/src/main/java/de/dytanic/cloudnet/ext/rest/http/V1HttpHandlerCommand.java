@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 import de.dytanic.cloudnet.permission.command.DefaultPermissionUserCommandSender;
@@ -14,12 +14,12 @@ public final class V1HttpHandlerCommand extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "OPTIONS, POST");
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, HttpContext context) throws Exception {
         if (context.request().body().length == 0) {
             this.send400Response(context, "Empty http body");
             return;

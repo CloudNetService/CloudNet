@@ -5,7 +5,7 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
@@ -22,12 +22,12 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "OPTIONS, GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) {
+    public void handleGet(String path, HttpContext context) {
         if (context.request().pathParameters().containsKey("name")) {
             context
                     .response()
@@ -53,7 +53,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) {
+    public void handlePost(String path, HttpContext context) {
         ServiceTask serviceTask = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
 
         if (serviceTask.getProcessConfiguration() == null || serviceTask.getName() == null) {
@@ -96,7 +96,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) {
+    public void handleDelete(String path, HttpContext context) {
         if (!context.request().pathParameters().containsKey("name")) {
             send400Response(context, "name parameter not found");
             return;

@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.driver.permission.*;
 
 import java.io.File;
@@ -278,7 +278,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
         }
     }
 
-    public IDatabase getDatabase() {
+    public Database getDatabase() {
         return this.getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
     }
 

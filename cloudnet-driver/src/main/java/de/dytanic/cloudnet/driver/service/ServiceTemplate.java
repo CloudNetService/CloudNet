@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.Validate;
 
-public class ServiceTemplate implements INameable {
+public class ServiceTemplate implements Nameable {
 
     private final String prefix, name, storage;
     private boolean alwaysCopyToStaticServices;

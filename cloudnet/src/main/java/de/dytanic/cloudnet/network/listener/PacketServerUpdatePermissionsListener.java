@@ -7,22 +7,22 @@ import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.events.permission.*;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerUpdatePermissions;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
 
-public final class PacketServerUpdatePermissionsListener implements IPacketListener {
+public final class PacketServerUpdatePermissionsListener implements PacketListener {
 
     private static final Type PERMISSION_USERS_TYPE = new TypeToken<Collection<PermissionUser>>() {
     }.getType(), PERMISSION_GROUPS_TYPE = new TypeToken<Collection<PermissionGroup>>() {
     }.getType();
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         if (packet.getHeader().contains("permissions_event") && packet.getHeader().contains("updateType")) {
             switch (packet.getHeader().get("updateType", PacketServerUpdatePermissions.UpdateType.class)) {
                 case ADD_USER: {
@@ -103,7 +103,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
         return CloudNet.getInstance().getPermissionManagement();
     }
 
-    private void sendUpdateToAllServices(IPacket packet) {
+    private void sendUpdateToAllServices(Packet packet) {
         for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
                 cloudService.getNetworkChannel().sendPacket(packet);

@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
 
@@ -15,25 +15,26 @@ import java.util.Map;
 
 public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
 
-    protected final Map<String, IClusterNodeServer> servers = Maps.newConcurrentHashMap();
+    protected final Map<String, ClusterNodeServer> servers = Maps.newConcurrentHashMap();
 
     @Override
-    public Collection<IClusterNodeServer> getNodeServers() {
+    public Collection<ClusterNodeServer> getNodeServers() {
+//        return this.servers.values().stream().map((server) -> (IClusterNodeServer) server).collect(Collectors.toCollection(LinkedList::new));
         return this.servers.values();
     }
 
     @Override
-    public IClusterNodeServer getNodeServer(String uniqueId) {
+    public ClusterNodeServer getNodeServer(String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.servers.get(uniqueId);
     }
 
     @Override
-    public IClusterNodeServer getNodeServer(INetworkChannel channel) {
+    public ClusterNodeServer getNodeServer(INetworkChannel channel) {
         Validate.checkNotNull(channel);
 
-        for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
+        for (ClusterNodeServer clusterNodeServer : this.servers.values()) {
             if (clusterNodeServer.getChannel() != null && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
                 return clusterNodeServer;
             }
@@ -52,7 +53,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
             }
         }
 
-        for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
+        for (ClusterNodeServer clusterNodeServer : this.servers.values()) {
             NetworkClusterNode node = Iterables.first(networkCluster.getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()));
 
             if (node == null) {
@@ -62,19 +63,19 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(Packet packet) {
         Validate.checkNotNull(packet);
 
-        for (IClusterNodeServer nodeServer : this.servers.values()) {
+        for (ClusterNodeServer nodeServer : this.servers.values()) {
             nodeServer.saveSendPacket(packet);
         }
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(Packet... packets) {
         Validate.checkNotNull(packets);
 
-        for (IPacket packet : packets) {
+        for (Packet packet : packets) {
             this.sendPacket(packet);
         }
     }
@@ -86,14 +87,14 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
     @Override
     public void close() throws Exception {
-        for (IClusterNodeServer clusterNodeServer : servers.values()) {
+        for (ClusterNodeServer clusterNodeServer : servers.values()) {
             clusterNodeServer.close();
         }
 
         this.servers.clear();
     }
 
-    public Map<String, IClusterNodeServer> getServers() {
+    public Map<String, ClusterNodeServer> getServers() {
         return this.servers;
     }
 }

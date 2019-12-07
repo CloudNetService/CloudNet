@@ -5,8 +5,8 @@ import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
 
 import java.util.Arrays;
@@ -33,8 +33,8 @@ public final class CommandModules extends CommandDefault implements ITabComplete
     @Deprecated
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        IModuleProvider moduleProvider = CloudNetDriver.getInstance().getModuleProvider();
-        Collection<IModuleWrapper> moduleWrappers = moduleProvider.getModules();
+        ModuleProvider moduleProvider = CloudNetDriver.getInstance().getModuleProvider();
+        Collection<ModuleWrapper> moduleWrappers = moduleProvider.getModules();
 
         if (args.length == 0) {
             sender.sendMessage(
@@ -46,7 +46,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         }
 
         if (args[0].equalsIgnoreCase("list")) {
-            for (IModuleWrapper wrapper : moduleWrappers) {
+            for (ModuleWrapper wrapper : moduleWrappers) {
                 if (properties.containsKey("group") && !wrapper.getModuleConfiguration().getGroup().contains(properties.get("group"))) {
                     continue;
                 }
@@ -61,13 +61,13 @@ public final class CommandModules extends CommandDefault implements ITabComplete
             }
         }
 
-        IModuleWrapper wrapper = CloudNetDriver.getInstance().getModuleProvider().getModule(args[0]);
+        ModuleWrapper wrapper = CloudNetDriver.getInstance().getModuleProvider().getModule(args[0]);
         if (wrapper != null) {
             this.displayModuleInfo(sender, wrapper);
         }
     }
 
-    private void displayModuleInfo(ICommandSender sender, IModuleWrapper moduleWrapper) {
+    private void displayModuleInfo(ICommandSender sender, ModuleWrapper moduleWrapper) {
         List<String> list = Iterables.newArrayList();
 
         list.add("* Module: " +

@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 public final class V1SecurityProtectionHttpHandler extends V1HttpHandler {
@@ -11,7 +11,7 @@ public final class V1SecurityProtectionHttpHandler extends V1HttpHandler {
     }
 
     @Override
-    public void handle(String path, IHttpContext context) throws Exception {
+    public void handle(String path, HttpContext context) throws Exception {
         if (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/logout")) {
             return;
         }

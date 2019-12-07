@@ -6,13 +6,10 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -25,13 +22,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public final class NettyNetworkServer extends NettySSLServer implements INetworkServer {
+public final class NettyNetworkServer extends NettySSLServer implements NetworkServer {
 
     protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = Maps.newConcurrentHashMap();
 
-    protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
+    protected final Collection<NetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
 
-    protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
+    protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
     protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup(), workerEventLoopGroup = NettyUtils.newEventLoopGroup();
 
@@ -39,17 +36,17 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     protected final boolean taskSchedulerFromConstructor;
 
-    protected final Callable<INetworkChannelHandler> networkChannelHandler;
+    protected final Callable<NetworkChannelHandler> networkChannelHandler;
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler) {
+    public NettyNetworkServer(Callable<NetworkChannelHandler> networkChannelHandler) {
         this(networkChannelHandler, null, null);
     }
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
+    public NettyNetworkServer(Callable<NetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
         this(networkChannelHandler, null, taskScheduler);
     }
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+    public NettyNetworkServer(Callable<NetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
         super(sslConfiguration);
         this.networkChannelHandler = networkChannelHandler;
         this.taskSchedulerFromConstructor = taskScheduler != null;
@@ -116,13 +113,13 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         this.workerEventLoopGroup.shutdownGracefully();
     }
 
-    public Collection<INetworkChannel> getChannels() {
+    public Collection<NetworkChannel> getChannels() {
         return Collections.unmodifiableCollection(this.channels);
     }
 
     @Override
     public void closeChannels() {
-        for (INetworkChannel channel : this.channels) {
+        for (NetworkChannel channel : this.channels) {
             try {
                 channel.close();
             } catch (Exception exception) {
@@ -134,24 +131,24 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(Packet packet) {
         Validate.checkNotNull(packet);
 
-        for (INetworkChannel channel : this.channels) {
+        for (NetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
         }
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(Packet... packets) {
         Validate.checkNotNull(packets);
 
-        for (INetworkChannel channel : this.channels) {
+        for (NetworkChannel channel : this.channels) {
             channel.sendPacket(packets);
         }
     }
 
-    public IPacketListenerRegistry getPacketRegistry() {
+    public PacketListenerRegistry getPacketRegistry() {
         return this.packetRegistry;
     }
 }

@@ -1,17 +1,17 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 import java.util.UUID;
 
-final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
+final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf byteBuf) {
+    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf byteBuf) {
         //Writing the channelId
         NettyUtils.writeVarInt(byteBuf, packet.getChannel());
 
@@ -33,7 +33,7 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
         data = packet.getBody();
 
         if (data == null || data.length == 0) {
-            data = Packet.EMPTY_PACKET_BYTE_ARRAY;
+            data = AbstractPacket.EMPTY_PACKET_BYTE_ARRAY;
         }
 
         NettyUtils.writeVarInt(byteBuf, data.length).writeBytes(data);

@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 
 import java.util.Collection;
 
-public class GroupConfiguration extends ServiceConfigurationBase implements INameable {
+public class GroupConfiguration extends ServiceConfigurationBase implements Nameable {
 
     protected String name;
 

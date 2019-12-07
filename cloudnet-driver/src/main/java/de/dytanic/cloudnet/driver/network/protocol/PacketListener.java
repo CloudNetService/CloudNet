@@ -8,9 +8,9 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
  * <p>
  * It will called on all channels, that the registry has register the listener
  *
- * @see IPacketListenerRegistry
+ * @see PacketListenerRegistry
  */
-public interface IPacketListener {
+public interface PacketListener {
 
     /**
      * Handles a new incoming packet message. The channel and the packet will not null
@@ -19,5 +19,5 @@ public interface IPacketListener {
      * @param packet  the received packet message, which should handle from the listener
      * @throws Exception catch the exception, if the handle throws one
      */
-    void handle(INetworkChannel channel, IPacket packet) throws Exception;
+    void handle(INetworkChannel channel, Packet packet) throws Exception;
 }

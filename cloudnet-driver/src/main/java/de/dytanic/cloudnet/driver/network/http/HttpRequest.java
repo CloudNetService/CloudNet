@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.driver.network.http;
 import java.util.List;
 import java.util.Map;
 
-public interface IHttpRequest extends IHttpMessage<IHttpRequest> {
+public interface HttpRequest extends HttpMessage<HttpRequest> {
 
     Map<String, String> pathParameters();
 

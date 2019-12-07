@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.ClusterNodeServer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -9,14 +9,14 @@ import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.NetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class NetworkClientChannelHandlerImpl implements INetworkChannelHandler {
+public final class NetworkClientChannelHandlerImpl implements NetworkChannelHandler {
 
     private static final AtomicLong connectionWhichSendRequest = new AtomicLong();
 
@@ -40,7 +40,7 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
     }
 
     @Override
-    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+    public boolean handlePacketReceive(INetworkChannel channel, AbstractPacket packet) {
         if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
             return false;
         }
@@ -58,7 +58,7 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         );
 
-        IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
+        ClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
 
         if (clusterNodeServer != null) {
             NetworkChannelHandlerUtils.handleRemoveDisconnectedClusterInNetwork(channel, clusterNodeServer);

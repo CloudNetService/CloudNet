@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.sql.ResultSet;
@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
-public abstract class SQLDatabase implements IDatabase {
+public abstract class SQLDatabase implements Database {
 
     private static final String TABLE_COLUMN_KEY = "Name", TABLE_COLUMN_VALUE = "Document";
 

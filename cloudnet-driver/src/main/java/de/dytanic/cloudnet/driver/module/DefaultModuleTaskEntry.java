@@ -2,26 +2,26 @@ package de.dytanic.cloudnet.driver.module;
 
 import java.lang.reflect.Method;
 
-public final class DefaultModuleTaskEntry implements IModuleTaskEntry {
+public final class DefaultModuleTaskEntry implements ModuleTaskEntry {
 
-    private IModuleWrapper moduleWrapper;
+    private ModuleWrapper moduleWrapper;
 
     private ModuleTask taskInfo;
 
     private Method handler;
 
-    public DefaultModuleTaskEntry(IModuleWrapper moduleWrapper, ModuleTask taskInfo, Method handler) {
+    public DefaultModuleTaskEntry(ModuleWrapper moduleWrapper, ModuleTask taskInfo, Method handler) {
         this.moduleWrapper = moduleWrapper;
         this.taskInfo = taskInfo;
         this.handler = handler;
     }
 
     @Override
-    public IModule getModule() {
+    public Module getModule() {
         return this.moduleWrapper.getModule();
     }
 
-    public IModuleWrapper getModuleWrapper() {
+    public ModuleWrapper getModuleWrapper() {
         return this.moduleWrapper;
     }
 

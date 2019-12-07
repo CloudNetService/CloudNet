@@ -1,11 +1,11 @@
 package de.dytanic.cloudnet.driver.event.events.module;
 
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 
 public final class ModulePostStopEvent extends ModuleEvent {
 
-    public ModulePostStopEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
+    public ModulePostStopEvent(ModuleProvider moduleProvider, ModuleWrapper module) {
         super(moduleProvider, module);
     }
 }

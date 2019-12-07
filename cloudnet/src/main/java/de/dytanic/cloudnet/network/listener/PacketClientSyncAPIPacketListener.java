@@ -5,9 +5,9 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -16,14 +16,14 @@ import de.dytanic.cloudnet.driver.service.*;
 import java.util.Collection;
 import java.util.UUID;
 
-public final class PacketClientSyncAPIPacketListener implements IPacketListener {
+public final class PacketClientSyncAPIPacketListener implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         handle0(channel, packet);
     }
 
-    private void handle0(INetworkChannel channel, IPacket packet) {
+    private void handle0(INetworkChannel channel, Packet packet) {
         if (packet.getHeader().contains(PacketConstants.SYNC_PACKET_ID_PROPERTY) && packet.getHeader().contains(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY) &&
                 packet.getHeader().getString(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY).equals("cloudnet_driver_sync_api")) {
             switch (packet.getHeader().getString(PacketConstants.SYNC_PACKET_ID_PROPERTY)) {
@@ -454,7 +454,7 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
     }
 
     private void sendResponse(INetworkChannel channel, UUID uniqueId, JsonDocument header, byte[] body) {
-        channel.sendPacket(new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, uniqueId, header, body));
+        channel.sendPacket(new AbstractPacket(PacketConstants.INTERNAL_CALLABLE_CHANNEL, uniqueId, header, body));
     }
 
     private void sendEmptyResponse(INetworkChannel channel, UUID uniqueId) {

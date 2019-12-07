@@ -10,13 +10,13 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 
-public final class DefaultModuleProvider implements IModuleProvider {
+public final class DefaultModuleProvider implements ModuleProvider {
 
     protected Collection<DefaultModuleWrapper> moduleWrappers = Iterables.newCopyOnWriteArrayList();
 
-    protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
+    protected ModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
 
-    protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
+    protected ModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
     private File moduleDirectory = new File("modules");
 
@@ -31,26 +31,26 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public Collection<IModuleWrapper> getModules() {
+    public Collection<ModuleWrapper> getModules() {
         return Collections.unmodifiableCollection(moduleWrappers);
     }
 
     @Override
-    public Collection<IModuleWrapper> getModules(String group) {
+    public Collection<ModuleWrapper> getModules(String group) {
         Validate.checkNotNull(group);
 
         return Iterables.filter(this.getModules(), defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group));
     }
 
     @Override
-    public IModuleWrapper getModule(String name) {
+    public ModuleWrapper getModule(String name) {
         Validate.checkNotNull(name);
 
         return Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getName().equals(name));
     }
 
     @Override
-    public IModuleWrapper loadModule(URL url) {
+    public ModuleWrapper loadModule(URL url) {
         Validate.checkNotNull(url);
 
         DefaultModuleWrapper moduleWrapper = null;
@@ -76,14 +76,14 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleWrapper loadModule(File file) {
+    public ModuleWrapper loadModule(File file) {
         Validate.checkNotNull(file);
 
         return loadModule(file.toPath());
     }
 
     @Override
-    public IModuleWrapper loadModule(Path path) {
+    public ModuleWrapper loadModule(Path path) {
         Validate.checkNotNull(path);
 
         try {
@@ -96,7 +96,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider loadModule(URL... urls) {
+    public ModuleProvider loadModule(URL... urls) {
         Validate.checkNotNull(urls);
 
         for (URL url : urls) {
@@ -107,7 +107,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider loadModule(File... files) {
+    public ModuleProvider loadModule(File... files) {
         Validate.checkNotNull(files);
 
         for (File file : files) {
@@ -118,7 +118,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider loadModule(Path... paths) {
+    public ModuleProvider loadModule(Path... paths) {
         Validate.checkNotNull(paths);
 
         for (Path path : paths) {
@@ -129,7 +129,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider startAll() {
+    public ModuleProvider startAll() {
         for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
             moduleWrapper.startModule();
         }
@@ -138,7 +138,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider stopAll() {
+    public ModuleProvider stopAll() {
         for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
             moduleWrapper.stopModule();
         }
@@ -147,7 +147,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     }
 
     @Override
-    public IModuleProvider unloadAll() {
+    public ModuleProvider unloadAll() {
         for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
             moduleWrapper.unloadModule();
         }
@@ -155,19 +155,19 @@ public final class DefaultModuleProvider implements IModuleProvider {
         return this;
     }
 
-    public IModuleProviderHandler getModuleProviderHandler() {
+    public ModuleProviderHandler getModuleProviderHandler() {
         return this.moduleProviderHandler;
     }
 
-    public void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler) {
+    public void setModuleProviderHandler(ModuleProviderHandler moduleProviderHandler) {
         this.moduleProviderHandler = moduleProviderHandler;
     }
 
-    public IModuleDependencyLoader getModuleDependencyLoader() {
+    public ModuleDependencyLoader getModuleDependencyLoader() {
         return this.moduleDependencyLoader;
     }
 
-    public void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader) {
+    public void setModuleDependencyLoader(ModuleDependencyLoader moduleDependencyLoader) {
         this.moduleDependencyLoader = moduleDependencyLoader;
     }
 }

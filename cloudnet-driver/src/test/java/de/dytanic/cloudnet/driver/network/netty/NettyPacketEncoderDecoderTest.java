@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
@@ -19,9 +19,9 @@ public class NettyPacketEncoderDecoderTest {
         NettyPacketDecoder nettyPacketDecoder = new NettyPacketDecoder();
 
         ByteBuf byteBuf = Unpooled.buffer();
-        Packet packet = new Packet(4, new JsonDocument().append("val", true), Packet.EMPTY_PACKET_BYTE_ARRAY);
-        Packet packet2 = new Packet(2, new JsonDocument(), "Test_Nachricht".getBytes());
-        Packet packet3 = new Packet(3, new JsonDocument(), new byte[0]);
+        AbstractPacket packet = new AbstractPacket(4, new JsonDocument().append("val", true), AbstractPacket.EMPTY_PACKET_BYTE_ARRAY);
+        AbstractPacket packet2 = new AbstractPacket(2, new JsonDocument(), "Test_Nachricht".getBytes());
+        AbstractPacket packet3 = new AbstractPacket(3, new JsonDocument(), new byte[0]);
 
         nettyPacketEncoder.encode(null, packet, byteBuf);
         nettyPacketEncoder.encode(null, packet2, byteBuf);
@@ -33,13 +33,13 @@ public class NettyPacketEncoderDecoderTest {
         nettyPacketDecoder.decode(null, byteBuf, packets);
 
         Assert.assertEquals(3, packets.size());
-        Assert.assertTrue(packets.get(0) instanceof Packet);
-        Assert.assertTrue(packets.get(1) instanceof Packet);
-        Assert.assertTrue(packets.get(2) instanceof Packet);
+        Assert.assertTrue(packets.get(0) instanceof AbstractPacket);
+        Assert.assertTrue(packets.get(1) instanceof AbstractPacket);
+        Assert.assertTrue(packets.get(2) instanceof AbstractPacket);
 
-        packet = (Packet) packets.get(0);
+        packet = (AbstractPacket) packets.get(0);
         Assert.assertTrue(packet.getHeader().getBoolean("val"));
 
-        Assert.assertEquals("Test_Nachricht", new String(((Packet) packets.get(1)).getBody(), StandardCharsets.UTF_8));
+        Assert.assertEquals("Test_Nachricht", new String(((AbstractPacket) packets.get(1)).getBody(), StandardCharsets.UTF_8));
     }
 }

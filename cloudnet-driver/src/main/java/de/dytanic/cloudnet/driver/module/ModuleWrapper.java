@@ -6,15 +6,15 @@ import java.io.File;
 import java.util.EnumMap;
 import java.util.List;
 
-public interface IModuleWrapper {
+public interface ModuleWrapper {
 
-    EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
+    EnumMap<ModuleLifeCycle, List<ModuleTaskEntry>> getModuleTasks();
 
-    IModule getModule();
+    Module getModule();
 
     ModuleLifeCycle getModuleLifeCycle();
 
-    IModuleProvider getModuleProvider();
+    ModuleProvider getModuleProvider();
 
     ModuleConfiguration getModuleConfiguration();
 
@@ -22,13 +22,13 @@ public interface IModuleWrapper {
 
     ClassLoader getClassLoader();
 
-    IModuleWrapper loadModule();
+    ModuleWrapper loadModule();
 
-    IModuleWrapper startModule();
+    ModuleWrapper startModule();
 
-    IModuleWrapper stopModule();
+    ModuleWrapper stopModule();
 
-    IModuleWrapper unloadModule();
+    ModuleWrapper unloadModule();
 
     File getDataFolder();
 }

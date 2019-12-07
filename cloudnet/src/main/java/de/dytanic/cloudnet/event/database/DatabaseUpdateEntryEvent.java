@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.event.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.database.IDatabase;
 
 public class DatabaseUpdateEntryEvent extends DatabaseEvent {
@@ -9,11 +10,16 @@ public class DatabaseUpdateEntryEvent extends DatabaseEvent {
 
     private JsonDocument document;
 
+    @Deprecated
     public DatabaseUpdateEntryEvent(IDatabase database, String key, JsonDocument document) {
         super(database);
 
         this.key = key;
         this.document = document;
+    }
+
+    public DatabaseUpdateEntryEvent(Database database, String key, JsonDocument document) {
+        this((IDatabase) database, key, document);
     }
 
     public String getKey() {

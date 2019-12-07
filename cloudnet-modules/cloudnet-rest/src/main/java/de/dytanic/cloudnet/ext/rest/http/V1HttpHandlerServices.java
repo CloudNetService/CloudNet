@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.ext.rest.http;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
@@ -16,12 +16,12 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "OPTIONS, GET");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) {
+    public void handleGet(String path, HttpContext context) {
         if (context.request().pathParameters().containsKey("uuid")) {
             ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid")));
 

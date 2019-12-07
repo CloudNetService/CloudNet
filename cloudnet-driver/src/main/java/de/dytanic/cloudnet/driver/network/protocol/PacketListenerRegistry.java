@@ -8,12 +8,12 @@ import java.util.Collection;
  * The packet listener registry allows to manage listeners that can handle input
  * packet messages.
  */
-public interface IPacketListenerRegistry {
+public interface PacketListenerRegistry {
 
     /**
      * Returns the parent PacketListenerRegistry implementation instance if exists
      */
-    IPacketListenerRegistry getParent();
+    PacketListenerRegistry getParent();
 
     /**
      * Adds a new listeners for packets that are received on a specific channel
@@ -21,7 +21,7 @@ public interface IPacketListenerRegistry {
      * @param channel   the channel, that the listener should listen on
      * @param listeners the listeners that should be add for this channel
      */
-    void addListener(int channel, IPacketListener... listeners);
+    void addListener(int channel, PacketListener... listeners);
 
     /**
      * Removes the listeners if they are registered on this listener registry.
@@ -30,7 +30,7 @@ public interface IPacketListenerRegistry {
      * @param channel   the channel, that the listener should listen on
      * @param listeners the listeners, that should remove on this registry
      */
-    void removeListener(int channel, IPacketListener... listeners);
+    void removeListener(int channel, PacketListener... listeners);
 
     /**
      * Removes all listeners on a specific channel
@@ -49,7 +49,7 @@ public interface IPacketListenerRegistry {
     /**
      * Returns true if the a specific listener class is contain in this registry
      */
-    boolean hasListener(Class<? extends IPacketListener> clazz);
+    boolean hasListener(Class<? extends PacketListener> clazz);
 
     /**
      * Removes all listeners by all channel from the registry
@@ -64,7 +64,7 @@ public interface IPacketListenerRegistry {
     /**
      * Returns all listeners by all channels from the registry
      */
-    Collection<IPacketListener> getListeners();
+    Collection<PacketListener> getListeners();
 
     /**
      * Handles an incoming packet and invoke all listeners that are registered in this registry
@@ -72,5 +72,5 @@ public interface IPacketListenerRegistry {
      * @param channel the channel, from that the packet was received
      * @param packet  the packet that should handle
      */
-    void handlePacket(INetworkChannel channel, IPacket packet);
+    void handlePacket(INetworkChannel channel, Packet packet);
 }

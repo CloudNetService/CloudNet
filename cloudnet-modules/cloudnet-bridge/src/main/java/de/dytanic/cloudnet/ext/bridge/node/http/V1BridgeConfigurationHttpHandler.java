@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.node.http;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
@@ -19,12 +19,12 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "GET, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) {
+    public void handleGet(String path, HttpContext context) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -37,7 +37,7 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, HttpContext context) throws Exception {
         try {
             if (context.request().body().length > 0) {
                 BridgeConfiguration bridgeConfiguration = GSON.fromJson(context.request().bodyAsString(), BridgeConfiguration.TYPE);

@@ -12,7 +12,7 @@ import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
@@ -26,7 +26,9 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
+import de.dytanic.cloudnet.wrapper.database.DatabaseProvider;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
+import de.dytanic.cloudnet.wrapper.database.IDatabaseProviderAdapater;
 import de.dytanic.cloudnet.wrapper.database.defaults.DefaultWrapperDatabaseProvider;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
@@ -99,7 +101,7 @@ public final class Wrapper extends CloudNetDriver {
      */
     private final Thread mainThread = Thread.currentThread();
     private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
-    private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
+    private DatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
     /**
      * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot
      * from this process. The lastServiceInfoSnapshot is the element which was send before.
@@ -515,7 +517,7 @@ public final class Wrapper extends CloudNetDriver {
 
         if (files != null) {
             for (File file : files) {
-                IModuleWrapper moduleWrapper = this.moduleProvider.loadModule(file);
+                ModuleWrapper moduleWrapper = this.moduleProvider.loadModule(file);
                 moduleWrapper.startModule();
             }
         }
@@ -578,12 +580,16 @@ public final class Wrapper extends CloudNetDriver {
         return this.currentServiceInfoSnapshot;
     }
 
-    public IDatabaseProvider getDatabaseProvider() {
+    public DatabaseProvider getDatabaseProvider() {
         return databaseProvider;
     }
 
     public void setDatabaseProvider(IDatabaseProvider databaseProvider) {
         Validate.checkNotNull(databaseProvider);
-        this.databaseProvider = databaseProvider;
+        this.databaseProvider = new IDatabaseProviderAdapater(databaseProvider);
+    }
+
+    public void setDatabaseProvider(DatabaseProvider databaseProvider) {
+
     }
 }

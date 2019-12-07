@@ -4,19 +4,19 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import de.dytanic.cloudnet.wrapper.database.IDatabase;
-import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
+import de.dytanic.cloudnet.wrapper.database.Database;
+import de.dytanic.cloudnet.wrapper.database.DatabaseProvider;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Function;
 
-public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
+public class DefaultWrapperDatabaseProvider implements DatabaseProvider {
 
     @Override
-    public IDatabase getDatabase(String name) {
+    public Database getDatabase(String name) {
         return new WrapperDatabase(name, this);
     }
 
@@ -82,7 +82,7 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
         return Wrapper.getInstance().getPacketQueryProvider().sendCallablePacket(
                 Wrapper.getInstance().getNetworkClient().getChannels().iterator().next(),
                 null,
-                header, Packet.EMPTY_PACKET_BYTE_ARRAY, responseMapper
+                header, AbstractPacket.EMPTY_PACKET_BYTE_ARRAY, responseMapper
         );
     }
 

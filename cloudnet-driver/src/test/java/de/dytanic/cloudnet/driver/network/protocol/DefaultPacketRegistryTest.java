@@ -15,14 +15,14 @@ public class DefaultPacketRegistryTest {
     public void testPacketRegistry() throws Throwable {
         final int channelId = 4;
 
-        IPacketListener listener = new PacketListenerImpl();
+        PacketListener listener = new PacketListenerImpl();
 
-        IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+        PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
         registry.addListener(channelId, listener);
 
         Assert.assertEquals(1, registry.getListeners().size());
 
-        registry.handlePacket(null, new Packet(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()));
+        registry.handlePacket(null, new AbstractPacket(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()));
 
         Assert.assertEquals(65, property);
         Assert.assertEquals("TestValue", testValue);
@@ -37,10 +37,10 @@ public class DefaultPacketRegistryTest {
         Assert.assertEquals(0, registry.getListeners().size());
     }
 
-    private final class PacketListenerImpl implements IPacketListener {
+    private final class PacketListenerImpl implements PacketListener {
 
         @Override
-        public void handle(INetworkChannel channel, IPacket packet) {
+        public void handle(INetworkChannel channel, Packet packet) {
             testValue = new String(packet.getBody());
             property = packet.getHeader().getInt("testProperty");
         }

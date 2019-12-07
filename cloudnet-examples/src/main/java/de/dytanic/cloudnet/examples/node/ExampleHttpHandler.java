@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.examples.node;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
 
 public final class ExampleHttpHandler {
@@ -28,7 +28,7 @@ public final class ExampleHttpHandler {
                 new MethodHttpHandlerAdapter() {
 
                     @Override
-                    public void handleGet(String path, IHttpContext context) {
+                    public void handleGet(String path, HttpContext context) {
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)

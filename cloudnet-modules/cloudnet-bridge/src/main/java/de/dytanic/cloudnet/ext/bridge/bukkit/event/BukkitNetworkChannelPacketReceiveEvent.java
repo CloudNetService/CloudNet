@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import org.bukkit.event.HandlerList;
 
 public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNetEvent {
@@ -10,9 +10,9 @@ public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNet
 
     private final INetworkChannel channel;
 
-    private final IPacket packet;
+    private final Packet packet;
 
-    public BukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+    public BukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, Packet packet) {
         this.channel = channel;
         this.packet = packet;
     }
@@ -30,7 +30,7 @@ public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNet
         return this.channel;
     }
 
-    public IPacket getPacket() {
+    public Packet getPacket() {
         return this.packet;
     }
 }

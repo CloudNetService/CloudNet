@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.common.Validate;
 
 import java.lang.reflect.Method;
 
-public interface IRegisteredEventListener extends Comparable<IRegisteredEventListener> {
+public interface RegisteredEventListener extends Comparable<RegisteredEventListener> {
 
     EventListener getEventListener();
 
@@ -32,7 +32,7 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
     }
 
     @Override
-    default int compareTo(IRegisteredEventListener o) {
+    default int compareTo(RegisteredEventListener o) {
         return this.getPriority().compareTo(o.getPriority());
     }
 }

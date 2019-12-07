@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 public final class V1HttpHandlerStatus extends V1HttpHandler {
@@ -14,12 +14,12 @@ public final class V1HttpHandlerStatus extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "OPTIONS, GET");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) {
+    public void handleGet(String path, HttpContext context) {
         IConfiguration configuration = getCloudNet().getConfig();
 
         context

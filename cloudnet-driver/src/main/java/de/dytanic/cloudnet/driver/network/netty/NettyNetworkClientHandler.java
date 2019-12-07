@@ -1,14 +1,14 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet> {
+final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<AbstractPacket> {
 
     private final NettyNetworkClient nettyNetworkClient;
 
@@ -59,7 +59,7 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
+    protected void channelRead0(ChannelHandlerContext ctx, AbstractPacket msg) {
         nettyNetworkClient.taskScheduler.schedule((Callable<Void>) () -> {
             if (channel.getHandler() != null && !channel.getHandler().handlePacketReceive(channel, msg)) {
                 return null;

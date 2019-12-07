@@ -8,8 +8,8 @@ import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
-import de.dytanic.cloudnet.driver.network.http.IHttpServer;
+import de.dytanic.cloudnet.driver.network.http.HttpHandler;
+import de.dytanic.cloudnet.driver.network.http.HttpServer;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 
 public abstract class NodeCloudNetModule extends DriverModule {
@@ -36,7 +36,7 @@ public abstract class NodeCloudNetModule extends DriverModule {
         return databaseProvider;
     }
 
-    public final IHttpServer registerHttpHandler(String path, IHttpHandler... httpHandlers) {
+    public final HttpServer registerHttpHandler(String path, HttpHandler... httpHandlers) {
         Validate.checkNotNull(path);
         Validate.checkNotNull(httpHandlers);
 
@@ -47,7 +47,7 @@ public abstract class NodeCloudNetModule extends DriverModule {
         return getCloudNet().getDatabaseProvider();
     }
 
-    public final IHttpServer getHttpServer() {
+    public final HttpServer getHttpServer() {
         return getCloudNet().getHttpServer();
     }
 

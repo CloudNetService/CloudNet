@@ -11,7 +11,7 @@ public final class DefaultEventManagerTest {
 
     @Test
     public void testListenerCall() throws Throwable {
-        IEventManager eventManager = new DefaultEventManager();
+        EventManager eventManager = new DefaultEventManager();
 
         Assert.assertNotNull(eventManager.registerListener(new ListenerTest()));
 
@@ -43,7 +43,7 @@ public final class DefaultEventManagerTest {
 
     @Test
     public void testEventPriority() {
-        IEventManager eventManager = new DefaultEventManager();
+        EventManager eventManager = new DefaultEventManager();
 
         Assert.assertNotNull(eventManager.registerListener(new ListenerTest2()));
 

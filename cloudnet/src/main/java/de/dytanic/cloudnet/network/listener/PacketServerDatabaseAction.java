@@ -3,19 +3,19 @@ package de.dytanic.cloudnet.network.listener;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 
 import java.util.UUID;
 
-public class PacketServerDatabaseAction implements IPacketListener {
+public class PacketServerDatabaseAction implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, Packet packet) throws Exception {
         if (packet.getHeader().contains("message")) {
             AbstractDatabaseProvider databaseProvider = CloudNet.getInstance().getDatabaseProvider();
             String message = packet.getHeader().getString("message");
@@ -23,7 +23,7 @@ public class PacketServerDatabaseAction implements IPacketListener {
             if (packet.getHeader().contains("database")) {
                 String databaseName = packet.getHeader().getString("database");
 
-                IDatabase database = databaseProvider.getDatabase(databaseName);
+                Database database = databaseProvider.getDatabase(databaseName);
 
                 // actions for a specific key in the database
                 if (packet.getHeader().contains("key")) {
@@ -146,7 +146,7 @@ public class PacketServerDatabaseAction implements IPacketListener {
     }
 
     private void sendResponse(INetworkChannel channel, UUID uniqueId, JsonDocument header, byte[] body) {
-        channel.sendPacket(new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, uniqueId, header, body));
+        channel.sendPacket(new AbstractPacket(PacketConstants.INTERNAL_CALLABLE_CHANNEL, uniqueId, header, body));
     }
 
     private void sendEmptyResponse(INetworkChannel channel, UUID uniqueId) {

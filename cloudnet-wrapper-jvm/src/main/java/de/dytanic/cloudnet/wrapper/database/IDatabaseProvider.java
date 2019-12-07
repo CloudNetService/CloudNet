@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 
 import java.util.Collection;
 
+@Deprecated
 public interface IDatabaseProvider {
 
     IDatabase getDatabase(String name);

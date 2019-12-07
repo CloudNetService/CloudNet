@@ -7,6 +7,7 @@ package de.dytanic.cloudnet.driver.network;
  *
  * @see INetworkClient
  */
+@Deprecated
 public interface INetworkServer extends INetworkComponent, AutoCloseable {
 
     /**

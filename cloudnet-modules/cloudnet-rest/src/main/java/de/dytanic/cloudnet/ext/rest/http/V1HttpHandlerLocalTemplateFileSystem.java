@@ -5,7 +5,7 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
@@ -24,12 +24,12 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, HttpContext context) throws Exception {
         if (!context.request().pathParameters().containsKey("prefix") || !context.request().pathParameters().containsKey("name")) {
             this.send400Response(context, "path parameter prefix or suffix doesn't exists");
             return;
@@ -87,7 +87,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, HttpContext context) throws Exception {
         if (!context.request().pathParameters().containsKey("prefix") || !context.request().pathParameters().containsKey("name")) {
             this.send400Response(context, "path parameter prefix or suffix doesn't exists");
             return;
@@ -126,7 +126,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) {
+    public void handleDelete(String path, HttpContext context) {
         if (!context.request().pathParameters().containsKey("prefix") || !context.request().pathParameters().containsKey("name")) {
             this.send400Response(context, "path parameter prefix or suffix doesn't exists");
             return;
@@ -185,7 +185,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         return new ServiceTemplate(prefix, name, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
     }
 
-    private void send404Response(IHttpContext context, String reason) {
+    private void send404Response(HttpContext context, String reason) {
         Validate.checkNotNull(context);
         Validate.checkNotNull(reason);
 

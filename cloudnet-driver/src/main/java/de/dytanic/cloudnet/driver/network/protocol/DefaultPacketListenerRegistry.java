@@ -10,36 +10,36 @@ import java.util.*;
 /**
  * Default IPacketListenerRegistry implementation
  */
-public final class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
+public final class DefaultPacketListenerRegistry implements PacketListenerRegistry {
 
-    private final Map<Integer, List<IPacketListener>> listeners = Maps.newConcurrentHashMap();
+    private final Map<Integer, List<PacketListener>> listeners = Maps.newConcurrentHashMap();
 
-    private final IPacketListenerRegistry parent;
+    private final PacketListenerRegistry parent;
 
     public DefaultPacketListenerRegistry() {
         this.parent = null;
     }
 
-    public DefaultPacketListenerRegistry(IPacketListenerRegistry parent) {
+    public DefaultPacketListenerRegistry(PacketListenerRegistry parent) {
         this.parent = parent;
     }
 
     @Override
-    public void addListener(int channel, IPacketListener... listeners) {
+    public void addListener(int channel, PacketListener... listeners) {
         Validate.checkNotNull(listeners);
 
         if (!this.listeners.containsKey(channel)) {
             this.listeners.put(channel, Iterables.newCopyOnWriteArrayList());
         }
 
-        for (IPacketListener listener : listeners) {
+        for (PacketListener listener : listeners) {
             Validate.checkNotNull(listener);
             this.listeners.get(channel).add(listener);
         }
     }
 
     @Override
-    public void removeListener(int channel, IPacketListener... listeners) {
+    public void removeListener(int channel, PacketListener... listeners) {
         Validate.checkNotNull(listeners);
 
         if (this.listeners.containsKey(channel)) {
@@ -61,8 +61,8 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
 
     @Override
     public void removeListeners(ClassLoader classLoader) {
-        for (Map.Entry<Integer, List<IPacketListener>> listenerCollectionEntry : this.listeners.entrySet()) {
-            for (IPacketListener listener : listenerCollectionEntry.getValue()) {
+        for (Map.Entry<Integer, List<PacketListener>> listenerCollectionEntry : this.listeners.entrySet()) {
+            for (PacketListener listener : listenerCollectionEntry.getValue()) {
                 if (listener.getClass().getClassLoader().equals(classLoader)) {
                     listenerCollectionEntry.getValue().remove(listener);
                 }
@@ -71,9 +71,9 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     }
 
     @Override
-    public boolean hasListener(Class<? extends IPacketListener> clazz) {
-        for (Map.Entry<Integer, List<IPacketListener>> listenerCollectionEntry : this.listeners.entrySet()) {
-            for (IPacketListener listener : listenerCollectionEntry.getValue()) {
+    public boolean hasListener(Class<? extends PacketListener> clazz) {
+        for (Map.Entry<Integer, List<PacketListener>> listenerCollectionEntry : this.listeners.entrySet()) {
+            for (PacketListener listener : listenerCollectionEntry.getValue()) {
                 if (listener.getClass().equals(clazz)) {
                     return true;
                 }
@@ -94,10 +94,10 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     }
 
     @Override
-    public Collection<IPacketListener> getListeners() {
-        Collection<IPacketListener> listeners = Iterables.newCopyOnWriteArrayList();
+    public Collection<PacketListener> getListeners() {
+        Collection<PacketListener> listeners = Iterables.newCopyOnWriteArrayList();
 
-        for (List<IPacketListener> list : this.listeners.values()) {
+        for (List<PacketListener> list : this.listeners.values()) {
             listeners.addAll(list);
         }
 
@@ -105,7 +105,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     }
 
     @Override
-    public void handlePacket(INetworkChannel channel, IPacket packet) {
+    public void handlePacket(INetworkChannel channel, Packet packet) {
         Validate.checkNotNull(packet);
 
         if (this.parent != null) {
@@ -113,7 +113,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
         }
 
         if (this.listeners.containsKey(packet.getChannel())) {
-            for (IPacketListener listener : this.listeners.get(packet.getChannel())) {
+            for (PacketListener listener : this.listeners.get(packet.getChannel())) {
                 try {
                     listener.handle(channel, packet);
                 } catch (Exception exception) {
@@ -123,7 +123,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
         }
     }
 
-    public IPacketListenerRegistry getParent() {
+    public PacketListenerRegistry getParent() {
         return this.parent;
     }
 }

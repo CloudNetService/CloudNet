@@ -2,9 +2,9 @@ package de.dytanic.cloudnet.network.packet;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 
-public final class PacketServerClusterChannelMessage extends Packet {
+public final class PacketServerClusterChannelMessage extends AbstractPacket {
 
     public PacketServerClusterChannelMessage(String channel, String message, JsonDocument header, byte[] body) {
         super(

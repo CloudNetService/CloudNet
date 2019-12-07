@@ -1,25 +1,25 @@
 package de.dytanic.cloudnet.driver.event.events.module;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 
 public abstract class ModuleEvent extends DriverEvent {
 
-    private IModuleProvider moduleProvider;
+    private ModuleProvider moduleProvider;
 
-    private IModuleWrapper module;
+    private ModuleWrapper module;
 
-    public ModuleEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
+    public ModuleEvent(ModuleProvider moduleProvider, ModuleWrapper module) {
         this.moduleProvider = moduleProvider;
         this.module = module;
     }
 
-    public IModuleProvider getModuleProvider() {
+    public ModuleProvider getModuleProvider() {
         return this.moduleProvider;
     }
 
-    public IModuleWrapper getModule() {
+    public ModuleWrapper getModule() {
         return this.module;
     }
 }

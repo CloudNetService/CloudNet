@@ -3,9 +3,9 @@ package de.dytanic.cloudnet.driver.network.def.packet;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.AbstractPacket;
 
-public final class PacketClientAuthorization extends Packet {
+public final class PacketClientAuthorization extends AbstractPacket {
 
     public PacketClientAuthorization(PacketAuthorizationType packetAuthorizationType, JsonDocument credentials) {
         super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument(), null);

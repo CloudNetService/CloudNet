@@ -10,7 +10,7 @@ import de.dytanic.cloudnet.event.database.DatabaseInsertEntryEvent;
 import de.dytanic.cloudnet.event.database.DatabaseUpdateEntryEvent;
 import de.dytanic.cloudnet.network.packet.PacketServerH2Database;
 
-public final class DefaultDatabaseHandler implements IDatabaseHandler {
+public final class DefaultDatabaseHandler implements DatabaseHandler {
 
     @Override
     public void handleInsert(IDatabase database, String key, JsonDocument document) {

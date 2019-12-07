@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.rest.http;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 import de.dytanic.cloudnet.template.ITemplateStorage;
@@ -15,12 +15,12 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
+    public void handleOptions(String path, HttpContext context) {
         this.sendOptions(context, "OPTIONS, GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) {
+    public void handleGet(String path, HttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
@@ -60,7 +60,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) {
+    public void handlePost(String path, HttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
             getStorage().deploy(context.request().body(), serviceTemplate);
@@ -68,7 +68,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) {
+    public void handleDelete(String path, HttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
             getStorage().delete(serviceTemplate);

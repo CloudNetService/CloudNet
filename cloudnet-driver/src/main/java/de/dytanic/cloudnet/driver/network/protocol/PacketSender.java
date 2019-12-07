@@ -4,7 +4,7 @@ package de.dytanic.cloudnet.driver.network.protocol;
  * All implementations of this interface, can send a packet into the network
  * Its not specific that the sender is a client or a server.
  */
-public interface IPacketSender {
+public interface PacketSender {
 
     /**
      * Transport a packet instance into the network to the receiver. The receiver will
@@ -14,7 +14,7 @@ public interface IPacketSender {
      *
      * @param packet the packet, which should transport into the network
      */
-    void sendPacket(IPacket packet);
+    void sendPacket(Packet packet);
 
     /**
      * Transport packet instances into the network to the receiver. The receiver will
@@ -25,6 +25,6 @@ public interface IPacketSender {
      *
      * @param packets the packets, which should transport into the network
      */
-    void sendPacket(IPacket... packets);
+    void sendPacket(Packet... packets);
 
 }

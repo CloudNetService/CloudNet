@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.driver.event;
 
 import java.lang.reflect.Method;
 
-public class DefaultRegisteredEventListener implements IRegisteredEventListener {
+public class DefaultRegisteredEventListener implements RegisteredEventListener {
 
     protected EventListener eventListener;
 

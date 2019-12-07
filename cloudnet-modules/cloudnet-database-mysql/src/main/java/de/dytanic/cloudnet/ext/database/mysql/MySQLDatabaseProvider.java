@@ -7,7 +7,7 @@ import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.Database;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
 
@@ -60,7 +60,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     }
 
     @Override
-    public IDatabase getDatabase(String name) {
+    public Database getDatabase(String name) {
         Validate.checkNotNull(name);
 
         this.removedOutdatedEntries();

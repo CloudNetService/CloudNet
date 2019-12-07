@@ -1,18 +1,16 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import io.netty.channel.Channel;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
-final class NettyNetworkChannel implements INetworkChannel {
+final class NettyNetworkChannel implements NetworkChannel {
 
     private static final Callable<Void> EMPTY_TASK = () -> null;
 
@@ -23,15 +21,15 @@ final class NettyNetworkChannel implements INetworkChannel {
 
     private final Channel channel;
 
-    private final IPacketListenerRegistry packetRegistry;
+    private final PacketListenerRegistry packetRegistry;
 
     private final HostAndPort serverAddress, clientAddress;
 
     private final boolean clientProvidedChannel;
 
-    private INetworkChannelHandler handler;
+    private NetworkChannelHandler handler;
 
-    public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
+    public NettyNetworkChannel(Channel channel, PacketListenerRegistry packetRegistry, NetworkChannelHandler handler,
                                HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
         this.channel = channel;
         this.handler = handler;
@@ -44,7 +42,7 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(Packet packet) {
         Validate.checkNotNull(packet);
 
         if (this.channel.eventLoop().inEventLoop()) {
@@ -54,15 +52,15 @@ final class NettyNetworkChannel implements INetworkChannel {
         }
     }
 
-    private void sendPacket0(IPacket packet) {
+    private void sendPacket0(Packet packet) {
         this.channel.writeAndFlush(packet, this.channel.voidPromise());
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(Packet... packets) {
         Validate.checkNotNull(packets);
 
-        for (IPacket packet : packets) {
+        for (Packet packet : packets) {
             this.sendPacket(packet);
         }
     }
@@ -80,7 +78,7 @@ final class NettyNetworkChannel implements INetworkChannel {
         return this.channel;
     }
 
-    public IPacketListenerRegistry getPacketRegistry() {
+    public PacketListenerRegistry getPacketRegistry() {
         return this.packetRegistry;
     }
 
@@ -96,11 +94,11 @@ final class NettyNetworkChannel implements INetworkChannel {
         return this.clientProvidedChannel;
     }
 
-    public INetworkChannelHandler getHandler() {
+    public NetworkChannelHandler getHandler() {
         return this.handler;
     }
 
     public void setHandler(INetworkChannelHandler handler) {
-        this.handler = handler;
+        this.handler = new INetworkChannelHandlerAdapter(handler);
     }
 }

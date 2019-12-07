@@ -11,8 +11,8 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkChannelAuthCloudServiceSuccessEvent;
@@ -22,10 +22,10 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.UUID;
 
-public final class PacketClientAuthorizationListener implements IPacketListener {
+public final class PacketClientAuthorizationListener implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, Packet packet) throws Exception {
         if (packet.getHeader().contains("authorization") && packet.getHeader().contains("credentials")) {
             JsonDocument credentials = packet.getHeader().getDocument("credentials");
 

@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.network;
 /**
  * The network client represents a client based connector to one or more remote servers.
  */
+@Deprecated
 public interface INetworkClient extends INetworkComponent, AutoCloseable {
 
     /**

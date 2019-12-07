@@ -6,19 +6,19 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.h2.H2Database;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
-public final class PacketServerSetH2DatabaseDataListener implements IPacketListener {
+public final class PacketServerSetH2DatabaseDataListener implements PacketListener {
 
     private static final Type TYPE = new TypeToken<Map<String, Map<String, JsonDocument>>>() {
     }.getType();
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider && packet.getHeader().contains("set_h2db")) {
             Map<String, Map<String, JsonDocument>> documents = packet.getHeader().get("documents", TYPE);
 

@@ -5,18 +5,18 @@ import de.dytanic.cloudnet.database.h2.H2Database;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.event.database.DatabaseClearEntriesEvent;
 import de.dytanic.cloudnet.event.database.DatabaseDeleteEntryEvent;
 import de.dytanic.cloudnet.event.database.DatabaseInsertEntryEvent;
 import de.dytanic.cloudnet.event.database.DatabaseUpdateEntryEvent;
 import de.dytanic.cloudnet.network.packet.PacketServerH2Database;
 
-public final class PacketServerH2DatabaseListener implements IPacketListener {
+public final class PacketServerH2DatabaseListener implements PacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
+    public void handle(INetworkChannel channel, Packet packet) {
         if (packet.getHeader().contains("operationType") && packet.getHeader().contains("name")) {
             if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider) {
                 H2Database database = (H2Database) CloudNet.getInstance().getDatabaseProvider().getDatabase(packet.getHeader().getString("name"));
