@@ -6,7 +6,10 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.*;
+import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
+import de.dytanic.cloudnet.ext.bridge.PluginInfo;
+import de.dytanic.cloudnet.ext.bridge.WorldInfo;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
@@ -39,7 +42,7 @@ public final class BukkitCloudNetHelper {
     }
 
     public static void changeToIngame() {
-        BridgeCloudNetHelper.changeToIngame(s -> BukkitCloudNetHelper.state = s);
+        BridgeHelper.changeToIngame(s -> BukkitCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {

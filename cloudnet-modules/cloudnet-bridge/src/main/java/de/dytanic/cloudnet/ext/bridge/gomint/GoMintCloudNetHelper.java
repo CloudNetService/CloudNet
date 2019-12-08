@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -54,7 +53,7 @@ public final class GoMintCloudNetHelper {
     }
 
     public static void changeToIngame() {
-        BridgeCloudNetHelper.changeToIngame(s -> GoMintCloudNetHelper.state = s);
+        BridgeHelper.changeToIngame(s -> GoMintCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
