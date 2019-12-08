@@ -123,6 +123,11 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
+    public Collection<String> getConsoleTabCompleteResults(String commandLine) {
+        return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
+    }
+
+    @Override
     public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
         return this.cloudNet.scheduleTask(this::getConsoleCommands);
     }
@@ -130,6 +135,11 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     @Override
     public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.getConsoleCommand(commandLine));
+    }
+
+    @Override
+    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(String commandLine) {
+        return this.cloudNet.scheduleTask(() -> this.getConsoleTabCompleteResults(commandLine));
     }
 
     @Override

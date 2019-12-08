@@ -13,6 +13,8 @@ public interface NodeInfoProvider {
 
     CommandInfo getConsoleCommand(String commandLine);
 
+    Collection<String> getConsoleTabCompleteResults(String commandLine);
+
     String[] sendCommandLine(String commandLine);
 
     String[] sendCommandLine(String nodeUniqueId, String commandLine);
@@ -20,6 +22,8 @@ public interface NodeInfoProvider {
     ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
 
     ITask<CommandInfo> getConsoleCommandAsync(String commandLine);
+
+    ITask<Collection<String>> getConsoleTabCompleteResultsAsync(String commandLine);
 
     ITask<String[]> sendCommandLineAsync(String commandLine);
 
