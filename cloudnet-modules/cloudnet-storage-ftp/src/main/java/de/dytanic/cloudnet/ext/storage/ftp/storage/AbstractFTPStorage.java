@@ -5,14 +5,14 @@ import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 
-public abstract class GeneralFTPStorage implements ITemplateStorage {
+public abstract class AbstractFTPStorage implements ITemplateStorage {
 
     private String name;
-    FTPCredentials credentials;
-    FTPType ftpType;
-    String baseDirectory;
+    protected FTPCredentials credentials;
+    protected FTPType ftpType;
+    protected String baseDirectory;
 
-    GeneralFTPStorage(String name, FTPCredentials credentials, FTPType ftpType) {
+    AbstractFTPStorage(String name, FTPCredentials credentials, FTPType ftpType) {
         this.name = name;
         this.credentials = credentials;
         this.ftpType = ftpType;

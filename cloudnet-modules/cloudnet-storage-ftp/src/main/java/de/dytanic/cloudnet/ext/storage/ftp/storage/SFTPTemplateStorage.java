@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class SFTPTemplateStorage extends GeneralFTPStorage {
+public class SFTPTemplateStorage extends AbstractFTPStorage {
 
     private final SFTPClient ftpClient;
 
