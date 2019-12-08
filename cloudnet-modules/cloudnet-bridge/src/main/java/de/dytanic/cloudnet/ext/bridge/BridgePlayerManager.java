@@ -55,7 +55,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     @Override
     public List<? extends ICloudPlayer> getOnlinePlayers(String name) {
         try {
-            return this.getOnlinePlayerAsync(name).get(5, TimeUnit.SECONDS);
+            return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
             exception.printStackTrace();
         }
@@ -99,7 +99,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     @Override
     public List<? extends ICloudOfflinePlayer> getOfflinePlayers(String name) {
         try {
-            return this.getOfflinePlayerAsync(name).get(5, TimeUnit.SECONDS);
+            return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
             exception.printStackTrace();
         }

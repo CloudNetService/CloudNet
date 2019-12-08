@@ -105,7 +105,7 @@ public final class PlayerManagerListener {
             break;
             case "get_online_players_by_name_as_list": {
                 event.setCallbackPacket(new JsonDocument()
-                        .append("cloudPlayers", NodePlayerManager.getInstance().getOnlinePlayer(event.getHeader().getString("name")))
+                        .append("cloudPlayers", NodePlayerManager.getInstance().getOnlinePlayers(event.getHeader().getString("name")))
                 );
             }
             break;
@@ -129,7 +129,7 @@ public final class PlayerManagerListener {
             break;
             case "get_offline_player_by_name_as_list": {
                 event.setCallbackPacket(new JsonDocument()
-                        .append("offlineCloudPlayers", NodePlayerManager.getInstance().getOfflinePlayer(event.getHeader().getString("name")))
+                        .append("offlineCloudPlayers", NodePlayerManager.getInstance().getOfflinePlayers(event.getHeader().getString("name")))
                 );
             }
             break;
