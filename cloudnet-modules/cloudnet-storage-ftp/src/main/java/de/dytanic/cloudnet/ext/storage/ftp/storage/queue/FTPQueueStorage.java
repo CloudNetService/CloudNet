@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.ext.storage.ftp.storage.GeneralFTPStorage;
+import de.dytanic.cloudnet.ext.storage.ftp.storage.AbstractFTPStorage;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 
 import java.io.File;
@@ -13,47 +13,43 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
-    private static final long EMPTY_QUEUE_TOLERANCE_MILLIS = TimeUnit.SECONDS.toMillis(5);
+    private static final long EMPTY_QUEUE_TOLERANCE_SECONDS = 5;
 
-    private GeneralFTPStorage executingStorage;
+    private AbstractFTPStorage executingStorage;
 
     private boolean opened = true;
-    private Queue<ITask> ftpTaskQueue = new ConcurrentLinkedQueue<>();
+    private BlockingQueue<ITask<?>> ftpTaskQueue = new LinkedBlockingQueue<>();
 
-    public FTPQueueStorage(GeneralFTPStorage executingStorage) {
+    public FTPQueueStorage(AbstractFTPStorage executingStorage) {
         this.executingStorage = executingStorage;
     }
 
     @Override
     public void run() {
-
-        ITask nextFTPTask = null;
-        long disconnectTimeMillis = 0;
-
-        while (!Thread.currentThread().isInterrupted() && this.opened && (nextFTPTask == null || nextFTPTask.isDone())) {
-
-            nextFTPTask = this.ftpTaskQueue.poll();
-
+        while (!Thread.currentThread().isInterrupted() && this.opened) {
             try {
+                ITask<?> nextFTPTask = this.ftpTaskQueue.poll(EMPTY_QUEUE_TOLERANCE_SECONDS, TimeUnit.SECONDS);
+
+                boolean ftpAvailable = this.executingStorage.isAvailable();
+
                 if (nextFTPTask == null) {
-                    if (System.currentTimeMillis() >= disconnectTimeMillis && this.executingStorage.isAvailable()) {
+                    if (ftpAvailable) {
                         this.executingStorage.close();
                     }
                 } else {
-                    if (!this.executingStorage.isAvailable() && !this.executingStorage.connect()) {
+                    if (!ftpAvailable && !this.executingStorage.connect()) {
                         nextFTPTask.cancel(true);
                     }
 
                     nextFTPTask.call();
-                    disconnectTimeMillis = System.currentTimeMillis() + EMPTY_QUEUE_TOLERANCE_MILLIS;
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -246,6 +242,14 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(Collections.emptyList());
+    }
+
+    public AbstractFTPStorage getExecutingStorage() {
+        return executingStorage;
+    }
+
+    public boolean isOpened() {
+        return opened;
     }
 
     @Override

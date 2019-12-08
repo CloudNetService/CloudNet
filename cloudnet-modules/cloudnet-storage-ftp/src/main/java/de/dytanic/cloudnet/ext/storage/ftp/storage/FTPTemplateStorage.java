@@ -25,7 +25,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public final class FTPTemplateStorage extends GeneralFTPStorage {
+public final class FTPTemplateStorage extends AbstractFTPStorage {
 
     private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true);
 
@@ -82,7 +82,7 @@ public final class FTPTemplateStorage extends GeneralFTPStorage {
 
     @Override
     public boolean isAvailable() {
-        return this.ftpClient.isAvailable() && this.ftpClient.isConnected();
+        return this.ftpClient.isAvailable();
     }
 
     @Override

@@ -287,6 +287,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     private JsonDocument createDocumentWithUniqueIdAndName() {
-        return new JsonDocument().append("uniqueId", this.uniqueId).append("name", this.name);
+        return new JsonDocument()
+                .append("uniqueId", this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getServiceId().getUniqueId() : this.uniqueId)
+                .append("name", this.name);
     }
 }

@@ -18,6 +18,7 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
     public void initConfiguration() {
         if (super.getConfig().contains("ssl")) {
             super.getConfig().remove("ssl");
+            super.getConfig().remove("bufferSize");
         }
 
         super.getConfig().get("type", FTPType.class, FTPType.FTP);
@@ -25,8 +26,7 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
 
         super.getConfig().getString("storage", "ftp");
         super.getConfig().getString("username", "root");
-        super.getConfig().getString("password", "123456");
-        super.getConfig().getInt("bufferSize", 8192);
+        super.getConfig().getString("password", "password");
         super.getConfig().getString("baseDirectory", "/home/cloudnet");
 
         super.saveConfig();
