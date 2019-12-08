@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.console.animation;
 
 public class ConsoleDownloadProgressBarAnimation extends ConsoleProgressBarAnimation {
-    public ConsoleDownloadProgressBarAnimation(long fullLength, int startValue, char progressChar, char lastProgressChar, String prefix, String suffix) {
-        super(fullLength, startValue, progressChar, lastProgressChar, prefix, suffix);
+    public ConsoleDownloadProgressBarAnimation(long fullLength, int startValue, char progressChar, char lastProgressChar, char emptyChar, String prefix, String suffix) {
+        super(fullLength, startValue, progressChar, lastProgressChar, emptyChar, prefix, suffix);
     }
 
     @Override

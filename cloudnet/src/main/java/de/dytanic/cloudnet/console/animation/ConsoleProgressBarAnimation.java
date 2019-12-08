@@ -8,9 +8,10 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
     private long length;
     private long currentValue;
     private char progressChar;
+    private char emptyChar;
+    private char lastProgressChar;
     private String prefix;
     private String suffix;
-    private char lastProgressChar;
 
     /**
      * Creates a new {@link ConsoleProgressBarAnimation}
@@ -22,11 +23,12 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
      * @param prefix           the prefix for this animation
      * @param suffix           the suffix for this animation
      */
-    public ConsoleProgressBarAnimation(long fullLength, int startValue, char progressChar, char lastProgressChar, String prefix, String suffix) {
+    public ConsoleProgressBarAnimation(long fullLength, int startValue, char progressChar, char lastProgressChar, char emptyChar, String prefix, String suffix) {
         this.length = fullLength;
         this.currentValue = startValue;
         this.progressChar = progressChar;
         this.lastProgressChar = lastProgressChar;
+        this.emptyChar = emptyChar;
         this.prefix = prefix;
         this.suffix = suffix;
 
@@ -87,18 +89,15 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
     }
 
     private void doUpdate(double percent) {
+        int roundPercent = (int) percent;
         char[] chars = new char[100];
-        for (int i = 0; i < (int) percent; i++) {
+        for (int i = 0; i < roundPercent; i++) {
             chars[i] = this.progressChar;
         }
-        for (int i = (int) percent; i < 100; i++) {
-            chars[i] = ' ';
+        for (int i = roundPercent; i < 100; i++) {
+            chars[i] = this.emptyChar;
         }
-        if ((int) percent > 0) {
-            chars[(int) percent - 1] = this.lastProgressChar;
-        } else {
-            chars[0] = this.lastProgressChar;
-        }
+        chars[Math.max(0, roundPercent - 1)] = this.lastProgressChar; //make sure that we don't try to modify a negative index
         super.print(
                 this.format(this.prefix, percent),
                 String.valueOf(chars),
