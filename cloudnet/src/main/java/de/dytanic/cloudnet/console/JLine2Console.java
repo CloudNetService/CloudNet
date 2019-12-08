@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.console;
 
+import de.dytanic.cloudnet.common.Validate;
+import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import jline.console.ConsoleReader;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -15,6 +17,9 @@ public final class JLine2Console implements IConsole {
 
     private String screenName = version;
 
+    private AbstractConsoleAnimation runningAnimation;
+    private Thread currentAnimationThread;
+
     public JLine2Console() throws Exception {
         AnsiConsole.systemInstall();
 
@@ -23,8 +28,42 @@ public final class JLine2Console implements IConsole {
     }
 
     @Override
+    public AbstractConsoleAnimation getRunningAnimation() {
+        return this.runningAnimation;
+    }
+
+    @Override
+    public void startAnimation(AbstractConsoleAnimation animation) {
+        Validate.checkNotNull(animation);
+        if (this.runningAnimation != null) {
+            throw new IllegalStateException("Cannot run multiple animations at once");
+        }
+
+        this.runningAnimation = animation;
+
+        if (this.currentAnimationThread != null) {
+            this.currentAnimationThread.interrupt();
+        }
+
+        animation.setConsole(this);
+
+        this.currentAnimationThread = new Thread(() -> {
+            animation.run();
+            this.runningAnimation = null;
+            this.currentAnimationThread = null;
+        }, "Animation - " + animation.getClass().getName());
+        this.currentAnimationThread.start();
+    }
+
+    @Override
+    public boolean isAnimationRunning() {
+        return this.runningAnimation != null;
+    }
+
+    @Override
     public String readLine() throws Exception {
         this.resetPrompt();
+
         String input = this.consoleReader.readLine(
                 ConsoleColor.toColouredString('&', prompt)
                         .replace("%version%", version)
@@ -34,6 +73,10 @@ public final class JLine2Console implements IConsole {
         );
 
         this.resetPrompt();
+
+        if (this.runningAnimation != null) {
+            this.runningAnimation.addToCursor(1);
+        }
 
         return input;
     }
@@ -79,6 +122,10 @@ public final class JLine2Console implements IConsole {
             this.consoleReader.flush();
         } catch (Exception exception) {
             exception.printStackTrace();
+        }
+
+        if (this.runningAnimation != null) {
+            this.runningAnimation.addToCursor(1);
         }
 
         return this;

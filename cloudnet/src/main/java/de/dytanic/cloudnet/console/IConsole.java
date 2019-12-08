@@ -1,6 +1,18 @@
 package de.dytanic.cloudnet.console;
 
+import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
+
 public interface IConsole extends AutoCloseable {
+
+    AbstractConsoleAnimation getRunningAnimation();
+
+    void startAnimation(AbstractConsoleAnimation animation);
+
+    boolean isAnimationRunning();
+
+    default boolean hasAnimationSupport() {
+        return this.hasColorSupport();
+    }
 
     String readLine() throws Exception;
 
