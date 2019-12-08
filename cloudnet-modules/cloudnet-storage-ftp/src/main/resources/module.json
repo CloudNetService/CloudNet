@@ -7,6 +7,7 @@
   "website": "https://cloudnetservice.eu",
   "description": "CloudNet extension, which includes the ftp storage system",
   "main": "de.dytanic.cloudnet.ext.storage.ftp.CloudNetStorageFTPModule",
+  "storesSensitiveData": true,
   "dependencies": [
     {
       "group": "com.jcraft",
