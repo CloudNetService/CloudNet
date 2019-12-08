@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.io.File;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public interface IModuleWrapper {
 
@@ -31,4 +32,7 @@ public interface IModuleWrapper {
     IModuleWrapper unloadModule();
 
     File getDataFolder();
+
+    Map<String, String> getDefaultRepositories();
+
 }
