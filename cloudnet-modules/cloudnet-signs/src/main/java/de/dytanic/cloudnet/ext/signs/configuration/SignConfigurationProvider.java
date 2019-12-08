@@ -1,9 +1,10 @@
-package de.dytanic.cloudnet.ext.signs;
+package de.dytanic.cloudnet.ext.signs.configuration;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.signs.SignConstants;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

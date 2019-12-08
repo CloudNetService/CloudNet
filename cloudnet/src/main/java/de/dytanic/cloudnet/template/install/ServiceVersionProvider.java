@@ -13,10 +13,7 @@ import de.dytanic.cloudnet.template.install.installer.DownloadingServiceVersionI
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.processing.ProcessingServiceVersionInstaller;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -107,13 +104,13 @@ public class ServiceVersionProvider {
         String fileName = serviceVersionType.getTargetEnvironment().getName() + ".jar";
         Path workingDirectory = Paths.get(System.getProperty("cloudnet.tempDir.build", "temp/build"), UUID.randomUUID().toString());
 
-        Path versionCacheFile = Paths.get(System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
+        Path versionCachePath = Paths.get(System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
                 serviceVersionType.getName() + "-" + serviceVersion.getName() + ".jar");
 
         try {
-            if (Files.exists(versionCacheFile)) {
+            if (Files.exists(versionCachePath)) {
                 try (OutputStream targetStream = storage.newOutputStream(serviceTemplate, fileName)) {
-                    Files.copy(versionCacheFile, targetStream);
+                    Files.copy(versionCachePath, targetStream);
                 }
             } else {
                 Files.createDirectories(workingDirectory);
@@ -121,8 +118,11 @@ public class ServiceVersionProvider {
                 if (serviceVersion.isLatest()) {
                     installer.install(serviceVersion, workingDirectory, () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName)});
                 } else {
+                    File versionCacheFile = versionCachePath.toFile();
+                    versionCacheFile.getParentFile().mkdirs();
+
                     installer.install(serviceVersion, workingDirectory,
-                            () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName), new FileOutputStream(versionCacheFile.toFile())});
+                            () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName), new FileOutputStream(versionCacheFile)});
                 }
             }
         } catch (Exception exception) {
