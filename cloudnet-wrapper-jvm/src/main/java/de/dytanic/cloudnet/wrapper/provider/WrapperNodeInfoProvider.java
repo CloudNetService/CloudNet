@@ -45,6 +45,16 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
+    public Collection<String> getConsoleTabCompleteResults(String commandLine) {
+        try {
+            return this.getConsoleTabCompleteResultsAsync(commandLine).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public String[] sendCommandLine(String commandLine) {
         Validate.checkNotNull(commandLine);
 
@@ -130,6 +140,16 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
                 new byte[0],
                 pair -> pair.getFirst().get("commandInfo", CommandInfo.class)
         );
+    }
+
+    @Override
+    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(String commandLine) {
+        Validate.checkNotNull(commandLine);
+
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "tab_complete").append("commandLine", commandLine), null,
+                documentPair -> documentPair.getFirst().get("responses", new TypeToken<Collection<String>>() {
+                }.getType()));
     }
 
     @Override
