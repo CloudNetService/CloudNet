@@ -74,6 +74,11 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                     }
                 }
                 break;
+                case "tab_complete": {
+                    Collection<String> responses = getCloudNet().getNodeInfoProvider().getConsoleTabCompleteResults(packet.getHeader().getString("commandLine"));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("responses", responses));
+                }
+                break;
                 case "send_commandLine": {
                     String[] messages = getCloudNet().sendCommandLine(packet.getHeader().getString("commandLine"));
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("responseMessages", messages));
