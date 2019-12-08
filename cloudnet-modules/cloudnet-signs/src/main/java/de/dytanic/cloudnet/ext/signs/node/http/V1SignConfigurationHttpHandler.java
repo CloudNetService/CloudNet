@@ -4,9 +4,9 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.ext.signs.SignConfiguration;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.SignConstants;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 

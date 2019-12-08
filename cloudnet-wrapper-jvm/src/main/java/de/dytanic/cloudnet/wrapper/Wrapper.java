@@ -98,7 +98,6 @@ public final class Wrapper extends CloudNetDriver {
      * The single task thread of the scheduler of the wrapper application
      */
     private final Thread mainThread = Thread.currentThread();
-    private final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
     private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
     /**
      * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot
@@ -463,7 +462,6 @@ public final class Wrapper extends CloudNetDriver {
     private synchronized void mainloop() throws Exception {
         long value = System.currentTimeMillis();
         long millis = 1000 / TPS;
-        int tps5 = TPS * 5, start1Tick = tps5;
 
         if (this.startApplication()) {
             while (!Thread.currentThread().isInterrupted()) {
@@ -488,12 +486,6 @@ public final class Wrapper extends CloudNetDriver {
                             this.processQueue.poll();
                         }
                     }
-
-                    if (start1Tick++ >= tps5) {
-                        this.publishServiceInfoUpdate();
-                        start1Tick = 0;
-                    }
-
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }

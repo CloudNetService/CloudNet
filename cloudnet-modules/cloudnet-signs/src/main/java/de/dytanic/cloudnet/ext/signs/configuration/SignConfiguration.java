@@ -1,6 +1,7 @@
-package de.dytanic.cloudnet.ext.signs;
+package de.dytanic.cloudnet.ext.signs.configuration;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 

@@ -67,7 +67,7 @@ public final class PlayerAPIExample {
         }
 
 
-        List<? extends ICloudPlayer> cloudPlayers = BridgePlayerManager.getInstance().getOnlinePlayer(player.getName());
+        List<? extends ICloudPlayer> cloudPlayers = BridgePlayerManager.getInstance().getOnlinePlayers(player.getName());
 
         if (cloudPlayers != null && !cloudPlayers.isEmpty()) //If player instances with that name is contain
         {

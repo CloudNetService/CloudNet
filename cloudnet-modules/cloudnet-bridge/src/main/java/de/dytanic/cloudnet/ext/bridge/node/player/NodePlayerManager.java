@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -17,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public final class NodePlayerManager implements IPlayerManager {
 
@@ -31,7 +27,6 @@ public final class NodePlayerManager implements IPlayerManager {
 
     public NodePlayerManager(String databaseName) {
         this.databaseName = databaseName;
-
 
         instance = this;
     }
@@ -191,13 +186,20 @@ public final class NodePlayerManager implements IPlayerManager {
     @Override
     public void proxySendPlayer(ICloudPlayer cloudPlayer, String serviceName) {
         Validate.checkNotNull(cloudPlayer);
+
+        this.proxySendPlayer(cloudPlayer.getUniqueId(), serviceName);
+    }
+
+    @Override
+    public void proxySendPlayer(UUID uniqueId, String serviceName) {
+        Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceName);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "send_on_proxy_player_to_server",
                 new JsonDocument()
-                        .append("uniqueId", cloudPlayer.getUniqueId())
+                        .append("uniqueId", uniqueId)
                         .append("serviceName", serviceName)
         );
     }
@@ -205,14 +207,20 @@ public final class NodePlayerManager implements IPlayerManager {
     @Override
     public void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message) {
         Validate.checkNotNull(cloudPlayer);
+
+        this.proxySendPlayerMessage(cloudPlayer.getUniqueId(), message);
+    }
+
+    @Override
+    public void proxySendPlayerMessage(UUID uniqueId, String message) {
+        Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(message);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "send_message_to_proxy_player",
                 new JsonDocument()
-                        .append("uniqueId", cloudPlayer.getUniqueId())
-                        .append("name", cloudPlayer.getName())
+                        .append("uniqueId", uniqueId)
                         .append("message", message)
         );
     }
@@ -220,14 +228,20 @@ public final class NodePlayerManager implements IPlayerManager {
     @Override
     public void proxyKickPlayer(ICloudPlayer cloudPlayer, String kickMessage) {
         Validate.checkNotNull(cloudPlayer);
+
+        this.proxyKickPlayer(cloudPlayer.getUniqueId(), kickMessage);
+    }
+
+    @Override
+    public void proxyKickPlayer(UUID uniqueId, String kickMessage) {
+        Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(kickMessage);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "kick_on_proxy_player_from_network",
                 new JsonDocument()
-                        .append("uniqueId", cloudPlayer.getUniqueId())
-                        .append("name", cloudPlayer.getName())
+                        .append("uniqueId", uniqueId)
                         .append("kickMessage", kickMessage)
         );
     }

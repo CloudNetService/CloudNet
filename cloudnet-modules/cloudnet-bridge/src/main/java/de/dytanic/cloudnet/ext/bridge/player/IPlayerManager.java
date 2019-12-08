@@ -5,10 +5,8 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public interface IPlayerManager {
 
@@ -281,6 +279,14 @@ public interface IPlayerManager {
     void proxySendPlayer(ICloudPlayer cloudPlayer, String serviceName);
 
     /**
+     * Connects an online player to a specific service.
+     *
+     * @param uniqueId    the uuid of the player to be connected
+     * @param serviceName the name of the service the player should be sent to
+     */
+    void proxySendPlayer(UUID uniqueId, String serviceName);
+
+    /**
      * Kicks an online player from the network with a specific reason.
      *
      * @param cloudPlayer the player to be kicked
@@ -289,12 +295,28 @@ public interface IPlayerManager {
     void proxyKickPlayer(ICloudPlayer cloudPlayer, String message);
 
     /**
+     * Kicks an online player from the network with a specific reason.
+     *
+     * @param uniqueId the uuid of the player to be kicked
+     * @param message  the reason for the kick which will be displayed in the players client
+     */
+    void proxyKickPlayer(UUID uniqueId, String message);
+
+    /**
      * Sends a message to a specific online player.
      *
      * @param cloudPlayer the player to send the message to
      * @param message     the message to be sent to the player
      */
     void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message);
+
+    /**
+     * Sends a message to a specific online player.
+     *
+     * @param uniqueId the uuid of the player to send the message to
+     * @param message  the message to be sent to the player
+     */
+    void proxySendPlayerMessage(UUID uniqueId, String message);
 
     /**
      * Broadcasts a specific message over the whole network.
