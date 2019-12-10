@@ -1,9 +1,7 @@
 package de.dytanic.cloudnet.util;
 
-import de.dytanic.cloudnet.console.ConsoleColor;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.animation.ConsoleDownloadProgressBarAnimation;
-import de.dytanic.cloudnet.console.animation.ConsoleProgressBarAnimation;
+import de.dytanic.cloudnet.console.animation.ProgressBarInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,26 +45,15 @@ public class VisualFileUtils {
             showAnimation = false;
         }
 
-        ConsoleProgressBarAnimation animation = showAnimation ?
-                new ConsoleDownloadProgressBarAnimation(fullLength, 0, '█', '█', '-', "&e%percent% % ", " | %value%/%length% MB (%byps% KB/s) | %time%") :
-                null;
-
         byte[] buffer = new byte[1024];
         int len;
 
-        if (animation != null) {
-            console.startAnimation(animation);
+        if (showAnimation) {
+            inputStream = new ProgressBarInputStream(console, inputStream, fullLength);
         }
 
         while ((len = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, len);
-            if (animation != null) {
-                animation.setCurrentValue(animation.getCurrentValue() + len);
-            }
-        }
-
-        if (animation != null) {
-            animation.finish();
         }
 
         return showAnimation;
