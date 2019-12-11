@@ -92,7 +92,6 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         QuestionListEntry<?> entry;
 
         if (this.entries.isEmpty() || (entry = this.entries.poll()) == null) {
-            this.stop();
             return true;
         }
 
@@ -118,6 +117,10 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
         super.getConsole().addLineHandler(handlerId, input -> {
             if (this.validateInput(answerType, entry, input)) {
+                if (this.entries.isEmpty()) {
+                    this.resetConsole();
+                }
+
                 super.getConsole().removeLineHandler(handlerId);
                 try {
                     task.call();
@@ -183,7 +186,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         super.getConsole().togglePrinting(false);
     }
 
-    private void stop() {
+    private void resetConsole() {
         if (this.cancelled) {
             super.getConsole().forceWriteLine("&c" + LanguageManager.getMessage("ca-question-list-cancelled"));
         } else {
