@@ -32,21 +32,21 @@ public class ProgressBarInputStream extends InputStream {
 
     @Override
     public int read(byte[] b) throws IOException {
-        int length = super.read(b);
-        this.progressBarAnimation.setCurrentValue(this.progressBarAnimation.getCurrentValue() + length);
-        return length;
+        int read = this.wrapped.read(b);
+        this.progressBarAnimation.setCurrentValue(this.progressBarAnimation.getCurrentValue() + read);
+        return read;
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        int length = super.read(b, off, len);
-        this.progressBarAnimation.setCurrentValue(this.progressBarAnimation.getCurrentValue() + length);
-        return length;
+        int read = this.wrapped.read(b, off, len);
+        this.progressBarAnimation.setCurrentValue(this.progressBarAnimation.getCurrentValue() + read);
+        return read;
     }
 
     @Override
     public long skip(long n) throws IOException {
-        long length = super.skip(n);
+        long length = this.wrapped.skip(n);
         this.progressBarAnimation.setCurrentValue(this.progressBarAnimation.getCurrentValue() + length);
         return length;
     }

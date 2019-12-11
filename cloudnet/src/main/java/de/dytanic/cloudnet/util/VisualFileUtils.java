@@ -56,6 +56,10 @@ public class VisualFileUtils {
             outputStream.write(buffer, 0, len);
         }
 
+        if (inputStream instanceof ProgressBarInputStream) {
+            inputStream.close();
+        }
+
         return showAnimation;
     }
 
