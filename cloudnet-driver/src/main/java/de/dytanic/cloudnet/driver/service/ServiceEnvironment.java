@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.service;
 
+import java.util.Arrays;
+
 public enum ServiceEnvironment {
 
     //Minecraft Server
@@ -39,5 +41,12 @@ public enum ServiceEnvironment {
 
     public String getName() {
         return this.name;
+    }
+
+    public ServiceEnvironmentType getEnvironmentType() {
+        return Arrays.stream(ServiceEnvironmentType.values())
+                .filter(serviceEnvironmentType -> Arrays.asList(serviceEnvironmentType.getEnvironments()).contains(this))
+                .findFirst()
+                .orElse(null);
     }
 }

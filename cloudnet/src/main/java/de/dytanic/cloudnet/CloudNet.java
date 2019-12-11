@@ -967,52 +967,34 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void runConsole() {
-        Thread console = new Thread(() -> {
+        this.logger.info(LanguageManager.getMessage("console-ready"));
+
+        this.getConsole().addLineHandler(UUID.randomUUID(), input -> {
             try {
-                if (!getCommandLineArguments().contains("--noconsole")) {
-                    logger.info(LanguageManager.getMessage("console-ready"));
-
-                    String input;
-                    while ((input = getConsole().readLine()) != null) {
-                        try {
-                            if (input.trim().isEmpty()) {
-                                continue;
-                            }
-
-                            CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, getConsoleCommandSender());
-                            getEventManager().callEvent(commandPreProcessEvent);
-
-                            if (commandPreProcessEvent.isCancelled()) {
-                                continue;
-                            }
-
-                            if (!getCommandMap().dispatchCommand(getConsoleCommandSender(), input)) {
-                                getEventManager().callEvent(new CommandNotFoundEvent(input));
-                                logger.warning(LanguageManager.getMessage("command-not-found"));
-
-                                continue;
-                            }
-
-                            getEventManager().callEvent(new CommandPostProcessEvent(input, getConsoleCommandSender()));
-
-                        } catch (Throwable ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                } else {
-                    while (RUNNING) {
-                        Thread.sleep(1000);
-                    }
+                if (input.trim().isEmpty()) {
+                    return;
                 }
+
+                CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, getConsoleCommandSender());
+                getEventManager().callEvent(commandPreProcessEvent);
+
+                if (commandPreProcessEvent.isCancelled()) {
+                    return;
+                }
+
+                if (!getCommandMap().dispatchCommand(getConsoleCommandSender(), input)) {
+                    getEventManager().callEvent(new CommandNotFoundEvent(input));
+                    this.logger.warning(LanguageManager.getMessage("command-not-found"));
+
+                    return;
+                }
+
+                getEventManager().callEvent(new CommandPostProcessEvent(input, getConsoleCommandSender()));
+
             } catch (Throwable ex) {
                 ex.printStackTrace();
             }
         });
-
-        console.setName("Console-Thread");
-        console.setPriority(Thread.MIN_PRIORITY);
-        console.setDaemon(true);
-        console.start();
     }
 
     public ICommandMap getCommandMap() {

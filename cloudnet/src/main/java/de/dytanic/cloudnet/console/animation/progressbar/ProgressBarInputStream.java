@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.console.animation;
+package de.dytanic.cloudnet.console.animation.progressbar;
 
 import de.dytanic.cloudnet.console.IConsole;
 

@@ -1,4 +1,6 @@
-package de.dytanic.cloudnet.console.animation;
+package de.dytanic.cloudnet.console.animation.progressbar;
+
+import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 
 /**
  * Represents a progress bar animation in the console that by default is updated all 10 milliseconds

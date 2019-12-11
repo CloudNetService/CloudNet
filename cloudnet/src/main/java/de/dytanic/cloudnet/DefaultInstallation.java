@@ -45,11 +45,7 @@ public class DefaultInstallation {
 
                 this.cloudNet.getLogger().info(ConsoleColor.DARK_GRAY + LanguageManager.getMessage("cloudnet-init-config-hostaddress-input"));
 
-                this.cloudNet.getConsole().resetPrompt();
-                this.cloudNet.getConsole().setPrompt(ConsoleColor.WHITE.toString());
-                input = this.cloudNet.getConsole().readLineNoPrompt();
-                this.cloudNet.getConsole().setPrompt(ConsoleColor.DEFAULT.toString());
-                this.cloudNet.getConsole().resetPrompt();
+                input = this.cloudNet.getConsole().readLine().get();
 
                 if (!input.equals("127.0.1.1") && input.split("\\.").length == 4) {
                     this.cloudNet.getConfig().setDefaultHostAddress(input);
@@ -171,11 +167,7 @@ public class DefaultInstallation {
             this.cloudNet.getLogger().info(ConsoleColor.DARK_GRAY + LanguageManager.getMessage("cloudnet-init-default-tasks-input"));
             this.cloudNet.getLogger().info(ConsoleColor.DARK_GRAY + String.join(", ", this.defaultTaskInstallations.keySet()));
 
-            this.cloudNet.getConsole().resetPrompt();
-            this.cloudNet.getConsole().setPrompt(ConsoleColor.WHITE.toString());
-            input = this.cloudNet.getConsole().readLineNoPrompt();
-            this.cloudNet.getConsole().setPrompt(ConsoleColor.DEFAULT.toString());
-            this.cloudNet.getConsole().resetPrompt();
+            input = this.cloudNet.getConsole().readLine().get();
         }
 
         return input;

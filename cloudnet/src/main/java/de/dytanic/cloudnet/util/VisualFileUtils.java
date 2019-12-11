@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.util;
 
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.animation.ProgressBarInputStream;
+import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;

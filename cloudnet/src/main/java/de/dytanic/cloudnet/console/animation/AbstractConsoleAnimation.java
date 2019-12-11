@@ -1,12 +1,10 @@
 package de.dytanic.cloudnet.console.animation;
 
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.console.IConsole;
-import jline.console.ConsoleReader;
-import lombok.Getter;
 import org.fusesource.jansi.Ansi;
 
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
 
@@ -14,6 +12,8 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     private int updateInterval = 25;
     private long startTime;
     private int cursorUp = 1;
+    private boolean staticCursor;
+    private Collection<Runnable> finishHandler = new ArrayList<>();
 
     public long getTimeElapsed() {
         return System.currentTimeMillis() - this.startTime;
@@ -21,6 +21,14 @@ public abstract class AbstractConsoleAnimation implements Runnable {
 
     public void setUpdateInterval(int updateInterval) {
         this.updateInterval = updateInterval;
+    }
+
+    public void setStaticCursor(boolean staticCursor) {
+        this.staticCursor = staticCursor;
+    }
+
+    public boolean isStaticCursor() {
+        return this.staticCursor;
     }
 
     public void setConsole(IConsole console) {
@@ -35,7 +43,13 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     }
 
     public void addToCursor(int cursor) {
-        this.cursorUp += cursor;
+        if (!this.isStaticCursor()) {
+            this.cursorUp += cursor;
+        }
+    }
+
+    public void setCursor(int cursor) {
+        this.cursorUp = cursor;
     }
 
     public long getStartTime() {
@@ -46,10 +60,13 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         return this.updateInterval;
     }
 
+    public void addFinishHandler(Runnable finishHandler) {
+        this.finishHandler.add(finishHandler);
+    }
+
     protected void print(String... input) {
         if (input.length == 0)
             return;
-        input[0] = "&e" + input[0];
         Ansi ansi = Ansi
                 .ansi()
                 .saveCursorPosition()
@@ -58,7 +75,17 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         for (String a : input) {
             ansi.a(a);
         }
-        this.console.write(ansi.restoreCursorPosition().toString());
+        this.console.forceWrite(ansi.restoreCursorPosition().toString());
+    }
+
+    protected void eraseLastLine() {
+        this.console.writeRaw(
+                Ansi.ansi()
+                        .reset()
+                        .cursorUp(1)
+                        .eraseLine()
+                        .toString()
+        );
     }
 
     protected abstract boolean handleTick(); //returns true if the animation is finished and should be cancelled
@@ -72,6 +99,9 @@ public abstract class AbstractConsoleAnimation implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+        for (Runnable runnable : this.finishHandler) {
+            runnable.run();
         }
     }
 }

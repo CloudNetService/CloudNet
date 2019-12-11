@@ -1,10 +1,21 @@
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.common.Validate;
+import de.dytanic.cloudnet.common.Value;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import jline.console.ConsoleReader;
+import jline.console.history.History;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public final class JLine2Console implements IConsole {
 
@@ -12,100 +23,189 @@ public final class JLine2Console implements IConsole {
 
     private final String
             user = System.getProperty("user.name"),
-            version = System.getProperty("cloudnet.launcher.select.version"),
-            prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> ");
+            version = System.getProperty("cloudnet.launcher.select.version");
+    private String prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
 
     private String screenName = version;
 
-    private AbstractConsoleAnimation runningAnimation;
-    private Thread currentAnimationThread;
+    private Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
+
+    private boolean printingEnabled = true;
+
+    private Map<UUID, Consumer<String>> consoleInputHandler = new ConcurrentHashMap<>();
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     public JLine2Console() throws Exception {
         AnsiConsole.systemInstall();
 
         this.consoleReader = new ConsoleReader();
         this.consoleReader.setExpandEvents(false);
+
+        this.executorService.execute(() -> {
+            while (!Thread.interrupted()) {
+                try {
+                    String input = this.prompt != null ?
+                            this.consoleReader.readLine(
+                                    ConsoleColor.toColouredString('&', this.prompt)
+                                            .replace("%version%", this.version)
+                                            .replace("%screen%", this.screenName)
+                                            .replace("%user%", this.user)
+                            ) : this.consoleReader.readLine();
+                    this.resetPrompt();
+
+                    if (!this.consoleInputHandler.isEmpty()) {
+                        for (Consumer<String> value : this.consoleInputHandler.values()) {
+                            value.accept(input);
+                        }
+                    }
+
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
+
+                if (!this.runningAnimations.isEmpty()) {
+                    for (AbstractConsoleAnimation animation : this.runningAnimations.values()) {
+                        animation.addToCursor(1);
+                    }
+                }
+            }
+        });
     }
 
     @Override
-    public AbstractConsoleAnimation getRunningAnimation() {
-        return this.runningAnimation;
+    public Collection<AbstractConsoleAnimation> getRunningAnimations() {
+        return this.runningAnimations.values();
     }
 
     @Override
     public void startAnimation(AbstractConsoleAnimation animation) {
         Validate.checkNotNull(animation);
-        if (this.runningAnimation != null) {
-            throw new IllegalStateException("Cannot run multiple animations at once");
-        }
-
-        this.runningAnimation = animation;
-
-        if (this.currentAnimationThread != null) {
-            this.currentAnimationThread.interrupt();
-        }
 
         animation.setConsole(this);
 
-        this.currentAnimationThread = new Thread(() -> {
+        UUID uniqueId = UUID.randomUUID();
+        this.runningAnimations.put(uniqueId, animation);
+
+        this.executorService.execute(() -> {
             animation.run();
-            this.runningAnimation = null;
-            this.currentAnimationThread = null;
-        }, "Animation - " + animation.getClass().getName());
-        this.currentAnimationThread.start();
+            this.runningAnimations.remove(uniqueId);
+        });
     }
 
     @Override
     public boolean isAnimationRunning() {
-        return this.runningAnimation != null;
+        return !this.runningAnimations.isEmpty();
     }
 
     @Override
-    public String readLine() throws Exception {
-        this.resetPrompt();
+    public void togglePrinting(boolean enabled) {
+        this.printingEnabled = enabled;
+    }
 
-        String input = this.consoleReader.readLine(
-                ConsoleColor.toColouredString('&', prompt)
-                        .replace("%version%", version)
-                        .replace("%screen%", screenName)
-                        .replace("%user%", user)
-                        + ConsoleColor.DEFAULT
-        );
+    @Override
+    public boolean isPrintingEnabled() {
+        return this.printingEnabled;
+    }
 
-        this.resetPrompt();
-
-        if (this.runningAnimation != null) {
-            this.runningAnimation.addToCursor(1);
+    @Override
+    public List<String> getCommandHistory() {
+        ListIterator<History.Entry> iterator = this.consoleReader.getHistory().entries();
+        List<String> history = new ArrayList<>();
+        while (iterator.hasNext()) {
+            history.add(iterator.next().value().toString());
         }
-
-        return input;
+        return history;
     }
 
     @Override
-    public String readLineNoPrompt() throws Exception {
-        return this.consoleReader.readLine();
+    public void setCommandHistory(List<String> history) {
+        this.consoleReader.getHistory().clear();
+        if (history != null) {
+            for (String historyEntry : history) {
+                this.consoleReader.getHistory().add(historyEntry);
+            }
+        }
+    }
+
+    @Override
+    public void setCommandInputValue(String commandInputValue) {
+        try {
+            this.consoleReader.putString(commandInputValue);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    @Override
+    public ITask<String> readLine() {
+        Value<String> value = new Value<>();
+        ITask<String> task = new ListenableTask<>(value::getValue);
+
+        UUID uniqueId = UUID.randomUUID();
+        this.consoleInputHandler.put(uniqueId, input -> {
+            this.consoleInputHandler.remove(uniqueId);
+            value.setValue(input);
+            try {
+                task.call();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+
+        return task;
+    }
+
+    @Override
+    public void addLineHandler(UUID uniqueId, Consumer<String> inputConsumer) {
+        this.consoleInputHandler.put(uniqueId, inputConsumer);
+    }
+
+    @Override
+    public void removeLineHandler(UUID uniqueId) {
+        this.consoleInputHandler.remove(uniqueId);
     }
 
     @Override
     public IConsole write(String text) {
-        if (text == null) {
-            return this;
+        if (this.printingEnabled) {
+            this.forceWrite(text);
         }
-
-        text = ConsoleColor.toColouredString('&', text);
-
-        try {
-            this.consoleReader.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
-            this.consoleReader.flush();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
         return this;
     }
 
     @Override
     public IConsole writeLine(String text) {
+        if (this.printingEnabled) {
+            this.forceWriteLine(text);
+        }
+        return this;
+    }
+
+    @Override
+    public IConsole forceWrite(String text) {
+        return this.writeRaw(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
+    }
+
+    @Override
+    public IConsole writeRaw(String rawText) {
+        if (rawText == null) {
+            return this;
+        }
+
+        rawText = ConsoleColor.toColouredString('&', rawText);
+
+        try {
+            this.consoleReader.print(rawText);
+            this.consoleReader.flush();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+        return this;
+    }
+
+    @Override
+    public IConsole forceWriteLine(String text) {
         if (text == null) {
             return this;
         }
@@ -124,8 +224,10 @@ public final class JLine2Console implements IConsole {
             exception.printStackTrace();
         }
 
-        if (this.runningAnimation != null) {
-            this.runningAnimation.addToCursor(1);
+        if (!this.runningAnimations.isEmpty()) {
+            for (AbstractConsoleAnimation animation : this.runningAnimations.values()) {
+                animation.addToCursor(1);
+            }
         }
 
         return this;
@@ -138,11 +240,21 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public void resetPrompt() {
-        this.consoleReader.setPrompt("");
+        this.consoleReader.setPrompt(ConsoleColor.DEFAULT.toString());
+    }
+
+    @Override
+    public void clearScreen() {
+        try {
+            this.consoleReader.clearScreen();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
     public void close() {
+        this.executorService.shutdownNow();
         this.consoleReader.close();
     }
 
@@ -164,7 +276,7 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public void setPrompt(String prompt) {
-        this.consoleReader.setPrompt(prompt);
+        this.prompt = prompt;
     }
 
     public String getScreenName() {
