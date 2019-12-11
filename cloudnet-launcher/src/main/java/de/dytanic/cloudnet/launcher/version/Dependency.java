@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.launcher.util;
+package de.dytanic.cloudnet.launcher.version;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -10,7 +10,6 @@ public class Dependency {
     private final String repository, group, name, version;
 
     private String classifier;
-
 
     public Dependency(String repository, String group, String name, String version) {
         this.repository = repository;

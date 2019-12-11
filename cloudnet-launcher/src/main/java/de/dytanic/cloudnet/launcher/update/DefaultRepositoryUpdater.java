@@ -1,35 +1,40 @@
 package de.dytanic.cloudnet.launcher.update;
 
-import de.dytanic.cloudnet.launcher.Constants;
-import de.dytanic.cloudnet.launcher.util.CloudNetModule;
-import de.dytanic.cloudnet.launcher.util.IOUtils;
-
-import java.io.File;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
-public final class DefaultRepositoryUpdater implements IUpdater {
+public final class DefaultRepositoryUpdater implements Updater {
 
     private String url;
 
-    private Properties properties;
+    private String repositoryVersion;
+
+    private String appVersion;
+
+    private String gitHubRepository;
+
+    private GitCommit latestGitCommit;
 
     @Override
-    public boolean init(String url) {
+    public boolean init(String url, String githubRepository) {
         this.url = url = url.endsWith("/") ? url : url + "/";
-        properties = new Properties();
+        this.gitHubRepository = githubRepository;
 
         try {
-            URLConnection urlConnection = new URL(url + "repository").openConnection();
-            initHttpUrlConnection(urlConnection);
 
-            urlConnection.connect();
-
-            try (InputStream inputStream = urlConnection.getInputStream()) {
+            try (InputStream inputStream = this.readFromURL(url + "repository")) {
+                Properties properties = new Properties();
                 properties.load(inputStream);
+
+                this.repositoryVersion = properties.getProperty("repository-version");
+                this.appVersion = properties.getProperty("app-version");
+
+                this.latestGitCommit = this.requestLatestGitCommit(properties.getProperty("git-commit", "unknown"));
             }
+
             return true;
 
         } catch (Exception exception) {
@@ -41,68 +46,43 @@ public final class DefaultRepositoryUpdater implements IUpdater {
 
     @Override
     public String getRepositoryVersion() {
-        return properties.getProperty("repository-version");
+        return this.repositoryVersion;
     }
 
     @Override
     public String getCurrentVersion() {
-        return properties.getProperty("app-version");
+        return this.appVersion;
     }
 
     @Override
-    public boolean installUpdate(String destinationBaseDirectory, String moduleDestinationBaseDirectory) {
-        String version = getCurrentVersion();
-        byte[] buffer = new byte[16384];
-        boolean successful = true;
-
-        if (version != null) {
-
-            if (!installFile(version, "cloudnet.jar", new File(destinationBaseDirectory + "/" + version, "cloudnet.jar"), buffer)) {
-                successful = false;
-            }
-
-            if (!installFile(version, "cloudnet.cnl", new File(destinationBaseDirectory + "/" + version, "cloudnet.cnl"), buffer)) {
-                successful = false;
-            }
-
-            if (!installFile(version, "driver.jar", new File(destinationBaseDirectory + "/" + version, "driver.jar"), buffer)) {
-                successful = false;
-            }
-
-            if (!installFile(version, "driver.cnl", new File(destinationBaseDirectory + "/" + version, "driver.cnl"), buffer)) {
-                successful = false;
-            }
-
-            //return successful;
-        }
-
-        if (version != null && moduleDestinationBaseDirectory != null) {
-            for (CloudNetModule module : Constants.DEFAULT_MODULES) {
-                if (!installModuleFile(version, module.getFileName(), new File(moduleDestinationBaseDirectory, module.getFileName()), buffer)) {
-                    successful = false;
-                }
-            }
-        }
-
-        return successful;
+    public String getGitHubRepository() {
+        return this.gitHubRepository;
     }
 
+    @Override
+    public GitCommit getLatestGitCommit() {
+        return this.latestGitCommit;
+    }
 
-    private boolean installModuleFile(String version, String name, File file, byte[] buffer) {
-        System.out.println("Installing remote version module " + name + " in version " + version);
+    @Override
+    public boolean installModuleFile(String name, Path path) {
+        System.out.println("Installing remote version module " + name + " in version " + this.appVersion);
+
+        return this.installFile(name, path, true);
+    }
+
+    @Override
+    public boolean installFile(String name, Path path, boolean replace) {
+        if (!replace && Files.exists(path)) {
+            return true;
+        }
 
         try {
-            URLConnection urlConnection = new URL(url + "versions/" + version + "/" + name).openConnection();
-            initHttpUrlConnection(urlConnection);
+            Files.createDirectories(path.getParent());
+            Files.createFile(path);
 
-            urlConnection.connect();
-
-            file.getParentFile().mkdirs();
-            file.delete();
-            file.createNewFile();
-
-            try (InputStream inputStream = urlConnection.getInputStream()) {
-                IOUtils.copy(buffer, inputStream, file.toPath());
+            try (InputStream inputStream = this.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
+                Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
             }
 
             return true;
@@ -114,44 +94,4 @@ public final class DefaultRepositoryUpdater implements IUpdater {
         return false;
     }
 
-    private boolean installFile(String version, String name, File file, byte[] buffer) {
-        if (file.exists()) {
-            return true;
-        }
-
-        try {
-            URLConnection urlConnection = new URL(url + "versions/" + version + "/" + name).openConnection();
-            initHttpUrlConnection(urlConnection);
-
-            urlConnection.connect();
-
-            file.getParentFile().mkdirs();
-
-            try (InputStream inputStream = urlConnection.getInputStream()) {
-                IOUtils.copy(buffer, inputStream, file.toPath());
-            }
-
-            return true;
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return false;
-    }
-
-    private void initHttpUrlConnection(URLConnection urlConnection) {
-        urlConnection.setUseCaches(false);
-        urlConnection.setDoOutput(false);
-
-        urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-    }
-
-    public String getUrl() {
-        return this.url;
-    }
-
-    public Properties getProperties() {
-        return this.properties;
-    }
 }
