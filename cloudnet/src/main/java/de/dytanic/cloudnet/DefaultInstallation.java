@@ -83,7 +83,7 @@ public class DefaultInstallation {
         }
     }
 
-    public void executeFirstStartSetup(IConsole console) throws SocketException {
+    public void executeFirstStartSetup(IConsole console, boolean configFileAvailable) throws SocketException {
         Collection<QuestionListEntry<?>> entries = new ArrayList<>();
 
         List<String> internalIPs = this.detectAllIPAddresses();
@@ -92,7 +92,7 @@ public class DefaultInstallation {
 
         String preferredIP = this.detectPreferredIP(internalIPs);
 
-        if (!this.cloudNet.getConfig().isFileExists()) {
+        if (!configFileAvailable) {
             entries.add(new QuestionListEntry<>(
                     "nodeId",
                     LanguageManager.getMessage("cloudnet-init-setup-node-id"),
@@ -205,16 +205,10 @@ public class DefaultInstallation {
                     HostAndPort defaultHost = (HostAndPort) animation.getResult("internalHost");
 
                     this.cloudNet.getConfig().setDefaultHostAddress(defaultHost.getHost());
-                    if (this.cloudNet.getConfig().getIdentity() != null) {
-                        HostAndPort[] listeners = this.cloudNet.getConfig().getIdentity().getListeners();
-                        System.arraycopy(listeners, 0, listeners, 0, listeners.length + 1);
-                        listeners[listeners.length - 1] = defaultHost;
-                    } else {
-                        this.cloudNet.getConfig().setIdentity(new NetworkClusterNode(
-                                animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-" + UUID.randomUUID().toString().split("-")[0],
-                                new HostAndPort[]{defaultHost}
-                        ));
-                    }
+                    this.cloudNet.getConfig().setIdentity(new NetworkClusterNode(
+                            animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-" + UUID.randomUUID().toString().split("-")[0],
+                            new HostAndPort[]{defaultHost}
+                    ));
 
                     this.cloudNet.getConfig().getIpWhitelist().addAll(internalIPs);
                     if (!internalIPs.contains(defaultHost.getHost())) {
@@ -223,7 +217,9 @@ public class DefaultInstallation {
                 }
 
                 if (animation.hasResult("webHost")) {
-                    this.cloudNet.getConfig().getHttpListeners().add((HostAndPort) animation.getResult("webHost"));
+                    this.cloudNet.getConfig().setHttpListeners(new ArrayList<>(Collections.singletonList(
+                            (HostAndPort) animation.getResult("webHost")
+                    )));
                 }
 
                 if (animation.hasResult("memory")) {

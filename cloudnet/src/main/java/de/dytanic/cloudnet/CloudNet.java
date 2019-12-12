@@ -191,8 +191,9 @@ public final class CloudNet extends CloudNetDriver {
             Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
-        this.defaultInstallation.executeFirstStartSetup(this.console);
+        boolean configFileAvailable = this.config.isFileExists();
         this.config.load();
+        this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
 
         if (this.config.getMaxMemory() < 2048) {
             CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
