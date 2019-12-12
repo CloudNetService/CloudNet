@@ -47,7 +47,6 @@ public class FallbackUpdater extends InstalledVersionInfo implements Updater {
 
         try {
             Files.createDirectories(path.getParent());
-            Files.createFile(path);
 
             try (InputStream inputStream = this.getClass().getResourceAsStream(name)) {
                 Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
