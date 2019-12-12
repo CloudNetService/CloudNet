@@ -190,6 +190,7 @@ public final class JsonConfiguration implements IConfiguration {
     @Override
     public void setIdentity(NetworkClusterNode identity) {
         this.identity = identity;
+        this.save();
     }
 
     public NetworkCluster getClusterConfig() {

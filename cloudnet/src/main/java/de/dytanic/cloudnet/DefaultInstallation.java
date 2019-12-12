@@ -226,6 +226,10 @@ public class DefaultInstallation {
                     this.cloudNet.getConfig().getHttpListeners().add((HostAndPort) animation.getResult("webHost"));
                 }
 
+                if (animation.hasResult("memory")) {
+                    this.cloudNet.getConfig().setMaxMemory((int) animation.getResult("memory"));
+                }
+
                 try {
                     task.call();
                 } catch (Exception exception) {
