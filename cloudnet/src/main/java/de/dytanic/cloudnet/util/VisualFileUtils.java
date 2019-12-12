@@ -21,7 +21,7 @@ public class VisualFileUtils {
     /**
      * Copies the given InputStream into the given OutputStream and shows a progress bar in the given console IF:
      * - there is no animation running in this console
-     * - the given length is >= 0 or {@link InputStream#available()} returns a value >= 0
+     * - the given length is &gt;= 0 or {@link InputStream#available()} returns a value &gt;= 0
      *
      * @param console      the console to show the animation in
      * @param inputStream  the source stream
