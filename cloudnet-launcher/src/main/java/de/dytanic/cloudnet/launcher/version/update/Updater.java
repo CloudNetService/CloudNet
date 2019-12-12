@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.launcher.update;
+package de.dytanic.cloudnet.launcher.version.update;
 
 import de.dytanic.cloudnet.launcher.Constants;
 import de.dytanic.cloudnet.launcher.module.CloudNetModule;
@@ -9,21 +9,20 @@ import java.nio.file.Paths;
 
 public interface Updater extends VersionInfo {
 
-    boolean init(String url, String githubRepository);
+    boolean init(Path versionDirectory, String url, String githubRepository);
 
     boolean installModuleFile(String name, Path path);
 
     boolean installFile(String name, Path path, boolean replace);
 
-    default boolean installUpdate(String destinationBaseDirectory, String moduleDestinationBaseDirectory) {
+    default boolean installUpdate(String moduleDestinationBaseDirectory) {
         boolean successful = false;
 
         if (this.getCurrentVersion() != null) {
             successful = true;
 
-            String versionDirName = this.getCurrentVersion() + "-" + this.getLatestGitCommit().getShortenedSha();
             for (String versionFile : Constants.VERSION_FILE_NAMES) {
-                if (!this.installFile(versionFile, Paths.get(destinationBaseDirectory + "/" + versionDirName, versionFile), false)) {
+                if (!this.installFile(versionFile, this.getTargetDirectory().resolve(versionFile), false)) {
                     successful = false;
                 }
             }

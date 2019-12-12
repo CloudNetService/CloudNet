@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.launcher.cnl.install;
 
 import de.dytanic.cloudnet.launcher.cnl.CNLCommand;
-import de.dytanic.cloudnet.launcher.version.Dependency;
+import de.dytanic.cloudnet.launcher.version.util.Dependency;
 
 import java.util.Collection;
 import java.util.Map;

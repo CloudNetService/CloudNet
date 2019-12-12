@@ -24,6 +24,10 @@ jar {
         attributes 'Specification-Version': version + "-" + getCurrentCommitHash()
     }
 
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
     //jar file
     from('../cloudnet/build/libs') {
         include cloudnetRunnableOutFileName
@@ -77,6 +81,10 @@ jar {
     from('../cloudnet-modules/cloudnet-database-mysql/build/libs') {
         include cloudnetModuleDatabaseMySQLFileName
     }
+}
+
+configurations {
+    compile
 }
 
 dependencies {

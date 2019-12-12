@@ -5,13 +5,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import de.dytanic.cloudnet.launcher.update.GitCommit;
+import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
 
 public interface VersionInfo {
 
@@ -28,8 +29,13 @@ public interface VersionInfo {
 
     GitCommit getLatestGitCommit();
 
+    Path getTargetDirectory();
 
     default GitCommit requestLatestGitCommit(String gitCommitHash) {
+        if (gitCommitHash == null) {
+            return GitCommit.unknown();
+        }
+
         String commitURL = String.format(GITHUB_COMMIT_API_URL, this.getGitHubRepository(), gitCommitHash);
 
         try (InputStreamReader inputStreamReader = new InputStreamReader(this.readFromURL(commitURL))) {
@@ -49,10 +55,10 @@ public interface VersionInfo {
             }
 
         } catch (IOException exception) {
-            exception.printStackTrace();
+            return GitCommit.unknown();
         }
 
-        return new GitCommit("unknown", null, null);
+        return GitCommit.unknown();
     }
 
     default InputStream readFromURL(String url) throws IOException {

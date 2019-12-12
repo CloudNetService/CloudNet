@@ -1,21 +1,30 @@
-package de.dytanic.cloudnet.launcher.update;
+package de.dytanic.cloudnet.launcher.version.util;
 
 
 import java.util.Date;
 
 public class GitCommit {
+
+    public GitCommit(String sha, String message, GitCommitAuthor author) {
+        this.sha = sha;
+        this.message = message;
+        this.author = author;
+    }
+
     private boolean known = true;
 
     private String sha;
     private String message;
     private GitCommitAuthor author;
 
-    public GitCommit(String sha, String message, GitCommitAuthor author) {
+    public GitCommit(String sha) {
         this.sha = sha;
-        this.message = message;
-        this.author = author;
 
         this.known = false;
+    }
+
+    public static GitCommit unknown() {
+        return new GitCommit("unknown");
     }
 
     public GitCommit() {
@@ -26,7 +35,7 @@ public class GitCommit {
     }
 
     public String getShortenedSha() {
-        return this.sha.substring(0, 8);
+        return this.sha.substring(0, 7);
     }
 
     public String getSha() {

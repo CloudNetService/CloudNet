@@ -30,10 +30,8 @@ public final class Constants {
     public static final String
             CLOUDNET_SELECTED_VERSION = "cloudnet.launcher.select.version",
             CLOUDNET_REPOSITORY = "cloudnet.repository",
-            CLOUDNET_REPOSITORY_TYPE = "cloudnet.repository.type",
             CLOUDNET_REPOSITORY_GITHUB = "cloudnet.repository.github",
             CLOUDNET_REPOSITORY_AUTO_UPDATE = "cloudnet.auto-update",
-            CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED = "cloudnet.auto-update.with-embedded",
             FALLBACK_VERSION = Constants.class.getPackage().getSpecificationVersion();
 
     private Constants() {
