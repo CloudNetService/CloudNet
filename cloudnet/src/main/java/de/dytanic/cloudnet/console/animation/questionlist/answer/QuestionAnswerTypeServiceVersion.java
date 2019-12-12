@@ -1,7 +1,4 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
-/*
- * Created by derrop on 11.12.2019
- */
 
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;

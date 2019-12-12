@@ -65,8 +65,9 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     }
 
     protected void print(String... input) {
-        if (input.length == 0)
+        if (input.length == 0) {
             return;
+        }
         Ansi ansi = Ansi
                 .ansi()
                 .saveCursorPosition()

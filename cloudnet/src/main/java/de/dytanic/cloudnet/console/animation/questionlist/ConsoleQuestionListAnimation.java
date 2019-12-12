@@ -81,6 +81,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
             console.forceWriteLine(header);
         }
 
+        console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-explain"));
         console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
         // todo disable all other command handlers of this console so that we don't get an unknown command message for every input
         // todo disable tab completers
@@ -165,7 +166,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
         try {
             super.eraseLastLine(); //erase prompt
-            super.getConsole().forceWriteLine(answerType.getInvalidInputMessage(input));
+            super.getConsole().forceWriteLine("&c" + answerType.getInvalidInputMessage(input));
             Thread.sleep(3000);
             super.eraseLastLine(); //erase invalid input message
         } catch (InterruptedException exception) {
@@ -194,12 +195,13 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
             if (footer != null) {
                 super.getConsole().forceWriteLine("&r" + footer);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException exception) {
-                    exception.printStackTrace();
-                }
             }
+        }
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException exception) {
+            exception.printStackTrace();
         }
 
         super.getConsole().clearScreen();

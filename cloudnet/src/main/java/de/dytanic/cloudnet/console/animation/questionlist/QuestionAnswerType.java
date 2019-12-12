@@ -32,7 +32,7 @@ public interface QuestionAnswerType<T> {
         if (possibleAnswers != null) {
             return LanguageManager.getMessage("ca-question-list-question-list").replace("%values%", this.getPossibleAnswersAsString());
         }
-        return LanguageManager.getMessage("ca-question-list-default");
+        return LanguageManager.getMessage("ca-question-list-invalid-default");
     }
 
 }

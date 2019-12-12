@@ -191,7 +191,7 @@ public final class CloudNet extends CloudNetDriver {
             Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
-        this.defaultInstallation.initDefaultConfigDefaultHostAddress();
+        this.defaultInstallation.executeFirstStartSetup(this.console);
         this.config.load();
 
         if (this.config.getMaxMemory() < 2048) {

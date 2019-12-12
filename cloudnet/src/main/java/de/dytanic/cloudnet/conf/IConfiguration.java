@@ -20,6 +20,8 @@ public interface IConfiguration {
 
     NetworkClusterNode getIdentity();
 
+    void setIdentity(NetworkClusterNode identity);
+
     NetworkCluster getClusterConfig();
 
     void setClusterConfig(NetworkCluster clusterConfig);
