@@ -3,11 +3,11 @@ package de.dytanic.cloudnet.launcher.version.update;
 
 import de.dytanic.cloudnet.launcher.version.InstalledVersionInfo;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 public class FallbackUpdater extends InstalledVersionInfo implements Updater {
 
@@ -17,39 +17,34 @@ public class FallbackUpdater extends InstalledVersionInfo implements Updater {
 
     @Override
     public boolean init(Path versionDirectory, String url, String githubRepository) {
-        try {
-            Files.createDirectories(super.getTargetDirectory());
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return false;
-        }
+        // do nothing, we already have all information necessary
         return true;
     }
 
     @Override
     public boolean installModuleFile(String name, Path path) {
-        System.out.println("Installing version module " + name + " from fallback version " + super.appVersion);
+        System.out.println(String.format("Installing module %s from fallback version %s", name, this.appVersion));
 
         return this.installFile(name, path, true);
     }
 
     @Override
     public boolean installFile(String name, Path path, boolean replace) {
-        if (!replace && Files.exists(path)) {
-            return true;
-        } else if (!Files.exists(path)) {
-            try {
-                Files.createFile(path);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-
         try {
+            if (!Files.exists(path)) {
+                Files.createFile(path);
+            } else if (!replace) {
+                return true;
+            }
+
             Files.createDirectories(path.getParent());
 
-            try (InputStream inputStream = this.getClass().getResourceAsStream(name)) {
-                Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+            try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(name)) {
+                Files.copy(
+                        Objects.requireNonNull(inputStream, String.format("Fallback module file %s not found, is the launcher corrupted?", name)),
+                        path,
+                        StandardCopyOption.REPLACE_EXISTING
+                );
             }
 
             return true;

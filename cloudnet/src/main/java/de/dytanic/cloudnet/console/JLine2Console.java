@@ -10,7 +10,7 @@ public final class JLine2Console implements IConsole {
 
     private final String
             user = System.getProperty("user.name"),
-            version = System.getProperty("cloudnet.launcher.select.version"),
+            version = this.getClass().getPackage().getImplementationVersion(),
             prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> ");
 
     private String screenName = version;

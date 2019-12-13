@@ -4,6 +4,8 @@ import de.dytanic.cloudnet.launcher.Constants;
 import de.dytanic.cloudnet.launcher.module.CloudNetModule;
 import de.dytanic.cloudnet.launcher.version.VersionInfo;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -16,6 +18,13 @@ public interface Updater extends VersionInfo {
     boolean installFile(String name, Path path, boolean replace);
 
     default boolean installUpdate(String moduleDestinationBaseDirectory) {
+        try {
+            Files.createDirectories(this.getTargetDirectory());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return false;
+        }
+
         boolean successful = false;
 
         if (this.getCurrentVersion() != null) {

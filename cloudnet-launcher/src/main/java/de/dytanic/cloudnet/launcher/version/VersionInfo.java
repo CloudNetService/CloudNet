@@ -31,6 +31,10 @@ public interface VersionInfo {
 
     Path getTargetDirectory();
 
+    default String getFullVersion() {
+        return this.getCurrentVersion() + "-" + this.getLatestGitCommit().getShortenedSha();
+    }
+
     default GitCommit requestLatestGitCommit(String gitCommitHash) {
         if (gitCommitHash == null) {
             return GitCommit.unknown();

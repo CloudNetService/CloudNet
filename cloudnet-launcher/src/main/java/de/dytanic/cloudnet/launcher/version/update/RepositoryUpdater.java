@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.launcher.version.update;
 
 import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,21 +27,19 @@ public final class RepositoryUpdater implements Updater {
         this.url = url = url.endsWith("/") ? url : url + "/";
         this.gitHubRepository = githubRepository;
 
-        try {
+        try (InputStream inputStream = this.readFromURL(url + "repository")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
 
-            try (InputStream inputStream = this.readFromURL(url + "repository")) {
-                Properties properties = new Properties();
-                properties.load(inputStream);
-
+            if (properties.containsKey("app-version")) {
                 this.repositoryVersion = properties.getProperty("repository-version");
                 this.appVersion = properties.getProperty("app-version");
-
                 this.latestGitCommit = this.requestLatestGitCommit(properties.getProperty("git-commit"));
 
-                this.targetDirectory = versionDirectory.resolve(this.appVersion + "-" + this.latestGitCommit.getShortenedSha());
-            }
+                this.targetDirectory = versionDirectory.resolve(this.getFullVersion());
 
-            return true;
+                return true;
+            }
 
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -53,24 +50,20 @@ public final class RepositoryUpdater implements Updater {
 
     @Override
     public boolean installModuleFile(String name, Path path) {
-        System.out.println("Installing remote version module " + name + " from version " + this.appVersion);
+        System.out.println(String.format("Installing remote module %s from version %s", name, this.appVersion));
 
         return this.installFile(name, path, true);
     }
 
     @Override
     public boolean installFile(String name, Path path, boolean replace) {
-        if (!replace && Files.exists(path)) {
-            return true;
-        } else if (!Files.exists(path)) {
-            try {
-                Files.createFile(path);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-
         try {
+            if (!Files.exists(path)) {
+                Files.createFile(path);
+            } else if (!replace) {
+                return true;
+            }
+
             Files.createDirectories(path.getParent());
 
             try (InputStream inputStream = this.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
