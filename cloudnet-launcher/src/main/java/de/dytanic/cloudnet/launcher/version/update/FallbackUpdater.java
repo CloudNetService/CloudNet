@@ -16,7 +16,7 @@ public class FallbackUpdater extends InstalledVersionInfo implements Updater {
     }
 
     @Override
-    public boolean init(Path versionDirectory, String url, String githubRepository) {
+    public boolean init(Path versionDirectory, String githubRepository) {
         // do nothing, we already have all information necessary
         return true;
     }

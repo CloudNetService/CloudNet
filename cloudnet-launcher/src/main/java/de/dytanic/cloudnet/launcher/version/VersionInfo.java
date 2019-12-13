@@ -37,7 +37,7 @@ public interface VersionInfo {
 
     default GitCommit requestLatestGitCommit(String gitCommitHash) {
         if (gitCommitHash == null) {
-            return GitCommit.unknown();
+            return GitCommit.UNKNOWN;
         }
 
         String commitURL = String.format(GITHUB_COMMIT_API_URL, this.getGitHubRepository(), gitCommitHash);
@@ -59,10 +59,10 @@ public interface VersionInfo {
             }
 
         } catch (IOException exception) {
-            return GitCommit.unknown();
+            return GitCommit.UNKNOWN;
         }
 
-        return GitCommit.unknown();
+        return GitCommit.UNKNOWN;
     }
 
     default InputStream readFromURL(String url) throws IOException {

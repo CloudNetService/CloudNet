@@ -5,6 +5,8 @@ import java.util.Date;
 
 public class GitCommit {
 
+    public static final GitCommit UNKNOWN = new GitCommit("unknown");
+
     public GitCommit(String sha, String message, GitCommitAuthor author) {
         this.sha = sha;
         this.message = message;
@@ -17,14 +19,10 @@ public class GitCommit {
     private String message;
     private GitCommitAuthor author;
 
-    public GitCommit(String sha) {
+    private GitCommit(String sha) {
         this.sha = sha;
 
         this.known = false;
-    }
-
-    public static GitCommit unknown() {
-        return new GitCommit("unknown");
     }
 
     public GitCommit() {

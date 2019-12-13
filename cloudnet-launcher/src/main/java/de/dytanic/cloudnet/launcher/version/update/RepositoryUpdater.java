@@ -22,12 +22,15 @@ public final class RepositoryUpdater implements Updater {
 
     private Path targetDirectory;
 
+    public RepositoryUpdater(String url) {
+        this.url = url.endsWith("/") ? url : url + "/";
+    }
+
     @Override
-    public boolean init(Path versionDirectory, String url, String githubRepository) {
-        this.url = url = url.endsWith("/") ? url : url + "/";
+    public boolean init(Path versionDirectory, String githubRepository) {
         this.gitHubRepository = githubRepository;
 
-        try (InputStream inputStream = this.readFromURL(url + "repository")) {
+        try (InputStream inputStream = this.readFromURL(this.url + "repository")) {
             Properties properties = new Properties();
             properties.load(inputStream);
 

@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 public interface Updater extends VersionInfo {
 
-    boolean init(Path versionDirectory, String url, String githubRepository);
+    boolean init(Path versionDirectory, String githubRepository);
 
     boolean installModuleFile(String name, Path path);
 

@@ -18,6 +18,7 @@ import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -85,7 +86,7 @@ public final class CloudNetLauncher {
 
         try {
             this.startApplication(args, dependencyResources);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException exception) {
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException exception) {
             throw new RuntimeException("Failed to start the application!", exception);
         }
     }
@@ -113,7 +114,7 @@ public final class CloudNetLauncher {
         Files.createDirectories(LAUNCHER_VERSIONS);
         Files.createDirectories(LAUNCHER_LIBS);
 
-        this.selectedVersion = this.chooseVersion();
+        this.selectedVersion = this.selectVersion();
 
         if (this.selectedVersion instanceof Updater) {
             Updater updater = (Updater) this.selectedVersion;
@@ -144,7 +145,7 @@ public final class CloudNetLauncher {
 
     }
 
-    private VersionInfo chooseVersion() {
+    private VersionInfo selectVersion() {
         Map<String, VersionInfo> loadedVersionInfo = this.loadVersions();
 
         String selectedVersion = this.variables.get(Constants.CLOUDNET_SELECTED_VERSION);
@@ -169,7 +170,11 @@ public final class CloudNetLauncher {
         this.gitHubRepository = this.variables.getOrDefault(Constants.CLOUDNET_REPOSITORY_GITHUB, "CloudNetService/CloudNet-v3");
 
         if (this.variables.get(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
-            this.addUpdater("updater", new RepositoryUpdater(), versionInfo);
+            Updater updater = new RepositoryUpdater(this.variables.get(Constants.CLOUDNET_REPOSITORY));
+
+            if (updater.init(LAUNCHER_VERSIONS, this.gitHubRepository)) {
+                versionInfo.put("updater", updater);
+            }
         }
 
         try {
@@ -182,22 +187,11 @@ public final class CloudNetLauncher {
         // only put the fallback updater in if there are no other versions available
         if (versionInfo.isEmpty()) {
             // handles the installing of the artifacts contained in the launcher itself
-            this.addUpdater(
-                    Constants.FALLBACK_VERSION,
-                    new FallbackUpdater(LAUNCHER_VERSIONS.resolve(Constants.FALLBACK_VERSION), this.gitHubRepository),
-                    versionInfo
-            );
+            String fullVersion = Constants.FALLBACK_VERSION;
+            versionInfo.put(fullVersion, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(fullVersion), this.gitHubRepository));
         }
 
         return versionInfo;
-    }
-
-    private void addUpdater(String name, Updater updater, Map<String, VersionInfo> versionInfo) {
-        String repositoryURL = this.variables.get(Constants.CLOUDNET_REPOSITORY);
-
-        if (updater.init(LAUNCHER_VERSIONS, repositoryURL, this.gitHubRepository)) {
-            versionInfo.put(name, updater);
-        }
     }
 
     private Collection<URL> installDependencies() throws IOException, CNLCommandExecuteException {
@@ -269,16 +263,16 @@ public final class CloudNetLauncher {
         }
     }
 
-    private void startApplication(String[] args, Collection<URL> dependencyResources) throws IOException, ClassNotFoundException, NoSuchMethodException {
+    private void startApplication(String[] args, Collection<URL> dependencyResources) throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Path targetPath = this.selectedVersion.getTargetDirectory().resolve("cloudnet.jar");
         Path driverTargetPath = this.selectedVersion.getTargetDirectory().resolve("driver.jar");
 
-        String mainClazz;
+        String mainClass;
         try (JarFile jarFile = new JarFile(targetPath.toFile())) {
-            mainClazz = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+            mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
         }
 
-        if (mainClazz == null) {
+        if (mainClass == null) {
             throw new RuntimeException("Cannot find Main-Class from " + targetPath.toAbsolutePath());
         }
 
@@ -286,19 +280,9 @@ public final class CloudNetLauncher {
         dependencyResources.add(driverTargetPath.toUri().toURL());
 
         ClassLoader classLoader = new URLClassLoader(dependencyResources.toArray(new URL[0]));
-        Method method = classLoader.loadClass(mainClazz).getMethod("main", String[].class);
+        Method method = classLoader.loadClass(mainClass).getMethod("main", String[].class);
 
-        Thread thread = new Thread(() -> {
-            try {
-                method.invoke(null, (Object) args);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        }, "Application-Thread");
-
-        thread.setPriority(Thread.MIN_PRIORITY);
-        thread.setContextClassLoader(classLoader);
-        thread.start();
+        method.invoke(null, (Object) args);
     }
 
 }
