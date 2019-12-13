@@ -166,8 +166,10 @@ public final class CloudNetLauncher {
 
     private Map<String, VersionInfo> loadVersions() {
         Map<String, VersionInfo> versionInfo = new HashMap<>();
-
         this.gitHubRepository = this.variables.getOrDefault(Constants.CLOUDNET_REPOSITORY_GITHUB, "CloudNetService/CloudNet-v3");
+
+        // handles the installing of the artifacts contained in the launcher itself
+        versionInfo.put(Constants.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(Constants.FALLBACK_VERSION), this.gitHubRepository));
 
         if (this.variables.get(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
             Updater updater = new RepositoryUpdater(this.variables.get(Constants.CLOUDNET_REPOSITORY));
@@ -182,13 +184,6 @@ public final class CloudNetLauncher {
                     .forEach(path -> versionInfo.put(path.getFileName().toString(), new InstalledVersionInfo(path, this.gitHubRepository)));
         } catch (IOException exception) {
             exception.printStackTrace();
-        }
-
-        // only put the fallback updater in if there are no other versions available
-        if (versionInfo.isEmpty()) {
-            // handles the installing of the artifacts contained in the launcher itself
-            String fullVersion = Constants.FALLBACK_VERSION;
-            versionInfo.put(fullVersion, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(fullVersion), this.gitHubRepository));
         }
 
         return versionInfo;
