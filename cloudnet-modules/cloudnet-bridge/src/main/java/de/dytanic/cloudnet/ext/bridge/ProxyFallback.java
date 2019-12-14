@@ -21,7 +21,7 @@ public class ProxyFallback implements Comparable<ProxyFallback> {
 
     @Override
     public int compareTo(ProxyFallback o) {
-        return priority + o.priority;
+        return Integer.compare(o.priority, this.priority);
     }
 
     public String getTask() {
