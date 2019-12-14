@@ -137,14 +137,14 @@ public final class CloudNetLauncher {
         GitCommit latestGitCommit = this.selectedVersion.getLatestGitCommit();
         this.variables.put(Constants.CLOUDNET_SELECTED_VERSION, this.selectedVersion.getFullVersion());
 
-        if (latestGitCommit.isKnown()) {
+        if (latestGitCommit.isKnown() && latestGitCommit.hasInformation()) {
             GitCommit.GitCommitAuthor author = latestGitCommit.getAuthor();
 
             PRINT.accept(String.format("Latest commit is %s, authored by %s (%s)", latestGitCommit.getSha(), author.getName(), author.getEmail()));
             PRINT.accept("Commit time: " + DATE_FORMAT.format(author.getDate()));
             PRINT.accept(String.format("Commit message: \"%s\"", latestGitCommit.getMessage()));
         } else {
-            PRINT.accept("Unable to fetch the latest git commit, custom build?");
+            PRINT.accept("Unable to fetch the latest git commit, custom or outdated build?");
         }
 
     }
@@ -163,7 +163,7 @@ public final class CloudNetLauncher {
                 .findFirst()
                 .orElseGet(() ->
                         versionInfoCollection.stream()
-                                .max(Comparator.comparingLong(versionInfo -> versionInfo.getLatestGitCommit().getAuthor().getDate().getTime()))
+                                .max(Comparator.comparingLong(versionInfo -> versionInfo.getLatestGitCommit().getTime()))
                                 .orElse(null)
                 );
     }
@@ -179,7 +179,7 @@ public final class CloudNetLauncher {
             Updater updater = new RepositoryUpdater(this.variables.get(Constants.CLOUDNET_REPOSITORY));
 
             if (updater.init(LAUNCHER_VERSIONS, this.gitHubRepository)) {
-                versionInfo.put("updater", updater);
+                versionInfo.put(updater.getFullVersion(), updater);
             }
         }
 

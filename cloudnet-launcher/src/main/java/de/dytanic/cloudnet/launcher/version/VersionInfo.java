@@ -56,10 +56,10 @@ public interface VersionInfo {
             }
 
         } catch (IOException exception) {
-            return GitCommit.UNKNOWN;
+            return new GitCommit(gitCommitHash, null, null);
         }
 
-        return GitCommit.UNKNOWN;
+        return new GitCommit(gitCommitHash, null, null);
     }
 
     default InputStream readFromURL(String url) throws IOException {

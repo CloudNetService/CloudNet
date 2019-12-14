@@ -5,10 +5,8 @@
 var cloudnet.launcher.select.version default
 var cloudnet.versions.url https://cloudnetservice.eu/cloudnet/versions.json
 var cloudnet.repository https://cloudnetservice.eu/cloudnet/updates/
-var cloudnet.repository.type default
 var cloudnet.repository.github CloudNetService/CloudNet-v3
 var cloudnet.auto-update true
-var cloudnet.auto-update.with-embedded true
 var cloudnet.messages.language english
 
 # CloudNet runtime properties
