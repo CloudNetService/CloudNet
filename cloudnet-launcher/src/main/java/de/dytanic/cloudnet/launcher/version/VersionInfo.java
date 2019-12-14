@@ -1,10 +1,7 @@
 package de.dytanic.cloudnet.launcher.version;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.IOException;
@@ -16,7 +13,7 @@ import java.nio.file.Path;
 
 public interface VersionInfo {
 
-    Gson GSON = new Gson();
+    Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 
     String GITHUB_COMMIT_API_URL = "https://api.github.com/repos/%s/commits/%s";
 
