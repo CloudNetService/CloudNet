@@ -25,7 +25,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.jar.JarFile;
@@ -33,7 +34,7 @@ import java.util.jar.JarFile;
 public final class CloudNetLauncher {
     private static final Consumer<String> PRINT = System.out::println;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     private static final Path CONFIG_PATH = Paths.get(System.getProperty("cloudnet.launcher.config", "launcher.cnl"));
     private static final Path LAUNCHER_DIR_PATH = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
@@ -146,7 +147,11 @@ public final class CloudNetLauncher {
 
             PRINT.accept(String.format("Latest commit is %s, authored by %s (%s)", latestGitCommit.getSha(), author.getName(), author.getEmail()));
             PRINT.accept(String.format("Commit message: \"%s\"", latestGitCommit.getMessage()));
-            PRINT.accept("Commit time: " + DATE_FORMAT.format(author.getDate()));
+            PRINT.accept("Commit time: " + DATE_FORMATTER.format(
+                    author.getDate().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime()
+            ));
 
             PRINT.accept("");
         } else {
