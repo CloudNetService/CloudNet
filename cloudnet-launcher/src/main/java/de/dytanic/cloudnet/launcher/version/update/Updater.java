@@ -49,4 +49,25 @@ public interface Updater extends VersionInfo {
         return successful;
     }
 
+    default void deleteUpdateFiles() {
+        try {
+            if (Files.exists(this.getTargetDirectory())) {
+
+                Files.list(this.getTargetDirectory())
+                        .forEach(path -> {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException exception) {
+                                exception.printStackTrace();
+                            }
+                        });
+
+                Files.delete(this.getTargetDirectory());
+
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
 }

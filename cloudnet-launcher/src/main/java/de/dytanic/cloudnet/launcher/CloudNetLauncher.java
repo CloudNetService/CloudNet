@@ -122,27 +122,33 @@ public final class CloudNetLauncher {
         if (this.selectedVersion instanceof Updater) {
             Updater updater = (Updater) this.selectedVersion;
 
-            PRINT.accept(String.format("Installing version from updater '%s'...", updater.getClass().getSimpleName()));
+            PRINT.accept(String.format("Installing version %s from updater %s...", updater.getCurrentVersion(), updater.getClass().getSimpleName()));
 
             if (updater.installUpdate(this.variables.getOrDefault("cloudnet.modules.directory", "modules"))) {
-                PRINT.accept("Successfully installed CloudNet version " + this.selectedVersion.getCurrentVersion());
+                PRINT.accept("Successfully installed CloudNet version " + updater.getCurrentVersion());
             } else {
                 PRINT.accept("Error while installing CloudNet!");
+                updater.deleteUpdateFiles();
                 System.exit(-1);
             }
+        } else {
+            PRINT.accept("Using installed CloudNet version " + this.selectedVersion.getCurrentVersion());
         }
 
-        PRINT.accept("Using CloudNet version " + this.selectedVersion.getCurrentVersion());
+        this.variables.put(Constants.CLOUDNET_SELECTED_VERSION, this.selectedVersion.getFullVersion());
 
         GitCommit latestGitCommit = this.selectedVersion.getLatestGitCommit();
-        this.variables.put(Constants.CLOUDNET_SELECTED_VERSION, this.selectedVersion.getFullVersion());
 
         if (latestGitCommit.isKnown() && latestGitCommit.hasInformation()) {
             GitCommit.GitCommitAuthor author = latestGitCommit.getAuthor();
 
+            PRINT.accept("");
+
             PRINT.accept(String.format("Latest commit is %s, authored by %s (%s)", latestGitCommit.getSha(), author.getName(), author.getEmail()));
-            PRINT.accept("Commit time: " + DATE_FORMAT.format(author.getDate()));
             PRINT.accept(String.format("Commit message: \"%s\"", latestGitCommit.getMessage()));
+            PRINT.accept("Commit time: " + DATE_FORMAT.format(author.getDate()));
+
+            PRINT.accept("");
         } else {
             PRINT.accept("Unable to fetch the latest git commit, custom or outdated build?");
         }
@@ -195,36 +201,16 @@ public final class CloudNetLauncher {
 
     private Collection<URL> installDependencies() throws IOException, CNLCommandExecuteException {
         CNLInterpreter.runInterpreter(this.selectedVersion.getTargetDirectory().resolve("driver.cnl"));
-
-        Collection<URL> dependencyResources = new ArrayList<>();
-        StringBuilder driverLibs = new StringBuilder();
-
-        for (Dependency dependency : this.dependencies) {
-            if (this.repositories.containsKey(dependency.getRepository())) {
-                Path path = LAUNCHER_LIBS.resolve(dependency.toPath());
-
-                driverLibs.append(path.toAbsolutePath().toString()).append(File.pathSeparator);
-
-                this.installLibrary(repositories.get(dependency.getRepository()), dependency, path);
-                dependencyResources.add(path.toUri().toURL());
-            }
-        }
-
-        driverLibs.append(this.selectedVersion.getTargetDirectory().resolve("driver.jar").toAbsolutePath().toString());
-        System.setProperty("cloudnet.launcher.driver.dependencies", driverLibs.toString()); //For wrapper instances
-
-        Collection<Dependency> installedDependencies = new ArrayList<>(this.dependencies);
-
         CNLInterpreter.runInterpreter(this.selectedVersion.getTargetDirectory().resolve("cloudnet.cnl"));
 
-        this.dependencies.removeAll(installedDependencies);
-        installedDependencies.clear();
+        Collection<URL> dependencyResources = new ArrayList<>();
 
         for (Dependency dependency : this.dependencies) {
             if (this.repositories.containsKey(dependency.getRepository())) {
                 Path path = LAUNCHER_LIBS.resolve(dependency.toPath());
 
                 this.installLibrary(this.repositories.get(dependency.getRepository()), dependency, path);
+
                 dependencyResources.add(path.toUri().toURL());
             }
         }
@@ -237,8 +223,10 @@ public final class CloudNetLauncher {
 
             Files.createDirectories(path.getParent());
 
-            PRINT.accept("Install from repository " + dependency.getRepository() + " " + dependency.getGroup() +
-                    ":" + dependency.getName() + ":" + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "") + ".jar");
+            String dependencyName = dependency.getGroup() + ":" + dependency.getName() + ":"
+                    + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "") + ".jar";
+
+            PRINT.accept(String.format("Installing dependency %s from repository %s...", dependencyName, dependency.getRepository()));
 
             try (InputStream inputStream = this.selectedVersion.readFromURL(repositoryURL + "/" + dependency.toPath().toString().replace(File.separatorChar, '/'))) {
                 Files.copy(inputStream, path);

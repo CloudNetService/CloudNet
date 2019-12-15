@@ -23,7 +23,7 @@ public class FallbackUpdater extends InstalledVersionInfo implements Updater {
 
     @Override
     public boolean installModuleFile(String name, Path path) {
-        System.out.println(String.format("Installing module %s from fallback version %s", name, this.appVersion));
+        System.out.println(String.format("Installing fallback module %s...", name));
 
         return this.installFile(name, path, true);
     }
