@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.DefaultCommandMap;
 import de.dytanic.cloudnet.command.ICommandMap;
 import de.dytanic.cloudnet.command.commands.*;
-import de.dytanic.cloudnet.command.jline2.JLine2CommandCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
@@ -28,7 +27,6 @@ import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfigurationRegistry;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -943,7 +941,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void enableCommandCompleter() {
-        ((JLine2Console) console).getConsoleReader().addCompleter(new JLine2CommandCompleter(this.commandMap));
+        this.console.addTabCompletionHandler(UUID.randomUUID(), (commandLine, args, properties) -> this.commandMap.tabCompleteCommand(commandLine));
     }
 
     private void setDefaultRegistryEntries() {
@@ -970,7 +968,7 @@ public final class CloudNet extends CloudNetDriver {
     private void runConsole() {
         this.logger.info(LanguageManager.getMessage("console-ready"));
 
-        this.getConsole().addLineHandler(UUID.randomUUID(), input -> {
+        this.getConsole().addCommandHandler(UUID.randomUUID(), input -> {
             try {
                 if (input.trim().isEmpty()) {
                     return;

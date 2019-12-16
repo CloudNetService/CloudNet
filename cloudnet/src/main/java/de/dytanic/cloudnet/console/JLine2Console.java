@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.console;
 
+import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -16,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class JLine2Console implements IConsole {
 
@@ -32,7 +34,8 @@ public final class JLine2Console implements IConsole {
 
     private boolean printingEnabled = true;
 
-    private Map<UUID, Consumer<String>> consoleInputHandler = new ConcurrentHashMap<>();
+    private Map<UUID, EnabledHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
+    private Map<UUID, EnabledHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -41,6 +44,8 @@ public final class JLine2Console implements IConsole {
 
         this.consoleReader = new ConsoleReader();
         this.consoleReader.setExpandEvents(false);
+
+        this.consoleReader.addCompleter(new JLine2Completer(this));
 
         this.executorService.execute(() -> {
             while (!Thread.interrupted()) {
@@ -55,8 +60,10 @@ public final class JLine2Console implements IConsole {
                     this.resetPrompt();
 
                     if (!this.consoleInputHandler.isEmpty()) {
-                        for (Consumer<String> value : this.consoleInputHandler.values()) {
-                            value.accept(input);
+                        for (EnabledHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
+                            if (value.isEnabled()) {
+                                value.getHandler().accept(input);
+                            }
                         }
                     }
 
@@ -143,7 +150,7 @@ public final class JLine2Console implements IConsole {
         ITask<String> task = new ListenableTask<>(value::getValue);
 
         UUID uniqueId = UUID.randomUUID();
-        this.consoleInputHandler.put(uniqueId, input -> {
+        this.consoleInputHandler.put(uniqueId, new EnabledHandler<>(input -> {
             this.consoleInputHandler.remove(uniqueId);
             value.setValue(input);
             try {
@@ -151,19 +158,74 @@ public final class JLine2Console implements IConsole {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        });
+        }));
 
         return task;
     }
 
-    @Override
-    public void addLineHandler(UUID uniqueId, Consumer<String> inputConsumer) {
-        this.consoleInputHandler.put(uniqueId, inputConsumer);
+    public Collection<ITabCompleter> getTabCompletionHandler() {
+        return this.tabCompletionHandler.values().stream()
+                .filter(EnabledHandler::isEnabled)
+                .map(EnabledHandler::getHandler)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void removeLineHandler(UUID uniqueId) {
+    public void enableAllHandlers() {
+        this.enableAllCommandHandlers();
+        this.enableAllTabCompletionHandlers();
+    }
+
+    @Override
+    public void disableAllHandlers() {
+        this.disableAllCommandHandlers();
+        this.disableAllTabCompletionHandlers();
+    }
+
+    @Override
+    public void enableAllTabCompletionHandlers() {
+        this.toggleHandlers(true, this.tabCompletionHandler.values());
+    }
+
+    @Override
+    public void disableAllTabCompletionHandlers() {
+        this.toggleHandlers(false, this.tabCompletionHandler.values());
+    }
+
+    @Override
+    public void enableAllCommandHandlers() {
+        this.toggleHandlers(true, this.consoleInputHandler.values());
+    }
+
+    @Override
+    public void disableAllCommandHandlers() {
+        this.toggleHandlers(false, this.consoleInputHandler.values());
+    }
+
+    private void toggleHandlers(boolean enabled, Collection handlers) {
+        for (Object handler : handlers) {
+            ((EnabledHandler<?>) handler).setEnabled(enabled);
+        }
+    }
+
+    @Override
+    public void addCommandHandler(UUID uniqueId, Consumer<String> inputConsumer) {
+        this.consoleInputHandler.put(uniqueId, new EnabledHandler<>(inputConsumer));
+    }
+
+    @Override
+    public void removeCommandHandler(UUID uniqueId) {
         this.consoleInputHandler.remove(uniqueId);
+    }
+
+    @Override
+    public void addTabCompletionHandler(UUID uniqueId, ITabCompleter completer) {
+        this.tabCompletionHandler.put(uniqueId, new EnabledHandler<>(completer));
+    }
+
+    @Override
+    public void removeTabCompletionHandler(UUID uniqueId) {
+        this.tabCompletionHandler.remove(uniqueId);
     }
 
     @Override

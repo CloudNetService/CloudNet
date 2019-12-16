@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.console;
 
+import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 
@@ -7,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public interface IConsole extends AutoCloseable {
 
@@ -32,9 +34,25 @@ public interface IConsole extends AutoCloseable {
 
     ITask<String> readLine();
 
-    void addLineHandler(UUID uniqueId, Consumer<String> inputConsumer);
+    void enableAllHandlers();
 
-    void removeLineHandler(UUID uniqueId);
+    void disableAllHandlers();
+
+    void enableAllTabCompletionHandlers();
+
+    void disableAllTabCompletionHandlers();
+
+    void enableAllCommandHandlers();
+
+    void disableAllCommandHandlers();
+
+    void addCommandHandler(UUID uniqueId, Consumer<String> inputConsumer);
+
+    void removeCommandHandler(UUID uniqueId);
+
+    void addTabCompletionHandler(UUID uniqueId, ITabCompleter completer);
+
+    void removeTabCompletionHandler(UUID uniqueId);
 
     IConsole writeRaw(String rawText);
 

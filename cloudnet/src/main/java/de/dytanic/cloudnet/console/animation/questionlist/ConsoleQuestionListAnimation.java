@@ -4,12 +4,9 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeString;
 import org.fusesource.jansi.Ansi;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
@@ -83,8 +80,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
         console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-explain"));
         console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
-        // todo disable all other command handlers of this console so that we don't get an unknown command message for every input
-        // todo disable tab completers
+
+        console.disableAllHandlers();
 
     }
 
@@ -116,13 +113,13 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         ITask<Void> task = new ListenableTask<>(() -> null);
         UUID handlerId = UUID.randomUUID();
 
-        super.getConsole().addLineHandler(handlerId, input -> {
+        super.getConsole().addCommandHandler(handlerId, input -> {
             if (this.validateInput(answerType, entry, input)) {
                 if (this.entries.isEmpty()) {
                     this.resetConsole();
                 }
 
-                super.getConsole().removeLineHandler(handlerId);
+                super.getConsole().removeCommandHandler(handlerId);
                 try {
                     task.call();
                 } catch (Exception exception) {
@@ -211,6 +208,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
             }
         }
 
+        super.getConsole().enableAllHandlers();
         super.getConsole().togglePrinting(this.previousPrintingEnabled);
         super.getConsole().setPrompt(this.previousPrompt);
         super.getConsole().setCommandHistory(this.previousHistory);
