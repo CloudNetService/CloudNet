@@ -68,7 +68,7 @@ pipeline {
     }
     stage('Archive') {
       steps {
-        archiveArtifacts artifacts: '**/build/libs/*.jar'
+        archiveArtifacts artifacts: '**/build/libs/*'
       }
     }
   }
