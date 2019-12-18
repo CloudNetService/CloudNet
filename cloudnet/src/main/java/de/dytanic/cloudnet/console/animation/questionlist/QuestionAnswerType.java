@@ -11,7 +11,9 @@ public interface QuestionAnswerType<T> {
 
     T parse(String input);
 
-    //null response here means that we have infinity possible answers
+    /**
+     * @return null if there are infinite possible numbers
+     */
     Collection<String> getPossibleAnswers();
 
     default List<String> getCompletableAnswers() {

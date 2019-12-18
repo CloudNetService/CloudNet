@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class QuestionAnswerTypeBoolean implements QuestionAnswerType<Boolean> {
-
     private String trueString;
     private String falseString;
 
@@ -55,4 +54,5 @@ public class QuestionAnswerTypeBoolean implements QuestionAnswerType<Boolean> {
                 .replace("%true%", this.trueString)
                 .replace("%false%", this.falseString);
     }
+
 }

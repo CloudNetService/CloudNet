@@ -34,8 +34,8 @@ public final class JLine2Console implements IConsole {
 
     private boolean printingEnabled = true;
 
-    private Map<UUID, EnabledHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
-    private Map<UUID, EnabledHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
+    private Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
+    private Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -60,7 +60,7 @@ public final class JLine2Console implements IConsole {
                     this.resetPrompt();
 
                     if (!this.consoleInputHandler.isEmpty()) {
-                        for (EnabledHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
+                        for (ConsoleHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
                             if (value.isEnabled()) {
                                 value.getHandler().accept(input);
                             }
@@ -150,7 +150,7 @@ public final class JLine2Console implements IConsole {
         ITask<String> task = new ListenableTask<>(value::getValue);
 
         UUID uniqueId = UUID.randomUUID();
-        this.consoleInputHandler.put(uniqueId, new EnabledHandler<>(input -> {
+        this.consoleInputHandler.put(uniqueId, new ConsoleHandler<>(input -> {
             this.consoleInputHandler.remove(uniqueId);
             value.setValue(input);
             try {
@@ -165,8 +165,8 @@ public final class JLine2Console implements IConsole {
 
     public Collection<ITabCompleter> getTabCompletionHandler() {
         return this.tabCompletionHandler.values().stream()
-                .filter(EnabledHandler::isEnabled)
-                .map(EnabledHandler::getHandler)
+                .filter(ConsoleHandler::isEnabled)
+                .map(ConsoleHandler::getHandler)
                 .collect(Collectors.toList());
     }
 
@@ -204,13 +204,13 @@ public final class JLine2Console implements IConsole {
 
     private void toggleHandlers(boolean enabled, Collection handlers) {
         for (Object handler : handlers) {
-            ((EnabledHandler<?>) handler).setEnabled(enabled);
+            ((ConsoleHandler<?>) handler).setEnabled(enabled);
         }
     }
 
     @Override
     public void addCommandHandler(UUID uniqueId, Consumer<String> inputConsumer) {
-        this.consoleInputHandler.put(uniqueId, new EnabledHandler<>(inputConsumer));
+        this.consoleInputHandler.put(uniqueId, new ConsoleHandler<>(inputConsumer));
     }
 
     @Override
@@ -220,7 +220,7 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public void addTabCompletionHandler(UUID uniqueId, ITabCompleter completer) {
-        this.tabCompletionHandler.put(uniqueId, new EnabledHandler<>(completer));
+        this.tabCompletionHandler.put(uniqueId, new ConsoleHandler<>(completer));
     }
 
     @Override

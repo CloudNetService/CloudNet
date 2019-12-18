@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
  * Represents a progress bar animation in the console that by default is updated all 10 milliseconds
  */
 public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
-
     private long length;
     private long currentValue;
     private char progressChar;
@@ -63,6 +62,7 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
             this.doUpdate(((double) this.currentValue / (double) this.length) * 100.0D);
             return false;
         }
+
         this.doUpdate(100D);
         return true;
     }
@@ -83,10 +83,14 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
         long seconds = (millis / 1000);
         String min = String.valueOf(seconds / 60);
         String sec = String.valueOf(seconds - ((seconds / 60) * 60));
-        if (min.length() == 1)
+
+        if (min.length() == 1) {
             min = "0" + min;
-        if (sec.length() == 1)
+        }
+        if (sec.length() == 1) {
             sec = "0" + sec;
+        }
+
         return min + ":" + sec;
     }
 
@@ -111,11 +115,12 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
         long millis = System.currentTimeMillis() - getStartTime();
         long time = millis / 1000;
         return input == null ? "" : input
-                .replace("%value%", formatCurrentValue(this.currentValue))
-                .replace("%length%", formatLength(this.length))
+                .replace("%value%", this.formatCurrentValue(this.currentValue))
+                .replace("%length%", this.formatLength(this.length))
                 .replace("%percent%", String.format("%.2f", percent))
-                .replace("%time%", formatTime(millis))
+                .replace("%time%", this.formatTime(millis))
                 .replace("%bips%", String.valueOf(time == 0 ? "0" : (this.currentValue / 1024 * 8) / time)) //bits per second
                 .replace("%byps%", String.valueOf(time == 0 ? "0" : (this.currentValue / 1024) / time)); //bytes per second
     }
+
 }

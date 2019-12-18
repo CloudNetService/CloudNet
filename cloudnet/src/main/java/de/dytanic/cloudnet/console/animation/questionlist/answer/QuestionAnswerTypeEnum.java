@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswerType<E> {
-
     private Class<E> enumClass;
 
     public QuestionAnswerTypeEnum(Class<E> enumClass) {
@@ -22,7 +21,7 @@ public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswer
 
     @Override
     public E parse(String input) {
-        return Arrays.stream(this.enumClass.getEnumConstants()).filter(e -> e.name().equalsIgnoreCase(input)).findFirst().get();
+        return Arrays.stream(this.enumClass.getEnumConstants()).filter(e -> e.name().equalsIgnoreCase(input)).findFirst().orElse(null);
     }
 
     @Override
@@ -34,4 +33,5 @@ public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswer
     public List<String> getCompletableAnswers() {
         return Arrays.stream(this.enumClass.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
     }
+
 }

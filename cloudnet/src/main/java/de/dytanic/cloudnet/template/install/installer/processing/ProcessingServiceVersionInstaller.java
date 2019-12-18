@@ -3,11 +3,12 @@ package de.dytanic.cloudnet.template.install.installer.processing;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
-import de.dytanic.cloudnet.util.VisualFileUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -86,7 +87,9 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
 
     protected void download(String url, Path targetFile) throws IOException {
         System.out.println(LanguageManager.getMessage("template-installer-downloading-begin").replace("%url%", url));
-        VisualFileUtils.downloadFile(CloudNet.getInstance().getConsole(), new URL(url), targetFile);
+        try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), new URL(url))) {
+            Files.copy(inputStream, targetFile);
+        }
         System.out.println(LanguageManager.getMessage("template-installer-downloading-completed").replace("%url%", url));
     }
 

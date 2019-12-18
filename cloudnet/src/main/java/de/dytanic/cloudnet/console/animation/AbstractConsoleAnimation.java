@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
-
     private IConsole console;
     private int updateInterval = 25;
     private long startTime;
@@ -89,7 +88,10 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         );
     }
 
-    protected abstract boolean handleTick(); //returns true if the animation is finished and should be cancelled
+    /**
+     * @return if the animation is finished and should be cancelled
+     */
+    protected abstract boolean handleTick();
 
     @Override
     public final void run() {
@@ -97,12 +99,13 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         while (!Thread.interrupted() && !handleTick()) {
             try {
                 Thread.sleep(this.updateInterval);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
             }
         }
         for (Runnable runnable : this.finishHandler) {
             runnable.run();
         }
     }
+
 }

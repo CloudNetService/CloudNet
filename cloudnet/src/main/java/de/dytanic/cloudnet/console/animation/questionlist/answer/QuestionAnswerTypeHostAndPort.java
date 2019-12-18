@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.util.Collection;
 
 public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAndPort> {
+
     @Override
     public boolean isValidInput(String input) {
         return !input.isEmpty() && parse(input) != null;
@@ -26,12 +27,13 @@ public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAnd
                     Integer.parseInt(splitHostAndPort[1])
             );
         } catch (NumberFormatException exception) {
+            return null;
         }
-        return null;
     }
 
     @Override
     public Collection<String> getPossibleAnswers() {
         return null;
     }
+
 }

@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import java.util.Collection;
 
 public class QuestionAnswerTypeString implements QuestionAnswerType<String> {
+
     @Override
     public boolean isValidInput(String input) {
         return true;
@@ -19,4 +20,5 @@ public class QuestionAnswerTypeString implements QuestionAnswerType<String> {
     public Collection<String> getPossibleAnswers() {
         return null;
     }
+
 }

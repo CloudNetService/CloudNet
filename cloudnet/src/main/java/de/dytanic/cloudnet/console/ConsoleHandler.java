@@ -1,16 +1,15 @@
 package de.dytanic.cloudnet.console;
 
-public class EnabledHandler<H> {
-
+public class ConsoleHandler<H> {
     private boolean enabled;
     private H handler;
 
-    public EnabledHandler(boolean enabled, H handler) {
+    public ConsoleHandler(boolean enabled, H handler) {
         this.enabled = enabled;
         this.handler = handler;
     }
 
-    public EnabledHandler(H handler) {
+    public ConsoleHandler(H handler) {
         this(true, handler);
     }
 

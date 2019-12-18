@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import java.util.Collection;
 
 public class QuestionAnswerTypeInt implements QuestionAnswerType<Integer> {
+
     @Override
     public boolean isValidInput(String input) {
         return Validate.testStringParseToInt(input);
@@ -26,4 +27,5 @@ public class QuestionAnswerTypeInt implements QuestionAnswerType<Integer> {
     public String getInvalidInputMessage(String input) {
         return LanguageManager.getMessage("ca-question-list-invalid-int");
     }
+
 }

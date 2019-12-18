@@ -12,7 +12,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
 
 public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
-
     private Supplier<String> headerSupplier, footerSupplier;
     private Supplier<Collection<String>> lastCachedMessagesSupplier;
 

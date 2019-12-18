@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import java.util.Collection;
 
 public class QuestionAnswerTypeDouble implements QuestionAnswerType<Double> {
+
     @Override
     public boolean isValidInput(String input) {
         return Validate.testStringParseToDouble(input);
@@ -26,4 +27,5 @@ public class QuestionAnswerTypeDouble implements QuestionAnswerType<Double> {
     public String getInvalidInputMessage(String input) {
         return LanguageManager.getMessage("ca-question-list-invalid-double");
     }
+
 }

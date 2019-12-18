@@ -4,24 +4,38 @@ import de.dytanic.cloudnet.console.IConsole;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class ProgressBarInputStream extends InputStream {
 
     private ConsoleProgressBarAnimation progressBarAnimation;
     private InputStream wrapped;
 
+    public ProgressBarInputStream(IConsole console, InputStream wrapped, long length) {
+        this(
+                new ConsoleDownloadProgressBarAnimation(length, 0, '|', '|', '─', "&e%percent% % ", "| %value%/%length% MB (%byps% KB/s) | %time%"),
+                wrapped
+        );
+        console.startAnimation(this.progressBarAnimation);
+    }
+
     public ProgressBarInputStream(ConsoleProgressBarAnimation progressBarAnimation, InputStream wrapped) {
         this.progressBarAnimation = progressBarAnimation;
         this.wrapped = wrapped;
     }
 
-    public ProgressBarInputStream(IConsole console, InputStream wrapped, long length) {
-        this(
-                new ConsoleDownloadProgressBarAnimation(length, 0, '█', '█', '-', "&e%percent% % ", " | %value%/%length% MB (%byps% KB/s) | %time%"),
-                wrapped
-        );
-        console.startAnimation(this.progressBarAnimation);
+    public static InputStream wrapDownload(IConsole console, URL url) throws IOException {
+        URLConnection urlConnection = url.openConnection();
+        urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+        urlConnection.connect();
+
+        InputStream inputStream = urlConnection.getInputStream();
+
+        long contentLength = urlConnection.getHeaderFieldLong("Content-Length", inputStream.available());
+        return console.isAnimationRunning() ? inputStream : new ProgressBarInputStream(console, inputStream, contentLength);
     }
+
 
     @Override
     public int read() throws IOException {
@@ -62,6 +76,7 @@ public class ProgressBarInputStream extends InputStream {
     @Override
     public void close() throws IOException {
         this.progressBarAnimation.finish();
-        super.close();
+        this.wrapped.close();
     }
+
 }

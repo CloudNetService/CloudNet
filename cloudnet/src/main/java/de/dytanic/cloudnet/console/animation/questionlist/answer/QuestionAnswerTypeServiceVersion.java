@@ -10,12 +10,14 @@ import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair<ServiceVersionType, ServiceVersion>> {
-
     private Supplier<ServiceEnvironmentType> environmentTypeSupplier;
     private ServiceVersionProvider serviceVersionProvider;
 
@@ -101,4 +103,6 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
         }
         return LanguageManager.getMessage("ca-question-list-invalid-service-version");
     }
+
 }
+

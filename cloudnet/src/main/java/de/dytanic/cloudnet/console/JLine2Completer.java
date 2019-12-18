@@ -44,4 +44,5 @@ public class JLine2Completer implements Completer {
 
         return (lastSpace == -1) ? cursor - buffer.length() : cursor - (buffer.length() - lastSpace - 1);
     }
+
 }
