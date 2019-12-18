@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command;
 
+import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 
 import java.util.Collection;
@@ -56,6 +57,17 @@ public interface ICommandMap {
      * @return a list containing all unsorted results
      */
     List<String> tabCompleteCommand(String commandLine);
+
+    /**
+     * Gets all tab complete results for the specific command arguments and properties.
+     * If the length of the args is 0, it will return the names of all registered commands.
+     * If the length of the args is 1, but the given command doesn't exist, it will return the names of all registered commands that begin with {@code args[0]} (case-insensitive)
+     *
+     * @param args       the command arguments
+     * @param properties the properties for the tab completer
+     * @return a list containing all unsorted results
+     */
+    List<String> tabCompleteCommand(String[] args, Properties properties);
 
     /**
      * Transform all commands instances that are contain in the map into a CommandInfo object

@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.template.install.installer.processing;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 
@@ -9,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -85,16 +86,11 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     }
 
     protected void download(String url, Path targetFile) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-
-        connection.connect();
-
-        try (InputStream inputStream = connection.getInputStream()) {
+        System.out.println(LanguageManager.getMessage("template-installer-downloading-begin").replace("%url%", url));
+        try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), new URL(url))) {
             Files.copy(inputStream, targetFile);
         }
-
-        connection.disconnect();
+        System.out.println(LanguageManager.getMessage("template-installer-downloading-completed").replace("%url%", url));
     }
 
     protected int buildProcessAndWait(List<String> arguments, Path workingDir) {
