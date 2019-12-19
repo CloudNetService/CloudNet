@@ -191,8 +191,12 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 }
 
                 if (args[1].equalsIgnoreCase("task")) {
-                    getCloudServiceManager().removePermanentServiceTask(args[2]);
-                    sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
+                    String name = args[2];
+
+                    if (getCloudServiceManager().isTaskPresent(name)) {
+                        getCloudServiceManager().removePermanentServiceTask(name);
+                        sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
+                    }
                     return;
                 }
             }
@@ -720,7 +724,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         .stream()
                         .map(logFormatter::format)
                         .collect(Collectors.toList()),
-                () ->   "&f _____              _       &b           _                 \n" +
+                () -> "&f _____              _       &b           _                 \n" +
                         "&f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __  \n" +
                         "&f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\ \n" +
                         "&f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |\n" +
