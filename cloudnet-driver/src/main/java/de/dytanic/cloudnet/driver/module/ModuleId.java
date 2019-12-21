@@ -9,7 +9,11 @@ public class ModuleId {
     public ModuleId(String group, String name, String version) {
         this.group = group;
         this.name = name;
-        this.version = version;
+        this.version = version != null ? version : "latest";
+    }
+
+    public ModuleId(String group, String name) {
+        this(group, name, null);
     }
 
     public String getGroup() {
@@ -22,5 +26,12 @@ public class ModuleId {
 
     public String getVersion() {
         return version;
+    }
+
+    @Override
+    public String toString() {
+        return this.version != null ?
+                this.group + ":" + this.name + ":" + this.version :
+                this.group + ":" + this.name;
     }
 }

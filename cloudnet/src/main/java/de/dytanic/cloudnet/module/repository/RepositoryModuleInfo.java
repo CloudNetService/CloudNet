@@ -6,16 +6,22 @@ public class RepositoryModuleInfo {
 
     private ModuleId moduleId;
     private String[] authors;
-    private String[] depends;
+    private ModuleId[] depends;
+    private ModuleId[] conflicts;
+    private String requiredCloudNetVersion;
+    private String description;
     private String website;
     private String sourceUrl;
     private String supportUrl;
     private String downloadUrl;
 
-    public RepositoryModuleInfo(ModuleId moduleId, String[] authors, String[] depends, String website, String sourceUrl, String supportUrl, String downloadUrl) {
+    public RepositoryModuleInfo(ModuleId moduleId, String[] authors, ModuleId[] depends, ModuleId[] conflicts, String requiredCloudNetVersion, String description, String website, String sourceUrl, String supportUrl, String downloadUrl) {
         this.moduleId = moduleId;
         this.authors = authors;
         this.depends = depends;
+        this.conflicts = conflicts;
+        this.requiredCloudNetVersion = requiredCloudNetVersion;
+        this.description = description;
         this.website = website;
         this.sourceUrl = sourceUrl;
         this.supportUrl = supportUrl;
@@ -26,27 +32,39 @@ public class RepositoryModuleInfo {
         return moduleId;
     }
 
-    public String[] getAuthors() {
-        return authors;
+    public String getRequiredCloudNetVersion() {
+        return this.requiredCloudNetVersion;
     }
 
-    public String[] getDepends() {
-        return depends;
+    public ModuleId[] getConflicts() {
+        return this.conflicts;
+    }
+
+    public String[] getAuthors() {
+        return this.authors;
+    }
+
+    public ModuleId[] getDepends() {
+        return this.depends;
     }
 
     public String getWebsite() {
-        return website;
+        return this.website;
     }
 
     public String getSourceUrl() {
-        return sourceUrl;
+        return this.sourceUrl;
     }
 
     public String getSupportUrl() {
-        return supportUrl;
+        return this.supportUrl;
+    }
+
+    public String getDescription() {
+        return this.description;
     }
 
     public String getDownloadUrl() {
-        return downloadUrl;
+        return this.downloadUrl;
     }
 }

@@ -278,6 +278,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         return this.moduleLifeCycle;
     }
 
+    @Override
     public URL getUrl() {
         return this.url;
     }

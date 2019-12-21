@@ -13,6 +13,8 @@ public interface ModuleRepository {
      */
     boolean isReachable();
 
+    String getBaseURL();
+
     Collection<RepositoryModuleInfo> loadAvailableModules();
 
     RepositoryModuleInfo loadRepositoryModuleInfo(ModuleId moduleId);

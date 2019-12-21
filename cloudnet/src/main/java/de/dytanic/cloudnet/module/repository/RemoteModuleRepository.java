@@ -13,12 +13,12 @@ import java.util.Collections;
 
 public class RemoteModuleRepository implements ModuleRepository {
 
-    private String baseUrl = System.getProperty("cloudnet.modules.repository.url", "https://api.cloudnetservice.eu/");
+    private String baseUrl = System.getProperty("cloudnet.modules.repository.url", "https://cloudnetservice.eu/api");
 
     @Override
     public boolean isReachable() {
         try {
-            URLConnection connection = new URL(this.baseUrl + "modules").openConnection();
+            URLConnection connection = new URL(this.baseUrl + "status").openConnection();
             try (InputStream inputStream = connection.getInputStream()) {
                 JsonDocument document = JsonDocument.newDocument().read(inputStream);
                 return document.getBoolean("available");
@@ -30,12 +30,20 @@ public class RemoteModuleRepository implements ModuleRepository {
     }
 
     @Override
+    public String getBaseURL() {
+        return this.baseUrl;
+    }
+
+    @Override
     public Collection<RepositoryModuleInfo> loadAvailableModules() {
         try {
             URLConnection connection = new URL(this.baseUrl + "modules/list").openConnection();
             try (InputStream inputStream = connection.getInputStream()) {
                 JsonDocument document = JsonDocument.newDocument().read(inputStream);
-                return document.get("modules", TypeToken.getParameterized(Collection.class, RepositoryModuleInfo.class).getType());
+                Collection<RepositoryModuleInfo> moduleInfos = document.get("modules", TypeToken.getParameterized(Collection.class, RepositoryModuleInfo.class).getType());
+                if (moduleInfos != null) {
+                    return moduleInfos;
+                }
             }
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -46,9 +54,8 @@ public class RemoteModuleRepository implements ModuleRepository {
     @Override
     public RepositoryModuleInfo loadRepositoryModuleInfo(ModuleId moduleId) {
         try {
-            URLConnection connection = new URL(moduleId.getVersion() != null ?
-                    this.baseUrl + String.format("modules/list/%s/%s", moduleId.getGroup().replace('.', '/'), moduleId.getName()) :
-                    this.baseUrl + String.format("modules/list/%s/%s/%s", moduleId.getGroup().replace('.', '/'), moduleId.getName(), moduleId.getVersion())
+            URLConnection connection = new URL(
+                    this.baseUrl + String.format("modules/list/%s/%s", moduleId.getGroup(), moduleId.getName())
             ).openConnection();
             try (InputStream inputStream = connection.getInputStream()) {
                 JsonDocument document = JsonDocument.newDocument().read(inputStream);
