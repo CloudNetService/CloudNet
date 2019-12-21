@@ -7,7 +7,14 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar",
+          "url": "https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar",
+          "properties": {
+            "copy": "cache/patched.*\\.jar"
+          }
+        },
+        {
+          "name": "1.15.1",
+          "url": "https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar",
           "properties": {
             "copy": "cache/patched.*\\.jar"
           }
@@ -78,6 +85,17 @@
       "versions": [
         {
           "name": "latest",
+          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "properties": {
+            "copy": "spigot-.*\\.jar",
+            "parameters": [
+              "--rev",
+              "%version%"
+            ]
+          }
+        },
+        {
+          "name": "1.15.1",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "properties": {
             "copy": "spigot-.*\\.jar",

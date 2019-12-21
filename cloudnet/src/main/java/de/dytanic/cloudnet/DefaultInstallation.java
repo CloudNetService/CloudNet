@@ -4,33 +4,25 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
-import de.dytanic.cloudnet.console.ConsoleColor;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeHostAndPort;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeInt;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeIntRange;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeString;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
-import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
-import de.dytanic.cloudnet.util.PortValidator;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -52,9 +44,11 @@ public class DefaultInstallation {
         this.defaultTaskInstallations.put("java-bungee-1.12.2", () -> this.installJavaBungee("1.12.2"));
         this.defaultTaskInstallations.put("java-bungee-1.13.2", () -> this.installJavaBungee("1.13.2"));
         this.defaultTaskInstallations.put("java-bungee-1.14.4", () -> this.installJavaBungee("1.14.4"));
+        this.defaultTaskInstallations.put("java-bungee-1.15.1", () -> this.installJavaBungee("1.15.1"));
         this.defaultTaskInstallations.put("java-velocity-1.12.2", () -> this.installJavaVelocity("1.12.2"));
         this.defaultTaskInstallations.put("java-velocity-1.13.2", () -> this.installJavaVelocity("1.13.2"));
         this.defaultTaskInstallations.put("java-velocity-1.14.4", () -> this.installJavaVelocity("1.14.4"));
+        this.defaultTaskInstallations.put("java-velocity-1.15.1", () -> this.installJavaVelocity("1.15.1"));
     }
 
     private List<String> detectAllIPAddresses() throws SocketException {
@@ -330,7 +324,7 @@ public class DefaultInstallation {
                 ),
                 new PreparedTemplate(
                         new ServiceTemplate("Global", "bukkit", "local"),
-                        "paperspigot", "1.13.2",
+                        "paperspigot", "latest",
                         this.cloudNet.getServiceVersionProvider()
                 )
         );

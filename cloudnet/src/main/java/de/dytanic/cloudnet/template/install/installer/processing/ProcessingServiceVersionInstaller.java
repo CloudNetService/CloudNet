@@ -30,7 +30,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {
     }.getType();
     private static final String DOWNLOAD_ARTIFACT_NAME = "download.jar";
-    private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newFixedThreadPool(2);
+    private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
 
     @Override
     public void install(ServiceVersion version, Path workingDirectory, Callable<OutputStream[]> targetStreamCallable) throws Exception {
