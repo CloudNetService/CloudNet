@@ -64,9 +64,7 @@ public class DefaultModuleInstaller implements ModuleInstaller {
                 .findFirst()
                 .ifPresent(IModuleWrapper::unloadModule);
 
-        if (Files.exists(modulePath)) {
-            Files.delete(modulePath);
-        }
+        Files.deleteIfExists(modulePath);
     }
 
     @Override
