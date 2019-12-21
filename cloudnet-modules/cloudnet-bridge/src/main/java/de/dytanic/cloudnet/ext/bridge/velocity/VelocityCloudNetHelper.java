@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.bridge.velocity;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
@@ -9,14 +10,16 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
+import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
-import de.dytanic.cloudnet.ext.bridge.ProxyFallback;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class VelocityCloudNetHelper {
@@ -78,46 +81,11 @@ public final class VelocityCloudNetHelper {
     }
 
     public static String filterServiceForPlayer(Player player, String currentServer) {
-        for (ProxyFallbackConfiguration proxyFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
-            if (proxyFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                    proxyFallbackConfiguration.getTargetGroup(),
-                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            )) {
-                List<ProxyFallback> proxyFallbacks = Iterables.newArrayList(proxyFallbackConfiguration.getFallbacks());
-                Collections.sort(proxyFallbacks);
-
-                String server = null;
-
-                for (ProxyFallback proxyFallback : proxyFallbacks) {
-                    if (proxyFallback.getTask() != null) {
-                        continue;
-                    }
-                    if (proxyFallback.getPermission() != null && !player.hasPermission(proxyFallback.getPermission())) {
-                        continue;
-                    }
-
-                    List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallback.getTask(), currentServer);
-
-                    if (entries.size() == 0) {
-                        continue;
-                    }
-
-                    server = entries.get(new Random().nextInt(entries.size())).getKey();
-                }
-
-                if (server == null) {
-                    List<Map.Entry<String, ServiceInfoSnapshot>> entries = getFilteredEntries(proxyFallbackConfiguration.getDefaultFallbackTask(), currentServer);
-
-                    if (entries.size() > 0) {
-                        server = entries.get(new Random().nextInt(entries.size())).getKey();
-                    }
-                }
-
-                return server;
-            }
-        }
-
-        return null;
+        return BridgeHelper.filterServiceForPlayer(
+                currentServer,
+                VelocityCloudNetHelper::getFilteredEntries,
+                player::hasPermission
+        );
     }
 
     public static boolean isServiceEnvironmentTypeProvidedForVelocity(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -126,22 +94,19 @@ public final class VelocityCloudNetHelper {
     }
 
     public static boolean isOnAFallbackInstance(Player player) {
-        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(player.getCurrentServer().get().getServerInfo().getName());
+        return player.getCurrentServer().isPresent() && isFallbackServer(player.getCurrentServer().get().getServerInfo());
+    }
 
-        for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
-            if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                    bungeeFallbackConfiguration.getTargetGroup(),
-                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            )) {
-                for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks()) {
-                    if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
-                        return true;
-                    }
-                }
-            }
+    public static boolean isFallbackServer(ServerInfo serverInfo) {
+        if (serverInfo == null) {
+            return false;
+        }
+        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(serverInfo.getName());
+        if (serviceInfoSnapshot == null) {
+            return false;
         }
 
-        return false;
+        return BridgeHelper.isFallbackService(serviceInfoSnapshot);
     }
 
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
@@ -174,8 +139,8 @@ public final class VelocityCloudNetHelper {
                 )))
                 .append("Plugins", Iterables.map(proxyServer.getPluginManager().getPlugins(), pluginContainer -> {
                     PluginInfo pluginInfo = new PluginInfo(
-                            pluginContainer.getDescription().getName().get(),
-                            pluginContainer.getDescription().getVersion().get()
+                            pluginContainer.getDescription().getName().orElse(null),
+                            pluginContainer.getDescription().getVersion().orElse(null)
                     );
 
                     pluginInfo.getProperties()

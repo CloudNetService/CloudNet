@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
@@ -39,8 +40,8 @@ final class DefaultCloudServiceManagerConfiguration {
 
             try {
                 Files.delete(OLD_TASK_CONFIG_FILE);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -72,6 +73,7 @@ final class DefaultCloudServiceManagerConfiguration {
                     ServiceTask task = document.toInstanceOf(ServiceTask.class);
                     if (task != null && task.getName() != null) {
                         tasks.add(task);
+                        Files.write(path, new JsonDocument(task).toPrettyJson().getBytes(StandardCharsets.UTF_8));
                         System.out.println(LanguageManager.getMessage("cloudnet-load-task-success").replace("%path%", path.toString()).replace("%name%", task.getName()));
                     } else {
                         System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed").replace("%path%", path.toString()));
@@ -79,20 +81,47 @@ final class DefaultCloudServiceManagerConfiguration {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
+    }
+
+    public void deleteTask(String name) {
+        try {
+            Files.delete(TASKS_DIRECTORY.resolve(name + ".json"));
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public void writeTask(ServiceTask task) {
+        new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
     }
 
     public void save() {
         try {
             Files.createDirectories(TASKS_DIRECTORY);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         for (ServiceTask task : this.tasks) {
-            new JsonDocument(task).write(TASKS_DIRECTORY.resolve(task.getName() + ".json"));
+            this.writeTask(task);
+        }
+
+        try {
+            Files.walkFileTree(TASKS_DIRECTORY, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String name = file.getFileName().toString();
+                    if (tasks.stream().noneMatch(serviceTask -> (serviceTask.getName() + ".json").equalsIgnoreCase(name))) {
+                        Files.delete(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         new JsonDocument().append("groups", this.groups).write(GROUPS_CONFIG_FILE);

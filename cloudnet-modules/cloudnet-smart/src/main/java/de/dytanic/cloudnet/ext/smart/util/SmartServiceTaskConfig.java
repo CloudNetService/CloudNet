@@ -8,31 +8,35 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig> {
 
-    protected boolean enabled;
+    protected boolean enabled = false;
 
-    protected int priority;
+    protected int priority = 10;
 
-    protected boolean directTemplatesAndInclusionsSetup;
+    protected boolean directTemplatesAndInclusionsSetup = true;
 
-    protected int preparedServices;
+    protected int preparedServices = 0;
 
-    protected boolean dynamicMemoryAllocation;
+    protected boolean dynamicMemoryAllocation = false;
 
-    protected int dynamicMemoryAllocationRange;
+    protected int dynamicMemoryAllocationRange = 256;
 
-    protected int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
+    protected int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture = 0;
 
-    protected int autoStopTimeByUnusedServiceInSeconds;
+    protected int autoStopTimeByUnusedServiceInSeconds = 180;
 
-    protected boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService;
+    protected int percentOfPlayersForANewServiceByInstance = 100;
 
-    protected int percentOfPlayersForANewServiceByInstance;
+    protected int forAnewInstanceDelayTimeInSeconds = 300;
 
-    protected int forAnewInstanceDelayTimeInSeconds;
+    protected TemplateInstaller templateInstaller = TemplateInstaller.INSTALL_ALL;
 
-    protected TemplateInstaller templateInstaller;
+    protected int maxServiceCount = -1;
 
-    public SmartServiceTaskConfig(int priority, boolean directTemplatesAndInclusionsSetup, int preparedServices, boolean dynamicMemoryAllocation, int dynamicMemoryAllocationRange, int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture, int autoStopTimeByUnusedServiceInSeconds, boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService, int percentOfPlayersForANewServiceByInstance, int forAnewInstanceDelayTimeInSeconds, TemplateInstaller templateInstaller) {
+    public SmartServiceTaskConfig(
+            int priority, boolean directTemplatesAndInclusionsSetup, int preparedServices, boolean dynamicMemoryAllocation,
+            int dynamicMemoryAllocationRange, int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture, int autoStopTimeByUnusedServiceInSeconds,
+            boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService, int percentOfPlayersForANewServiceByInstance,
+            int forAnewInstanceDelayTimeInSeconds, TemplateInstaller templateInstaller, int maxServiceCount) {
         this.enabled = false;
         this.priority = priority;
         this.directTemplatesAndInclusionsSetup = directTemplatesAndInclusionsSetup;
@@ -41,10 +45,13 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
         this.dynamicMemoryAllocationRange = dynamicMemoryAllocationRange;
         this.percentOfPlayersToCheckShouldAutoStopTheServiceInFuture = percentOfPlayersToCheckShouldAutoStopTheServiceInFuture;
         this.autoStopTimeByUnusedServiceInSeconds = autoStopTimeByUnusedServiceInSeconds;
-        this.switchToPreparedServiceAfterAutoStopTimeByUnusedService = switchToPreparedServiceAfterAutoStopTimeByUnusedService;
         this.percentOfPlayersForANewServiceByInstance = percentOfPlayersForANewServiceByInstance;
         this.forAnewInstanceDelayTimeInSeconds = forAnewInstanceDelayTimeInSeconds;
         this.templateInstaller = templateInstaller;
+        this.maxServiceCount = maxServiceCount;
+    }
+
+    public SmartServiceTaskConfig() {
     }
 
     @Override
@@ -116,14 +123,6 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
         this.autoStopTimeByUnusedServiceInSeconds = autoStopTimeByUnusedServiceInSeconds;
     }
 
-    public boolean isSwitchToPreparedServiceAfterAutoStopTimeByUnusedService() {
-        return this.switchToPreparedServiceAfterAutoStopTimeByUnusedService;
-    }
-
-    public void setSwitchToPreparedServiceAfterAutoStopTimeByUnusedService(boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService) {
-        this.switchToPreparedServiceAfterAutoStopTimeByUnusedService = switchToPreparedServiceAfterAutoStopTimeByUnusedService;
-    }
-
     public int getPercentOfPlayersForANewServiceByInstance() {
         return this.percentOfPlayersForANewServiceByInstance;
     }
@@ -148,4 +147,11 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
         this.templateInstaller = templateInstaller;
     }
 
+    public int getMaxServiceCount() {
+        return maxServiceCount;
+    }
+
+    public void setMaxServiceCount(int maxServiceCount) {
+        this.maxServiceCount = maxServiceCount;
+    }
 }

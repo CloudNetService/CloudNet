@@ -1,5 +1,5 @@
 jar {
-    archiveName = cloudnetModuleSyncProxyFileName
+    archiveFileName.set(cloudnetModuleSyncProxyFileName)
 }
 
 dependencies {

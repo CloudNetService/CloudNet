@@ -33,6 +33,8 @@ public final class NettyWebSocketServerExample {
 
     @Test
     public void testWebSocket() throws Exception {
+        int port = NettyTestUtil.generateRandomPort();
+
         IHttpServer httpServer = new NettyHttpServer();
 
         httpServer.registerHandler("/test", (path, context) -> {
@@ -56,12 +58,12 @@ public final class NettyWebSocketServerExample {
             });
 
             context.cancelNext();
-        }).addListener(new HostAndPort("0.0.0.0", 4044));
+        }).addListener(new HostAndPort("0.0.0.0", port));
 
         EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
         WebSocketClientHandshaker webSocketClientHandshaker = WebSocketClientHandshakerFactory
                 .newHandshaker(
-                        new URI("ws://127.0.0.1:4044/test"),
+                        new URI("ws://127.0.0.1:" + port + "/test"),
                         WebSocketVersion.V13,
                         null,
                         false,
@@ -91,8 +93,8 @@ public final class NettyWebSocketServerExample {
                                         if (!webSocketClientHandshaker.isHandshakeComplete() && msg instanceof FullHttpResponse) {
                                             try {
                                                 webSocketClientHandshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);
-                                            } catch (Exception ex) {
-                                                ex.printStackTrace();
+                                            } catch (Exception exception) {
+                                                exception.printStackTrace();
                                             }
 
                                             ctx.channel().eventLoop().execute(() -> ctx.channel().writeAndFlush(new PingWebSocketFrame(Unpooled.buffer().writeBytes(PING_STRING.getBytes()))));
@@ -120,7 +122,7 @@ public final class NettyWebSocketServerExample {
                                 });
                     }
                 })
-                .connect("127.0.0.1", 4044)
+                .connect("127.0.0.1", port)
                 .sync()
                 .channel()
         ;

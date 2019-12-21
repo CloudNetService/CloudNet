@@ -135,7 +135,7 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("kickMessage") != null) {
-                    player.disconnect(TextComponent.of((event.getData().getString("kickMessage") + "").replace("&", "§")));
+                    player.disconnect(TextComponent.of((event.getData().getString("kickMessage")).replace("&", "§")));
                 }
             }
             break;
@@ -143,7 +143,20 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("message") != null) {
-                    player.sendMessage(TextComponent.of((event.getData().getString("message") + "").replace("&", "§")));
+                    player.sendMessage(TextComponent.of((event.getData().getString("message")).replace("&", "§")));
+                }
+            }
+            break;
+            case "broadcast_message": {
+                String permission = event.getData().getString("permission");
+
+                if (event.getData().getString("message") != null) {
+                    TextComponent message = TextComponent.of(event.getData().getString("message").replace("&", "§"));
+                    for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
+                        if (permission == null || player.hasPermission(permission)) {
+                            player.sendMessage(message);
+                        }
+                    }
                 }
             }
             break;

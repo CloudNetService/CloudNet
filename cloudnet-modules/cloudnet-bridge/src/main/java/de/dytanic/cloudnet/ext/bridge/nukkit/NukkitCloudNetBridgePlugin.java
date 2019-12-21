@@ -16,7 +16,7 @@ public final class NukkitCloudNetBridgePlugin extends PluginBase {
     public synchronized void onEnable() {
         this.initListeners();
 
-        BridgeHelper.updateServiceInfo();
+        Wrapper.getInstance().getTaskScheduler().schedule(BridgeHelper::updateServiceInfo); //However, calling this method in the scheduler fixes a NullPointerException in NukkitCloudNetHelper.initProperties(ServiceInfoSnapshot)
     }
 
     @Override

@@ -15,9 +15,9 @@ import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeCloudNetSyncProxyPlugin;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.lang.reflect.Method;
 import java.util.UUID;
 
 public final class BungeeSyncProxyCloudNetListener {
@@ -74,7 +74,7 @@ public final class BungeeSyncProxyCloudNetListener {
             String message = ChatColor.translateAlternateColorCodes('&', configuration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()));
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
-                    player.sendMessage(message);
+                    player.sendMessage(TextComponent.fromLegacyText(message));
                 }
             }
         }
@@ -96,17 +96,14 @@ public final class BungeeSyncProxyCloudNetListener {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
-            case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
-                SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+            SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
-                if (syncProxyConfiguration != null) {
-                    SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
-                }
-
-                handlePlayerNotWhitelisted();
+            if (syncProxyConfiguration != null) {
+                SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
             }
-            break;
+
+            this.handlePlayerNotWhitelisted();
         }
     }
 
@@ -119,17 +116,15 @@ public final class BungeeSyncProxyCloudNetListener {
                 if (syncProxyProxyLoginConfiguration.isMaintenance() &&
                         syncProxyProxyLoginConfiguration.getWhitelist() != null &&
                         !syncProxyProxyLoginConfiguration.getWhitelist().contains(proxiedPlayer.getName())) {
-                    UUID uniqueId = getUniqueIdOfPendingConnection(proxiedPlayer);
+                    UUID uniqueId = proxiedPlayer.getUniqueId();
 
-                    if (uniqueId != null && syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) {
+                    if (syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) {
                         continue;
                     }
 
                     if (!proxiedPlayer.hasPermission("cloudnet.syncproxy.maintenance")) {
-                        proxiedPlayer.disconnect(
-                                ChatColor.translateAlternateColorCodes('&',
-                                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + ""
-                                )
+                        proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                                SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted")))
                         );
                     }
                 }
@@ -137,18 +132,4 @@ public final class BungeeSyncProxyCloudNetListener {
         }
     }
 
-    private UUID getUniqueIdOfPendingConnection(ProxiedPlayer pendingConnection) {
-        try {
-
-            Method method = ProxiedPlayer.class.getMethod("getUniqueId");
-            method.setAccessible(true);
-
-            return (UUID) method.invoke(pendingConnection);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
 }

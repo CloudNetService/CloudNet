@@ -66,7 +66,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
     }
 
     default Collection<String> getPermissionNames() {
-        return Iterables.map(getPermissions(), permission -> permission.getName());
+        return Iterables.map(getPermissions(), Permission::getName);
     }
 
     default PermissionCheckResult hasPermission(Collection<Permission> permissions, Permission permission) {

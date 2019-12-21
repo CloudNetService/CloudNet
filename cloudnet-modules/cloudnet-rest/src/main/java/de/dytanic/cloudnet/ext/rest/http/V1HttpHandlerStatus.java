@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.rest.http;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.conf.IConfiguration;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
@@ -13,12 +14,12 @@ public final class V1HttpHandlerStatus extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, GET");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         IConfiguration configuration = getCloudNet().getConfig();
 
         context
@@ -35,7 +36,7 @@ public final class V1HttpHandlerStatus extends V1HttpHandler {
                                 .append("modules", Iterables.map(getCloudNet().getModuleProvider().getModules(), moduleWrapper -> moduleWrapper.getModuleConfiguration().getGroup() + ":" +
                                         moduleWrapper.getModuleConfiguration().getName() + ":" +
                                         moduleWrapper.getModuleConfiguration().getVersion()))
-                                .append("clientConnections", Iterables.map(getCloudNet().getNetworkClient().getChannels(), channel -> channel.getServerAddress()))
+                                .append("clientConnections", Iterables.map(getCloudNet().getNetworkClient().getChannels(), INetworkChannel::getServerAddress))
                                 .toByteArray()
                 )
                 .statusCode(200)

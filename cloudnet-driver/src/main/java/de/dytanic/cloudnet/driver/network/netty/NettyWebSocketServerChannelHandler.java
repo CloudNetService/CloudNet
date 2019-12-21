@@ -15,7 +15,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
         if (webSocketFrame instanceof PingWebSocketFrame) {
             invoke0(WebSocketFrameType.PING, webSocketFrame);
         }
@@ -43,8 +43,8 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
         for (IWebSocketListener listener : webSocketServerChannel.getListeners()) {
             try {
                 listener.handle(webSocketServerChannel, type, bytes);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }

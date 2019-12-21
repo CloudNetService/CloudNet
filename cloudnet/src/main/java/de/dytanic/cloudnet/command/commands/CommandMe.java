@@ -25,7 +25,7 @@ public final class CommandMe extends CommandDefault {
         messages.addAll(Arrays.asList(
                 " ",
                 "CloudNet " + CommandMe.class.getPackage().getImplementationTitle()
-                        + " " + CommandMe.class.getPackage().getImplementationVersion() + " by Dytanic",
+                        + " " + CommandMe.class.getPackage().getImplementationVersion() + " by Dytanic & the CloudNet Community",
                 "Discord: https://discord.gg/CPCWr7w",
                 " ",
                 "ClusterId: " + getCloudNet().getConfig().getClusterConfig().getClusterId(),

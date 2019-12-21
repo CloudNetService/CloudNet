@@ -43,11 +43,11 @@ public final class ProxProxProxyLoginConfigurationImplListener implements Listen
                         (syncProxyMotd.getAutoSlotMaxPlayersDistance() + onlinePlayers) :
                         syncProxyProxyLoginConfiguration.getMaxPlayers());
 
-                event.setMotd((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine() + "")
-                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                        .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId() + "")
-                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId() + ""));
+                event.setMotd((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
+                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                        .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId()));
             }
         }
     }
@@ -64,7 +64,7 @@ public final class ProxProxProxyLoginConfigurationImplListener implements Listen
                     return;
                 }
 
-                event.deny(ChatColor.toANSI((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + "")));
+                event.deny(ChatColor.toANSI((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted"))));
                 return;
             }
 

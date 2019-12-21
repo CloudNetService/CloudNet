@@ -15,9 +15,12 @@ import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
@@ -43,8 +46,6 @@ public final class BungeeCloudNetListener {
                     event.getServiceInfo().getAddress().getHost(),
                     event.getServiceInfo().getAddress().getPort()
             )));
-
-            BungeeCloudNetHelper.addItemToBungeeCordListenerPrioritySystem(event.getServiceInfo(), name);
         }
 
         this.bungeeCall(new BungeeCloudServiceStartEvent(event.getServiceInfo()));
@@ -55,8 +56,6 @@ public final class BungeeCloudNetListener {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
             String name = event.getServiceInfo().getServiceId().getName();
             ProxyServer.getInstance().getServers().remove(name);
-
-            BungeeCloudNetHelper.removeItemToBungeeCordListenerPrioritySystem(event.getServiceInfo(), name);
         }
 
         this.bungeeCall(new BungeeCloudServiceStopEvent(event.getServiceInfo()));
@@ -132,15 +131,31 @@ public final class BungeeCloudNetListener {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("kickMessage") != null) {
-                    proxiedPlayer.disconnect(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage") + ""));
+                    proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage"))));
                 }
             }
             break;
             case "send_message_to_proxy_player": {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
-                if (proxiedPlayer != null && event.getData().getString("message") != null) {
-                    proxiedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', event.getData().getString("message") + ""));
+                if (proxiedPlayer != null) {
+                    BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
+                            ComponentSerializer.parse(event.getData().getString("messages"));
+                    proxiedPlayer.sendMessage(messages);
+                }
+            }
+            break;
+
+            case "broadcast_message": {
+                String permission = event.getData().getString("permission");
+
+                BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
+                        ComponentSerializer.parse(event.getData().getString("messages"));
+
+                for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
+                    if (permission == null || proxiedPlayer.hasPermission(permission)) {
+                        proxiedPlayer.sendMessage(messages);
+                    }
                 }
             }
             break;
@@ -148,13 +163,8 @@ public final class BungeeCloudNetListener {
     }
 
     public ProxiedPlayer getPlayer(JsonDocument data) {
-        return Iterables.first(ProxyServer.getInstance().getPlayers(), proxiedPlayer -> {
-            UUID uniqueId = BungeeCloudNetHelper.getUniqueIdOfPlayer(proxiedPlayer);
-
-            return uniqueId != null ?
-                    data.contains("uniqueId") && uniqueId.equals(data.get("uniqueId", UUID.class)) :
-                    data.contains("name") && proxiedPlayer.getName().equalsIgnoreCase(data.getString("name"));
-        });
+        return Iterables.first(ProxyServer.getInstance().getPlayers(), proxiedPlayer ->
+                data.contains("uniqueId") && proxiedPlayer.getUniqueId().equals(data.get("uniqueId", UUID.class)));
     }
 
     @EventListener

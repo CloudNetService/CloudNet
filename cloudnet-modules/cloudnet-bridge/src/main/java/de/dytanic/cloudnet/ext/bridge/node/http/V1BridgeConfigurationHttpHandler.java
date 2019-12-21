@@ -19,12 +19,12 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "GET, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -46,7 +46,7 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
                     CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);
                     CloudNetBridgeModule.getInstance().writeConfiguration(bridgeConfiguration);
 
-                    CloudNetDriver.getInstance().sendChannelMessage(
+                    CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                             BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                             "update_bridge_configuration",
                             new JsonDocument("bridgeConfiguration", bridgeConfiguration)

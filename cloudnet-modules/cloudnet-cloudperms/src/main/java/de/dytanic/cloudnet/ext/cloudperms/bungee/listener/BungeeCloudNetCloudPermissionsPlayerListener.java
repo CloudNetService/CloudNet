@@ -1,15 +1,17 @@
 package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
 
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
@@ -17,64 +19,42 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(LoginEvent event) {
-        UUID uniqueId = getUniqueId(event.getConnection().getClass(), event.getConnection());
-
-        if (uniqueId != null) {
-            IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
-
-            if (permissionUser == null) {
-                CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
-                        uniqueId,
-                        event.getConnection().getName(),
-                        null,
-                        0
-                ));
-
-                permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
-            }
-
-            if (permissionUser != null) {
-                CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
-
-                permissionUser.setName(event.getConnection().getName());
-                CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
-            }
-        }
+        CloudPermissionsHelper.initPermissionUser(event.getConnection().getUniqueId(), event.getConnection().getName());
     }
 
     @EventHandler
     public void handle(PermissionCheckEvent event) {
-        UUID uniqueId = getUniqueId(event.getSender().getClass(), event.getSender());
+        CommandSender sender = event.getSender();
+
+        UUID uniqueId = null;
+
+        if (sender instanceof ProxiedPlayer) {
+            uniqueId = ((ProxiedPlayer) sender).getUniqueId();
+        } else {
+            try {
+                Method method = sender.getClass().getDeclaredMethod("getUniqueId");
+                uniqueId = (UUID) method.invoke(sender);
+            } catch (NoSuchMethodException ignored) {
+            } catch (IllegalAccessException | InvocationTargetException exception) {
+                exception.printStackTrace();
+            }
+        }
 
         if (uniqueId != null) {
-            IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
+            IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
 
             if (permissionUser != null) {
-                event.setHasPermission(CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, event.getPermission()));
+                event.setHasPermission(CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, event.getPermission()));
             }
         }
     }
 
     @EventHandler
     public void handle(PlayerDisconnectEvent event) {
-        UUID uniqueId = getUniqueId(event.getPlayer().getClass(), event.getPlayer());
+        UUID uniqueId = event.getPlayer().getUniqueId();
 
-        if (uniqueId != null) {
-            CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(uniqueId);
-        }
+        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(uniqueId);
+
     }
 
-
-    private UUID getUniqueId(Class<?> clazz, Object instance) {
-        Validate.checkNotNull(clazz);
-        Validate.checkNotNull(instance);
-
-        try {
-            Method method = clazz.getMethod("getUniqueId");
-            method.setAccessible(true);
-            return (UUID) method.invoke(instance);
-        } catch (Exception exception) {
-            return null;
-        }
-    }
 }

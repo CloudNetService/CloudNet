@@ -17,12 +17,12 @@ public final class V1CloudflareConfigurationHttpHandler extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "GET, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_OK)

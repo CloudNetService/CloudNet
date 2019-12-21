@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.wrapper.database.defaults;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
@@ -81,6 +80,12 @@ public class WrapperDatabase implements IDatabase {
     @Override
     public void clear() {
         this.clearAsync().getDef(null);
+    }
+
+    @Override
+    public long getDocumentsCount() {
+        Long result = this.getDocumentsCountAsync().getDef(-1L);
+        return result != null ? result : -1;
     }
 
     @Override
@@ -181,15 +186,12 @@ public class WrapperDatabase implements IDatabase {
     @Override
     public ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
         ITask<Void> task = new ListenableTask<>(() -> null);
-        this.entriesAsync().addListener(new ITaskListener<Map<String, JsonDocument>>() {
-            @Override
-            public void onComplete(ITask<Map<String, JsonDocument>> task, Map<String, JsonDocument> response) {
-                response.forEach(consumer);
-                try {
-                    task.call();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        this.entriesAsync().onComplete(response -> {
+            response.forEach(consumer);
+            try {
+                task.call();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         });
         return task;
@@ -198,6 +200,11 @@ public class WrapperDatabase implements IDatabase {
     @Override
     public ITask<Void> clearAsync() {
         return this.databaseProvider.executeQuery(this.name, "clear", response -> null);
+    }
+
+    @Override
+    public ITask<Long> getDocumentsCountAsync() {
+        return this.databaseProvider.executeQuery(this.name, "documentsCount", response -> response.getFirst().getLong("documentsCount"));
     }
 
     @Override

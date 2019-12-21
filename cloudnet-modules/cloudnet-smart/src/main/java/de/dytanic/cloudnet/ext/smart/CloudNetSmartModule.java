@@ -18,10 +18,13 @@ import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     public static final String SMART_CONFIG_ENTRY = "smartConfig";
+
+    private static final Random RANDOM = new Random();
 
     private static CloudNetSmartModule instance;
 
@@ -52,18 +55,16 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
             FileUtils.delete(getModuleWrapper().getDataFolder());
         }
 
-        for (ServiceTask task : this.getCloudNet().getPermanentServiceTasks()) {
-            if (!task.getProperties().contains(SMART_CONFIG_ENTRY)) {
-                task.getProperties().append(
-                        SMART_CONFIG_ENTRY,
-                        oldSmartTasks.containsKey(task.getName()) ?
-                                oldSmartTasks.get(task.getName()) :
-                                this.createDefaultSmartServiceTaskConfig()
-                );
-                this.getCloudNet().getCloudServiceManager().addPermanentServiceTask(task);
-            }
+        for (ServiceTask task : this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks()) {
+            SmartServiceTaskConfig config = task.getProperties().get(SMART_CONFIG_ENTRY, SmartServiceTaskConfig.class);
+            task.getProperties().append(
+                    SMART_CONFIG_ENTRY,
+                    oldSmartTasks.containsKey(task.getName()) ?
+                            oldSmartTasks.get(task.getName()) :
+                            config != null ? config : new SmartServiceTaskConfig()
+            );
+            this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(task);
         }
-        this.getCloudNet().updateServiceTasksInCluster();
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
@@ -71,28 +72,12 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         registerListeners(new CloudNetTickListener(), new CloudServiceListener(), new TaskDefaultSmartConfigListener());
     }
 
-    public SmartServiceTaskConfig createDefaultSmartServiceTaskConfig() {
-        return new SmartServiceTaskConfig(
-                10,
-                true,
-                0,
-                false,
-                256,
-                0,
-                180,
-                false,
-                100,
-                300,
-                TemplateInstaller.INSTALL_ALL
-        );
-    }
-
     public SmartServiceTaskConfig getSmartServiceTaskConfig(ServiceTask task) {
         return task.getProperties().get(SMART_CONFIG_ENTRY, SmartServiceTaskConfig.class);
     }
 
     public SmartServiceTaskConfig getSmartServiceTaskConfig(ServiceInfoSnapshot serviceInfoSnapshot) {
-        ServiceTask task = this.getCloudNet().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
+        ServiceTask task = this.getCloudNet().getServiceTaskProvider().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
         return task != null ? this.getSmartServiceTaskConfig(task) : null;
     }
 
@@ -100,16 +85,16 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         return task.getProperties().contains(SMART_CONFIG_ENTRY) && this.getSmartServiceTaskConfig(task).isEnabled();
     }
 
-    public int getPercentOfFreeMemory(ServiceTask serviceTask) {
-        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().searchLogicNode(serviceTask);
+    public int getPercentOfFreeMemory(String nodeId, ServiceTask serviceTask) {
+        NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().getNodeInfoProvider().getNodeInfoSnapshot(nodeId);
 
         if (networkClusterNodeInfoSnapshot != null && !networkClusterNodeInfoSnapshot.getNode()
                 .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
-            return (((networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100) /
-                    networkClusterNodeInfoSnapshot.getMaxMemory());
+            int memory = (networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100;
+            return networkClusterNodeInfoSnapshot.getMaxMemory() > 0 ? memory / networkClusterNodeInfoSnapshot.getMaxMemory() : memory;
         } else {
-            return (((getCloudNet().getConfig().getMaxMemory() - getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100) /
-                    getCloudNet().getConfig().getMaxMemory());
+            int memory = (getCloudNet().getConfig().getMaxMemory() - getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100;
+            return getCloudNet().getConfig().getMaxMemory() > 0 ? memory / getCloudNet().getConfig().getMaxMemory() : memory;
         }
     }
 
@@ -119,48 +104,52 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public void updateAsSmartService(ServiceConfiguration configuration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
-        configuration.setTemplates(this.useSmartConfig(configuration.getTemplates(), smartTask));
+        configuration.setTemplates(this.applyTemplateInstaller(serviceTask, smartTask.getTemplateInstaller()));
         configuration.getProcessConfig().setMaxHeapMemorySize(
-                this.useSmartConfig(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), serviceTask, smartTask)
+                this.applyDynamicMemory(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), configuration, serviceTask, smartTask)
         );
     }
 
-    private ServiceTemplate[] useSmartConfig(ServiceTemplate[] rawTemplates, SmartServiceTaskConfig smartTask) {
-        List<ServiceTemplate> templates = Arrays.asList(rawTemplates);
-        List<ServiceTemplate> outTemplates = new ArrayList<>();
-        switch (smartTask.getTemplateInstaller()) {
+    private ServiceTemplate[] applyTemplateInstaller(ServiceTask serviceTask, TemplateInstaller templateInstaller) {
+        List<ServiceTemplate> taskTemplates = new ArrayList<>(serviceTask.getTemplates());
+
+        List<ServiceTemplate> outTemplates = super.getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream()
+                .filter(groupConfiguration -> serviceTask.getGroups().contains(groupConfiguration.getName()))
+                .flatMap(groupConfiguration -> groupConfiguration.getTemplates().stream())
+                .collect(Collectors.toList());
+
+        switch (templateInstaller) {
             case INSTALL_ALL: {
-                outTemplates.addAll(templates);
+                outTemplates.addAll(taskTemplates);
                 break;
             }
             case INSTALL_RANDOM: {
-                if (!templates.isEmpty()) {
-                    Random random = new Random();
-
-                    int size = random.nextInt(templates.size());
+                if (!taskTemplates.isEmpty()) {
+                    int size = RANDOM.nextInt(taskTemplates.size());
 
                     for (int i = 0; i < size; ++i) {
-                        ServiceTemplate item = templates.get(random.nextInt(templates.size()));
-                        templates.remove(item);
+                        ServiceTemplate item = taskTemplates.get(RANDOM.nextInt(taskTemplates.size()));
+                        taskTemplates.remove(item);
                         outTemplates.add(item);
                     }
                 }
                 break;
             }
             case INSTALL_RANDOM_ONCE: {
-                if (!templates.isEmpty()) {
-                    ServiceTemplate item = templates.get(new Random().nextInt(templates.size()));
+                if (!taskTemplates.isEmpty()) {
+                    ServiceTemplate item = taskTemplates.get(RANDOM.nextInt(taskTemplates.size()));
                     outTemplates.add(item);
                 }
                 break;
             }
         }
+
         return outTemplates.toArray(new ServiceTemplate[0]);
     }
 
-    private int useSmartConfig(int maxMemory, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
+    private int applyDynamicMemory(int maxMemory, ServiceConfiguration serviceConfiguration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
         if (smartTask.isDynamicMemoryAllocation()) {
-            int percent = getPercentOfFreeMemory(serviceTask);
+            int percent = getPercentOfFreeMemory(serviceConfiguration.getServiceId().getNodeUniqueId(), serviceTask);
 
             if (percent > 50) {
                 maxMemory = maxMemory - ((percent * smartTask.getDynamicMemoryAllocationRange()) / 100);
@@ -168,6 +157,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                 maxMemory = maxMemory + ((percent * smartTask.getDynamicMemoryAllocationRange()) / 100);
             }
         }
+
         return maxMemory;
     }
 

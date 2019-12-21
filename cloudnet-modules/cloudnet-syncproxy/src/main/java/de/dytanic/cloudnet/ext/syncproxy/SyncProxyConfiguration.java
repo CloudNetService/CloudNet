@@ -53,12 +53,12 @@ public class SyncProxyConfiguration {
         return this.messages;
     }
 
-    public boolean showIngameServicesStartStopMessages() {
-        return ingameServiceStartStopMessages;
-    }
-
     public void setMessages(Map<String, String> messages) {
         this.messages = messages;
+    }
+
+    public boolean showIngameServicesStartStopMessages() {
+        return ingameServiceStartStopMessages;
     }
 
 }

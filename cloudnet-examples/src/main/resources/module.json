@@ -2,10 +2,10 @@
   "group": "de.dytanic.cloudnet.modules.test",
   "name": "CloudNet-TestModule",
   "version": "1.0",
-  "author": "Dytanic",
+  "author": "CloudNetService",
   "main": "de.dytanic.cloudnet.examples.ExampleModule",
   "description": "The example module, which you can see a example of the api from CloudNet",
-  "website": "https://dytanic.de",
+  "website": "https://cloudnetservice.eu",
   "properties": {
     "test_property_for_runtime": "foo bar"
   },

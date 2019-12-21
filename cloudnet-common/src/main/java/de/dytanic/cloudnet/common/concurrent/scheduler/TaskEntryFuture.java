@@ -2,10 +2,8 @@ package de.dytanic.cloudnet.common.concurrent.scheduler;
 
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class, will be removed in the future, and exchanged
@@ -57,7 +55,7 @@ public class TaskEntryFuture<T> implements Future<T> {
 
 
     @Override
-    public synchronized T get() throws InterruptedException, ExecutionException {
+    public synchronized T get() throws InterruptedException {
         waits = true;
         while (!isDone()) {
             this.wait();
@@ -68,7 +66,7 @@ public class TaskEntryFuture<T> implements Future<T> {
 
 
     @Override
-    public synchronized T get(long pTimeout, TimeUnit pUnit) throws InterruptedException, ExecutionException, TimeoutException {
+    public synchronized T get(long pTimeout, TimeUnit pUnit) throws InterruptedException {
 
         waits = true;
         /*

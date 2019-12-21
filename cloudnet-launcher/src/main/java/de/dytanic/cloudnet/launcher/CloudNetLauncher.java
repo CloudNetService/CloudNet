@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.launcher.cnl.defaults.CNLCommandEcho;
 import de.dytanic.cloudnet.launcher.cnl.defaults.CNLCommandVar;
 import de.dytanic.cloudnet.launcher.cnl.install.CNLCommandInclude;
 import de.dytanic.cloudnet.launcher.cnl.install.CNLCommandRepo;
-import de.dytanic.cloudnet.launcher.runtime.RuntimeClassLoader;
 import de.dytanic.cloudnet.launcher.update.DefaultRepositoryUpdater;
 import de.dytanic.cloudnet.launcher.update.IUpdater;
 import de.dytanic.cloudnet.launcher.util.CloudNetModule;
@@ -16,12 +15,10 @@ import de.dytanic.cloudnet.launcher.util.IOUtils;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,7 +46,6 @@ public final class CloudNetLauncher {
 
     public static synchronized void main(String... args) throws Throwable {
         setAdministrativeWarning();
-        setDefaultCharset_ToUTF8();
 
         List<String> arguments = Arrays.asList(args);
         run(arguments);
@@ -66,18 +62,12 @@ public final class CloudNetLauncher {
         }
     }
 
-    private static void setDefaultCharset_ToUTF8() throws Exception {
-        Field field = Charset.class.getDeclaredField("defaultCharset");
-        field.setAccessible(true);
-        field.set(null, StandardCharsets.UTF_8);
-    }
-
     private static synchronized void run(List<String> args) throws Throwable {
         final long launcherStartTime = System.currentTimeMillis();
 
         PRINT.accept("Starting CloudNet launcher " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
 
-        final Path configPath = Paths.get(Constants.LAUNHCER_CONFIG), launcherDirectory = Paths.get(Constants.LAUNHCER_DIR);
+        final Path configPath = Paths.get(Constants.LAUNCHER_CONFIG), launcherDirectory = Paths.get(Constants.LAUNCHER_DIR);
 
         for (File directory : new File[]{
                 new File(launcherDirectory.toFile(), "versions"),
@@ -190,7 +180,7 @@ public final class CloudNetLauncher {
         }
     }
 
-    private static void overwriteCnlConfiguration(List<String> arguments, Map<String, String> variables) throws Exception {
+    private static void overwriteCnlConfiguration(List<String> arguments, Map<String, String> variables) {
         if (arguments.contains("--version") && arguments.indexOf("--version") + 1 < arguments.size()) {
             variables.put(Constants.CLOUDNET_SELECTED_VERSION, arguments.get(arguments.indexOf("--version") + 1));
         }
@@ -212,7 +202,7 @@ public final class CloudNetLauncher {
             return;
         }
 
-        if (exists && variables.containsKey(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED) && variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED)
+        if (variables.containsKey(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED) && variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED)
                 .equalsIgnoreCase("true")) {
             configureInstallDefaultModules0(buffer, directory, false);
         }
@@ -275,13 +265,13 @@ public final class CloudNetLauncher {
                     IOUtils.copy(buffer, inputStream, dest.toPath());
                 }
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
 
-    private static void prepareApplication(Map<String, String> variables) throws Throwable {
+    private static void prepareApplication(Map<String, String> variables) {
         //Set properties for default dependencies
         System.setProperty("io.netty.maxDirectMemory", "0");
         System.setProperty("io.netty.leakDetectionLevel", "DISABLED");
@@ -311,11 +301,11 @@ public final class CloudNetLauncher {
         dependencyResources.add(target.toURI().toURL());
         dependencyResources.add(driverTarget.toURI().toURL());
 
-        ClassLoader classLoader = new RuntimeClassLoader(dependencyResources.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+        ClassLoader classLoader = new URLClassLoader(dependencyResources.toArray(new URL[0]));
+
         prepareApplication(variables);
 
         Method method = classLoader.loadClass(mainClazz).getMethod("main", String[].class);
-        method.setAccessible(true);
 
         PRINT.accept("Application setup complete! " + (System.currentTimeMillis() - launcherStartTime) + "ms");
         PRINT.accept("Starting application version " + System.getProperty(Constants.CLOUDNET_SELECTED_VERSION) + "...");
@@ -323,16 +313,12 @@ public final class CloudNetLauncher {
         startApplication0(method, classLoader, args.toArray(new String[0]));
     }
 
-    private static void startApplication0(Method method, ClassLoader classLoader, String... args) throws Throwable {
-        Field field = ClassLoader.class.getDeclaredField("scl");
-        field.setAccessible(true);
-        field.set(null, classLoader);
-
+    private static void startApplication0(Method method, ClassLoader classLoader, String... args) {
         Thread thread = new Thread(() -> {
             try {
                 method.invoke(null, new Object[]{args});
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
         }, "Application-Thread");
 

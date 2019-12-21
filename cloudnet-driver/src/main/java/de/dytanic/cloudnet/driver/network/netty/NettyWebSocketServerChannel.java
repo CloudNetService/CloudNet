@@ -147,7 +147,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.close(200, "default closing");
     }
 

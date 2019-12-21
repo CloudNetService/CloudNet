@@ -181,8 +181,8 @@ public class DefaultAsyncLogger implements ILogger {
             for (ILogHandler iLogHandler : handlers) {
                 try {
                     iLogHandler.handle(logEntry);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
             return null;

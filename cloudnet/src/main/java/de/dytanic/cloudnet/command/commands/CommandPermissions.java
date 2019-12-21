@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
@@ -74,7 +75,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
             case "users":
                 if (args.length >= 3) {
                     if (args[1].equalsIgnoreCase("group")) {
-                        for (IPermissionUser permissionUser : permissionManagement.getUserByGroup(args[2])) {
+                        for (IPermissionUser permissionUser : permissionManagement.getUsersByGroup(args[2])) {
                             this.displayUser(sender, permissionUser);
                         }
                     }
@@ -100,7 +101,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 exception.printStackTrace();
                             }
 
-                            this.updateClusterNetwork();
                             return;
                         }
                     }
@@ -123,7 +123,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 exception.printStackTrace();
                             }
 
-                            this.updateClusterNetwork();
                             return;
                         }
                     }
@@ -135,7 +134,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                         permissionManagement.deleteUser(args[2]);
 
                         sender.sendMessage(LanguageManager.getMessage("command-permissions-delete-user-successful").replace("%name%", args[2]));
-                        this.updateClusterNetwork();
                         return;
                     }
 
@@ -143,7 +141,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                         permissionManagement.deleteGroup(args[2]);
 
                         sender.sendMessage(LanguageManager.getMessage("command-permissions-delete-group-successful").replace("%name%", args[2]));
-                        this.updateClusterNetwork();
                         return;
                     }
                 }
@@ -154,7 +151,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     return;
                 }
 
-                List<IPermissionUser> permissionUsers = permissionManagement.getUser(args[1]);
+                List<IPermissionUser> permissionUsers = permissionManagement.getUsers(args[1]);
                 IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
 
                 if (permissionUser != null) {
@@ -171,13 +168,12 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-user-change-password-success")
                                     .replace("%name%", args[1])
                             );
-                            this.updateClusterNetwork();
                             return;
                         }
                         if (args[2].equalsIgnoreCase("check")) {
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-user-check-password")
                                     .replace("%name%", permissionUser.getName())
-                                    .replace("%checked%", permissionUser.checkPassword(args[3]) + "")
+                                    .replace("%checked%", String.valueOf(permissionUser.checkPassword(args[3])))
                             );
                         }
 
@@ -189,7 +185,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                     .replace("%name%", args[1])
                                     .replace("%new_name%", args[3])
                             );
-                            this.updateClusterNetwork();
                             return;
                         }
                         return;
@@ -197,18 +192,23 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 5) {
                         if (args[2].equalsIgnoreCase("add")) {
                             if (args[3].equalsIgnoreCase("group")) {
-                                if (args.length == 6 && Validate.testStringParseToInt(args[5])) {
-                                    permissionUser.addGroup(args[4], Integer.parseInt(args[5]), TimeUnit.DAYS);
-                                } else {
-                                    permissionUser.addGroup(args[4]);
-                                }
+                                if (permissionManagement.getGroup(args[4]) != null) {
+                                    if (args.length == 6 && Validate.testStringParseToInt(args[5])) {
+                                        permissionUser.addGroup(args[4], Integer.parseInt(args[5]), TimeUnit.DAYS);
+                                    } else {
+                                        permissionUser.addGroup(args[4]);
+                                    }
 
-                                permissionManagement.updateUser(permissionUser);
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
-                                );
-                                this.updateClusterNetwork();
+                                    permissionManagement.updateUser(permissionUser);
+                                    sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
+                                            .replace("%name%", args[1])
+                                            .replace("%group%", args[4])
+                                    );
+                                } else {
+                                    sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-group-not-exists")
+                                            .replace("%group%", args[4])
+                                    );
+                                }
                                 return;
                             }
                         }
@@ -218,10 +218,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionManagement.updateUser(permissionUser);
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-user-remove-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
+                                        .replace("%name%", args[1])
+                                        .replace("%group%", args[4])
                                 );
-                                this.updateClusterNetwork();
                                 return;
                             }
 
@@ -235,10 +234,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 permissionManagement.updateUser(permissionUser);
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-user-remove-permission-successful")
-                                        .replace("%name%", permissionUser.getName() + "")
-                                        .replace("%permission%", args[4] + "")
+                                        .replace("%name%", permissionUser.getName())
+                                        .replace("%permission%", args[4])
                                 );
-                                this.updateClusterNetwork();
                                 return;
                             }
                         }
@@ -246,41 +244,15 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
                         if (args[2].equalsIgnoreCase("add")) {
                             try {
-                                if (!Validate.testStringParseToInt(args[5])) {
-                                    return;
-                                }
-
-                                switch (args.length) {
-                                    case 6:
-                                        permissionUser.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        break;
-                                    case 7:
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionUser.addPermission(new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionUser.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                    case 8:
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionUser.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionUser.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                }
+                                this.addPermission(permissionUser, args);
 
                                 permissionManagement.updateUser(permissionUser);
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-permission-successful")
                                         .replace("%name%", permissionUser.getName())
-                                        .replace("%permission%", args[4] + "")
-                                        .replace("%potency%", args[5] + "")
+                                        .replace("%permission%", args[4])
+                                        .replace("%potency%", args[5])
                                 );
-
-                                this.updateClusterNetwork();
                             } catch (Exception exception) {
                                 exception.printStackTrace();
                             }
@@ -316,7 +288,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 if (Validate.testStringParseToInt(args[3])) {
                                     permissionGroup.setSortId(Integer.parseInt(args[3]));
                                     permissionManagement.updateGroup(permissionGroup);
-                                    this.updateClusterNetwork();
                                     sender.sendMessage(
                                             LanguageManager.getMessage("command-permissions-group-update-property")
                                                     .replace("%group%", permissionGroup.getName())
@@ -328,7 +299,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                             case "setdefaultgroup":
                                 permissionGroup.setDefaultGroup(args[3].equalsIgnoreCase("true"));
                                 permissionManagement.updateGroup(permissionGroup);
-                                this.updateClusterNetwork();
                                 sender.sendMessage(
                                         LanguageManager.getMessage("command-permissions-group-update-property")
                                                 .replace("%group%", permissionGroup.getName())
@@ -339,7 +309,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                             case "setsuffix":
                                 permissionGroup.setSuffix(args[3].replace("_", " "));
                                 permissionManagement.updateGroup(permissionGroup);
-                                this.updateClusterNetwork();
                                 sender.sendMessage(
                                         LanguageManager.getMessage("command-permissions-group-update-property")
                                                 .replace("%group%", permissionGroup.getName())
@@ -351,7 +320,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionGroup.setPrefix(args[3].replace("_", " "));
                                 permissionManagement.updateGroup(permissionGroup);
-                                this.updateClusterNetwork();
                                 sender.sendMessage(
                                         LanguageManager.getMessage("command-permissions-group-update-property")
                                                 .replace("%group%", permissionGroup.getName())
@@ -363,7 +331,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionGroup.setDisplay(args[3].replace("_", " "));
                                 permissionManagement.updateGroup(permissionGroup);
-                                this.updateClusterNetwork();
                                 sender.sendMessage(
                                         LanguageManager.getMessage("command-permissions-group-update-property")
                                                 .replace("%group%", permissionGroup.getName())
@@ -378,7 +345,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 if (color != null && color.length() == 2) {
                                     permissionGroup.setColor(args[3]);
                                     permissionManagement.updateGroup(permissionGroup);
-                                    this.updateClusterNetwork();
                                     sender.sendMessage(
                                             LanguageManager.getMessage("command-permissions-group-update-property")
                                                     .replace("%group%", permissionGroup.getName())
@@ -398,10 +364,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionManagement.updateGroup(permissionGroup);
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
+                                        .replace("%name%", args[1])
+                                        .replace("%group%", args[4])
                                 );
-                                this.updateClusterNetwork();
                                 return;
                             }
                         }
@@ -411,10 +376,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
                                 permissionManagement.updateGroup(permissionGroup);
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-group-successful")
-                                        .replace("%name%", args[1] + "")
-                                        .replace("%group%", args[4] + "")
+                                        .replace("%name%", args[1])
+                                        .replace("%group%", args[4])
                                 );
-                                this.updateClusterNetwork();
                                 return;
                             }
 
@@ -428,10 +392,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 permissionManagement.updateGroup(permissionGroup);
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
-                                        .replace("%name%", permissionGroup.getName() + "")
-                                        .replace("%permission%", args[4] + "")
+                                        .replace("%name%", permissionGroup.getName())
+                                        .replace("%permission%", args[4])
                                 );
-                                this.updateClusterNetwork();
                                 return;
                             }
                             return;
@@ -441,43 +404,15 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                     if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
                         if (args[2].equalsIgnoreCase("add")) {
                             try {
-                                if (!Validate.testStringParseToInt(args[5])) {
-                                    return;
-                                }
-
-                                switch (args.length) {
-                                    case 6:
-                                        permissionGroup.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        break;
-                                    case 7:
-
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionGroup.addPermission(new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionGroup.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                    case 8:
-
-                                        if (Validate.testStringParseToInt(args[6])) {
-                                            permissionGroup.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                                        } else {
-                                            permissionGroup.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5])));
-                                        }
-
-                                        break;
-                                }
+                                this.addPermission(permissionGroup, args);
 
                                 permissionManagement.updateGroup(permissionGroup);
 
                                 sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-permission-successful")
                                         .replace("%name%", permissionGroup.getName())
-                                        .replace("%permission%", args[4] + "")
-                                        .replace("%potency%", args[5] + "")
+                                        .replace("%permission%", args[4])
+                                        .replace("%potency%", args[5])
                                 );
-
-                                this.updateClusterNetwork();
                             } catch (Exception exception) {
                                 exception.printStackTrace();
                             }
@@ -489,10 +424,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                             permissionManagement.updateGroup(permissionGroup);
 
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
-                                    .replace("%name%", permissionGroup.getName() + "")
-                                    .replace("%permission%", args[4] + "")
+                                    .replace("%name%", permissionGroup.getName())
+                                    .replace("%permission%", args[4])
                             );
-                            this.updateClusterNetwork();
                             return;
                         }
                     }
@@ -512,6 +446,9 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             sender.sendMessage("- " + groupInfo.getGroup() + ": " + (groupInfo.getTimeOutMillis() > 0 ?
                     dateFormat.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
+        }
+        if (permissionUser.getGroups().isEmpty() && CloudNet.getInstance().getPermissionManagement() != null) {
+            sender.sendMessage("- " + CloudNet.getInstance().getPermissionManagement().getDefaultPermissionGroup().getName() + ": LIFETIME");
         }
 
         sender.sendMessage(" ");
@@ -551,10 +488,6 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                                 dateFormat.format(permission.getTimeOutMillis()) : "LIFETIME"));
             }
         }
-    }
-
-    private void updateClusterNetwork() {
-        getCloudNet().publishUpdateJsonPermissionManagement();
     }
 
     @Override
@@ -638,7 +571,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
             if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
                 if (args[2].equalsIgnoreCase("add")) {
                     if (args[3].equalsIgnoreCase("permission")) {
-                        return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                        return getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
                     }
                 }
             }
@@ -647,12 +580,42 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
         return null;
     }
 
+    private void addPermission(IPermissible permissible, String[] args) {
+        if (!Validate.testStringParseToInt(args[5])) {
+            return;
+        }
+
+        switch (args.length) {
+            case 6:
+                permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
+                break;
+            case 7:
+
+                if (Validate.testStringParseToInt(args[6])) {
+                    permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
+                } else {
+                    permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
+                }
+
+                break;
+            case 8:
+
+                if (Validate.testStringParseToInt(args[6])) {
+                    permissible.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
+                } else {
+                    permissible.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5])));
+                }
+
+                break;
+        }
+    }
+
     private Collection<String> getGroupNames() {
         return getCloudNet().getPermissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList());
     }
 
     private Collection<String> getUserPermissions(String user) {
-        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUser(user);
+        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUsers(user);
         IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
         if (permissionUser != null) {
             Collection<String> outNames = new ArrayList<>(permissionUser.getPermissionNames());
@@ -665,7 +628,7 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
     }
 
     private Collection<String> getGroupsForUserPermission(String user, String permissionName) {
-        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUser(user);
+        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUsers(user);
         IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
         return this.getGroupsForPermission(permissionUser, permissionName);
     }

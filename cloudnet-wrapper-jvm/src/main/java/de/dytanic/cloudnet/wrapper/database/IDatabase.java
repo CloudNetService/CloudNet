@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 
 public interface IDatabase extends INameable, AutoCloseable {
 
@@ -36,6 +35,9 @@ public interface IDatabase extends INameable, AutoCloseable {
 
     void clear();
 
+    long getDocumentsCount();
+
+
     ITask<Boolean> insertAsync(String key, JsonDocument document);
 
     ITask<Boolean> containsAsync(String key);
@@ -59,5 +61,7 @@ public interface IDatabase extends INameable, AutoCloseable {
     ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer);
 
     ITask<Void> clearAsync();
+
+    ITask<Long> getDocumentsCountAsync();
 
 }

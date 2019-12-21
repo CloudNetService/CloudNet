@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
@@ -11,7 +12,6 @@ import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 
 public final class CommandCreate extends CommandDefault implements ITabCompleter {
 
@@ -44,48 +44,38 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         if (args[0].equalsIgnoreCase("by") && args.length > 2 && Validate.testStringParseToInt(args[2])) {
-            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
+            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
 
             if (serviceTask != null) {
                 int count = Integer.parseInt(args[2]);
 
-                Collection<ServiceInfoSnapshot> serviceInfoSnapshots = runCloudService(
-                        properties,
-                        count,
-                        serviceTask.getName(),
-                        serviceTask.getRuntime(),
-                        serviceTask.isAutoDeleteOnStop(),
-                        serviceTask.isStaticServices(),
-                        serviceTask.getAssociatedNodes(),
-                        serviceTask.getIncludes(),
-                        serviceTask.getTemplates(),
-                        serviceTask.getDeployments(),
-                        serviceTask.getGroups(),
-                        serviceTask.getDeletedFilesAfterStop(),
-                        serviceTask.getProcessConfiguration(),
-                        serviceTask.getStartPort()
-                );
+                CloudNet.getInstance().getTaskScheduler().schedule(() -> {
+                    sender.sendMessage(LanguageManager.getMessage("command-create-start"));
+                    Collection<ServiceInfoSnapshot> serviceInfoSnapshots = runCloudService(
+                            properties,
+                            count,
+                            serviceTask.getName(),
+                            serviceTask.getRuntime(),
+                            serviceTask.isAutoDeleteOnStop(),
+                            serviceTask.isStaticServices(),
+                            serviceTask.getAssociatedNodes(),
+                            serviceTask.getIncludes(),
+                            serviceTask.getTemplates(),
+                            serviceTask.getDeployments(),
+                            serviceTask.getGroups(),
+                            serviceTask.getDeletedFilesAfterStop(),
+                            serviceTask.getProcessConfiguration(),
+                            serviceTask.getStartPort()
+                    );
 
-                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                    if (serviceInfoSnapshot != null) {
-                        sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
+                    if (serviceInfoSnapshots.isEmpty()) {
+                        sender.sendMessage(LanguageManager.getMessage("command-create-by-task-failed"));
+                        return;
                     }
-                }
+                    this.listAndStartServices(sender, serviceInfoSnapshots, properties);
 
-                if (properties.containsKey("start")) {
-                    try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                            }
-
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                sender.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
+                    sender.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
+                });
             }
             return;
         }
@@ -99,51 +89,51 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                 return;
             }
 
-            try {
-                Collection<ServiceInfoSnapshot> serviceInfoSnapshots = this.runCloudService(
-                        properties,
-                        Integer.parseInt(args[2]),
-                        args[1],
-                        null,
-                        false,
-                        false,
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        Iterables.newArrayList(),
-                        new ProcessConfiguration(
-                                environmentType,
-                                372,
-                                Iterables.newArrayList()
-                        ),
-                        46949
-                );
+            CloudNet.getInstance().getTaskScheduler().schedule(() -> {
+                sender.sendMessage(LanguageManager.getMessage("command-create-start"));
+                try {
+                    Collection<ServiceInfoSnapshot> serviceInfoSnapshots = this.runCloudService(
+                            properties,
+                            Integer.parseInt(args[2]),
+                            args[1],
+                            null,
+                            false,
+                            false,
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            Iterables.newArrayList(),
+                            new ProcessConfiguration(
+                                    environmentType,
+                                    372,
+                                    Iterables.newArrayList()
+                            ),
+                            46949
+                    );
 
-                for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                    if (serviceInfoSnapshot != null) {
-                        sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
-                    }
+                    this.listAndStartServices(sender, serviceInfoSnapshots, properties);
+
+                    sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
+            });
+        }
+    }
 
-                if (properties.containsKey("start")) {
-                    try {
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                                CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                            }
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
+    private void listAndStartServices(ICommandSender sender, Collection<ServiceInfoSnapshot> serviceInfoSnapshots, Properties properties) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+            if (serviceInfoSnapshot != null) {
+                sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
             }
+        }
 
-            sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
+        if (properties.containsKey("start")) {
+            for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+            }
         }
     }
 
@@ -189,16 +179,9 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
             for (String item : templateEntries) {
                 if (item.length() > 3 && item.contains(":") && item.contains("/")) {
-                    String[] split = item.split(":");
-
-                    if (split.length == 2 && split[1].contains("/")) {
-                        String[] split0 = split[1].split("/");
-
-                        temps.add(new ServiceTemplate(
-                                split0[0],
-                                split0[1],
-                                split[0]
-                        ));
+                    ServiceTemplate template = ServiceTemplate.parse(item);
+                    if (template != null) {
+                        temps.add(template);
                     }
                 }
             }
@@ -211,17 +194,9 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
 
             for (String item : templateEntries) {
                 if (item.length() > 3 && item.contains(":") && item.contains("/")) {
-                    String[] split = item.split(":");
-
-                    if (split.length == 2 && split[1].contains("/")) {
-                        String[] split0 = split[1].split("/");
-
-                        deploy.add(
-                                new ServiceDeployment(new ServiceTemplate(
-                                        split0[0],
-                                        split0[1],
-                                        split[0]
-                                ), Iterables.newArrayList()));
+                    ServiceTemplate template = ServiceTemplate.parse(item);
+                    if (template != null) {
+                        deploy.add(new ServiceDeployment(template, Iterables.newArrayList()));
                     }
                 }
             }
@@ -230,14 +205,14 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         for (int i = 0; i < count; i++) {
-            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().createCloudService(new ServiceTask(
+            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(new ServiceTask(
                     includes,
                     temps,
                     deploy,
                     properties.getOrDefault("name", name),
                     properties.getOrDefault("runtime", runtime),
-                    properties.getOrDefault("autoDeleteOnStop", autoDeleteOnStop + "").equalsIgnoreCase("true"),
-                    properties.getOrDefault("static", staticServices + "").equalsIgnoreCase("true"),
+                    properties.getOrDefault("autoDeleteOnStop", String.valueOf(autoDeleteOnStop)).equalsIgnoreCase("true"),
+                    properties.getOrDefault("static", String.valueOf(staticServices)).equalsIgnoreCase("true"),
                     properties.containsKey("node") ? Arrays.asList(properties.get("node").split(";")) : nodes,
                     properties.containsKey("groups") ? Arrays.asList(properties.get("groups").split(";")) : groups,
                     properties.containsKey("deletedFilesAfterStop") ? Arrays.asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop,
@@ -249,8 +224,8 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                                     Arrays.asList(properties.get("jvmOptions").split(";")) :
                                     processConfiguration.getJvmOptions()
                     ),
-                    Validate.testStringParseToInt(properties.getOrDefault("port", startPort + "")) ?
-                            Integer.parseInt(properties.getOrDefault("port", startPort + ""))
+                    Validate.testStringParseToInt(properties.getOrDefault("port", String.valueOf(startPort))) ?
+                            Integer.parseInt(properties.getOrDefault("port", String.valueOf(startPort)))
                             :
                             46949,
                     0

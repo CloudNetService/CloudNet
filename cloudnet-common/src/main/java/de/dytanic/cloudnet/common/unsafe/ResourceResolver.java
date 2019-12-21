@@ -30,8 +30,8 @@ public final class ResourceResolver {
 
         try {
             return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        } catch (URISyntaxException exception) {
+            exception.printStackTrace();
         }
 
         return null;

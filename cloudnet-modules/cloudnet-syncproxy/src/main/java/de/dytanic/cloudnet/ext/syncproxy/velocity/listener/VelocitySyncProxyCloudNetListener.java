@@ -91,17 +91,14 @@ public final class VelocitySyncProxyCloudNetListener {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
-            case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
-                SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+            SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
-                if (syncProxyConfiguration != null) {
-                    SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
-                }
-
-                handlePlayerNotWhitelisted();
+            if (syncProxyConfiguration != null) {
+                SyncProxyConfigurationProvider.setLocal(syncProxyConfiguration);
             }
-            break;
+
+            this.handlePlayerNotWhitelisted();
         }
     }
 
@@ -116,7 +113,7 @@ public final class VelocitySyncProxyCloudNetListener {
                                 !syncProxyProxyLoginConfiguration.getWhitelist().contains(player.getUsername()) &&
                                 !syncProxyProxyLoginConfiguration.getWhitelist().contains(player.getUniqueId().toString()) &&
                                 !player.hasPermission("cloudnet.syncproxy.maintenance")) {
-                    player.disconnect(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + "").replace("&", "§")));
+                    player.disconnect(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted")).replace("&", "§")));
                 }
             }
         }

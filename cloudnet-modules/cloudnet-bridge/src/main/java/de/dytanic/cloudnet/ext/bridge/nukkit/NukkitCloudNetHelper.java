@@ -6,13 +6,9 @@ import cn.nukkit.level.GameRule;
 import cn.nukkit.level.GameRules;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldInfo;
@@ -39,30 +35,7 @@ public final class NukkitCloudNetHelper {
     }
 
     public static void changeToIngame() {
-        state = "INGAME";
-        BridgeHelper.updateServiceInfo();
-
-        String task = Wrapper.getInstance().getServiceId().getTaskName();
-
-        if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).addListener(new ITaskListener<ServiceTask>() {
-
-                @Override
-                public void onComplete(ITask<ServiceTask> task, ServiceTask serviceTask) {
-                    if (serviceTask != null) {
-                        CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).addListener(new ITaskListener<ServiceInfoSnapshot>() {
-
-                            @Override
-                            public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null) {
-                                    CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        }
+        BridgeHelper.changeToIngame(s -> NukkitCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -121,16 +94,16 @@ public final class NukkitCloudNetHelper {
 
                         switch (type.getType()) {
                             case FLOAT:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getFloat(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getFloat(gameRule)));
                                 break;
                             case BOOLEAN:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getBoolean(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getBoolean(gameRule)));
                                 break;
                             case INTEGER:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getInteger(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getInteger(gameRule)));
                                 break;
                             default:
-                                gameRules.put(gameRule.getName(), level.getGameRules().getString(gameRule) + "");
+                                gameRules.put(gameRule.getName(), String.valueOf(level.getGameRules().getString(gameRule)));
                                 break;
                         }
                     }

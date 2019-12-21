@@ -6,9 +6,9 @@ import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
+import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -43,7 +43,7 @@ public final class CommandReport extends Command {
         super("report", "reports");
 
         this.usage = "report";
-        this.permission = "cloudnet.console.command.report";
+        this.permission = "cloudnet.command.report";
         this.prefix = "cloudnet-report";
         this.description = LanguageManager.getMessage("module-report-command-report-description");
     }
@@ -74,8 +74,8 @@ public final class CommandReport extends Command {
                     .replace("%file%", file.getAbsolutePath())
             );
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -148,14 +148,14 @@ public final class CommandReport extends Command {
             }
 
             writer.println("###################################################################################");
-            writer.println("Services: " + CloudNetDriver.getInstance().getCloudServices().size());
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
+            writer.println("Services: " + CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().size());
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
                 writer.println("* Service " + serviceInfoSnapshot.getServiceId().getName() + " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
                 gson.toJson(serviceInfoSnapshot, writer);
                 writer.println();
 
                 writer.println("Console receivedMessages:");
-                for (String entry : CloudNetDriver.getInstance().getCachedLogMessagesFromService(serviceInfoSnapshot.getServiceId().getUniqueId())) {
+                for (String entry : CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages()) {
                     writer.println(entry);
                 }
 

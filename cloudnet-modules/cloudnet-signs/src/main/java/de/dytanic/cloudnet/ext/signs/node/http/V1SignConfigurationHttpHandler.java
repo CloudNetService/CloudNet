@@ -4,9 +4,9 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.ext.signs.SignConfiguration;
-import de.dytanic.cloudnet.ext.signs.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.SignConstants;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
@@ -20,12 +20,12 @@ public final class V1SignConfigurationHttpHandler extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "GET, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -47,7 +47,7 @@ public final class V1SignConfigurationHttpHandler extends V1HttpHandler {
                     CloudNetSignsModule.getInstance().setSignConfiguration(signConfiguration);
                     SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFile());
 
-                    CloudNetDriver.getInstance().sendChannelMessage(
+                    CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                             SignConstants.SIGN_CHANNEL_NAME,
                             SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
                             new JsonDocument("signConfiguration", signConfiguration)

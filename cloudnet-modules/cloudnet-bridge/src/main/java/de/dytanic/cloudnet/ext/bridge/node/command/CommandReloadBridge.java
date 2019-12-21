@@ -15,7 +15,7 @@ public final class CommandReloadBridge extends Command {
     public CommandReloadBridge() {
         super("bridge", "rlb", "rl-bridge", "reload-bridge");
 
-        this.permission = "cloudnet.console.command.reload";
+        this.permission = "cloudnet.command.reload";
         this.prefix = "cloudnet-bridge";
         this.usage = "reload-bridge";
         this.description = LanguageManager.getMessage("module-bridge-command-bridge-description");
@@ -26,7 +26,7 @@ public final class CommandReloadBridge extends Command {
         BridgeConfiguration bridgeConfiguration = CloudNetBridgeModule.getInstance().reloadConfig().get("config", BridgeConfiguration.TYPE);
         CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);
 
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "update_bridge_configuration",
                 new JsonDocument("bridgeConfiguration", bridgeConfiguration)

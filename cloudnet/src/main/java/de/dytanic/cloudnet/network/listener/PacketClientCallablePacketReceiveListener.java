@@ -10,7 +10,7 @@ import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEven
 public final class PacketClientCallablePacketReceiveListener implements IPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains(PacketConstants.SYNC_PACKET_ID_PROPERTY) && packet.getHeader().contains(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY)) {
             CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> handle0(channel, packet));
         }

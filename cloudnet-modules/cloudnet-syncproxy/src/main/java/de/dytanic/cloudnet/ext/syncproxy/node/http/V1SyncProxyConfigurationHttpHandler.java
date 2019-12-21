@@ -20,12 +20,12 @@ public final class V1SyncProxyConfigurationHttpHandler extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "GET, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         context
                 .response()
                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -47,7 +47,7 @@ public final class V1SyncProxyConfigurationHttpHandler extends V1HttpHandler {
                     CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
                     SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
 
-                    CloudNetDriver.getInstance().sendChannelMessage(
+                    CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                             SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                             SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                             new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())

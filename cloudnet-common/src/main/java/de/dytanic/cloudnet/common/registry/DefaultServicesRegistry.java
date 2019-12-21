@@ -235,7 +235,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
     }
 
 
-    public class RegistryEntry<T> {
+    public static class RegistryEntry<T> {
 
         final String name;
 

@@ -10,9 +10,24 @@ public final class PortValidator {
             serverSocket.bind(new InetSocketAddress(port));
             return true;
         } catch (Exception exception) {
-            exception.printStackTrace();
+            return false;
         }
-
-        return false;
     }
+
+    public static boolean checkHost(String host, int port) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(new InetSocketAddress(host, port));
+            return true;
+        } catch (Exception exception) {
+            return false;
+        }
+    }
+
+    public static int findFreePort(int startPort) {
+        while (!checkPort(startPort)) {
+            ++startPort;
+        }
+        return startPort;
+    }
+
 }

@@ -17,10 +17,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -93,14 +90,16 @@ public final class JsonConfiguration implements IConfiguration {
 
         addresses.add(address);
 
-        this.identity = this.document.get("identity", CLUSTER_NODE, new NetworkClusterNode(
-                System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") != null ?
-                        System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") :
-                        "Node-" + UUID.randomUUID().toString().split("-")[0],
-                new HostAndPort[]{
-                        new HostAndPort(address, 1410)
-                }
-        ));
+        if (this.identity == null) {
+            this.identity = this.document.get("identity", CLUSTER_NODE, new NetworkClusterNode(
+                    System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") != null ?
+                            System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") :
+                            "Node-" + UUID.randomUUID().toString().split("-")[0],
+                    new HostAndPort[]{
+                            new HostAndPort(address, 1410)
+                    }
+            ));
+        }
 
         if (System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST") != null) {
             addresses.addAll(Arrays.asList(System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST").split(",")));
@@ -119,7 +118,9 @@ public final class JsonConfiguration implements IConfiguration {
         this.parallelServiceStartSequence = this.document.getBoolean("parallelServiceStartSequence", true);
         this.runBlockedServiceStartTryLaterAutomatic = this.document.getBoolean("runBlockedServiceStartTryLaterAutomatic", true);
 
-        this.maxMemory = this.document.getInt("maxMemory", (int) ((CPUUsageResolver.getSystemMemory() / 1048576) - 2048));
+        long systemMaxMemory = (CPUUsageResolver.getSystemMemory() / 1048576);
+        this.maxMemory = this.document.getInt("maxMemory", (int) (systemMaxMemory - Math.min(systemMaxMemory, 2048)));
+
         this.maxServiceConsoleLogCacheSize = this.document.getInt("maxServiceConsoleLogCacheSize", 64);
         this.printErrorStreamLinesFromServices = this.document.getBoolean("printErrorStreamLinesFromServices", true);
         this.defaultJVMOptionParameters = this.document.getBoolean("defaultJVMOptionParameters", true);
@@ -186,6 +187,12 @@ public final class JsonConfiguration implements IConfiguration {
         return this.identity;
     }
 
+    @Override
+    public void setIdentity(NetworkClusterNode identity) {
+        this.identity = identity;
+        this.save();
+    }
+
     public NetworkCluster getClusterConfig() {
         return this.clusterConfig;
     }
@@ -199,7 +206,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
 
     public Collection<String> getIpWhitelist() {
-        return this.ipWhitelist;
+        return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new ArrayList<>());
     }
 
     @Override
@@ -285,7 +292,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
 
     public Collection<HostAndPort> getHttpListeners() {
-        return this.httpListeners;
+        return this.httpListeners != null ? this.httpListeners : (this.httpListeners = new ArrayList<>());
     }
 
     @Override

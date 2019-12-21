@@ -22,6 +22,6 @@ public final class SpongePlayerListener {
         BridgeHelper.sendChannelMessageServerDisconnect(SpongeCloudNetHelper.createNetworkConnectionInfo(event.getTargetEntity()),
                 SpongeCloudNetHelper.createNetworkPlayerServerInfo(event.getTargetEntity(), false));
 
-        Wrapper.getInstance().runTask(() -> BridgeHelper.updateServiceInfo());
+        Wrapper.getInstance().runTask(BridgeHelper::updateServiceInfo);
     }
 }

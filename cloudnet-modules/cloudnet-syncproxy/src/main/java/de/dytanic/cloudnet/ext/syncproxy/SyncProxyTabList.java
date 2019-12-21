@@ -28,29 +28,12 @@ public class SyncProxyTabList {
     public SyncProxyTabList() {
     }
 
-    public String getHeader() {
-        return this.header;
-    }
-
-    public void setHeader(String header) {
-        this.header = header;
-    }
-
-    public String getFooter() {
-        return this.footer;
-    }
-
-    public void setFooter(String footer) {
-        this.footer = footer;
-    }
-
-
     public static String replaceTabListItem(String input, UUID playerUniqueId) {
         input = input
-                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString() + "")
-                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()) + "");
+                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString())
+                .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName())
+                .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()));
 
         if (SyncProxyConstants.PERMISSION_MANAGEMENT != null && playerUniqueId != null) {
             IPermissionUser permissionUser = SyncProxyConstants.PERMISSION_MANAGEMENT.getUser(playerUniqueId);
@@ -67,5 +50,21 @@ public class SyncProxyTabList {
         }
 
         return input.replace("&", "§");
+    }
+
+    public String getHeader() {
+        return this.header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public String getFooter() {
+        return this.footer;
+    }
+
+    public void setFooter(String footer) {
+        this.footer = footer;
     }
 }

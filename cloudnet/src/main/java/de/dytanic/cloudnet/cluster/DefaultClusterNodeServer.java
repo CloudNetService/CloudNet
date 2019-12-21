@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.cluster;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -16,7 +15,6 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterChannelMessage;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Queue;
 import java.util.UUID;
@@ -27,11 +25,7 @@ import java.util.function.Function;
 
 public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
-    private static final Type TYPE_COLLECTION_INTEGER = new TypeToken<Collection<Integer>>() {
-    }.getType();
-
     private final DefaultClusterNodeServerProvider provider;
-
 
     private volatile NetworkClusterNodeInfoSnapshot nodeInfoSnapshot;
 
@@ -84,14 +78,14 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine")
                                 .append("commandLine", commandLine)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, String[]>) documentPair -> documentPair.getFirst().get("responseMessages", new TypeToken<String[]>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -100,7 +94,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
-        this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource));
+        this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 
     @Override
@@ -109,12 +103,16 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
-                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), new byte[0],
+                ServiceTask clone = serviceTask.makeClone();
+                clone.getAssociatedNodes().clear();
+                clone.getAssociatedNodes().add(this.nodeInfo.getUniqueId());
+                JsonDocument data = new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", clone);
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                        data, new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -127,12 +125,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -157,7 +155,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom")
                                 .append("name", name)
                                 .append("runtime", runtime)
@@ -173,8 +171,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -200,7 +198,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom_selected_node_and_amount")
                                 .append("nodeUniqueId", nodeUniqueId)
                                 .append("amount", amount)
@@ -218,8 +216,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                         new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Collection<ServiceInfoSnapshot>>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -233,15 +231,15 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_to_cloud_service")
                                 .append("uniqueId", uniqueId)
                                 .append("commandLine", commandLine)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
         return null;
@@ -254,15 +252,15 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_template_to_cloud_service")
                                 .append("uniqueId", uniqueId)
                                 .append("serviceTemplate", serviceTemplate)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
         return null;
@@ -275,15 +273,15 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_remote_inclusion_to_cloud_service")
                                 .append("uniqueId", uniqueId)
                                 .append("serviceRemoteInclusion", serviceRemoteInclusion)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
         return null;
@@ -296,15 +294,15 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_service_deployment_to_cloud_service")
                                 .append("uniqueId", uniqueId)
                                 .append("serviceDeployment", serviceDeployment)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -317,14 +315,14 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service")
                                 .append("uniqueId", uniqueId)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Queue<String>>) documentPair -> documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
                         }.getType())).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -338,13 +336,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "set_service_life_cycle")
-                                .append("serviceInfoSnapshot", serviceInfoSnapshot).append("lifeCycle", lifeCycle)
+                                .append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId()).append("lifeCycle", lifeCycle)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -355,13 +353,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "restart_cloud_service")
-                                .append("serviceInfoSnapshot", serviceInfoSnapshot)
+                                .append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId())
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -372,13 +370,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(
+                CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(
                         this.channel,
-                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot),
+                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service").append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId()),
                         new byte[0],
                         documentPair -> null).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -390,14 +388,14 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(
+                CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(
                         this.channel,
-                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot)
+                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service").append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId())
                                 .append("command", command),
                         new byte[0],
                         documentPair -> null).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -408,13 +406,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_inclusions")
                                 .append("uniqueId", uniqueId)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -425,13 +423,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "include_all_waiting_service_templates")
                                 .append("uniqueId", uniqueId)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -442,37 +440,15 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
         if (this.channel != null) {
             try {
-                CloudNetDriver.getInstance().sendCallablePacketWithAsDriverSyncAPI(this.channel,
+                CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "deploy_resources_from_service")
                                 .append("uniqueId", uniqueId).append("removeDeployments", removeDeployments)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                exception.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public Collection<Integer> getReservedTaskIds(String task) {
-        Validate.checkNotNull(task);
-
-        if (this.channel != null) {
-            try {
-                return CloudNetDriver.getInstance().sendCallablePacket(this.channel,
-                        PacketConstants.CLUSTER_NODE_SYNC_PACKET_CHANNEL_NAME,
-                        new JsonDocument()
-                                .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_reserved_task_ids")
-                                .append("task", task),
-                        new byte[0],
-                        (Function<Pair<JsonDocument, byte[]>, Collection<Integer>>) documentPair -> documentPair.getFirst().get("taskIds", TYPE_COLLECTION_INTEGER)
-                ).get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return Iterables.newArrayList();
     }
 
     @Override

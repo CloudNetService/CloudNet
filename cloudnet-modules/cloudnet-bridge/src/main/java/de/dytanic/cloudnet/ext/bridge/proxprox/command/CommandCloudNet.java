@@ -2,16 +2,11 @@ package de.dytanic.cloudnet.ext.bridge.proxprox.command;
 
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
-import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import io.gomint.proxprox.api.ChatColor;
 import io.gomint.proxprox.api.command.Command;
 import io.gomint.proxprox.api.command.CommandSender;
 import io.gomint.proxprox.api.entity.Player;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-
-import java.util.UUID;
 
 public final class CommandCloudNet extends Command {
 
@@ -36,7 +31,7 @@ public final class CommandCloudNet extends Command {
         }
 
         if (sender instanceof Player) {
-            CommandInfo commandInfo = CloudNetDriver.getInstance().getConsoleCommand(stringBuilder.toString());
+            CommandInfo commandInfo = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(stringBuilder.toString());
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!sender.hasPermission(commandInfo.getPermission())) {
                     sender.sendMessage(

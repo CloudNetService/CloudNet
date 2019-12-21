@@ -20,7 +20,6 @@ import java.util.*;
  */
 public class JsonDocument implements IDocument<JsonDocument> {
 
-    protected static final JsonParser PARSER = new JsonParser();
     public static Gson GSON = new GsonBuilder()
             .serializeNulls()
             .disableHtmlEscaping()
@@ -30,6 +29,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     protected final JsonObject jsonObject;
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be made private in a future release
+     */
+    @Deprecated
     public JsonDocument(JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
@@ -42,6 +45,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         this(GSON.toJsonTree(toObjectMirror));
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be made private in a future release
+     */
+    @Deprecated
     public JsonDocument(JsonElement jsonElement) {
         this(jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : new JsonObject());
     }
@@ -91,6 +98,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return new JsonDocument();
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public static JsonDocument newDocument(JsonObject jsonObject) {
         return new JsonDocument(jsonObject);
     }
@@ -258,6 +269,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be made private in a future release
+     */
+    @Deprecated
     public JsonDocument append(JsonObject jsonObject) {
         if (jsonObject == null) {
             return this;
@@ -317,15 +332,15 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public JsonDocument append(InputStream inputStream) {
         try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             return append(reader);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return this;
     }
 
     @Override
     public JsonDocument append(Reader reader) {
-        return append(PARSER.parse(reader).getAsJsonObject());
+        return append(JsonParser.parseReader(reader).getAsJsonObject());
     }
 
     @Override
@@ -337,7 +352,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
         JsonElement jsonElement = this.jsonObject.get(key);
 
         if (jsonElement.isJsonObject()) {
-            return new JsonDocument(jsonElement.getAsJsonObject());
+            return new JsonDocument(jsonElement);
         } else {
             return null;
         }
@@ -472,7 +487,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
         JsonElement jsonElement = this.jsonObject.get(key);
 
         if (jsonElement.isJsonPrimitive()) {
-            return jsonElement.getAsCharacter();
+            return jsonElement.getAsString().charAt(0);
         } else {
             return 0;
         }
@@ -508,6 +523,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonArray getJsonArray(String key) {
         if (!contains(key)) {
             return null;
@@ -522,6 +541,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonObject getJsonObject(String key) {
         if (!contains(key)) {
             return null;
@@ -547,6 +570,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return properties;
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonElement get(String key) {
         if (!contains(key)) {
             return null;
@@ -667,6 +694,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return this.getDocument(key);
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonArray getJsonArray(String key, JsonArray def) {
         if (!this.contains(key)) {
             this.append(key, def);
@@ -675,6 +706,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return this.getJsonArray(key);
     }
 
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonObject getJsonObject(String key, JsonObject def) {
         if (!this.contains(key)) {
             this.append(key, def);
@@ -745,8 +780,8 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public JsonDocument write(OutputStream outputStream) {
         try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
             this.write(outputStreamWriter);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return this;
     }
@@ -761,8 +796,8 @@ public class JsonDocument implements IDocument<JsonDocument> {
     public JsonDocument read(InputStream inputStream) {
         try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             return this.read(inputStreamReader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         return this;
     }
@@ -771,7 +806,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
     @Override
     public JsonDocument read(Reader reader) {
         try (BufferedReader bufferedReader = new BufferedReader(reader)) {
-            return this.append(PARSER.parse(bufferedReader).getAsJsonObject());
+            return this.append(JsonParser.parseReader(bufferedReader).getAsJsonObject());
         } catch (Exception ex) {
             ex.getStackTrace();
         }
@@ -780,15 +815,15 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
     @Override
     public IReadable read(byte[] bytes) {
-        this.append(PARSER.parse(new String(bytes, StandardCharsets.UTF_8)).getAsJsonObject());
+        this.append(JsonParser.parseString(new String(bytes, StandardCharsets.UTF_8)).getAsJsonObject());
         return this;
     }
 
     public JsonDocument read(String input) {
         try {
-            this.append(PARSER.parse(new BufferedReader(new StringReader(input))).getAsJsonObject());
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            this.append(JsonParser.parseReader(new BufferedReader(new StringReader(input))).getAsJsonObject());
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return this;
     }
@@ -815,6 +850,15 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return docProperty.tester.test(this);
     }
 
+    @Override
+    public JsonDocument getProperties() {
+        return this;
+    }
+
+    /**
+     * @deprecated causes issues because of the relocated Gson, will be removed in a future release
+     */
+    @Deprecated
     public JsonObject toJsonObject() {
         return jsonObject;
     }
@@ -836,9 +880,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return toJson();
     }
 
-
     @Override
     public Iterator<String> iterator() {
         return this.jsonObject.keySet().iterator();
     }
+
 }

@@ -68,7 +68,7 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.channel.close();
     }
 

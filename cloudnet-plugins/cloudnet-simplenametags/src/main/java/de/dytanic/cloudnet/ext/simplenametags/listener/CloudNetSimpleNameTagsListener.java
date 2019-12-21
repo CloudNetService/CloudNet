@@ -1,86 +1,55 @@
 package de.dytanic.cloudnet.ext.simplenametags.listener;
 
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-
-import java.lang.reflect.Method;
-import java.util.function.Predicate;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public final class CloudNetSimpleNameTagsListener implements Listener {
+    private final JavaPlugin plugin;
 
-    @EventHandler
+    public CloudNetSimpleNameTagsListener(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("CloudNet-SimpleNameTags"), () -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(event.getPlayer()), 4L);
+        Bukkit.getScheduler().runTask(this.plugin, () -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(event.getPlayer()));
     }
 
     @EventListener
     public void handle(PermissionUpdateUserEvent event) {
-        Value<Player> player = new Value<>();
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
 
-        forEachPlayers(p -> {
-            if (p.getUniqueId().equals(event.getPermissionUser().getUniqueId())) {
-                player.setValue(p);
-                return true;
-            }
+            Bukkit.getOnlinePlayers().stream()
+                    .filter(player -> player.getUniqueId().equals(event.getPermissionUser().getUniqueId()))
+                    .findFirst()
+                    .ifPresent(value -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(value));
 
-            return false;
         });
-
-        if (player.getValue() != null) {
-            BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player.getValue());
-        }
     }
 
     @EventListener
     public void handle(PermissionUpdateGroupEvent event) {
-        forEachPlayers(player -> {
-            IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
 
-            if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName())) {
-                BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player);
-            }
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
 
-            return false;
+                if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName())) {
+                    BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player);
+                }
+            });
+
         });
     }
 
-
-    private void forEachPlayers(Predicate<Player> predicate) {
-        Method method;
-        try {
-            method = Server.class.getMethod("getOnlinePlayers");
-            method.setAccessible(true);
-            Object result = method.invoke(Bukkit.getServer());
-
-            if (result instanceof Iterable) {
-                for (Object item : ((Iterable) result)) {
-                    if (predicate.test((Player) item)) {
-                        return;
-                    }
-                }
-            }
-
-            if (result instanceof Player[]) {
-                for (Player player : ((Player[]) result)) {
-                    if (predicate.test(player)) {
-                        return;
-                    }
-                }
-            }
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
 }

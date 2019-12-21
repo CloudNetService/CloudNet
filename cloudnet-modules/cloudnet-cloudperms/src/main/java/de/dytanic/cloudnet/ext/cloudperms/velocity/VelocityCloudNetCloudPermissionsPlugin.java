@@ -10,22 +10,13 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.lang.reflect.Field;
 
-@Plugin(
-        id = "cloudnet_cloudperms_velocity",
-        name = "CloudNet-CloudPerms",
-        version = "1.0",
-        description = "Velocity extension which implement the permission management system from CloudNet into Velocity for players",
-        url = "https://cloudnetservice.eu",
-        authors = {
-                "Dytanic"
-        }
-)
+@Plugin(id = "cloudnet_cloudperms_velocity")
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
     private static VelocityCloudNetCloudPermissionsPlugin instance;
@@ -47,7 +38,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
-        new CloudPermissionsPermissionManagement();
+        new CloudPermissionsManagement();
         initPlayersPermissionFunction();
 
         proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener());

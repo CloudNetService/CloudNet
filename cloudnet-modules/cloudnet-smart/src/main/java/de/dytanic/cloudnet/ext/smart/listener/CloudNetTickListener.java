@@ -28,70 +28,46 @@ public final class CloudNetTickListener {
 
     @EventListener
     public void handle(CloudNetTickEvent event) {
-        if (ticksPerSecond.getAndIncrement() >= CloudNet.TPS) {
+        if (this.ticksPerSecond.getAndIncrement() >= CloudNet.TPS) {
             this.handleSmartTasksConfigItems();
             this.handlePercentStart();
             this.handleAutoStop();
 
-            ticksPerSecond.set(0);
+            this.ticksPerSecond.set(0);
         }
     }
 
     private void handleSmartTasksConfigItems() {
-        CloudNet.getInstance().getPermanentServiceTasks().stream()
+        CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
                 .filter(CloudNetSmartModule.getInstance()::hasSmartServiceTaskConfig)
-                .sorted(
-                        Comparator.comparingInt(
-                                serviceTask -> CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask).getPriority()
-                        )
-                )
+                .sorted(Comparator.comparingInt(serviceTask -> CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask).getPriority()))
                 .forEachOrdered(serviceTask -> {
-                    if (!serviceTask.isMaintenance() &&
+                    if (serviceTask.canStartServices() &&
                             serviceTask.getAssociatedNodes() != null &&
                             (serviceTask.getAssociatedNodes().contains(CloudNet.getInstance().getConfig().getIdentity().getUniqueId()) ||
                                     serviceTask.getAssociatedNodes().isEmpty())) {
 
                         SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask);
-                        this.handleMinOnlineCount(serviceTask);
                         this.autoGeneratePreparedServices(smartTask, serviceTask);
                     }
                 });
     }
 
-    private void handleMinOnlineCount(ServiceTask serviceTask) {
-        Collection<ServiceInfoSnapshot> services = Iterables.filter(
-                CloudNetDriver.getInstance().getCloudService(serviceTask.getName()), serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING);
-
-        if (serviceTask.getMinServiceCount() > 0 && services.size() < serviceTask.getMinServiceCount()) {
-            if (services.size() < serviceTask.getMinServiceCount()) {
-                ServiceInfoSnapshot serviceInfoSnapshot = CloudNetSmartModule.getInstance().getFreeNonStartedService(serviceTask.getName());
-
-                if (serviceInfoSnapshot == null) {
-                    serviceInfoSnapshot = CloudNet.getInstance().createCloudService(serviceTask);
-                }
-
-                if (serviceInfoSnapshot != null) {
-                    CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
-                }
-            }
-        }
-    }
-
     private void autoGeneratePreparedServices(SmartServiceTaskConfig task, ServiceTask serviceTask) {
-        long preparedServices = CloudNetDriver.getInstance().getCloudService(serviceTask.getName()).stream()
+        long preparedServices = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(serviceTask.getName()).stream()
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED ||
                         serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED)
                 .count();
 
         if (task.getPreparedServices() > 0 && preparedServices < task.getPreparedServices()) {
             if (preparedServices < task.getPreparedServices()) {
-                CloudNet.getInstance().createCloudService(serviceTask);
+                CloudNet.getInstance().getCloudServiceFactory().createCloudService(serviceTask);
             }
         }
     }
 
     private void handleAutoStop() {
-        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServices(), cloudService -> CloudNetSmartModule.getInstance().getProvidedSmartServices().containsKey(cloudService.getServiceId().getUniqueId()) &&
+        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), cloudService -> CloudNetSmartModule.getInstance().getProvidedSmartServices().containsKey(cloudService.getServiceId().getUniqueId()) &&
                 cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING &&
                 cloudService.getProperties().contains("Online-Count") &&
                 cloudService.getProperties().contains("Max-Players"));
@@ -107,13 +83,13 @@ public final class CloudNetTickListener {
             }
             if (smartTask.getAutoStopTimeByUnusedServiceInSeconds() > 0 &&
                     smartTask.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture() > -1 &&
-                    getPercentOf(
+                    this.getPercentOf(
                             serviceInfoSnapshot.getProperties().getInt("Online-Count"),
                             serviceInfoSnapshot.getProperties().getInt("Max-Players")
                     ) <= smartTask.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture()) {
 
-                int onlineServices = CloudNet.getInstance().getServicesCountByTask(serviceInfoSnapshot.getServiceId().getTaskName());
-                ServiceTask serviceTask = CloudNet.getInstance().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
+                int onlineServices = CloudNet.getInstance().getCloudServiceProvider().getServicesCountByTask(serviceInfoSnapshot.getServiceId().getTaskName());
+                ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
                 if (onlineServices <= serviceTask.getMinServiceCount()) {
                     continue;
                 }
@@ -122,8 +98,9 @@ public final class CloudNetTickListener {
                     System.out.println(LanguageManager.getMessage("module-smart-stop-service-automatically")
                             .replace("%id%", serviceInfoSnapshot.getServiceId().getUniqueId().toString())
                             .replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName())
+                            .replace("%serviceId%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()))
                     );
-                    CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
+                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).stop();
                 }
 
             } else {
@@ -139,21 +116,21 @@ public final class CloudNetTickListener {
                     cloudService.getServiceInfoSnapshot().getProperties().contains("Max-Players")) {
                 SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(cloudService.getServiceInfoSnapshot());
 
-                if (isIngameService(cloudService.getServiceInfoSnapshot())) {
+                if (this.isIngameService(cloudService.getServiceInfoSnapshot())) {
                     continue;
                 }
 
                 if (smartTask != null && smartTask.getPercentOfPlayersForANewServiceByInstance() > 0 && !this.newInstanceDelay.contains(cloudService.getServiceId().getUniqueId()) &&
-                        getPercentOf(
+                        this.getPercentOf(
                                 cloudService.getServiceInfoSnapshot().getProperties().getInt("Online-Count"),
                                 cloudService.getServiceInfoSnapshot().getProperties().getInt("Max-Players")
                         ) >= smartTask.getPercentOfPlayersForANewServiceByInstance()) {
                     ServiceInfoSnapshot serviceInfoSnapshot = CloudNetSmartModule.getInstance().getFreeNonStartedService(cloudService.getServiceId().getTaskName());
 
-                    ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTask(cloudService.getServiceId().getTaskName());
+                    ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTask(cloudService.getServiceId().getTaskName());
 
-                    if (serviceInfoSnapshot == null && serviceTask != null && !serviceTask.isMaintenance()) {
-                        serviceInfoSnapshot = CloudNet.getInstance().createCloudService(serviceTask);
+                    if (serviceInfoSnapshot == null && serviceTask != null && serviceTask.canStartServices()) {
+                        serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceFactory().createCloudService(serviceTask);
                     }
 
                     if (serviceInfoSnapshot != null) {
@@ -162,7 +139,7 @@ public final class CloudNetTickListener {
                             this.newInstanceDelay.remove(cloudService.getServiceId().getUniqueId());
                         }, smartTask.getForAnewInstanceDelayTimeInSeconds(), TimeUnit.SECONDS);
 
-                        CloudNetDriver.getInstance().setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
                     }
                 }
             }
@@ -174,9 +151,9 @@ public final class CloudNetTickListener {
     }
 
     private boolean isIngameService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return (serviceInfoSnapshot.getProperties().contains("State") && isIngameService0(serviceInfoSnapshot.getProperties().getString("State"))) ||
-                (serviceInfoSnapshot.getProperties().contains("Motd") && isIngameService0(serviceInfoSnapshot.getProperties().getString("Motd"))) ||
-                (serviceInfoSnapshot.getProperties().contains("Extra") && isIngameService0(serviceInfoSnapshot.getProperties().getString("Extra")));
+        return (serviceInfoSnapshot.getProperties().contains("State") && this.isIngameService0(serviceInfoSnapshot.getProperties().getString("State"))) ||
+                (serviceInfoSnapshot.getProperties().contains("Motd") && this.isIngameService0(serviceInfoSnapshot.getProperties().getString("Motd"))) ||
+                (serviceInfoSnapshot.getProperties().contains("Extra") && this.isIngameService0(serviceInfoSnapshot.getProperties().getString("Extra")));
     }
 
     private boolean isIngameService0(String text) {

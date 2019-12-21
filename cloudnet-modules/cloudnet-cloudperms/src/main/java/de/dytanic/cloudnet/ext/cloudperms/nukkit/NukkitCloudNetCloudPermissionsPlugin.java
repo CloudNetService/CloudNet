@@ -5,7 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
@@ -26,7 +26,7 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
 
     @Override
     public void onEnable() {
-        new CloudPermissionsPermissionManagement();
+        new CloudPermissionsManagement();
         injectPlayersCloudPermissible();
 
         getServer().getPluginManager().registerEvents(new NukkitCloudNetCloudPermissionsPlayerListener(), this);

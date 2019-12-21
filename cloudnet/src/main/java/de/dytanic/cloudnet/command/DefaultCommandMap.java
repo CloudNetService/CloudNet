@@ -6,8 +6,8 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class DefaultCommandMap implements ICommandMap {
 
@@ -68,6 +68,57 @@ public final class DefaultCommandMap implements ICommandMap {
     @Override
     public void unregisterCommands() {
         this.registeredCommands.clear();
+    }
+
+    @Override
+    public List<String> tabCompleteCommand(String commandLine) {
+        if (commandLine.isEmpty() || commandLine.indexOf(' ') == -1) {
+            return this.getCommandNames().stream().filter(name -> name != null && name.toLowerCase().startsWith(commandLine.toLowerCase())).collect(Collectors.toList());
+        } else {
+            Command command = this.getCommandFromLine(commandLine);
+
+            if (command instanceof ITabCompleter) {
+                String[] args = commandLine.split(" ");
+                String testString = args.length <= 1 || commandLine.endsWith(" ") ? "" : args[args.length - 1].toLowerCase().trim();
+                if (commandLine.endsWith(" ")) {
+                    args = Arrays.copyOfRange(args, 1, args.length + 1);
+                    args[args.length - 1] = "";
+                } else {
+                    args = Arrays.copyOfRange(args, 1, args.length);
+                }
+
+                Collection<String> responses = ((ITabCompleter) command).complete(commandLine, args, Properties.parseLine(args));
+                if (responses != null && !responses.isEmpty()) {
+                    return responses.stream().filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString))).collect(Collectors.toList());
+                }
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<String> tabCompleteCommand(String[] args, Properties properties) {
+        if (args.length == 0) {
+            return new ArrayList<>(this.getCommandNames());
+        }
+
+        Command command = this.getCommand(args[0]);
+
+        if (command == null) {
+            return this.getCommandNames().stream().filter(name -> name != null && name.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        }
+
+        if (command instanceof ITabCompleter) {
+
+            String testString = args[args.length - 1].toLowerCase().trim();
+
+            Collection<String> responses = ((ITabCompleter) command).complete(String.join(" ", args), Arrays.copyOfRange(args, 1, args.length), properties);
+            if (responses != null && !responses.isEmpty()) {
+                return responses.stream().filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString))).collect(Collectors.toList());
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
@@ -144,8 +195,8 @@ public final class DefaultCommandMap implements ICommandMap {
             command.execute(commandSender, commandName, args, commandLine, Properties.parseLine(args));
             return true;
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
         return false;
     }

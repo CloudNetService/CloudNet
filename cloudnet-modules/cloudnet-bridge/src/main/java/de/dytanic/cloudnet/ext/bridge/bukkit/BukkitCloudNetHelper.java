@@ -3,13 +3,9 @@ package de.dytanic.cloudnet.ext.bridge.bukkit;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldInfo;
@@ -20,16 +16,13 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public final class BukkitCloudNetHelper {
 
@@ -49,44 +42,21 @@ public final class BukkitCloudNetHelper {
     }
 
     public static void changeToIngame() {
-        state = "INGAME";
-        BridgeHelper.updateServiceInfo();
-
-        String task = Wrapper.getInstance().getServiceId().getTaskName();
-
-        if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).addListener(new ITaskListener<ServiceTask>() {
-
-                @Override
-                public void onComplete(ITask<ServiceTask> task, ServiceTask serviceTask) {
-                    if (serviceTask != null) {
-                        CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).addListener(new ITaskListener<ServiceInfoSnapshot>() {
-
-                            @Override
-                            public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null) {
-                                    CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        }
+        BridgeHelper.changeToIngame(s -> BukkitCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         Collection<BukkitCloudNetPlayerInfo> players = Iterables.newArrayList();
-        forEachPlayers(player -> {
+        Bukkit.getOnlinePlayers().forEach(player -> {
             Location location = player.getLocation();
 
             players.add(new BukkitCloudNetPlayerInfo(
                     player.getUniqueId(),
                     player.getName(),
-                    getHealthOfPlayer(player),
-                    getMaxHealthOfPlayer(player),
+                    player.getHealth(),
+                    player.getMaxHealth(),
                     player.getFoodLevel(),
                     player.getLevel(),
                     new WorldPosition(
@@ -105,7 +75,7 @@ public final class BukkitCloudNetHelper {
                 .append("Online", true)
                 .append("Version", Bukkit.getVersion())
                 .append("Bukkit-Version", Bukkit.getBukkitVersion())
-                .append("Online-Count", getOnlineCount())
+                .append("Online-Count", Bukkit.getOnlinePlayers().size())
                 .append("Max-Players", maxPlayers)
                 .append("Motd", apiMotd)
                 .append("Extra", extra)
@@ -114,7 +84,7 @@ public final class BukkitCloudNetHelper {
                 .append("Incoming-Channels", Bukkit.getMessenger().getIncomingChannels())
                 .append("Online-Mode", Bukkit.getOnlineMode())
                 .append("Whitelist-Enabled", Bukkit.hasWhitelist())
-                .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(), offlinePlayer -> offlinePlayer.getName()))
+                .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(), OfflinePlayer::getName))
                 .append("Allow-Nether", Bukkit.getAllowNether())
                 .append("Allow-End", Bukkit.getAllowEnd())
                 .append("Players", players)
@@ -147,43 +117,14 @@ public final class BukkitCloudNetHelper {
         ;
     }
 
-    public static void forEachPlayers(Consumer<Player> consumer) {
-        Method method;
-        try {
-            method = Server.class.getMethod("getOnlinePlayers");
-            method.setAccessible(true);
-            Object result = method.invoke(Bukkit.getServer());
-
-            if (result instanceof Collection) {
-                for (Object item : ((Collection) result)) {
-                    consumer.accept((Player) item);
-                }
-            }
-
-            if (result instanceof Player[]) {
-                for (Player player : ((Player[]) result)) {
-                    consumer.accept(player);
-                }
-            }
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
-        Boolean onlineMode = Bukkit.getServer().getOnlineMode();
-        if (onlineMode == null) {
-            onlineMode = true;
-        }
-
         return BridgeHelper.createNetworkConnectionInfo(
                 player.getUniqueId(),
                 player.getName(),
                 -1,
                 new HostAndPort(player.getAddress()),
                 new HostAndPort("0.0.0.0", Bukkit.getServer().getPort()),
-                onlineMode,
+                Bukkit.getServer().getOnlineMode(),
                 false,
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.MINECRAFT_SERVER,
@@ -214,8 +155,8 @@ public final class BukkitCloudNetHelper {
                 player.getUniqueId(),
                 player.getName(),
                 null,
-                getHealthOfPlayer(player),
-                getMaxHealthOfPlayer(player),
+                player.getHealth(),
+                player.getMaxHealth(),
                 player.getSaturation(),
                 player.getLevel(),
                 worldPosition,
@@ -228,59 +169,6 @@ public final class BukkitCloudNetHelper {
         );
     }
 
-    public static int getOnlineCount() {
-        Method method;
-        try {
-            method = Server.class.getMethod("getOnlinePlayers");
-            method.setAccessible(true);
-            Object result = method.invoke(Bukkit.getServer());
-
-            if (result instanceof Collection) {
-                return ((Collection) result).size();
-            }
-
-            if (result instanceof Player[]) {
-                return ((Player[]) result).length;
-            }
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return 0;
-    }
-
-    public static double getHealthOfPlayer(Player player) {
-        Validate.checkNotNull(player);
-
-        try {
-
-            Method method = LivingEntity.class.getMethod("getHealth");
-            method.setAccessible(true);
-            return ((Number) method.invoke(player)).doubleValue();
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return 20D;
-    }
-
-    public static double getMaxHealthOfPlayer(Player player) {
-        Validate.checkNotNull(player);
-
-        try {
-
-            Method method = LivingEntity.class.getMethod("getMaxHealth");
-            method.setAccessible(true);
-            return ((Number) method.invoke(player)).doubleValue();
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return 20D;
-    }
 
     public static String getApiMotd() {
         return BukkitCloudNetHelper.apiMotd;

@@ -2,13 +2,9 @@ package de.dytanic.cloudnet.ext.bridge.gomint;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -57,30 +53,7 @@ public final class GoMintCloudNetHelper {
     }
 
     public static void changeToIngame() {
-        state = "INGAME";
-        BridgeHelper.updateServiceInfo();
-
-        String task = Wrapper.getInstance().getServiceId().getTaskName();
-
-        if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).addListener(new ITaskListener<ServiceTask>() {
-
-                @Override
-                public void onComplete(ITask<ServiceTask> task, ServiceTask serviceTask) {
-                    if (serviceTask != null) {
-                        CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).addListener(new ITaskListener<ServiceInfoSnapshot>() {
-
-                            @Override
-                            public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null) {
-                                    CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        }
+        BridgeHelper.changeToIngame(s -> GoMintCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -135,10 +108,10 @@ public final class GoMintCloudNetHelper {
                                 try {
                                     field.setAccessible(true);
                                     Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
-                                    gameRules.put(gameRule.getNbtName(), world.getGamerule(gameRule) + "");
+                                    gameRules.put(gameRule.getNbtName(), String.valueOf(world.getGamerule(gameRule)));
 
-                                } catch (IllegalAccessException e) {
-                                    e.printStackTrace();
+                                } catch (IllegalAccessException exception) {
+                                    exception.printStackTrace();
                                 }
                             }
                         }

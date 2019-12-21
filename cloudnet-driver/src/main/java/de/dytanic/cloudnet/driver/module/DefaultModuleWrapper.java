@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
@@ -11,6 +9,7 @@ import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
@@ -41,6 +40,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     private FinalizeURLClassLoader classLoader;
     private ModuleConfiguration moduleConfiguration;
     private JsonDocument moduleConfigurationSource;
+    private File moduleDirectory = new File("modules");
 
     public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url) throws Exception {
         Validate.checkNotNull(url);
@@ -56,6 +56,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         this.init(url);
     }
 
+    public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url, File moduleDirectory) throws Exception {
+        this(moduleProvider, url);
+        this.moduleDirectory = moduleDirectory;
+    }
+
     private void init(URL url) throws Exception {
         //ModuleConfiguration moduleConfiguration;
         //Document moduleConfigurationSource;
@@ -67,10 +72,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             }
 
             try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-                JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
-
-                moduleConfigurationSource = new JsonDocument(jsonObject);
-                moduleConfiguration = GSON.fromJson(jsonObject, MODULE_CONFIGURATION_TYPE);
+                moduleConfigurationSource = new JsonDocument().read(reader);
+                moduleConfiguration = moduleConfigurationSource.toInstanceOf(MODULE_CONFIGURATION_TYPE);
             }
         }
 
@@ -142,7 +145,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             throw new IllegalArgumentException("Invalid module class type");
         }
 
-        this.module = (DefaultModule) clazz.newInstance();
+        this.module = (DefaultModule) clazz.getDeclaredConstructor().newInstance();
 
         this.module.moduleWrapper = this;
         this.module.moduleConfig = this.moduleConfiguration;
@@ -234,13 +237,27 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
         try {
             this.classLoader.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         this.classLoader = null;
         moduleProvider.getModuleProviderHandler().handlePostModuleUnload(this);
         return this;
+    }
+
+    @Override
+    public File getDataFolder() {
+        return this.getModuleConfigurationSource() != null && this.getModuleConfigurationSource().contains("dataFolder") ?
+                new File(this.getModuleConfigurationSource().getString("dataFolder"))
+                :
+                new File(this.moduleDirectory, this.getModuleConfiguration().getName()
+                );
+    }
+
+    @Override
+    public Map<String, String> getDefaultRepositories() {
+        return defaultRepositories;
     }
 
 

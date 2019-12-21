@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.examples.node;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
@@ -22,11 +21,9 @@ public final class ExampleCallbackSyncAPI {
             return;
         }
 
-        switch (event.getId()) {
-            case "get_node_count":
-                event.setCallbackPacket(new JsonDocument("nodeCount", CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().size()));
-                //Set the callback packet data for the node
-                break;
+        if ("get_node_count".equals(event.getId())) {
+            event.setCallbackPacket(new JsonDocument("nodeCount", CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().size()));
+            //Set the callback packet data for the node
         }
     }
 
@@ -34,7 +31,7 @@ public final class ExampleCallbackSyncAPI {
 
     public ITask<Integer> getNodeCountAsync() {
         //The callback information from node and the map to an Integer value
-        return CloudNetDriver.getInstance().sendCallablePacket( //Send a packet, which has to get a message back async.
+        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket( //Send a packet, which has to get a message back async.
                 CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 "test_channel",
                 "get_node_count",
@@ -47,19 +44,14 @@ public final class ExampleCallbackSyncAPI {
 
     public void workingWithGetNodeCount() {
         //Async operation
-        getNodeCountAsync().addListener(new ITaskListener<Integer>() {
-            @Override
-            public void onComplete(ITask<Integer> task, Integer integer) {
-                System.out.println("Current Node count with async callback: " + integer);
-            }
-        });
+        getNodeCountAsync().onComplete(integer -> System.out.println("Current Node count with async callback: " + integer));
 
         //Sync Operation
         try {
             int count = getNodeCountAsync().get();
             System.out.println("Current Node count: " + count);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException exception) {
+            exception.printStackTrace();
         }
     }
 }

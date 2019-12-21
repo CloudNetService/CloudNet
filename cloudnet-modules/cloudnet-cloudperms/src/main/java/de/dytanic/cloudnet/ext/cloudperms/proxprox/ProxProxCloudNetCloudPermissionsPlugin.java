@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.proxprox;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.proxprox.listener.ProxProxCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.gomint.proxprox.api.plugin.Plugin;
@@ -16,7 +16,7 @@ public final class ProxProxCloudNetCloudPermissionsPlugin extends Plugin {
 
     @Override
     public void onStartup() {
-        new CloudPermissionsPermissionManagement();
+        new CloudPermissionsManagement();
 
         registerListener(new ProxProxCloudNetCloudPermissionsPlayerListener());
     }

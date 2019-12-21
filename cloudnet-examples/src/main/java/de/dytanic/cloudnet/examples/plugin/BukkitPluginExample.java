@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.examples.plugin;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceId;
@@ -25,12 +23,7 @@ public final class BukkitPluginExample extends JavaPlugin {
         ServiceConfiguration serviceConfiguration = Wrapper.getInstance().getServiceConfiguration(); //The own serviceConfiguration instance
 
         //Use the single thread scheduler by the wrapper application to run tasks which you add into the queue
-        Wrapper.getInstance().runTask(() -> "Hello, world").addListener(new ITaskListener<String>() {
-            @Override
-            public void onComplete(ITask<String> task, String result) {
-                Bukkit.broadcastMessage(result);
-            }
-        });
+        Wrapper.getInstance().runTask(() -> "Hello, world").onComplete(Bukkit::broadcastMessage);
 
         CloudNetDriver.getInstance().getEventManager().registerListener(new ExampleListener());
     }

@@ -106,7 +106,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         printWriter.flush();
         printWriter.close();
     }
@@ -144,7 +144,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         }
 
         entry = null;
-        File file = null;
+        File file;
 
         int index = 0;
 
@@ -162,8 +162,8 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
                     return file;
                 }
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
 
             index++;
@@ -173,8 +173,8 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     private File initPrintWriter(File file) {
         try {
             this.printWriter = new PrintWriter(new FileWriter(file, true));
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         return file;
     }
@@ -182,8 +182,8 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     private File initErrorWriter(File file) {
         try {
             this.errorWriter = new PrintWriter(new FileWriter(file, true));
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         return file;
     }

@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.service.CloudServicePreDeleteEvent;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -30,8 +31,8 @@ public final class CloudNetReportListener {
                 subDir.mkdirs();
 
                 System.out.println(LanguageManager.getMessage("module-report-create-record-start")
-                        .replace("%service%", event.getCloudService().getServiceId().getName() + "")
-                        .replace("%file%", subDir.getAbsolutePath() + "")
+                        .replace("%service%", event.getCloudService().getServiceId().getName())
+                        .replace("%file%", subDir.getAbsolutePath())
                 );
 
                 copyLogFiles(subDir, event.getCloudService());
@@ -42,8 +43,8 @@ public final class CloudNetReportListener {
                 writeServiceInfoSnapshot(subDir, event.getCloudService());
 
                 System.out.println(LanguageManager.getMessage("module-report-create-record-success")
-                        .replace("%service%", event.getCloudService().getServiceId().getName() + "")
-                        .replace("%file%", subDir.getAbsolutePath() + "")
+                        .replace("%service%", event.getCloudService().getServiceId().getName())
+                        .replace("%file%", subDir.getAbsolutePath())
                 );
             }
         }
@@ -51,31 +52,27 @@ public final class CloudNetReportListener {
 
     private void copyLogFiles(File directory, ICloudService cloudService) {
         try {
-            switch (cloudService.getServiceId().getEnvironment()) {
-                case BUNGEECORD: {
-                    File[] files = cloudService.getDirectory().listFiles(pathname -> !pathname.isDirectory() && pathname.getName().startsWith("proxy.log"));
+            if (cloudService.getServiceId().getEnvironment() == ServiceEnvironmentType.BUNGEECORD) {
+                File[] files = cloudService.getDirectory().listFiles(pathname -> !pathname.isDirectory() && pathname.getName().startsWith("proxy.log"));
 
-                    if (files != null) {
-                        File subDir = new File(directory, "logs");
-                        subDir.mkdirs();
+                if (files != null) {
+                    File subDir = new File(directory, "logs");
+                    subDir.mkdirs();
 
-                        for (File file : files) {
-                            try {
-                                FileUtils.copy(file, new File(subDir, file.getName()));
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                    for (File file : files) {
+                        try {
+                            FileUtils.copy(file, new File(subDir, file.getName()));
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
                         }
                     }
                 }
-                break;
-                default:
-                    FileUtils.copyFilesToDirectory(new File(cloudService.getDirectory(), "logs"), new File(directory, "logs"));
-                    break;
+            } else {
+                FileUtils.copyFilesToDirectory(new File(cloudService.getDirectory(), "logs"), new File(directory, "logs"));
             }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -84,12 +81,12 @@ public final class CloudNetReportListener {
             FileUtils.workFileTree(cloudService.getDirectory(), file -> {
                 try {
                     fileWriter.write(file.getAbsolutePath() + " | " + file.length() + " Bytes\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException exception) {
+                    exception.printStackTrace();
                 }
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -115,8 +112,8 @@ public final class CloudNetReportListener {
                 fileWriter.write(message + "\n");
                 fileWriter.flush();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 

@@ -49,8 +49,8 @@ public final class Main {
             try {
                 logger.close();
                 console.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }));
     }

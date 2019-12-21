@@ -15,12 +15,12 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
@@ -34,7 +34,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
                         .context()
                         .closeAfter(true)
                         .cancelNext()
-                        ;
+                ;
             } else {
                 context
                         .response()
@@ -60,7 +60,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
             getStorage().deploy(context.request().body(), serviceTemplate);
@@ -68,7 +68,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) throws Exception {
+    public void handleDelete(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
             getStorage().delete(serviceTemplate);

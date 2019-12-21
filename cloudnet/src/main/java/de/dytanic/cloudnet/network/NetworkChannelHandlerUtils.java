@@ -31,8 +31,8 @@ final class NetworkChannelHandlerUtils {
         if (networkChannelInitEvent.isCancelled()) {
             try {
                 channel.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
             return false;
         }
@@ -43,8 +43,8 @@ final class NetworkChannelHandlerUtils {
     static void handleRemoveDisconnectedClusterInNetwork(INetworkChannel channel, IClusterNodeServer clusterNodeServer) {
         try {
             clusterNodeServer.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         Collection<Packet> removed = Iterables.newArrayList();
@@ -66,7 +66,7 @@ final class NetworkChannelHandlerUtils {
         }
 
         System.out.println(LanguageManager.getMessage("cluster-server-networking-disconnected")
-                .replace("%id%", clusterNodeServer.getNodeInfo().getUniqueId() + "")
+                .replace("%id%", clusterNodeServer.getNodeInfo().getUniqueId())
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         );

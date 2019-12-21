@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee.listener;
 
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationProvider;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyProxyLoginConfiguration;
@@ -8,21 +7,19 @@ import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeCloudNetSyncProxyPlugin;
 import de.dytanic.cloudnet.ext.syncproxy.bungee.util.LoginPendingConnectionCommandSender;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
-import net.md_5.bungee.api.connection.PendingConnection;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Random;
 import java.util.UUID;
 
 public final class BungeeProxyLoginConfigurationImplListener implements Listener {
+
+    private static final Random RANDOM = new Random();
 
     @EventHandler
     public void handle(ProxyPingEvent event) {
@@ -30,41 +27,56 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
 
         if (syncProxyProxyLoginConfiguration != null) {
             SyncProxyMotd syncProxyMotd = null;
-            Random random = new Random();
 
             if (syncProxyProxyLoginConfiguration.isMaintenance()) {
                 if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty()) {
-                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMaintenanceMotds().get(random.nextInt(
+                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMaintenanceMotds().get(RANDOM.nextInt(
                             syncProxyProxyLoginConfiguration.getMaintenanceMotds().size()));
                 }
             } else {
                 if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty()) {
-                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMotds().get(random.nextInt(
+                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMotds().get(RANDOM.nextInt(
                             syncProxyProxyLoginConfiguration.getMotds().size()));
                 }
             }
 
             if (syncProxyMotd != null) {
+                String protocolText = syncProxyMotd.getProtocolText();
+
+                String motd = ChatColor.translateAlternateColorCodes('&', syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
+                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                        .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId());
+
                 int onlinePlayers = BungeeCloudNetSyncProxyPlugin.getInstance().getSyncProxyOnlineCount();
 
-                ServerPing serverPing = createServerPingInstance(
-                        event,
-                        ChatColor.translateAlternateColorCodes('&', syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine() + "")
-                                .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                                .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId() + "")
-                                .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                                .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId() + ""),
-                        syncProxyMotd.getProtocolText(),
-                        onlinePlayers,
-                        syncProxyMotd.isAutoSlot() ?
-                                (syncProxyMotd.getAutoSlotMaxPlayersDistance() + onlinePlayers) :
-                                syncProxyProxyLoginConfiguration.getMaxPlayers(),
-                        syncProxyMotd.getPlayerInfo()
+                int maxPlayers = syncProxyMotd.isAutoSlot() ?
+                        (syncProxyMotd.getAutoSlotMaxPlayersDistance() + onlinePlayers) :
+                        syncProxyProxyLoginConfiguration.getMaxPlayers();
+
+                ServerPing.PlayerInfo[] playerInfo = new ServerPing.PlayerInfo[syncProxyMotd.getPlayerInfo() != null ? syncProxyMotd.getPlayerInfo().length : 0];
+                for (int i = 0; i < playerInfo.length; i++) {
+                    playerInfo[i] = new ServerPing.PlayerInfo(ChatColor.translateAlternateColorCodes('&', syncProxyMotd.getPlayerInfo()[i]), UUID.randomUUID().toString());
+                }
+
+                ServerPing serverPing = new ServerPing(
+                        new ServerPing.Protocol(ChatColor.translateAlternateColorCodes('&',
+                                (protocolText == null ? event.getResponse().getVersion().getName() : protocolText)
+                                        .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+                                        .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
+                                        .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
+                                        .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                                        .replace("%online_players%", String.valueOf(onlinePlayers))
+                                        .replace("%max_players%", String.valueOf(maxPlayers))
+                        ),
+                                (protocolText == null ? event.getResponse().getVersion().getProtocol() : 1)),
+                        new ServerPing.Players(maxPlayers, onlinePlayers, playerInfo),
+                        motd,
+                        event.getResponse().getFaviconObject()
                 );
 
-                if (serverPing != null) {
-                    event.setResponse(serverPing);
-                }
+                event.setResponse(serverPing);
             }
         }
     }
@@ -74,14 +86,14 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
         SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = BungeeCloudNetSyncProxyPlugin.getInstance().getProxyLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null) {
-            LoginPendingConnectionCommandSender loginEventCommandSender = new LoginPendingConnectionCommandSender(event, getUniqueIdOfPendingConnection(event.getConnection()));
+            LoginPendingConnectionCommandSender loginEventCommandSender = new LoginPendingConnectionCommandSender(event.getConnection());
 
             if (syncProxyProxyLoginConfiguration.isMaintenance() && syncProxyProxyLoginConfiguration.getWhitelist() != null) {
                 if (syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getConnection().getName())) {
                     return;
                 }
 
-                UUID uniqueId = getUniqueIdOfPendingConnection(event.getConnection());
+                UUID uniqueId = event.getConnection().getUniqueId();
 
                 if ((uniqueId != null && syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) ||
                         loginEventCommandSender.hasPermission("cloudnet.syncproxy.maintenance")) {
@@ -89,8 +101,8 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                 }
 
                 event.setCancelled(true);
-                event.setCancelReason(ChatColor.translateAlternateColorCodes('&',
-                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted") + ""
+                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted"))
                 ));
                 return;
             }
@@ -99,101 +111,9 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                     !loginEventCommandSender.hasPermission("cloudnet.syncproxy.fullljoin")) {
                 event.setCancelled(true);
                 event.setCancelReason(ChatColor.translateAlternateColorCodes('&', SyncProxyConfigurationProvider.load().getMessages()
-                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network") + ""));
+                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network")));
             }
         }
     }
 
-    private ServerPing createServerPingInstance(ProxyPingEvent event,
-                                                String motd,
-                                                String protocolText, int onlinePlayers, int maxPlayers, String[] playerInfo) {
-        Validate.checkNotNull(event);
-        Validate.checkNotNull(motd);
-
-        //up to 1.7
-        try {
-            Class<?> protocolClass = Class.forName("net.md_5.bungee.api.ServerPing$Protocol");
-            Class<?> playersClass = Class.forName("net.md_5.bungee.api.ServerPing$Players");
-            Class<?> playerInfoClass = Class.forName("net.md_5.bungee.api.ServerPing$PlayerInfo");
-            //Class<?> baseComponentClass = Class.forName("net.md_5.bungee.api.chat.BaseComponent");
-            Class<?> faviconClass = Class.forName("net.md_5.bungee.api.Favicon");
-            Class<?> textComponentClass = Class.forName("net.md_5.bungee.api.chat.TextComponent");
-
-            Constructor<?> playerInfoClassConstructor = playerInfoClass.getConstructor(String.class, String.class);
-
-            Object array = Array.newInstance(playerInfoClass, playerInfo != null ? playerInfo.length : 0);
-
-            if (playerInfo != null) {
-                for (int i = 0; i < playerInfo.length; i++) {
-                    Array.set(array, i, playerInfoClassConstructor.newInstance(
-                            ChatColor.translateAlternateColorCodes('&', playerInfo[i]), UUID.randomUUID().toString()));
-                }
-            }
-
-            Method methodFromLegacyTest = textComponentClass.getMethod("fromLegacyText", String.class);
-            methodFromLegacyTest.setAccessible(true);
-
-            Method methodGetFaviconObject = ServerPing.class.getDeclaredMethod("getFaviconObject");
-            methodGetFaviconObject.setAccessible(true);
-
-            Method methodGetVersion = ServerPing.class.getDeclaredMethod("getVersion");
-            methodGetVersion.setAccessible(true);
-            Object protocol = methodGetVersion.invoke(event.getResponse());
-
-            Object favicon = methodGetFaviconObject.invoke(event.getResponse());
-
-            return ServerPing.class.getConstructor(protocolClass, playersClass, String.class, faviconClass)
-                    .newInstance(
-                            protocolText == null && protocol != null ? protocol : protocolClass.getConstructor(String.class, int.class).newInstance(
-                                    ChatColor.translateAlternateColorCodes('&',
-                                            (protocolText == null ? ProxyServer.getInstance().getName() + " " + ProxyServer.getInstance().getGameVersion() : protocolText)
-                                                    .replace("%proxy%", Wrapper.getInstance().getServiceId().getName() + "")
-                                                    .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId() + "")
-                                                    .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName() + "")
-                                                    .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId() + "")
-                                                    .replace("%online_players%", onlinePlayers + "")
-                                                    .replace("%max_players%", maxPlayers + "")
-                                                    + ""),
-                                    (protocolText == null ? ProxyServer.getInstance().getProtocolVersion() : 1)),
-                            //supports all BungeeCord versions
-                            playersClass.getConstructor(int.class, int.class, array.getClass()).newInstance(maxPlayers, onlinePlayers, array),
-                            //supports only newer BungeeCord version up to MC 1.9
-                            //textComponentClass.getConstructor(Array.newInstance(baseComponentClass, 1).getClass()).newInstance(methodFromLegacyTest.invoke(null, motd)),
-                            motd,
-                            favicon
-                    );
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        //old
-        try {
-
-            Method method = ServerPing.class.getMethod("getProtocolVersion");
-            method.setAccessible(true);
-
-            Constructor<ServerPing> constructor = ServerPing.class.getConstructor(byte.class, String.class, String.class, int.class, int.class);
-
-            return constructor.newInstance(method.invoke(event.getResponse()), ProxyServer.getInstance().getGameVersion(), motd, onlinePlayers, maxPlayers);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
-
-    private UUID getUniqueIdOfPendingConnection(PendingConnection pendingConnection) {
-        try {
-
-            Method method = PendingConnection.class.getMethod("getUniqueId");
-            method.setAccessible(true);
-
-            return (UUID) method.invoke(pendingConnection);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
 }

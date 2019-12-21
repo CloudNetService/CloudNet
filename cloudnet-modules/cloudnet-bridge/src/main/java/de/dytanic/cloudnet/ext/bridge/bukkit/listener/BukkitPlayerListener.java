@@ -1,15 +1,15 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.listener;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
-import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
-import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerServerConnectRequestEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,108 +17,44 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.Collection;
-import java.util.UUID;
-
 public final class BukkitPlayerListener implements Listener {
 
-    private final Collection<UUID> accessUniqueIds = Iterables.newCopyOnWriteArrayList();
+    private final BridgeConfiguration bridgeConfiguration;
 
-    private final Collection<String> accessNames = Iterables.newCopyOnWriteArrayList();
+    private final boolean onlyProxyProtection;
 
-    private final BukkitCloudNetBridgePlugin plugin;
-
-    public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
-        this.plugin = plugin;
+    public BukkitPlayerListener() {
+        this.bridgeConfiguration = BridgeConfigurationProvider.load();
+        this.onlyProxyProtection = !Bukkit.getOnlineMode()
+                && this.bridgeConfiguration != null
+                && this.bridgeConfiguration.isOnlyProxyProtection()
+                && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null
+                && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
+                .noneMatch(group -> Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups()));
     }
 
-    @EventHandler
-    public void handle(BukkitBridgeProxyPlayerServerConnectRequestEvent event) {
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
-
-        if (Bukkit.getOnlineMode()) {
-            return;
-        }
-
-        if (bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
-            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups()) {
-                if (Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups())) {
-                    return;
-                }
-            }
-        }
-
-        if (event.getNetworkConnectionInfo().getUniqueId() != null) {
-
-            UUID uniqueId = event.getNetworkConnectionInfo().getUniqueId();
-
-            accessUniqueIds.add(uniqueId);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> accessUniqueIds.remove(uniqueId), 40);
-            return;
-        }
-
-        if (event.getNetworkConnectionInfo().getName() != null) {
-            String name = event.getNetworkConnectionInfo().getName();
-
-            accessNames.add(name);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> accessNames.remove(name), 40);
-        }
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+        Player player = event.getPlayer();
 
-        boolean onlyProxyProtection = true;
+        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+        ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (Bukkit.getOnlineMode()) {
-            onlyProxyProtection = false;
+        if (serviceTask != null && serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
+            return;
         }
 
-        if (onlyProxyProtection && bridgeConfiguration != null && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null) {
-            for (String group : bridgeConfiguration.getExcludedOnlyProxyWalkableGroups()) {
-                if (Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups())) {
-                    onlyProxyProtection = false;
-                    break;
-                }
-            }
+        if (this.onlyProxyProtection && !BridgeHelper.playerIsOnProxy(player.getUniqueId(), event.getRealAddress().getHostAddress())) {
+            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
+            return;
         }
 
-        if (onlyProxyProtection) {
-            UUID uniqueId = event.getPlayer().getUniqueId();
-            boolean checkName = true;
-
-            if (uniqueId != null) {
-                if (!accessUniqueIds.contains(uniqueId)) {
-                    event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                    event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
-                    return;
-
-                } else {
-                    accessUniqueIds.remove(uniqueId);
-                }
-
-                checkName = false;
-            }
-
-            if (checkName) {
-                String name = event.getPlayer().getName();
-
-                if (name != null) {
-                    if (!accessNames.contains(name)) {
-                        event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                        event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
-                        return;
-
-                    } else {
-                        accessNames.remove(name);
-                    }
-                }
-            }
-        }
-
-        BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), true)
+        BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(player),
+                BukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
         );
     }
 
@@ -135,7 +71,7 @@ public final class BukkitPlayerListener implements Listener {
         BridgeHelper.sendChannelMessageServerDisconnect(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                 BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
-        Wrapper.getInstance().runTask(() -> BridgeHelper.updateServiceInfo());
+        Wrapper.getInstance().runTask(BridgeHelper::updateServiceInfo);
     }
 
 }

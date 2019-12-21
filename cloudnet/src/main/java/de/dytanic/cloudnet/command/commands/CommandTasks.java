@@ -1,19 +1,33 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
+import de.dytanic.cloudnet.common.logging.IFormatter;
+import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
+import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.*;
+import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorageUtil;
+import de.dytanic.cloudnet.template.TemplateStorageUtil;
+import de.dytanic.cloudnet.template.install.ServiceVersion;
+import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,14 +43,18 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
             sender.sendMessage(
                     "tasks list | name=<name>",
                     "tasks reload",
+                    "tasks setup",
                     "tasks create group <name>",
                     "tasks create task <name> <" + Arrays.toString(ServiceEnvironmentType.values()) + ">",
-                    "tasks delete group <name>", //TODO
-                    "tasks delete task <name>", //TODO
+                    "tasks delete group <name>",
+                    "tasks delete task <name>",
                     "tasks group <group>",
                     "tasks group <group> add inclusion <url> <target>",
                     "tasks group <group> add template <storage> <prefix> <name>",
                     "tasks group <group> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]",
+                    "tasks group <group> remove inclusion <url> <target>",
+                    "tasks group <group> remove template <storage> <prefix> <name>",
+                    "tasks group <group> remove deployment <storage> <prefix> <name>",
                     "tasks task <name>",
                     "tasks task <name> set maxHeapMemory <mb>",
                     "tasks task <name> set maintenance <true : false>",
@@ -51,7 +69,10 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     "tasks task <name> remove node <name>",
                     "tasks task <name> add inclusion <url> <target>",
                     "tasks task <name> add template <storage> <prefix> <name>",
-                    "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]"
+                    "tasks task <name> add deployment <storage> <prefix> <name> [excludes: spigot.jar;logs;plugins]",
+                    "tasks task <name> remove inclusion <url> <target>",
+                    "tasks task <name> remove template <storage> <prefix> <name>",
+                    "tasks task <name> remove deployment <storage> <prefix> <name>"
             );
             return;
         }
@@ -59,6 +80,16 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         if (args[0].equalsIgnoreCase("reload")) {
             getCloudServiceManager().reload();
             sender.sendMessage(LanguageManager.getMessage("command-tasks-reload-success"));
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase("setup")) {
+            if (!(sender instanceof ConsoleCommandSender)) {
+                sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-no-console"));
+                return;
+            }
+            this.setupTask(super.getCloudNet().getConsole(), sender);
+            return;
         }
 
         if (args[0].equalsIgnoreCase("list")) {
@@ -128,7 +159,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 0
                         ));
 
-                        LocalTemplateStorageUtil.createAndPrepareTemplate(
+                        TemplateStorageUtil.createAndPrepareTemplate(
                                 CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE),
                                 args[2],
                                 "default",
@@ -142,7 +173,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             return;
                         }
 
-                    } catch (Exception exception) {
+                    } catch (IOException exception) {
                         exception.printStackTrace();
                     }
                 }
@@ -160,8 +191,12 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 }
 
                 if (args[1].equalsIgnoreCase("task")) {
-                    getCloudServiceManager().removePermanentServiceTask(args[2]);
-                    sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
+                    String name = args[2];
+
+                    if (getCloudServiceManager().isTaskPresent(name)) {
+                        getCloudServiceManager().removePermanentServiceTask(name);
+                        sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
+                    }
                     return;
                 }
             }
@@ -249,28 +284,27 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     if (args[2].equalsIgnoreCase("add")) {
                         switch (args[3].toLowerCase()) {
                             case "group":
-                                serviceTask.getGroups().add(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
-                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                if (CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream().anyMatch(groupConfiguration -> groupConfiguration.getName().equals(args[4]))) {
+                                    serviceTask.getGroups().add(args[4]);
+                                    this.updateServiceTask(serviceTask);
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                } else {
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-no-group-found"));
+                                }
                                 break;
                             case "node":
                                 serviceTask.getAssociatedNodes().add(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
                                 break;
                             case "template":
                                 if (args.length == 7) {
                                     if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
-                                        ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
-                                        ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
-
-                                        if (!templateStorage.has(serviceTemplate)) {
-                                            if (!templateStorage.create(serviceTemplate)) {
-                                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
-                                                break;
-                                            }
+                                        ServiceTemplate serviceTemplate = this.getAndValidateTemplate(args);
+                                        if (serviceTemplate == null) {
+                                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
+                                            break;
                                         }
-
                                         serviceTask.getTemplates().add(serviceTemplate);
                                         updateServiceTask(serviceTask);
 
@@ -309,13 +343,54 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                         switch (args[3].toLowerCase()) {
                             case "group":
                                 serviceTask.getGroups().remove(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-group-success"));
                                 break;
                             case "node":
                                 serviceTask.getAssociatedNodes().remove(args[4]);
-                                getCloudServiceManager().addPermanentServiceTask(serviceTask);
+                                this.updateServiceTask(serviceTask);
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-node-success"));
+                                break;
+                            case "template":
+                                if (args.length == 7) {
+                                    serviceTask.getTemplates().removeAll(serviceTask.getTemplates().stream()
+                                            .filter(template ->
+                                                    template.getPrefix().equals(args[5]) &&
+                                                            template.getName().equals(args[6]) &&
+                                                            template.getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateServiceTask(serviceTask);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
+                                }
+                                break;
+                            case "deployment":
+                                if (args.length == 7) {
+                                    serviceTask.getDeployments().removeAll(serviceTask.getDeployments().stream()
+                                            .filter(deployment ->
+                                                    deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                            deployment.getTemplate().getName().equals(args[6]) &&
+                                                            deployment.getTemplate().getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateServiceTask(serviceTask);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
+                                }
+                                break;
+                            case "inclusion":
+                                if (args.length == 6) {
+                                    serviceTask.getIncludes().removeAll(serviceTask.getIncludes().stream()
+                                            .filter(inclusion ->
+                                                    inclusion.getUrl().equals(args[4]) &&
+                                                            inclusion.getDestination().equals(args[5])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateServiceTask(serviceTask);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
+                                }
                                 break;
                         }
                     }
@@ -338,23 +413,16 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                     if (args[2].equalsIgnoreCase("add")) {
                         switch (args[3].toLowerCase()) {
                             case "template":
-                                if (args.length >= 6) {
-                                    if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
-                                        ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
-                                        ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
-
-                                        if (!templateStorage.has(serviceTemplate)) {
-                                            if (!templateStorage.create(serviceTemplate)) {
-                                                sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
-                                                break;
-                                            }
-                                        }
-
-                                        groupConfiguration.getTemplates().add(serviceTemplate);
-                                        updateGroupConfiguration(groupConfiguration);
-
-                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-success"));
+                                if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[4])) {
+                                    ServiceTemplate serviceTemplate = this.getAndValidateTemplate(args);
+                                    if (serviceTemplate == null) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-create-failed"));
+                                        break;
                                     }
+                                    groupConfiguration.getTemplates().add(serviceTemplate);
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-success"));
                                 }
                                 break;
                             case "deployment":
@@ -383,6 +451,52 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                 break;
                         }
                     }
+
+                    if (args[2].equalsIgnoreCase("remove")) {
+                        switch (args[3].toLowerCase()) {
+                            case "template":
+                                if (args.length == 7) {
+                                    groupConfiguration.getTemplates().removeAll(groupConfiguration.getTemplates().stream()
+                                            .filter(template ->
+                                                    template.getPrefix().equals(args[5]) &&
+                                                            template.getName().equals(args[6]) &&
+                                                            template.getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
+                                }
+                                break;
+                            case "deployment":
+                                if (args.length == 7) {
+                                    groupConfiguration.getDeployments().removeAll(groupConfiguration.getDeployments().stream()
+                                            .filter(deployment ->
+                                                    deployment.getTemplate().getPrefix().equals(args[5]) &&
+                                                            deployment.getTemplate().getName().equals(args[6]) &&
+                                                            deployment.getTemplate().getStorage().equals(args[4])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
+                                }
+                                break;
+                            case "inclusion":
+                                if (args.length == 6) {
+                                    groupConfiguration.getIncludes().removeAll(groupConfiguration.getIncludes().stream()
+                                            .filter(inclusion ->
+                                                    inclusion.getUrl().equals(args[4]) &&
+                                                            inclusion.getDestination().equals(args[5])
+                                            ).collect(Collectors.toList())
+                                    );
+                                    updateGroupConfiguration(groupConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
+                                }
+                                break;
+                        }
+                    }
                 }
 
             }
@@ -390,15 +504,19 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
     }
 
     private void display(ICommandSender sender, ServiceTask serviceTask) {
-        Collection<String> list = Iterables.newArrayList();
+        Collection<String> messages = Iterables.newArrayList();
 
-        list.addAll(Arrays.asList(
+        messages.addAll(Arrays.asList(
                 " ",
                 "* Name: " + serviceTask.getName(),
                 "* Minimal Services: " + serviceTask.getMinServiceCount(),
                 "* Associated nodes: " + serviceTask.getAssociatedNodes().toString(),
                 "* Groups: " + serviceTask.getGroups().toString(),
                 "* Start Port: " + serviceTask.getStartPort(),
+                "* Static services: " + serviceTask.isStaticServices(),
+                "* Auto delete on stop: " + serviceTask.isAutoDeleteOnStop(),
+                "* Maintenance: " + serviceTask.isMaintenance(),
+                "* Delete files on stop: " + serviceTask.getDeletedFilesAfterStop(),
                 " ",
                 "- Process Configuration",
                 "* Environment: " + serviceTask.getProcessConfiguration().getEnvironment(),
@@ -407,73 +525,52 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 " "
         ));
 
-        list.add("* Includes:");
+        this.applyDisplayMessagesForServiceConfigurationBase(messages, serviceTask);
 
-        for (ServiceRemoteInclusion inclusion : serviceTask.getIncludes()) {
-            list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
-        }
-
-        list.add(" ");
-        list.add("* Templates:");
-
-        for (ServiceTemplate template : serviceTask.getTemplates()) {
-            list.add("- " + template.getStorage() + ":" + template.getTemplatePath());
-        }
-
-        list.add(" ");
-        list.add("* Deployments:");
-
-        for (ServiceDeployment deployment : serviceTask.getDeployments()) {
-            list.add("- ");
-            list.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
-            list.add("Excludes: " + deployment.getExcludes());
-        }
-
-        list.add(" ");
-
-        list.addAll(Arrays.asList(serviceTask.getProperties().toPrettyJson().split("\n")));
-        list.add(" ");
-
-        sender.sendMessage(list.toArray(new String[0]));
+        sender.sendMessage(messages.toArray(new String[0]));
     }
 
     private void display(ICommandSender sender, GroupConfiguration groupConfiguration) {
-        Collection<String> list = Iterables.newArrayList();
+        Collection<String> messages = Iterables.newArrayList();
 
-        list.addAll(Arrays.asList(
+        messages.addAll(Arrays.asList(
                 " ",
                 "* Name: " + groupConfiguration.getName(),
                 " "
         ));
 
-        list.add("* Includes:");
+        this.applyDisplayMessagesForServiceConfigurationBase(messages, groupConfiguration);
 
-        for (ServiceRemoteInclusion inclusion : groupConfiguration.getIncludes()) {
-            list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+        sender.sendMessage(messages.toArray(new String[0]));
+    }
+
+    private void applyDisplayMessagesForServiceConfigurationBase(Collection<String> messages, ServiceConfigurationBase configurationBase) {
+        messages.add("* Includes:");
+
+        for (ServiceRemoteInclusion inclusion : configurationBase.getIncludes()) {
+            messages.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
         }
 
-        list.add(" ");
-        list.add("* Templates:");
+        messages.add(" ");
+        messages.add("* Templates:");
 
-        for (ServiceTemplate template : groupConfiguration.getTemplates()) {
-            list.add("- " + template.getStorage() + ":" + template.getTemplatePath());
+        for (ServiceTemplate template : configurationBase.getTemplates()) {
+            messages.add("- " + template.getStorage() + ":" + template.getTemplatePath());
         }
 
-        list.add(" ");
-        list.add("* Deployments:");
+        messages.add(" ");
+        messages.add("* Deployments:");
 
-        for (ServiceDeployment deployment : groupConfiguration.getDeployments()) {
-            list.add("- ");
-            list.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
-            list.add("Excludes: " + deployment.getExcludes());
+        for (ServiceDeployment deployment : configurationBase.getDeployments()) {
+            messages.add("- ");
+            messages.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
+            messages.add("Excludes: " + deployment.getExcludes());
         }
 
-        list.add(" ");
+        messages.add(" ");
 
-        list.addAll(Arrays.asList(groupConfiguration.getProperties().toPrettyJson().split("\n")));
-        list.add(" ");
-
-        sender.sendMessage(list.toArray(new String[0]));
+        messages.addAll(Arrays.asList(configurationBase.getProperties().toPrettyJson().split("\n")));
+        messages.add(" ");
     }
 
     private void updateServiceTask(ServiceTask serviceTask) {
@@ -510,6 +607,18 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         return value;
     }
 
+    private ServiceTemplate getAndValidateTemplate(String[] args) {
+        ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[4]);
+        ServiceTemplate serviceTemplate = new ServiceTemplate(args[5], args[6], args[4]);
+
+        if (!templateStorage.has(serviceTemplate)) {
+            if (!templateStorage.create(serviceTemplate)) {
+                return null;
+            }
+        }
+        return serviceTemplate;
+    }
+
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
         if (args.length == 1) {
@@ -521,20 +630,20 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 return Arrays.asList("group", "task");
             }
             if (args[0].equalsIgnoreCase("group")) {
-                return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                return getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
             }
             if (args[0].equalsIgnoreCase("task")) {
-                return getCloudNet().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
+                return getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
             }
         }
 
         if (args.length == 3) {
             if (args[0].equalsIgnoreCase("delete")) {
                 if (args[1].equalsIgnoreCase("group")) {
-                    return getCloudNet().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
+                    return getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
                 }
                 if (args[1].equalsIgnoreCase("task")) {
-                    return getCloudNet().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
+                    return getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().stream().map(ServiceTask::getName).collect(Collectors.toList());
                 }
             }
             if (args[0].equalsIgnoreCase("group")) {
@@ -590,13 +699,13 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                 }
                 if (args[2].equalsIgnoreCase("remove")) {
                     if (args[3].equalsIgnoreCase("group")) {
-                        ServiceTask serviceTask = getCloudNet().getServiceTask(args[1]);
+                        ServiceTask serviceTask = getCloudNet().getServiceTaskProvider().getServiceTask(args[1]);
                         if (serviceTask == null)
                             return null;
                         return serviceTask.getGroups();
                     }
                     if (args[3].equalsIgnoreCase("node")) {
-                        ServiceTask serviceTask = getCloudNet().getServiceTask(args[1]);
+                        ServiceTask serviceTask = getCloudNet().getServiceTaskProvider().getServiceTask(args[1]);
                         if (serviceTask == null)
                             return null;
                         return serviceTask.getAssociatedNodes();
@@ -607,4 +716,231 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
 
         return null;
     }
+
+    private void setupTask(IConsole console, ICommandSender sender) {
+        IFormatter logFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter();
+        ConsoleQuestionListAnimation animation = new ConsoleQuestionListAnimation(
+                () -> CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries()
+                        .stream()
+                        .map(logFormatter::format)
+                        .collect(Collectors.toList()),
+                () -> "&f _____              _       &b           _                 \n" +
+                        "&f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __  \n" +
+                        "&f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\ \n" +
+                        "&f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |\n" +
+                        "&f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/ \n" +
+                        "&f                             &b                     |_|    ",
+                () -> "Task creation complete!",
+                "&r> &e"
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "name",
+                        LanguageManager.getMessage("command-tasks-setup-question-name"),
+                        new QuestionAnswerTypeString() {
+                            @Override
+                            public boolean isValidInput(String input) {
+                                return super.isValidInput(input) && !input.trim().isEmpty() &&
+                                        !CommandTasks.super.getCloudNet().getServiceTaskProvider().isServiceTaskPresent(input);
+                            }
+
+                            @Override
+                            public String getInvalidInputMessage(String input) {
+                                if (CommandTasks.super.getCloudNet().getServiceTaskProvider().isServiceTaskPresent(input)) {
+                                    return "&c" + LanguageManager.getMessage("command-tasks-setup-task-already-exists");
+                                }
+                                return super.getInvalidInputMessage(input);
+                            }
+                        }
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "memory",
+                        LanguageManager.getMessage("command-tasks-setup-question-memory"),
+                        new QuestionAnswerTypeInt() {
+                            @Override
+                            public boolean isValidInput(String input) {
+                                return super.isValidInput(input) && Integer.parseInt(input) > 0;
+                            }
+
+                            @Override
+                            public String getRecommendation() {
+                                return "512";
+                            }
+
+                            @Override
+                            public List<String> getCompletableAnswers() {
+                                return Arrays.asList("128", "256", "512", "1024", "2048", "4096", "8192");
+                            }
+                        }
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "maintenance",
+                        LanguageManager.getMessage("command-tasks-setup-question-maintenance"),
+                        new QuestionAnswerTypeBoolean()
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "autoDeleteOnStop",
+                        LanguageManager.getMessage("command-tasks-setup-question-auto-delete"),
+                        new QuestionAnswerTypeBoolean() {
+                            @Override
+                            public String getRecommendation() {
+                                return super.getTrueString();
+                            }
+                        }
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "staticServices",
+                        LanguageManager.getMessage("command-tasks-setup-question-static"),
+                        new QuestionAnswerTypeBoolean()
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "startPort",
+                        LanguageManager.getMessage("command-tasks-setup-question-startport"),
+                        new QuestionAnswerTypeIntRange(0, 65535) {
+                            @Override
+                            public String getRecommendation() {
+                                return "44955";
+                            }
+                        }
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "minServiceCount",
+                        LanguageManager.getMessage("command-tasks-setup-question-minservices"),
+                        new QuestionAnswerTypeInt()
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "environment",
+                        LanguageManager.getMessage("command-tasks-setup-question-environment"),
+                        new QuestionAnswerTypeEnum<ServiceEnvironmentType>(ServiceEnvironmentType.class) {
+                            @Override
+                            public String getRecommendation() {
+                                return ServiceEnvironmentType.MINECRAFT_SERVER.name();
+                            }
+                        }
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "serviceVersion",
+                        LanguageManager.getMessage("command-tasks-setup-question-application"),
+                        new QuestionAnswerTypeServiceVersion(
+                                () -> (ServiceEnvironmentType) animation.getResult("environment"),
+                                CloudNet.getInstance().getServiceVersionProvider()
+                        )
+                )
+        );
+
+        if (!CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty()) {
+            animation.addEntry(
+                    new QuestionListEntry<>(
+                            "nodes",
+                            LanguageManager.getMessage("command-tasks-setup-question-nodes"),
+                            new QuestionAnswerTypeCollection(
+                                    super.getCloudNet().getConfig().getClusterConfig().getNodes()
+                                            .stream()
+                                            .map(NetworkClusterNode::getUniqueId)
+                                            .collect(Collectors.toList())
+                            )
+                    )
+            );
+        }
+
+        animation.addFinishHandler(() -> {
+            if (animation.isCancelled()) {
+                return;
+            }
+
+            sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-create-begin"));
+
+            String name = (String) animation.getResult("name");
+            int memory = (int) animation.getResult("memory");
+            boolean maintenance = (boolean) animation.getResult("maintenance");
+            boolean autoDeleteOnStop = (boolean) animation.getResult("autoDeleteOnStop");
+            boolean staticServices = (boolean) animation.getResult("staticServices");
+            int startPort = (int) animation.getResult("startPort");
+            int minServiceCount = (int) animation.getResult("minServiceCount");
+            ServiceEnvironmentType environmentType = (ServiceEnvironmentType) animation.getResult("environment");
+            Collection<String> associatedNodes = animation.hasResult("nodes") ? (Collection<String>) animation.getResult("nodes") :
+                    new ArrayList<>(Collections.singletonList(CloudNet.getInstance().getConfig().getIdentity().getUniqueId()));
+
+            Pair<ServiceVersionType, ServiceVersion> serviceVersion = (Pair<ServiceVersionType, ServiceVersion>) animation.getResult("serviceVersion");
+
+            ServiceTemplate template = new ServiceTemplate(name, "default", LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+            ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+
+            try {
+                TemplateStorageUtil.createAndPrepareTemplate(
+                        templateStorage,
+                        name,
+                        "default",
+                        environmentType
+                );
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+
+            if (serviceVersion != null) {
+                super.getCloudNet().getServiceVersionProvider().installServiceVersion(
+                        serviceVersion.getFirst(),
+                        serviceVersion.getSecond(),
+                        templateStorage,
+                        template
+                );
+            }
+
+            ServiceTask serviceTask = new ServiceTask(
+                    new ArrayList<>(),
+                    new ArrayList<>(Collections.singletonList(template)),
+                    new ArrayList<>(),
+                    name,
+                    "jvm",
+                    maintenance,
+                    autoDeleteOnStop,
+                    staticServices,
+                    associatedNodes,
+                    new ArrayList<>(Collections.singletonList(name)),
+                    new ArrayList<>(),
+                    new ProcessConfiguration(
+                            environmentType,
+                            memory,
+                            new ArrayList<>()
+                    ),
+                    startPort,
+                    minServiceCount
+            );
+
+            super.getCloudNet().getCloudServiceManager().addPermanentServiceTask(serviceTask);
+
+            sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-create-success").replace("%name%", name));
+
+        });
+
+
+        console.clearScreen();
+        console.startAnimation(animation);
+    }
+
 }

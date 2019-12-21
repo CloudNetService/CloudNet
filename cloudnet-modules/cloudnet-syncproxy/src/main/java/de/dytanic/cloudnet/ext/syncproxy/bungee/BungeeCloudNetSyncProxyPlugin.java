@@ -13,12 +13,10 @@ import de.dytanic.cloudnet.ext.syncproxy.bungee.listener.BungeeSyncProxyCloudNet
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -89,7 +87,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     }
 
     public void updateSyncProxyConfigurationInNetwork(SyncProxyConfiguration syncProxyConfiguration) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                 SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                 new JsonDocument(
@@ -116,63 +114,32 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
             return;
         }
 
-        try {
-            Class<?> baseComponentClass = Class.forName("net.md_5.bungee.api.chat.BaseComponent");
-            Class<?> textComponentClass = Class.forName("net.md_5.bungee.api.chat.TextComponent");
-            Object array = Array.newInstance(baseComponentClass, 1);
+        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
-            Method methodFromLegacyTest = textComponentClass.getMethod("fromLegacyText", String.class);
-            methodFromLegacyTest.setAccessible(true);
+        proxiedPlayer.setTabHeader(
+                TextComponent.fromLegacyText(tabListHeader != null ?
+                        replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
+                                ChatColor.translateAlternateColorCodes('&', tabListHeader))
+                        : ""
+                ),
+                TextComponent.fromLegacyText(tabListFooter != null ?
+                        replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
+                                ChatColor.translateAlternateColorCodes('&', tabListFooter))
+                        : ""
+                )
+        );
 
-            Method methodSetTabHeader = ProxiedPlayer.class.getDeclaredMethod("setTabHeader", array.getClass(), array.getClass());
-            methodSetTabHeader.setAccessible(true);
-
-            SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
-
-            methodSetTabHeader.invoke(
-                    proxiedPlayer,
-                    methodFromLegacyTest.invoke(null, tabListHeader != null ?
-                            replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                    ChatColor.translateAlternateColorCodes('&', tabListHeader + ""))
-                            :
-                            ""
-                    ),
-                    methodFromLegacyTest.invoke(null, tabListFooter != null ?
-                            replaceTabListItem(proxiedPlayer, syncProxyProxyLoginConfiguration,
-                                    ChatColor.translateAlternateColorCodes('&', tabListFooter + ""))
-                            :
-                            ""
-                    )
-            );
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
     }
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input) {
         input = input
                 .replace("%server%", proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : "")
-                .replace("%online_players%",
-                        (
-                                syncProxyProxyLoginConfiguration != null ? getSyncProxyOnlineCount() : ProxyServer.getInstance().getOnlineCount()
-                        ) + "")
-                .replace("%max_players%",
-                        (
-                                syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() :
-                                        proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()
-                        ) + "")
-                .replace("%name%", proxiedPlayer.getName() + "")
-                .replace("%ping%", proxiedPlayer.getPing() + "");
+                .replace("%online_players%", String.valueOf(syncProxyProxyLoginConfiguration != null ? getSyncProxyOnlineCount() : ProxyServer.getInstance().getOnlineCount()))
+                .replace("%max_players%", String.valueOf(syncProxyProxyLoginConfiguration != null ? syncProxyProxyLoginConfiguration.getMaxPlayers() : proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()))
+                .replace("%name%", proxiedPlayer.getName())
+                .replace("%ping%", String.valueOf(proxiedPlayer.getPing()));
 
-        UUID uniqueId = null;
-
-        try {
-            uniqueId = (UUID) proxiedPlayer.getClass().getDeclaredMethod("getUniqueId").invoke(proxiedPlayer);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-        }
-
-        return SyncProxyTabList.replaceTabListItem(input, uniqueId);
+        return SyncProxyTabList.replaceTabListItem(input, proxiedPlayer.getUniqueId());
     }
 
 
@@ -181,20 +148,20 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
 
         if (syncProxyTabListConfiguration != null && syncProxyTabListConfiguration.getEntries() != null &&
                 !syncProxyTabListConfiguration.getEntries().isEmpty()) {
-            if (tabListEntryIndex.get() == -1) {
-                tabListEntryIndex.set(0);
+            if (this.tabListEntryIndex.get() == -1) {
+                this.tabListEntryIndex.set(0);
             }
 
-            if ((tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
-                tabListEntryIndex.incrementAndGet();
+            if ((this.tabListEntryIndex.get() + 1) < syncProxyTabListConfiguration.getEntries().size()) {
+                this.tabListEntryIndex.incrementAndGet();
             } else {
-                tabListEntryIndex.set(0);
+                this.tabListEntryIndex.set(0);
             }
 
-            SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(tabListEntryIndex.get());
+            SyncProxyTabList tabList = syncProxyTabListConfiguration.getEntries().get(this.tabListEntryIndex.get());
 
-            tabListHeader = tabList.getHeader();
-            tabListFooter = tabList.getFooter();
+            this.tabListHeader = tabList.getHeader();
+            this.tabListFooter = tabList.getFooter();
 
             ProxyServer.getInstance().getScheduler().schedule(
                     this,
@@ -203,7 +170,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
                     TimeUnit.MILLISECONDS
             );
         } else {
-            tabListEntryIndex.set(-1);
+            this.tabListEntryIndex.set(-1);
             ProxyServer.getInstance().getScheduler().schedule(this, this::scheduleTabList, 500, TimeUnit.MILLISECONDS);
         }
 
@@ -223,7 +190,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
         SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = getProxyLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null && syncProxyProxyLoginConfiguration.getTargetGroup() != null) {
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceByGroup(syncProxyProxyLoginConfiguration.getTargetGroup())) {
+            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesByGroup(syncProxyProxyLoginConfiguration.getTargetGroup())) {
                 if ((serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockProxy() ||
                         serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaProxy()) &&
                         serviceInfoSnapshot.getProperties().contains(SyncProxyConstants.SYNC_PROXY_SERVICE_INFO_SNAPSHOT_ONLINE_COUNT)) {

@@ -25,9 +25,8 @@ public final class ServiceInfoSnapshotUtil {
     }
 
     public static boolean isOnline(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Boolean value = serviceInfoSnapshot.getProperties().getBoolean("Online");
 
-        return value != null && value;
+        return serviceInfoSnapshot.getProperties().getBoolean("Online");
     }
 
     public static String getMotd(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -43,12 +42,12 @@ public final class ServiceInfoSnapshotUtil {
     }
 
     public static Collection<PluginInfo> getPlugins(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getProperties().get("Plugins", new TypeToken<PluginInfo>() {
+        return serviceInfoSnapshot.getProperties().get("Plugins", new TypeToken<Collection<PluginInfo>>() {
         }.getType());
     }
 
     public static Collection<JsonDocument> getPlayers(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getProperties().get("Players", new TypeToken<JsonDocument>() {
+        return serviceInfoSnapshot.getProperties().get("Players", new TypeToken<Collection<JsonDocument>>() {
         }.getType());
     }
 }

@@ -2,13 +2,9 @@ package de.dytanic.cloudnet.ext.bridge.sponge;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldInfo;
@@ -40,30 +36,7 @@ public final class SpongeCloudNetHelper {
 
 
     public static void changeToIngame() {
-        state = "INGAME";
-        BridgeHelper.updateServiceInfo();
-
-        String task = Wrapper.getInstance().getServiceId().getTaskName();
-
-        if (!CloudNetDriver.getInstance().isServiceTaskPresent(task)) {
-            CloudNetDriver.getInstance().getServiceTaskAsync(task).addListener(new ITaskListener<ServiceTask>() {
-
-                @Override
-                public void onComplete(ITask<ServiceTask> task, ServiceTask serviceTask) {
-                    if (serviceTask != null) {
-                        CloudNetDriver.getInstance().createCloudServiceAsync(serviceTask).addListener(new ITaskListener<ServiceInfoSnapshot>() {
-
-                            @Override
-                            public void onComplete(ITask<ServiceInfoSnapshot> task, ServiceInfoSnapshot serviceInfoSnapshot) {
-                                if (serviceInfoSnapshot != null) {
-                                    CloudNetDriver.getInstance().startCloudService(serviceInfoSnapshot);
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        }
+        BridgeHelper.changeToIngame(s -> SpongeCloudNetHelper.state = s);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -72,7 +45,7 @@ public final class SpongeCloudNetHelper {
         serviceInfoSnapshot.getProperties()
                 .append("Online", true)
                 .append("Version", Sponge.getPlatform().getMinecraftVersion())
-                .append("Sponge-Version", Sponge.getPlatform().getApi().getVersion())
+                .append("Sponge-Version", Sponge.getPlatform().getContainer(Platform.Component.API).getVersion())
                 .append("Online-Count", Sponge.getServer().getOnlinePlayers().size())
                 .append("Max-Players", maxPlayers)
                 .append("Motd", apiMotd)
@@ -94,7 +67,7 @@ public final class SpongeCloudNetHelper {
                             player.getHealthData().health().get(),
                             player.getHealthData().maxHealth().get(),
                             player.saturation().get(),
-                            holderData.isPresent() ? holderData.get().level().get() : 0,
+                            holderData.map(experienceHolderData -> experienceHolderData.level().get()).orElse(0),
                             new WorldPosition(
                                     location.getX(),
                                     location.getY(),
@@ -121,17 +94,14 @@ public final class SpongeCloudNetHelper {
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
-        Boolean onlineMode = Sponge.getServer().getOnlineMode();
-        if (onlineMode == null) {
-            onlineMode = true;
-        }
+        boolean onlineMode = Sponge.getServer().getOnlineMode();
 
         return BridgeHelper.createNetworkConnectionInfo(
                 player.getUniqueId(),
                 player.getName(),
                 -1,
                 new HostAndPort(player.getConnection().getAddress()),
-                new HostAndPort(Sponge.getServer().getBoundAddress().get()),
+                new HostAndPort(Sponge.getServer().getBoundAddress().orElse(null)),
                 onlineMode,
                 false,
                 new NetworkServiceInfo(

@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,8 @@ final class JVMCloudService implements ICloudService {
     private static final String RUNTIME = "jvm";
 
     private static final String TEMP_NAME_SPLITTER = "_";
+
+    private static final long SERVICE_ERROR_RESTART_DELAY = 30;
 
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
@@ -124,8 +127,8 @@ final class JVMCloudService implements ICloudService {
                 OutputStream outputStream = this.process.getOutputStream();
                 outputStream.write((commandLine + "\n").getBytes(StandardCharsets.UTF_8));
                 outputStream.flush();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -229,7 +232,9 @@ final class JVMCloudService implements ICloudService {
         if (this.lifeCycle == ServiceLifeCycle.DEFINED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
             System.out.println(LanguageManager.getMessage("cloud-service-pre-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePrePrepareEvent(this));
 
             new File(this.directory, ".wrapper").mkdirs();
@@ -262,8 +267,8 @@ final class JVMCloudService implements ICloudService {
                             FileUtils.copy(file, new File(this.directory, ".wrapper/trustCertificate"));
                         }
                     }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
 
@@ -275,8 +280,10 @@ final class JVMCloudService implements ICloudService {
             CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 
             System.out.println(LanguageManager.getMessage("cloud-service-post-prepared-message")
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
         }
     }
 
@@ -289,7 +296,9 @@ final class JVMCloudService implements ICloudService {
 
             System.out.println(LanguageManager.getMessage("cloud-service-pre-start-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartPrepareEvent(this));
 
             this.includeInclusions();
@@ -326,21 +335,27 @@ final class JVMCloudService implements ICloudService {
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartPrepareEvent(this));
             System.out.println(LanguageManager.getMessage("cloud-service-post-start-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
 
             System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartEvent(this));
 
             this.configureServiceEnvironment();
-            this.startApplication();
+            this.startWrapper();
 
             this.lifeCycle = ServiceLifeCycle.RUNNING;
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartEvent(this));
             System.out.println(LanguageManager.getMessage("cloud-service-post-start-message")
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
 
             this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.RUNNING);
             CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
@@ -348,13 +363,13 @@ final class JVMCloudService implements ICloudService {
     }
 
     private boolean hasAccessFromNode() {
-        if (cloudServiceManager.getCurrentUsedHeapMemory() >= CloudNet.getInstance().getConfig().getMaxMemory()) {
+        if (cloudServiceManager.getCurrentUsedHeapMemory() + this.configuredMaxHeapMemory >= CloudNet.getInstance().getConfig().getMaxMemory()) {
             if (CloudNet.getInstance().getConfig().isRunBlockedServiceStartTryLaterAutomatic()) {
                 CloudNet.getInstance().runTask(() -> {
                     try {
                         start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
                 });
             } else {
@@ -369,8 +384,8 @@ final class JVMCloudService implements ICloudService {
                 CloudNet.getInstance().runTask(() -> {
                     try {
                         start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
                 });
             } else {
@@ -398,7 +413,9 @@ final class JVMCloudService implements ICloudService {
                         -1,
                         -1,
                         Collections.emptyList(),
-                        -1),
+                        -1,
+                        -1
+                ),
                 this.serviceConfiguration.getProperties(),
                 this.serviceConfiguration
         );
@@ -414,10 +431,11 @@ final class JVMCloudService implements ICloudService {
             if (inclusion != null && inclusion.getDestination() != null && inclusion.getUrl() != null) {
                 try {
                     System.out.println(LanguageManager.getMessage("cloud-service-include-inclusion-message")
-                            .replace("%task%", this.serviceId.getTaskName() + "")
-                            .replace("%id%", this.serviceId.getUniqueId().toString() + "")
-                            .replace("%url%", inclusion.getUrl() + "")
-                            .replace("%destination%", inclusion.getDestination() + "")
+                            .replace("%task%", this.serviceId.getTaskName())
+                            .replace("%id%", this.serviceId.getUniqueId().toString())
+                            .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                            .replace("%url%", inclusion.getUrl())
+                            .replace("%destination%", inclusion.getDestination())
                     );
 
                     File cacheDestination = new File(
@@ -443,8 +461,8 @@ final class JVMCloudService implements ICloudService {
 
                     this.includes.add(inclusion);
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         }
@@ -488,7 +506,7 @@ final class JVMCloudService implements ICloudService {
         while (!this.waitingTemplates.isEmpty()) {
             ServiceTemplate template = this.waitingTemplates.poll();
 
-            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null && (!this.serviceConfiguration.isStaticService() || template.shouldAlwaysCopyToStaticServices() || this.firstStartupOnStaticService)) {
+            if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null) {
                 ITemplateStorage storage = getStorage(template.getStorage());
 
                 if (!storage.has(template)) {
@@ -503,22 +521,26 @@ final class JVMCloudService implements ICloudService {
                 }
 
                 try {
-                    System.out.println(LanguageManager.getMessage("cloud-service-include-template-message")
-                            .replace("%task%", this.serviceId.getTaskName() + "")
-                            .replace("%id%", this.serviceId.getUniqueId().toString() + "")
-                            .replace("%template%", template.getTemplatePath() + "")
-                            .replace("%storage%", template.getStorage() + "")
-                    );
+                    if (!this.serviceConfiguration.isStaticService() || template.shouldAlwaysCopyToStaticServices() || this.firstStartupOnStaticService) {
+                        System.out.println(LanguageManager.getMessage("cloud-service-include-template-message")
+                                .replace("%task%", this.serviceId.getTaskName())
+                                .replace("%id%", this.serviceId.getUniqueId().toString())
+                                .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                                .replace("%template%", template.getTemplatePath())
+                                .replace("%storage%", template.getStorage())
+                        );
 
-                    storage.copy(template, this.directory);
+                        storage.copy(template, this.directory);
+                    }
 
                     this.templates.add(template);
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         }
+
     }
 
     @Override
@@ -537,22 +559,21 @@ final class JVMCloudService implements ICloudService {
                     }
 
                     System.out.println(LanguageManager.getMessage("cloud-service-deploy-message")
-                            .replace("%task%", this.serviceId.getTaskName() + "")
-                            .replace("%id%", this.serviceId.getUniqueId().toString() + "")
-                            .replace("%template%", deployment.getTemplate().getTemplatePath() + "")
-                            .replace("%storage%", deployment.getTemplate().getStorage() + "")
+                            .replace("%task%", this.serviceId.getTaskName())
+                            .replace("%id%", this.serviceId.getUniqueId().toString())
+                            .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                            .replace("%template%", deployment.getTemplate().getTemplatePath())
+                            .replace("%storage%", deployment.getTemplate().getStorage())
                     );
 
-                    storage.deploy(
-                            Objects.requireNonNull(this.directory.listFiles(pathname -> {
+                    storage.deploy(this.directory, deployment.getTemplate(), pathname -> {
                                 if (deployment.getExcludes() != null) {
                                     return !deployment.getExcludes().contains(pathname.isDirectory() ? pathname.getName() + "/" : pathname.getName()) && !pathname
                                             .getName().equals("wrapper.jar") && !pathname.getName().equals(".wrapper");
                                 } else {
                                     return true;
                                 }
-                            })),
-                            deployment.getTemplate()
+                            }
                     );
 
                     if (removeDeployments) {
@@ -567,7 +588,7 @@ final class JVMCloudService implements ICloudService {
         }
     }
 
-    private void startApplication() throws Exception {
+    private void startWrapper() throws Exception {
         this.configuredMaxHeapMemory = this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize();
 
         List<String> commandArguments = Iterables.newArrayList();
@@ -602,15 +623,50 @@ final class JVMCloudService implements ICloudService {
 
         File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
 
+        Optional<File> applicationFileOptional = Files.list(this.directory.toPath())
+                .map(Path::toFile)
+                .filter(file -> file.getName().endsWith(".jar"))
+                .filter(file -> {
+                    for (ServiceEnvironment environment : this.serviceConfiguration.getProcessConfig().getEnvironment().getEnvironments()) {
+                        if (file.getName().toLowerCase()
+                                .contains(environment.getName().toLowerCase())) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .findFirst();
+
+        if (!applicationFileOptional.isPresent()) {
+            CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
+                    .replace("%task%", this.serviceId.getTaskName())
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+
+            ServiceTask serviceTask = this.getCloudServiceManager().getServiceTask(this.serviceId.getTaskName());
+
+            if (serviceTask != null) {
+                serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);
+            }
+
+            this.stop();
+            return;
+        }
+
+        File applicationFile = applicationFileOptional.get();
+
         commandArguments.addAll(this.serviceConfiguration.getProcessConfig().getJvmOptions());
         commandArguments.addAll(Arrays.asList(
                 "-Xmx" + this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize() + "M",
-                "-javaagent:" + wrapperFile.getAbsolutePath(),
-                "-cp",
-                "\"" + System.getProperty("cloudnet.launcher.driver.dependencies") + File.pathSeparator + wrapperFile.getAbsolutePath() + "\""
-        ));
+                "-cp", wrapperFile.getAbsolutePath() + File.pathSeparator + applicationFile.getAbsolutePath())
+        );
 
         try (JarFile jarFile = new JarFile(wrapperFile)) {
+            commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
+        }
+
+        commandArguments.add(applicationFile.getAbsolutePath());
+        try (JarFile jarFile = new JarFile(applicationFile)) {
             commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
         }
 
@@ -622,7 +678,7 @@ final class JVMCloudService implements ICloudService {
                 .start();
     }
 
-    private void postConfigureServiceEnvironmentStartParameters(List<String> commandArguments) throws Exception {
+    private void postConfigureServiceEnvironmentStartParameters(List<String> commandArguments) {
         switch (this.serviceConfiguration.getProcessConfig().getEnvironment()) {
             case MINECRAFT_SERVER:
                 commandArguments.add("nogui");
@@ -633,21 +689,32 @@ final class JVMCloudService implements ICloudService {
         }
     }
 
+    private void rewriteBungeeConfig(File config) throws Exception {
+        this.rewriteServiceConfigurationFile(config, line -> {
+            if (line.startsWith("    host: ")) {
+                line = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
+            } else if (line.startsWith("  host: ")) {
+                line = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
+            }
+
+            return line;
+        });
+    }
+
     private void configureServiceEnvironment() throws Exception {
         switch (this.serviceConfiguration.getProcessConfig().getEnvironment()) {
             case BUNGEECORD: {
                 File file = new File(this.directory, "config.yml");
                 this.copyDefaultFile("files/bungee/config.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("    host: ")) {
-                        s = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
-                    } else if (s.startsWith("  host: ")) {
-                        s = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
-                    }
+                this.rewriteBungeeConfig(file);
+            }
+            break;
+            case WATERDOG: {
+                File file = new File(this.directory, "config.yml");
+                this.copyDefaultFile("files/waterdog/config.yml", file);
 
-                    return s;
-                });
+                this.rewriteBungeeConfig(file);
             }
             break;
             case VELOCITY: {
@@ -656,13 +723,13 @@ final class JVMCloudService implements ICloudService {
 
                 Value<Boolean> value = new Value<>(true);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (value.getValue() && s.startsWith("bind =")) {
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (value.getValue() && line.startsWith("bind =")) {
                         value.setValue(false);
                         return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort() + "\"";
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;
@@ -670,16 +737,16 @@ final class JVMCloudService implements ICloudService {
                 File file = new File(this.directory, "config.yml");
                 this.copyDefaultFile("files/proxprox/config.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("ip: ")) {
-                        s = "ip: " + CloudNet.getInstance().getConfig().getHostAddress();
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (line.startsWith("ip: ")) {
+                        line = "ip: " + CloudNet.getInstance().getConfig().getHostAddress();
                     }
 
-                    if (s.startsWith("port: ")) {
-                        s = "port: " + serviceConfiguration.getPort();
+                    if (line.startsWith("port: ")) {
+                        line = "port: " + serviceConfiguration.getPort();
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;
@@ -694,7 +761,7 @@ final class JVMCloudService implements ICloudService {
                 }
 
                 properties.setProperty("server-name", this.serviceId.getName());
-                properties.setProperty("server-port", this.serviceConfiguration.getPort() + "");
+                properties.setProperty("server-port", String.valueOf(this.serviceConfiguration.getPort()));
                 properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
 
                 try (OutputStream outputStream = new FileOutputStream(file);
@@ -705,12 +772,10 @@ final class JVMCloudService implements ICloudService {
                 properties = new Properties();
 
                 file = new File(this.directory, "eula.txt");
-                if (file.exists()) {
+                if (file.exists() || file.createNewFile()) {
                     try (InputStream inputStream = new FileInputStream(file)) {
                         properties.load(inputStream);
                     }
-                } else {
-                    file.createNewFile();
                 }
 
                 properties.setProperty("eula", "true");
@@ -731,7 +796,7 @@ final class JVMCloudService implements ICloudService {
                     properties.load(inputStream);
                 }
 
-                properties.setProperty("server-port", this.serviceConfiguration.getPort() + "");
+                properties.setProperty("server-port", String.valueOf(this.serviceConfiguration.getPort()));
                 properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
 
                 try (OutputStream outputStream = new FileOutputStream(file);
@@ -744,16 +809,16 @@ final class JVMCloudService implements ICloudService {
                 File file = new File(this.directory, "server.yml");
                 this.copyDefaultFile("files/gomint/server.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("  ip: ")) {
-                        s = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (line.startsWith("  ip: ")) {
+                        line = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
                     }
 
-                    if (s.startsWith("  port: ")) {
-                        s = "  port: " + serviceConfiguration.getPort();
+                    if (line.startsWith("  port: ")) {
+                        line = "  port: " + serviceConfiguration.getPort();
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;
@@ -763,16 +828,16 @@ final class JVMCloudService implements ICloudService {
 
                 copyDefaultFile("files/glowstone/glowstone.yml", file);
 
-                this.rewriteServiceConfigurationFile(file, s -> {
-                    if (s.startsWith("    ip: ")) {
-                        s = "    ip: '" + CloudNet.getInstance().getConfig().getHostAddress() + "'";
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (line.startsWith("    ip: ")) {
+                        line = "    ip: '" + CloudNet.getInstance().getConfig().getHostAddress() + "'";
                     }
 
-                    if (s.startsWith("    port: ")) {
-                        s = "    port: " + serviceConfiguration.getPort();
+                    if (line.startsWith("    port: ")) {
+                        line = "    port: " + serviceConfiguration.getPort();
                     }
 
-                    return s;
+                    return line;
                 });
             }
             break;
@@ -782,9 +847,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     private void copyDefaultFile(String from, File target) throws Exception {
-        if (!target.exists()) {
-            target.createNewFile();
-
+        if (!target.exists() && target.createNewFile()) {
             try (InputStream inputStream = JVMCloudService.class.getClassLoader().getResourceAsStream(from);
                  OutputStream outputStream = new FileOutputStream(target)) {
                 if (inputStream != null) {
@@ -817,7 +880,9 @@ final class JVMCloudService implements ICloudService {
 
             System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message")
                     .replace("%task%", this.serviceId.getTaskName())
-                    .replace("%id%", this.serviceId.getUniqueId().toString()));
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                    .replace("%id%", this.serviceId.getUniqueId().toString())
+            );
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStopEvent(this));
 
             int exitValue = this.stopProcess(force);
@@ -831,9 +896,7 @@ final class JVMCloudService implements ICloudService {
             }
 
             this.lifeCycle = ServiceLifeCycle.STOPPED;
-            if (this.serviceConfiguration.getProcessConfig().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {
-                new File(this.directory, "config.yml").delete();
-            }
+
             if (this.serviceConfiguration.getDeletedFilesAfterStop() != null) {
                 for (String path : this.serviceConfiguration.getDeletedFilesAfterStop()) {
                     if (path != null) {
@@ -848,8 +911,10 @@ final class JVMCloudService implements ICloudService {
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStopEvent(this, exitValue));
             System.out.println(LanguageManager.getMessage("cloud-service-post-stop-message")
                     .replace("%task%", this.serviceId.getTaskName())
+                    .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%id%", this.serviceId.getUniqueId().toString())
-                    .replace("%exit_value%", exitValue + ""));
+                    .replace("%exit_value%", String.valueOf(exitValue))
+            );
 
             this.serviceInfoSnapshot = createServiceInfoSnapshot(ServiceLifeCycle.STOPPED);
 
@@ -912,7 +977,9 @@ final class JVMCloudService implements ICloudService {
 
         System.out.println(LanguageManager.getMessage("cloud-service-pre-delete-message")
                 .replace("%task%", this.serviceId.getTaskName())
-                .replace("%id%", this.serviceId.getUniqueId().toString()));
+                .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                .replace("%id%", this.serviceId.getUniqueId().toString())
+        );
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreDeleteEvent(this));
 
         this.deployResources();
@@ -928,7 +995,9 @@ final class JVMCloudService implements ICloudService {
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostDeleteEvent(this));
         System.out.println(LanguageManager.getMessage("cloud-service-post-delete-message")
                 .replace("%task%", this.serviceId.getTaskName())
-                .replace("%id%", this.serviceId.getUniqueId().toString()));
+                .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
+                .replace("%id%", this.serviceId.getUniqueId().toString())
+        );
 
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.DELETED);
         CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();

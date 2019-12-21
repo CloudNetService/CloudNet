@@ -22,18 +22,18 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, GET, DELETE, POST");
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("name")) {
             context
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(new JsonDocument("task", Iterables.first(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name")))).toByteArray())
+                    .body(new JsonDocument("task", Iterables.first(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name")))).toByteArray())
                     .context()
                     .closeAfter(true)
                     .cancelNext()
@@ -43,7 +43,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getPermanentServiceTasks(), serviceTask -> !context.request().queryParameters().containsKey("name") ||
+                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask -> !context.request().queryParameters().containsKey("name") ||
                             containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName()))))
                     .context()
                     .closeAfter(true)
@@ -53,7 +53,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, IHttpContext context) {
         ServiceTask serviceTask = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
 
         if (serviceTask.getProcessConfiguration() == null || serviceTask.getName() == null) {
@@ -81,12 +81,12 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
             serviceTask.setDeployments(Iterables.newArrayList());
         }
 
-        int status = !CloudNetDriver.getInstance().isServiceTaskPresent(serviceTask.getName()) ?
+        int status = !CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(serviceTask.getName()) ?
                 HttpResponseCode.HTTP_OK
                 :
                 HttpResponseCode.HTTP_CREATED;
 
-        CloudNetDriver.getInstance().addPermanentServiceTask(serviceTask);
+        CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
         context
                 .response()
                 .statusCode(status)
@@ -96,7 +96,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) throws Exception {
+    public void handleDelete(String path, IHttpContext context) {
         if (!context.request().pathParameters().containsKey("name")) {
             send400Response(context, "name parameter not found");
             return;
@@ -104,8 +104,8 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
 
         String name = context.request().pathParameters().get("name");
 
-        if (CloudNetDriver.getInstance().isServiceTaskPresent(name)) {
-            CloudNetDriver.getInstance().removePermanentServiceTask(name);
+        if (CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(name)) {
+            CloudNetDriver.getInstance().getServiceTaskProvider().removePermanentServiceTask(name);
         }
 
         context

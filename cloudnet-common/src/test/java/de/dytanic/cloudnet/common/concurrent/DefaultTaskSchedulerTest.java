@@ -33,21 +33,21 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
         y.get();
         Assert.assertEquals(1, yTaskCount.get());
 
+        long delayValue = System.currentTimeMillis();
         IScheduledTask<String> delayed = scheduler.schedule(() -> "test_string", 20, TimeUnit.MILLISECONDS);
 
-        long delayValue = System.currentTimeMillis();
         delayed.get();
         delayValue = System.currentTimeMillis() - delayValue;
 
-        Assert.assertTrue(delayValue >= 20);
+        Assert.assertTrue(String.format("Delay should be at least 20ms, but was %dms!", delayValue), delayValue >= 20);
 
+        delayValue = System.currentTimeMillis();
         delayed = scheduler.schedule(() -> null, 1, TimeUnit.SECONDS);
 
-        long del = System.currentTimeMillis();
         delayed.get();
-        del = System.currentTimeMillis() - del;
+        delayValue = System.currentTimeMillis() - delayValue;
 
-        Assert.assertTrue(del >= 1000);
+        Assert.assertTrue(String.format("Delay should be at least 1000ms, but was %dms!", delayValue), delayValue >= 1000);
 
         IScheduledTask<Integer> callbackTask = scheduler.schedule(new CallableCounter(), 0, 1, 5);
         Assert.assertEquals(5, callbackTask.get().intValue());

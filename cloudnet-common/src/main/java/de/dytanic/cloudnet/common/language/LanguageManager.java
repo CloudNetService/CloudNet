@@ -27,14 +27,14 @@ public final class LanguageManager {
      * Resolve and returns the following message in the language which is currently set as member "language"
      *
      * @param property the following message property, which should sort out
-     * @return the message which is defined in language cache or a fallback message like "MESSAGE OR LANGUAGE NOT FOUND!"
+     * @return the message which is defined in language cache or a fallback message like {@code "<language LANGUAGE not found>"} or {@code "<message property not found in LANGUAGE>"}
      */
     public static String getMessage(String property) {
         if (language == null || !LANGUAGE_CACHE.containsKey(language)) {
-            return "MESSAGE OR LANGUAGE NOT FOUND!";
+            return "<language " + language + " not found>";
         }
 
-        return LANGUAGE_CACHE.get(language).get(property);
+        return LANGUAGE_CACHE.get(language).getOrDefault(property, "<message " + property + " not found in language " + language + ">");
     }
 
     /**
@@ -74,8 +74,8 @@ public final class LanguageManager {
     public static void addLanguageFile(String language, Path file) {
         try (InputStream inputStream = new FileInputStream(file.toFile())) {
             addLanguageFile(language, inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -88,24 +88,24 @@ public final class LanguageManager {
     public static void addLanguageFile(String language, InputStream inputStream) {
         try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             addLanguageFile(language, reader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
     /**
      * Add a new language properties, which can resolve with getMessage() in the configured language.
      *
-     * @param language    the language, which should append
-     * @param inputStream the properties which will add in the language as parameter
+     * @param language the language, which should append
+     * @param reader   the properties which will be added in the language as parameter
      */
     public static void addLanguageFile(String language, Reader reader) {
         Properties properties = new Properties();
 
         try {
             properties.load(reader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         addLanguageFile(language, properties);

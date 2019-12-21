@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.examples.driver;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -43,22 +41,19 @@ public final class ExampleServiceTasks {
                 0 //min services count with auto creation
         );
 
-        CloudNetDriver.getInstance().addPermanentServiceTask(serviceTask);
+        CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
     }
 
     public void updateServiceTask() {
-        if (CloudNetDriver.getInstance().isServiceTaskPresent("TestTask")) {
-            CloudNetDriver.getInstance().getServiceTaskAsync("TestTask").addListener(new ITaskListener<ServiceTask>() {
-                @Override
-                public void onComplete(ITask<ServiceTask> task, ServiceTask result) {
-                    result.setMinServiceCount(1);
-                    CloudNetDriver.getInstance().addPermanentServiceTask(result);
-                }
+        if (CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent("TestTask")) {
+            CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTaskAsync("TestTask").onComplete(result -> {
+                result.setMinServiceCount(1);
+                CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(result);
             });
         }
     }
 
     public void removeServiceTask() {
-        CloudNetDriver.getInstance().removePermanentServiceTask("TestTask");
+        CloudNetDriver.getInstance().getServiceTaskProvider().removePermanentServiceTask("TestTask");
     }
 }

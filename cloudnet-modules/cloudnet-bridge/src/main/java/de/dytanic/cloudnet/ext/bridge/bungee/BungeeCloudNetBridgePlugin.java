@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
@@ -23,6 +24,11 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
         this.registerCommands();
         this.initServers();
 
+        this.getProxy().setReconnectHandler(new BungeeCloudNetReconnectHandler());
+        for (ListenerInfo listenerInfo : this.getProxy().getConfig().getListeners()) {
+            listenerInfo.getServerPriority().clear();
+        }
+
         BridgeHelper.updateServiceInfo();
     }
 
@@ -32,10 +38,9 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-
     private void initServers() {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
-            if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer()) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
+            if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(serviceInfoSnapshot)) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
                         serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {
                     continue;
@@ -49,7 +54,6 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
                 )));
 
                 BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
-                BungeeCloudNetHelper.addItemToBungeeCordListenerPrioritySystem(serviceInfoSnapshot, name);
             }
         }
     }

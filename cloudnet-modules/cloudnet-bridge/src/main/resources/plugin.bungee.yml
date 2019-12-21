@@ -1,6 +1,0 @@
-name: CloudNet-Bridge
-version: 1.0
-author: Dytanic
-description: BungeeCord extension for the CloudNet runtime, which optimize some features
-
-main: de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetBridgePlugin

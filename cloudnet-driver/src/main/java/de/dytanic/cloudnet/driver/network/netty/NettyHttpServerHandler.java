@@ -27,31 +27,31 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         this.channel = new NettyHttpChannel(ctx.channel(), connectedAddress, new HostAndPort(ctx.channel().remoteAddress()));
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
             ctx.channel().close();
         }
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!(cause instanceof IOException)) {
             cause.printStackTrace();
         }
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
         if (msg.decoderResult() != DecoderResult.SUCCESS) {
             ctx.channel().close();
             return;
@@ -60,7 +60,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
         this.handleMessage(ctx.channel(), msg);
     }
 
-    private void handleMessage(Channel channel, HttpRequest httpRequest) throws Exception {
+    private void handleMessage(Channel channel, HttpRequest httpRequest) {
         URI uri = URI.create(httpRequest.uri());
         String fullPath = uri.getPath();
 

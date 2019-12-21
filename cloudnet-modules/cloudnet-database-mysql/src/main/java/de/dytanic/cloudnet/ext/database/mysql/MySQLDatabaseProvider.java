@@ -7,8 +7,8 @@ import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
+public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     private static final long NEW_CREATION_DELAY = 600000;
 
@@ -38,24 +38,24 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public boolean init() throws Exception {
-        addresses = config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
-        MySQLConnectionEndpoint endpoint = addresses.get(new Random().nextInt(addresses.size()));
+    public boolean init() {
+        this.addresses = this.config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
+        MySQLConnectionEndpoint endpoint = this.addresses.get(new Random().nextInt(this.addresses.size()));
 
-        hikariDataSource.setJdbcUrl("jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint.getAddress().getPort() + "/" + endpoint.getDatabase() +
+        this.hikariDataSource.setJdbcUrl("jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint.getAddress().getPort() + "/" + endpoint.getDatabase() +
                 (endpoint.isUseSsl() ? "?useSSL=true&trustServerCertificate=true" : "")
         );
 
         //base configuration
-        hikariDataSource.setUsername(config.getString("username"));
-        hikariDataSource.setPassword(config.getString("password"));
-        hikariDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        this.hikariDataSource.setUsername(this.config.getString("username"));
+        this.hikariDataSource.setPassword(this.config.getString("password"));
+        this.hikariDataSource.setDriverClassName("com.mysql.jdbc.Driver");
 
-        hikariDataSource.setMaximumPoolSize(config.getInt("connectionPoolSize"));
-        hikariDataSource.setConnectionTimeout(config.getInt("connectionTimeout"));
-        hikariDataSource.setValidationTimeout(config.getInt("validationTimeout"));
+        this.hikariDataSource.setMaximumPoolSize(this.config.getInt("connectionPoolSize"));
+        this.hikariDataSource.setConnectionTimeout(this.config.getInt("connectionTimeout"));
+        this.hikariDataSource.setValidationTimeout(this.config.getInt("validationTimeout"));
 
-        hikariDataSource.validate();
+        this.hikariDataSource.validate();
         return true;
     }
 
@@ -63,10 +63,10 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     public IDatabase getDatabase(String name) {
         Validate.checkNotNull(name);
 
-        removedOutdatedEntries();
+        this.removedOutdatedEntries();
 
-        if (!cachedDatabaseInstances.contains(name)) {
-            cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name));
+        if (!this.cachedDatabaseInstances.contains(name)) {
+            this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name));
         }
 
         return cachedDatabaseInstances.getSecond(name);
@@ -76,9 +76,9 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     public boolean containsDatabase(String name) {
         Validate.checkNotNull(name);
 
-        removedOutdatedEntries();
+        this.removedOutdatedEntries();
 
-        for (String database : getDatabaseNames()) {
+        for (String database : this.getDatabaseNames()) {
             if (database.equalsIgnoreCase(name)) {
                 return true;
             }
@@ -91,14 +91,14 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     public boolean deleteDatabase(String name) {
         Validate.checkNotNull(name);
 
-        cachedDatabaseInstances.remove(name);
+        this.cachedDatabaseInstances.remove(name);
 
-        if (containsDatabase(name)) {
-            try (Connection connection = getConnection();
+        if (this.containsDatabase(name)) {
+            try (Connection connection = this.getConnection();
                  PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE " + name)) {
                 return preparedStatement.executeUpdate() != -1;
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (SQLException exception) {
+                exception.printStackTrace();
             }
         }
 
@@ -107,7 +107,7 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
 
     @Override
     public Collection<String> getDatabaseNames() {
-        return executeQuery(
+        return this.executeQuery(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
                 resultSet -> {
                     Collection<String> collection = Iterables.newArrayList();
@@ -126,66 +126,21 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     }
 
     @Override
-    public void close() throws Exception {
-        hikariDataSource.close();
-    }
-
-
-    public int executeUpdate(String query, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(objects);
-
-        try (
-                Connection connection = getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            int i = 1;
-            for (Object object : objects) {
-                preparedStatement.setString(i++, object.toString());
-            }
-
-            return preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return -1;
-    }
-
-    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(callback);
-        Validate.checkNotNull(objects);
-
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            int i = 1;
-            for (Object object : objects) {
-                preparedStatement.setString(i++, object.toString());
-            }
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return callback.call(resultSet);
-            }
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-
-        return null;
+    public void close() {
+        this.hikariDataSource.close();
     }
 
 
     private void removedOutdatedEntries() {
-        for (Map.Entry<String, Pair<Long, MySQLDatabase>> entry : cachedDatabaseInstances.entrySet()) {
+        for (Map.Entry<String, Pair<Long, MySQLDatabase>> entry : this.cachedDatabaseInstances.entrySet()) {
             if (entry.getValue().getFirst() < System.currentTimeMillis()) {
-                cachedDatabaseInstances.remove(entry.getKey());
+                this.cachedDatabaseInstances.remove(entry.getKey());
             }
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        return hikariDataSource.getConnection();
+    public Connection getConnection() throws SQLException {
+        return this.hikariDataSource.getConnection();
     }
 
     public NetorHashMap<String, Long, MySQLDatabase> getCachedDatabaseInstances() {
@@ -203,4 +158,48 @@ public final class MySQLDatabaseProvider extends AbstractDatabaseProvider {
     public List<MySQLConnectionEndpoint> getAddresses() {
         return this.addresses;
     }
+
+    public int executeUpdate(String query, Object... objects) {
+        Validate.checkNotNull(query);
+        Validate.checkNotNull(objects);
+
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            int i = 1;
+            for (Object object : objects) {
+                preparedStatement.setString(i++, object.toString());
+            }
+
+            return preparedStatement.executeUpdate();
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
+        Validate.checkNotNull(query);
+        Validate.checkNotNull(callback);
+        Validate.checkNotNull(objects);
+
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            int i = 1;
+            for (Object object : objects) {
+                preparedStatement.setString(i++, object.toString());
+            }
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return callback.call(resultSet);
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 }

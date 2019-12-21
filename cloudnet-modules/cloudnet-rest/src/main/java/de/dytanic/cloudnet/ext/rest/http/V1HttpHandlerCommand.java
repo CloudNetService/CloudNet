@@ -14,7 +14,7 @@ public final class V1HttpHandlerCommand extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) throws Exception {
+    public void handleOptions(String path, IHttpContext context) {
         this.sendOptions(context, "OPTIONS, POST");
     }
 

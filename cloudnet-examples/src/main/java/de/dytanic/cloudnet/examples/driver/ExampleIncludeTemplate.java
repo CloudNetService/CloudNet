@@ -8,20 +8,20 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 public final class ExampleIncludeTemplate {
 
     public void exampleIncludeTemplates(UUID playerUniqueId, ServiceInfoSnapshot serviceInfoSnapshot) {
         //Add serviceTemplate to existing service
-        CloudNetDriver.getInstance().addServiceTemplateToCloudService(serviceInfoSnapshot.getServiceId().getUniqueId(), new ServiceTemplate(
+        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).addServiceTemplate(new ServiceTemplate(
                 "Lobby", "test1",
                 "local"
         ));
 
         //Create service with custom template
-        ServiceInfoSnapshot newService = CloudNetDriver.getInstance().createCloudService(
+        ServiceInfoSnapshot newService = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(
                 "PS-" + playerUniqueId.toString(),
                 "jvm",
                 true,
@@ -34,7 +34,7 @@ public final class ExampleIncludeTemplate {
                         )
                 }),
                 Iterables.newArrayList(),
-                Arrays.asList("PrivateServerGroup"),
+                Collections.singletonList("PrivateServerGroup"),
                 new ProcessConfiguration(
                         ServiceEnvironmentType.MINECRAFT_SERVER,
                         256,
@@ -44,6 +44,6 @@ public final class ExampleIncludeTemplate {
                 null
         );
 
-        CloudNetDriver.getInstance().startCloudService(newService);
+        CloudNetDriver.getInstance().getCloudServiceProvider(newService).start();
     }
 }

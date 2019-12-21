@@ -26,11 +26,23 @@ public interface ICloudServiceManager {
 
     void setServiceTasks(Collection<ServiceTask> tasks);
 
-    void addPermanentServiceTask(ServiceTask task);
+    void setServiceTasksWithoutClusterSync(Collection<ServiceTask> tasks);
+
+    default void updatePermanentServiceTask(ServiceTask task) {
+        this.addPermanentServiceTask(task);
+    }
+
+    boolean addPermanentServiceTask(ServiceTask task);
 
     void removePermanentServiceTask(ServiceTask task);
 
     void removePermanentServiceTask(String name);
+
+    boolean addPermanentServiceTaskWithoutClusterSync(ServiceTask task);
+
+    void removePermanentServiceTaskWithoutClusterSync(ServiceTask task);
+
+    void removePermanentServiceTaskWithoutClusterSync(String name);
 
     void removeAllPermanentServiceTasks();
 
@@ -40,9 +52,15 @@ public interface ICloudServiceManager {
 
     //-
 
+    default void updateGroupConfiguration(GroupConfiguration groupConfiguration) {
+        this.addGroupConfiguration(groupConfiguration);
+    }
+
     List<GroupConfiguration> getGroupConfigurations();
 
     void setGroupConfigurations(Collection<GroupConfiguration> groupConfigurations);
+
+    void setGroupConfigurationsWithoutClusterSync(Collection<GroupConfiguration> groupConfigurations);
 
     GroupConfiguration getGroupConfiguration(String name);
 
@@ -50,7 +68,13 @@ public interface ICloudServiceManager {
 
     void removeGroupConfiguration(GroupConfiguration groupConfiguration);
 
+    void addGroupConfigurationWithoutClusterSync(GroupConfiguration groupConfiguration);
+
+    void removeGroupConfigurationWithoutClusterSync(GroupConfiguration groupConfiguration);
+
     void removeGroupConfiguration(String name);
+
+    void removeGroupConfigurationWithoutClusterSync(String name);
 
     boolean isGroupConfigurationPresent(String group);
 
@@ -134,11 +158,35 @@ public interface ICloudServiceManager {
 
     ICloudService getCloudService(Predicate<ICloudService> predicate);
 
-    Collection<ICloudService> getCloudServices(String taskName);
+    /**
+     * @deprecated moved to {@link #getLocalCloudServices(String)}
+     */
+    @Deprecated
+    default Collection<ICloudService> getCloudServices(String taskName) {
+        return this.getLocalCloudServices(taskName);
+    }
 
-    Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate);
+    /**
+     * @deprecated moved to {@link #getLocalCloudServices(Predicate)}
+     */
+    @Deprecated
+    default Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate) {
+        return this.getLocalCloudServices(predicate);
+    }
 
-    Collection<ICloudService> getServices();
+    /**
+     * @deprecated moved to {@link #getLocalCloudServices()}
+     */
+    @Deprecated
+    default Collection<ICloudService> getServices() {
+        return this.getLocalCloudServices();
+    }
+
+    Collection<ICloudService> getLocalCloudServices(String taskName);
+
+    Collection<ICloudService> getLocalCloudServices(Predicate<ICloudService> predicate);
+
+    Collection<ICloudService> getLocalCloudServices();
 
     ServiceInfoSnapshot getServiceInfoSnapshot(UUID uniqueId);
 

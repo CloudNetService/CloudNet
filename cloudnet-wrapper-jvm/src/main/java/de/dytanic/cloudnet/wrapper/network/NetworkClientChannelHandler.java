@@ -16,15 +16,15 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
     @Override
-    public void handleChannelInitialize(INetworkChannel channel) throws Exception {
+    public void handleChannelInitialize(INetworkChannel channel) {
         NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
         CloudNetDriver.getInstance().getEventManager().callEvent(networkChannelInitEvent);
 
         if (networkChannelInitEvent.isCancelled()) {
             try {
                 channel.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
             return;
         }
@@ -38,7 +38,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
     }
 
     @Override
-    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) throws Exception {
+    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
         if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
             return false;
         }
@@ -47,7 +47,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
     }
 
     @Override
-    public void handleChannelClose(INetworkChannel channel) throws Exception {
+    public void handleChannelClose(INetworkChannel channel) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     }
 }

@@ -19,17 +19,14 @@ public final class SyncProxyConfigUpdateListener {
             return;
         }
 
-        switch (event.getId()) {
-            case SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY: {
-                event.setCallbackPacket(new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration()));
-            }
-            break;
+        if (SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY.equals(event.getId())) {
+            event.setCallbackPacket(new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration()));
         }
     }
 
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-        CloudNetDriver.getInstance().sendChannelMessage(
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
                 SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
                 new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
@@ -42,17 +39,14 @@ public final class SyncProxyConfigUpdateListener {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
-            case SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION: {
-                SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+            SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
-                if (syncProxyConfiguration != null) {
-                    CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
-                }
-
-                SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
+            if (syncProxyConfiguration != null) {
+                CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
             }
-            break;
+
+            SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
         }
     }
 }

@@ -57,8 +57,8 @@ public final class NettyNetworkClient implements INetworkClient {
 
         try {
             this.init();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -105,6 +105,7 @@ public final class NettyNetworkClient implements INetworkClient {
                     .option(ChannelOption.AUTO_READ, true)
                     .option(ChannelOption.IP_TOS, 24)
                     .option(ChannelOption.TCP_NODELAY, true)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2500)
                     .channel(NettyUtils.getSocketChannelClass())
                     .handler(new NettyNetworkClientInitializer(this, hostAndPort))
                     .connect(hostAndPort.getHost(), hostAndPort.getPort())
@@ -114,8 +115,8 @@ public final class NettyNetworkClient implements INetworkClient {
                     .channel();
 
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return false;
@@ -138,8 +139,8 @@ public final class NettyNetworkClient implements INetworkClient {
         for (INetworkChannel channel : this.channels) {
             try {
                 channel.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
         }
 

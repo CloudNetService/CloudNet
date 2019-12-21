@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.event.service.task;
 
 import de.dytanic.cloudnet.driver.event.Event;
+import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 
-public class ServiceTaskRemoveEvent extends Event {
+public class ServiceTaskRemoveEvent extends Event implements ICancelable {
 
     private final ICloudServiceManager cloudServiceManager;
 

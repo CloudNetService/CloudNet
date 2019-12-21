@@ -19,16 +19,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.net.InetSocketAddress;
 
-@Plugin(
-        id = "cloudnet_bridge_velocity",
-        name = "CloudNet-Bridge",
-        version = "1.0",
-        description = "Velocity extension for the CloudNet runtime, which optimize some features",
-        url = "https://cloudnetservice.eu",
-        authors = {
-                "Dytanic"
-        }
-)
+@Plugin(id = "cloudnet_bridge_velocity")
 public final class VelocityCloudNetBridgePlugin {
 
     private static VelocityCloudNetBridgePlugin instance;
@@ -75,7 +66,7 @@ public final class VelocityCloudNetBridgePlugin {
     }
 
     private void initServers() {
-        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServices()) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
             if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer()) {
                 if ((serviceInfoSnapshot.getProperties().contains("Online-Mode") && serviceInfoSnapshot.getProperties().getBoolean("Online-Mode")) ||
                         serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING) {

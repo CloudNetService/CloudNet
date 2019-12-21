@@ -13,7 +13,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-public final class DefaultDatabasePermissionManagement implements IPermissionManagement {
+public final class DefaultDatabasePermissionManagement implements ClusterSynchronizedPermissionManagement {
 
     private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 
@@ -26,70 +26,66 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public DefaultDatabasePermissionManagement(Callable<AbstractDatabaseProvider> databaseProviderCallable) {
         this.databaseProviderCallable = databaseProviderCallable;
 
-        file.getParentFile().mkdirs();
-        loadGroups();
+        this.file.getParentFile().mkdirs();
+        this.loadGroups();
     }
 
     @Override
-    public IPermissionUser addUser(IPermissionUser permissionUser) {
+    public IPermissionUser addUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+        this.getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
         return permissionUser;
     }
 
     @Override
-    public void updateUser(IPermissionUser permissionUser) {
+    public void updateUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleUpdateUser(this, permissionUser);
-        }
-
-        getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+        this.getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
     }
 
     @Override
-    public void deleteUser(String name) {
+    public void deleteUserWithoutClusterSync(String name) {
         Validate.checkNotNull(name);
 
-        for (IPermissionUser permissionUser : getUser(name)) {
-            getDatabase().delete(permissionUser.getUniqueId().toString());
+        for (IPermissionUser permissionUser : this.getUsers(name)) {
+            this.getDatabase().delete(permissionUser.getUniqueId().toString());
         }
     }
 
     @Override
-    public void deleteUser(IPermissionUser permissionUser) {
+    public void deleteUserWithoutClusterSync(IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
-        getDatabase().delete(permissionUser.getUniqueId().toString());
+        this.getDatabase().delete(permissionUser.getUniqueId().toString());
     }
 
     @Override
     public boolean containsUser(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        return getDatabase().contains(uniqueId.toString());
+        return this.getDatabase().contains(uniqueId.toString());
     }
 
     @Override
     public boolean containsUser(String name) {
         Validate.checkNotNull(name);
 
-        return getUser(name).size() > 0;
+        return this.getUsers(name).size() > 0;
     }
 
     @Override
     public IPermissionUser getUser(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
-        JsonDocument jsonDocument = getDatabase().get(uniqueId.toString());
+        JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
 
         if (jsonDocument != null) {
             IPermissionUser permissionUser = jsonDocument.toInstanceOf(PermissionUser.TYPE);
 
-            if (testPermissionUser(permissionUser)) {
-                updateUser(permissionUser);
+            if (this.testPermissionUser(permissionUser)) {
+                this.updateUser(permissionUser);
             }
 
             return permissionUser;
@@ -99,14 +95,14 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public List<IPermissionUser> getUser(String name) {
+    public List<IPermissionUser> getUsers(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.map(getDatabase().get("name", name), strings -> {
+        return Iterables.map(this.getDatabase().get("name", name), strings -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
-            if (testPermissionUser(permissionUser)) {
-                updateUser(permissionUser);
+            if (this.testPermissionUser(permissionUser)) {
+                this.updateUser(permissionUser);
             }
 
             return permissionUser;
@@ -117,9 +113,9 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public Collection<IPermissionUser> getUsers() {
         Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
 
-        getDatabase().iterate((s, strings) -> {
+        this.getDatabase().iterate((s, strings) -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
-            testPermissionUser(permissionUser);
+            this.testPermissionUser(permissionUser);
 
             permissionUsers.add(permissionUser);
         });
@@ -128,28 +124,28 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     @Override
-    public void setUsers(Collection<? extends IPermissionUser> users) {
+    public void setUsersWithoutClusterSync(Collection<? extends IPermissionUser> users) {
         Validate.checkNotNull(users);
 
-        getDatabase().clear();
+        this.getDatabase().clear();
 
         for (IPermissionUser permissionUser : users) {
             if (permissionUser != null) {
-                getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
+                this.getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
             }
         }
     }
 
     @Override
-    public Collection<IPermissionUser> getUserByGroup(String group) {
+    public Collection<IPermissionUser> getUsersByGroup(String group) {
         Validate.checkNotNull(group);
 
         Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
 
-        getDatabase().iterate((s, strings) -> {
+        this.getDatabase().iterate((s, strings) -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
-            testPermissionUser(permissionUser);
+            this.testPermissionUser(permissionUser);
             if (permissionUser.inGroup(group)) {
                 permissionUsers.add(permissionUser);
             }
@@ -160,52 +156,44 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
 
     @Override
-    public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
+    public IPermissionGroup addGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleAddGroup(this, permissionGroup);
+        this.testPermissionGroup(permissionGroup);
+        if (this.getGroup(permissionGroup.getName()) != null) {
+            this.deleteGroup(permissionGroup.getName());
         }
-
-        testPermissionGroup(permissionGroup);
-        deleteGroup(permissionGroup.getName());
-        permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
-        saveGroups();
+        this.permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
+        this.saveGroups();
 
         return permissionGroup;
     }
 
     @Override
-    public void updateGroup(IPermissionGroup permissionGroup) {
+    public void updateGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
-        }
+        this.testPermissionGroup(permissionGroup);
+        this.permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
 
-        testPermissionGroup(permissionGroup);
-        permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
-
-        saveGroups();
+        this.saveGroups();
     }
 
     @Override
-    public void deleteGroup(String group) {
+    public void deleteGroupWithoutClusterSync(String group) {
         Validate.checkNotNull(group);
 
-        IPermissionGroup permissionGroup = permissionGroupsMap.remove(group);
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
+        IPermissionGroup permissionGroup = this.permissionGroupsMap.remove(group);
+        if (permissionGroup != null) {
+            this.saveGroups();
         }
-
-        saveGroups();
     }
 
     @Override
-    public void deleteGroup(IPermissionGroup group) {
+    public void deleteGroupWithoutClusterSync(IPermissionGroup group) {
         Validate.checkNotNull(group);
 
-        deleteGroup(group.getName());
+        this.deleteGroupWithoutClusterSync(group.getName());
     }
 
     @Override
@@ -219,10 +207,10 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     public IPermissionGroup getGroup(String name) {
         Validate.checkNotNull(name);
 
-        IPermissionGroup permissionGroup = permissionGroupsMap.get(name);
+        IPermissionGroup permissionGroup = this.permissionGroupsMap.get(name);
 
-        if (testPermissionGroup(permissionGroup)) {
-            updateGroup(permissionGroup);
+        if (this.testPermissionGroup(permissionGroup)) {
+            this.updateGroup(permissionGroup);
         }
 
         return permissionGroup;
@@ -230,58 +218,49 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
 
     @Override
     public Collection<IPermissionGroup> getGroups() {
-        for (IPermissionGroup permissionGroup : permissionGroupsMap.values()) {
-            if (testPermissionGroup(permissionGroup)) {
-                updateGroup(permissionGroup);
+        for (IPermissionGroup permissionGroup : this.permissionGroupsMap.values()) {
+            if (this.testPermissionGroup(permissionGroup)) {
+                this.updateGroup(permissionGroup);
             }
         }
 
-        return permissionGroupsMap.values();
+        return this.permissionGroupsMap.values();
     }
 
     @Override
-    public void setGroups(Collection<? extends IPermissionGroup> groups) {
+    public void setGroupsWithoutClusterSync(Collection<? extends IPermissionGroup> groups) {
         Validate.checkNotNull(groups);
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleSetGroups(this, groups);
+        this.permissionGroupsMap.clear();
+
+        for (IPermissionGroup group : groups) {
+            this.testPermissionGroup(group);
+            this.permissionGroupsMap.put(group.getName(), group);
         }
 
-        setGroups0(groups);
+        this.saveGroups();
     }
 
     @Override
     public boolean reload() {
         loadGroups();
 
-        if (permissionManagementHandler != null) {
-            permissionManagementHandler.handleReloaded(this);
+        if (this.permissionManagementHandler != null) {
+            this.permissionManagementHandler.handleReloaded(this);
         }
 
         return true;
     }
 
-    public void setGroups0(Collection<? extends IPermissionGroup> groups) {
-        permissionGroupsMap.clear();
-
-        for (IPermissionGroup group : groups) {
-            testPermissionGroup(group);
-            permissionGroupsMap.put(group.getName(), group);
-        }
-
-        saveGroups();
-    }
-
-
     private void saveGroups() {
-        List<IPermissionGroup> permissionGroups = Iterables.newArrayList(permissionGroupsMap.values());
+        List<IPermissionGroup> permissionGroups = Iterables.newArrayList(this.permissionGroupsMap.values());
         Collections.sort(permissionGroups);
 
-        new JsonDocument("groups", permissionGroups).write(file);
+        new JsonDocument("groups", permissionGroups).write(this.file);
     }
 
     private void loadGroups() {
-        JsonDocument document = JsonDocument.newDocument(file);
+        JsonDocument document = JsonDocument.newDocument(this.file);
 
         if (document.contains("groups")) {
             Collection<PermissionGroup> permissionGroups = document.get("groups", new TypeToken<Collection<PermissionGroup>>() {
@@ -300,14 +279,14 @@ public final class DefaultDatabasePermissionManagement implements IPermissionMan
     }
 
     public IDatabase getDatabase() {
-        return getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
+        return this.getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
     }
 
     private AbstractDatabaseProvider getDatabaseProvider() {
         try {
-            return databaseProviderCallable.call();
-        } catch (Exception e) {
-            e.printStackTrace();
+            return this.databaseProviderCallable.call();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return null;

@@ -39,7 +39,7 @@ public class TaskScheduler {
 
     protected final long threadLifeMillis;
 
-    protected int maxThreads = 0;
+    protected int maxThreads;
 
     protected Deque<TaskEntry<?>> taskEntries = new ConcurrentLinkedDeque<>();
 
@@ -243,7 +243,6 @@ public class TaskScheduler {
     }
 
 
-
     public <V> TaskEntryFuture<V> schedule(Callable<V> callable) {
         return schedule(callable, (IVoidCallback<V>) null);
     }
@@ -368,7 +367,6 @@ public class TaskScheduler {
     }
 
 
-    @SuppressWarnings("deprecation")
     public Collection<TaskEntry<?>> shutdown() {
 
         for (Worker worker : workers) {
@@ -388,8 +386,6 @@ public class TaskScheduler {
 
         return entries;
     }
-
-
 
 
     public TaskScheduler chargeThreadLimit(short threads) {
@@ -447,6 +443,24 @@ public class TaskScheduler {
         return entry.drop();
     }
 
+    private static final class VoidTaskEntry extends TaskEntry<Void> {
+
+        public VoidTaskEntry(Callable<Void> task, IVoidCallback<Void> complete, long delay, long repeat) {
+            super(task, complete, delay, repeat);
+        }
+
+
+        public VoidTaskEntry(Runnable task, IVoidCallback<Void> complete, long delay, long repeat) {
+            super(() -> {
+
+                if (task != null) {
+                    task.run();
+                }
+
+                return null;
+            }, complete, delay, repeat);
+        }
+    }
 
     public class Worker extends Thread {
 
@@ -504,8 +518,8 @@ public class TaskScheduler {
 
                 try {
                     taskEntry.invoke();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
 
                 if (checkEntry()) {
@@ -548,25 +562,6 @@ public class TaskScheduler {
             }
         }
 
-    }
-
-    private final class VoidTaskEntry extends TaskEntry<Void> {
-
-        public VoidTaskEntry(Callable<Void> task, IVoidCallback<Void> complete, long delay, long repeat) {
-            super(task, complete, delay, repeat);
-        }
-
-
-        public VoidTaskEntry(Runnable task, IVoidCallback<Void> complete, long delay, long repeat) {
-            super(() -> {
-
-                if (task != null) {
-                    task.run();
-                }
-
-                return null;
-            }, complete, delay, repeat);
-        }
     }
 
 }
