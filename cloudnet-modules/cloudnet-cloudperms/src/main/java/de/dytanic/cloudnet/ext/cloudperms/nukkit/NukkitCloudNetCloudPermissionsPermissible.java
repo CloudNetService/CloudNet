@@ -5,7 +5,7 @@ import cn.nukkit.permission.PermissibleBase;
 import cn.nukkit.permission.Permission;
 import cn.nukkit.permission.PermissionAttachmentInfo;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.HashMap;
@@ -25,14 +25,14 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
     @Override
     public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
         Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
-        IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
+        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
         if (permissionUser == null) {
             return infos;
         }
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
             infos.putAll(
-                    CloudPermissionsPermissionManagement.getInstance().getAllPermissions(permissionUser, group)
+                    CloudPermissionsManagement.getInstance().getAllPermissions(permissionUser, group)
                             .stream()
                             .map(permission -> new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0))
                             .collect(Collectors.toMap(PermissionAttachmentInfo::getPermission, o -> o))
@@ -63,8 +63,8 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
             return false;
         }
 
-        IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
-        return permissionUser != null && CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, inName);
+        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
+        return permissionUser != null && CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, inName);
     }
 
     public Player getPlayer() {

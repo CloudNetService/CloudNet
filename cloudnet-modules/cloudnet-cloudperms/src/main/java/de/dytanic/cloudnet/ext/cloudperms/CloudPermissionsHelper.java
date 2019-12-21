@@ -16,24 +16,24 @@ public class CloudPermissionsHelper {
     }
 
     public static void initPermissionUser(UUID uniqueId, String name, boolean shouldUpdateName) {
-        IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
+        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
 
         if (permissionUser == null) {
-            CloudPermissionsPermissionManagement.getInstance().addUser(new PermissionUser(
+            CloudPermissionsManagement.getInstance().addUser(new PermissionUser(
                     uniqueId,
                     name,
                     null,
                     0
             ));
 
-            permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
+            permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
         }
 
         if (permissionUser != null) {
-            CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
+            CloudPermissionsManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
             if (shouldUpdateName) {
                 permissionUser.setName(name);
-                CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
+                CloudPermissionsManagement.getInstance().updateUser(permissionUser);
             }
         }
     }

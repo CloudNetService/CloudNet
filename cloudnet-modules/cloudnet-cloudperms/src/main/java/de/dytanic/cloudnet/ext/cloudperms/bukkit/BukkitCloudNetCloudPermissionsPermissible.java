@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
@@ -31,13 +31,13 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     @Override
     public Set<PermissionAttachmentInfo> getEffectivePermissions() {
         Set<PermissionAttachmentInfo> infos = new HashSet<>();
-        IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(this.player.getUniqueId());
+        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(this.player.getUniqueId());
         if (permissionUser == null) {
             return infos;
         }
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
-            CloudPermissionsPermissionManagement.getInstance().getAllPermissions(permissionUser, group).forEach(permission -> {
+            CloudPermissionsManagement.getInstance().getAllPermissions(permissionUser, group).forEach(permission -> {
                 Permission bukkitPermission = this.player.getServer().getPluginManager().getPermission(permission.getName());
                 if (bukkitPermission != null) {
                     this.forEachChildren(bukkitPermission, (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
@@ -79,7 +79,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
         }
 
         try {
-            IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(this.player.getUniqueId());
+            IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(this.player.getUniqueId());
             if (permissionUser == null) {
                 return false;
             }
@@ -127,7 +127,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     }
 
     private boolean checkPermission(IPermissionUser permissionUser, String name) {
-        return CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, name);
+        return CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, name);
     }
 
     public Player getPlayer() {

@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bungee;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bungee.listener.BungeeCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -21,7 +21,7 @@ public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
 
     @Override
     public void onEnable() {
-        new CloudPermissionsPermissionManagement();
+        new CloudPermissionsManagement();
 
         getProxy().getPluginManager().registerListener(this, new BungeeCloudNetCloudPermissionsPlayerListener());
     }
