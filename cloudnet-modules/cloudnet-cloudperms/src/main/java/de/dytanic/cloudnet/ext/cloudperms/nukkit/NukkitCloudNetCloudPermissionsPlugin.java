@@ -26,7 +26,7 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
 
     @Override
     public void onEnable() {
-        new CloudPermissionsManagement();
+        CloudPermissionsManagement.getInstance();
         injectPlayersCloudPermissible();
 
         getServer().getPluginManager().registerEvents(new NukkitCloudNetCloudPermissionsPlayerListener(), this);

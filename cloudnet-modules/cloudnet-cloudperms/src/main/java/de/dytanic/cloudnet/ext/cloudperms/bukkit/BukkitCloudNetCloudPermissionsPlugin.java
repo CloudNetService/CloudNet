@@ -35,7 +35,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.checkForVault(new CloudPermissionsManagement());
+        this.checkForVault(CloudPermissionsManagement.getInstance());
         this.initPlayersCloudPermissible();
 
         getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(), this);

@@ -16,7 +16,7 @@ public final class ProxProxCloudNetCloudPermissionsPlugin extends Plugin {
 
     @Override
     public void onStartup() {
-        new CloudPermissionsManagement();
+        CloudPermissionsManagement.getInstance();
 
         registerListener(new ProxProxCloudNetCloudPermissionsPlayerListener());
     }

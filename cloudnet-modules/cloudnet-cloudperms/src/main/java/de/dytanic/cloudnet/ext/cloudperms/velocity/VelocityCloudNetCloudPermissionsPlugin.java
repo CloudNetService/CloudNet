@@ -38,7 +38,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
-        new CloudPermissionsManagement();
+        CloudPermissionsManagement.getInstance();
         initPlayersPermissionFunction();
 
         proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener());

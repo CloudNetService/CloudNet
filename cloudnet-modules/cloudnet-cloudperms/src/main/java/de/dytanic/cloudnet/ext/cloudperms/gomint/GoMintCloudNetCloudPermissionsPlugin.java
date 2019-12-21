@@ -33,7 +33,7 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
 
     @Override
     public void onStartup() {
-        new CloudPermissionsManagement();
+        CloudPermissionsManagement.getInstance();
         injectEntityPlayersCloudPermissionManager();
 
         registerListener(new GoMintCloudNetCloudPermissionsPlayerListener());
