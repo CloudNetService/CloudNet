@@ -7,12 +7,8 @@ package de.dytanic.cloudnet.ext.cloudperms;
 @Deprecated
 public class CloudPermissionsPermissionManagement extends CloudPermissionsManagement {
   
-    private static CloudPermissionsPermissionManagement instance;
-  
     public static CloudPermissionsPermissionManagement getInstance() {
-        return CloudPermissionsPermissionManagement.instance != null
-                ? CloudPermissionsPermissionManagement.instance
-                : (CloudPermissionsPermissionManagement.instance = new CloudPermissionsPermissionManagement());
+        return (CloudPermissionsPermissionManagement) CloudPermissionsManagement.getInstance();
     }
   
 }

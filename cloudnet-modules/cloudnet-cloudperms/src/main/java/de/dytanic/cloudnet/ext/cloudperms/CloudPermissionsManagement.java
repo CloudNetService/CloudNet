@@ -28,7 +28,7 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     public static CloudPermissionsManagement getInstance() {
         return CloudPermissionsManagement.instance != null
                 ? CloudPermissionsManagement.instance
-                : (CloudPermissionsManagement.instance = new CloudPermissionsManagement());
+                : (CloudPermissionsManagement.instance = new CloudPermissionsPermissionManagement());
     }
 
     private void init() {
