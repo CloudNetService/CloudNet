@@ -5,13 +5,11 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
-import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
@@ -44,11 +42,14 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -93,7 +94,6 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     private final INetworkClient networkClient;
-    private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
     /**
      * The single task thread of the scheduler of the wrapper application
      */
@@ -176,7 +176,10 @@ public final class Wrapper extends CloudNetDriver {
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-        this.mainloop();
+
+        if (!this.startApplication()) {
+            System.exit(-1);
+        }
     }
 
     @Override
@@ -345,35 +348,6 @@ public final class Wrapper extends CloudNetDriver {
                 }.getType()));
     }
 
-    /**
-     * This method invokes a Runnable instance one the wrapper main thread at the next tick.
-     *
-     * @param runnable the task, that you want to invoke
-     * @param <T>      the type of the result, that you invoke
-     * @return a ITask object instance, which you can add additional listeners
-     * @see ITask
-     */
-    public <T> ITask<T> runTask(Callable<T> runnable) {
-        Validate.checkNotNull(runnable);
-
-        ITask<T> task = new ListenableTask<>(runnable);
-
-        this.processQueue.offer(task);
-        return task;
-    }
-
-    /**
-     * This method invokes a Runnable instance one the wrapper main thread at the next tick.
-     *
-     * @param runnable the task, that you want to invoke
-     * @return a ITask object instance, which you can add additional listeners
-     * @see ITask
-     */
-    public ITask<?> runTask(Runnable runnable) {
-        Validate.checkNotNull(runnable);
-
-        return this.runTask(Executors.callable(runnable));
-    }
 
     /**
      * Is an shortcut for Wrapper.getConfig().getServiceId()
@@ -429,11 +403,11 @@ public final class Wrapper extends CloudNetDriver {
      *
      * @see ServiceInfoSnapshotConfigureEvent
      */
-    public void publishServiceInfoUpdate() {
-        publishServiceInfoUpdate(this.createServiceInfoSnapshot());
+    public synchronized void publishServiceInfoUpdate() {
+        this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
     }
 
-    public void publishServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public synchronized void publishServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
         if (currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
             this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
@@ -457,42 +431,6 @@ public final class Wrapper extends CloudNetDriver {
         for (INetworkChannel channel : networkClient.getChannels()) {
             channel.getPacketRegistry().removeListeners(classLoader);
         }
-    }
-
-    private synchronized void mainloop() throws Exception {
-        long value = System.currentTimeMillis();
-        long millis = 1000 / TPS;
-
-        if (this.startApplication()) {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    long diff = System.currentTimeMillis() - value;
-                    if (diff < millis) {
-                        try {
-                            Thread.sleep(millis - diff);
-                        } catch (InterruptedException exception) {
-                            exception.printStackTrace();
-                        }
-                    }
-
-                    value = System.currentTimeMillis();
-
-                    eventManager.callEvent(new CloudNetTickEvent());
-
-                    while (!this.processQueue.isEmpty()) {
-                        if (this.processQueue.peek() != null) {
-                            Objects.requireNonNull(this.processQueue.poll()).call();
-                        } else {
-                            this.processQueue.poll();
-                        }
-                    }
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }
-        }
-
-        System.exit(0);
     }
 
     private void enableModules() {

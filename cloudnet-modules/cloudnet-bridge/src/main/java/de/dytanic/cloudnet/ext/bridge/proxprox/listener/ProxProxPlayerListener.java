@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxprox.ProxProxCloudNetHelper;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.gomint.proxprox.api.data.ServerDataHolder;
 import io.gomint.proxprox.api.event.*;
 import io.gomint.proxprox.api.plugin.event.EventHandler;
@@ -58,6 +57,6 @@ public final class ProxProxPlayerListener implements Listener {
     public void handle(PlayerQuitEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(ProxProxCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        Wrapper.getInstance().runTask(BridgeHelper::updateServiceInfo);
+        BridgeHelper.updateServiceInfo();
     }
 }

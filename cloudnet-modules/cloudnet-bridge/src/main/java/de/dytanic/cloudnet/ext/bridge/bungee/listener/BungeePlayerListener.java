@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -78,6 +77,6 @@ public final class BungeePlayerListener implements Listener {
     public void handle(PlayerDisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()));
 
-        Wrapper.getInstance().runTask(BridgeHelper::updateServiceInfo);
+        BridgeHelper.updateServiceInfo();
     }
 }

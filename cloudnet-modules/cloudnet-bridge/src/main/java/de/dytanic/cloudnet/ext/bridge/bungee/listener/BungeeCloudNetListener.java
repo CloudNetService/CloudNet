@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
@@ -165,11 +164,6 @@ public final class BungeeCloudNetListener {
     public ProxiedPlayer getPlayer(JsonDocument data) {
         return Iterables.first(ProxyServer.getInstance().getPlayers(), proxiedPlayer ->
                 data.contains("uniqueId") && proxiedPlayer.getUniqueId().equals(data.get("uniqueId", UUID.class)));
-    }
-
-    @EventListener
-    public void handle(CloudNetTickEvent event) {
-        this.bungeeCall(new BungeeCloudNetTickEvent());
     }
 
     @EventListener

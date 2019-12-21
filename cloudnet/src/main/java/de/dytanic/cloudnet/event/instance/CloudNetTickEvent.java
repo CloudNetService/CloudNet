@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.event.events.instance;
+package de.dytanic.cloudnet.event.instance;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 
