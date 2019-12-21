@@ -21,9 +21,7 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps.newConcurrentHashMap();
     private final Map<UUID, IPermissionUser> cachedPermissionUsers = Maps.newConcurrentHashMap();
 
-    public CloudPermissionsManagement() {
-        instance = this;
-
+    CloudPermissionsManagement() {
         this.init();
     }
 
