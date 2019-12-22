@@ -257,9 +257,9 @@
           "maxJavaVersion": 13,
           "properties": {
             "copy": [
-              "libraries/**",
-              "\\.json$",
-              "forge-*\\.jar",
+              "libraries/.*",
+              ".*\\.json",
+              "forge-.*\\.jar",
               "minecraft_server.*\\.jar"
             ],
             "parameters": [
