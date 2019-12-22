@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
@@ -135,6 +136,17 @@ public class ServiceVersionProvider {
 
                 installer.install(serviceVersion, fileName, workingDirectory, storage, serviceTemplate, versionCachePath);
             }
+
+            for (Map.Entry<String, String> downloadEntry : serviceVersion.getAdditionalDownloads().entrySet()) {
+                String path = downloadEntry.getKey();
+                String url = downloadEntry.getValue();
+
+                try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), new URL(url));
+                     OutputStream outputStream = storage.newOutputStream(serviceTemplate, path)) {
+                    FileUtils.copy(inputStream, outputStream);
+                }
+            }
+
         } catch (Exception exception) {
             exception.printStackTrace();
             return false;

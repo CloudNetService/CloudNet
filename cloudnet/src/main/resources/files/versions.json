@@ -414,6 +414,89 @@
       ]
     },
     {
+      "name": "spongeforge",
+      "targetEnvironment": "MINECRAFT_SERVER_FORGE",
+      "installerType": "BUILD",
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
+          "maxJavaVersion": 10,
+          "properties": {
+            "copy": [
+              "libraries/.*",
+              ".*\\.json",
+              "forge-.*\\.jar",
+              "minecraft_server.*\\.jar"
+            ],
+            "parameters": [
+              "--installServer"
+            ]
+          },
+          "additionalDownloads": {
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.1.8-RC3964/spongeforge-1.12.2-2838-7.1.8-RC3964.jar"
+          }
+        },
+        {
+          "name": "1.12.2",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
+          "maxJavaVersion": 10,
+          "properties": {
+            "copy": [
+              "libraries/.*",
+              ".*\\.json",
+              "forge-.*\\.jar",
+              "minecraft_server.*\\.jar"
+            ],
+            "parameters": [
+              "--installServer"
+            ]
+          },
+          "additionalDownloads": {
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.1.8-RC3964/spongeforge-1.12.2-2838-7.1.8-RC3964.jar"
+          }
+        },
+        {
+          "name": "1.11.2",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2588/forge-1.11.2-13.20.1.2588-installer.jar",
+          "maxJavaVersion": 8,
+          "properties": {
+            "copy": [
+              "libraries/.*",
+              ".*\\.json",
+              "forge-.*\\.jar",
+              "minecraft_server.*\\.jar"
+            ],
+            "parameters": [
+              "--installServer"
+            ]
+          },
+          "additionalDownloads": {
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.11.2-2476-6.1.0-BETA-2792/spongeforge-1.11.2-2476-6.1.0-BETA-2792.jar"
+          }
+        },
+        {
+          "name": "1.10.2",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2511/forge-1.10.2-12.18.3.2511-installer.jar",
+          "maxJavaVersion": 8,
+          "properties": {
+            "copy": [
+              "libraries/.*",
+              ".*\\.json",
+              "forge-.*\\.jar",
+              "minecraft_server.*\\.jar"
+            ],
+            "parameters": [
+              "--installServer"
+            ]
+          },
+          "additionalDownloads": {
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.10.2-2477-5.2.0-BETA-2793/spongeforge-1.10.2-2477-5.2.0-BETA-2793.jar"
+          }
+        }
+      ]
+    },
+    {
       "name": "glowstone",
       "targetEnvironment": "GLOWSTONE_DEFAULT",
       "installerType": "DOWNLOAD",

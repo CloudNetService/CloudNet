@@ -3,6 +3,8 @@ package de.dytanic.cloudnet.template.install;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class ServiceVersion {
@@ -11,6 +13,7 @@ public class ServiceVersion {
     private int minJavaVersion, maxJavaVersion;
     private boolean deprecated;
     private JsonDocument properties = new JsonDocument();
+    private Map<String, String> additionalDownloads = new HashMap<>();
 
     public ServiceVersion(String name, String url, int minJavaVersion, int maxJavaVersion, boolean deprecated, JsonDocument properties) {
         this.name = name;
@@ -61,6 +64,10 @@ public class ServiceVersion {
 
     public JsonDocument getProperties() {
         return properties;
+    }
+
+    public Map<String, String> getAdditionalDownloads() {
+        return additionalDownloads;
     }
 
 }

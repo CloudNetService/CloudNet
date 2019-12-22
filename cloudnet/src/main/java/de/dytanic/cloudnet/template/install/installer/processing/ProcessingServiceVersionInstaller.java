@@ -42,10 +42,9 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
             throw new IllegalStateException(String.format("Missing copy property on service version %s!", version.getName()));
         }
 
-        List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
-        int expectedExitCode = version.getProperties().getInt("exitCode", 0);
-
         this.download(version.getUrl(), workingDirectory.resolve(DOWNLOAD_ARTIFACT_NAME));
+
+        List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
         List<String> processArguments = new ArrayList<>();
         processArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
@@ -57,6 +56,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                         .collect(Collectors.toList())
         );
 
+        int expectedExitCode = version.getProperties().getInt("exitCode", 0);
         int exitCode = this.buildProcessAndWait(processArguments, workingDirectory);
 
         if (exitCode != expectedExitCode) {
@@ -67,7 +67,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                 .map(Pattern::compile)
                 .collect(Collectors.toList());
 
-        boolean shouldCache = patterns.size() == 1 && !version.isLatest();
+        boolean copyOnce = patterns.size() == 1;
 
         Files.walkFileTree(workingDirectory, new SimpleFileVisitor<Path>() {
 
@@ -78,7 +78,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                 for (Pattern pattern : patterns) {
                     if (pattern.matcher(relativePath).matches()) {
 
-                        if (relativePath.contains(fileName.replace(".jar", "")) && relativePath.endsWith(".jar")) {
+                        if (copyOnce) {
                             relativePath = fileName;
                         }
 
@@ -86,7 +86,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                             Files.copy(path, outputStream);
                         }
 
-                        if (shouldCache) {
+                        if (copyOnce && !version.isLatest()) {
                             Files.copy(path, cachePath);
                             return FileVisitResult.TERMINATE;
                         }

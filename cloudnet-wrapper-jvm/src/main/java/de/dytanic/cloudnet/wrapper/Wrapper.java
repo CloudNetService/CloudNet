@@ -58,9 +58,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * @see CloudNetDriver
  */
 public final class Wrapper extends CloudNetDriver {
-
-    private static final int TPS = 10;
-
     /**
      * The configuration of the wrapper, which was created from the CloudNet node.
      * The properties are mirrored from the configuration file.
@@ -73,7 +70,6 @@ public final class Wrapper extends CloudNetDriver {
      * The default workDirectory of this process as File instance
      */
     private final File workDirectory = new File(".");
-
 
     /**
      * The commandline arguments from the main() method of Main class by the application wrapper
@@ -475,6 +471,7 @@ public final class Wrapper extends CloudNetDriver {
                 exception.printStackTrace();
             }
         }, "Application-Thread");
+        applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
         applicationThread.start();
 
         eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
