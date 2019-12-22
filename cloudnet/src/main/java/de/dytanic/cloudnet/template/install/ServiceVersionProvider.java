@@ -13,7 +13,9 @@ import de.dytanic.cloudnet.template.install.installer.DownloadingServiceVersionI
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.processing.ProcessingServiceVersionInstaller;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -101,6 +103,19 @@ public class ServiceVersionProvider {
             storage.create(serviceTemplate);
         }
 
+        try {
+            //delete all old application files if they exist to prevent that they are used to start the server
+            for (String file : storage.listFiles(serviceTemplate)) {
+                for (ServiceEnvironment environment : ServiceEnvironment.values()) {
+                    if (file.toLowerCase().contains(environment.getName()) && file.endsWith(".jar")) {
+                        storage.deleteFile(serviceTemplate, file);
+                    }
+                }
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
         String fileName = serviceVersionType.getTargetEnvironment().getName() + ".jar";
         Path workingDirectory = Paths.get(System.getProperty("cloudnet.tempDir.build", "temp/build"), UUID.randomUUID().toString());
 
@@ -114,38 +129,17 @@ public class ServiceVersionProvider {
                 }
             } else {
                 Files.createDirectories(workingDirectory);
-
-                if (serviceVersion.isLatest()) {
-                    installer.install(serviceVersion, workingDirectory, () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName)});
-                } else {
-                    File versionCacheFile = versionCachePath.toFile();
-                    versionCacheFile.getParentFile().mkdirs();
-
-                    installer.install(serviceVersion, workingDirectory,
-                            () -> new OutputStream[]{storage.newOutputStream(serviceTemplate, fileName), new FileOutputStream(versionCacheFile)});
+                if (!serviceVersion.isLatest()) {
+                    Files.createDirectories(versionCachePath.getParent());
                 }
+
+                installer.install(serviceVersion, fileName, workingDirectory, storage, serviceTemplate, versionCachePath);
             }
         } catch (Exception exception) {
             exception.printStackTrace();
             return false;
         } finally {
             FileUtils.delete(workingDirectory.toFile());
-        }
-
-        try {
-            //delete all old application files if they exist to prevent that they are used to start the server
-            for (String file : storage.listFiles(serviceTemplate)) {
-                if (file.equals(fileName)) {
-                    continue;
-                }
-                for (ServiceEnvironment environment : ServiceEnvironment.values()) {
-                    if (file.equalsIgnoreCase(environment.getName() + ".jar")) {
-                        storage.deleteFile(serviceTemplate, file);
-                    }
-                }
-            }
-        } catch (IOException exception) {
-            exception.printStackTrace();
         }
 
         return true;

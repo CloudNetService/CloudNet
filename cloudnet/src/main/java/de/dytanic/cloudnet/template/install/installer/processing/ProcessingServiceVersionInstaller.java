@@ -4,6 +4,8 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 
@@ -18,8 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -33,8 +35,9 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
 
     @Override
-    public void install(ServiceVersion version, Path workingDirectory, Callable<OutputStream[]> targetStreamCallable) throws Exception {
-        String copy = version.getProperties().getString("copy");
+    public void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {
+        String[] copy = version.getProperties().get("copy", String[].class);
+
         if (copy == null) {
             throw new IllegalStateException(String.format("Missing copy property on service version %s!", version.getName()));
         }
@@ -60,36 +63,51 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
             throw new IllegalStateException(String.format("Process returned unexpected exit code! Got %d, expected %d", exitCode, expectedExitCode));
         }
 
-        Pattern pattern = Pattern.compile(copy);
-        OutputStream[] targetStreams = targetStreamCallable.call();
+        List<Pattern> patterns = Arrays.stream(copy)
+                .map(Pattern::compile)
+                .collect(Collectors.toList());
+
+        boolean shouldCache = patterns.size() == 1 && !version.isLatest();
 
         Files.walkFileTree(workingDirectory, new SimpleFileVisitor<Path>() {
+
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-                Path relativePath = workingDirectory.relativize(path);
+                String relativePath = workingDirectory.relativize(path).toString().replace("\\", "/").toLowerCase();
 
-                if (pattern.matcher(relativePath.toString().replace("\\", "/")).matches()) {
+                for (Pattern pattern : patterns) {
+                    if (pattern.matcher(relativePath).matches()) {
 
-                    for (OutputStream targetStream : targetStreams) {
-                        Files.copy(path, targetStream);
+                        if (relativePath.contains(fileName.replace(".jar", "")) && relativePath.endsWith(".jar")) {
+                            relativePath = fileName;
+                        }
 
-                        targetStream.close();
+                        try (OutputStream outputStream = storage.newOutputStream(targetTemplate, relativePath)) {
+                            Files.copy(path, outputStream);
+                        }
+
+                        if (shouldCache) {
+                            Files.copy(path, cachePath);
+                            return FileVisitResult.TERMINATE;
+                        }
+
                     }
-
-                    return FileVisitResult.TERMINATE;
                 }
 
                 return FileVisitResult.CONTINUE;
             }
+
         });
 
     }
 
     protected void download(String url, Path targetFile) throws IOException {
         System.out.println(LanguageManager.getMessage("template-installer-downloading-begin").replace("%url%", url));
+
         try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), new URL(url))) {
             Files.copy(inputStream, targetFile);
         }
+
         System.out.println(LanguageManager.getMessage("template-installer-downloading-completed").replace("%url%", url));
     }
 

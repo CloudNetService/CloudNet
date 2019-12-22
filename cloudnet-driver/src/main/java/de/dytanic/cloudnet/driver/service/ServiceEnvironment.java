@@ -12,7 +12,6 @@ public enum ServiceEnvironment {
     MINECRAFT_SERVER_MODPACK("modpack"),
     MINECRAFT_SERVER_SPONGE("sponge"),
     MINECRAFT_SERVER_SPONGE_VANILLA("spongevanilla"),
-    MINECRAFT_SERVER_SPONGE_FORGE("spongeforge"),
     MINECRAFT_SERVER_AKARIN("akarin"),
     MINECRAFT_SERVER_TACO("taco"),
     //GlowStone
