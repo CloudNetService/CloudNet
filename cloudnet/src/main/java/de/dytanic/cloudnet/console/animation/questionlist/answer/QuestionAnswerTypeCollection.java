@@ -22,7 +22,7 @@ public class QuestionAnswerTypeCollection implements QuestionAnswerType<Collecti
 
     @Override
     public Collection<String> parse(String input) {
-        return Arrays.asList(input.split(";"));
+        return new ArrayList<>(Arrays.asList(input.split(";")));
     }
 
     @Override
