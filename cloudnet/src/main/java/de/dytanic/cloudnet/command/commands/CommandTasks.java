@@ -854,16 +854,16 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
         );
 
         if (!CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty()) {
+            Collection<String> possibleNodes = super.getCloudNet().getConfig().getClusterConfig().getNodes()
+                    .stream()
+                    .map(NetworkClusterNode::getUniqueId)
+                    .collect(Collectors.toList());
+            possibleNodes.add(super.getCloudNet().getConfig().getIdentity().getUniqueId());
             animation.addEntry(
                     new QuestionListEntry<>(
                             "nodes",
                             LanguageManager.getMessage("command-tasks-setup-question-nodes"),
-                            new QuestionAnswerTypeCollection(
-                                    super.getCloudNet().getConfig().getClusterConfig().getNodes()
-                                            .stream()
-                                            .map(NetworkClusterNode::getUniqueId)
-                                            .collect(Collectors.toList())
-                            )
+                            new QuestionAnswerTypeCollection(possibleNodes)
                     )
             );
         }
