@@ -124,10 +124,22 @@ public abstract class CloudNetDriver {
 
     public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName);
 
+    /**
+     * @see #getNodeInfoProvider() 
+     * @see NodeInfoProvider#sendCommandLine(String)
+     * @deprecated moved to {@link NodeInfoProvider#sendCommandLine(String)}
+     */
+    @Deprecated
     public String[] sendCommandLine(String commandLine) {
         return this.getNodeInfoProvider().sendCommandLine(commandLine);
     }
 
+    /**
+     * @see #getNodeInfoProvider()
+     * @see NodeInfoProvider#sendCommandLine(String, String)
+     * @deprecated moved to {@link NodeInfoProvider#sendCommandLine(String, String)}
+     */
+    @Deprecated
     public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
         return this.getNodeInfoProvider().sendCommandLine(nodeUniqueId, commandLine);
     }
