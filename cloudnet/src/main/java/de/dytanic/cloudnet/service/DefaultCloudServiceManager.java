@@ -222,11 +222,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public void removeGroupConfigurationWithoutClusterSync(String name) {
         Validate.checkNotNull(name);
 
-        for (GroupConfiguration group : this.config.getGroups()) {
-            if (group.getName().equalsIgnoreCase(name)) {
-                this.config.getGroups().remove(group);
-            }
-        }
+        this.config.getGroups().removeIf(group -> group.getName().equalsIgnoreCase(name));
 
         this.config.save();
     }
