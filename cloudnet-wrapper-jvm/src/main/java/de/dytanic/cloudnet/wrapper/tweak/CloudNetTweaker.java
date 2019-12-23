@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.wrapper.tweak;
 
-
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
@@ -13,8 +12,7 @@ import java.util.List;
 public class CloudNetTweaker implements ITweaker {
 
     @Override
-    public void acceptOptions(List<String> list, File file, File file1, String s) {
-
+    public void acceptOptions(List<String> args, File gameDir, final File assetsDir, String profile) {
     }
 
     @Override
