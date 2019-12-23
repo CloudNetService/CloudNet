@@ -463,6 +463,17 @@ public final class Wrapper extends CloudNetDriver {
 
         this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, applicationFile, arguments));
 
+        try {
+            // checking if the application will be launched via the Minecraft LaunchWrapper
+            Class.forName("net.minecraft.launchwrapper.Launch");
+
+            // adds a tweak class to the LaunchWrapper which will prevent doubled loading of the CloudNet classes
+            arguments.add("--tweakClass");
+            arguments.add("de.dytanic.cloudnet.wrapper.tweak.CloudNetTweaker");
+        } catch (ClassNotFoundException exception) {
+            // the LaunchWrapper is not available, doing nothing
+        }
+
         Thread applicationThread = new Thread(() -> {
             try {
                 logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
