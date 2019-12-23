@@ -487,8 +487,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @Override
     public void reload() {
         this.config.load();
-        CloudNet.getInstance().updateGroupConfigurationsInCluster(this.getGroupConfigurations(), NetworkUpdateType.SET);
-        CloudNet.getInstance().updateServiceTasksInCluster(this.getServiceTasks(), NetworkUpdateType.SET);
     }
 
     @Override
