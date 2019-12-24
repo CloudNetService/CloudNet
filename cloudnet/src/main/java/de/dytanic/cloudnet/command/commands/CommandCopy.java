@@ -22,7 +22,7 @@ public class CommandCopy extends CommandDefault {
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         if (args.length == 0) {
-            sender.sendMessage("cp <local service uniqueId | name> | template=storage:prefix/name");
+            sender.sendMessage("cp <local service uniqueId | name> [excludes: spigot.jar;logs;plugins] | template=storage:prefix/name");
             return;
         }
 
@@ -48,7 +48,9 @@ public class CommandCopy extends CommandDefault {
 
             List<ServiceDeployment> oldDeployments = new ArrayList<>(Arrays.asList(serviceInfoSnapshot.getConfiguration().getDeployments()));
 
-            cloudServiceProvider.addServiceDeployment(new ServiceDeployment(targetTemplate, Collections.emptyList()));
+            List<String> excludes = args.length == 2 ? Arrays.asList(args[1].split(";")) : Collections.emptyList();
+
+            cloudServiceProvider.addServiceDeployment(new ServiceDeployment(targetTemplate, excludes));
             cloudServiceProvider.deployResources(true);
 
             oldDeployments.forEach(cloudServiceProvider::addServiceDeployment);
