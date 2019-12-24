@@ -39,6 +39,7 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                     "cluster add <nodeId> <host> <port>",
                     "cluster nodes | id=<id>",
                     "cluster push all",
+                    "cluster push local-template <prefix/name>",
                     "cluster push local-templates",
                     "cluster push tasks",
                     "cluster push groups",
@@ -48,12 +49,23 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
         }
 
         if (args[0].toLowerCase().contains("push")) {
-            if (args.length == 2) {
+            if (args.length > 1) {
+
                 if (args[1].equalsIgnoreCase("all")) {
                     this.pushTasks(sender);
                     this.pushGroups(sender);
                     this.pushPermissions(sender);
                     this.pushLocalTemplates(sender);
+                    return;
+                }
+
+                if (args.length == 3 && args[1].equalsIgnoreCase("local-template")) {
+                    ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+                    ServiceTemplate serviceTemplate = ServiceTemplate.parse(args[2]);
+
+                    if (serviceTemplate != null && storage.has(serviceTemplate)) {
+                        this.pushLocalTemplate(sender, storage, serviceTemplate);
+                    }
                     return;
                 }
 
@@ -116,20 +128,24 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
         }
     }
 
-    private void pushLocalTemplates(ICommandSender sender) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+    private void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+        byte[] bytes = storage.toZipByteArray(serviceTemplate);
 
-        byte[] bytes;
-        for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
-            bytes = storage.toZipByteArray(serviceTemplate);
-            if (bytes != null) {
-                getCloudNet().deployTemplateInCluster(serviceTemplate, bytes);
-            }
+        if (bytes != null) {
+            getCloudNet().deployTemplateInCluster(serviceTemplate, bytes);
 
             sender.sendMessage(
                     LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
                             .replace("%template%", serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath())
             );
+        }
+    }
+
+    private void pushLocalTemplates(ICommandSender sender) {
+        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+
+        for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
+            this.pushLocalTemplate(sender, storage, serviceTemplate);
         }
     }
 
@@ -210,6 +226,7 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                         args[0].equalsIgnoreCase("push") ?
                                 Arrays.asList(
                                         "all",
+                                        "local-template",
                                         "local-templates",
                                         "tasks",
                                         "groups",

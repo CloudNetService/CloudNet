@@ -213,9 +213,10 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public void removeGroupConfiguration(String name) {
         Validate.checkNotNull(name);
 
-        GroupConfiguration groupConfiguration = this.getGroupConfiguration(name);
-        Validate.checkNotNull(groupConfiguration);
-        this.removeGroupConfiguration(groupConfiguration);
+        if (this.isGroupConfigurationPresent(name)) {
+            GroupConfiguration groupConfiguration = this.getGroupConfiguration(name);
+            this.removeGroupConfiguration(groupConfiguration);
+        }
     }
 
     @Override
