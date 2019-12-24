@@ -70,7 +70,7 @@ public class SubCommandHandler extends Command implements ITabCompleter {
         Object[] parsedArgs = subCommandPair.getSecond();
 
         if (subCommand.isOnlyConsole() && !(sender instanceof ConsoleCommandSender)) {
-            sender.sendMessage(LanguageManager.getMessage(""));
+            sender.sendMessage(LanguageManager.getMessage("command-sub-only-console"));
             return;
         }
 
