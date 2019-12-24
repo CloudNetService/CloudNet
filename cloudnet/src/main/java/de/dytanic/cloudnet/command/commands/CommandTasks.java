@@ -935,6 +935,10 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
             super.getCloudNet().getCloudServiceManager().addPermanentServiceTask(serviceTask);
 
             sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-create-success").replace("%name%", name));
+            
+            if (this.createGroupConfiguration(name)) {
+                sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
+            }
 
         });
 
