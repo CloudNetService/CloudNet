@@ -828,6 +828,10 @@ public class CommandTasks extends SubCommandHandler {
 
             sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-create-success").replace("%name%", name));
 
+            if (!CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name)) {
+                CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(new EmptyGroupConfiguration(name));
+                sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
+            }
         });
 
 
