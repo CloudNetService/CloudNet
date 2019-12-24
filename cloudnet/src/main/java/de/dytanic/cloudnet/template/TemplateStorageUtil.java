@@ -118,7 +118,7 @@ public final class TemplateStorageUtil {
                         }
                     }
 
-                    try (OutputStream outputStream =storage.newOutputStream(serviceTemplate, "spigot.yml");
+                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "spigot.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/spigot.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
@@ -144,7 +144,9 @@ public final class TemplateStorageUtil {
                 break;
             }
 
-            CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.toZipByteArray(serviceTemplate));
+            if (storage.shouldSyncInCluster()) {
+                CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.toZipByteArray(serviceTemplate));
+            }
             return true;
         } else {
             return false;

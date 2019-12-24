@@ -67,7 +67,9 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
     }
 
     default void deleteGroup(String group) {
-        this.deleteGroup(this.getGroup(group));
+        if (this.containsGroup(group)) {
+            this.deleteGroup(this.getGroup(group));
+        }
     }
 
     default void deleteGroup(IPermissionGroup group) {
