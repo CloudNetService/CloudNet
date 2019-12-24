@@ -303,6 +303,11 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
+    public boolean shouldSyncInCluster() {
+        return true;
+    }
+
+    @Override
     public void close() {
     }
 

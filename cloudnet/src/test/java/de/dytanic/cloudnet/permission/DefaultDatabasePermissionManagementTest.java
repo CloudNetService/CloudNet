@@ -16,7 +16,7 @@ public class DefaultDatabasePermissionManagementTest {
     @Test
     public void testFilePermissionManager() throws Exception {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
-        AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database");
+        AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database", false);
         Assert.assertTrue(databaseProvider.init());
 
         System.setProperty("cloudnet.permissions.json.path", "build/group_permissions.json");
