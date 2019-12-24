@@ -7,7 +7,9 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import org.h2.Driver;
 
 import java.io.File;
@@ -27,13 +29,14 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     protected final ITaskScheduler taskScheduler;
     protected final boolean autoShutdownTaskScheduler;
     protected final File h2dbFile;
+    protected final boolean runsInCluster;
     protected Connection connection;
 
-    public H2DatabaseProvider(String h2File) {
-        this(h2File, null);
+    public H2DatabaseProvider(String h2File, boolean runsInCluster) {
+        this(h2File, runsInCluster, null);
     }
 
-    public H2DatabaseProvider(String h2File, ITaskScheduler taskScheduler) {
+    public H2DatabaseProvider(String h2File, boolean runsInCluster, ITaskScheduler taskScheduler) {
         if (taskScheduler != null) {
             this.taskScheduler = taskScheduler;
             this.autoShutdownTaskScheduler = false;
@@ -43,12 +46,23 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
         }
 
         this.h2dbFile = new File(h2File);
+        this.runsInCluster = runsInCluster;
     }
 
     @Override
     public boolean init() throws Exception {
         this.h2dbFile.getParentFile().mkdirs();
         this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.getAbsolutePath());
+
+        if (this.runsInCluster) {
+            CloudNetDriver.getInstance().getLogger().warning("============================================");
+            CloudNetDriver.getInstance().getLogger().warning(" ");
+
+            CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-cluster-h2-warning"));
+
+            CloudNetDriver.getInstance().getLogger().warning(" ");
+            CloudNetDriver.getInstance().getLogger().warning("============================================");
+        }
 
         return this.connection != null;
     }
