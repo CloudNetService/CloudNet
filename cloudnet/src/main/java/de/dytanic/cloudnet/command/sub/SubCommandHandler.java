@@ -106,6 +106,6 @@ public class SubCommandHandler extends Command implements ITabCompleter {
                 .filter(Objects::nonNull)
                 .filter(responses -> !responses.isEmpty())
                 .flatMap(Collection::parallelStream)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 }
