@@ -18,7 +18,7 @@ public final class CommandSyncProxy extends Command {
     public CommandSyncProxy() {
         super("syncproxy", "sp");
 
-        this.permission = "cloudnet.console.command.syncproxy";
+        this.permission = "cloudnet.command.syncproxy";
         this.prefix = "cloudnet-syncproxy";
         this.description = LanguageManager.getMessage("module-syncproxy-command-syncproxy-description");
     }

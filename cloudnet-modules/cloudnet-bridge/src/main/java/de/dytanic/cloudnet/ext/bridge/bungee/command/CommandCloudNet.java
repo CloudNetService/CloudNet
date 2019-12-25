@@ -8,8 +8,14 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 
-public final class CommandCloudNet extends Command {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+public final class CommandCloudNet extends Command implements TabExecutor {
 
     public CommandCloudNet() {
         super("cloudnet", "cloudnet.command.cloudnet", "cloud", "cl");
@@ -22,24 +28,22 @@ public final class CommandCloudNet extends Command {
             return;
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String arg : args) {
-            stringBuilder.append(arg).append(" ");
-        }
+        String commandLine = String.join(" ", args);
 
         if (sender instanceof ProxiedPlayer) {
-            CommandInfo commandInfo = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(stringBuilder.toString());
+            CommandInfo commandInfo = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
+
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!sender.hasPermission(commandInfo.getPermission())) {
                     sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
                             BridgeConfigurationProvider.load().getMessages().get("command-cloud-sub-command-no-permission")
-                                    .replace("%command%", stringBuilder))));
+                                    .replace("%command%", commandLine))));
                     return;
                 }
             }
         }
 
-        String[] messages = CloudNetDriver.getInstance().sendCommandLine(stringBuilder.toString());
+        String[] messages = CloudNetDriver.getInstance().sendCommandLine(commandLine);
 
         if (messages != null) {
             for (String message : messages) {
@@ -49,5 +53,34 @@ public final class CommandCloudNet extends Command {
                 }
             }
         }
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
+        String commandLine = String.join(" ", args);
+
+        if (sender instanceof ProxiedPlayer) {
+
+            if (commandLine.isEmpty() || commandLine.indexOf(' ') == -1) {
+                Collection<String> responses = new ArrayList<>();
+                for (CommandInfo commandInfo : CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommands()) {
+                    if (commandInfo.getPermission() == null || sender.hasPermission(commandInfo.getPermission())) {
+                        responses.addAll(Arrays.asList(commandInfo.getNames()));
+                    }
+                }
+                return responses;
+            }
+
+            CommandInfo commandInfo = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
+
+            if (commandInfo != null && commandInfo.getPermission() != null) {
+                if (!sender.hasPermission(commandInfo.getPermission())) {
+                    return Collections.emptyList();
+                }
+            }
+
+        }
+
+        return CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleTabCompleteResults(commandLine);
     }
 }

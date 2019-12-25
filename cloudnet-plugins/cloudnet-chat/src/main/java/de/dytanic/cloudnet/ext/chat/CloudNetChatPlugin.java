@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.chat;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,8 +28,9 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void handleChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        IPermissionUser user = CloudPermissionsPermissionManagement.getInstance().getUser(player.getUniqueId());
-        IPermissionGroup group = CloudPermissionsPermissionManagement.getInstance().getHighestPermissionGroup(user);
+
+        IPermissionUser user = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
+        IPermissionGroup group = CloudPermissionsManagement.getInstance().getHighestPermissionGroup(user);
 
         String message = event.getMessage().replace("%", "%%");
         if (player.hasPermission("cloudnet.chat.color")) {
@@ -44,6 +45,7 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
         String format = this.format
                 .replace("%name%", player.getName())
                 .replace("%uniqueId%", player.getUniqueId().toString());
+
         if (group != null) {
             format = ChatColor.translateAlternateColorCodes('&',
                     format

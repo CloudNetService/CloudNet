@@ -9,7 +9,7 @@ public final class ExampleCommand extends Command {
     public ExampleCommand() {
         super("example", "exm");
 
-        this.permission = "cloudnet.console.command.example";
+        this.permission = "cloudnet.command.example";
         this.usage = "example <test>";
         this.prefix = "cloudnet-example-module";
         this.description = "This is an example command";

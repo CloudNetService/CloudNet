@@ -22,7 +22,7 @@ public final class CommandPlayers extends Command {
     public CommandPlayers() {
         super("players", "player", "pl");
 
-        this.permission = "cloudnet.console.command.players";
+        this.permission = "cloudnet.command.players";
         this.prefix = "cloudnet-bridge";
         this.usage = "players online";
         this.description = LanguageManager.getMessage("module-bridge-command-players-description");
@@ -55,10 +55,10 @@ public final class CommandPlayers extends Command {
         }
 
         if (args[0].equalsIgnoreCase("player") && args.length > 1) {
-            List<? extends ICloudOfflinePlayer> cloudPlayers = NodePlayerManager.getInstance().getOnlinePlayer(args[1]);
+            List<? extends ICloudOfflinePlayer> cloudPlayers = NodePlayerManager.getInstance().getOnlinePlayers(args[1]);
 
             if (cloudPlayers.isEmpty()) {
-                cloudPlayers = NodePlayerManager.getInstance().getOfflinePlayer(args[1]);
+                cloudPlayers = NodePlayerManager.getInstance().getOfflinePlayers(args[1]);
             }
 
             if (args.length < 4) {

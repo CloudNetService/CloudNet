@@ -44,7 +44,7 @@ public final class SyncProxyConfigurationWriterAndReader {
                                     100,
                                     Collections.singletonList("Dytanic"),
                                     Collections.singletonList(new SyncProxyMotd(
-                                            "&b&lCloud&f&lNet &9Tsunami &8■ &7next &bgeneration &7cloud system",
+                                            "&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7cloud system",
                                             "&7Sponsored by &8» &bEU-Hosting.ch &8▎ &8» &c%proxy%",
                                             false,
                                             1,
@@ -58,7 +58,7 @@ public final class SyncProxyConfigurationWriterAndReader {
                                             null
                                     )),
                                     Collections.singletonList(new SyncProxyMotd(
-                                            "&b&lCloud&f&lNet &9Tsunami &8■ &7next &bgeneration &7cloud system",
+                                            "&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7cloud system",
                                             "      &bMaintenance &8» &7We are still in &bmaintenance",
                                             false,
                                             1,
@@ -77,7 +77,7 @@ public final class SyncProxyConfigurationWriterAndReader {
                                     "Proxy",
                                     Collections.singletonList(
                                             new SyncProxyTabList(
-                                                    " \n&b&lCloud&f&lNet &9Tsunami &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
+                                                    " \n&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
                                                     " \n &7Sponsored by &8» &fEU-Hosting.ch &8▎ &7Discord &8» &fdiscord.gg/UNQ4wET \n &7powered by &8» &b&b&lCloud&f&lNet \n "
                                             )
                                     ),

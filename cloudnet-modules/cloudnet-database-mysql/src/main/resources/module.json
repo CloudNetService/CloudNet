@@ -7,6 +7,7 @@
   "website": "https://cloudnetservice.eu",
   "description": "CloudNet extension, which includes the database support for MySQL and MariaDB database to store",
   "main": "de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule",
+  "storesSensitiveData": true,
   "dependencies": [
     {
       "group": "mysql",

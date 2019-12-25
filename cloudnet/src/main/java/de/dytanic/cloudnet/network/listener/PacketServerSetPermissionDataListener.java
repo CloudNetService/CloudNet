@@ -17,7 +17,8 @@ public final class PacketServerSetPermissionDataListener implements IPacketListe
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        if (packet.getHeader().contains("permissionGroups") && packet.getHeader().contains("set_json_database")) {
+        if ((packet.getHeader().contains("permissionGroups") || packet.getHeader().contains("permissionUsers")) &&
+                packet.getHeader().contains("set_json_database")) {
             if (CloudNet.getInstance().getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                 List<PermissionUser> permissionUsers = packet.getHeader().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
                 }.getType());

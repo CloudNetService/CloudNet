@@ -2,6 +2,10 @@ jar {
     archiveName = cloudnetModuleCloudPermsFileName
 }
 
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
 dependencies {
     compileOnly project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
@@ -13,4 +17,5 @@ dependencies {
     //compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
     compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
     compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
+    compileOnly group: 'com.github.MilkBowl', name: 'VaultAPI', version: '1.7'
 }

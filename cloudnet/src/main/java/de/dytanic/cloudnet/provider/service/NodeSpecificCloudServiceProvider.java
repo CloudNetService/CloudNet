@@ -12,20 +12,15 @@ import java.util.Queue;
 import java.util.UUID;
 
 public class NodeSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
-
     private CloudNet cloudNet;
-    private UUID uniqueId;
-    private String name;
     private ServiceInfoSnapshot serviceInfoSnapshot;
 
     public NodeSpecificCloudServiceProvider(CloudNet cloudNet, UUID uniqueId) {
-        this.cloudNet = cloudNet;
-        this.uniqueId = uniqueId;
+        this(cloudNet, cloudNet.getCloudServiceProvider().getCloudService(uniqueId));
     }
 
     public NodeSpecificCloudServiceProvider(CloudNet cloudNet, String name) {
-        this.cloudNet = cloudNet;
-        this.name = name;
+        this(cloudNet, cloudNet.getCloudServiceProvider().getCloudServiceByName(name));
     }
 
     public NodeSpecificCloudServiceProvider(CloudNet cloudNet, ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -35,32 +30,14 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
 
     @Override
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
-        if (this.serviceInfoSnapshot != null) {
-            return this.serviceInfoSnapshot;
-        }
-        if (this.uniqueId != null) {
-            return this.cloudNet.getCloudServiceProvider().getCloudService(this.uniqueId);
-        }
-        if (this.name != null) {
-            return this.cloudNet.getCloudServiceProvider().getCloudServiceByName(this.name);
-        }
-        throw new IllegalArgumentException("Cannot get ServiceInfoSnapshot without uniqueId, name or ServiceInfoSnapshot");
+        return this.serviceInfoSnapshot;
     }
 
     private ICloudService getCloudService() {
         if (this.serviceInfoSnapshot != null) {
             return this.cloudNet.getCloudServiceManager().getCloudService(this.serviceInfoSnapshot.getServiceId().getUniqueId());
         }
-        if (this.uniqueId != null) {
-            return this.cloudNet.getCloudServiceManager().getCloudService(this.uniqueId);
-        }
-        if (this.name != null) {
-            return this.cloudNet.getCloudServiceManager().getCloudServices().values().stream()
-                    .filter(cloudService -> cloudService.getServiceId().getName().equals(this.name))
-                    .findFirst()
-                    .orElse(null);
-        }
-        throw new IllegalArgumentException("Cannot get CloudService without uniqueId or name");
+        throw new IllegalArgumentException("Cannot get CloudService of null");
     }
 
     @Override
@@ -83,6 +60,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         if (serviceInfoSnapshot == null) {
             throw new IllegalStateException("Service does not exist");
         }
+
         IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
 
         if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
@@ -301,6 +279,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         if (serviceInfoSnapshot == null) {
             throw new IllegalStateException("Service does not exist");
         }
+
         IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
 
         if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
@@ -329,10 +308,11 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         if (serviceInfoSnapshot == null) {
             throw new IllegalStateException("Service does not exist");
         }
+
         IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
 
         if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            clusterNodeServer.includeWaitingServiceTemplates(this.uniqueId);
+            clusterNodeServer.includeWaitingServiceTemplates(this.serviceInfoSnapshot.getServiceId().getUniqueId());
         }
     }
 
@@ -349,10 +329,11 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         if (serviceInfoSnapshot == null) {
             throw new IllegalStateException("Service does not exist");
         }
+
         IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
 
         if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            clusterNodeServer.includeWaitingServiceInclusions(this.uniqueId);
+            clusterNodeServer.includeWaitingServiceInclusions(serviceInfoSnapshot.getServiceId().getUniqueId());
         }
     }
 
@@ -372,7 +353,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
 
         if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            clusterNodeServer.deployResources(this.uniqueId, removeDeployments);
+            clusterNodeServer.deployResources(serviceInfoSnapshot.getServiceId().getUniqueId(), removeDeployments);
         }
     }
 

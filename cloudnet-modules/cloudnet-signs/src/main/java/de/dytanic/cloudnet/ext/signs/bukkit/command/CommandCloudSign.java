@@ -1,8 +1,12 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.command;
 
 import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.ext.signs.*;
+import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
+import de.dytanic.cloudnet.ext.signs.Sign;
+import de.dytanic.cloudnet.ext.signs.SignPosition;
 import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
+import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
+import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -20,7 +24,7 @@ public final class CommandCloudSign implements CommandExecutor {
             return false;
         }
 
-        SignConfigurationEntry entry = BukkitSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry entry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
 
         if (entry == null) {
             return false;
@@ -30,6 +34,7 @@ public final class CommandCloudSign implements CommandExecutor {
             sender.sendMessage("§7/cloudsign create <targetGroup>");
             sender.sendMessage("§7/cloudsign create <targetGroup> <templatePath>");
             sender.sendMessage("§7/cloudsign remove");
+            sender.sendMessage("§7/cloudsign cleanup");
             return true;
         }
 
@@ -39,7 +44,7 @@ public final class CommandCloudSign implements CommandExecutor {
             Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
+                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
                     if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                         continue;
                     }
@@ -47,7 +52,7 @@ public final class CommandCloudSign implements CommandExecutor {
                     Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
 
                     if (location != null && location.equals(block.getLocation())) {
-                        BukkitSignManagement.getInstance().sendSignRemoveUpdate(sign);
+                        AbstractSignManagement.getInstance().sendSignRemoveUpdate(sign);
 
                         org.bukkit.block.Sign blockSign = (org.bukkit.block.Sign) block.getState();
                         blockSign.setLine(0, "");
@@ -71,7 +76,7 @@ public final class CommandCloudSign implements CommandExecutor {
             Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
+                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
                     if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
                         continue;
                     }
@@ -105,6 +110,12 @@ public final class CommandCloudSign implements CommandExecutor {
                         )
                 );
             }
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
+            AbstractSignManagement.getInstance().cleanup();
+
+            sender.sendMessage(
+                    ChatColor.translateAlternateColorCodes('&', SignConfigurationProvider.load().getMessages().get("command-cloudsign-cleanup-success"))
+            );
         }
 
         return true;

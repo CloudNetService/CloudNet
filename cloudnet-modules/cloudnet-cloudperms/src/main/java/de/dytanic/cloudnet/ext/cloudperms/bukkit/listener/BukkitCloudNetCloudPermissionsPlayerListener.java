@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.listener;
 
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -21,6 +21,6 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
 }

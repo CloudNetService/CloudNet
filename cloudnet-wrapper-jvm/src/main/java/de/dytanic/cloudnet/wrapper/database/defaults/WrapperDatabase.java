@@ -83,6 +83,12 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    public long getDocumentsCount() {
+        Long result = this.getDocumentsCountAsync().getDef(-1L);
+        return result != null ? result : -1;
+    }
+
+    @Override
     public ITask<Boolean> insertAsync(String key, JsonDocument document) {
         return this.databaseProvider.executeQuery(this.name, "insert",
                 new JsonDocument()
@@ -194,6 +200,11 @@ public class WrapperDatabase implements IDatabase {
     @Override
     public ITask<Void> clearAsync() {
         return this.databaseProvider.executeQuery(this.name, "clear", response -> null);
+    }
+
+    @Override
+    public ITask<Long> getDocumentsCountAsync() {
+        return this.databaseProvider.executeQuery(this.name, "documentsCount", response -> response.getFirst().getLong("documentsCount"));
     }
 
     @Override

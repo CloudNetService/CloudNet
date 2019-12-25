@@ -2,7 +2,9 @@ package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.Validate;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public class ServiceTemplate implements INameable {
 
     private final String prefix, name, storage;
@@ -27,8 +29,13 @@ public class ServiceTemplate implements INameable {
         return this.alwaysCopyToStaticServices;
     }
 
+    @Override
+    public String toString() {
+        return this.storage + ":" + this.prefix + "/" + this.name;
+    }
+
     public String getTemplatePath() {
-        return prefix + "/" + name;
+        return this.prefix + "/" + this.name;
     }
 
     public String getPrefix() {
@@ -41,5 +48,23 @@ public class ServiceTemplate implements INameable {
 
     public String getStorage() {
         return this.storage;
+    }
+
+    public static ServiceTemplate parse(String template) {
+        String[] base = template.split(":");
+
+        if (base.length > 2) {
+            return null;
+        }
+
+        String path = base.length == 2 ? base[1] : base[0];
+        String storage = base.length == 2 ? base[0] : "local";
+        String[] splitPath = path.split("/");
+
+        if (splitPath.length != 2) {
+            return null;
+        }
+
+        return new ServiceTemplate(splitPath[0], splitPath[1], storage);
     }
 }

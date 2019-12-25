@@ -15,7 +15,6 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterChannelMessage;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Queue;
 import java.util.UUID;
@@ -26,11 +25,7 @@ import java.util.function.Function;
 
 public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
-    private static final Type TYPE_COLLECTION_INTEGER = new TypeToken<Collection<Integer>>() {
-    }.getType();
-
     private final DefaultClusterNodeServerProvider provider;
-
 
     private volatile NetworkClusterNodeInfoSnapshot nodeInfoSnapshot;
 
@@ -343,7 +338,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             try {
                 CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "set_service_life_cycle")
-                                .append("serviceInfoSnapshot", serviceInfoSnapshot).append("lifeCycle", lifeCycle)
+                                .append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId()).append("lifeCycle", lifeCycle)
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -360,7 +355,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             try {
                 CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "restart_cloud_service")
-                                .append("serviceInfoSnapshot", serviceInfoSnapshot)
+                                .append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId())
                         , new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, Void>) documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -377,7 +372,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             try {
                 CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(
                         this.channel,
-                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot),
+                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "kill_cloud_service").append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId()),
                         new byte[0],
                         documentPair -> null).get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -395,7 +390,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             try {
                 CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(
                         this.channel,
-                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service").append("serviceInfoSnapshot", serviceInfoSnapshot)
+                        new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "run_command_cloud_service").append("uniqueId", serviceInfoSnapshot.getServiceId().getUniqueId())
                                 .append("command", command),
                         new byte[0],
                         documentPair -> null).get(5, TimeUnit.SECONDS);

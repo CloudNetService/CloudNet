@@ -6,7 +6,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissionsPlugin;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
@@ -23,6 +23,6 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe
     public void handle(DisconnectEvent event) {
-        CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
 }

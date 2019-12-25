@@ -12,10 +12,7 @@ import de.dytanic.cloudnet.ext.report.listener.CloudNetReportListener;
 import de.dytanic.cloudnet.ext.report.util.PasteServerType;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -69,22 +66,27 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     }
 
 
-    public String executePaste(String context) {
-        Validate.checkNotNull(context);
+    public String executePaste(String content) {
+        Validate.checkNotNull(content);
 
         try {
+            byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
+
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(this.getPasteURL() + "/documents").openConnection();
 
             httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0");
-            httpURLConnection.setRequestProperty("Accept-Language", "en-En,en;q=0.5");
+
+            httpURLConnection.setRequestProperty("content-length", String.valueOf(contentBytes.length));
+            httpURLConnection.setRequestProperty("content-type", "application/json");
+            httpURLConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
+
             httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
             httpURLConnection.connect();
 
             if (getConfig().get("pasteServerType", PasteServerType.class) == PasteServerType.HASTE) {
-                try (DataOutputStream writer = new DataOutputStream(httpURLConnection.getOutputStream())) {
-                    writer.writeBytes(context);
-                    writer.flush();
+                try (OutputStream outputStream = httpURLConnection.getOutputStream()) {
+                    outputStream.write(contentBytes);
                 }
             }
 

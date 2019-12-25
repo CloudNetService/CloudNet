@@ -19,11 +19,11 @@ public final class ConsoleCommandSender implements ICommandSender {
     }
 
     /**
-     * The console name is the first codename from CloudNet 3.0: "Tsunami"
+     * The console name is the first codename from CloudNet 3.2: "Eruption"
      */
     @Override
     public String getName() {
-        return "Tsunami";
+        return "Eruption";
     }
 
     @Override

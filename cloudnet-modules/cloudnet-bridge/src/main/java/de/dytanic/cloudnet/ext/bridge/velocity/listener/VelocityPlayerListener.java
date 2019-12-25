@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
 public final class VelocityPlayerListener {
@@ -25,7 +24,7 @@ public final class VelocityPlayerListener {
     public void handle(PostLoginEvent event) {
         BridgeHelper.sendChannelMessageProxyLoginSuccess(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        Wrapper.getInstance().runTask(VelocityCloudNetHelper::updateServiceInfo);
+        VelocityCloudNetHelper.updateServiceInfo();
     }
 
     @Subscribe
@@ -46,7 +45,7 @@ public final class VelocityPlayerListener {
                             serviceInfoSnapshot.getServiceId().getName()));
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(100);
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
@@ -66,13 +65,12 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(KickedFromServerEvent event) {
-        String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
-
         if (VelocityCloudNetHelper.isFallbackServer(event.getServer().getServerInfo())) {
             event.getPlayer().disconnect(event.getOriginalReason().orElseGet(() -> TextComponent.of("§cNo reason given")));
             return;
         }
 
+        String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
         event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
 
         if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent()) {
@@ -84,6 +82,6 @@ public final class VelocityPlayerListener {
     public void handle(DisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        Wrapper.getInstance().runTask(VelocityCloudNetHelper::updateServiceInfo);
+        VelocityCloudNetHelper.updateServiceInfo();
     }
 }

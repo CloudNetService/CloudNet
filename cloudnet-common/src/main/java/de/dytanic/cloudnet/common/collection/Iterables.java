@@ -128,7 +128,7 @@ public final class Iterables {
     }
 
     /**
-     * Iterates all keys in a Enumeration<T> class instance.
+     * Iterates all keys in a Enumeration class instance.
      *
      * @param enumeration the items which should iterate
      * @param consumer    the handler which handle the following keys
@@ -158,7 +158,7 @@ public final class Iterables {
     }
 
     /**
-     * Iterates all keys in a Enumeration<T> class instance.
+     * Iterates all keys in a Enumeration class instance.
      *
      * @param enumeration       the items which should iterate
      * @param consumer          the handler which handle the following keys
@@ -190,7 +190,7 @@ public final class Iterables {
     }
 
     /**
-     * Iterates all keys in a Iterator<T> class instance.
+     * Iterates all keys in a Iterator class instance.
      *
      * @param iterator          the items which should iterate
      * @param consumer          the handler which handle the following keys
@@ -227,9 +227,6 @@ public final class Iterables {
         return null;
     }
 
-    /**
-     *
-     */
     public static <T> T first(T[] iterable, Predicate<T> predicate) {
         if (iterable == null || predicate == null) {
             return null;

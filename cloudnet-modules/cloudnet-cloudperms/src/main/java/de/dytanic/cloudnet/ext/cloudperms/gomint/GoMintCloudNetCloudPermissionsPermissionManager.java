@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.ext.cloudperms.gomint;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.Permission;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import io.gomint.entity.EntityPlayer;
 import io.gomint.permission.Group;
 import io.gomint.server.permission.PermissionManager;
@@ -28,7 +28,7 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends Permi
         }
 
         IPermissionUser permissionUser = getUser();
-        return permissionUser != null && CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, s);
+        return permissionUser != null && CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, s);
     }
 
     @Override
@@ -51,7 +51,7 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends Permi
 
         IPermissionUser permissionUser = getUser();
         permissionUser.addPermission(new Permission(s, b ? 1 : -1));
-        CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
+        CloudPermissionsManagement.getInstance().updateUser(permissionUser);
     }
 
     @Override
@@ -60,12 +60,12 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager extends Permi
 
         IPermissionUser permissionUser = getUser();
         permissionUser.removePermission(s);
-        CloudPermissionsPermissionManagement.getInstance().updateUser(permissionUser);
+        CloudPermissionsManagement.getInstance().updateUser(permissionUser);
     }
 
 
     private IPermissionUser getUser() {
-        return CloudPermissionsPermissionManagement.getInstance().getUser(player.getUUID());
+        return CloudPermissionsManagement.getInstance().getUser(player.getUUID());
     }
 
     public EntityPlayer getPlayer() {

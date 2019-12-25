@@ -51,10 +51,12 @@ pipeline {
         sh 'rm -r temp/';
       }
     }
-    stage('Install') {
+    stage('Maven') {
       steps {
-        echo 'Installing all artifacts to the local maven repo...';
-        sh './gradlew install';
+        echo 'Creating artifacts for the maven repo...';
+        sh './gradlew sourceJar';
+        sh './gradlew deploymentJar';
+        sh './gradlew javadocJar';
       }
     }
     stage('Javadoc') {

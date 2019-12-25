@@ -144,8 +144,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     @Override
     public ITask<Queue<String>> getCachedLogMessagesAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service")
-                        .append("uniqueId", uniqueId), null,
+                this.createDocumentWithUniqueIdAndName()
+                        .append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cached_log_messages_from_service"), null,
                 documentPair -> documentPair.getFirst().get("cachedLogMessages", new TypeToken<Queue<String>>() {
                 }.getType()));
     }
@@ -287,6 +287,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     private JsonDocument createDocumentWithUniqueIdAndName() {
-        return new JsonDocument().append("uniqueId", this.uniqueId).append("name", this.name);
+        return new JsonDocument()
+                .append("uniqueId", this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getServiceId().getUniqueId() : this.uniqueId)
+                .append("name", this.name);
     }
 }

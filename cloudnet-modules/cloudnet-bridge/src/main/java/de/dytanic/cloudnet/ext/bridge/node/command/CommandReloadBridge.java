@@ -15,7 +15,7 @@ public final class CommandReloadBridge extends Command {
     public CommandReloadBridge() {
         super("bridge", "rlb", "rl-bridge", "reload-bridge");
 
-        this.permission = "cloudnet.console.command.reload";
+        this.permission = "cloudnet.command.reload";
         this.prefix = "cloudnet-bridge";
         this.usage = "reload-bridge";
         this.description = LanguageManager.getMessage("module-bridge-command-bridge-description");

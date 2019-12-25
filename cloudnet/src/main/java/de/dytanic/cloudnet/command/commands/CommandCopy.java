@@ -1,13 +1,15 @@
 package de.dytanic.cloudnet.command.commands;
 
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,59 +22,46 @@ public class CommandCopy extends CommandDefault {
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         if (args.length == 0) {
-            sender.sendMessage("cp <service> | template=storage:prefix/name");
+            sender.sendMessage("cp <local service uniqueId | name> [excludes: spigot.jar;logs;plugins] | template=storage:prefix/name");
             return;
         }
 
-        CloudNet.getInstance().getCloudServiceManager().getCloudServices().values().stream()
-                .filter(serviceInfoSnapshot ->
-                        serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(args[0]) ||
-                                serviceInfoSnapshot.getServiceId().getUniqueId().toString().equals(args[0])
-                ).findFirst().ifPresent(cloudService -> {
+        ServiceInfoSnapshot serviceInfoSnapshot = super.getCloudNet().getCloudServiceByNameOrUniqueId(args[0]);
 
-            ServiceTemplate targetTemplate = null;
+        if (serviceInfoSnapshot != null) {
+            SpecificCloudServiceProvider cloudServiceProvider = super.getCloudNet().getCloudServiceProvider(serviceInfoSnapshot);
+            ServiceTemplate targetTemplate;
 
             if (properties.containsKey("template")) {
-                String[] base = properties.get("template").split(":");
-
-                if (base.length == 2) {
-                    String[] path = base[1].split("/");
-                    if (path.length == 2) {
-                        String storage = base[0];
-                        String prefix = path[0];
-                        String name = path[1];
-
-                        targetTemplate = new ServiceTemplate(prefix, name, storage);
-                    }
-                }
+                targetTemplate = ServiceTemplate.parse(properties.get("template"));
             } else {
-                targetTemplate = cloudService.getTemplates()
-                        .stream()
-                        .filter(serviceTemplate -> serviceTemplate.getPrefix().equalsIgnoreCase(cloudService.getServiceId().getTaskName())
+                targetTemplate = Arrays.stream(serviceInfoSnapshot.getConfiguration().getTemplates())
+                        .filter(serviceTemplate -> serviceTemplate.getPrefix().equalsIgnoreCase(serviceInfoSnapshot.getServiceId().getTaskName())
                                 && serviceTemplate.getName().equalsIgnoreCase("default"))
                         .findFirst().orElse(null);
             }
 
             if (targetTemplate == null) {
-                sender.sendMessage(LanguageManager.getMessage("command-copy-service-no-default-template").replace("%name%", cloudService.getServiceId().getName()));
+                sender.sendMessage(LanguageManager.getMessage("command-copy-service-no-default-template").replace("%name%", serviceInfoSnapshot.getServiceId().getName()));
                 return;
             }
 
-            List<ServiceDeployment> oldDeployments = new ArrayList<>(cloudService.getDeployments());
-            cloudService.getDeployments().clear();
+            List<ServiceDeployment> oldDeployments = new ArrayList<>(Arrays.asList(serviceInfoSnapshot.getConfiguration().getDeployments()));
 
-            cloudService.getDeployments().add(new ServiceDeployment(targetTemplate, Collections.emptyList()));
-            cloudService.deployResources();
-            cloudService.getDeployments().clear();
+            List<String> excludes = args.length == 2 ? Arrays.asList(args[1].split(";")) : Collections.emptyList();
 
-            cloudService.getDeployments().addAll(oldDeployments);
+            cloudServiceProvider.addServiceDeployment(new ServiceDeployment(targetTemplate, excludes));
+            cloudServiceProvider.deployResources(true);
+
+            oldDeployments.forEach(cloudServiceProvider::addServiceDeployment);
 
             sender.sendMessage(
                     LanguageManager.getMessage("command-copy-success")
-                            .replace("%name%", cloudService.getServiceId().getName())
+                            .replace("%name%", serviceInfoSnapshot.getServiceId().getName())
                             .replace("%template%", targetTemplate.getStorage() + ":" + targetTemplate.getPrefix() + "/" + targetTemplate.getName())
             );
-        });
+
+        }
     }
 
 }

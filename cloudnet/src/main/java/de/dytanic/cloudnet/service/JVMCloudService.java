@@ -363,7 +363,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     private boolean hasAccessFromNode() {
-        if (cloudServiceManager.getCurrentUsedHeapMemory() >= CloudNet.getInstance().getConfig().getMaxMemory()) {
+        if (cloudServiceManager.getCurrentUsedHeapMemory() + this.configuredMaxHeapMemory >= CloudNet.getInstance().getConfig().getMaxMemory()) {
             if (CloudNet.getInstance().getConfig().isRunBlockedServiceStartTryLaterAutomatic()) {
                 CloudNet.getInstance().runTask(() -> {
                     try {
@@ -413,7 +413,9 @@ final class JVMCloudService implements ICloudService {
                         -1,
                         -1,
                         Collections.emptyList(),
-                        -1),
+                        -1,
+                        -1
+                ),
                 this.serviceConfiguration.getProperties(),
                 this.serviceConfiguration
         );
@@ -564,16 +566,14 @@ final class JVMCloudService implements ICloudService {
                             .replace("%storage%", deployment.getTemplate().getStorage())
                     );
 
-                    storage.deploy(
-                            Objects.requireNonNull(this.directory.listFiles(pathname -> {
+                    storage.deploy(this.directory, deployment.getTemplate(), pathname -> {
                                 if (deployment.getExcludes() != null) {
                                     return !deployment.getExcludes().contains(pathname.isDirectory() ? pathname.getName() + "/" : pathname.getName()) && !pathname
                                             .getName().equals("wrapper.jar") && !pathname.getName().equals(".wrapper");
                                 } else {
                                     return true;
                                 }
-                            })),
-                            deployment.getTemplate()
+                            }
                     );
 
                     if (removeDeployments) {
@@ -641,11 +641,13 @@ final class JVMCloudService implements ICloudService {
             CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%task%", this.serviceId.getTaskName())
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
-                    .replace("%id%", this.serviceId.getUniqueId().toString())
-                    .replace("%time%", String.valueOf(SERVICE_ERROR_RESTART_DELAY)));
+                    .replace("%id%", this.serviceId.getUniqueId().toString()));
 
-            ServiceTask serviceTask = this.getCloudServiceManager().getServiceTask(this.getServiceId().getTaskName());
-            serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);
+            ServiceTask serviceTask = this.getCloudServiceManager().getServiceTask(this.serviceId.getTaskName());
+
+            if (serviceTask != null) {
+                serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);
+            }
 
             this.stop();
             return;
@@ -672,7 +674,7 @@ final class JVMCloudService implements ICloudService {
 
         this.process = new ProcessBuilder()
                 .command(commandArguments)
-                .directory(directory)
+                .directory(this.directory)
                 .start();
     }
 

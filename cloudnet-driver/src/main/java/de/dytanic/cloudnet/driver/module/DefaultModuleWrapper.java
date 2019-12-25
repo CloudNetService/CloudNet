@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
@@ -74,10 +72,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             }
 
             try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-                JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-
-                moduleConfigurationSource = new JsonDocument(jsonObject);
-                moduleConfiguration = GSON.fromJson(jsonObject, MODULE_CONFIGURATION_TYPE);
+                moduleConfigurationSource = new JsonDocument().read(reader);
+                moduleConfiguration = moduleConfigurationSource.toInstanceOf(MODULE_CONFIGURATION_TYPE);
             }
         }
 
@@ -257,6 +253,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                 :
                 new File(this.moduleDirectory, this.getModuleConfiguration().getName()
                 );
+    }
+
+    @Override
+    public Map<String, String> getDefaultRepositories() {
+        return defaultRepositories;
     }
 
 

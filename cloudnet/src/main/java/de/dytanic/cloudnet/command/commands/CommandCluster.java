@@ -38,6 +38,8 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                     "cluster shutdown",
                     "cluster add <nodeId> <host> <port>",
                     "cluster nodes | id=<id>",
+                    "cluster push all",
+                    "cluster push local-template <prefix/name>",
                     "cluster push local-templates",
                     "cluster push tasks",
                     "cluster push groups",
@@ -47,40 +49,43 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
         }
 
         if (args[0].toLowerCase().contains("push")) {
-            if (args.length == 2) {
-                if (args[1].equalsIgnoreCase("local-templates")) {
+            if (args.length > 1) {
+
+                if (args[1].equalsIgnoreCase("all")) {
+                    this.pushTasks(sender);
+                    this.pushGroups(sender);
+                    this.pushPermissions(sender);
+                    this.pushLocalTemplates(sender);
+                    return;
+                }
+
+                if (args.length == 3 && args[1].equalsIgnoreCase("local-template")) {
                     ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+                    ServiceTemplate serviceTemplate = ServiceTemplate.parse(args[2]);
 
-                    byte[] bytes;
-                    for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
-                        bytes = storage.toZipByteArray(serviceTemplate);
-                        if (bytes != null) {
-                            getCloudNet().deployTemplateInCluster(serviceTemplate, bytes);
-                        }
-
-                        sender.sendMessage(
-                                LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
-                                        .replace("%template%", serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath())
-                        );
+                    if (serviceTemplate != null && storage.has(serviceTemplate)) {
+                        this.pushLocalTemplate(sender, storage, serviceTemplate);
                     }
                     return;
                 }
 
-                if (args[1].equalsIgnoreCase("local-perms")) {
-                    getCloudNet().publishPermissionGroupUpdates(getCloudNet().getPermissionManagement().getGroups(), NetworkUpdateType.SET);
+                if (args[1].equalsIgnoreCase("local-templates")) {
+                    this.pushLocalTemplates(sender);
+                    return;
+                }
 
-                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-permissions-success"));
+                if (args[1].equalsIgnoreCase("local-perms")) {
+                    this.pushPermissions(sender);
+                    return;
                 }
 
                 if (args[1].equalsIgnoreCase("tasks")) {
-                    getCloudNet().updateServiceTasksInCluster(getCloudNet().getServiceTaskProvider().getPermanentServiceTasks(), NetworkUpdateType.SET);
-                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-tasks-success"));
+                    this.pushTasks(sender);
                     return;
                 }
 
                 if (args[1].equalsIgnoreCase("groups")) {
-                    getCloudNet().updateGroupConfigurationsInCluster(getCloudNet().getGroupConfigurationProvider().getGroupConfigurations(), NetworkUpdateType.SET);
-                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-groups-success"));
+                    this.pushGroups(sender);
                     return;
                 }
             }
@@ -121,6 +126,43 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
 
             sender.sendMessage(LanguageManager.getMessage("command-cluster-create-node-success"));
         }
+    }
+
+    private void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+        byte[] bytes = storage.toZipByteArray(serviceTemplate);
+
+        if (bytes != null) {
+            getCloudNet().deployTemplateInCluster(serviceTemplate, bytes);
+
+            sender.sendMessage(
+                    LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
+                            .replace("%template%", serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath())
+            );
+        }
+    }
+
+    private void pushLocalTemplates(ICommandSender sender) {
+        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+
+        for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
+            this.pushLocalTemplate(sender, storage, serviceTemplate);
+        }
+    }
+
+    private void pushPermissions(ICommandSender sender) {
+        getCloudNet().publishPermissionGroupUpdates(getCloudNet().getPermissionManagement().getGroups(), NetworkUpdateType.SET);
+
+        sender.sendMessage(LanguageManager.getMessage("command-cluster-push-permissions-success"));
+    }
+
+    private void pushTasks(ICommandSender sender) {
+        getCloudNet().updateServiceTasksInCluster(getCloudNet().getServiceTaskProvider().getPermanentServiceTasks(), NetworkUpdateType.SET);
+        sender.sendMessage(LanguageManager.getMessage("command-cluster-push-tasks-success"));
+    }
+
+    private void pushGroups(ICommandSender sender) {
+        getCloudNet().updateGroupConfigurationsInCluster(getCloudNet().getGroupConfigurationProvider().getGroupConfigurations(), NetworkUpdateType.SET);
+        sender.sendMessage(LanguageManager.getMessage("command-cluster-push-groups-success"));
     }
 
     private void displayNode(ICommandSender sender, IClusterNodeServer node) {
@@ -183,6 +225,8 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
                 args.length == 2 ?
                         args[0].equalsIgnoreCase("push") ?
                                 Arrays.asList(
+                                        "all",
+                                        "local-template",
                                         "local-templates",
                                         "tasks",
                                         "groups",
