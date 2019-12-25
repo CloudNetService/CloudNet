@@ -39,7 +39,7 @@ public final class SpongeCloudNetBridgePlugin {
 
     private void initListeners() {
         //Sponge API
-        Sponge.getEventManager().registerListeners(this, new SpongePlayerListener());
+        Sponge.getEventManager().registerListeners(this, new SpongePlayerListener(this));
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new SpongeCloudNetListener());
