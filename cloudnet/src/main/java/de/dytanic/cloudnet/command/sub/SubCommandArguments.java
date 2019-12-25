@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.command.sub;
 
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.*;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 import java.net.MalformedURLException;
@@ -13,6 +14,15 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class SubCommandArguments {
+
+    public static QuestionAnswerType<HostAndPort> hostAndPort(String key) {
+        return new QuestionAnswerTypeHostAndPort() {
+            @Override
+            public String getRecommendation() {
+                return key;
+            }
+        };
+    }
 
     public static QuestionAnswerType<ServiceTemplate> template(String key) {
         return new QuestionAnswerTypeServiceTemplate() {

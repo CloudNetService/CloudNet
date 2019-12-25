@@ -14,7 +14,7 @@ public abstract class SubCommand implements SubCommandExecutor {
 
     private String permission;
     private String description;
-    private String usage;
+    private String extendedUsage = "";
 
     private boolean onlyConsole = false;
 
@@ -22,16 +22,6 @@ public abstract class SubCommand implements SubCommandExecutor {
     private int exactArgs = -1;
     private int maxArgs = -1;
     private QuestionAnswerType<?>[] requiredArguments;
-
-    public SubCommand(String permission, String description, String usage, int minArgs, int exactArgs, int maxArgs, QuestionAnswerType<?>[] requiredArguments) {
-        this.permission = permission;
-        this.description = description;
-        this.usage = usage;
-        this.minArgs = minArgs;
-        this.exactArgs = exactArgs;
-        this.maxArgs = maxArgs;
-        this.requiredArguments = requiredArguments;
-    }
 
     public SubCommand(int exactArgs, QuestionAnswerType<?>[] requiredArguments) {
         this.exactArgs = exactArgs;
@@ -42,14 +32,6 @@ public abstract class SubCommand implements SubCommandExecutor {
         this.minArgs = minArgs;
         this.exactArgs = exactArgs;
         this.maxArgs = maxArgs;
-        this.requiredArguments = requiredArguments;
-    }
-
-    public SubCommand(String permission, String description, String usage, int exactArgs, QuestionAnswerType<?>[] requiredArguments) {
-        this.permission = permission;
-        this.description = description;
-        this.usage = usage;
-        this.exactArgs = exactArgs;
         this.requiredArguments = requiredArguments;
     }
 
@@ -64,6 +46,10 @@ public abstract class SubCommand implements SubCommandExecutor {
     public SubCommand onlyConsole() {
         this.onlyConsole = true;
         return this;
+    }
+
+    public void expandUsage(String usage) {
+        this.extendedUsage += " " + usage;
     }
 
     public boolean requiresExactArgs() {
@@ -196,18 +182,18 @@ public abstract class SubCommand implements SubCommandExecutor {
 
             boolean required = this.requiresExactArgs() || (this.requiresMinArgs() && i <= this.minArgs);
             String answer;
-            if (possibleAnswers != null && possibleAnswers.size() == 1) {
+            if (possibleAnswers == null || possibleAnswers.isEmpty() || recommendation != null) {
 
-                answer = possibleAnswers.iterator().next();
+                answer = recommendation;
+                answer = required ? ("<" + answer + ">") : ("[" + answer + "]");
 
             } else {
-                if (possibleAnswers == null || possibleAnswers.isEmpty() || recommendation != null) {
-                    answer = recommendation;
+                if (possibleAnswers.size() == 1) {
+                    answer = possibleAnswers.iterator().next();
                 } else {
                     answer = String.join(", ", possibleAnswers);
+                    answer = required ? ("<" + answer + ">") : ("[" + answer + "]");
                 }
-
-                answer = required ? ("<" + answer + ">") : ("[" + answer + "]");
 
                 if (this.requiresMinArgs() && i == this.minArgs) {
                     answer += " ...";
@@ -232,8 +218,8 @@ public abstract class SubCommand implements SubCommandExecutor {
         return this.description;
     }
 
-    public String getUsage() {
-        return this.usage;
+    public String getExtendedUsage() {
+        return this.extendedUsage;
     }
 
     public int getMinArgs() {

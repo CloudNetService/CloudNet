@@ -85,7 +85,7 @@ public class SubCommandHandler extends Command implements ITabCompleter {
     protected void sendHelp(ICommandSender sender) {
         Collection<String> messages = new ArrayList<>();
         for (SubCommand subCommand : this.subCommands) {
-            String message = super.getNames()[0] + " " + subCommand.getRequiredArgsAsString();
+            String message = super.getNames()[0] + " " + subCommand.getRequiredArgsAsString() + subCommand.getExtendedUsage();
 
             if (subCommand.getPermission() != null) {
                 message += " | " + subCommand.getPermission();

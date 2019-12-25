@@ -151,6 +151,7 @@ public class CommandTasks extends SubCommandHandler {
                 "tasks"
         );
 
+        super.prefix = "cloudnet";
         super.permission = "cloudnet.command.tasks";
         super.description = LanguageManager.getMessage("command-description-tasks");
     }
