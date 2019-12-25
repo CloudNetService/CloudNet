@@ -8,6 +8,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
+import cn.nukkit.scheduler.Task;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
@@ -70,7 +71,12 @@ public final class NukkitPlayerListener implements Listener {
         BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                 NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
-        BridgeHelper.updateServiceInfo();
+        event.getPlayer().getServer().getScheduler().scheduleDelayedTask(new Task() {
+            @Override
+            public void onRun(int currentTick) {
+                BridgeHelper.updateServiceInfo();
+            }
+        }, 1);
     }
 
 }
