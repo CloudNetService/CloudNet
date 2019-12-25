@@ -2,7 +2,7 @@ defaultTasks 'clean', 'build', 'test', 'jar'
 
 allprojects {
 
-    def major = 3, minor = 2, patch = 0, versionType = "SNAPSHOT"
+    def major = 3, minor = 2, patch = 0, versionType = "RELEASE"
 
     group 'de.dytanic.cloudnet'
     version "$major.$minor.$patch-$versionType"
