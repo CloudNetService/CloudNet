@@ -12,8 +12,8 @@ import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class NukkitSignKnockbackRunnable implements Runnable {
 
@@ -27,7 +27,7 @@ public class NukkitSignKnockbackRunnable implements Runnable {
 
     @Override
     public void run() {
-        List<Sign> signs = AbstractSignManagement.getInstance().getSigns();
+        Set<Sign> signs = AbstractSignManagement.getInstance().getSigns();
 
         for (Sign sign : signs) {
             Location signLocation = signLocations.computeIfAbsent(sign.getWorldPosition(), signPosition -> NukkitSignManagement.getInstance().toLocation(signPosition));

@@ -962,7 +962,8 @@ public final class CloudNet extends CloudNetDriver {
                 new DefaultDatabasePermissionManagement(this::getDatabaseProvider));
 
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
-                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"), taskScheduler));
+                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
+                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty(), this.taskScheduler));
     }
 
     private void runConsole() {

@@ -9,8 +9,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class BukkitSignKnockbackRunnable implements Runnable {
 
@@ -24,7 +24,7 @@ public class BukkitSignKnockbackRunnable implements Runnable {
 
     @Override
     public void run() {
-        List<Sign> signs = AbstractSignManagement.getInstance().getSigns();
+        Set<Sign> signs = AbstractSignManagement.getInstance().getSigns();
 
         for (Sign sign : signs) {
             Location signLocation = signLocations.computeIfAbsent(sign.getWorldPosition(), signPosition -> BukkitSignManagement.getInstance().toLocation(signPosition));

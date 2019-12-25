@@ -80,6 +80,11 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
 
     Collection<ServiceTemplate> getTemplates();
 
+    default boolean shouldSyncInCluster() {
+        return false;
+    }
+
     @Override
     void close() throws IOException;
+
 }

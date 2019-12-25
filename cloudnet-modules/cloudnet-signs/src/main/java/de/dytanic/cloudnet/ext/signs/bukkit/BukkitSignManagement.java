@@ -24,12 +24,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     private final BukkitCloudNetSignsPlugin plugin;
 
     BukkitSignManagement(BukkitCloudNetSignsPlugin plugin) {
+        super();
         instance = this;
 
         this.plugin = plugin;
 
         super.executeSearchingTask();
         super.executeStartingTask();
+        super.updateSigns();
     }
 
     public static BukkitSignManagement getInstance() {

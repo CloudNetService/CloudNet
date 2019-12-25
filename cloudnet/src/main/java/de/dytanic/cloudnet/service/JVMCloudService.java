@@ -674,7 +674,7 @@ final class JVMCloudService implements ICloudService {
 
         this.process = new ProcessBuilder()
                 .command(commandArguments)
-                .directory(directory)
+                .directory(this.directory)
                 .start();
     }
 

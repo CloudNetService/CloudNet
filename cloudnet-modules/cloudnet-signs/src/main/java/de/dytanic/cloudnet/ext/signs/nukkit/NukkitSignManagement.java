@@ -21,12 +21,14 @@ public final class NukkitSignManagement extends AbstractSignManagement {
     private final NukkitCloudNetSignsPlugin plugin;
 
     NukkitSignManagement(NukkitCloudNetSignsPlugin plugin) {
+        super();
         instance = this;
 
         this.plugin = plugin;
 
         super.executeSearchingTask();
         super.executeStartingTask();
+        super.updateSigns();
     }
 
     public static NukkitSignManagement getInstance() {

@@ -36,12 +36,12 @@ public abstract class AbstractSignManagement {
             new AtomicInteger(-1) //search
     };
     private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = Maps.newConcurrentHashMap();
-    protected List<Sign> signs;
+    protected Set<Sign> signs;
 
     public AbstractSignManagement() {
         instance = this;
 
-        this.signs = Iterables.newCopyOnWriteArrayList();
+        this.signs = new HashSet<>();
         this.signs.addAll(this.getSignsFromNode());
 
         // fetching the already existing services and making them available for the signs, if matching
@@ -137,7 +137,7 @@ public abstract class AbstractSignManagement {
     public void onSignRemove(Sign sign) {
         Validate.checkNotNull(sign);
 
-        Sign signEntry = Iterables.first(this.signs, s -> s.getSignId() == sign.getSignId());
+        Sign signEntry = Iterables.first(this.signs, filterSign -> filterSign.getSignId() == sign.getSignId());
 
         if (signEntry != null) {
             this.signs.remove(signEntry);
@@ -469,8 +469,8 @@ public abstract class AbstractSignManagement {
             ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
             ServiceEnvironmentType serviceEnvironment = serviceInfoSnapshot.getServiceId().getEnvironment();
 
-            return serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer()
-                    || serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer();
+            return (serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer())
+                    || (serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer());
         }
 
         return false;
@@ -540,11 +540,11 @@ public abstract class AbstractSignManagement {
         return this.indexes;
     }
 
-    public List<Sign> getSigns() {
+    public Set<Sign> getSigns() {
         return this.signs;
     }
 
-    public void setSigns(List<Sign> signs) {
+    public void setSigns(Set<Sign> signs) {
         this.signs = signs;
     }
 
