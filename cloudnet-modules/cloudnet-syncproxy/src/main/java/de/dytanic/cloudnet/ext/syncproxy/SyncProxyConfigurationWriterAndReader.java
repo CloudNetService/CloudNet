@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,53 +38,8 @@ public final class SyncProxyConfigurationWriterAndReader {
         JsonDocument document = JsonDocument.newDocument(file);
         if (document == null || !document.contains("config")) {
             write(new SyncProxyConfiguration(
-                    Collections.singletonList(
-                            new SyncProxyProxyLoginConfiguration(
-                                    "Proxy",
-                                    false,
-                                    100,
-                                    Collections.singletonList("Dytanic"),
-                                    Collections.singletonList(new SyncProxyMotd(
-                                            "&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7cloud system",
-                                            "&7Sponsored by &8» &bEU-Hosting.ch &8▎ &8» &c%proxy%",
-                                            false,
-                                            1,
-                                            new String[]{
-                                                    " ",
-                                                    "&b&lCloud&f&lNet &8× &7your &bfree &7cloudsystem",
-                                                    "&7Sponsored by &8» &bEU-Hosting.ch",
-                                                    "&7Discord &8» &fdiscord.gg/UNQ4wET",
-                                                    " "
-                                            },
-                                            null
-                                    )),
-                                    Collections.singletonList(new SyncProxyMotd(
-                                            "&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7cloud system",
-                                            "      &bMaintenance &8» &7We are still in &bmaintenance",
-                                            false,
-                                            1,
-                                            new String[]{
-                                                    " ",
-                                                    "&b&lCloud&f&lNet &8× &7your &bfree &7cloudsystem",
-                                                    "&7Discord &8» &fdiscord.gg/UNQ4wET",
-                                                    " "
-                                            },
-                                            "&8➜ &bMaintenance &8&l【&c✘&8&l】"
-                                    ))
-                            )
-                    ),
-                    Collections.singletonList(
-                            new SyncProxyTabListConfiguration(
-                                    "Proxy",
-                                    Collections.singletonList(
-                                            new SyncProxyTabList(
-                                                    " \n&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
-                                                    " \n &7Sponsored by &8» &fEU-Hosting.ch &8▎ &7Discord &8» &fdiscord.gg/UNQ4wET \n &7powered by &8» &b&b&lCloud&f&lNet \n "
-                                            )
-                                    ),
-                                    1
-                            )
-                    ),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
                     DEFAULT_MESSAGES,
                     true
             ), file);
@@ -108,4 +64,54 @@ public final class SyncProxyConfigurationWriterAndReader {
         }
         return configuration;
     }
+
+    public static SyncProxyTabListConfiguration createDefaultTabListConfiguration(String targetGroup) {
+        return new SyncProxyTabListConfiguration(
+                targetGroup,
+                Collections.singletonList(
+                        new SyncProxyTabList(
+                                " \n&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
+                                " \n &7Sponsored by &8» &fEU-Hosting.ch &8▎ &7Discord &8» &fdiscord.gg/UNQ4wET \n &7powered by &8» &b&b&lCloud&f&lNet \n "
+                        )
+                ),
+                1
+        );
+    }
+
+    public static SyncProxyProxyLoginConfiguration createDefaultLoginConfiguration(String targetGroup) {
+        return new SyncProxyProxyLoginConfiguration(
+                targetGroup,
+                false,
+                100,
+                new ArrayList<>(),
+                Collections.singletonList(new SyncProxyMotd(
+                        "&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7cloud system",
+                        "&7Sponsored by &8» &bEU-Hosting.ch &8▎ &8» &c%proxy%",
+                        false,
+                        1,
+                        new String[]{
+                                " ",
+                                "&b&lCloud&f&lNet &8× &7your &bfree &7cloudsystem",
+                                "&7Sponsored by &8» &bEU-Hosting.ch",
+                                "&7Discord &8» &fdiscord.gg/UNQ4wET",
+                                " "
+                        },
+                        null
+                )),
+                Collections.singletonList(new SyncProxyMotd(
+                        "&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7cloud system",
+                        "      &bMaintenance &8» &7We are still in &bmaintenance",
+                        false,
+                        1,
+                        new String[]{
+                                " ",
+                                "&b&lCloud&f&lNet &8× &7your &bfree &7cloudsystem",
+                                "&7Discord &8» &fdiscord.gg/UNQ4wET",
+                                " "
+                        },
+                        "&8➜ &bMaintenance &8&l【&c✘&8&l】"
+                ))
+        );
+    }
+
 }
