@@ -13,7 +13,7 @@ public class CommandDebug extends CommandDefault {
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         if (CloudNet.getInstance().getLogger().getLevel() == LogLevel.DEBUG.getLevel()) {
-            CloudNet.getInstance().setGlobalLogLevel(LogLevel.FATAL);
+            CloudNet.getInstance().setGlobalLogLevel(CloudNet.getInstance().getDefaultLogLevel());
         } else {
             CloudNet.getInstance().setGlobalLogLevel(LogLevel.DEBUG);
         }

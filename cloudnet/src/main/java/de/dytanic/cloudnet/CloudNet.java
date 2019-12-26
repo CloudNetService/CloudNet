@@ -104,6 +104,8 @@ public final class CloudNet extends CloudNetDriver {
     private static CloudNet instance;
 
 
+    private final LogLevel defaultLogLevel = LogLevel.getDefaultLogLevel(System.getProperty("cloudnet.logging.defaultlevel")).orElse(LogLevel.FATAL);
+
     private final ICommandMap commandMap = new DefaultCommandMap();
 
     private final File moduleDirectory = new File(System.getProperty("cloudnet.modules.directory", "modules"));
@@ -154,6 +156,8 @@ public final class CloudNet extends CloudNetDriver {
     CloudNet(List<String> commandLineArguments, ILogger logger, IConsole console) {
         super(logger);
         setInstance(this);
+
+        logger.setLevel(this.defaultLogLevel);
 
         this.console = console;
         this.commandLineArguments = commandLineArguments;
@@ -346,6 +350,10 @@ public final class CloudNet extends CloudNetDriver {
         if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
             System.exit(0);
         }
+    }
+
+    public LogLevel getDefaultLogLevel() {
+        return this.defaultLogLevel;
     }
 
     @Override

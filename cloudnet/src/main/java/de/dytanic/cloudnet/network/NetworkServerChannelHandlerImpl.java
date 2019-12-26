@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.CloudNetDriverSafe;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -32,10 +33,10 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
             return;
         }
 
-        System.out.println(LanguageManager.getMessage("server-network-channel-init")
+        CloudNetDriverSafe.getDriver().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-init")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-        );
+        ));
     }
 
     @Override
@@ -51,10 +52,10 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
     public void handleChannelClose(INetworkChannel channel) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-        System.out.println(LanguageManager.getMessage("server-network-channel-close")
+        CloudNetDriverSafe.getDriver().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-close")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-        );
+        ));
 
         ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(iCloudService -> iCloudService.getNetworkChannel() != null && iCloudService.getNetworkChannel().equals(channel));
 

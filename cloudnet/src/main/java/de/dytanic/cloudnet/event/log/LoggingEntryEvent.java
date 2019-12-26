@@ -14,4 +14,9 @@ public final class LoggingEntryEvent extends DriverEvent {
     public LogEntry getLogEntry() {
         return this.logEntry;
     }
+
+    @Override
+    public boolean canDebug() {
+        return false;
+    }
 }

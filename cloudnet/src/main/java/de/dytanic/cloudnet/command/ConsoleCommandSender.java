@@ -10,8 +10,6 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
  */
 public final class ConsoleCommandSender implements ICommandSender {
 
-    private static final LogLevel CONSOLE_LEVEL = new LogLevel("console", "CONSOLE", 6, true);
-
     private final ILogger logger;
 
     public ConsoleCommandSender(ILogger logger) {
@@ -28,7 +26,7 @@ public final class ConsoleCommandSender implements ICommandSender {
 
     @Override
     public void sendMessage(String message) {
-        this.logger.log(CONSOLE_LEVEL, message);
+        this.logger.log(LogLevel.COMMAND, message);
     }
 
     @Override

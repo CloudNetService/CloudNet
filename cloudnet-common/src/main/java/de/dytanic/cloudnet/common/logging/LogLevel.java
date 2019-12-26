@@ -3,6 +3,9 @@ package de.dytanic.cloudnet.common.logging;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.lang.reflect.Field;
+import java.util.Optional;
+
 /**
  * The LogLevel indicates how relevant and essential information is to be output.
  * All LogEntry instances has a LogLevel, which describe his relevant
@@ -42,28 +45,36 @@ public class LogLevel implements ILevelable {
      * <p>
      * Allows asynchronously ILogHandler invocation
      */
-    public static final LogLevel WARNING = new LogLevel("warning", "WARNING", 125, true);
+    public static final LogLevel WARNING = new LogLevel("warning", "WARNING", 125, true, true);
 
     /**
      * The ERROR level is for important messages like a StackTrace or a error message
      * <p>
      * Allows asynchronously ILogHandler invocation
      */
-    public static final LogLevel ERROR = new LogLevel("error", "ERROR", 126, true);
+    public static final LogLevel ERROR = new LogLevel("error", "ERROR", 126, true, true);
 
     /**
      * The FATAL level is for crashing messages or messages that are so important, that can't describe with ERROR
      * <p>
      * Disallows asynchronously ILogHandler invocation
      */
-    public static final LogLevel FATAL = new LogLevel("fatal", "FATAL", 127, false);
+    public static final LogLevel FATAL = new LogLevel("fatal", "FATAL", 127, true, false);
 
     /**
-     * The DEBUG level is for crashing messages or messages that are so important, that can
+     * The EXTENDED level is for more precise information messages that can be disabled
      * <p>
      * Disallows asynchronously ILogHandler invocation
      */
-    public static final LogLevel DEBUG = new LogLevel("debug", "DEBUG", 128, false);
+    public static final LogLevel EXTENDED = new LogLevel("extended", "EXTENDED", 128, false);
+
+    /**
+     * The DEBUG level is for all debugging messages, that are not important for CloudNet's runtime but may be useful
+     * if an error occurred
+     * <p>
+     * Disallows asynchronously ILogHandler invocation
+     */
+    public static final LogLevel DEBUG = new LogLevel("debug", "DEBUG", 129, false);
 
     /**
      * A wildcard that all messages can be handle from the Logger, if the logger invokes the
@@ -82,15 +93,22 @@ public class LogLevel implements ILevelable {
      */
     protected int level;
 
+    protected boolean colorized;
+
     /**
      * Defines the permission, to execute the LogEntries on this Level asynchronously or not.
      */
     protected boolean async;
 
     public LogLevel(String lowerName, String upperName, int level, boolean async) {
+        this(lowerName, upperName, level, false, async);
+    }
+
+    public LogLevel(String lowerName, String upperName, int level, boolean colorized, boolean async) {
         this.lowerName = lowerName;
         this.upperName = upperName;
         this.level = level;
+        this.colorized = colorized;
         this.async = async;
     }
 
@@ -109,6 +127,21 @@ public class LogLevel implements ILevelable {
 
     public boolean isAsync() {
         return async;
+    }
+
+    public boolean isColorized() {
+        return colorized;
+    }
+
+    public static Optional<LogLevel> getDefaultLogLevel(String name) {
+        if (name == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.ofNullable((LogLevel) LogLevel.class.getField(name).get(null));
+        } catch (NoSuchFieldException | IllegalAccessException exception) {
+            return Optional.empty();
+        }
     }
 
 }
