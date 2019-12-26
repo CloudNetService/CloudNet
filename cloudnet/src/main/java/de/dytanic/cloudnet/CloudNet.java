@@ -40,6 +40,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
@@ -462,6 +463,17 @@ public final class CloudNet extends CloudNetDriver {
         }
 
         return collection;
+    }
+
+    @Override
+    public void setGlobalLogLevel(LogLevel logLevel) {
+        this.setGlobalLogLevel(logLevel != null ? logLevel.getLevel() : LogLevel.ALL.getLevel());
+    }
+
+    @Override
+    public void setGlobalLogLevel(int logLevel) {
+        this.logger.setLevel(logLevel);
+        this.sendAll(new PacketServerSetGlobalLogLevel(logLevel));
     }
 
     @Override
@@ -902,7 +914,8 @@ public final class CloudNet extends CloudNetDriver {
                 new CommandMe(),
                 new CommandScreen(),
                 new CommandPermissions(),
-                new CommandCopy()
+                new CommandCopy(),
+                new CommandDebug()
         );
     }
 

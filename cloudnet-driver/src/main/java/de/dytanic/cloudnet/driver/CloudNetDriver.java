@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
@@ -123,6 +124,10 @@ public abstract class CloudNetDriver {
     public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
 
     public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName);
+
+    public abstract void setGlobalLogLevel(LogLevel logLevel);
+
+    public abstract void setGlobalLogLevel(int logLevel);
 
     /**
      * @see #getNodeInfoProvider() 

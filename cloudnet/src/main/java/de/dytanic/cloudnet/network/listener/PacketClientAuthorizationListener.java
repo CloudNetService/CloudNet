@@ -18,6 +18,7 @@ import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEve
 import de.dytanic.cloudnet.event.network.NetworkChannelAuthCloudServiceSuccessEvent;
 import de.dytanic.cloudnet.network.ClusterUtils;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.UUID;
@@ -59,8 +60,11 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
 
+                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(false));
+
 
                                 channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
+                                channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));
 
                                 clusterNodeServer.setChannel(channel);
                                 CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(clusterNodeServer, channel));
@@ -99,6 +103,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                             //-
 
                             channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
+                            channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));
 
                             cloudService.setNetworkChannel(channel);
                             cloudService.getServiceInfoSnapshot().setConnected(true);
