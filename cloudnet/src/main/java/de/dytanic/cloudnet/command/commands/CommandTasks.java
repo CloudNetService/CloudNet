@@ -720,6 +720,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
     private void setupTask(IConsole console, ICommandSender sender) {
         IFormatter logFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter();
         ConsoleQuestionListAnimation animation = new ConsoleQuestionListAnimation(
+                "TaskSetup",
                 () -> CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries()
                         .stream()
                         .map(logFormatter::format)

@@ -11,10 +11,7 @@ import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandReloadBridge;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
-import de.dytanic.cloudnet.ext.bridge.node.listener.IncludePluginListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.NetworkListenerRegisterListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.NodeCustomChannelMessageListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.PlayerManagerListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.*;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
@@ -105,7 +102,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new NetworkListenerRegisterListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener());
+        registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener());
     }
 
     public BridgeConfiguration getBridgeConfiguration() {
