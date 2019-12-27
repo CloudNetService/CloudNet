@@ -62,70 +62,34 @@ public final class NettyUtils {
     public static int readVarInt(ByteBuf byteBuf) {
         int numRead = 0;
         int result = 0;
+
         byte read;
         do {
             read = byteBuf.readByte();
-            int value = (read & 0b01111111);
-            result |= (value << (7 * numRead));
+            numRead |= (read & 127) << result++ * 7;
 
-            numRead++;
-            if (numRead > 5) {
+            if (result > 5) {
                 throw new RuntimeException("VarInt is too big");
             }
-        } while ((read & 0b10000000) != 0);
+        } while ((read & 128) == 128);
 
-        return result;
-    }
-
-    public static long readVarLong(ByteBuf byteBuf) {
-        int numRead = 0;
-        long result = 0;
-        byte read;
-        do {
-            read = byteBuf.readByte();
-            int value = (read & 0b01111111);
-            result |= (value << (7 * numRead));
-
-            numRead++;
-            if (numRead > 10) {
-                throw new RuntimeException("VarLong is too big");
-            }
-        } while ((read & 0b10000000) != 0);
-
-        return result;
+        return numRead;
     }
 
     public static ByteBuf writeVarInt(ByteBuf byteBuf, int value) {
-        do {
-            byte temp = (byte) (value & 0b01111111);
+        while ((value & -128) != 0) {
+            byteBuf.writeByte(value & 127 | 128);
             value >>>= 7;
-            if (value != 0) {
-                temp |= 0b10000000;
-            }
-            byteBuf.writeByte(temp);
-        } while (value != 0);
+        }
 
+        byteBuf.writeByte(value);
         return byteBuf;
     }
 
-    public static ByteBuf writeVarLong(ByteBuf byteBuf, long value) {
-        do {
-            byte temp = (byte) (value & 0b01111111);
-            value >>>= 7;
-            if (value != 0) {
-                temp |= 0b10000000;
-            }
-            byteBuf.writeByte(temp);
-        } while (value != 0);
-
-        return byteBuf;
-    }
-
-    public static ByteBuf writeString(ByteBuf byteBuf, String string) {
+    public static void writeString(ByteBuf byteBuf, String string) {
         byte[] values = string.getBytes(StandardCharsets.UTF_8);
         writeVarInt(byteBuf, values.length);
         byteBuf.writeBytes(values);
-        return byteBuf;
     }
 
     public static String readString(ByteBuf byteBuf) {
