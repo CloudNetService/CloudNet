@@ -45,6 +45,7 @@ pipeline {
         sh 'mkdir -p temp';
         sh 'cp -r cloudnet/build/libs/*.jar temp/';
         sh 'cp -r cloudnet-driver/build/libs/*.jar temp/';
+        sh 'cp -r cloudnet-common/build/libs/*.jar temp/';
         sh 'cp -r cloudnet-modules/**/build/libs/*.jar temp/';
         sh 'cp -r **/build/libs/*.cnl temp/';
         zip archive: true, dir: 'temp', glob: '', zipFile: 'AutoUpdater.zip';
