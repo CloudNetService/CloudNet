@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.command.sub;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeStaticString;
 
 import java.util.ArrayList;
 import java.util.Arrays;

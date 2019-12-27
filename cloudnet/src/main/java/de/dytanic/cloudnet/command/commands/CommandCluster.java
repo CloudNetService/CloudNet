@@ -39,7 +39,7 @@ public final class CommandCluster extends SubCommandHandler {
 
                                     CloudNet.getInstance().getCommandMap().dispatchCommand(sender, "stop");
                                 },
-                                exactStringIgnoreCase("shutdown")
+                                anyStringIgnoreCase("shutdown", "stop")
                         )
                         .generateCommand(
                                 (sender, command, args, commandLine, properties, internalProperties) -> {
@@ -74,7 +74,7 @@ public final class CommandCluster extends SubCommandHandler {
 
                                     sender.sendMessage(LanguageManager.getMessage("command-cluster-remove-node-success"));
                                 },
-                                exactStringIgnoreCase("remove"),
+                                anyStringIgnoreCase("remove", "rm"),
                                 dynamicString(
                                         "nodeId",
                                         LanguageManager.getMessage("command-cluster-remove-node-not-found"),
@@ -105,28 +105,28 @@ public final class CommandCluster extends SubCommandHandler {
                                     pushPermissions(sender);
                                     pushLocalTemplates(sender);
                                 },
-                                exactStringIgnoreCase("all")
+                                anyStringIgnoreCase("all", "*")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplate(sender, (ServiceTemplate) args[1]),
-                                exactStringIgnoreCase("local-template"),
+                                (sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplate(sender, (ServiceTemplate) args[2]),
+                                anyStringIgnoreCase("local-template", "lt"),
                                 template("prefix/name")
                         )
                         .generateCommand(
                                 (sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplates(sender),
-                                exactStringIgnoreCase("local-templates")
+                                anyStringIgnoreCase("local-templates", "lts")
                         )
                         .generateCommand(
                                 (sender, command, args, commandLine, properties, internalProperties) -> pushTasks(sender),
-                                exactStringIgnoreCase("tasks")
+                                anyStringIgnoreCase("tasks", "t")
                         )
                         .generateCommand(
                                 (sender, command, args, commandLine, properties, internalProperties) -> pushGroups(sender),
-                                exactStringIgnoreCase("groups")
+                                anyStringIgnoreCase("groups", "g")
                         )
                         .generateCommand(
                                 (sender, command, args, commandLine, properties, internalProperties) -> pushPermissions(sender),
-                                exactStringIgnoreCase("local-perms")
+                                anyStringIgnoreCase("local-perms", "lp")
                         )
 
                         .getSubCommands(),

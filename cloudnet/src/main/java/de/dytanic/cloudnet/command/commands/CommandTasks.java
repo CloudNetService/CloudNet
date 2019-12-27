@@ -46,7 +46,7 @@ public class CommandTasks extends SubCommandHandler {
                         .generateCommand((sender, command, args, commandLine, properties, internalProperties) -> {
                             CloudNet.getInstance().getCloudServiceManager().reload();
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-reload-success"));
-                        }, exactStringIgnoreCase("reload"))
+                        }, anyStringIgnoreCase("reload", "rl"))
                         .generateCommand((sender, command, args, commandLine, properties, internalProperties) -> {
                             sender.sendMessage("- Tasks", " ");
 
@@ -102,7 +102,7 @@ public class CommandTasks extends SubCommandHandler {
                         .applyHandler(CommandTasks::handleTaskAddCommands)
                         .removeLastPrefix()
 
-                        .prefix(exactStringIgnoreCase("remove"))
+                        .prefix(anyStringIgnoreCase("remove", "rm"))
                         .applyHandler(CommandTasks::handleTaskRemoveCommands)
                         .removeLastPrefix()
 
@@ -830,7 +830,7 @@ public class CommandTasks extends SubCommandHandler {
             sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-create-success").replace("%name%", name));
 
             if (!CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name)) {
-                CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(new EmptyGroupConfiguration(name));
+                createEmptyGroupConfiguration(name);
                 sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
             }
         });

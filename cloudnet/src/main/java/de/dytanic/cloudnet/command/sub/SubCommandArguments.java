@@ -59,6 +59,14 @@ public class SubCommandArguments {
         return new QuestionAnswerTypeEnum<>(enumClass);
     }
 
+    public static QuestionAnswerType<String> anyStringIgnoreCase(String... allowedValues) {
+        return new QuestionAnswerTypeStaticStringArray(allowedValues, true);
+    }
+
+    public static QuestionAnswerType<String> anyString(String... allowedValues) {
+        return new QuestionAnswerTypeStaticStringArray(allowedValues, false);
+    }
+
     public static QuestionAnswerType<String> exactStringIgnoreCase(String requiredValue) {
         return new QuestionAnswerTypeStaticString(requiredValue, true);
     }

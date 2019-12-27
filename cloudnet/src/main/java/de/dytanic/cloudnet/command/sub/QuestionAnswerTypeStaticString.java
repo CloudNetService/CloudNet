@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.console.animation.questionlist.answer;
+package de.dytanic.cloudnet.command.sub;
 
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 
