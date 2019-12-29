@@ -26,7 +26,7 @@ public final class JsonConfiguration implements IConfiguration {
     }.getType(),
             CLUSTER = new TypeToken<NetworkCluster>() {
             }.getType(),
-            COLLECTION_STRING = new TypeToken<Collection<String>>() {
+            SET_STRING = new TypeToken<Set<String>>() {
             }.getType(),
             HOST_AND_PORT_COLLECTION = new TypeToken<Collection<HostAndPort>>() {
             }.getType();
@@ -105,7 +105,7 @@ public final class JsonConfiguration implements IConfiguration {
             addresses.addAll(Arrays.asList(System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST").split(",")));
         }
 
-        this.ipWhitelist = this.document.get("ipWhitelist", COLLECTION_STRING, addresses);
+        this.ipWhitelist = this.document.get("ipWhitelist", SET_STRING, addresses);
 
         this.clusterConfig = this.document.get("cluster", CLUSTER, new NetworkCluster(
                 System.getenv("CLOUDNET_CLUSTER_ID") != null ?
@@ -301,6 +301,11 @@ public final class JsonConfiguration implements IConfiguration {
 
         this.httpListeners = httpListeners;
         this.save();
+    }
+
+    @Override
+    public void setHostAddress(String hostAddress) {
+        this.hostAddress = hostAddress;
     }
 
     public ConfigurationOptionSSL getClientSslConfig() {
