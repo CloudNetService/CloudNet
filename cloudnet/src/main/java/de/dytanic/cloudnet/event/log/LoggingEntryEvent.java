@@ -16,7 +16,8 @@ public final class LoggingEntryEvent extends DriverEvent {
     }
 
     @Override
-    public boolean canDebug() {
+    public boolean isShowDebug() {
         return false;
     }
+
 }

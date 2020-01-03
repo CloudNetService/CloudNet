@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.CloudNetDriverSafe;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -34,7 +33,7 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
                         .append("secondNodeConnection", connectionWhichSendRequest.incrementAndGet() > 1)
         ));
 
-        CloudNetDriverSafe.getDriver().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-init")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-init")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         ));
@@ -54,7 +53,7 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
         CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
         connectionWhichSendRequest.decrementAndGet();
 
-        CloudNetDriverSafe.getDriver().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-close")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-close")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         ));

@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.common.logging;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 /**

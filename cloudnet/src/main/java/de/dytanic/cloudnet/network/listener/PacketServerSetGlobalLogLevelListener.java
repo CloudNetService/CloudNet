@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.service.ICloudService;
 
 public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
+
     private boolean redirectToCluster;
 
     public PacketServerSetGlobalLogLevelListener(boolean redirectToCluster) {
@@ -32,4 +33,5 @@ public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
 
         CloudNetDriver.getInstance().getLogger().setLevel(packet.getHeader().getInt("level"));
     }
+
 }

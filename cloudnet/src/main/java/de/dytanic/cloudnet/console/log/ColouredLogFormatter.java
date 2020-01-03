@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.console.log;
 
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.LogEntry;
-import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.logging.LoggingUtils;
 import de.dytanic.cloudnet.console.ConsoleColor;
 

@@ -29,10 +29,7 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.lang.management.ManagementFactory;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public abstract class CloudNetDriver {
@@ -59,6 +56,15 @@ public abstract class CloudNetDriver {
 
     public static CloudNetDriver getInstance() {
         return CloudNetDriver.instance;
+    }
+
+    /**
+     * The CloudNetDriver instance won't be null usually, this method is only relevant for tests
+     *
+     * @return optional CloudNetDriver
+     */
+    public static Optional<CloudNetDriver> optionalInstance() {
+        return Optional.ofNullable(CloudNetDriver.instance);
     }
 
     protected static void setInstance(CloudNetDriver instance) {

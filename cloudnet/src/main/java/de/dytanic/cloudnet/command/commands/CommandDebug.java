@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 
 public class CommandDebug extends CommandDefault {
+
     public CommandDebug() {
         super("debug");
     }
@@ -18,4 +19,5 @@ public class CommandDebug extends CommandDefault {
             CloudNet.getInstance().setGlobalLogLevel(LogLevel.DEBUG);
         }
     }
+
 }

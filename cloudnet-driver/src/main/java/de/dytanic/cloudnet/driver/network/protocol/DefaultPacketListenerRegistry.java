@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.CloudNetDriverSafe;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
 import java.util.*;
@@ -110,16 +109,18 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     public void handlePacket(INetworkChannel channel, IPacket packet) {
         Validate.checkNotNull(packet);
 
-        CloudNetDriverSafe.getDriver().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(
-                String.format(
-                        "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
-                        channel.getClientAddress().toString(),
-                        packet.getChannel(),
-                        packet.getUniqueId().toString(),
-                        packet.getHeader().toJson(),
-                        packet.getBody() != null ? packet.getBody().length : 0
-                )
-        ));
+        if (packet.isShowDebug()) {
+            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(
+                    String.format(
+                            "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
+                            channel.getClientAddress().toString(),
+                            packet.getChannel(),
+                            packet.getUniqueId().toString(),
+                            packet.getHeader().toJson(),
+                            packet.getBody() != null ? packet.getBody().length : 0
+                    )
+            ));
+        }
 
         if (this.parent != null) {
             this.parent.handlePacket(channel, packet);

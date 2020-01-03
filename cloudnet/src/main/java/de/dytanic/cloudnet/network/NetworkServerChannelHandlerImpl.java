@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.CloudNetDriverSafe;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -33,7 +32,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
             return;
         }
 
-        CloudNetDriverSafe.getDriver().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-init")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-init")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         ));
@@ -52,7 +51,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
     public void handleChannelClose(INetworkChannel channel) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-        CloudNetDriverSafe.getDriver().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-close")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-close")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         ));
