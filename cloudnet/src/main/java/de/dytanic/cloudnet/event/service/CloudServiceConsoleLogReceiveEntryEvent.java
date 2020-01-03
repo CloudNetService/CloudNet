@@ -17,6 +17,11 @@ public final class CloudServiceConsoleLogReceiveEntryEvent extends DriverEvent {
         this.errorMessage = errorMessage;
     }
 
+    @Override
+    public boolean isShowDebug() {
+        return false;
+    }
+
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
         return this.serviceInfoSnapshot;
     }
@@ -28,4 +33,5 @@ public final class CloudServiceConsoleLogReceiveEntryEvent extends DriverEvent {
     public boolean isErrorMessage() {
         return this.errorMessage;
     }
+
 }

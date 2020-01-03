@@ -11,7 +11,13 @@ public final class NetworkClusterNodeInfoConfigureEvent extends DriverEvent {
         this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
     }
 
+    @Override
+    public boolean isShowDebug() {
+        return false;
+    }
+
     public NetworkClusterNodeInfoSnapshot getNetworkClusterNodeInfoSnapshot() {
         return this.networkClusterNodeInfoSnapshot;
     }
+
 }

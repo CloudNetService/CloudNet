@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
@@ -55,6 +56,19 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     private void sendPacket0(IPacket packet) {
+        if (packet.isShowDebug()) {
+            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(
+                    String.format(
+                            "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
+                            this.getClientAddress().toString(),
+                            packet.getChannel(),
+                            packet.getUniqueId().toString(),
+                            packet.getHeader().toJson(),
+                            packet.getBody() != null ? packet.getBody().length : 0
+                    )
+            ));
+        }
+
         this.channel.writeAndFlush(packet, this.channel.voidPromise());
     }
 

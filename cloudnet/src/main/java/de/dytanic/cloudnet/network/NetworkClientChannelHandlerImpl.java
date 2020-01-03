@@ -33,10 +33,10 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
                         .append("secondNodeConnection", connectionWhichSendRequest.incrementAndGet() > 1)
         ));
 
-        System.out.println(LanguageManager.getMessage("client-network-channel-init")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-init")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-        );
+        ));
     }
 
     @Override
@@ -53,10 +53,10 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
         CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
         connectionWhichSendRequest.decrementAndGet();
 
-        System.out.println(LanguageManager.getMessage("client-network-channel-close")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-close")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-        );
+        ));
 
         IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
 
