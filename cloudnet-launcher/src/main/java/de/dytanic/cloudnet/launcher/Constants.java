@@ -29,6 +29,7 @@ public final class Constants {
 
     public static final String
             CLOUDNET_SELECTED_VERSION = "cloudnet.launcher.select.version",
+            LAUNCHER_DEV_MODE = "cloudnet.launcher.devmode",
             CLOUDNET_REPOSITORY = "cloudnet.repository",
             CLOUDNET_REPOSITORY_GITHUB = "cloudnet.repository.github",
             CLOUDNET_REPOSITORY_AUTO_UPDATE = "cloudnet.auto-update",

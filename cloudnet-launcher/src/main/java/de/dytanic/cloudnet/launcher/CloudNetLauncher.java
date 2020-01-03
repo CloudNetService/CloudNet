@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.jar.JarFile;
 
@@ -67,6 +68,8 @@ public final class CloudNetLauncher {
     }
 
     private void run(String[] args) {
+        PRINT.accept("Running CloudNet launcher created with " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
+
         try {
             this.setupVariables();
         } catch (IOException | CNLCommandExecuteException exception) {
@@ -89,15 +92,16 @@ public final class CloudNetLauncher {
         this.setSystemProperties();
 
         try {
+            PRINT.accept("Starting CloudNet...");
+            Thread.sleep(TimeUnit.SECONDS.toMillis(3));
+
             this.startApplication(args, dependencyResources);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException exception) {
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException | InterruptedException exception) {
             throw new RuntimeException("Failed to start the application!", exception);
         }
     }
 
     private void setupVariables() throws IOException, CNLCommandExecuteException {
-        PRINT.accept("Starting CloudNet launcher created with " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
-
         if (!Files.exists(CONFIG_PATH)) {
             try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
                 Files.copy(Objects.requireNonNull(inputStream, "Unable to extract the default launcher config, is the launcher corrupted?"), CONFIG_PATH);
@@ -185,6 +189,11 @@ public final class CloudNetLauncher {
 
         // handles the installing of the artifacts contained in the launcher itself
         versionInfo.put(Constants.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(Constants.FALLBACK_VERSION), this.gitHubRepository));
+
+        if (this.variables.getOrDefault(Constants.LAUNCHER_DEV_MODE, "false").equalsIgnoreCase("true")) {
+            // dev mode is on, only using the fallback version
+            return versionInfo;
+        }
 
         if (this.variables.get(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
             Updater updater = new RepositoryUpdater(this.variables.get(Constants.CLOUDNET_REPOSITORY));

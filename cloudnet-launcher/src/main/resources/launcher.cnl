@@ -3,6 +3,7 @@
 # Please don't delete one of those configuration and use the '#' symbol to make a comment
 
 var cloudnet.launcher.select.version default
+var cloudnet.launcher.devmode false
 var cloudnet.versions.url https://cloudnetservice.eu/cloudnet/versions.json
 var cloudnet.repository https://cloudnetservice.eu/cloudnet/updates/
 var cloudnet.repository.github CloudNetService/CloudNet-v3
