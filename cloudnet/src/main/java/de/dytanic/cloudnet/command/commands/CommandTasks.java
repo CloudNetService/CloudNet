@@ -237,8 +237,14 @@ public class CommandTasks extends SubCommandHandler {
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            CloudNet.getInstance().getCloudServiceManager().removePermanentServiceTask((String) args.argument(2));
+                            String name = (String) args.argument(2);
+
+                            CloudNet.getInstance().getCloudServiceManager().removePermanentServiceTask(name);
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
+
+                            for (ServiceInfoSnapshot cloudService : CloudNet.getInstance().getCloudServiceProvider().getCloudServices(name)) {
+                                CloudNet.getInstance().getCloudServiceProvider(cloudService).stop();
+                            }
                         },
                         exactStringIgnoreCase("task"),
                         dynamicString(
