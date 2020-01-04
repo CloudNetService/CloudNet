@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -23,35 +24,25 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
         this.groupPermissions = Maps.newHashMap();
     }
 
-    @Override
-    public boolean addPermission(Permission permission) {
+    private boolean addPermission(Collection<Permission> permissions, Permission permission) {
         if (permission == null || permission.getName() == null) {
             return false;
         }
 
-        Permission exist = this.getPermission(permission.getName());
-
-        if (exist != null) {
-            this.permissions.remove(exist);
-        }
-
-        this.permissions.add(permission);
+        permissions.removeIf(existingPermission -> existingPermission.getName().equalsIgnoreCase(permission.getName()));
+        permissions.add(permission);
 
         return true;
     }
 
     @Override
+    public boolean addPermission(Permission permission) {
+        return this.addPermission(this.permissions, permission);
+    }
+
+    @Override
     public boolean addPermission(String group, Permission permission) {
-        if (group == null || permission == null) {
-            return false;
-        }
-
-        if (!groupPermissions.containsKey(group)) {
-            groupPermissions.put(group, Iterables.newArrayList());
-        }
-
-        groupPermissions.get(group).add(permission);
-        return true;
+        return this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new ArrayList<>()), permission);
     }
 
     @Override
