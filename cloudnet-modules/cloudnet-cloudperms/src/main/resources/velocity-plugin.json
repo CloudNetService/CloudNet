@@ -1,7 +1,7 @@
 {
   "id": "cloudnet_cloudperms_velocity",
   "name": "CloudNet-CloudPerms",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Velocity extension which implement the permission management system from CloudNet into Velocity for players",
   "url": "https://cloudnetservice.eu",
   "authors": [

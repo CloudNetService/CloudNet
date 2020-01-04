@@ -255,6 +255,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                 );
     }
 
+    @Override
+    public Map<String, String> getDefaultRepositories() {
+        return defaultRepositories;
+    }
+
 
     private void fireTasks(List<IModuleTaskEntry> entries) {
         entries.sort((o1, o2) -> o2.getTaskInfo().order() - o1.getTaskInfo().order());

@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.lang.reflect.Type;
 
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Sign implements Comparable<Sign> {
 
     public static final Type TYPE = new TypeToken<Sign>() {
@@ -18,14 +18,14 @@ public class Sign implements Comparable<Sign> {
 
     protected String providedGroup, targetGroup, templatePath;
 
+    @EqualsAndHashCode.Include
     protected SignPosition worldPosition;
-
 
     private volatile ServiceInfoSnapshot serviceInfoSnapshot;
 
     public Sign(String providedGroup, String targetGroup, SignPosition worldPosition, String templatePath) {
         this.signId = System.currentTimeMillis();
-        //=- * | * -=//
+
         this.providedGroup = providedGroup;
         this.targetGroup = targetGroup;
         this.templatePath = templatePath;
@@ -33,8 +33,8 @@ public class Sign implements Comparable<Sign> {
     }
 
     @Override
-    public int compareTo(Sign o) {
-        return Long.compare(signId, o.getSignId());
+    public int compareTo(Sign toCompare) {
+        return Long.compare(signId, toCompare.getSignId());
     }
 
     public long getSignId() {

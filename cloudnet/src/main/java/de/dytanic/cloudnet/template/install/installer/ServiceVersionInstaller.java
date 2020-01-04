@@ -1,13 +1,13 @@
 package de.dytanic.cloudnet.template.install.installer;
 
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 
-import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.concurrent.Callable;
 
 public interface ServiceVersionInstaller {
 
-    void install(ServiceVersion version, Path workingDirectory, Callable<OutputStream[]> targetStreamCallable) throws Exception;
+    void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception;
 
 }

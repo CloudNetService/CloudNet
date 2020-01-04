@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.examples.ExampleListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BukkitPluginExample extends JavaPlugin {
@@ -21,9 +20,6 @@ public final class BukkitPluginExample extends JavaPlugin {
         serviceId.getEnvironment(); //The application environment type, which is configured for this service
 
         ServiceConfiguration serviceConfiguration = Wrapper.getInstance().getServiceConfiguration(); //The own serviceConfiguration instance
-
-        //Use the single thread scheduler by the wrapper application to run tasks which you add into the queue
-        Wrapper.getInstance().runTask(() -> "Hello, world").onComplete(Bukkit::broadcastMessage);
 
         CloudNetDriver.getInstance().getEventManager().registerListener(new ExampleListener());
     }

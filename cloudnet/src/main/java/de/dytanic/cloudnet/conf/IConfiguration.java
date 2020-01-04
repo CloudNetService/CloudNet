@@ -18,7 +18,11 @@ public interface IConfiguration {
 
     String getHostAddress();
 
+    void setHostAddress(String hostAddress);
+
     NetworkClusterNode getIdentity();
+
+    void setIdentity(NetworkClusterNode identity);
 
     NetworkCluster getClusterConfig();
 

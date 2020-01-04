@@ -10,9 +10,9 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
+import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
-import de.dytanic.cloudnet.ext.bridge.BridgeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -81,7 +81,7 @@ public final class VelocityCloudNetHelper {
     }
 
     public static String filterServiceForPlayer(Player player, String currentServer) {
-        return BridgeCloudNetHelper.filterServiceForPlayer(
+        return BridgeHelper.filterServiceForPlayer(
                 currentServer,
                 VelocityCloudNetHelper::getFilteredEntries,
                 player::hasPermission
@@ -106,7 +106,7 @@ public final class VelocityCloudNetHelper {
             return false;
         }
 
-        return BridgeCloudNetHelper.isFallbackService(serviceInfoSnapshot);
+        return BridgeHelper.isFallbackService(serviceInfoSnapshot);
     }
 
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {

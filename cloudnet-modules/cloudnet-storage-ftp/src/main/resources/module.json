@@ -2,11 +2,12 @@
   "runtimeModule": true,
   "group": "de.dytanic.cloudnet.modules",
   "name": "CloudNet-Storage-FTP",
-  "version": "1.0",
+  "version": "1.1",
   "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
   "description": "CloudNet extension, which includes the ftp storage system",
   "main": "de.dytanic.cloudnet.ext.storage.ftp.CloudNetStorageFTPModule",
+  "storesSensitiveData": true,
   "dependencies": [
     {
       "group": "com.jcraft",

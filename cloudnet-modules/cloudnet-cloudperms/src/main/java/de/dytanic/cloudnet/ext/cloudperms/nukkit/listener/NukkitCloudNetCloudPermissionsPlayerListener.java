@@ -6,7 +6,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudNetCloudPermissionsPlugin;
 
 public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
@@ -20,6 +20,6 @@ public final class NukkitCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
 }

@@ -197,7 +197,9 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     @Override
     public OutputStream newOutputStream(ServiceTemplate template, String path) throws IOException {
         Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
-        if (!Files.exists(file)) {
+        if (Files.exists(file)) {
+            Files.delete(file);
+        } else {
             Files.createDirectories(file.getParent());
         }
         return Files.newOutputStream(file, StandardOpenOption.CREATE);
@@ -298,6 +300,11 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         }
 
         return templates;
+    }
+
+    @Override
+    public boolean shouldSyncInCluster() {
+        return true;
     }
 
     @Override

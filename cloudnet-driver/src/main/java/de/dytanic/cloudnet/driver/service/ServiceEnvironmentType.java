@@ -5,7 +5,6 @@ public enum ServiceEnvironmentType {
     MINECRAFT_SERVER(new ServiceEnvironment[]{
             ServiceEnvironment.MINECRAFT_SERVER_MODPACK,
             ServiceEnvironment.MINECRAFT_SERVER_FORGE,
-            ServiceEnvironment.MINECRAFT_SERVER_SPONGE_FORGE,
             ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA,
             ServiceEnvironment.MINECRAFT_SERVER_SPONGE,
             ServiceEnvironment.MINECRAFT_SERVER_TACO,

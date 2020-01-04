@@ -24,7 +24,7 @@ public class DefaultAsyncLoggerTest {
 
         Assert.assertNull(data);
 
-        Thread.sleep(10);
+        Thread.sleep(100);
         Assert.assertTrue(data != null && data.equals("My log message!"));
 
         logger.close();

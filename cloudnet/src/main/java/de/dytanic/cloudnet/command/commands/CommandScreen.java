@@ -46,7 +46,7 @@ public final class CommandScreen extends CommandDefault implements ITabCompleter
 
                         if (enabled) {
                             for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
-                                CloudNetDriver.getInstance().getLogger().log(LogLevel.IMPORTANT, "[" + cloudService.getServiceId().getName() + "] " + input);
+                                CloudNetDriver.getInstance().getLogger().log(LogLevel.INFO, "[" + cloudService.getServiceId().getName() + "] " + input);
                             }
 
                             sender.sendMessage(LanguageManager.getMessage("command-screen-enable-for-service")

@@ -2,7 +2,7 @@ defaultTasks 'clean', 'build', 'test', 'jar'
 
 allprojects {
 
-    def major = 3, minor = 2, patch = 0, versionType = "SNAPSHOT"
+    def major = 3, minor = 2, patch = 1, versionType = "RELEASE"
 
     group 'de.dytanic.cloudnet'
     version "$major.$minor.$patch-$versionType"
@@ -49,7 +49,7 @@ allprojects {
 
     project.ext {
 
-        cloudNetCodeName = 'Tsunami'
+        cloudNetCodeName = 'Eruption'
 
         //Dependencies
         dependencyLombokVersion = '1.18.6'

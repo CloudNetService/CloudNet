@@ -17,10 +17,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -29,7 +26,7 @@ public final class JsonConfiguration implements IConfiguration {
     }.getType(),
             CLUSTER = new TypeToken<NetworkCluster>() {
             }.getType(),
-            COLLECTION_STRING = new TypeToken<Collection<String>>() {
+            SET_STRING = new TypeToken<Set<String>>() {
             }.getType(),
             HOST_AND_PORT_COLLECTION = new TypeToken<Collection<HostAndPort>>() {
             }.getType();
@@ -93,20 +90,22 @@ public final class JsonConfiguration implements IConfiguration {
 
         addresses.add(address);
 
-        this.identity = this.document.get("identity", CLUSTER_NODE, new NetworkClusterNode(
-                System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") != null ?
-                        System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") :
-                        "Node-" + UUID.randomUUID().toString().split("-")[0],
-                new HostAndPort[]{
-                        new HostAndPort(address, 1410)
-                }
-        ));
+        if (this.identity == null) {
+            this.identity = this.document.get("identity", CLUSTER_NODE, new NetworkClusterNode(
+                    System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") != null ?
+                            System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") :
+                            "Node-" + UUID.randomUUID().toString().split("-")[0],
+                    new HostAndPort[]{
+                            new HostAndPort(address, 1410)
+                    }
+            ));
+        }
 
         if (System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST") != null) {
             addresses.addAll(Arrays.asList(System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST").split(",")));
         }
 
-        this.ipWhitelist = this.document.get("ipWhitelist", COLLECTION_STRING, addresses);
+        this.ipWhitelist = this.document.get("ipWhitelist", SET_STRING, addresses);
 
         this.clusterConfig = this.document.get("cluster", CLUSTER, new NetworkCluster(
                 System.getenv("CLOUDNET_CLUSTER_ID") != null ?
@@ -188,6 +187,12 @@ public final class JsonConfiguration implements IConfiguration {
         return this.identity;
     }
 
+    @Override
+    public void setIdentity(NetworkClusterNode identity) {
+        this.identity = identity;
+        this.save();
+    }
+
     public NetworkCluster getClusterConfig() {
         return this.clusterConfig;
     }
@@ -201,7 +206,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
 
     public Collection<String> getIpWhitelist() {
-        return this.ipWhitelist;
+        return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new ArrayList<>());
     }
 
     @Override
@@ -287,7 +292,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
 
     public Collection<HostAndPort> getHttpListeners() {
-        return this.httpListeners;
+        return this.httpListeners != null ? this.httpListeners : (this.httpListeners = new ArrayList<>());
     }
 
     @Override
@@ -296,6 +301,11 @@ public final class JsonConfiguration implements IConfiguration {
 
         this.httpListeners = httpListeners;
         this.save();
+    }
+
+    @Override
+    public void setHostAddress(String hostAddress) {
+        this.hostAddress = hostAddress;
     }
 
     public ConfigurationOptionSSL getClientSslConfig() {

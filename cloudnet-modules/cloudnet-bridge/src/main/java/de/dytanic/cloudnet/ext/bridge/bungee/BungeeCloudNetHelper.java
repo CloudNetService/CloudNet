@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
-import de.dytanic.cloudnet.ext.bridge.BridgeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -47,11 +46,11 @@ public final class BungeeCloudNetHelper {
             return false;
         }
 
-        return BridgeCloudNetHelper.isFallbackService(serviceInfoSnapshot);
+        return BridgeHelper.isFallbackService(serviceInfoSnapshot);
     }
 
     public static String filterServiceForProxiedPlayer(ProxiedPlayer proxiedPlayer, String currentServer) {
-        return BridgeCloudNetHelper.filterServiceForPlayer(
+        return BridgeHelper.filterServiceForPlayer(
                 currentServer,
                 BungeeCloudNetHelper::getFilteredEntries,
                 proxiedPlayer::hasPermission

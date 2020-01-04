@@ -65,7 +65,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
 
     private void initListeners() {
         //BungeeCord API
-        ProxyServer.getInstance().getPluginManager().registerListener(this, new BungeePlayerListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this, new BungeePlayerListener(this));
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new BungeeCloudNetListener());

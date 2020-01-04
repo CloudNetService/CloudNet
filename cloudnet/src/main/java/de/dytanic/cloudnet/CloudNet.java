@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.DefaultCommandMap;
 import de.dytanic.cloudnet.command.ICommandMap;
 import de.dytanic.cloudnet.command.commands.*;
-import de.dytanic.cloudnet.command.jline2.JLine2CommandCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
@@ -28,14 +27,12 @@ import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfigurationRegistry;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
-import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.*;
@@ -62,6 +59,7 @@ import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import de.dytanic.cloudnet.event.command.CommandPostProcessEvent;
 import de.dytanic.cloudnet.event.command.CommandPreProcessEvent;
+import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.event.permission.PermissionServiceSetEvent;
 import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
@@ -191,8 +189,9 @@ public final class CloudNet extends CloudNetDriver {
             Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
-        this.defaultInstallation.initDefaultConfigDefaultHostAddress();
+        boolean configFileAvailable = this.config.isFileExists();
         this.config.load();
+        this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
 
         if (this.config.getMaxMemory() < 2048) {
             CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
@@ -942,7 +941,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void enableCommandCompleter() {
-        ((JLine2Console) console).getConsoleReader().addCompleter(new JLine2CommandCompleter(this.commandMap));
+        this.console.addTabCompletionHandler(UUID.randomUUID(), (commandLine, args, properties) -> this.commandMap.tabCompleteCommand(commandLine));
     }
 
     private void setDefaultRegistryEntries() {
@@ -963,56 +962,39 @@ public final class CloudNet extends CloudNetDriver {
                 new DefaultDatabasePermissionManagement(this::getDatabaseProvider));
 
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
-                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"), taskScheduler));
+                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
+                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty(), this.taskScheduler));
     }
 
     private void runConsole() {
-        Thread console = new Thread(() -> {
+        this.logger.info(LanguageManager.getMessage("console-ready"));
+
+        this.getConsole().addCommandHandler(UUID.randomUUID(), input -> {
             try {
-                if (!getCommandLineArguments().contains("--noconsole")) {
-                    logger.info(LanguageManager.getMessage("console-ready"));
-
-                    String input;
-                    while ((input = getConsole().readLine()) != null) {
-                        try {
-                            if (input.trim().isEmpty()) {
-                                continue;
-                            }
-
-                            CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, getConsoleCommandSender());
-                            getEventManager().callEvent(commandPreProcessEvent);
-
-                            if (commandPreProcessEvent.isCancelled()) {
-                                continue;
-                            }
-
-                            if (!getCommandMap().dispatchCommand(getConsoleCommandSender(), input)) {
-                                getEventManager().callEvent(new CommandNotFoundEvent(input));
-                                logger.warning(LanguageManager.getMessage("command-not-found"));
-
-                                continue;
-                            }
-
-                            getEventManager().callEvent(new CommandPostProcessEvent(input, getConsoleCommandSender()));
-
-                        } catch (Throwable ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                } else {
-                    while (RUNNING) {
-                        Thread.sleep(1000);
-                    }
+                if (input.trim().isEmpty()) {
+                    return;
                 }
+
+                CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, getConsoleCommandSender());
+                getEventManager().callEvent(commandPreProcessEvent);
+
+                if (commandPreProcessEvent.isCancelled()) {
+                    return;
+                }
+
+                if (!getCommandMap().dispatchCommand(getConsoleCommandSender(), input)) {
+                    getEventManager().callEvent(new CommandNotFoundEvent(input));
+                    this.logger.warning(LanguageManager.getMessage("command-not-found"));
+
+                    return;
+                }
+
+                getEventManager().callEvent(new CommandPostProcessEvent(input, getConsoleCommandSender()));
+
             } catch (Throwable ex) {
                 ex.printStackTrace();
             }
         });
-
-        console.setName("Console-Thread");
-        console.setPriority(Thread.MIN_PRIORITY);
-        console.setDaemon(true);
-        console.start();
     }
 
     public ICommandMap getCommandMap() {
