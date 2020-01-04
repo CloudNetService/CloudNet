@@ -102,18 +102,23 @@ public final class CloudNetLauncher {
     }
 
     private void setupVariables() throws IOException, CNLCommandExecuteException {
-        if (!Files.exists(CONFIG_PATH)) {
-            try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
-                Files.copy(Objects.requireNonNull(inputStream, "Unable to extract the default launcher config, is the launcher corrupted?"), CONFIG_PATH);
-            }
-        }
-
         CNLInterpreter.registerCommand(new CNLCommandVar());
         CNLInterpreter.registerCommand(new CNLCommandEcho());
         CNLInterpreter.registerCommand(new CNLCommandCNL());
 
         CNLInterpreter.registerCommand(new CNLCommandInclude(this.dependencies));
         CNLInterpreter.registerCommand(new CNLCommandRepo(this.repositories));
+
+        try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
+            Objects.requireNonNull(inputStream, "Unable to find the default launcher config, is the launcher corrupted?");
+
+            if (Files.exists(CONFIG_PATH)) {
+                // adding the default variables first to make sure that all needed variables are existing
+                CNLInterpreter.runInterpreter(inputStream, this.variables);
+            } else {
+                Files.copy(inputStream, CONFIG_PATH);
+            }
+        }
 
         CNLInterpreter.runInterpreter(CONFIG_PATH, this.variables);
     }
@@ -185,12 +190,12 @@ public final class CloudNetLauncher {
 
     private Map<String, VersionInfo> loadVersions() {
         Map<String, VersionInfo> versionInfo = new HashMap<>();
-        this.gitHubRepository = this.variables.getOrDefault(Constants.CLOUDNET_REPOSITORY_GITHUB, "CloudNetService/CloudNet-v3");
+        this.gitHubRepository = this.variables.get(Constants.CLOUDNET_REPOSITORY_GITHUB);
 
         // handles the installing of the artifacts contained in the launcher itself
         versionInfo.put(Constants.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(Constants.FALLBACK_VERSION), this.gitHubRepository));
 
-        if (this.variables.getOrDefault(Constants.LAUNCHER_DEV_MODE, "false").equalsIgnoreCase("true")) {
+        if (this.variables.get(Constants.LAUNCHER_DEV_MODE).equalsIgnoreCase("true")) {
             // dev mode is on, only using the fallback version
             return versionInfo;
         }

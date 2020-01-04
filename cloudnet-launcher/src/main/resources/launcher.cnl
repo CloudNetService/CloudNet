@@ -1,6 +1,6 @@
 # This is the launcher configuration file
 # You can add or change properties for the CloudNet runtime
-# Please don't delete one of those configuration and use the '#' symbol to make a comment
+# You can use the '#' symbol to make a comment
 
 var cloudnet.launcher.select.version default
 var cloudnet.launcher.devmode false
