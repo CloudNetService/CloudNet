@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArguments.*;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public final class CommandCluster extends SubCommandHandler {
 
@@ -32,7 +32,7 @@ public final class CommandCluster extends SubCommandHandler {
                 SubCommandBuilder.create()
 
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> {
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
                                         node.sendCommandLine("stop");
                                     }
@@ -42,11 +42,11 @@ public final class CommandCluster extends SubCommandHandler {
                                 anyStringIgnoreCase("shutdown", "stop")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> {
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     NetworkCluster networkCluster = CloudNet.getInstance().getConfig().getClusterConfig();
-                                    HostAndPort hostAndPort = (HostAndPort) args[2];
+                                    HostAndPort hostAndPort = (HostAndPort) args.argument(2);
                                     networkCluster.getNodes().add(new NetworkClusterNode(
-                                            (String) args[1],
+                                            (String) args.argument(1),
                                             new HostAndPort[]{hostAndPort}
                                     ));
                                     CloudNet.getInstance().getConfig().getIpWhitelist().add(hostAndPort.getHost()); //setClusterConfig already saves, so we don't have to call the save method again to save the ipWhitelist
@@ -64,10 +64,10 @@ public final class CommandCluster extends SubCommandHandler {
                                 hostAndPort("host")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> {
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     NetworkCluster networkCluster = CloudNet.getInstance().getConfig().getClusterConfig();
 
-                                    networkCluster.getNodes().removeIf(node -> node.getUniqueId().equals(args[1])); //always true because the predicate given in the arguments of this SubCommand returns false if no node with that id is found
+                                    networkCluster.getNodes().removeIf(node -> node.getUniqueId().equals(args.argument(1))); //always true because the predicate given in the arguments of this SubCommand returns false if no node with that id is found
 
                                     CloudNet.getInstance().getConfig().setClusterConfig(networkCluster);
                                     CloudNet.getInstance().getClusterNodeServerProvider().setClusterServers(networkCluster);
@@ -83,7 +83,7 @@ public final class CommandCluster extends SubCommandHandler {
                                 )
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> {
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
                                         if (properties.containsKey("id") && !node.getNodeInfo().getUniqueId().contains(properties.get("id"))) {
                                             continue;
@@ -99,7 +99,7 @@ public final class CommandCluster extends SubCommandHandler {
                         .prefix(exactStringIgnoreCase("push"))
 
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> {
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     pushTasks(sender);
                                     pushGroups(sender);
                                     pushPermissions(sender);
@@ -108,24 +108,24 @@ public final class CommandCluster extends SubCommandHandler {
                                 anyStringIgnoreCase("all", "*")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplate(sender, (ServiceTemplate) args[2]),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplate(sender, (ServiceTemplate) args.argument(2)),
                                 anyStringIgnoreCase("local-template", "lt"),
                                 template("prefix/name")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplates(sender),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplates(sender),
                                 anyStringIgnoreCase("local-templates", "lts")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> pushTasks(sender),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushTasks(sender),
                                 anyStringIgnoreCase("tasks", "t")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> pushGroups(sender),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushGroups(sender),
                                 anyStringIgnoreCase("groups", "g")
                         )
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> pushPermissions(sender),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushPermissions(sender),
                                 anyStringIgnoreCase("local-perms", "lp")
                         )
 

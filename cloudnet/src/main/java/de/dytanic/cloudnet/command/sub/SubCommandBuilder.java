@@ -35,13 +35,16 @@ public class SubCommandBuilder {
         Collection<SubCommandExecutor> postCommandExecutors = new ArrayList<>(this.postCommandExecutors);
         SubCommand subCommand = new SubCommand(allTypes.toArray(new QuestionAnswerType<?>[0])) {
             @Override
-            public void execute(ICommandSender sender, String command, Object[] args, String commandLine, Properties properties, Map<String, Object> internalProperties) {
-                for (SubCommandExecutor preCommandExecutor : preCommandExecutors) {
-                    preCommandExecutor.execute(sender, command, args, commandLine, properties, internalProperties);
-                }
-                executor.execute(sender, command, args, commandLine, properties, internalProperties);
-                for (SubCommandExecutor postCommandExecutor : postCommandExecutors) {
-                    postCommandExecutor.execute(sender, command, args, commandLine, properties, internalProperties);
+            public void execute(SubCommand subCommand, ICommandSender sender, String command, SubCommandArgumentWrapper args, String commandLine, Properties properties, Map<String, Object> internalProperties) {
+                try {
+                    for (SubCommandExecutor preCommandExecutor : preCommandExecutors) {
+                        preCommandExecutor.execute(subCommand, sender, command, args, commandLine, properties, internalProperties);
+                    }
+                    executor.execute(subCommand, sender, command, args, commandLine, properties, internalProperties);
+                    for (SubCommandExecutor postCommandExecutor : postCommandExecutors) {
+                        postCommandExecutor.execute(subCommand, sender, command, args, commandLine, properties, internalProperties);
+                    }
+                } catch (CommandInterrupt ignored) {
                 }
             }
         };
@@ -101,6 +104,13 @@ public class SubCommandBuilder {
 
     public SubCommandBuilder removeLastPostHandler() {
         this.postCommandExecutors.pollLast();
+        return this;
+    }
+
+    public SubCommandBuilder executeMultipleTimes(int count, Consumer<SubCommandBuilder> consumer) {
+        for (int i = 0; i < count; i++) {
+            consumer.accept(this);
+        }
         return this;
     }
 

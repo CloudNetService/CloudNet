@@ -48,7 +48,7 @@ public class SubCommandHandler extends Command implements ITabCompleter {
                 .min(Comparator.comparingInt(Pair::getSecond))
                 .map(Pair::getFirst);
 
-        Optional<Pair<SubCommand, Object[]>> optionalSubCommand = this.subCommands.stream()
+        Optional<Pair<SubCommand, SubCommandArgument<?>[]>> optionalSubCommand = this.subCommands.stream()
                 .map(subCommand -> new Pair<>(subCommand, subCommand.parseArgs(args)))
                 .filter(pair -> pair.getSecond() != null)
                 .findFirst();
@@ -64,10 +64,10 @@ public class SubCommandHandler extends Command implements ITabCompleter {
         }
 
 
-        Pair<SubCommand, Object[]> subCommandPair = optionalSubCommand.get();
+        Pair<SubCommand, SubCommandArgument<?>[]> subCommandPair = optionalSubCommand.get();
 
         SubCommand subCommand = subCommandPair.getFirst();
-        Object[] parsedArgs = subCommandPair.getSecond();
+        SubCommandArgument<?>[] parsedArgs = subCommandPair.getSecond();
 
         if (subCommand.isOnlyConsole() && !(sender instanceof ConsoleCommandSender)) {
             sender.sendMessage(LanguageManager.getMessage("command-sub-only-console"));
@@ -79,7 +79,7 @@ public class SubCommandHandler extends Command implements ITabCompleter {
             return;
         }
 
-        subCommand.execute(sender, command, parsedArgs, commandLine, properties, new HashMap<>());
+        subCommand.execute(subCommand, sender, command, new SubCommandArgumentWrapper(parsedArgs), commandLine, properties, new HashMap<>());
     }
 
     protected void sendHelp(ICommandSender sender) {

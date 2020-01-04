@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.sub;
 
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.*;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -13,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SubCommandArguments {
+public class SubCommandArgumentTypes {
 
     public static QuestionAnswerType<HostAndPort> hostAndPort(String key) {
         return new QuestionAnswerTypeHostAndPort() {
@@ -94,6 +95,15 @@ public class SubCommandArguments {
         return dynamicString(key, null, tester);
     }
 
+    public static QuestionAnswerType<String> dynamicString(String key, int maxLength) {
+        return dynamicString(
+                key,
+                LanguageManager.getMessage("command-sub-argument-string-too-long")
+                        .replace("%maxLength%", String.valueOf(maxLength)),
+                value -> value.length() < maxLength
+        );
+    }
+
     public static QuestionAnswerType<String> dynamicString(String key, String invalidMessage, Predicate<String> tester) {
         return dynamicString(key, invalidMessage, tester, null);
     }
@@ -165,6 +175,22 @@ public class SubCommandArguments {
                 return super.isValidInput(input) && tester.test(Double.parseDouble(input));
             }
         };
+    }
+
+    public static QuestionAnswerType<Integer> positiveInteger(String key) {
+        return integer(
+                key,
+                LanguageManager.getMessage("command-sub-argument-int-not-positive"),
+                value -> value > 0
+        );
+    }
+
+    public static QuestionAnswerType<Integer> negativeInteger(String key) {
+        return integer(
+                key,
+                LanguageManager.getMessage("command-sub-argument-int-not-negative"),
+                value -> value < 0
+        );
     }
 
     public static QuestionAnswerType<Integer> integer(String key, int minValue, int maxValue) {

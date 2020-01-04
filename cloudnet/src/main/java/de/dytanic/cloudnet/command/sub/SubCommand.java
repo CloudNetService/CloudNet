@@ -38,10 +38,6 @@ public abstract class SubCommand implements SubCommandExecutor {
         this.requiredArguments = requiredArguments;
     }
 
-    private void validateArguments() {
-        Validate.assertFalse(this.requiredArguments.length == 0, "Min 1 unique argument required");
-    }
-
     public SubCommand onlyConsole() {
         this.onlyConsole = true;
         return this;
@@ -94,7 +90,7 @@ public abstract class SubCommand implements SubCommandExecutor {
                 QuestionAnswerType<?> type = this.requiredArguments[i];
 
                 if (!type.isValidInput(args[i])) {
-                    if (type instanceof QuestionAnswerTypeStaticString) {
+                    if (type instanceof QuestionAnswerTypeStaticString || type instanceof QuestionAnswerTypeStaticStringArray) {
                         ++nonMatched;
                     }
 
@@ -110,7 +106,7 @@ public abstract class SubCommand implements SubCommandExecutor {
                 QuestionAnswerType<?> type = this.requiredArguments[this.requiredArguments.length - 1];
 
                 if (!type.isValidInput(currentValue)) {
-                    if (type instanceof QuestionAnswerTypeStaticString) {
+                    if (type instanceof QuestionAnswerTypeStaticString || type instanceof QuestionAnswerTypeStaticStringArray) {
                         ++nonMatched;
                     }
 
@@ -127,34 +123,35 @@ public abstract class SubCommand implements SubCommandExecutor {
         return resultMessage != null ? new Pair<>(resultMessage, nonMatched) : null;
     }
 
-    public Object[] parseArgs(String[] args) {
+    public SubCommandArgument<?>[] parseArgs(String[] args) {
         if (!this.checkValidArgsLength(args.length)) {
             return null;
         }
         return this.parseArgsIgnoreLength(args);
     }
 
-    public Object[] parseArgsIgnoreLength(String[] args) {
-        List<Object> result = new ArrayList<>();
+    public SubCommandArgument<?>[] parseArgsIgnoreLength(String[] args) {
+        List<SubCommandArgument<?>> result = new ArrayList<>();
         for (int i = 0; i < args.length; i++) {
             if (this.requiredArguments.length > i) {
-                if (!this.requiredArguments[i].isValidInput(args[i])) {
+                QuestionAnswerType<?> type = this.requiredArguments[i];
+                if (!type.isValidInput(args[i])) {
                     return null;
                 }
 
-                result.add(this.requiredArguments[i].parse(args[i]));
+                result.add(new SubCommandArgument(type, type.parse(args[i])));
             } else {
                 String currentValue = String.join(" ", Arrays.copyOfRange(args, Math.max(0, i - 1), Math.max(this.requiredArguments.length, Math.min(args.length, this.maxArgs))));
                 QuestionAnswerType<?> type = this.requiredArguments[this.requiredArguments.length - 1];
 
                 if (type.isValidInput(currentValue)) {
-                    result.set(result.size() - 1, type.parse(currentValue));
+                    result.set(result.size() - 1, new SubCommandArgument(type, type.parse(currentValue)));
                 }
 
                 break;
             }
         }
-        return result.toArray(new Object[0]);
+        return result.toArray(new SubCommandArgument[0]);
     }
 
     public Collection<String> getNextPossibleArgumentAnswers(String[] args) {

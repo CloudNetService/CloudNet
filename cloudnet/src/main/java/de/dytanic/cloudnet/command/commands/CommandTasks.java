@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArguments.*;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandTasks extends SubCommandHandler {
     public CommandTasks() {
@@ -39,15 +39,15 @@ public class CommandTasks extends SubCommandHandler {
                 SubCommandBuilder.create()
 
                         .generateCommand(
-                                (sender, command, args, commandLine, properties, internalProperties) -> setupTask(CloudNet.getInstance().getConsole(), sender),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> setupTask(CloudNet.getInstance().getConsole(), sender),
                                 SubCommand::onlyConsole,
                                 exactStringIgnoreCase("setup")
                         )
-                        .generateCommand((sender, command, args, commandLine, properties, internalProperties) -> {
+                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             CloudNet.getInstance().getCloudServiceManager().reload();
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-reload-success"));
                         }, anyStringIgnoreCase("reload", "rl"))
-                        .generateCommand((sender, command, args, commandLine, properties, internalProperties) -> {
+                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             sender.sendMessage("- Tasks", " ");
 
                             for (ServiceTask serviceTask : CloudNet.getInstance().getCloudServiceManager().getServiceTasks()) {
@@ -88,11 +88,11 @@ public class CommandTasks extends SubCommandHandler {
                         ))
 
                         .preExecute(
-                                (sender, command, args, commandLine, properties, internalProperties) ->
-                                        internalProperties.put("task", CloudNet.getInstance().getServiceTaskProvider().getServiceTask((String) args[1]))
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                                        internalProperties.put("task", CloudNet.getInstance().getServiceTaskProvider().getServiceTask((String) args.argument(1)))
                         )
 
-                        .generateCommand((sender, command, args, commandLine, properties, internalProperties) -> displayTask(sender, (ServiceTask) internalProperties.get("task")))
+                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayTask(sender, (ServiceTask) internalProperties.get("task")))
 
                         .prefix(exactStringIgnoreCase("set"))
                         .applyHandler(CommandTasks::handleTaskSetCommands)
@@ -130,11 +130,11 @@ public class CommandTasks extends SubCommandHandler {
                                         .collect(Collectors.toList())
                         ))
 
-                        .preExecute((sender, command, args, commandLine, properties, internalProperties) ->
-                                internalProperties.put("group", CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration((String) args[1]))
+                        .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                                internalProperties.put("group", CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration((String) args.argument(1)))
                         )
 
-                        .generateCommand((sender, command, args, commandLine, properties, internalProperties) -> displayGroup(sender, (GroupConfiguration) internalProperties.get("group")))
+                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayGroup(sender, (GroupConfiguration) internalProperties.get("group")))
 
                         .applyHandler(builder -> handleGeneralAddCommands(
                                 builder,
@@ -161,10 +161,10 @@ public class CommandTasks extends SubCommandHandler {
                 .prefix(exactStringIgnoreCase("create"))
 
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             try {
-                                String name = (String) args[2];
-                                ServiceEnvironmentType type = (ServiceEnvironmentType) args[3];
+                                String name = (String) args.argument(2);
+                                ServiceEnvironmentType type = (ServiceEnvironmentType) args.argument(3);
 
                                 CloudNet.getInstance().getCloudServiceManager().addPermanentServiceTask(new ServiceTask(
                                         Iterables.newArrayList(),
@@ -216,8 +216,8 @@ public class CommandTasks extends SubCommandHandler {
                         exactEnum(ServiceEnvironmentType.class)
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            createEmptyGroupConfiguration((String) args[2]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            createEmptyGroupConfiguration((String) args.argument(2));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
                         },
                         exactStringIgnoreCase("group"),
@@ -236,8 +236,8 @@ public class CommandTasks extends SubCommandHandler {
                 .prefix(exactStringIgnoreCase("delete"))
 
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            CloudNet.getInstance().getCloudServiceManager().removePermanentServiceTask((String) args[2]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            CloudNet.getInstance().getCloudServiceManager().removePermanentServiceTask((String) args.argument(2));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
                         },
                         exactStringIgnoreCase("task"),
@@ -251,8 +251,8 @@ public class CommandTasks extends SubCommandHandler {
                         )
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            CloudNet.getInstance().getCloudServiceManager().removeGroupConfiguration((String) args[2]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            CloudNet.getInstance().getCloudServiceManager().removeGroupConfiguration((String) args.argument(2));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-group"));
                         },
                         exactStringIgnoreCase("group"),
@@ -271,63 +271,63 @@ public class CommandTasks extends SubCommandHandler {
 
     private static void handleTaskSetCommands(SubCommandBuilder builder) {
         builder
-                .postExecute((sender, command, args, commandLine, properties, internalProperties) -> {
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                     ServiceTask serviceTask = (ServiceTask) internalProperties.get("task");
 
                     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
                     sender.sendMessage(LanguageManager.getMessage("command-tasks-set-property-success")
-                            .replace("%property%", (String) args[3])
+                            .replace("%property%", (String) args.argument(3))
                             .replace("%name%", serviceTask.getName())
-                            .replace("%value%", String.valueOf(args[4]))
+                            .replace("%value%", String.valueOf(args.argument(4)))
                     );
                 })
 
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setMinServiceCount((Integer) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).setMinServiceCount((Integer) args.argument(4));
                         },
                         exactStringIgnoreCase("minServiceCount"),
                         integer("amount", amount -> amount >= 0)
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setMaintenance((Boolean) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).setMaintenance((Boolean) args.argument(4));
                         },
                         exactStringIgnoreCase("maintenance"),
                         boolean_("enabled")
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setMaxHeapMemorySize((Integer) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setMaxHeapMemorySize((Integer) args.argument(4));
                         },
                         exactStringIgnoreCase("maxHeapMemory"),
                         integer("memory", memory -> memory > 0)
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setStartPort((Integer) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).setStartPort((Integer) args.argument(4));
                         },
                         exactStringIgnoreCase("startPort"),
                         integer("startPort", 0, 65535)
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setAutoDeleteOnStop((Boolean) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).setAutoDeleteOnStop((Boolean) args.argument(4));
                         },
                         exactStringIgnoreCase("autoDeleteOnStop"),
                         boolean_("autoDeleteOnStop")
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setStaticServices((Boolean) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).setStaticServices((Boolean) args.argument(4));
                         },
                         exactStringIgnoreCase("staticServices"),
                         boolean_("staticServices")
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setEnvironment((ServiceEnvironmentType) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setEnvironment((ServiceEnvironmentType) args.argument(4));
                         },
                         exactStringIgnoreCase("environment"),
                         exactEnum(ServiceEnvironmentType.class)
@@ -338,13 +338,13 @@ public class CommandTasks extends SubCommandHandler {
 
     private static void handleTaskAddCommands(SubCommandBuilder builder) {
         builder
-                .postExecute((sender, command, args, commandLine, properties, internalProperties) -> {
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) internalProperties.get("task"));
                 })
 
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getAssociatedNodes().add((String) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).getAssociatedNodes().add((String) args.argument(4));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
                         },
                         exactStringIgnoreCase("node"),
@@ -364,8 +364,8 @@ public class CommandTasks extends SubCommandHandler {
                         )
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getGroups().add((String) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).getGroups().add((String) args.argument(4));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
                         },
                         exactStringIgnoreCase("group"),
@@ -384,13 +384,13 @@ public class CommandTasks extends SubCommandHandler {
 
     private static void handleTaskRemoveCommands(SubCommandBuilder builder) {
         builder
-                .postExecute((sender, command, args, commandLine, properties, internalProperties) -> {
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) internalProperties.get("task"));
                 })
 
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getAssociatedNodes().remove((String) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).getAssociatedNodes().remove((String) args.argument(4));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-node-success"));
                         },
                         exactStringIgnoreCase("node"),
@@ -406,8 +406,8 @@ public class CommandTasks extends SubCommandHandler {
                         )
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getGroups().add((String) args[4]);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ((ServiceTask) internalProperties.get("task")).getGroups().add((String) args.argument(4));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-group-success"));
                         },
                         exactStringIgnoreCase("group"),
@@ -427,13 +427,13 @@ public class CommandTasks extends SubCommandHandler {
         builder
                 .prefix(exactStringIgnoreCase("add"))
 
-                .postExecute((sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
 
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args[4];
-                            Collection<String> excludes = args.length > 5 ? (Collection<String>) args[5] : new ArrayList<>();
+                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
+                            Collection<String> excludes = args.length() > 5 ? (Collection<String>) args.argument(5) : new ArrayList<>();
 
                             configuration.getDeployments().add(new ServiceDeployment(template, excludes));
 
@@ -445,9 +445,9 @@ public class CommandTasks extends SubCommandHandler {
                         collection("excludedFiles separated by \";\"")
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args[4];
+                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
 
                             configuration.getTemplates().add(template);
 
@@ -457,10 +457,10 @@ public class CommandTasks extends SubCommandHandler {
                         template("storage:prefix/name")
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            String url = (String) args[4];
-                            String target = (String) args[5];
+                            String url = (String) args.argument(4);
+                            String target = (String) args.argument(5);
 
                             configuration.getIncludes().add(new ServiceRemoteInclusion(url, target));
 
@@ -480,12 +480,12 @@ public class CommandTasks extends SubCommandHandler {
         builder
                 .prefix(exactStringIgnoreCase("remove"))
 
-                .postExecute((sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
 
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args[4];
+                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
 
                             configuration.getDeployments().removeAll(configuration.getDeployments().stream()
                                     .filter(deployment -> deployment.getTemplate().equals(template))
@@ -498,9 +498,9 @@ public class CommandTasks extends SubCommandHandler {
                         template("storage:prefix/name")
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args[4];
+                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
 
                             configuration.getTemplates().removeAll(configuration.getTemplates().stream()
                                     .filter(serviceTemplate -> serviceTemplate.equals(template))
@@ -513,10 +513,10 @@ public class CommandTasks extends SubCommandHandler {
                         template("storage:prefix/name")
                 )
                 .generateCommand(
-                        (sender, command, args, commandLine, properties, internalProperties) -> {
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            String url = (String) args[4];
-                            String target = (String) args[5];
+                            String url = (String) args.argument(4);
+                            String target = (String) args.argument(5);
 
                             configuration.getIncludes().removeAll(configuration.getIncludes().stream()
                                     .filter(inclusion -> inclusion.getDestination().equalsIgnoreCase(target))

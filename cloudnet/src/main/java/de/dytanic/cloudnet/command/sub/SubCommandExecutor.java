@@ -7,6 +7,6 @@ import java.util.Map;
 
 public interface SubCommandExecutor {
 
-    void execute(ICommandSender sender, String command, Object[] args, String commandLine, Properties properties, Map<String, Object> internalProperties);
+    void execute(SubCommand subCommand, ICommandSender sender, String command, SubCommandArgumentWrapper args, String commandLine, Properties properties, Map<String, Object> internalProperties);
 
 }
