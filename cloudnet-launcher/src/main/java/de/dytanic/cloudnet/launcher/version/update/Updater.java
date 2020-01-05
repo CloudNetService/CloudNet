@@ -18,30 +18,44 @@ public interface Updater extends VersionInfo {
     boolean installFile(String name, Path path, boolean replace);
 
     default boolean installUpdate(String moduleDestinationBaseDirectory) {
-        try {
-            Files.createDirectories(this.getTargetDirectory());
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return false;
-        }
-
         boolean successful = false;
 
         if (this.getCurrentVersion() != null) {
-            successful = true;
 
-            for (String versionFile : Constants.VERSION_FILE_NAMES) {
-                if (!this.installFile(versionFile, this.getTargetDirectory().resolve(versionFile), false)) {
-                    successful = false;
-                }
-            }
+            try {
+                Files.createDirectories(this.getTargetDirectory());
 
-            if (moduleDestinationBaseDirectory != null) {
-                for (CloudNetModule module : Constants.DEFAULT_MODULES) {
-                    if (!this.installModuleFile(module.getFileName(), Paths.get(moduleDestinationBaseDirectory, module.getFileName()))) {
+                successful = true;
+
+                for (String versionFile : Constants.VERSION_FILE_NAMES) {
+                    if (!this.installFile(versionFile, this.getTargetDirectory().resolve(versionFile), false)) {
                         successful = false;
                     }
                 }
+
+                if (moduleDestinationBaseDirectory != null) {
+                    Path moduleDirectoryPath = Paths.get(moduleDestinationBaseDirectory);
+
+                    boolean modulesExist = Files.exists(moduleDirectoryPath);
+
+                    if (!modulesExist) {
+                        Files.createDirectories(moduleDirectoryPath);
+                    }
+
+                    for (CloudNetModule module : Constants.DEFAULT_MODULES) {
+                        Path modulePath = moduleDirectoryPath.resolve(module.getFileName());
+
+                        // avoiding the installation of manual removed modules
+                        if (!modulesExist || Files.exists(modulePath)) {
+                            if (!this.installModuleFile(module.getFileName(), modulePath)) {
+                                successful = false;
+                            }
+                        }
+                    }
+                }
+            } catch (IOException exception) {
+                exception.printStackTrace();
+                return false;
             }
 
         }
