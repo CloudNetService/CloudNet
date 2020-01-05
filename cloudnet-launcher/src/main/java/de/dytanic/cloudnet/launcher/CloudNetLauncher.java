@@ -55,17 +55,17 @@ public final class CloudNetLauncher {
         String user = System.getProperty("user.name");
 
         if (user.equalsIgnoreCase("root") || user.equalsIgnoreCase("administrator")) {
-            PRINT.accept("===================================================================");
-            PRINT.accept("You currently use an administrative user for this application");
-            PRINT.accept("It's better and save, if you create an extra user which you start CloudNet");
-            PRINT.accept("===================================================================");
+            PRINT.accept("====================================================================");
+            PRINT.accept("You are currently using an administrative user for this application");
+            PRINT.accept("It's recommended to create a seperate user to start CloudNet");
+            PRINT.accept("====================================================================");
         }
     }
 
     private static synchronized void run(List<String> args) throws Throwable {
         final long launcherStartTime = System.currentTimeMillis();
 
-        PRINT.accept("Starting CloudNet launcher " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
+        PRINT.accept("Starting CloudNet launcher version " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
 
         final Path configPath = Paths.get(Constants.LAUNCHER_CONFIG), launcherDirectory = Paths.get(Constants.LAUNCHER_DIR);
 
@@ -338,15 +338,15 @@ public final class CloudNetLauncher {
         if (updater.init(url) && updater.getRepositoryVersion() != null && updater.getCurrentVersion() != null) {
             PRINT.accept("Loaded data from Repository " + url);
             PRINT.accept("Repository version: " + updater.getRepositoryVersion());
-            PRINT.accept("Current CloudNet AppVersion: " + updater.getCurrentVersion());
-            PRINT.accept("Installing repository CloudNet version if not exists...");
+            PRINT.accept("Current CloudNet version: " + updater.getCurrentVersion());
+            PRINT.accept("Repository version of CloudNet will be installed if no versions can be found.");
 
             if (updater.installUpdate(new File(launcherDirectory.toFile(), "versions").getAbsolutePath(),
                     variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED) != null &&
                             variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED).equalsIgnoreCase("true") ?
                             System.getProperty("cloudnet.modules.directory", "modules") : null
             )) {
-                PRINT.accept("Set using version to " + updater.getCurrentVersion());
+                PRINT.accept("Using CloudNet version " + updater.getCurrentVersion());
                 variables.put(Constants.CLOUDNET_SELECTED_VERSION, updater.getCurrentVersion());
             }
         }
