@@ -24,7 +24,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -623,21 +622,22 @@ final class JVMCloudService implements ICloudService {
 
         File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
 
-        Optional<File> applicationFileOptional = Files.list(this.directory.toPath())
-                .map(Path::toFile)
-                .filter(file -> file.getName().endsWith(".jar"))
-                .filter(file -> {
-                    for (ServiceEnvironment environment : this.serviceConfiguration.getProcessConfig().getEnvironment().getEnvironments()) {
-                        if (file.getName().toLowerCase()
-                                .contains(environment.getName().toLowerCase())) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })
-                .findFirst();
+        File applicationFile = null;
+        File[] files = this.directory.listFiles();
 
-        if (!applicationFileOptional.isPresent()) {
+        if (files != null) {
+            for (ServiceEnvironment environment : this.serviceConfiguration.getProcessConfig().getEnvironment().getEnvironments()) {
+                for (File file : files) {
+                    String fileName = file.getName().toLowerCase();
+
+                    if (fileName.endsWith(".jar") && fileName.contains(environment.getName())) {
+                        applicationFile = file;
+                    }
+                }
+            }
+        }
+
+        if (applicationFile == null) {
             CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%task%", this.serviceId.getTaskName())
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
@@ -652,8 +652,6 @@ final class JVMCloudService implements ICloudService {
             this.stop();
             return;
         }
-
-        File applicationFile = applicationFileOptional.get();
 
         commandArguments.addAll(this.serviceConfiguration.getProcessConfig().getJvmOptions());
         commandArguments.addAll(Arrays.asList(
