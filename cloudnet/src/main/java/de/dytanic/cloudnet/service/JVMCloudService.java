@@ -632,7 +632,12 @@ final class JVMCloudService implements ICloudService {
 
                     if (fileName.endsWith(".jar") && fileName.contains(environment.getName())) {
                         applicationFile = file;
+                        break;
                     }
+                }
+
+                if (applicationFile != null) {
+                    break;
                 }
             }
         }
