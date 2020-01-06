@@ -26,4 +26,5 @@ public final class PacketServerSetGlobalServiceInfoListListener implements IPack
             }
         }
     }
+
 }

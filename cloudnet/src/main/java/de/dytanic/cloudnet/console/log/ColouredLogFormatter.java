@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.console.log;
 
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.LogEntry;
-import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.logging.LoggingUtils;
 import de.dytanic.cloudnet.console.ConsoleColor;
 
@@ -29,11 +28,11 @@ public final class ColouredLogFormatter implements IFormatter {
                         .append(dateFormat.format(logEntry.getTimeStamp()))
                         .append(ConsoleColor.DARK_GRAY)
                         .append("] ")
-                        .append(logEntry.getLogLevel().getLevel() < LogLevel.WARNING.getLevel() ? ConsoleColor.GRAY : ConsoleColor.RED)
+                        .append(logEntry.getLogLevel().isColorized() ? ConsoleColor.RED : ConsoleColor.GRAY)
                         .append(logEntry.getLogLevel().getUpperName())
                         .append(ConsoleColor.DARK_GRAY)
                         .append(": ")
-                        .append(logEntry.getLogLevel().getLevel() < LogLevel.WARNING.getLevel() ? ConsoleColor.DEFAULT : ConsoleColor.YELLOW)
+                        .append(logEntry.getLogLevel().isColorized() ? ConsoleColor.YELLOW : ConsoleColor.DEFAULT)
                         .append(message)
                         .append(System.lineSeparator());
             }

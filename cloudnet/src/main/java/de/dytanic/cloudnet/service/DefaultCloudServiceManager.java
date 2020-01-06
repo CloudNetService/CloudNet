@@ -519,7 +519,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         while (!PortValidator.checkPort(port)) {
-            System.out.println(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
+            CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
                     .replace("%port%", String.valueOf(port))
                     .replace("%next_port%", String.valueOf(++port)));
         }

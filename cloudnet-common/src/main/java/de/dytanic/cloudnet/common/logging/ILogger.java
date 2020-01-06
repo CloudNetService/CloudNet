@@ -536,6 +536,117 @@ public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoC
         return log(LogLevel.ERROR, clazz, messages, throwable);
     }
 
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String message) {
+        return log(LogLevel.EXTENDED, message);
+    }
+
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String... messages) {
+        return log(LogLevel.EXTENDED, messages);
+    }
+
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String message, Class<?> clazz) {
+        return log(LogLevel.EXTENDED, clazz, message);
+    }
+
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String[] messages, Class<?> clazz) {
+        return log(LogLevel.EXTENDED, clazz, messages);
+    }
+
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String message, Throwable throwable) {
+        return log(LogLevel.EXTENDED, message, throwable);
+    }
+
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String[] messages, Throwable throwable) {
+        return log(LogLevel.EXTENDED, messages, throwable);
+    }
+
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String message, Class<?> clazz, Throwable throwable) {
+        return log(LogLevel.EXTENDED, clazz, message, throwable);
+    }
+
+    /**
+     * An wrapper method for the last base method log(LogEntry)
+     * It has the default LogLevel EXTENDED
+     * <p>
+     * This method should be a simply shortcut and bypasses an implementation of a LogEntry object
+     *
+     * @see LogEntry
+     * @see LogLevel
+     * @see ILogHandler
+     */
+    default ILogger extended(String[] messages, Class<?> clazz, Throwable throwable) {
+        return log(LogLevel.EXTENDED, clazz, messages, throwable);
+    }
 
     /**
      * An wrapper method for the last base method log(LogEntry)

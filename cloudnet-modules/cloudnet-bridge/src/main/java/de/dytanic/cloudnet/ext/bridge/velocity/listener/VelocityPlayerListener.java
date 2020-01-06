@@ -10,10 +10,19 @@ import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import net.kyori.text.TextComponent;
 
+import java.util.concurrent.TimeUnit;
+
 public final class VelocityPlayerListener {
+
+    private VelocityCloudNetBridgePlugin plugin;
+
+    public VelocityPlayerListener(VelocityCloudNetBridgePlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Subscribe
     public void handle(LoginEvent event) {
@@ -24,7 +33,8 @@ public final class VelocityPlayerListener {
     public void handle(PostLoginEvent event) {
         BridgeHelper.sendChannelMessageProxyLoginSuccess(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        VelocityCloudNetHelper.updateServiceInfo();
+        VelocityCloudNetHelper.getProxyServer().getScheduler().buildTask(this.plugin, VelocityCloudNetHelper::updateServiceInfo)
+                .delay(50, TimeUnit.MILLISECONDS).schedule();
     }
 
     @Subscribe
@@ -82,6 +92,7 @@ public final class VelocityPlayerListener {
     public void handle(DisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
 
-        VelocityCloudNetHelper.updateServiceInfo();
+        VelocityCloudNetHelper.getProxyServer().getScheduler().buildTask(this.plugin, VelocityCloudNetHelper::updateServiceInfo)
+                .delay(50, TimeUnit.MILLISECONDS).schedule();
     }
 }

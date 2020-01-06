@@ -53,7 +53,7 @@ public final class VelocityCloudNetBridgePlugin {
 
     private void initListeners() {
         //Velocity API
-        this.proxyServer.getEventManager().register(this, new VelocityPlayerListener());
+        this.proxyServer.getEventManager().register(this, new VelocityPlayerListener(this));
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new VelocityCloudNetListener());
