@@ -245,18 +245,31 @@ public class CommandPermissions extends SubCommandHandler {
                         )
                 )
 
-                .applyHandler(ignored -> handlePermissionCommands(builder, triple -> {
-                    IPermissionUser user = (IPermissionUser) triple.getSecond().get("user");
+                .applyHandler(ignored -> handlePermissionCommands(
+                        builder,
+                        triple -> {
+                            IPermissionUser user = (IPermissionUser) triple.getSecond().get("user");
 
-                    Permission permission = addPermission(user, triple.getThird());
+                            Permission permission = addPermission(user, triple.getThird());
 
-                    CloudNet.getInstance().getPermissionManagement().updateUser(user);
-                    triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-user-add-permission-successful")
-                            .replace("%name%", user.getName())
-                            .replace("%permission%", permission.getName())
-                            .replace("%potency%", String.valueOf(permission.getPotency()))
-                    );
-                }))
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-user-add-permission-successful")
+                                    .replace("%name%", user.getName())
+                                    .replace("%permission%", permission.getName())
+                                    .replace("%potency%", String.valueOf(permission.getPotency()))
+                            );
+                        },
+                        triple -> {
+                            IPermissionUser user = (IPermissionUser) triple.getSecond().get("user");
+                            String permission = removePermission(user, triple.getThird());
+
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-user-remove-permission-successful")
+                                    .replace("%name%", user.getName())
+                                    .replace("%permission%", permission)
+                            );
+                        })
+                )
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
@@ -362,18 +375,31 @@ public class CommandPermissions extends SubCommandHandler {
                         )
                 )
 
-                .applyHandler(ignored -> handlePermissionCommands(builder, triple -> {
-                    IPermissionGroup group = (IPermissionGroup) triple.getSecond().get("group");
+                .applyHandler(ignored -> handlePermissionCommands(
+                        builder,
+                        triple -> {
+                            IPermissionGroup group = (IPermissionGroup) triple.getSecond().get("group");
 
-                    Permission permission = addPermission( group, triple.getThird());
+                            Permission permission = addPermission(group, triple.getThird());
 
-                    CloudNet.getInstance().getPermissionManagement().updateGroup(group);
-                    triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-group-add-permission-successful")
-                            .replace("%name%", group.getName())
-                            .replace("%permission%", permission.getName())
-                            .replace("%potency%", String.valueOf(permission.getPotency()))
-                    );
-                }))
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-group-add-permission-successful")
+                                    .replace("%name%", group.getName())
+                                    .replace("%permission%", permission.getName())
+                                    .replace("%potency%", String.valueOf(permission.getPotency()))
+                            );
+                        },
+                        triple -> {
+                            IPermissionGroup group = (IPermissionGroup) triple.getSecond().get("group");
+                            String permission = removePermission(group, triple.getThird());
+
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
+                                    .replace("%name%", group.getName())
+                                    .replace("%permission%", permission)
+                            );
+                        })
+                )
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
@@ -397,21 +423,22 @@ public class CommandPermissions extends SubCommandHandler {
                 .removeLastPreHandler();
     }
 
-    private static void handlePermissionCommands(SubCommandBuilder builder, Consumer<Triple<ICommandSender, Map<String, Object>, SubCommandArgumentWrapper>> commandHandler) {
+    private static void handlePermissionCommands(SubCommandBuilder builder, Consumer<Triple<ICommandSender, Map<String, Object>, SubCommandArgumentWrapper>> addPermissionHandler,
+                                                 Consumer<Triple<ICommandSender, Map<String, Object>, SubCommandArgumentWrapper>> removePermissionHandler) {
         builder
                 .prefix(exactStringIgnoreCase("add"))
                 .prefix(anyStringIgnoreCase("permission", "perm"))
                 .prefix(dynamicString("permission"))
 
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> commandHandler.accept(new Triple<>(sender, internalProperties, args))
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args))
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> commandHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
                         integer("potency")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> commandHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
                         integer("potency"),
                         dynamicString(
                                 "targetGroup",
@@ -420,7 +447,7 @@ public class CommandPermissions extends SubCommandHandler {
                         )
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> commandHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
                         integer("potency"),
                         dynamicString(
                                 "time in days | lifetime",
@@ -428,7 +455,7 @@ public class CommandPermissions extends SubCommandHandler {
                         )
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> commandHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
                         dynamicString(
                                 "targetGroup",
                                 LanguageManager.getMessage("command-permissions-target-group-not-found"),
@@ -437,7 +464,7 @@ public class CommandPermissions extends SubCommandHandler {
                         )
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> commandHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
                         integer("potency"),
                         dynamicString(
                                 "time in days | lifetime",
@@ -456,9 +483,9 @@ public class CommandPermissions extends SubCommandHandler {
 
                 .prefix(anyStringIgnoreCase("permission", "perm"))
                 .prefix(dynamicString("permission"))
-                .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> removeGroupPermission(sender, internalProperties, args))
+                .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> removePermissionHandler.accept(new Triple<>(sender, internalProperties, args)))
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> removeGroupPermission(sender, internalProperties, args),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> removePermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
                         dynamicString(
                                 "targetGroup",
                                 LanguageManager.getMessage("command-permissions-target-group-not-found"),
@@ -539,17 +566,6 @@ public class CommandPermissions extends SubCommandHandler {
         }
 
         return permission;
-    }
-
-    private static void removeGroupPermission(ICommandSender sender, Map<String, Object> internalProperties, SubCommandArgumentWrapper args) {
-        IPermissionGroup group = (IPermissionGroup) internalProperties.get("group");
-        String permission = removePermission(group, args);
-
-        CloudNet.getInstance().getPermissionManagement().updateGroup(group);
-        sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
-                .replace("%name%", group.getName())
-                .replace("%permission%", permission)
-        );
     }
 
     private static String removePermission(IPermissible permissible, SubCommandArgumentWrapper args) {
