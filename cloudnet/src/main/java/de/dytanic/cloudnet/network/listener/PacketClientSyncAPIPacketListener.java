@@ -243,7 +243,7 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 break;
                 case "add_service_template_to_cloud_service": {
                     this.getCloudServiceProvider(packet.getHeader())
-                            .addServiceRemoteInclusion(packet.getHeader().get("serviceTemplate", new TypeToken<ServiceTemplate>() {
+                            .addServiceTemplate(packet.getHeader().get("serviceTemplate", new TypeToken<ServiceTemplate>() {
                             }.getType()));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }

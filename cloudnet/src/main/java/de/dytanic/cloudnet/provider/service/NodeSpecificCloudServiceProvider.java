@@ -52,7 +52,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
-            cloudService.getWaitingTemplates().offer(serviceTemplate);
+            cloudService.offerTemplate(serviceTemplate);
             return;
         }
 
@@ -83,7 +83,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
-            cloudService.getWaitingIncludes().offer(serviceRemoteInclusion);
+            cloudService.offerInclusion(serviceRemoteInclusion);
             return;
         }
 
@@ -113,7 +113,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
-            cloudService.getDeployments().add(serviceDeployment);
+            cloudService.addDeployment(serviceDeployment);
             return;
         }
 

@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -7,7 +8,7 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-public final class ServiceId {
+public final class ServiceId implements INameable {
 
     private final UUID uniqueId;
 

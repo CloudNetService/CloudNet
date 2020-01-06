@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.command.commands;
 
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.command.ITabCompleter;
-import de.dytanic.cloudnet.common.Properties;
+import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.command.sub.SubCommandHandler;
+import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
@@ -12,241 +12,179 @@ import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class CommandService extends CommandDefault implements ITabCompleter {
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
+public class CommandService extends SubCommandHandler {
     public CommandService() {
-        super("service", "services", "serv", "ser");
-    }
+        super(
+                SubCommandBuilder.create()
 
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        if (args.length == 0) {
-            sender.sendMessage(
-                    "service list | id=<text> | task=<text> | group=<text> | --names",
-                    "service foreach | task=<text> | id=<text> | group=<text> ",
-                    "--start | --stop | --delete | --restart | --includeInclusions | --includeTemplates | --deployResources",
-                    "service <uniqueId | name>",
-                    "service <uniqueId | name> info",
-                    "service <uniqueId | name> start",
-                    "service <uniqueId | name> stop | --force",
-                    "service <uniqueId | name> delete",
-                    "service <uniqueId | name> restart",
-                    "service <uniqueId | name> command <command>",
-                    "service <uniqueId | name> includeInclusions",
-                    "service <uniqueId | name> includeTemplates",
-                    "service <uniqueId | name> deployResources",
-                    "service <uniqueId | name> add inclusion <url> <target>",
-                    "service <uniqueId | name> add template <storage> <prefix> <name>",
-                    "service <uniqueId | name> add deployment <storage> <prefix> <name> [excludes spigot.jar;logs/;plugins/]"
-            );
-            return;
-        }
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    Collection<ServiceInfoSnapshot> targetServiceInfoSnapshots = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                                            .filter(serviceInfoSnapshot -> !properties.containsKey("id")
+                                                    || serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(properties.get("id").toLowerCase()))
+                                            .filter(serviceInfoSnapshot -> !properties.containsKey("group")
+                                                    || Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
+                                            .filter(serviceInfoSnapshot -> !properties.containsKey("task")
+                                                    || properties.get("task").toLowerCase().contains(serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase()))
+                                            .collect(Collectors.toSet());
 
-        if (args[0].equalsIgnoreCase("list")) {
-
-            Collection<ServiceInfoSnapshot> targetServiceInfoSnapshots = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
-                    .filter(serviceInfoSnapshot -> !properties.containsKey("id")
-                            || serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(properties.get("id").toLowerCase()))
-                    .filter(serviceInfoSnapshot -> !properties.containsKey("group")
-                            || Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
-                    .filter(serviceInfoSnapshot -> !properties.containsKey("task")
-                            || properties.get("task").toLowerCase().contains(serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase()))
-                    .collect(Collectors.toSet());
-
-            for (ServiceInfoSnapshot serviceInfoSnapshot : targetServiceInfoSnapshots) {
-                if (!properties.containsKey("names")) {
-                    sender.sendMessage(
-                            serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0] +
-                                    " | Name: " + serviceInfoSnapshot.getServiceId().getName() +
-                                    " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId() +
-                                    " | Status: " + serviceInfoSnapshot.getLifeCycle() +
-                                    " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":" +
-                                    serviceInfoSnapshot.getAddress().getPort() +
-                                    " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
-                    );
-                } else {
-                    sender.sendMessage(serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId() +
-                            " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
-                }
-            }
-            sender.sendMessage(String.format("=> Showing %d service(s)", targetServiceInfoSnapshots.size()));
-
-            return;
-        }
-
-        if (args[0].equalsIgnoreCase("foreach")) {
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
-                if (properties.containsKey("id") &&
-                        !serviceInfoSnapshot.getServiceId().getUniqueId().toString()
-                                .toLowerCase().contains(properties.get("id").toLowerCase())) {
-                    continue;
-                }
-
-                if (properties.containsKey("group") &&
-                        !Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups())) {
-                    continue;
-                }
-
-                if (properties.containsKey("task") &&
-                        !properties.get("task").toLowerCase().contains(
-                                serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase())) {
-                    continue;
-                }
-
-                if (properties.containsKey("delete")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).delete();
-                    continue;
-                }
-
-                if (properties.containsKey("restart")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).restart();
-                    continue;
-                }
-
-                if (properties.containsKey("includeInclusions")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).includeWaitingServiceInclusions();
-                    continue;
-                }
-
-                if (properties.containsKey("includeTemplates")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).includeWaitingServiceTemplates();
-                    continue;
-                }
-
-                if (properties.containsKey("deployResources")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).deployResources();
-                    continue;
-                }
-
-                if (properties.containsKey("start")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
-                    continue;
-                }
-
-                if (properties.containsKey("stop")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).stop();
-                }
-            }
-        }
-
-        ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceByNameOrUniqueId(args[0]);
-
-        //Handle service
-        if (serviceInfoSnapshot != null) {
-            if (args.length == 1) {
-                this.display(sender, serviceInfoSnapshot, false);
-                return;
-            }
-
-            if (args.length > 4) {
-                if (args[1].equalsIgnoreCase("add")) {
-                    switch (args[2]) {
-                        case "template":
-                            if (args.length == 6) {
-                                if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[3])) {
-                                    ServiceTemplate serviceTemplate = new ServiceTemplate(args[4], args[5], args[3]);
-
-                                    if (CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, args[3]).has(serviceTemplate)) {
-                                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).addServiceTemplate(serviceTemplate);
-
-                                        sender.sendMessage(LanguageManager.getMessage("command-service-add-template-success"));
-                                    }
-                                }
-                            }
-                            break;
-                        case "deployment":
-                            if (args.length > 5) {
-                                if (CloudNetDriver.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, args[3])) {
-                                    ServiceDeployment serviceDeployment = new ServiceDeployment(new ServiceTemplate(args[4], args[5], args[3]), Iterables.newArrayList());
-
-                                    if (args.length == 7) {
-                                        serviceDeployment.getExcludes().addAll(Arrays.asList(args[6].split(";")));
+                                    for (ServiceInfoSnapshot serviceInfoSnapshot : targetServiceInfoSnapshots) {
+                                        if (!properties.containsKey("names")) {
+                                            sender.sendMessage(
+                                                    serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0] +
+                                                            " | Name: " + serviceInfoSnapshot.getServiceId().getName() +
+                                                            " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId() +
+                                                            " | Status: " + serviceInfoSnapshot.getLifeCycle() +
+                                                            " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":" +
+                                                            serviceInfoSnapshot.getAddress().getPort() +
+                                                            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
+                                            );
+                                        } else {
+                                            sender.sendMessage(serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId() +
+                                                    " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
+                                        }
                                     }
 
-                                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).addServiceDeployment(serviceDeployment);
+                                    sender.sendMessage(String.format("=> Showing %d service(s)", targetServiceInfoSnapshots.size()));
+                                },
+                                subCommand -> subCommand.expandUsage("| id=<text> | task=<text> | group=<text> | --names"),
+                                anyStringIgnoreCase("list", "l")
+                        )
+
+
+                        .prefix(dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-service-service-not-found"),
+                                input -> !WildcardUtil.filterWildcard(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input).isEmpty(),
+                                () -> CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                                        .map(ServiceInfoSnapshot::getName)
+                                        .collect(Collectors.toList())
+                        ))
+                        .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            Collection<ServiceInfoSnapshot> serviceInfoSnapshots = WildcardUtil.filterWildcard(
+                                    CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(),
+                                    (String) args.argument("name").get()
+                            );
+                            internalProperties.put("services", serviceInfoSnapshots);
+                        })
+
+
+                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> display(sender, serviceInfoSnapshot, false)))
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> display(sender, serviceInfoSnapshot, true)),
+                                anyStringIgnoreCase("info", "i")
+                        )
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().start()),
+                                exactStringIgnoreCase("start")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    if (properties.containsKey("--force")) {
+                                        forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().kill());
+                                    } else {
+                                        forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().stop());
+                                    }
+                                },
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(subCommand.getRequiredArguments().length + 1),
+                                anyStringIgnoreCase("stop", "shutdown")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().delete()),
+                                anyStringIgnoreCase("delete", "del")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().includeWaitingServiceInclusions()),
+                                exactStringIgnoreCase("includeInclusions")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().includeWaitingServiceTemplates()),
+                                exactStringIgnoreCase("includeTemplates")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().deployResources()),
+                                exactStringIgnoreCase("deployResources")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().restart()),
+                                exactStringIgnoreCase("restart")
+                        )
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                                        forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().runCommand((String) args.argument("command").get())),
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
+                                anyStringIgnoreCase("command", "cmd"),
+                                dynamicString("command")
+                        )
+
+                        .prefix(exactStringIgnoreCase("add"))
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> {
+                                    ServiceTemplate template = (ServiceTemplate) args.argument("storage:prefix/name").get();
+                                    Collection<String> excludes = (Collection<String>) args.argument("excludedFiles separated by \";\"").orElse(new ArrayList<>());
+
+                                    serviceInfoSnapshot.provider().addServiceDeployment(new ServiceDeployment(template, excludes));
 
                                     sender.sendMessage(LanguageManager.getMessage("command-service-add-deployment-success"));
-                                }
-                            }
-                            break;
-                        case "inclusion":
-                            if (args.length == 5) {
-                                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).addServiceRemoteInclusion(new ServiceRemoteInclusion(args[3], args[4]));
+                                }),
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(Integer.MAX_VALUE),
+                                exactStringIgnoreCase("deployment"),
+                                template("storage:prefix/name"),
+                                collection("excludedFiles separated by \";\"")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> {
+                                    ServiceTemplate template = (ServiceTemplate) args.argument("storage:prefix/name").get();
 
-                                sender.sendMessage(LanguageManager.getMessage("command-service-add-inclusion-success"));
-                            }
-                            break;
-                    }
+                                    serviceInfoSnapshot.provider().addServiceTemplate(template);
 
-                    return;
-                }
-            }
+                                    sender.sendMessage(LanguageManager.getMessage("command-service-add-template-success"));
+                                }),
+                                exactStringIgnoreCase("template"),
+                                template("storage:prefix/name")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> {
+                                    String url = (String) args.argument("url").get();
+                                    String target = (String) args.argument("targetPath").get();
 
-            if (args.length > 2 && args[1].equalsIgnoreCase("command")) {
-                StringBuilder stringBuilder = new StringBuilder();
+                                    serviceInfoSnapshot.provider().addServiceRemoteInclusion(new ServiceRemoteInclusion(url, target));
 
-                for (int i = 2; i < args.length; i++) {
-                    stringBuilder.append(args[i]).append(" ");
-                }
+                                    sender.sendMessage(LanguageManager.getMessage("command-service-add-inclusion-success"));
+                                }),
+                                exactStringIgnoreCase("inclusion"),
+                                url("url"),
+                                dynamicString("targetPath")
+                        )
 
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).runCommand(stringBuilder.substring(0, stringBuilder.length() - 1));
-                return;
-            }
+                        .getSubCommands(),
+                "service", "ser"
+        );
+    }
 
-            if (args[1].equalsIgnoreCase("start")) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
-                return;
-            }
 
-            if (args[1].equalsIgnoreCase("stop")) {
-                if (!properties.containsKey("--force")) {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).stop();
-                } else {
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).kill();
-                }
-
-                return;
-            }
-
-            if (args[1].equalsIgnoreCase("delete")) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).delete();
-                return;
-            }
-
-            if (args[1].equalsIgnoreCase("includeInclusions")) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).includeWaitingServiceInclusions();
-                return;
-            }
-
-            if (args[1].equalsIgnoreCase("includeTemplates")) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).includeWaitingServiceTemplates();
-                return;
-            }
-
-            if (args[1].equalsIgnoreCase("deployResources")) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).deployResources();
-                return;
-            }
-
-            if (args[1].equalsIgnoreCase("restart")) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).restart();
-                return;
-            }
-
-            if (args[1].equalsIgnoreCase("info")) {
-                this.display(sender, serviceInfoSnapshot, true);
+    private static void forEachService(Map<String, Object> internalProperties, Consumer<ServiceInfoSnapshot> consumer) {
+        for (Object serviceInfoSnapshot : ((Collection<?>) internalProperties.get("services"))) {
+            if (serviceInfoSnapshot instanceof ServiceInfoSnapshot) {
+                consumer.accept((ServiceInfoSnapshot) serviceInfoSnapshot);
             }
         }
     }
 
-    private void display(ICommandSender sender, ServiceInfoSnapshot serviceInfoSnapshot, boolean full) {
+    private static void display(ICommandSender sender, ServiceInfoSnapshot serviceInfoSnapshot, boolean full) {
         Collection<String> list = Iterables.newArrayList();
 
         list.addAll(Arrays.asList(
@@ -306,10 +244,4 @@ public final class CommandService extends CommandDefault implements ITabComplete
         sender.sendMessage(list.toArray(new String[0]));
     }
 
-    @Override
-    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        return CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
-                .map(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName())
-                .collect(Collectors.toList());
-    }
 }

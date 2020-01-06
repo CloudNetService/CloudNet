@@ -1,9 +1,12 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,7 +14,7 @@ import java.lang.reflect.Type;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
+public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
     }.getType();
@@ -88,4 +91,12 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable {
         return this.configuration;
     }
 
+    public SpecificCloudServiceProvider provider() {
+        return CloudNetDriver.getInstance().getCloudServiceProvider(this);
+    }
+
+    @Override
+    public String getName() {
+        return this.serviceId.getName();
+    }
 }
