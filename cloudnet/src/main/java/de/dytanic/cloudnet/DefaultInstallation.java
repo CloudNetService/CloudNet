@@ -198,7 +198,7 @@ public class DefaultInstallation {
                 if (animation.hasResult("internalHost")) {
                     HostAndPort defaultHost = (HostAndPort) animation.getResult("internalHost");
 
-                    this.cloudNet.getConfig().setDefaultHostAddress(defaultHost.getHost());
+                    this.cloudNet.getConfig().setHostAddress(defaultHost.getHost());
                     this.cloudNet.getConfig().setIdentity(new NetworkClusterNode(
                             animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-" + UUID.randomUUID().toString().split("-")[0],
                             new HostAndPort[]{defaultHost}

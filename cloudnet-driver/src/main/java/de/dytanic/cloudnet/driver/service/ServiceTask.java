@@ -72,7 +72,8 @@ public class ServiceTask extends ServiceConfigurationBase {
     }
 
     /**
-     * Forbids this task to start new services for a specific time
+     * Forbids this task to auto start new services for a specific time on the current node.
+     * This method has no effect when executed on a wrapper instances.
      *
      * @param time the time in millis
      */

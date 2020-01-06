@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.bridge.bungee.listener;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
+import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import net.md_5.bungee.api.ProxyServer;
@@ -11,7 +12,15 @@ import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.concurrent.TimeUnit;
+
 public final class BungeePlayerListener implements Listener {
+
+    private BungeeCloudNetBridgePlugin plugin;
+
+    public BungeePlayerListener(BungeeCloudNetBridgePlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void handle(LoginEvent event) {
@@ -77,6 +86,6 @@ public final class BungeePlayerListener implements Listener {
     public void handle(PlayerDisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()));
 
-        BridgeHelper.updateServiceInfo();
+        ProxyServer.getInstance().getScheduler().schedule(this.plugin, BridgeHelper::updateServiceInfo, 50, TimeUnit.MILLISECONDS);
     }
 }

@@ -58,6 +58,9 @@ public final class JLine2Console implements IConsole {
                                             .replace("%user%", this.user)
                             ) : this.consoleReader.readLine();
                     this.resetPrompt();
+                    if (input == null) {
+                        continue;
+                    }
 
                     if (!this.consoleInputHandler.isEmpty()) {
                         for (ConsoleHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
