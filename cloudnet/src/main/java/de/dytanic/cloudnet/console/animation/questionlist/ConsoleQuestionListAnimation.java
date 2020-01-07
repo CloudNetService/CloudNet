@@ -165,6 +165,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
             super.getConsole().forceWriteLine("&c" + answerType.getInvalidInputMessage(input));
             Thread.sleep(3000);
             super.eraseLastLine(); //erase invalid input message
+
+            super.getConsole().setCommandHistory(answerType.getCompletableAnswers());
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
