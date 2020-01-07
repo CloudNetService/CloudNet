@@ -53,6 +53,13 @@ public class SubCommandArgumentWrapper {
                 .map(SubCommandArgument::getAnswer);
     }
 
+    public Optional<Object> argument(Class<? extends QuestionAnswerType> answerTypeClass) {
+        return Arrays.stream(this.arguments)
+                .filter(argument -> answerTypeClass.isAssignableFrom(argument.getAnswerType().getClass()))
+                .findFirst()
+                .map(SubCommandArgument::getAnswer);
+    }
+
     public boolean hasArgument(String key) {
         return this.argument(key).isPresent();
     }
