@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.command.ICommandSender;
+import de.dytanic.cloudnet.command.sub.SubCommand;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.WildcardUtil;
@@ -58,7 +59,7 @@ public class CommandService extends SubCommandHandler {
 
                                     sender.sendMessage(String.format("=> Showing %d service(s)", targetServiceInfoSnapshots.size()));
                                 },
-                                subCommand -> subCommand.expandUsage("| id=<text> | task=<text> | group=<text> | --names"),
+                                subCommand -> subCommand.appendUsage("| id=<text> | task=<text> | group=<text> | --names"),
                                 anyStringIgnoreCase("list", "l")
                         )
 
@@ -98,7 +99,7 @@ public class CommandService extends SubCommandHandler {
                                         forEachService(internalProperties, serviceInfoSnapshot -> serviceInfoSnapshot.provider().stop());
                                     }
                                 },
-                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(subCommand.getRequiredArguments().length + 1),
+                                subCommand -> subCommand.enableProperties().appendUsage("| --force"),
                                 anyStringIgnoreCase("stop", "shutdown")
                         )
                         .generateCommand(

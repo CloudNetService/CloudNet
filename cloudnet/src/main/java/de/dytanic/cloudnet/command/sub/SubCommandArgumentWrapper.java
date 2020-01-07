@@ -18,6 +18,14 @@ public class SubCommandArgumentWrapper {
         this(arguments.toArray(new SubCommandArgument[0]));
     }
 
+    public Object[] array() {
+        Object[] objects = new Object[this.arguments.length];
+        for (int i = 0; i < this.arguments.length; i++) {
+            objects[i] = this.arguments[i].getAnswer();
+        }
+        return objects;
+    }
+
     public int length() {
         return this.arguments.length;
     }

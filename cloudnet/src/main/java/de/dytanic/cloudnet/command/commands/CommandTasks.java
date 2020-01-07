@@ -71,7 +71,7 @@ public class CommandTasks extends SubCommandHandler {
 
                                 sender.sendMessage("- " + groupConfiguration.getName());
                             }
-                        }, subCommand -> subCommand.setMinArgs(1).setMaxArgs(Integer.MAX_VALUE), exactStringIgnoreCase("list"))
+                        }, subCommand -> subCommand.enableProperties().appendUsage("name=NAME"), exactStringIgnoreCase("list"))
 
                         .applyHandler(CommandTasks::handleCreateCommands)
                         .applyHandler(CommandTasks::handleDeleteCommands)

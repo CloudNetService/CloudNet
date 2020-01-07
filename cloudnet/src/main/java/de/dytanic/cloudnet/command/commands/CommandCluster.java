@@ -92,7 +92,7 @@ public final class CommandCluster extends SubCommandHandler {
                                         displayNode(sender, node);
                                     }
                                 },
-                                subCommand -> subCommand.setMinArgs(1).setMaxArgs(Integer.MAX_VALUE).expandUsage("| id=<id>"),
+                                subCommand -> subCommand.enableProperties().appendUsage("| id=<id>"),
                                 exactStringIgnoreCase("nodes")
                         )
 

@@ -239,7 +239,7 @@ public class SubCommandArgumentTypes {
     }
 
     public static QuestionAnswerType<Integer> integer(String key, String invalidMessage) {
-        return integer(key, invalidMessage, null);
+        return integer(key, invalidMessage, input -> true);
     }
 
     public static QuestionAnswerType<Integer> integer(String key, Predicate<Integer> tester) {

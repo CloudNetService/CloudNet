@@ -44,13 +44,13 @@ public class SubCommandHandler extends Command implements ITabCompleter {
                 // all static values must match
                 // (e.g. "tasks task <name> set minServiceCount <value>" -> "task", "set" and "minServiceCount" must match,
                 //   otherwise this wasn't the sub command printed by the user -> e.g. "tasks task Lobby set maintenance 1")
-                // now, we find the pair with the most matching arguments (actually we find the pair with the least non-matching arguments, but in the end it's the same):
+                // now, we find the pair with the most matching arguments:
                 .min(Comparator.comparingInt(Pair::getSecond))
                 .map(Pair::getFirst);
 
         Optional<Pair<SubCommand, SubCommandArgument<?>[]>> optionalSubCommand = this.subCommands.stream()
                 .map(subCommand -> new Pair<>(subCommand, subCommand.parseArgs(args)))
-                .filter(pair -> pair.getSecond() != null)
+                .filter(pair -> pair.getSecond() != null && pair.getSecond().length != 0)
                 .findFirst();
 
         if (optionalInvalidMessage.isPresent() && !optionalSubCommand.isPresent()) {
@@ -79,13 +79,13 @@ public class SubCommandHandler extends Command implements ITabCompleter {
             return;
         }
 
-        subCommand.execute(subCommand, sender, command, new SubCommandArgumentWrapper(parsedArgs), commandLine, properties, new HashMap<>());
+        subCommand.execute(subCommand, sender, command, new SubCommandArgumentWrapper(parsedArgs), commandLine, subCommand.parseProperties(args), new HashMap<>());
     }
 
     protected void sendHelp(ICommandSender sender) {
         Collection<String> messages = new ArrayList<>();
         for (SubCommand subCommand : this.subCommands) {
-            String message = super.getNames()[0] + " " + subCommand.getRequiredArgsAsString() + subCommand.getExtendedUsage();
+            String message = super.getNames()[0] + " " + subCommand.getArgsAsString() + subCommand.getExtendedUsage();
 
             if (subCommand.getPermission() != null) {
                 message += " | " + subCommand.getPermission();
