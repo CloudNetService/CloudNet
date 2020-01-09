@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.event;
 
 import de.dytanic.cloudnet.common.Validate;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -129,6 +130,12 @@ public final class DefaultEventManager implements IEventManager {
 
     private void registerListener0(Object listener) {
         for (Method method : listener.getClass().getDeclaredMethods()) {
+            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(String.format(
+                    "Registering listener method %s:%s from class loader %s",
+                    listener.getClass().getName(),
+                    method.getName(),
+                    listener.getClass().getClassLoader().getClass().getName()
+            )));
             if (
                     method.getParameterCount() == 1 &&
                             method.isAnnotationPresent(EventListener.class) &&

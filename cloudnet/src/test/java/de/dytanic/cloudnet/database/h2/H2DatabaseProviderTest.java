@@ -19,7 +19,7 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
     @Test
     public void testDatabaseProvider() throws Exception {
-        AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database");
+        AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database", false);
         Assert.assertTrue(databaseProvider.init());
 
         databaseProvider.setDatabaseHandler(this);

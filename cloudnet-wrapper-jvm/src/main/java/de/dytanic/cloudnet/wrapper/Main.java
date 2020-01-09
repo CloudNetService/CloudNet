@@ -25,7 +25,7 @@ public final class Main {
         ILogger logger = new DefaultAsyncLogger();
         initLogger(logger);
 
-        logger.setLevel(LogLevel.DEBUG);
+        logger.setLevel(LogLevel.FATAL);
 
         Wrapper wrapper = new Wrapper(new ArrayList<>(Arrays.asList(args)), logger);
         wrapper.start();

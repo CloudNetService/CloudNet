@@ -36,13 +36,18 @@ public abstract class AbstractSignManagement {
             new AtomicInteger(-1) //search
     };
     private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = Maps.newConcurrentHashMap();
-    protected List<Sign> signs;
+    protected Set<Sign> signs;
 
     public AbstractSignManagement() {
         instance = this;
 
-        this.signs = Iterables.newCopyOnWriteArrayList();
+        this.signs = new HashSet<>();
         this.signs.addAll(this.getSignsFromNode());
+
+        // fetching the already existing services and making them available for the signs, if matching
+        Wrapper.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                .filter(this::isMatchingCloudService)
+                .forEach(serviceInfoSnapshot -> this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry), false));
     }
 
     public static AbstractSignManagement getInstance() {
@@ -65,6 +70,10 @@ public abstract class AbstractSignManagement {
     protected abstract void runTaskLater(Runnable runnable, long delay);
 
     private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction) {
+        this.putService(serviceInfoSnapshot, stateFunction, true);
+    }
+
+    private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction, boolean updateSigns) {
         if (!this.isMatchingCloudService(serviceInfoSnapshot)) {
             return;
         }
@@ -75,7 +84,9 @@ public abstract class AbstractSignManagement {
         }
 
         this.services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, stateFunction.apply(entry)));
-        this.updateSigns();
+        if (updateSigns) {
+            this.updateSigns();
+        }
     }
 
     public void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -126,7 +137,7 @@ public abstract class AbstractSignManagement {
     public void onSignRemove(Sign sign) {
         Validate.checkNotNull(sign);
 
-        Sign signEntry = Iterables.first(this.signs, s -> s.getSignId() == sign.getSignId());
+        Sign signEntry = Iterables.first(this.signs, filterSign -> filterSign.getSignId() == sign.getSignId());
 
         if (signEntry != null) {
             this.signs.remove(signEntry);
@@ -321,7 +332,8 @@ public abstract class AbstractSignManagement {
     }
 
     public SignConfigurationEntry getOwnSignConfigurationEntry() {
-        return Iterables.first(SignConfigurationProvider.load().getConfigurations(), signConfigurationEntry -> Iterables.contains(signConfigurationEntry.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()));
+        return Iterables.first(SignConfigurationProvider.load().getConfigurations(),
+                signConfigurationEntry -> Iterables.contains(signConfigurationEntry.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()));
     }
 
     private boolean isEmptyService(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -372,7 +384,7 @@ public abstract class AbstractSignManagement {
     }
 
     private ServiceInfoState fromServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot, SignConfigurationEntry signConfiguration) {
-        if (this.isIngameService(serviceInfoSnapshot)) {
+        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING || this.isIngameService(serviceInfoSnapshot)) {
             return ServiceInfoState.STOPPED;
         }
 
@@ -392,8 +404,7 @@ public abstract class AbstractSignManagement {
             return ServiceInfoState.STARTING;
         }
 
-        if (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING &&
-                serviceInfoSnapshot.isConnected() &&
+        if (serviceInfoSnapshot.isConnected() &&
                 serviceInfoSnapshot.getProperties().getBoolean("Online")) {
             return ServiceInfoState.ONLINE;
         } else {
@@ -458,8 +469,8 @@ public abstract class AbstractSignManagement {
             ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
             ServiceEnvironmentType serviceEnvironment = serviceInfoSnapshot.getServiceId().getEnvironment();
 
-            return serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer()
-                    || serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer();
+            return (serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer())
+                    || (serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer());
         }
 
         return false;
@@ -529,11 +540,11 @@ public abstract class AbstractSignManagement {
         return this.indexes;
     }
 
-    public List<Sign> getSigns() {
+    public Set<Sign> getSigns() {
         return this.signs;
     }
 
-    public void setSigns(List<Sign> signs) {
+    public void setSigns(Set<Sign> signs) {
         this.signs = signs;
     }
 

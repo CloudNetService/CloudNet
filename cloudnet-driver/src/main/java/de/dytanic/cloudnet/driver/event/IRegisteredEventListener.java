@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.event;
 
 import de.dytanic.cloudnet.common.Validate;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.lang.reflect.Method;
 
@@ -20,6 +21,15 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
         Validate.checkNotNull(event);
 
         if (getEventClass().isAssignableFrom(event.getClass())) {
+
+            if (event.isShowDebug()) {
+                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(String.format(
+                        "Calling event %s on listener %s",
+                        event.getClass().getName(),
+                        this.getInstance().getClass().getName()
+                )));
+            }
+
             try {
                 getHandlerMethod().setAccessible(true);
                 getHandlerMethod().invoke(getInstance(), event);

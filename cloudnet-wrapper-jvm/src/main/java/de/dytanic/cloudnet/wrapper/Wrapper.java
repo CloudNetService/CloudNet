@@ -5,18 +5,18 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
-import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.provider.*;
@@ -44,11 +44,14 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -57,9 +60,6 @@ import java.util.function.Function;
  * @see CloudNetDriver
  */
 public final class Wrapper extends CloudNetDriver {
-
-    private static final int TPS = 10;
-
     /**
      * The configuration of the wrapper, which was created from the CloudNet node.
      * The properties are mirrored from the configuration file.
@@ -72,7 +72,6 @@ public final class Wrapper extends CloudNetDriver {
      * The default workDirectory of this process as File instance
      */
     private final File workDirectory = new File(".");
-
 
     /**
      * The commandline arguments from the main() method of Main class by the application wrapper
@@ -93,7 +92,6 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     private final INetworkClient networkClient;
-    private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
     /**
      * The single task thread of the scheduler of the wrapper application
      */
@@ -136,6 +134,8 @@ public final class Wrapper extends CloudNetDriver {
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerUpdatePermissionsListener());
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageListener());
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
+
+        this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener());
         //-
 
         this.moduleProvider.setModuleDirectory(new File(".wrapper/modules"));
@@ -176,7 +176,10 @@ public final class Wrapper extends CloudNetDriver {
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-        this.mainloop();
+
+        if (!this.startApplication()) {
+            System.exit(-1);
+        }
     }
 
     @Override
@@ -279,6 +282,16 @@ public final class Wrapper extends CloudNetDriver {
         return null;
     }
 
+    @Override
+    public void setGlobalLogLevel(LogLevel logLevel) {
+        this.setGlobalLogLevel(logLevel != null ? logLevel.getLevel() : LogLevel.ALL.getLevel());
+    }
+
+    @Override
+    public void setGlobalLogLevel(int logLevel) {
+        this.networkClient.sendPacket(new PacketServerSetGlobalLogLevel(logLevel));
+    }
+
     /**
      * Application wrapper implementation of this method. See the full documentation at the
      * CloudNetDriver class.
@@ -345,35 +358,6 @@ public final class Wrapper extends CloudNetDriver {
                 }.getType()));
     }
 
-    /**
-     * This method invokes a Runnable instance one the wrapper main thread at the next tick.
-     *
-     * @param runnable the task, that you want to invoke
-     * @param <T>      the type of the result, that you invoke
-     * @return a ITask object instance, which you can add additional listeners
-     * @see ITask
-     */
-    public <T> ITask<T> runTask(Callable<T> runnable) {
-        Validate.checkNotNull(runnable);
-
-        ITask<T> task = new ListenableTask<>(runnable);
-
-        this.processQueue.offer(task);
-        return task;
-    }
-
-    /**
-     * This method invokes a Runnable instance one the wrapper main thread at the next tick.
-     *
-     * @param runnable the task, that you want to invoke
-     * @return a ITask object instance, which you can add additional listeners
-     * @see ITask
-     */
-    public ITask<?> runTask(Runnable runnable) {
-        Validate.checkNotNull(runnable);
-
-        return this.runTask(Executors.callable(runnable));
-    }
 
     /**
      * Is an shortcut for Wrapper.getConfig().getServiceId()
@@ -429,11 +413,11 @@ public final class Wrapper extends CloudNetDriver {
      *
      * @see ServiceInfoSnapshotConfigureEvent
      */
-    public void publishServiceInfoUpdate() {
-        publishServiceInfoUpdate(this.createServiceInfoSnapshot());
+    public synchronized void publishServiceInfoUpdate() {
+        this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
     }
 
-    public void publishServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public synchronized void publishServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
         if (currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
             this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
@@ -457,42 +441,6 @@ public final class Wrapper extends CloudNetDriver {
         for (INetworkChannel channel : networkClient.getChannels()) {
             channel.getPacketRegistry().removeListeners(classLoader);
         }
-    }
-
-    private synchronized void mainloop() throws Exception {
-        long value = System.currentTimeMillis();
-        long millis = 1000 / TPS;
-
-        if (this.startApplication()) {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    long diff = System.currentTimeMillis() - value;
-                    if (diff < millis) {
-                        try {
-                            Thread.sleep(millis - diff);
-                        } catch (InterruptedException exception) {
-                            exception.printStackTrace();
-                        }
-                    }
-
-                    value = System.currentTimeMillis();
-
-                    eventManager.callEvent(new CloudNetTickEvent());
-
-                    while (!this.processQueue.isEmpty()) {
-                        if (this.processQueue.peek() != null) {
-                            Objects.requireNonNull(this.processQueue.poll()).call();
-                        } else {
-                            this.processQueue.poll();
-                        }
-                    }
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }
-        }
-
-        System.exit(0);
     }
 
     private void enableModules() {
@@ -529,6 +477,17 @@ public final class Wrapper extends CloudNetDriver {
 
         this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, applicationFile, arguments));
 
+        try {
+            // checking if the application will be launched via the Minecraft LaunchWrapper
+            Class.forName("net.minecraft.launchwrapper.Launch");
+
+            // adds a tweak class to the LaunchWrapper which will prevent doubled loading of the CloudNet classes
+            arguments.add("--tweakClass");
+            arguments.add("de.dytanic.cloudnet.wrapper.tweak.CloudNetTweaker");
+        } catch (ClassNotFoundException exception) {
+            // the LaunchWrapper is not available, doing nothing
+        }
+
         Thread applicationThread = new Thread(() -> {
             try {
                 logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
@@ -537,6 +496,7 @@ public final class Wrapper extends CloudNetDriver {
                 exception.printStackTrace();
             }
         }, "Application-Thread");
+        applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
         applicationThread.start();
 
         eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));

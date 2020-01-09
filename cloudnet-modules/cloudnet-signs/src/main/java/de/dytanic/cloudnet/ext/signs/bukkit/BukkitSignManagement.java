@@ -24,12 +24,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     private final BukkitCloudNetSignsPlugin plugin;
 
     BukkitSignManagement(BukkitCloudNetSignsPlugin plugin) {
+        super();
         instance = this;
 
         this.plugin = plugin;
 
         super.executeSearchingTask();
         super.executeStartingTask();
+        super.updateSigns();
     }
 
     public static BukkitSignManagement getInstance() {
@@ -102,11 +104,12 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
             BlockFace signBlockFace;
 
-            if (signMaterialData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a sign
+            if (signMaterialData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a wall sign
                 org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signMaterialData;
-                signBlockFace = sign.getFacing();
+
+                signBlockFace = sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
             } else { // trying to get the facing over directionals from the 1.13+ api
-                signBlockFace = this.getDirectionalFacing(signBlockState);
+                signBlockFace = this.getSignFacing(signBlockState);
             }
 
             if (signBlockFace != null) {
@@ -126,27 +129,27 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     /**
-     * Returns the facing of the specified block face, if its block data is an {@link org.bukkit.block.data.Directional}
+     * Returns the facing of the specified block state, if its block data is an {@link org.bukkit.block.data.type.WallSign}
      * from the 1.13+ spigot api
      *
      * @param blockState the block state the facing should be returned from
      * @return the facing of the block state
      */
-    private BlockFace getDirectionalFacing(BlockState blockState) {
+    private BlockFace getSignFacing(BlockState blockState) {
         try {
 
             Method getBlockDataMethod = BlockState.class.getDeclaredMethod("getBlockData");
             Object blockData = getBlockDataMethod.invoke(blockState);
 
-            Class<?> directionalClass = Class.forName("org.bukkit.block.data.Directional");
+            Class<?> wallSignClass = Class.forName("org.bukkit.block.data.type.WallSign");
 
-            if (directionalClass.isInstance(blockData)) {
-                Method getFacingMethod = directionalClass.getDeclaredMethod("getFacing");
+            if (wallSignClass.isInstance(blockData)) {
+                Method getFacingMethod = wallSignClass.getMethod("getFacing");
 
                 return (BlockFace) getFacingMethod.invoke(blockData);
             }
 
-            return null;
+            return BlockFace.UP;
 
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
             return null;

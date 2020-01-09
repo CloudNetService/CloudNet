@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.bridge.gomint.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
@@ -59,11 +58,6 @@ public final class GoMintCloudNetListener {
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
         this.goMintCall(new GoMintChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
-    }
-
-    @EventListener
-    public void handle(CloudNetTickEvent event) {
-        this.goMintCall(new GoMintCloudNetTickEvent());
     }
 
     @EventListener

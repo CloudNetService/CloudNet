@@ -22,7 +22,7 @@ public final class CommandPlayers extends Command {
     public CommandPlayers() {
         super("players", "player", "pl");
 
-        this.permission = "cloudnet.console.command.players";
+        this.permission = "cloudnet.command.players";
         this.prefix = "cloudnet-bridge";
         this.usage = "players online";
         this.description = LanguageManager.getMessage("module-bridge-command-players-description");

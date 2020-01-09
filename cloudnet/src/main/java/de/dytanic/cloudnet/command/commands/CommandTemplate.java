@@ -85,23 +85,25 @@ public class CommandTemplate extends CommandDefault {
                     return;
                 }
 
-                sender.sendMessage(LanguageManager.getMessage("command-template-install-try")
-                        .replace("%version%", versionType.getName() + "-" + version.getName())
-                        .replace("%template%", template.toString())
-                );
-
-                if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, storage, template)) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-install-success")
+                super.getCloudNet().scheduleTask(() -> {
+                    sender.sendMessage(LanguageManager.getMessage("command-template-install-try")
                             .replace("%version%", versionType.getName() + "-" + version.getName())
                             .replace("%template%", template.toString())
                     );
-                } else {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-install-failed")
-                            .replace("%version%", versionType.getName() + "-" + version.getName())
-                            .replace("%template%", template.toString())
-                    );
-                }
 
+                    if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, storage, template)) {
+                        sender.sendMessage(LanguageManager.getMessage("command-template-install-success")
+                                .replace("%version%", versionType.getName() + "-" + version.getName())
+                                .replace("%template%", template.toString())
+                        );
+                    } else {
+                        sender.sendMessage(LanguageManager.getMessage("command-template-install-failed")
+                                .replace("%version%", versionType.getName() + "-" + version.getName())
+                                .replace("%template%", template.toString())
+                        );
+                    }
+                    return null;
+                });
             });
 
         } else if (args.length == 2 && args[0].equalsIgnoreCase("delete")) {
@@ -166,21 +168,24 @@ public class CommandTemplate extends CommandDefault {
                             return;
                         }
 
-                        sender.sendMessage(LanguageManager.getMessage("command-template-copy")
-                                .replace("%sourceTemplate%", sourceTemplate.toString())
-                                .replace("%targetTemplate%", targetTemplate.toString())
-                        );
+                        super.getCloudNet().scheduleTask(() -> {
+                            sender.sendMessage(LanguageManager.getMessage("command-template-copy")
+                                    .replace("%sourceTemplate%", sourceTemplate.toString())
+                                    .replace("%targetTemplate%", targetTemplate.toString())
+                            );
 
-                        targetStorage.delete(targetTemplate);
-                        targetStorage.create(targetTemplate);
+                            targetStorage.delete(targetTemplate);
+                            targetStorage.create(targetTemplate);
 
-                        byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
+                            byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
 
-                        targetStorage.deploy(zippedTemplate, targetTemplate);
-                        sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
-                                .replace("%sourceTemplate%", sourceTemplate.toString())
-                                .replace("%targetTemplate%", targetTemplate.toString())
-                        );
+                            targetStorage.deploy(zippedTemplate, targetTemplate);
+                            sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
+                                    .replace("%sourceTemplate%", sourceTemplate.toString())
+                                    .replace("%targetTemplate%", targetTemplate.toString())
+                            );
+                            return null;
+                        });
                     }));
         } else {
             sender.sendMessage(

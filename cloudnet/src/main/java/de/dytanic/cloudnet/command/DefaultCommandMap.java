@@ -97,6 +97,31 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     @Override
+    public List<String> tabCompleteCommand(String[] args, Properties properties) {
+        if (args.length == 0) {
+            return new ArrayList<>(this.getCommandNames());
+        }
+
+        Command command = this.getCommand(args[0]);
+
+        if (command == null) {
+            return this.getCommandNames().stream().filter(name -> name != null && name.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        }
+
+        if (command instanceof ITabCompleter) {
+
+            String testString = args[args.length - 1].toLowerCase().trim();
+
+            Collection<String> responses = ((ITabCompleter) command).complete(String.join(" ", args), Arrays.copyOfRange(args, 1, args.length), properties);
+            if (responses != null && !responses.isEmpty()) {
+                return responses.stream().filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString))).collect(Collectors.toList());
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    @Override
     public Collection<CommandInfo> getCommandInfos() {
         Collection<Command> commands = Iterables.newArrayList();
 

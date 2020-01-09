@@ -20,7 +20,7 @@ public final class CommandSigns extends Command {
         super("signs", "sign", "cloud-signs");
 
         this.usage = "signs reload";
-        this.permission = "cloudnet.console.command.signs";
+        this.permission = "cloudnet.command.signs";
         this.prefix = "cloudnet-signs";
         this.description = LanguageManager.getMessage("module-signs-command-signs-description");
     }

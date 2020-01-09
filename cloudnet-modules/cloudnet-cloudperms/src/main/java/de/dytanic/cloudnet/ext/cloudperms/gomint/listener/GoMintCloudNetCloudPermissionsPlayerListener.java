@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.gomint.listener;
 
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.gomint.GoMintCloudNetCloudPermissionsPlugin;
 import io.gomint.event.EventHandler;
 import io.gomint.event.EventListener;
@@ -19,6 +19,6 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUUID());
+        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUUID());
     }
 }

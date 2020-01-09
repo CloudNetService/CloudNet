@@ -213,20 +213,17 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public void removeGroupConfiguration(String name) {
         Validate.checkNotNull(name);
 
-        GroupConfiguration groupConfiguration = this.getGroupConfiguration(name);
-        Validate.checkNotNull(groupConfiguration);
-        this.removeGroupConfiguration(groupConfiguration);
+        if (this.isGroupConfigurationPresent(name)) {
+            GroupConfiguration groupConfiguration = this.getGroupConfiguration(name);
+            this.removeGroupConfiguration(groupConfiguration);
+        }
     }
 
     @Override
     public void removeGroupConfigurationWithoutClusterSync(String name) {
         Validate.checkNotNull(name);
 
-        for (GroupConfiguration group : this.config.getGroups()) {
-            if (group.getName().equalsIgnoreCase(name)) {
-                this.config.getGroups().remove(group);
-            }
-        }
+        this.config.getGroups().removeIf(group -> group.getName().equalsIgnoreCase(name));
 
         this.config.save();
     }
@@ -487,8 +484,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @Override
     public void reload() {
         this.config.load();
-        CloudNet.getInstance().updateGroupConfigurationsInCluster(this.getGroupConfigurations(), NetworkUpdateType.SET);
-        CloudNet.getInstance().updateServiceTasksInCluster(this.getServiceTasks(), NetworkUpdateType.SET);
     }
 
     @Override
@@ -524,7 +519,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         while (!PortValidator.checkPort(port)) {
-            System.out.println(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
+            CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
                     .replace("%port%", String.valueOf(port))
                     .replace("%next_port%", String.valueOf(++port)));
         }

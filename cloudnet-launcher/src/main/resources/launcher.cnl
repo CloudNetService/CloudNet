@@ -10,6 +10,10 @@ var cloudnet.auto-update true
 var cloudnet.auto-update.with-embedded true
 var cloudnet.messages.language english
 
+var cloudnet.logging.defaultlevel FATAL
+# available default log levels: INFO, IMPORTANT, COMMAND, WARNING, ERROR, FATAL, EXTENDED, DEBUG, ALL
+# each level includes all messages for levels lower than itself (in the above list: left to right) too
+
 # CloudNet runtime properties
 #var cloudnet.tempDir temp
 #var cloudnet.modules.directory modules
@@ -24,7 +28,7 @@ var cloudnet.messages.language english
 #var cloudnet.config.json.path config.json
 #var cloudnet.permissions.json.path local/permissions.json
 #var cloudnet.database.h2.path local/database/h2
-#var cloudnet.console.prompt &c%user%&r@&7%screen% &f=>
+#var cloudnet.console.prompt &c%user%&r@&7%screen% &f=> &r
 #var cloudnet.config.default-address 127.0.0.1
 #var cloudnet.default.tasks.skip true
 #var cloudnet.default.permissions.skip true

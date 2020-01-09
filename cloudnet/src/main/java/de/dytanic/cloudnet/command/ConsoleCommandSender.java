@@ -10,8 +10,6 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
  */
 public final class ConsoleCommandSender implements ICommandSender {
 
-    private static final LogLevel CONSOLE_LEVEL = new LogLevel("console", "CONSOLE", 6, true);
-
     private final ILogger logger;
 
     public ConsoleCommandSender(ILogger logger) {
@@ -19,16 +17,16 @@ public final class ConsoleCommandSender implements ICommandSender {
     }
 
     /**
-     * The console name is the first codename from CloudNet 3.0: "Tsunami"
+     * The console name is the first codename from CloudNet 3.2: "Eruption"
      */
     @Override
     public String getName() {
-        return "Tsunami";
+        return "Eruption";
     }
 
     @Override
     public void sendMessage(String message) {
-        this.logger.log(CONSOLE_LEVEL, message);
+        this.logger.log(LogLevel.COMMAND, message);
     }
 
     @Override

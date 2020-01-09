@@ -10,4 +10,10 @@ public final class PacketServerClusterNodeInfoUpdate extends Packet {
     public PacketServerClusterNodeInfoUpdate(NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
         super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument("clusterNodeInfoSnapshot", networkClusterNodeInfoSnapshot), new byte[0]);
     }
+
+    @Override
+    public boolean isShowDebug() {
+        return false;
+    }
+
 }

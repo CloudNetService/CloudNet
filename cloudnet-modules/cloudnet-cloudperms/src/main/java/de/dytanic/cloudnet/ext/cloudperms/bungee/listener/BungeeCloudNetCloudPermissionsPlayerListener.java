@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsPermissionManagement;
+import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -41,10 +41,10 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
         }
 
         if (uniqueId != null) {
-            IPermissionUser permissionUser = CloudPermissionsPermissionManagement.getInstance().getUser(uniqueId);
+            IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
 
             if (permissionUser != null) {
-                event.setHasPermission(CloudPermissionsPermissionManagement.getInstance().hasPlayerPermission(permissionUser, event.getPermission()));
+                event.setHasPermission(CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, event.getPermission()));
             }
         }
     }
@@ -53,7 +53,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
     public void handle(PlayerDisconnectEvent event) {
         UUID uniqueId = event.getPlayer().getUniqueId();
 
-        CloudPermissionsPermissionManagement.getInstance().getCachedPermissionUsers().remove(uniqueId);
+        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(uniqueId);
 
     }
 

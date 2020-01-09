@@ -43,7 +43,7 @@ public final class CommandReport extends Command {
         super("report", "reports");
 
         this.usage = "report";
-        this.permission = "cloudnet.console.command.report";
+        this.permission = "cloudnet.command.report";
         this.prefix = "cloudnet-report";
         this.description = LanguageManager.getMessage("module-report-command-report-description");
     }

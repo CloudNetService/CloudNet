@@ -5,10 +5,10 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.ext.smart.CloudNetServiceSmartProfile;
 import de.dytanic.cloudnet.ext.smart.CloudNetSmartModule;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public final class CloudNetTickListener {
 
@@ -67,12 +68,16 @@ public final class CloudNetTickListener {
     }
 
     private void handleAutoStop() {
-        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.filter(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), cloudService -> CloudNetSmartModule.getInstance().getProvidedSmartServices().containsKey(cloudService.getServiceId().getUniqueId()) &&
-                cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING &&
-                cloudService.getProperties().contains("Online-Count") &&
-                cloudService.getProperties().contains("Max-Players"));
+        Collection<ServiceInfoSnapshot> runningServiceInfoSnapshots = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()
+                .stream()
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING)
+                .collect(Collectors.toList());
+        Collection<ServiceInfoSnapshot> onlineServiceInfoSnapshots = runningServiceInfoSnapshots.stream()
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperties().contains("Online-Count"))
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperties().contains("Max-Players"))
+                .collect(Collectors.toList());
 
-        for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : onlineServiceInfoSnapshots) {
             SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceInfoSnapshot);
             if (smartTask == null) {
                 continue;
@@ -88,9 +93,9 @@ public final class CloudNetTickListener {
                             serviceInfoSnapshot.getProperties().getInt("Max-Players")
                     ) <= smartTask.getPercentOfPlayersToCheckShouldAutoStopTheServiceInFuture()) {
 
-                int onlineServices = CloudNet.getInstance().getCloudServiceProvider().getServicesCountByTask(serviceInfoSnapshot.getServiceId().getTaskName());
+                int runningServices = (int) runningServiceInfoSnapshots.stream().filter(runningServiceInfoSnapshot -> runningServiceInfoSnapshot.getServiceId().getTaskName().equals(serviceInfoSnapshot.getServiceId().getTaskName())).count();
                 ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
-                if (onlineServices <= serviceTask.getMinServiceCount()) {
+                if (runningServices <= serviceTask.getMinServiceCount()) {
                     continue;
                 }
 

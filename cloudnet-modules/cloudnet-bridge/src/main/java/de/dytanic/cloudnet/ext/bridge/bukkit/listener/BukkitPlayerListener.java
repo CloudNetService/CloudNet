@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
+import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
@@ -19,11 +20,14 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitPlayerListener implements Listener {
 
+    private final BukkitCloudNetBridgePlugin plugin;
+
     private final BridgeConfiguration bridgeConfiguration;
 
     private final boolean onlyProxyProtection;
 
-    public BukkitPlayerListener() {
+    public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
+        this.plugin = plugin;
         this.bridgeConfiguration = BridgeConfigurationProvider.load();
         this.onlyProxyProtection = !Bukkit.getOnlineMode()
                 && this.bridgeConfiguration != null
@@ -71,7 +75,7 @@ public final class BukkitPlayerListener implements Listener {
         BridgeHelper.sendChannelMessageServerDisconnect(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
                 BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
-        Wrapper.getInstance().runTask(BridgeHelper::updateServiceInfo);
+        Bukkit.getScheduler().runTask(this.plugin, BridgeHelper::updateServiceInfo);
     }
 
 }

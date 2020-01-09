@@ -19,18 +19,15 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class CommandPaste extends Command {
 
@@ -40,7 +37,7 @@ public final class CommandPaste extends Command {
         super("paste", "haste");
 
         this.usage = "paste service|node|modules|tasks|all";
-        this.permission = "cloudnet.console.command.paste";
+        this.permission = "cloudnet.command.paste";
         this.prefix = "cloudnet-report";
         this.description = LanguageManager.getMessage("module-report-command-paste-description");
     }

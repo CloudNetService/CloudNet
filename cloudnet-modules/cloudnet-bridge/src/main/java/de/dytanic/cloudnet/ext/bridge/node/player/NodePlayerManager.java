@@ -180,6 +180,9 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     public void updateOnlinePlayer0(ICloudPlayer cloudPlayer) {
+        if (this.onlineCloudPlayers.containsKey(cloudPlayer.getUniqueId())) {
+            this.onlineCloudPlayers.put(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
+        }
         this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
     }
 
