@@ -26,7 +26,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }.getType();
 
     private static final Map<String, String> defaultRepositories = Maps.of(
-            new Pair<>("maven", "https://repo1.maven.org")
+            new Pair<>("maven", "https://repo1.maven.org/maven2")
     );
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
