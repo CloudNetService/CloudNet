@@ -6,7 +6,7 @@
   "repos": [
     {
       "name": "mvn",
-      "url": "http://central.maven.org/maven2"
+      "url": "https://repo1.maven.org"
     }
   ],
   "dependencies": [
