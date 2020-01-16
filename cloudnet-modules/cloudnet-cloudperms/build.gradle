@@ -17,5 +17,5 @@ dependencies {
     //compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
     compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
     compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
-    compileOnly group: 'com.github.MilkBowl', name: 'VaultAPI', version: '1.7'
+    compileOnly group: 'net.milkbowl.vault', name: 'VaultAPI', version: '1.7'
 }
