@@ -17,6 +17,11 @@ allprojects {
         }
 
         maven {
+            name 'vault'
+            url 'https://repo.md-5.net/repository/releases'
+        }
+
+        maven {
             name 'spigotmc-1'
             url 'https://repo.md-5.net/service/local/repositories/repobo-rel/content/'
         }
@@ -99,7 +104,7 @@ allprojects {
 
         def stringBuilder = new StringBuilder("# CloudNet $cloudNetCodeName ${version}\n\n")
                 .append("# repositories\n\n")
-                .append("repo maven http://central.maven.org/maven2\n")
+                .append("repo maven https://repo1.maven.org/maven2\n")
                 .append("# dependencies\n\n")
 
         pro.configurations.compile.resolvedConfiguration.resolvedArtifacts.forEach({
