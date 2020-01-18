@@ -11,13 +11,11 @@ import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandReloadBridge;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
-import de.dytanic.cloudnet.ext.bridge.node.listener.IncludePluginListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.NetworkListenerRegisterListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.NodeCustomChannelMessageListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.PlayerManagerListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.*;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,15 +50,9 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
         this.bridgeConfiguration = getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
                 "&7Cloud &8| &b",
                 true,
-                Iterables.newArrayList(),
-                Iterables.newArrayList(),
-                Collections.singletonList(
-                        new ProxyFallbackConfiguration(
-                                "Proxy",
-                                "Lobby",
-                                Collections.singletonList(new ProxyFallback("Lobby", null, 1))
-                        )
-                ),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
                 DEFAULT_MESSAGES,
                 true
         ));
@@ -77,6 +69,14 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
         getConfig().append("config", this.bridgeConfiguration);
         saveConfig();
+    }
+
+    public ProxyFallbackConfiguration createDefaultFallbackConfiguration(String targetGroup) {
+        return new ProxyFallbackConfiguration(
+                targetGroup,
+                "Lobby",
+                Collections.singletonList(new ProxyFallback("Lobby", null, 1))
+        );
     }
 
     public void writeConfiguration(BridgeConfiguration bridgeConfiguration) {
@@ -105,7 +105,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new NetworkListenerRegisterListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener());
+        registerListeners(new NetworkListenerRegisterListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener(), new BridgeDefaultConfigurationListener());
     }
 
     public BridgeConfiguration getBridgeConfiguration() {

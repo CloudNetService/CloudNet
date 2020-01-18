@@ -57,4 +57,12 @@ public interface IPacket {
      * @return the body as byte array in bytes
      */
     byte[] getBody();
+
+    /**
+     * @return if there should be debug messages for this type of packet
+     */
+    default boolean isShowDebug() {
+        return true;
+    }
+
 }

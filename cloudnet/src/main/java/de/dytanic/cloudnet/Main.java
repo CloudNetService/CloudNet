@@ -25,7 +25,7 @@ public final class Main {
         IConsole console = new JLine2Console();
         ILogger logger = new DefaultAsyncLogger();
 
-        logger.setLevel(LogLevel.ALL);
+        logger.setLevel(LogLevel.FATAL);
 
         initLoggerAndConsole(console, logger);
         HeaderReader.readAndPrintHeader(console);

@@ -50,6 +50,12 @@ allprojects {
             name 'nukkix'
             url 'https://repo.nukkitx.com/maven-snapshots'
         }
+
+        maven {
+            name 'jitpack.io'
+            url 'https://jitpack.io'
+        }
+
     }
 
     project.ext {
