@@ -2,7 +2,7 @@ defaultTasks 'clean', 'build', 'test', 'jar'
 
 allprojects {
 
-    def major = 3, minor = 3, patch = 0, versionType = "SNAPSHOT"
+    def major = 3, minor = 2, patch = 2, versionType = "RELEASE"
 
     group 'de.dytanic.cloudnet'
     version "$major.$minor.$patch-$versionType"
@@ -14,6 +14,11 @@ allprojects {
         maven {
             name 'spongepowered'
             url 'https://repo.spongepowered.org/maven'
+        }
+
+        maven {
+            name 'vault'
+            url 'https://repo.md-5.net/repository/releases'
         }
 
         maven {
@@ -105,7 +110,7 @@ allprojects {
 
         def stringBuilder = new StringBuilder("# CloudNet $cloudNetCodeName ${version}\n\n")
                 .append("# repositories\n\n")
-                .append("repo maven http://central.maven.org/maven2\n")
+                .append("repo maven https://repo1.maven.org/maven2\n")
                 .append("# dependencies\n\n")
 
         pro.configurations.compile.resolvedConfiguration.resolvedArtifacts.forEach({
