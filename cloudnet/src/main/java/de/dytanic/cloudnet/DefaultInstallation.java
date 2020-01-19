@@ -169,6 +169,7 @@ public class DefaultInstallation {
 
         if (!entries.isEmpty()) {
             ConsoleQuestionListAnimation animation = new ConsoleQuestionListAnimation(
+                    "DefaultInstallation",
                     null,
                     () -> "&f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _ \n" +
                             "&f  / __\\| |  ___   _   _   __| |&b  /\\ \\ \\  /__\\/__   \\ &3  \\_   \\ _ __   ___ | |_   __ _ | || |\n" +
