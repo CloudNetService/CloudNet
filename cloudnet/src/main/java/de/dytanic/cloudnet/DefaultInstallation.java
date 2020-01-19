@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeHostAndPort;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeInt;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeString;
@@ -15,6 +16,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.eula.MinecraftEULA;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
@@ -85,6 +87,25 @@ public class DefaultInstallation {
         internalIPs.add("127.0.1.1");
 
         String preferredIP = this.detectPreferredIP(internalIPs);
+
+        MinecraftEULA eula = new MinecraftEULA();
+        if (!eula.isAccepted()) {
+            entries.add(new QuestionListEntry<>(
+                    "eula",
+                    LanguageManager.getMessage("cloudnet-init-eula"),
+                    new QuestionAnswerTypeBoolean() {
+                        @Override
+                        public boolean isValidInput(String input) {
+                            return input.equalsIgnoreCase(super.getTrueString());
+                        }
+
+                        @Override
+                        public String getInvalidInputMessage(String input) {
+                            return LanguageManager.getMessage("cloudnet-init-eula-not-accepted");
+                        }
+                    }
+            ));
+        }
 
         if (!configFileAvailable) {
             entries.add(new QuestionListEntry<>(
@@ -179,6 +200,15 @@ public class DefaultInstallation {
                     () -> null,
                     "&r> &e"
             );
+
+            animation.addEntryCompletionListener((entry, result) -> {
+                if (entry.getKey().equals("eula")) {
+                    boolean accepted = (boolean) result;
+                    if (accepted) {
+                        eula.setAccepted(true);
+                    }
+                }
+            });
 
             for (QuestionListEntry<?> entry : entries) {
                 animation.addEntry(entry);
