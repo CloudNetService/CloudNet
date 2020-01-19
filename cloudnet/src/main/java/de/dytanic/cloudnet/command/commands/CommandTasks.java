@@ -154,8 +154,7 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                                                 type == ServiceEnvironmentType.PROX_PROX ? 128 : 372,
                                         Iterables.newArrayList()
                                 ),
-                                type == ServiceEnvironmentType.BUNGEECORD || type == ServiceEnvironmentType.VELOCITY ||
-                                        type == ServiceEnvironmentType.PROX_PROX ? 25565 : 44955,
+                                type.getDefaultStartPort(),
                                 0
                         ));
 
@@ -811,19 +810,6 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
 
         animation.addEntry(
                 new QuestionListEntry<>(
-                        "startPort",
-                        LanguageManager.getMessage("command-tasks-setup-question-startport"),
-                        new QuestionAnswerTypeIntRange(0, 65535) {
-                            @Override
-                            public String getRecommendation() {
-                                return "44955";
-                            }
-                        }
-                )
-        );
-
-        animation.addEntry(
-                new QuestionListEntry<>(
                         "minServiceCount",
                         LanguageManager.getMessage("command-tasks-setup-question-minservices"),
                         new QuestionAnswerTypeInt()
@@ -838,6 +824,20 @@ public final class CommandTasks extends CommandDefault implements ITabCompleter 
                             @Override
                             public String getRecommendation() {
                                 return ServiceEnvironmentType.MINECRAFT_SERVER.name();
+                            }
+                        }
+                )
+        );
+
+        animation.addEntry(
+                new QuestionListEntry<>(
+                        "startPort",
+                        LanguageManager.getMessage("command-tasks-setup-question-startport"),
+                        new QuestionAnswerTypeIntRange(0, 65535) {
+                            @Override
+                            public String getRecommendation() {
+                                ServiceEnvironmentType type = animation.hasResult("environment") ? (ServiceEnvironmentType) animation.getResult("environment") : null;
+                                return type != null ? String.valueOf(type.getDefaultStartPort()) : "44955";
                             }
                         }
                 )

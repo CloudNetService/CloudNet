@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class BridgeTaskSetupListener {
 
     @EventListener
-    public void handleSetupInitiate(SetupCompleteEvent event) {
+    public void handleSetupComplete(SetupCompleteEvent event) {
         if (!event.getSetup().getName().equals("TaskSetup")) {
             return;
         }

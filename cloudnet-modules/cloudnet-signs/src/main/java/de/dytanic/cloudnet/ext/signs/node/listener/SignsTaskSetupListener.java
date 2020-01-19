@@ -15,7 +15,7 @@ import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 public class SignsTaskSetupListener {
 
     @EventListener
-    public void handleSetupInitiate(SetupCompleteEvent event) {
+    public void handleSetupComplete(SetupCompleteEvent event) {
         if (!event.getSetup().getName().equals("TaskSetup")) {
             return;
         }
@@ -24,6 +24,10 @@ public class SignsTaskSetupListener {
             String taskName = (String) event.getSetup().getResult("name");
             ServiceEnvironmentType environment = (ServiceEnvironmentType) event.getSetup().getResult("environment");
             boolean generateDefaultSignsConfig = (Boolean) event.getSetup().getResult("GenerateDefaultSignsConfig");
+
+            if (!generateDefaultSignsConfig) {
+                return;
+            }
 
             SignConfiguration configuration = CloudNetSignsModule.getInstance().getSignConfiguration();
             if (configuration.getConfigurations().stream().noneMatch(entry -> entry.getTargetGroup().equals(taskName))) {
