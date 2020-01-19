@@ -59,7 +59,7 @@ public class CommandService extends SubCommandHandler {
 
                                     sender.sendMessage(String.format("=> Showing %d service(s)", targetServiceInfoSnapshots.size()));
                                 },
-                                subCommand -> subCommand.appendUsage("| id=<text> | task=<text> | group=<text> | --names"),
+                                subCommand -> subCommand.enableProperties().appendUsage("| id=<text> | task=<text> | group=<text> | --names"),
                                 anyStringIgnoreCase("list", "l")
                         )
 
