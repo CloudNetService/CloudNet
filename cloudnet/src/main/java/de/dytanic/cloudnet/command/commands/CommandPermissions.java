@@ -334,24 +334,40 @@ public class CommandPermissions extends SubCommandHandler {
                             );
                         }
                 )
-                .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setSortId((Integer) args.argument(4)), positiveInteger("sortId"))
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setSortId((Integer) args.argument(4)),
+                        exactStringIgnoreCase("sortId"),
+                        positiveInteger("sortId")
+                )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setDisplay((String) args.argument(4)),
                         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("display"),
                         dynamicString("display")
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setPrefix((String) args.argument(4)),
                         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("prefix"),
                         dynamicString("prefix", 16)
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setSuffix((String) args.argument(4)),
                         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("suffix"),
                         dynamicString("suffix", 16)
                 )
-                .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setColor((String) args.argument(4)), dynamicString("color", 2))
-                .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setDefaultGroup((boolean) args.argument(4)), boolean_("defaultGroup"))
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setColor((String) args.argument(4)),
+                        subCommand -> subCommand.appendUsage("| 1.13+"),
+                        exactStringIgnoreCase("color"),
+                        dynamicString("color", 2)
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setDefaultGroup((boolean) args.argument(4)),
+                        exactStringIgnoreCase("defaultGroup"),
+                        boolean_("defaultGroup")
+                )
                 .removeLastPrefix()
                 .removeLastPostHandler()
 

@@ -100,7 +100,7 @@ public class SubCommandArgumentTypes {
                 key,
                 LanguageManager.getMessage("command-sub-argument-string-too-long")
                         .replace("%maxLength%", String.valueOf(maxLength)),
-                value -> value.length() < maxLength
+                value -> value.length() <= maxLength
         );
     }
 
