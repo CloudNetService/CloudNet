@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.launcher;
 
-import de.dytanic.cloudnet.launcher.util.CloudNetModule;
+import de.dytanic.cloudnet.launcher.module.CloudNetModule;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,19 +19,24 @@ public final class Constants {
             new CloudNetModule("cloudnet-storage-ftp", "cloudnet-storage-ftp.jar"),
             new CloudNetModule("cloudnet-database-mysql", "cloudnet-database-mysql.jar")
     );
+
+    public static final String[] VERSION_FILE_NAMES = new String[]{
+            "cloudnet.jar",
+            "cloudnet.cnl",
+            "driver.jar",
+            "driver.cnl"
+    };
+
     public static final String
             CLOUDNET_SELECTED_VERSION = "cloudnet.launcher.select.version",
+            LAUNCHER_DEV_MODE = "cloudnet.launcher.devmode",
             CLOUDNET_REPOSITORY = "cloudnet.repository",
-            CLOUDNET_REPOSITORY_TYPE = "cloudnet.repository.type",
+            CLOUDNET_REPOSITORY_GITHUB = "cloudnet.repository.github",
             CLOUDNET_REPOSITORY_AUTO_UPDATE = "cloudnet.auto-update",
-            CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED = "cloudnet.auto-update.with-embedded",
-            LAUNCHER_CONFIG = System.getProperty("cloudnet.launcher.config", "launcher.cnl"),
-            LAUNCHER_DIR = System.getProperty("cloudnet.launcher.dir", "launcher"),
-            FALLBACK_VERSION = Constants.class.getPackage().getSpecificationVersion(),
-            INTERNAL_CLOUDNET_JAR_FILE_NAME = "cloudnet.jar", INTERNAL_DRIVER_JAR_FILE_NAME = "driver.jar",
-            INTERNAL_CLOUDNET_CNL_FILE_NAME = "cloudnet.cnl", INTERNAL_DRIVER_CNL_FILE_NAME = "driver.cnl";
+            FALLBACK_VERSION = Constants.class.getPackage().getSpecificationVersion();
 
     private Constants() {
         throw new UnsupportedOperationException();
     }
+
 }

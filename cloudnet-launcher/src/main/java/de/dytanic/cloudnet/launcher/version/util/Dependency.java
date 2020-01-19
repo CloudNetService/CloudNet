@@ -1,7 +1,10 @@
-package de.dytanic.cloudnet.launcher.util;
+package de.dytanic.cloudnet.launcher.version.util;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @ToString
 @EqualsAndHashCode
@@ -10,7 +13,6 @@ public class Dependency {
     private final String repository, group, name, version;
 
     private String classifier;
-
 
     public Dependency(String repository, String group, String name, String version) {
         this.repository = repository;
@@ -25,6 +27,12 @@ public class Dependency {
         this.name = name;
         this.version = version;
         this.classifier = classifier;
+    }
+
+    public Path toPath() {
+        String fileName = String.format("%s-%s%s.jar", this.name, this.version, (this.classifier != null ? "-" + this.classifier : ""));
+
+        return Paths.get(this.group.replace(".", "/"), this.name, this.version, fileName);
     }
 
     public String getRepository() {

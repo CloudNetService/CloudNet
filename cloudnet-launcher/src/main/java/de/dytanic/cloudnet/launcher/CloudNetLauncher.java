@@ -1,57 +1,60 @@
 package de.dytanic.cloudnet.launcher;
 
+import de.dytanic.cloudnet.launcher.cnl.CNLCommandExecuteException;
 import de.dytanic.cloudnet.launcher.cnl.CNLInterpreter;
 import de.dytanic.cloudnet.launcher.cnl.defaults.CNLCommandCNL;
 import de.dytanic.cloudnet.launcher.cnl.defaults.CNLCommandEcho;
 import de.dytanic.cloudnet.launcher.cnl.defaults.CNLCommandVar;
 import de.dytanic.cloudnet.launcher.cnl.install.CNLCommandInclude;
 import de.dytanic.cloudnet.launcher.cnl.install.CNLCommandRepo;
-import de.dytanic.cloudnet.launcher.update.DefaultRepositoryUpdater;
-import de.dytanic.cloudnet.launcher.update.IUpdater;
-import de.dytanic.cloudnet.launcher.util.CloudNetModule;
-import de.dytanic.cloudnet.launcher.util.Dependency;
-import de.dytanic.cloudnet.launcher.util.IOUtils;
+import de.dytanic.cloudnet.launcher.version.InstalledVersionInfo;
+import de.dytanic.cloudnet.launcher.version.VersionInfo;
+import de.dytanic.cloudnet.launcher.version.update.FallbackUpdater;
+import de.dytanic.cloudnet.launcher.version.update.RepositoryUpdater;
+import de.dytanic.cloudnet.launcher.version.update.Updater;
+import de.dytanic.cloudnet.launcher.version.util.Dependency;
+import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.jar.JarFile;
 
 public final class CloudNetLauncher {
-
-    private static final Map<String, IUpdater> updateServices = new HashMap<>();
-
     private static final Consumer<String> PRINT = System.out::println;
 
-    static {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
+    private static final Path CONFIG_PATH = Paths.get(System.getProperty("cloudnet.launcher.config", "launcher.cnl"));
+    private static final Path LAUNCHER_DIR_PATH = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
+
+    private static final Path LAUNCHER_VERSIONS = LAUNCHER_DIR_PATH.resolve("versions");
+    private static final Path LAUNCHER_LIBS = LAUNCHER_DIR_PATH.resolve("libs");
+
+    private Map<String, String> variables = new HashMap<>();
+    private Map<String, String> repositories = new HashMap<>();
+
+    private String gitHubRepository;
+    private VersionInfo selectedVersion;
+
+    private List<Dependency> dependencies = new ArrayList<>();
+
+    public static void main(String[] args) {
         System.setProperty("file.encoding", "UTF-8");
-        System.setProperty("io.netty.noPreferDirect", "true");
         System.setProperty("client.encoding.override", "UTF-8");
 
-        updateServices.put("default", new DefaultRepositoryUpdater());
-    }
-
-    private CloudNetLauncher() {
-        throw new UnsupportedOperationException();
-    }
-
-    public static synchronized void main(String... args) throws Throwable {
-        setAdministrativeWarning();
-
-        List<String> arguments = Arrays.asList(args);
-        run(arguments);
-    }
-
-    private static void setAdministrativeWarning() {
         String user = System.getProperty("user.name");
 
         if (user.equalsIgnoreCase("root") || user.equalsIgnoreCase("administrator")) {
@@ -60,295 +63,232 @@ public final class CloudNetLauncher {
             PRINT.accept("It's better and save, if you create an extra user which you start CloudNet");
             PRINT.accept("===================================================================");
         }
+
+        new CloudNetLauncher().run(args);
     }
 
-    private static synchronized void run(List<String> args) throws Throwable {
-        final long launcherStartTime = System.currentTimeMillis();
+    private void run(String[] args) {
+        PRINT.accept("Running CloudNet launcher created with " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
 
-        PRINT.accept("Starting CloudNet launcher " + CloudNetLauncher.class.getPackage().getImplementationVersion() + "...");
-
-        final Path configPath = Paths.get(Constants.LAUNCHER_CONFIG), launcherDirectory = Paths.get(Constants.LAUNCHER_DIR);
-
-        for (File directory : new File[]{
-                new File(launcherDirectory.toFile(), "versions"),
-                new File(launcherDirectory.toFile(), "libs")
-        }) {
-            directory.mkdirs();
+        try {
+            this.setupVariables();
+        } catch (IOException | CNLCommandExecuteException exception) {
+            throw new RuntimeException("Unable to setup the launcher variables!", exception);
         }
 
-        byte[] buffer = new byte[16384];
-        if (!Files.exists(configPath)) {
-            try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
-                IOUtils.copy(buffer, inputStream, configPath);
-            }
+        try {
+            this.setupApplication();
+        } catch (IOException exception) {
+            throw new RuntimeException("Unable to setup the application!", exception);
         }
 
-        Map<String, String> variables = new HashMap<>(), repositories = new HashMap<>();
-
-        Collection<Dependency> dependencies = new ArrayList<>();
-
-        installCNLInterpreterCommands(repositories, dependencies);
-        CNLInterpreter.runInterpreter(configPath, variables);
-        overwriteCnlConfiguration(args, variables);
-
-        //Installing default modules
-        configureInstallDefaultModules(buffer, variables);
-
-        if (variables.containsKey(Constants.CLOUDNET_REPOSITORY) && variables.containsKey(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE) &&
-                variables.get(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
-            checkAutoUpdate(variables, launcherDirectory, variables.get(Constants.CLOUDNET_REPOSITORY));
+        Collection<URL> dependencyResources;
+        try {
+            dependencyResources = this.installDependencies();
+        } catch (IOException | CNLCommandExecuteException exception) {
+            throw new RuntimeException("Unable to install needed dependencies!", exception);
         }
 
-        File targetDirectory = new File(launcherDirectory.toFile(), "versions/" + variables.get(Constants.CLOUDNET_SELECTED_VERSION));
+        this.setSystemProperties();
 
-        if (!targetDirectory.exists()) {
-            variables.put(Constants.CLOUDNET_SELECTED_VERSION, Constants.FALLBACK_VERSION);
-            targetDirectory = new File(launcherDirectory.toFile(), "versions/" + Constants.FALLBACK_VERSION);
+        try {
+            PRINT.accept("Starting CloudNet...");
+            Thread.sleep(TimeUnit.SECONDS.toMillis(3));
 
-            if (!targetDirectory.exists()) {
-                PRINT.accept("Extracting... fallback version " + Constants.FALLBACK_VERSION + "...");
-
-                targetDirectory.mkdirs();
-                extractFallbackVersion(targetDirectory, buffer);
-            }
-        }
-
-        CNLInterpreter.runInterpreter(new File(targetDirectory, "driver.cnl"));
-
-        Collection<URL> dependencyResources = new ArrayList<>();
-        StringBuilder driverLibs = new StringBuilder();
-
-        for (Dependency dependency : dependencies) {
-            if (repositories.containsKey(dependency.getRepository())) {
-                File dest = new File(launcherDirectory.toFile(), "libs/" +
-                        dependency.getGroup().replace(".", "/") + "/" + dependency.getName() + "/" + dependency.getVersion() + "/"
-                        + dependency.getName() + "-" + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "") + ".jar"
-                );
-
-                driverLibs.append(dest.getAbsolutePath()).append(File.pathSeparator);
-
-                installLibrary(repositories.get(dependency.getRepository()), dependency, dest, buffer);
-                dependencyResources.add(dest.toURI().toURL());
-            }
-        }
-
-        driverLibs.append(new File(targetDirectory, "driver.jar").getAbsolutePath());
-        System.setProperty("cloudnet.launcher.driver.dependencies", driverLibs.toString()); //For wrapper instances
-
-        Collection<Dependency> includes = new ArrayList<>(dependencies);
-
-        CNLInterpreter.runInterpreter(new File(targetDirectory, "cloudnet.cnl"));
-
-        for (Dependency entry : includes) {
-            dependencies.remove(entry);
-        }
-
-        includes.clear();
-
-        for (Dependency dependency : dependencies) {
-            if (repositories.containsKey(dependency.getRepository())) {
-                File dest = new File(launcherDirectory.toFile(), "libs/" +
-                        dependency.getGroup().replace(".", "/") + "/" + dependency.getName() + "/" + dependency.getVersion() + "/"
-                        + dependency.getName() + "-" + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "") + ".jar"
-                );
-
-                installLibrary(repositories.get(dependency.getRepository()), dependency, dest, buffer);
-                dependencyResources.add(dest.toURI().toURL());
-            }
-        }
-
-        startApplication(args, targetDirectory, dependencyResources, variables, launcherStartTime);
-    }
-
-    private static void extractFallbackVersion(File targetDirectory, byte[] buffer) throws Exception {
-        String absolutePath = targetDirectory.getAbsolutePath();
-
-        try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream(Constants.INTERNAL_CLOUDNET_JAR_FILE_NAME)) {
-            IOUtils.copy(buffer, inputStream, Paths.get(absolutePath, "cloudnet.jar"));
-        }
-
-        try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream(Constants.INTERNAL_CLOUDNET_CNL_FILE_NAME)) {
-            IOUtils.copy(buffer, inputStream, Paths.get(absolutePath, "cloudnet.cnl"));
-        }
-
-        try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream(Constants.INTERNAL_DRIVER_JAR_FILE_NAME)) {
-            IOUtils.copy(buffer, inputStream, Paths.get(absolutePath, "driver.jar"));
-        }
-
-        try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream(Constants.INTERNAL_DRIVER_CNL_FILE_NAME)) {
-            IOUtils.copy(buffer, inputStream, Paths.get(absolutePath, "driver.cnl"));
+            this.startApplication(args, dependencyResources);
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException | InterruptedException exception) {
+            throw new RuntimeException("Failed to start the application!", exception);
         }
     }
 
-    private static void overwriteCnlConfiguration(List<String> arguments, Map<String, String> variables) {
-        if (arguments.contains("--version") && arguments.indexOf("--version") + 1 < arguments.size()) {
-            variables.put(Constants.CLOUDNET_SELECTED_VERSION, arguments.get(arguments.indexOf("--version") + 1));
-        }
-
-        if (variables.containsKey("cloudnet.auto-updte.with-embedded")) {
-            variables.put("cloudnet.auto-update.with-embedded", variables.get("cloudnet.auto-updte.with-embedded"));
-        }
-
-    }
-
-    private static void configureInstallDefaultModules(byte[] buffer, Map<String, String> variables) throws Exception {
-        File directory = new File(System.getProperty("cloudnet.modules.directory", variables.getOrDefault("cloudnet.modules.directory", "modules")));
-
-        boolean exists = directory.exists();
-
-        if (!exists) {
-            directory.mkdirs();
-            configureInstallDefaultModules0(buffer, directory, true);
-            return;
-        }
-
-        if (variables.containsKey(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED) && variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED)
-                .equalsIgnoreCase("true")) {
-            configureInstallDefaultModules0(buffer, directory, false);
-        }
-    }
-
-    private static void configureInstallDefaultModules0(byte[] buffer, File directory, boolean insertIfNotExists) throws Exception {
-        for (CloudNetModule module : Constants.DEFAULT_MODULES) {
-            install(buffer, directory, module.getFileName(), insertIfNotExists);
-        }
-    }
-
-    private static void install(byte[] buffer, File directory, String jarFile, boolean insertIfNotExists) throws Exception {
-        try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream(jarFile)) {
-            if (inputStream != null) {
-                File file = new File(directory, jarFile);
-
-                if (!insertIfNotExists && !file.exists()) {
-                    return;
-                }
-
-                file.delete();
-                file.createNewFile();
-
-                try (OutputStream outputStream = Files.newOutputStream(file.toPath())) {
-                    IOUtils.copy(buffer, inputStream, outputStream);
-
-                    PRINT.accept("Applied or updated module " + jarFile + " with the local launcher resources");
-                }
-            }
-        }
-    }
-
-    private static void installCNLInterpreterCommands(Map<String, String> repositories, Collection<Dependency> dependencies) {
+    private void setupVariables() throws IOException, CNLCommandExecuteException {
         CNLInterpreter.registerCommand(new CNLCommandVar());
         CNLInterpreter.registerCommand(new CNLCommandEcho());
         CNLInterpreter.registerCommand(new CNLCommandCNL());
 
-        CNLInterpreter.registerCommand(new CNLCommandInclude(dependencies));
-        CNLInterpreter.registerCommand(new CNLCommandRepo(repositories));
+        CNLInterpreter.registerCommand(new CNLCommandInclude(this.dependencies));
+        CNLInterpreter.registerCommand(new CNLCommandRepo(this.repositories));
+
+        try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
+            Objects.requireNonNull(inputStream, "Unable to find the default launcher config, is the launcher corrupted?");
+
+            if (Files.exists(CONFIG_PATH)) {
+                // adding the default variables first to make sure that all needed variables are existing
+                CNLInterpreter.runInterpreter(inputStream, this.variables);
+            } else {
+                Files.copy(inputStream, CONFIG_PATH);
+            }
+        }
+
+        CNLInterpreter.runInterpreter(CONFIG_PATH, this.variables);
     }
 
-    private static void installLibrary(String repoUrl, Dependency dependency, File dest, byte[] buffer) {
-        if (!dest.exists()) {
-            try {
-                dest.getParentFile().mkdirs();
+    private void setupApplication() throws IOException {
+        Files.createDirectories(LAUNCHER_VERSIONS);
+        Files.createDirectories(LAUNCHER_LIBS);
 
-                PRINT.accept("Install from repository " + dependency.getRepository() + " " + dependency.getGroup() +
-                        ":" + dependency.getName() + ":" + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "") + ".jar");
+        this.selectedVersion = this.selectVersion();
 
-                URLConnection urlConnection = new URL(repoUrl + "/" +
-                        dependency.getGroup().replace(".", "/") + "/" + dependency.getName() + "/" + dependency.getVersion() + "/"
-                        + dependency.getName() + "-" + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "") + ".jar").openConnection();
+        if (this.selectedVersion instanceof Updater) {
+            Updater updater = (Updater) this.selectedVersion;
 
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-                urlConnection.setDoOutput(false);
-                urlConnection.setUseCaches(false);
-                urlConnection.connect();
+            PRINT.accept(String.format("Installing version %s from updater %s...", updater.getCurrentVersion(), updater.getClass().getSimpleName()));
 
-                try (InputStream inputStream = urlConnection.getInputStream()) {
-                    IOUtils.copy(buffer, inputStream, dest.toPath());
-                }
-
-            } catch (Exception exception) {
-                exception.printStackTrace();
+            if (updater.installUpdate(this.variables.getOrDefault("cloudnet.modules.directory", "modules"))) {
+                PRINT.accept("Successfully installed CloudNet version " + updater.getCurrentVersion());
+            } else {
+                PRINT.accept("Error while installing CloudNet!");
+                updater.deleteUpdateFiles();
+                System.exit(-1);
             }
+        } else {
+            PRINT.accept("Using installed CloudNet version " + this.selectedVersion.getCurrentVersion());
+        }
+
+        this.variables.put(Constants.CLOUDNET_SELECTED_VERSION, this.selectedVersion.getFullVersion());
+
+        GitCommit latestGitCommit = this.selectedVersion.getLatestGitCommit();
+
+        if (latestGitCommit.isKnown() && latestGitCommit.hasInformation()) {
+            GitCommit.GitCommitAuthor author = latestGitCommit.getAuthor();
+
+            PRINT.accept("");
+
+            PRINT.accept(String.format("Latest commit is %s, authored by %s (%s)", latestGitCommit.getSha(), author.getName(), author.getEmail()));
+            PRINT.accept(String.format("Commit message: \"%s\"", latestGitCommit.getMessage()));
+            PRINT.accept("Commit time: " + DATE_FORMATTER.format(
+                    author.getDate().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime()
+            ));
+
+            PRINT.accept("");
+        } else {
+            PRINT.accept("Unable to fetch the latest git commit, custom or outdated build?");
+        }
+
+    }
+
+    private VersionInfo selectVersion() {
+        Map<String, VersionInfo> loadedVersionInfo = this.loadVersions();
+
+        String selectedVersion = this.variables.get(Constants.CLOUDNET_SELECTED_VERSION);
+        if (selectedVersion != null && loadedVersionInfo.containsKey(selectedVersion)) {
+            return loadedVersionInfo.get(selectedVersion);
+        }
+
+        Collection<VersionInfo> versionInfoCollection = loadedVersionInfo.values();
+
+        return versionInfoCollection.stream().filter(versionInfo -> !versionInfo.getLatestGitCommit().isKnown())
+                .findFirst()
+                .orElseGet(() ->
+                        versionInfoCollection.stream()
+                                .max(Comparator.comparingLong(versionInfo -> versionInfo.getLatestGitCommit().getTime()))
+                                .orElse(null)
+                );
+    }
+
+    private Map<String, VersionInfo> loadVersions() {
+        Map<String, VersionInfo> versionInfo = new HashMap<>();
+        this.gitHubRepository = this.variables.get(Constants.CLOUDNET_REPOSITORY_GITHUB);
+
+        // handles the installing of the artifacts contained in the launcher itself
+        versionInfo.put(Constants.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(Constants.FALLBACK_VERSION), this.gitHubRepository));
+
+        if (this.variables.get(Constants.LAUNCHER_DEV_MODE).equalsIgnoreCase("true")) {
+            // dev mode is on, only using the fallback version
+            return versionInfo;
+        }
+
+        if (this.variables.get(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
+            Updater updater = new RepositoryUpdater(this.variables.get(Constants.CLOUDNET_REPOSITORY));
+
+            if (updater.init(LAUNCHER_VERSIONS, this.gitHubRepository)) {
+                versionInfo.put(updater.getFullVersion(), updater);
+            }
+        }
+
+        try {
+            Files.list(LAUNCHER_VERSIONS)
+                    .forEach(path -> versionInfo.put(path.getFileName().toString(), new InstalledVersionInfo(path, this.gitHubRepository)));
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        return versionInfo;
+    }
+
+    private Collection<URL> installDependencies() throws IOException, CNLCommandExecuteException {
+        CNLInterpreter.runInterpreter(this.selectedVersion.getTargetDirectory().resolve("driver.cnl"));
+        CNLInterpreter.runInterpreter(this.selectedVersion.getTargetDirectory().resolve("cloudnet.cnl"));
+
+        Collection<URL> dependencyResources = new ArrayList<>();
+
+        for (Dependency dependency : this.dependencies) {
+            if (this.repositories.containsKey(dependency.getRepository())) {
+                Path path = LAUNCHER_LIBS.resolve(dependency.toPath());
+
+                this.installLibrary(this.repositories.get(dependency.getRepository()), dependency, path);
+
+                dependencyResources.add(path.toUri().toURL());
+            }
+        }
+
+        return dependencyResources;
+    }
+
+    private void installLibrary(String repositoryURL, Dependency dependency, Path path) throws IOException {
+        if (!Files.exists(path)) {
+
+            Files.createDirectories(path.getParent());
+
+            String dependencyName = dependency.getGroup() + ":" + dependency.getName() + ":"
+                    + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "") + ".jar";
+
+            PRINT.accept(String.format("Installing dependency %s from repository %s...", dependencyName, dependency.getRepository()));
+
+            try (InputStream inputStream = this.selectedVersion.readFromURL(repositoryURL + "/" + dependency.toPath().toString().replace(File.separatorChar, '/'))) {
+                Files.copy(inputStream, path);
+            }
+
         }
     }
 
-    private static void prepareApplication(Map<String, String> variables) {
+    private void setSystemProperties() {
         //Set properties for default dependencies
+        System.setProperty("io.netty.noPreferDirect", "true");
         System.setProperty("io.netty.maxDirectMemory", "0");
         System.setProperty("io.netty.leakDetectionLevel", "DISABLED");
         System.setProperty("io.netty.recycler.maxCapacity", "0");
         System.setProperty("io.netty.recycler.maxCapacity.default", "0");
 
-        for (Map.Entry<String, String> entry : variables.entrySet()) {
+        for (Map.Entry<String, String> entry : this.variables.entrySet()) {
             if (System.getProperty(entry.getKey()) == null) {
                 System.setProperty(entry.getKey(), entry.getValue());
             }
         }
     }
 
-    private static void startApplication(List<String> args, File targetDirectory, Collection<URL> dependencyResources, Map<String, String> variables, long launcherStartTime) throws Throwable {
-        String mainClazz;
-        File target = new File(targetDirectory, "cloudnet.jar");
-        File driverTarget = new File(targetDirectory, "driver.jar");
+    private void startApplication(String[] args, Collection<URL> dependencyResources) throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Path targetPath = this.selectedVersion.getTargetDirectory().resolve("cloudnet.jar");
+        Path driverTargetPath = this.selectedVersion.getTargetDirectory().resolve("driver.jar");
 
-        try (JarFile jarFile = new JarFile(target)) {
-            mainClazz = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+        String mainClass;
+        try (JarFile jarFile = new JarFile(targetPath.toFile())) {
+            mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
         }
 
-        if (mainClazz == null) {
-            throw new RuntimeException("Cannot find Main-Class by " + target.getAbsolutePath());
+        if (mainClass == null) {
+            throw new RuntimeException("Cannot find Main-Class from " + targetPath.toAbsolutePath());
         }
 
-        dependencyResources.add(target.toURI().toURL());
-        dependencyResources.add(driverTarget.toURI().toURL());
+        dependencyResources.add(targetPath.toUri().toURL());
+        dependencyResources.add(driverTargetPath.toUri().toURL());
 
         ClassLoader classLoader = new URLClassLoader(dependencyResources.toArray(new URL[0]));
+        Method method = classLoader.loadClass(mainClass).getMethod("main", String[].class);
 
-        prepareApplication(variables);
-
-        Method method = classLoader.loadClass(mainClazz).getMethod("main", String[].class);
-
-        PRINT.accept("Application setup complete! " + (System.currentTimeMillis() - launcherStartTime) + "ms");
-        PRINT.accept("Starting application version " + System.getProperty(Constants.CLOUDNET_SELECTED_VERSION) + "...");
-
-        startApplication0(method, classLoader, args.toArray(new String[0]));
+        method.invoke(null, (Object) args);
     }
 
-    private static void startApplication0(Method method, ClassLoader classLoader, String... args) {
-        Thread thread = new Thread(() -> {
-            try {
-                method.invoke(null, new Object[]{args});
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        }, "Application-Thread");
-
-        thread.setPriority(Thread.MIN_PRIORITY);
-        thread.setContextClassLoader(classLoader);
-        thread.start();
-    }
-
-    private static void checkAutoUpdate(Map<String, String> variables, Path launcherDirectory, String url) {
-        IUpdater updater = updateServices.get(variables.getOrDefault(Constants.CLOUDNET_REPOSITORY_TYPE, "default"));
-
-        if (updater == null) {
-            updater = updateServices.get("default");
-        }
-
-        PRINT.accept("Loading repository information...");
-        if (updater.init(url) && updater.getRepositoryVersion() != null && updater.getCurrentVersion() != null) {
-            PRINT.accept("Loaded data from Repository " + url);
-            PRINT.accept("Repository version: " + updater.getRepositoryVersion());
-            PRINT.accept("Current CloudNet AppVersion: " + updater.getCurrentVersion());
-            PRINT.accept("Installing repository CloudNet version if not exists...");
-
-            if (updater.installUpdate(new File(launcherDirectory.toFile(), "versions").getAbsolutePath(),
-                    variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED) != null &&
-                            variables.get(Constants.CLOUDNET_MODULES_AUTO_UPDATE_WITH_EMBEDDED).equalsIgnoreCase("true") ?
-                            System.getProperty("cloudnet.modules.directory", "modules") : null
-            )) {
-                PRINT.accept("Set using version to " + updater.getCurrentVersion());
-                variables.put(Constants.CLOUDNET_SELECTED_VERSION, updater.getCurrentVersion());
-            }
-        }
-    }
 }

@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.ext.syncproxy.node.command.CommandSyncProxy;
 import de.dytanic.cloudnet.ext.syncproxy.node.http.V1SyncProxyConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.syncproxy.node.listener.IncludePluginListener;
 import de.dytanic.cloudnet.ext.syncproxy.node.listener.SyncProxyConfigUpdateListener;
+import de.dytanic.cloudnet.ext.syncproxy.node.listener.SyncProxyDefaultConfigurationListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
@@ -36,7 +37,7 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new IncludePluginListener(), new SyncProxyConfigUpdateListener());
+        registerListeners(new IncludePluginListener(), new SyncProxyConfigUpdateListener(), new SyncProxyDefaultConfigurationListener());
     }
 
     @ModuleTask(order = 60, event = ModuleLifeCycle.STARTED)
