@@ -30,8 +30,8 @@ public class MinecraftEULA {
         Properties properties = new Properties();
         try (InputStream inputStream = Files.newInputStream(this.path)) {
             properties.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
         return Boolean.parseBoolean(properties.getProperty("eula"));
     }
@@ -41,8 +41,8 @@ public class MinecraftEULA {
         properties.setProperty("eula", String.valueOf(accepted));
         try (OutputStream outputStream = Files.newOutputStream(this.path)) {
             properties.store(outputStream, "By changing the setting below to TRUE you are indicating your agreement to Mojang's EULA (https://account.mojang.com/documents/minecraft_eula).");
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
