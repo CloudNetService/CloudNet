@@ -14,6 +14,7 @@ import org.fusesource.jansi.Ansi;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
@@ -29,6 +30,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     private Map<String, Object> results = new HashMap<>();
 
     private Queue<QuestionListEntry<?>> entries = new LinkedBlockingQueue<>();
+
+    private Collection<BiConsumer<QuestionListEntry<?>, Object>> entryCompletionListeners = new ArrayList<>();
 
     private int currentCursor = 1;
 
@@ -67,6 +70,10 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
     public boolean hasResult(String key) {
         return this.results.containsKey(key);
+    }
+
+    public void addEntryCompletionListener(BiConsumer<QuestionListEntry<?>, Object> listener) {
+        this.entryCompletionListeners.add(listener);
     }
 
     @Override
@@ -157,10 +164,13 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         if (answerType.isValidInput(input)) {
-            Object response = answerType.parse(input);
-            this.results.put(entry.getKey(), response);
+            Object result = answerType.parse(input);
+            this.results.put(entry.getKey(), result);
+            for (BiConsumer<QuestionListEntry<?>, Object> listener : this.entryCompletionListeners) {
+                listener.accept(entry, result);
+            }
 
-            CloudNet.getInstance().getEventManager().callEvent(new SetupResponseEvent(this, entry, response));
+            CloudNet.getInstance().getEventManager().callEvent(new SetupResponseEvent(this, entry, result));
 
             super.getConsole().writeRaw( //print result message and remove question
                     this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
