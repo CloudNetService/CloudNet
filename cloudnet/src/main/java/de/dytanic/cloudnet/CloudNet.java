@@ -914,6 +914,7 @@ public final class CloudNet extends CloudNetDriver {
                 //Default commands
                 new CommandClear(),
                 new CommandTasks(),
+                new CommandGroups(),
                 new CommandService(),
                 new CommandCreate(),
                 new CommandCluster(),

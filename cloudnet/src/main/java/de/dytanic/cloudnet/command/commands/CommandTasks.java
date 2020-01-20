@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
-public class CommandTasks extends SubCommandHandler {
+public class CommandTasks extends CommandServiceConfigurationBase {
     public CommandTasks() {
         super(
                 SubCommandBuilder.create()
@@ -60,18 +60,7 @@ public class CommandTasks extends SubCommandHandler {
                                         (serviceTask.getAssociatedNodes().isEmpty() ? "All" : serviceTask.getAssociatedNodes()) + " | StartPort: " +
                                         serviceTask.getStartPort());
                             }
-
-                            sender.sendMessage(" ", "- Groups", " ");
-
-                            for (GroupConfiguration groupConfiguration : CloudNet.getInstance().getCloudServiceManager().getGroupConfigurations()) {
-                                if (properties.containsKey("name") &&
-                                        !groupConfiguration.getName().toLowerCase().contains(properties.get("name").toLowerCase())) {
-                                    continue;
-                                }
-
-                                sender.sendMessage("- " + groupConfiguration.getName());
-                            }
-                        }, subCommand -> subCommand.enableProperties().appendUsage("name=NAME"), exactStringIgnoreCase("list"))
+                        }, subCommand -> subCommand.enableProperties().appendUsage("| name=NAME"), exactStringIgnoreCase("list"))
 
                         .applyHandler(CommandTasks::handleCreateCommands)
                         .applyHandler(CommandTasks::handleDeleteCommands)
@@ -119,34 +108,6 @@ public class CommandTasks extends SubCommandHandler {
 
                         .clearAll()
 
-                        .prefix(exactStringIgnoreCase("group"))
-                        .prefix(dynamicString(
-                                "name",
-                                LanguageManager.getMessage("command-tasks-group-not-found"),
-                                name -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name),
-                                () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations()
-                                        .stream()
-                                        .map(GroupConfiguration::getName)
-                                        .collect(Collectors.toList())
-                        ))
-
-                        .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) ->
-                                internalProperties.put("group", CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration((String) args.argument(1)))
-                        )
-
-                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayGroup(sender, (GroupConfiguration) internalProperties.get("group")))
-
-                        .applyHandler(builder -> handleGeneralAddCommands(
-                                builder,
-                                internalProperties -> (ServiceConfigurationBase) internalProperties.get("group"),
-                                serviceConfigurationBase -> CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration((GroupConfiguration) serviceConfigurationBase)
-                        ))
-                        .applyHandler(builder -> handleGeneralRemoveCommands(
-                                builder,
-                                internalProperties -> (ServiceConfigurationBase) internalProperties.get("group"),
-                                serviceConfigurationBase -> CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration((GroupConfiguration) serviceConfigurationBase)
-                        ))
-
                         .getSubCommands(),
                 "tasks"
         );
@@ -158,13 +119,11 @@ public class CommandTasks extends SubCommandHandler {
 
     private static void handleCreateCommands(SubCommandBuilder builder) {
         builder
-                .prefix(exactStringIgnoreCase("create"))
-
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             try {
-                                String name = (String) args.argument(2);
-                                ServiceEnvironmentType type = (ServiceEnvironmentType) args.argument(3);
+                                String name = (String) args.argument("name").get();
+                                ServiceEnvironmentType type = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
 
                                 CloudNet.getInstance().getCloudServiceManager().addPermanentServiceTask(new ServiceTask(
                                         Iterables.newArrayList(),
@@ -207,7 +166,7 @@ public class CommandTasks extends SubCommandHandler {
                                 exception.printStackTrace();
                             }
                         },
-                        exactStringIgnoreCase("task"),
+                        exactStringIgnoreCase("create"),
                         dynamicString(
                                 "name",
                                 LanguageManager.getMessage("command-tasks-task-already-existing"),
@@ -215,29 +174,15 @@ public class CommandTasks extends SubCommandHandler {
                         ),
                         exactEnum(ServiceEnvironmentType.class)
                 )
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            createEmptyGroupConfiguration((String) args.argument(2));
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
-                        },
-                        exactStringIgnoreCase("group"),
-                        dynamicString(
-                                "name",
-                                LanguageManager.getMessage("command-tasks-group-already-existing"),
-                                name -> !CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name)
-                        )
-                )
 
                 .removeLastPrefix();
     }
 
     private static void handleDeleteCommands(SubCommandBuilder builder) {
         builder
-                .prefix(exactStringIgnoreCase("delete"))
-
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            String name = (String) args.argument(2);
+                            String name = (String) args.argument("name").get();
 
                             CloudNet.getInstance().getCloudServiceManager().removePermanentServiceTask(name);
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
@@ -246,28 +191,13 @@ public class CommandTasks extends SubCommandHandler {
                                 CloudNet.getInstance().getCloudServiceProvider(cloudService).stop();
                             }
                         },
-                        exactStringIgnoreCase("task"),
+                        exactStringIgnoreCase("delete"),
                         dynamicString(
                                 "name",
                                 LanguageManager.getMessage("command-tasks-task-not-found"),
                                 name -> CloudNet.getInstance().getServiceTaskProvider().isServiceTaskPresent(name),
                                 () -> CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
                                         .map(ServiceTask::getName)
-                                        .collect(Collectors.toList())
-                        )
-                )
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            CloudNet.getInstance().getCloudServiceManager().removeGroupConfiguration((String) args.argument(2));
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-group"));
-                        },
-                        exactStringIgnoreCase("group"),
-                        dynamicString(
-                                "name",
-                                LanguageManager.getMessage("command-tasks-group-not-found"),
-                                name -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name),
-                                () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-                                        .map(GroupConfiguration::getName)
                                         .collect(Collectors.toList())
                         )
                 )
@@ -390,9 +320,9 @@ public class CommandTasks extends SubCommandHandler {
 
     private static void handleTaskRemoveCommands(SubCommandBuilder builder) {
         builder
-                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                    CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) internalProperties.get("task"));
-                })
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                        CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) internalProperties.get("task"))
+                )
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
@@ -428,119 +358,6 @@ public class CommandTasks extends SubCommandHandler {
                 .removeLastPostHandler();
     }
 
-    private static void handleGeneralAddCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase> configurationBaseFunction,
-                                                 Consumer<ServiceConfigurationBase> updateHandler) {
-        builder
-                .prefix(exactStringIgnoreCase("add"))
-
-                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
-
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
-                            Collection<String> excludes = args.length() > 5 ? (Collection<String>) args.argument(5) : new ArrayList<>();
-
-                            configuration.getDeployments().add(new ServiceDeployment(template, excludes));
-
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-deployment-success"));
-                        },
-                        subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
-                        exactStringIgnoreCase("deployment"),
-                        template("storage:prefix/name"),
-                        collection("excludedFiles separated by \";\"")
-                )
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
-
-                            configuration.getTemplates().add(template);
-
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-template-success"));
-                        },
-                        exactStringIgnoreCase("template"),
-                        template("storage:prefix/name")
-                )
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            String url = (String) args.argument(4);
-                            String target = (String) args.argument(5);
-
-                            configuration.getIncludes().add(new ServiceRemoteInclusion(url, target));
-
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-inclusion-success"));
-                        },
-                        exactStringIgnoreCase("inclusion"),
-                        url("url"),
-                        dynamicString("targetPath")
-                )
-
-                .removeLastPrefix()
-                .removeLastPostHandler();
-    }
-
-    private static void handleGeneralRemoveCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase> configurationBaseFunction,
-                                                    Consumer<ServiceConfigurationBase> updateHandler) {
-        builder
-                .prefix(exactStringIgnoreCase("remove"))
-
-                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
-
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
-
-                            configuration.getDeployments().removeAll(configuration.getDeployments().stream()
-                                    .filter(deployment -> deployment.getTemplate().equals(template))
-                                    .collect(Collectors.toList())
-                            );
-
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-deployment-success"));
-                        },
-                        exactStringIgnoreCase("deployment"),
-                        template("storage:prefix/name")
-                )
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            ServiceTemplate template = (ServiceTemplate) args.argument(4);
-
-                            configuration.getTemplates().removeAll(configuration.getTemplates().stream()
-                                    .filter(serviceTemplate -> serviceTemplate.equals(template))
-                                    .collect(Collectors.toList())
-                            );
-
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-template-success"));
-                        },
-                        exactStringIgnoreCase("template"),
-                        template("storage:prefix/name")
-                )
-                .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
-                            String url = (String) args.argument(4);
-                            String target = (String) args.argument(5);
-
-                            configuration.getIncludes().removeAll(configuration.getIncludes().stream()
-                                    .filter(inclusion -> inclusion.getDestination().equalsIgnoreCase(target))
-                                    .filter(inclusion -> inclusion.getUrl().equalsIgnoreCase(url))
-                                    .collect(Collectors.toList())
-                            );
-
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-inclusion-success"));
-                        },
-                        exactStringIgnoreCase("inclusion"),
-                        url("url"),
-                        dynamicString("targetPath")
-                )
-
-                .removeLastPrefix()
-                .removeLastPostHandler();
-    }
-
     private static void displayTask(ICommandSender sender, ServiceTask serviceTask) {
         Collection<String> messages = Iterables.newArrayList();
 
@@ -566,53 +383,6 @@ public class CommandTasks extends SubCommandHandler {
         applyDisplayMessagesForServiceConfigurationBase(messages, serviceTask);
 
         sender.sendMessage(messages.toArray(new String[0]));
-    }
-
-    private static void displayGroup(ICommandSender sender, GroupConfiguration groupConfiguration) {
-        Collection<String> messages = Iterables.newArrayList();
-
-        messages.addAll(Arrays.asList(
-                " ",
-                "* Name: " + groupConfiguration.getName(),
-                " "
-        ));
-
-        applyDisplayMessagesForServiceConfigurationBase(messages, groupConfiguration);
-
-        sender.sendMessage(messages.toArray(new String[0]));
-    }
-
-    private static void applyDisplayMessagesForServiceConfigurationBase(Collection<String> messages, ServiceConfigurationBase configurationBase) {
-        messages.add("* Includes:");
-
-        for (ServiceRemoteInclusion inclusion : configurationBase.getIncludes()) {
-            messages.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
-        }
-
-        messages.add(" ");
-        messages.add("* Templates:");
-
-        for (ServiceTemplate template : configurationBase.getTemplates()) {
-            messages.add("- " + template.getStorage() + ":" + template.getTemplatePath());
-        }
-
-        messages.add(" ");
-        messages.add("* Deployments:");
-
-        for (ServiceDeployment deployment : configurationBase.getDeployments()) {
-            messages.add("- ");
-            messages.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
-            messages.add("Excludes: " + deployment.getExcludes());
-        }
-
-        messages.add(" ");
-
-        messages.addAll(Arrays.asList(configurationBase.getProperties().toPrettyJson().split("\n")));
-        messages.add(" ");
-    }
-
-    private static void createEmptyGroupConfiguration(String name) {
-        CloudNet.getInstance().getCloudServiceManager().addGroupConfiguration(new EmptyGroupConfiguration(name));
     }
 
 
@@ -837,7 +607,7 @@ public class CommandTasks extends SubCommandHandler {
 
             if (!CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name)) {
                 createEmptyGroupConfiguration(name);
-                sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
+                sender.sendMessage(LanguageManager.getMessage("command-service-base-create-group"));
             }
         });
 
