@@ -11,9 +11,17 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<ServiceTemplate> {
+
+    private boolean existingStorage;
+
+    public QuestionAnswerTypeServiceTemplate(boolean existingStorage) {
+        this.existingStorage = existingStorage;
+    }
+
     @Override
     public boolean isValidInput(String input) {
-        return parse(input) != null;
+        ServiceTemplate template = parse(input);
+        return template != null && (!this.existingStorage || CloudNet.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, template.getStorage()));
     }
 
     @Override
@@ -23,7 +31,10 @@ public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<Ser
 
     @Override
     public String getInvalidInputMessage(String input) {
-        return LanguageManager.getMessage("ca-question-list-invalid-template");
+        ServiceTemplate template = this.parse(input);
+        return template != null ?
+                LanguageManager.getMessage("ca-question-list-invalid-template") :
+                LanguageManager.getMessage("ca-question-list-template-invalid-storage");
     }
 
     @Override

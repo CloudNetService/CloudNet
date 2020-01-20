@@ -26,7 +26,11 @@ public class SubCommandArgumentTypes {
     }
 
     public static QuestionAnswerType<ServiceTemplate> template(String key) {
-        return new QuestionAnswerTypeServiceTemplate() {
+        return template(key, false);
+    }
+
+    public static QuestionAnswerType<ServiceTemplate> template(String key, boolean existingStorage) {
+        return new QuestionAnswerTypeServiceTemplate(existingStorage) {
             @Override
             public String getRecommendation() {
                 return key;
