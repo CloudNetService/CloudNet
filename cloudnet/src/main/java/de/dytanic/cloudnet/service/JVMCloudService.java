@@ -607,7 +607,6 @@ final class JVMCloudService implements ICloudService {
 
         commandArguments.addAll(Arrays.asList(
                 // sys properties
-                "-Dcom.mojang.eula.agree=true",
                 "-Djline.terminal=jline.UnsupportedTerminal",
                 "-Dfile.encoding=UTF-8",
                 "-Dio.netty.noPreferDirect=true",
