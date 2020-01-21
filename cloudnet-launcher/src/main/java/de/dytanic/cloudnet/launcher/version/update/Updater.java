@@ -13,9 +13,7 @@ public interface Updater extends VersionInfo {
 
     boolean init(Path versionDirectory, String githubRepository);
 
-    boolean installModuleFile(String name, Path path);
-
-    boolean installFile(String name, Path path, boolean replace);
+    boolean installFile(String name, Path path);
 
     default boolean installUpdate(String moduleDestinationBaseDirectory) {
         boolean successful = false;
@@ -28,7 +26,7 @@ public interface Updater extends VersionInfo {
                 successful = true;
 
                 for (String versionFile : Constants.VERSION_FILE_NAMES) {
-                    if (!this.installFile(versionFile, this.getTargetDirectory().resolve(versionFile), false)) {
+                    if (!this.installFile(versionFile, this.getTargetDirectory().resolve(versionFile))) {
                         successful = false;
                     }
                 }
@@ -47,7 +45,9 @@ public interface Updater extends VersionInfo {
 
                         // avoiding the installation of manual removed modules
                         if (!modulesExist || Files.exists(modulePath)) {
-                            if (!this.installModuleFile(module.getFileName(), modulePath)) {
+                            System.out.println(String.format("Installing module %s...", module.getName()));
+
+                            if (!this.installFile(module.getFileName(), modulePath)) {
                                 successful = false;
                             }
                         }
