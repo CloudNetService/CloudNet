@@ -326,10 +326,17 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         for (GroupConfiguration groupConfiguration : this.getGroupConfigurations()) {
+            if (groupConfiguration.getTargetEnvironments().contains(processConfiguration.getEnvironment())) {
+                groups.add(groupConfiguration.getName());
+            }
+
             if (groups.contains(groupConfiguration.getName())) {
                 includes.addAll(groupConfiguration.getIncludes());
                 templates.addAll(groupConfiguration.getTemplates());
                 deployments.addAll(groupConfiguration.getDeployments());
+
+                processConfiguration.getJvmOptions().addAll(groupConfiguration.getJvmOptions());
+
                 if (properties != null) {
                     properties.append(groupConfiguration.getProperties());
                 }
