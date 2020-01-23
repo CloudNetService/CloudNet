@@ -215,6 +215,8 @@ public class DefaultInstallation {
                 animation.addEntry(entry);
             }
 
+            animation.setCancellable(false);
+
             console.clearScreen();
             console.startAnimation(animation);
 
