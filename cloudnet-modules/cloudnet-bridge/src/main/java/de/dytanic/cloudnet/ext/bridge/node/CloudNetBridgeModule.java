@@ -105,7 +105,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new NetworkListenerRegisterListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener(), new BridgeDefaultConfigurationListener());
+        registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener(), new BridgeDefaultConfigurationListener());
     }
 
     public BridgeConfiguration getBridgeConfiguration() {

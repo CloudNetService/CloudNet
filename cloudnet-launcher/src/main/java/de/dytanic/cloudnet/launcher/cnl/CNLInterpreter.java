@@ -21,46 +21,46 @@ public class CNLInterpreter {
     }
 
 
-    public static void runInterpreter(Path path) throws Exception {
+    public static void runInterpreter(Path path) throws IOException, CNLCommandExecuteException {
         runInterpreter(path, new HashMap<>());
     }
 
 
-    public static void runInterpreter(Path path, Map<String, String> variables) throws Exception {
+    public static void runInterpreter(Path path, Map<String, String> variables) throws IOException, CNLCommandExecuteException {
         runInterpreter(path.toFile(), variables);
     }
 
 
-    public static void runInterpreter(File file) throws Exception {
+    public static void runInterpreter(File file) throws IOException, CNLCommandExecuteException {
         runInterpreter(file, new HashMap<>());
     }
 
 
-    public static void runInterpreter(File file, Map<String, String> variables) throws Exception {
+    public static void runInterpreter(File file, Map<String, String> variables) throws IOException, CNLCommandExecuteException {
         try (InputStream inputStream = new FileInputStream(file)) {
             runInterpreter(inputStream, variables);
         }
     }
 
 
-    public static void runInterpreter(InputStream inputStream) throws Exception {
+    public static void runInterpreter(InputStream inputStream) throws IOException, CNLCommandExecuteException {
         runInterpreter(inputStream, new HashMap<>());
     }
 
 
-    public static void runInterpreter(InputStream inputStream, Map<String, String> variables) throws Exception {
+    public static void runInterpreter(InputStream inputStream, Map<String, String> variables) throws IOException, CNLCommandExecuteException {
         try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             runInterpreter(inputStreamReader, variables);
         }
     }
 
 
-    public static void runInterpreter(InputStreamReader inputStreamReader) throws Exception {
+    public static void runInterpreter(InputStreamReader inputStreamReader) throws IOException, CNLCommandExecuteException {
         runInterpreter(inputStreamReader, new HashMap<>());
     }
 
 
-    public static void runInterpreter(InputStreamReader inputStreamReader, Map<String, String> variables) throws Exception {
+    public static void runInterpreter(InputStreamReader inputStreamReader, Map<String, String> variables) throws IOException, CNLCommandExecuteException {
 
         try (BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 

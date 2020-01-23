@@ -1,14 +1,20 @@
 package de.dytanic.cloudnet.console.animation.questionlist;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
+import de.dytanic.cloudnet.event.setup.SetupCancelledEvent;
+import de.dytanic.cloudnet.event.setup.SetupCompleteEvent;
+import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
+import de.dytanic.cloudnet.event.setup.SetupResponseEvent;
 import org.fusesource.jansi.Ansi;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
@@ -25,11 +31,18 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
     private Queue<QuestionListEntry<?>> entries = new LinkedBlockingQueue<>();
 
+    private Collection<BiConsumer<QuestionListEntry<?>, Object>> entryCompletionListeners = new ArrayList<>();
+
     private int currentCursor = 1;
 
     private boolean cancelled = false;
 
     public ConsoleQuestionListAnimation(Supplier<Collection<String>> lastCachedMessagesSupplier, Supplier<String> headerSupplier, Supplier<String> footerSupplier, String overwritePrompt) {
+        this(null, lastCachedMessagesSupplier, headerSupplier, footerSupplier, overwritePrompt);
+    }
+
+    public ConsoleQuestionListAnimation(String name, Supplier<Collection<String>> lastCachedMessagesSupplier, Supplier<String> headerSupplier, Supplier<String> footerSupplier, String overwritePrompt) {
+        super(name);
         this.lastCachedMessagesSupplier = lastCachedMessagesSupplier;
         this.headerSupplier = headerSupplier;
         this.footerSupplier = footerSupplier;
@@ -59,6 +72,10 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         return this.results.containsKey(key);
     }
 
+    public void addEntryCompletionListener(BiConsumer<QuestionListEntry<?>, Object> listener) {
+        this.entryCompletionListeners.add(listener);
+    }
+
     @Override
     public void setConsole(IConsole console) {
         super.setConsole(console);
@@ -81,6 +98,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
 
         console.disableAllHandlers();
+
+        CloudNet.getInstance().getEventManager().callEvent(new SetupInitiateEvent(this));
 
     }
 
@@ -145,12 +164,16 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         if (answerType.isValidInput(input)) {
-            this.results.put(entry.getKey(), answerType.parse(input));
+            Object result = answerType.parse(input);
+            this.results.put(entry.getKey(), result);
+            for (BiConsumer<QuestionListEntry<?>, Object> listener : this.entryCompletionListeners) {
+                listener.accept(entry, result);
+            }
+
+            CloudNet.getInstance().getEventManager().callEvent(new SetupResponseEvent(this, entry, result));
+
             super.getConsole().writeRaw( //print result message and remove question
-                    this.eraseLines(
-                            Ansi.ansi()
-                                    .reset(),
-                            this.currentCursor + 1)
+                    this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
                             .a("&r").a(entry.getQuestion())
                             .a(" &r> &a").a(input)
                             .a(System.lineSeparator())
@@ -188,12 +211,15 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     private void resetConsole() {
         if (this.cancelled) {
             super.getConsole().forceWriteLine("&c" + LanguageManager.getMessage("ca-question-list-cancelled"));
+            CloudNet.getInstance().getEventManager().callEvent(new SetupCancelledEvent(this));
         } else {
             String footer = this.footerSupplier.get();
 
             if (footer != null) {
                 super.getConsole().forceWriteLine("&r" + footer);
             }
+
+            CloudNet.getInstance().getEventManager().callEvent(new SetupCompleteEvent(this));
         }
 
         try {

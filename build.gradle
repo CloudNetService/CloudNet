@@ -65,9 +65,9 @@ allprojects {
         dependencyJLine2Version = '2.14.6'
         dependencyJAnsiVersion = '1.17.1'
         dependencyNextCloudJavaAPIVersion = '11.0.3'
-        dependencyBukkitVersion = '1.14.4-R0.1-SNAPSHOT'
+        dependencyBukkitVersion = '1.15.2-R0.1-SNAPSHOT'
         dependencySpongeVersion = '7.0.0'
-        dependencyBungeeCordVersion = '1.14-SNAPSHOT'
+        dependencyBungeeCordVersion = '1.15-SNAPSHOT'
         dependencyVelocityVersion = '1.0.0-SNAPSHOT'
         //dependencyGoMintVersion = '1.0.0-SNAPSHOT'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
@@ -105,7 +105,7 @@ allprojects {
 
         def stringBuilder = new StringBuilder("# CloudNet $cloudNetCodeName ${version}\n\n")
                 .append("# repositories\n\n")
-                .append("repo maven http://central.maven.org/maven2\n")
+                .append("repo maven https://repo1.maven.org/maven2\n")
                 .append("# dependencies\n\n")
 
         pro.configurations.compile.resolvedConfiguration.resolvedArtifacts.forEach({

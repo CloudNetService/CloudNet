@@ -15,6 +15,7 @@ import de.dytanic.cloudnet.ext.signs.node.command.CommandSigns;
 import de.dytanic.cloudnet.ext.signs.node.http.V1SignConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.signs.node.listener.CloudNetSignsModuleListener;
 import de.dytanic.cloudnet.ext.signs.node.listener.IncludePluginListener;
+import de.dytanic.cloudnet.ext.signs.node.listener.SignsTaskSetupListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
@@ -46,8 +47,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
     public void registerListeners() {
-        registerListener(new IncludePluginListener());
-        registerListener(new CloudNetSignsModuleListener());
+        registerListeners(new IncludePluginListener(), new CloudNetSignsModuleListener(), new SignsTaskSetupListener());
     }
 
     @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)

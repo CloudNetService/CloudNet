@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.launcher.util;
+package de.dytanic.cloudnet.launcher.module;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
