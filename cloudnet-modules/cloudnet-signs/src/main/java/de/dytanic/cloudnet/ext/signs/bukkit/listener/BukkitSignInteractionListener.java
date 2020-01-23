@@ -4,8 +4,10 @@ import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
+import de.dytanic.cloudnet.ext.signs.bukkit.event.BukkitCloudSignInteractEvent;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -31,14 +33,19 @@ public final class BukkitSignInteractionListener implements Listener {
                         continue;
                     }
 
-                    BridgePlayerManager.getInstance().proxySendPlayer(event.getPlayer().getUniqueId(), sign.getServiceInfoSnapshot().getServiceId().getName());
+                    BukkitCloudSignInteractEvent signInteractEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign, sign.getServiceInfoSnapshot().getServiceId().getName());
+                    Bukkit.getPluginManager().callEvent(signInteractEvent);
 
-                    event.getPlayer().sendMessage(
-                            ChatColor.translateAlternateColorCodes('&',
-                                    SignConfigurationProvider.load().getMessages().get("server-connecting-message")
-                                            .replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
-                            )
-                    );
+                    if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
+                        BridgePlayerManager.getInstance().proxySendPlayer(event.getPlayer().getUniqueId(), signInteractEvent.getTargetServer());
+
+                        event.getPlayer().sendMessage(
+                                ChatColor.translateAlternateColorCodes('&',
+                                        SignConfigurationProvider.load().getMessages().get("server-connecting-message")
+                                                .replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
+                                )
+                        );
+                    }
 
                     return;
                 }
