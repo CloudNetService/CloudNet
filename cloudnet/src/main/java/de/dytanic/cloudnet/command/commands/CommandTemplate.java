@@ -196,8 +196,8 @@ public class CommandTemplate extends SubCommandHandler {
 
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    ServiceTemplate sourceTemplate = (ServiceTemplate) args.argument("sourceTemplate").get();
-                                    ServiceTemplate targetTemplate = (ServiceTemplate) args.argument("targetTemplate").get();
+                                    ServiceTemplate sourceTemplate = (ServiceTemplate) args.argument("storage:prefix/name (sourceTemplate)").get();
+                                    ServiceTemplate targetTemplate = (ServiceTemplate) args.argument("storage:prefix/name (targetTemplate)").get();
                                     ITemplateStorage sourceStorage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, sourceTemplate.getStorage());
                                     ITemplateStorage targetStorage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, targetTemplate.getStorage());
 
@@ -226,8 +226,8 @@ public class CommandTemplate extends SubCommandHandler {
                                     });
                                 },
                                 anyStringIgnoreCase("copy", "cp"),
-                                template("sourceTemplate"),
-                                template("targetTemplate")
+                                template("storage:prefix/name (sourceTemplate)"),
+                                template("storage:prefix/name (targetTemplate)")
                         )
 
                         .getSubCommands(),
