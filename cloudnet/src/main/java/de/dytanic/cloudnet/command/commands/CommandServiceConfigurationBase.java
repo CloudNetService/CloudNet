@@ -46,7 +46,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                         },
                         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("deployment"),
-                        template("storage:prefix/name"),
+                        template("storage:prefix/name", true),
                         collection("excludedFiles separated by \";\"")
                 )
                 .generateCommand(
@@ -59,7 +59,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-add-template-success"));
                         },
                         exactStringIgnoreCase("template"),
-                        template("storage:prefix/name")
+                        template("storage:prefix/name", true)
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
@@ -83,7 +83,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
     protected static void handleGeneralRemoveCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase> configurationBaseFunction,
                                                       Consumer<ServiceConfigurationBase> updateHandler) {
         builder
-                .prefix(exactStringIgnoreCase("remove"))
+                .prefix(anyStringIgnoreCase("remove", "rm"))
 
                 .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
 

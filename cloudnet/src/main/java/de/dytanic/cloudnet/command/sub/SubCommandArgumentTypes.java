@@ -81,7 +81,7 @@ public class SubCommandArgumentTypes {
     }
 
     public static QuestionAnswerType<String> url(String key) {
-        return dynamicString(key, input -> {
+        return dynamicString(key, LanguageManager.getMessage("ca-question-list-invalid-url"), input -> {
             try {
                 new URL(input);
                 return true;

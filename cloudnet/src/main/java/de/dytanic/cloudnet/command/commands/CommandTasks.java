@@ -158,7 +158,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
                                 if (!CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name)) {
                                     createEmptyGroupConfiguration(name);
-                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-create-group"));
+                                    sender.sendMessage(LanguageManager.getMessage("command-service-base-create-group"));
                                 }
 
                             } catch (IOException exception) {

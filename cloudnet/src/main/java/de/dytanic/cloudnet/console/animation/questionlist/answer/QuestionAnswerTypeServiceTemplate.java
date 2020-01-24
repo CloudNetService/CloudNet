@@ -32,16 +32,20 @@ public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<Ser
     @Override
     public String getInvalidInputMessage(String input) {
         ServiceTemplate template = this.parse(input);
-        return template != null ?
+        return template == null ?
                 LanguageManager.getMessage("ca-question-list-invalid-template") :
                 LanguageManager.getMessage("ca-question-list-template-invalid-storage");
     }
 
     @Override
     public Collection<String> getPossibleAnswers() {
-        return CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE)
-                .getTemplates()
-                .stream()
+        return this.mapTemplates(
+                CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE).getTemplates()
+        );
+    }
+
+    protected Collection<String> mapTemplates(Collection<ServiceTemplate> templates) {
+        return templates.stream()
                 .map(serviceTemplate -> serviceTemplate.getStorage() + ":" + serviceTemplate.getPrefix() + "/" + serviceTemplate.getName())
                 .collect(Collectors.toList());
     }
