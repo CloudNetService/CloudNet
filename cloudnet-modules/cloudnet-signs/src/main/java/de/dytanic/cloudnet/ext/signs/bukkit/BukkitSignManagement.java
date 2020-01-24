@@ -17,6 +17,7 @@ import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 
 public final class BukkitSignManagement extends AbstractSignManagement {
 
@@ -61,10 +62,15 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void cleanup() {
-        for (Sign sign : super.signs) {
+        Iterator<Sign> signIterator = super.signs.iterator();
+
+        while (signIterator.hasNext()) {
+            Sign sign = signIterator.next();
+
             Location location = this.toLocation(sign.getWorldPosition());
 
             if (location == null || !(location.getBlock().getState() instanceof org.bukkit.block.Sign)) {
+                signIterator.remove();
                 super.sendSignRemoveUpdate(sign);
             }
         }
