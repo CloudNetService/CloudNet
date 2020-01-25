@@ -32,6 +32,9 @@ final class DefaultCloudServiceManagerConfiguration {
     private final List<GroupConfiguration> groups = Iterables.newCopyOnWriteArrayList();
 
     public void load() {
+        this.loadGroups();
+        this.loadTasks();
+        
         if (Files.exists(OLD_TASK_CONFIG_FILE)) {
             JsonDocument document = JsonDocument.newDocument(OLD_TASK_CONFIG_FILE);
             this.tasks.addAll(document.get("tasks", COLL_SERVICE_TASK));
@@ -44,9 +47,6 @@ final class DefaultCloudServiceManagerConfiguration {
                 exception.printStackTrace();
             }
         }
-
-        this.loadGroups();
-        this.loadTasks();
     }
 
     private void loadGroups() {
