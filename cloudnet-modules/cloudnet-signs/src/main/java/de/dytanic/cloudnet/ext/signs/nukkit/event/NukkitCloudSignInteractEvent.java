@@ -3,10 +3,13 @@ package de.dytanic.cloudnet.ext.signs.nukkit.event;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.Cancellable;
+import cn.nukkit.event.HandlerList;
 import cn.nukkit.event.player.PlayerEvent;
 import de.dytanic.cloudnet.ext.signs.Sign;
 
 public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
+
+    private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private Sign clickedSign;
 
@@ -16,6 +19,10 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
         super.player = who;
         this.clickedSign = clickedSign;
         this.targetServer = targetServer;
+    }
+
+    public static HandlerList getHandlers() {
+        return HANDLER_LIST;
     }
 
     public Sign getClickedSign() {

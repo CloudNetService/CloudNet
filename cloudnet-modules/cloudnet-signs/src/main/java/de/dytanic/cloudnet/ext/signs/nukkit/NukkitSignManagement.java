@@ -15,6 +15,8 @@ import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignLayout;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
 
+import java.util.Iterator;
+
 public final class NukkitSignManagement extends AbstractSignManagement {
 
     private static NukkitSignManagement instance;
@@ -55,10 +57,15 @@ public final class NukkitSignManagement extends AbstractSignManagement {
 
     @Override
     public void cleanup() {
-        for (Sign sign : super.signs) {
+        Iterator<Sign> signIterator = super.signs.iterator();
+
+        while (signIterator.hasNext()) {
+            Sign sign = signIterator.next();
+
             Location location = this.toLocation(sign.getWorldPosition());
 
             if (location == null || !(location.getLevel().getBlockEntity(location) instanceof BlockEntitySign)) {
+                signIterator.remove();
                 super.sendSignRemoveUpdate(sign);
             }
         }
