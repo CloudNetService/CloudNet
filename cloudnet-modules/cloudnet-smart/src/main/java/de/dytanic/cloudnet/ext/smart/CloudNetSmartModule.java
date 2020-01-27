@@ -18,7 +18,6 @@ import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
@@ -106,19 +105,15 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public void updateAsSmartService(ServiceConfiguration configuration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
-        configuration.setTemplates(this.applyTemplateInstaller(serviceTask, smartTask.getTemplateInstaller()));
+        configuration.setTemplates(this.applyTemplateInstaller(configuration, new ArrayList<>(serviceTask.getTemplates()), smartTask.getTemplateInstaller()));
         configuration.getProcessConfig().setMaxHeapMemorySize(
                 this.applyDynamicMemory(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), configuration, serviceTask, smartTask)
         );
     }
 
-    private ServiceTemplate[] applyTemplateInstaller(ServiceTask serviceTask, TemplateInstaller templateInstaller) {
-        List<ServiceTemplate> taskTemplates = new ArrayList<>(serviceTask.getTemplates());
-
-        List<ServiceTemplate> outTemplates = super.getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream()
-                .filter(groupConfiguration -> serviceTask.getGroups().contains(groupConfiguration.getName()))
-                .flatMap(groupConfiguration -> groupConfiguration.getTemplates().stream())
-                .collect(Collectors.toList());
+    private ServiceTemplate[] applyTemplateInstaller(ServiceConfiguration configuration, List<ServiceTemplate> taskTemplates, TemplateInstaller templateInstaller) {
+        List<ServiceTemplate> outTemplates = new ArrayList<>(Arrays.asList(configuration.getTemplates()));
+        outTemplates.removeAll(taskTemplates);
 
         switch (templateInstaller) {
             case INSTALL_ALL: {

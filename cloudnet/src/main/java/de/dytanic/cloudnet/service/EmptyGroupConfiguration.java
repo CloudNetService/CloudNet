@@ -8,8 +8,9 @@ public final class EmptyGroupConfiguration extends GroupConfiguration {
     public EmptyGroupConfiguration(String name) {
         super(name);
 
-        this.includes = Iterables.newArrayList();
-        this.templates = Iterables.newArrayList();
-        this.deployments = Iterables.newArrayList();
+        super.includes = Iterables.newArrayList();
+        super.templates = Iterables.newArrayList();
+        super.deployments = Iterables.newArrayList();
     }
+
 }
