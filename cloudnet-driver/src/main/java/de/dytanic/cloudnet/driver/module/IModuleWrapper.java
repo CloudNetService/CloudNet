@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.module;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
+import java.net.URL;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ public interface IModuleWrapper {
     IModuleWrapper unloadModule();
 
     File getDataFolder();
+
+    URL getUrl();
 
     Map<String, String> getDefaultRepositories();
 

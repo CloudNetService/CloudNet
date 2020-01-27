@@ -52,6 +52,10 @@ public class ModuleConfiguration {
     public ModuleConfiguration() {
     }
 
+    public ModuleId getModuleId() {
+        return new ModuleId(this.group, this.name, this.version);
+    }
+
     public String getMainClass() {
         return this.main;
     }
