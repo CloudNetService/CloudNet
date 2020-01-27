@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,6 +25,7 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                 for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
                     sender.sendMessage("Aliases: " + Arrays.toString(commandInfo.getNames()) + " - " + commandInfo.getDescription());
                 }
+                sender.sendMessage(LanguageManager.getMessage("command-help-info"));
 
                 break;
             case 1:
@@ -32,12 +34,16 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                     Command commandInfo = getCloudNet().getCommandMap().getCommand(args[0].toLowerCase());
 
                     if (commandInfo != null) {
-                        sender.sendMessage(
-                                " ",
-                                "Aliases: " + Arrays.toString(commandInfo.getNames()),
-                                "Description: " + commandInfo.getDescription(),
-                                "Usage: " + commandInfo.getUsage()
-                        );
+                        sender.sendMessage(" ", "Aliases: " + Arrays.toString(commandInfo.getNames()));
+                        if (commandInfo.getDescription() != null) {
+                            sender.sendMessage("Description: " + commandInfo.getDescription());
+                        }
+                        if (commandInfo.getUsage() != null) {
+                            String[] usage = ("Usage: " + commandInfo.getUsage()).split("\n");
+                            for (String line : usage) {
+                                sender.sendMessage(line);
+                            }
+                        }
                     }
                 }
                 break;

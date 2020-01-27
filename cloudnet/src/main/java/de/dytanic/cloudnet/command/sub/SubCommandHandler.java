@@ -36,6 +36,30 @@ public class SubCommandHandler extends Command implements ITabCompleter {
     }
 
     @Override
+    public String getUsage() {
+        Collection<String> messages = new ArrayList<>();
+        for (SubCommand subCommand : this.subCommands) {
+            String message = super.getNames()[0] + " " + subCommand.getArgsAsString() + subCommand.getExtendedUsage();
+
+            if (subCommand.getPermission() != null) {
+                message += " | " + subCommand.getPermission();
+            }
+
+            if (subCommand.getDescription() != null) {
+                message += " | " + subCommand.getDescription();
+            }
+            messages.add(message);
+        }
+        if (messages.isEmpty()) {
+            return null;
+        }
+        if (messages.size() == 1) {
+            return messages.iterator().next();
+        }
+        return "\n - " + String.join("\n - ", messages);
+    }
+
+    @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         Optional<String> optionalInvalidMessage = this.subCommands.stream()
                 .map(subCommand -> subCommand.getInvalidArgumentMessage(args))
@@ -83,20 +107,9 @@ public class SubCommandHandler extends Command implements ITabCompleter {
     }
 
     protected void sendHelp(ICommandSender sender) {
-        Collection<String> messages = new ArrayList<>();
-        for (SubCommand subCommand : this.subCommands) {
-            String message = super.getNames()[0] + " " + subCommand.getArgsAsString() + subCommand.getExtendedUsage();
-
-            if (subCommand.getPermission() != null) {
-                message += " | " + subCommand.getPermission();
-            }
-
-            if (subCommand.getDescription() != null) {
-                message += " | " + subCommand.getDescription();
-            }
-            messages.add(message);
+        for (String usageLine : this.getUsage().split("\n")) {
+            sender.sendMessage(usageLine);
         }
-        sender.sendMessage(messages.toArray(new String[0]));
     }
 
     @Override
