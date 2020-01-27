@@ -174,6 +174,9 @@ public class CommandService extends SubCommandHandler {
                         .getSubCommands(),
                 "service", "ser"
         );
+        super.prefix = "cloudnet";
+        super.permission = "cloudnet.command." + super.names[0];
+        super.description = LanguageManager.getMessage("command-description-service");
     }
 
 

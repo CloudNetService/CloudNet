@@ -69,6 +69,9 @@ public class CommandPermissions extends SubCommandHandler {
                         .getSubCommands(),
                 "permissions", "perms"
         );
+        super.prefix = "cloudnet";
+        super.permission = "cloudnet.command." + super.names[0];
+        super.description = LanguageManager.getMessage("command-description-permissions");
     }
 
     private static void handleCreateCommands(SubCommandBuilder builder) {

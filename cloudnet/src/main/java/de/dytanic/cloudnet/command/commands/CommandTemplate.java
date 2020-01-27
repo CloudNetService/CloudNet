@@ -233,5 +233,8 @@ public class CommandTemplate extends SubCommandHandler {
                         .getSubCommands(),
                 "template", "t"
         );
+        super.prefix = "cloudnet";
+        super.permission = "cloudnet.command." + super.names[0];
+        super.description = LanguageManager.getMessage("command-description-template");
     }
 }
