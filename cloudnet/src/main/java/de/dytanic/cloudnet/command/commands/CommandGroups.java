@@ -5,15 +5,16 @@ import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfigurationBase;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.exactStringIgnoreCase;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandGroups extends CommandServiceConfigurationBase {
     public CommandGroups() {
@@ -68,6 +69,39 @@ public class CommandGroups extends CommandServiceConfigurationBase {
                                 serviceConfigurationBase -> CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration((GroupConfiguration) serviceConfigurationBase)
                         ))
 
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    GroupConfiguration configuration = (GroupConfiguration) internalProperties.get("group");
+                                    ServiceEnvironmentType environment = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
+                                    if (configuration.getTargetEnvironments().contains(environment)) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-groups-add-environment-already-existing"));
+                                        return;
+                                    }
+                                    configuration.getTargetEnvironments().add(environment);
+                                    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(configuration);
+                                    sender.sendMessage(LanguageManager.getMessage("command-groups-add-environment-success"));
+                                },
+                                exactStringIgnoreCase("add"),
+                                anyStringIgnoreCase("environment", "env"),
+                                exactEnum(ServiceEnvironmentType.class)
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    GroupConfiguration configuration = (GroupConfiguration) internalProperties.get("group");
+                                    ServiceEnvironmentType environment = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
+                                    if (!configuration.getTargetEnvironments().contains(environment)) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-not-found"));
+                                        return;
+                                    }
+                                    configuration.getTargetEnvironments().add(environment);
+                                    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(configuration);
+                                    sender.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-success"));
+                                },
+                                exactStringIgnoreCase("remove"),
+                                anyStringIgnoreCase("environment", "env"),
+                                exactEnum(ServiceEnvironmentType.class)
+                        )
+
                         .getSubCommands(),
                 "groups"
         );
@@ -118,7 +152,8 @@ public class CommandGroups extends CommandServiceConfigurationBase {
         messages.addAll(Arrays.asList(
                 " ",
                 "* Name: " + groupConfiguration.getName(),
-                " "
+                " ",
+                "* Environments: " + groupConfiguration.getTargetEnvironments()
         ));
 
         applyDisplayMessagesForServiceConfigurationBase(messages, groupConfiguration);

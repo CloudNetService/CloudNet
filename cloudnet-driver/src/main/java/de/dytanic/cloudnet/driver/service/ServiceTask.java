@@ -71,6 +71,11 @@ public class ServiceTask extends ServiceConfigurationBase {
     public ServiceTask() {
     }
 
+    @Override
+    public Collection<String> getJvmOptions() {
+        return this.processConfiguration.getJvmOptions();
+    }
+
     /**
      * Forbids this task to auto start new services for a specific time on the current node.
      * This method has no effect when executed on a wrapper instances.

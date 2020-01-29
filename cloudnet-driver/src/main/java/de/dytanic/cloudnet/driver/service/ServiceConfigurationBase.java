@@ -25,6 +25,8 @@ public abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable 
     public ServiceConfigurationBase() {
     }
 
+    public abstract Collection<String> getJvmOptions();
+
     public Collection<ServiceRemoteInclusion> getIncludes() {
         return this.includes;
     }

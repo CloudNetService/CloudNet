@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.sub.CommandInterrupt;
 import de.dytanic.cloudnet.command.sub.SubCommand;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
@@ -20,7 +21,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
 
 public class CommandServiceConfigurationBase extends SubCommandHandler {
     protected CommandServiceConfigurationBase(Collection<SubCommand> subCommands, String... names) {
@@ -28,7 +28,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
     }
 
     protected static void handleGeneralAddCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase> configurationBaseFunction,
-                                                 Consumer<ServiceConfigurationBase> updateHandler) {
+                                                   Consumer<ServiceConfigurationBase> updateHandler) {
         builder
                 .prefix(exactStringIgnoreCase("add"))
 
@@ -74,6 +74,21 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                         exactStringIgnoreCase("inclusion"),
                         url("url"),
                         dynamicString("targetPath")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                            String value = (String) args.argument("value").get();
+                            if (configuration.getJvmOptions().contains(value)) {
+                                sender.sendMessage(LanguageManager.getMessage("command-service-base-add-jvm-option-already-existing"));
+                                return;
+                            }
+                            configuration.getJvmOptions().add(value);
+                            sender.sendMessage(LanguageManager.getMessage("command-service-base-add-jvm-option-success"));
+                        },
+                        subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("jvmOption"),
+                        dynamicString("value")
                 )
 
                 .removeLastPrefix()
@@ -135,8 +150,34 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                         url("url"),
                         dynamicString("targetPath")
                 )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                            String value = (String) args.argument("value").get();
+                            if (!configuration.getJvmOptions().contains(value)) {
+                                sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-jvm-option-not-found"));
+                                throw new CommandInterrupt();
+                            }
+                            configuration.getJvmOptions().add(value);
+                            sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-jvm-option-success"));
+                        },
+                        subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("jvmOption"),
+                        dynamicString("value")
+                )
 
                 .removeLastPrefix()
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                            configuration.getJvmOptions().clear();
+                            sender.sendMessage(LanguageManager.getMessage("command-service-base-clear-jvm-options-success"));
+                        },
+                        exactStringIgnoreCase("clear"),
+                        exactStringIgnoreCase("jvmOptions")
+                )
+
                 .removeLastPostHandler();
     }
 
@@ -161,6 +202,12 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
             messages.add("- ");
             messages.add("Template:  " + deployment.getTemplate().getStorage() + ":" + deployment.getTemplate().getTemplatePath());
             messages.add("Excludes: " + deployment.getExcludes());
+        }
+
+        messages.add(" ");
+        messages.add("* JVM Options");
+        for (String jvmOption : configurationBase.getJvmOptions()) {
+            messages.add(" - " + jvmOption);
         }
 
         messages.add(" ");
