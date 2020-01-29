@@ -398,24 +398,30 @@ final class JVMCloudService implements ICloudService {
     }
 
     private ServiceInfoSnapshot createServiceInfoSnapshot(ServiceLifeCycle lifeCycle) {
+        this.serviceConfiguration.setDeployments(this.deployments.toArray(new ServiceDeployment[0]));
+        this.serviceConfiguration.setTemplates(this.templates.toArray(new ServiceTemplate[0]));
+        this.serviceConfiguration.setIncludes(this.includes.toArray(new ServiceRemoteInclusion[0]));
+
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
                 this.serviceId,
                 new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), this.serviceConfiguration.getPort()),
                 false,
                 lifeCycle,
-                new ProcessSnapshot(
-                        -1,
-                        -1,
-                        -1,
-                        -1,
-                        -1,
-                        -1,
-                        Collections.emptyList(),
-                        -1,
-                        -1
-                ),
-                this.serviceConfiguration.getProperties(),
+                this.serviceInfoSnapshot != null ?
+                        this.serviceInfoSnapshot.getProcessSnapshot() :
+                        new ProcessSnapshot(
+                                -1,
+                                -1,
+                                -1,
+                                -1,
+                                -1,
+                                -1,
+                                Collections.emptyList(),
+                                -1,
+                                -1
+                        ),
+                this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getProperties() : this.serviceConfiguration.getProperties(),
                 this.serviceConfiguration
         );
     }
@@ -585,6 +591,24 @@ final class JVMCloudService implements ICloudService {
                 }
             }
         }
+    }
+
+    @Override
+    public void offerTemplate(ServiceTemplate template) {
+        this.waitingTemplates.offer(template);
+        this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
+    }
+
+    @Override
+    public void offerInclusion(ServiceRemoteInclusion inclusion) {
+        this.waitingIncludes.offer(inclusion);
+        this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
+    }
+
+    @Override
+    public void addDeployment(ServiceDeployment deployment) {
+        this.deployments.add(deployment);
+        this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
     }
 
     private void startWrapper() throws Exception {

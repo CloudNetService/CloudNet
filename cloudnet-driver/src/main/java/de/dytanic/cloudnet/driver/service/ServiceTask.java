@@ -6,7 +6,7 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 public class ServiceTask extends ServiceConfigurationBase {
 
@@ -69,6 +69,11 @@ public class ServiceTask extends ServiceConfigurationBase {
     }
 
     public ServiceTask() {
+    }
+
+    @Override
+    public Collection<String> getJvmOptions() {
+        return this.processConfiguration.getJvmOptions();
     }
 
     /**

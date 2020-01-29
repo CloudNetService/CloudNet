@@ -1,11 +1,12 @@
 package de.dytanic.cloudnet.ext.bridge.node.command;
 
-import de.dytanic.cloudnet.command.Command;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.common.Properties;
+import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
@@ -13,100 +14,164 @@ import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public final class CommandPlayers extends Command {
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
+public final class CommandPlayers extends SubCommandHandler {
+
+    private static final long MAX_REGISTERED_PLAYERS_FOR_COMPLETION = 50;
+    private static final long MAX_ONLINE_PLAYERS_FOR_COMPLETION = 50;
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public CommandPlayers() {
-        super("players", "player", "pl");
+        super(
+                SubCommandBuilder.create()
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    sender.sendMessage("=> Online: " + NodePlayerManager.getInstance().getOnlineCount());
+                                    if (NodePlayerManager.getInstance().getRegisteredCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
+                                        return;
+                                    }
+
+                                    for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlinePlayers()) {
+                                        sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
+                                                (cloudPlayer.getLoginService() != null ?
+                                                        cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
+                                                " | " +
+                                                (cloudPlayer.getConnectedService() != null ?
+                                                        cloudPlayer.getConnectedService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getConnectedService().getServerName() : null)
+                                        );
+                                    }
+                                },
+                                anyStringIgnoreCase("online", "list")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    sender.sendMessage("=> Registered: " + NodePlayerManager.getInstance().getRegisteredCount());
+                                    if (NodePlayerManager.getInstance().getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
+                                        return;
+                                    }
+
+                                    for (ICloudOfflinePlayer cloudPlayer : NodePlayerManager.getInstance().getRegisteredPlayers()) {
+                                        sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | Last login: " + DATE_FORMAT.format(new Date(cloudPlayer.getLastLoginTimeMillis())));
+                                    }
+                                },
+                                anyStringIgnoreCase("registered", "all")
+                        )
+
+                        .prefix(anyStringIgnoreCase("player", "pl"))
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String name = (String) args.argument("name").get();
+                                    Collection<? extends ICloudOfflinePlayer> players = NodePlayerManager.getInstance().getOnlinePlayers(name);
+
+                                    if (players.isEmpty()) {
+                                        players = NodePlayerManager.getInstance().getOfflinePlayers(name);
+                                    }
+
+                                    for (ICloudOfflinePlayer player : players) {
+                                        displayPlayer(sender, player);
+                                    }
+                                },
+                                dynamicString(
+                                        "name",
+                                        LanguageManager.getMessage("module-bridge-command-players-player-not-registered"),
+                                        name -> !NodePlayerManager.getInstance().getOfflinePlayers(name).isEmpty(),
+                                        () -> NodePlayerManager.getInstance().getRegisteredCount() <= MAX_REGISTERED_PLAYERS_FOR_COMPLETION ?
+                                                NodePlayerManager.getInstance().getRegisteredPlayers().stream()
+                                                        .map(ICloudOfflinePlayer::getName)
+                                                        .collect(Collectors.toList()) :
+                                                null
+                                )
+                        )
+
+                        .prefix(dynamicString(
+                                "name",
+                                LanguageManager.getMessage("module-bridge-command-players-player-not-online"),
+                                name -> !NodePlayerManager.getInstance().getOnlinePlayers(name).isEmpty(),
+                                () -> NodePlayerManager.getInstance().getRegisteredCount() <= MAX_ONLINE_PLAYERS_FOR_COMPLETION ?
+                                        NodePlayerManager.getInstance().getOnlinePlayers().stream()
+                                                .map(ICloudPlayer::getName)
+                                                .collect(Collectors.toList()) : null
+                        ))
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String reason = (String) args.argument("reason").orElse("no reason given");
+                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
+                                        NodePlayerManager.getInstance().proxyKickPlayer(player, reason);
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player")
+                                                .replace("%name%", player.getName())
+                                                .replace("%uniqueId%", player.getUniqueId().toString())
+                                                .replace("%reason%", reason)
+                                        );
+                                    }
+                                },
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(Integer.MAX_VALUE),
+                                exactStringIgnoreCase("kick"),
+                                dynamicString("reason")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
+                                        NodePlayerManager.getInstance().proxySendPlayerMessage(player, (String) args.argument("message").orElseThrow(() -> new IllegalArgumentException("No message given")));
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-message")
+                                                .replace("%name%", player.getName())
+                                                .replace("%uniqueId%", player.getUniqueId().toString())
+                                        );
+                                    }
+                                },
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(Integer.MAX_VALUE),
+                                exactStringIgnoreCase("sendMessage"),
+                                dynamicString("message")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String server = (String) args.argument("server").get();
+                                    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider().getCloudServiceByName(server);
+                                    if (!serviceInfoSnapshot.getConfiguration().getProcessConfig().getEnvironment().isMinecraftServer()) {
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server-no-server"));
+                                        return;
+                                    }
+                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
+                                        NodePlayerManager.getInstance().proxySendPlayer(player, server);
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server")
+                                                .replace("%name%", player.getName())
+                                                .replace("%uniqueId%", player.getUniqueId().toString())
+                                                .replace("%server%", server)
+                                        );
+                                    }
+                                },
+                                exactStringIgnoreCase("connect"),
+                                dynamicString(
+                                        "server",
+                                        LanguageManager.getMessage("module-bridge-command-players-send-player-server-not-found"),
+                                        name -> CloudNet.getInstance().getCloudServiceProvider().getCloudServiceByName(name) != null,
+                                        () -> CloudNet.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                                                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getConfiguration().getProcessConfig().getEnvironment().isMinecraftServer())
+                                                .map(ServiceInfoSnapshot::getName)
+                                                .collect(Collectors.toList())
+                                )
+                        )
+
+                        .getSubCommands(),
+                "players", "player", "pl"
+        );
 
         this.permission = "cloudnet.command.players";
         this.prefix = "cloudnet-bridge";
-        this.usage = "players online";
         this.description = LanguageManager.getMessage("module-bridge-command-players-description");
     }
 
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        if (args.length == 0) {
-            sender.sendMessage(
-                    "players online",
-                    "players player <name>",
-                    "players player <name> kick <reason>",
-                    "players player <name> send <target>",
-                    "players player <name> message <message>"
-            );
-            return;
-        }
-
-        if (args[0].equalsIgnoreCase("online")) {
-            for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlinePlayers()) {
-                sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
-                        (cloudPlayer.getLoginService() != null ?
-                                cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
-                        " | " +
-                        (cloudPlayer.getConnectedService() != null ?
-                                cloudPlayer.getConnectedService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getConnectedService().getServerName() : null)
-                );
-            }
-            return;
-        }
-
-        if (args[0].equalsIgnoreCase("player") && args.length > 1) {
-            List<? extends ICloudOfflinePlayer> cloudPlayers = NodePlayerManager.getInstance().getOnlinePlayers(args[1]);
-
-            if (cloudPlayers.isEmpty()) {
-                cloudPlayers = NodePlayerManager.getInstance().getOfflinePlayers(args[1]);
-            }
-
-            if (args.length < 4) {
-                for (ICloudOfflinePlayer cloudOfflinePlayer : cloudPlayers) {
-                    displayPlayer(sender, cloudOfflinePlayer);
-                }
-
-                return;
-            }
-
-            if (cloudPlayers.isEmpty()) {
-                return;
-            }
-
-            ICloudOfflinePlayer cloudOfflinePlayer = cloudPlayers.get(0);
-
-            if (cloudOfflinePlayer instanceof ICloudPlayer) {
-                ICloudPlayer cloudPlayer = (ICloudPlayer) cloudOfflinePlayer;
-
-                switch (args[2].toLowerCase()) {
-                    case "kick":
-                        BridgePlayerManager.getInstance().proxyKickPlayer(cloudPlayer, buildMessage(args, 3));
-                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player"));
-                        break;
-                    case "message":
-                        BridgePlayerManager.getInstance().proxySendPlayerMessage(cloudPlayer, buildMessage(args, 3));
-                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-message"));
-                        break;
-                    case "send":
-                        BridgePlayerManager.getInstance().proxySendPlayer(cloudPlayer, args[3]);
-                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server"));
-                        break;
-                }
-            }
-        }
-    }
-
-    private String buildMessage(String[] args, int startIndex) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int i = startIndex; i < args.length; ++i) {
-            stringBuilder.append(args[i]).append(" ");
-        }
-
-        return stringBuilder.substring(0, stringBuilder.length() - 1);
-    }
-
-    private void displayPlayer(ICommandSender sender, ICloudOfflinePlayer cloudOfflinePlayer) {
+    private static void displayPlayer(ICommandSender sender, ICloudOfflinePlayer cloudOfflinePlayer) {
         if (cloudOfflinePlayer == null) {
             return;
         }

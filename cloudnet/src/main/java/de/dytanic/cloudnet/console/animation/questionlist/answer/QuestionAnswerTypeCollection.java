@@ -17,7 +17,7 @@ public class QuestionAnswerTypeCollection implements QuestionAnswerType<Collecti
 
     @Override
     public boolean isValidInput(String input) {
-        return Arrays.stream(input.split(";")).allMatch(entry -> this.possibleAnswers.contains(entry));
+        return this.possibleAnswers == null || Arrays.stream(input.split(";")).allMatch(entry -> this.possibleAnswers.contains(entry));
     }
 
     @Override
@@ -27,7 +27,7 @@ public class QuestionAnswerTypeCollection implements QuestionAnswerType<Collecti
 
     @Override
     public List<String> getCompletableAnswers() {
-        return new ArrayList<>(this.possibleAnswers);
+        return this.possibleAnswers != null ? new ArrayList<>(this.possibleAnswers) : null;
     }
 
     @Override

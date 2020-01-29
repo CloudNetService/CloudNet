@@ -36,6 +36,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     private int currentCursor = 1;
 
     private boolean cancelled = false;
+    private boolean cancellable = true;
 
     public ConsoleQuestionListAnimation(Supplier<Collection<String>> lastCachedMessagesSupplier, Supplier<String> headerSupplier, Supplier<String> footerSupplier, String overwritePrompt) {
         this(null, lastCachedMessagesSupplier, headerSupplier, footerSupplier, overwritePrompt);
@@ -58,6 +59,14 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
     public boolean isCancelled() {
         return this.cancelled;
+    }
+
+    public void setCancellable(boolean cancellable) {
+        this.cancellable = cancellable;
+    }
+
+    public boolean isCancellable() {
+        return this.cancellable;
     }
 
     public Map<String, Object> getResults() {
@@ -95,7 +104,9 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-explain"));
-        console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
+        if (this.isCancellable()) {
+            console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
+        }
 
         console.disableAllHandlers();
 
@@ -156,7 +167,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     }
 
     private boolean validateInput(QuestionAnswerType<?> answerType, QuestionListEntry<?> entry, String input) {
-        if (input.equalsIgnoreCase("cancel")) {
+        if (this.isCancellable() && input.equalsIgnoreCase("cancel")) {
             this.cancelled = true;
             this.entries.clear();
 
@@ -188,6 +199,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
             super.getConsole().forceWriteLine("&c" + answerType.getInvalidInputMessage(input));
             Thread.sleep(3000);
             super.eraseLastLine(); //erase invalid input message
+
+            super.getConsole().setCommandHistory(answerType.getCompletableAnswers());
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }

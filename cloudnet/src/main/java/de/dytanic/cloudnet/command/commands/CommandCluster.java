@@ -1,9 +1,10 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.command.ITabCompleter;
-import de.dytanic.cloudnet.common.Properties;
+import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -19,120 +20,134 @@ import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public final class CommandCluster extends CommandDefault implements ITabCompleter {
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
+
+public final class CommandCluster extends SubCommandHandler {
 
     public CommandCluster() {
-        super("cluster", "clu");
+        super(
+                SubCommandBuilder.create()
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
+                                        node.sendCommandLine("stop");
+                                    }
+
+                                    CloudNet.getInstance().getCommandMap().dispatchCommand(sender, "stop");
+                                },
+                                anyStringIgnoreCase("shutdown", "stop")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    NetworkCluster networkCluster = CloudNet.getInstance().getConfig().getClusterConfig();
+                                    HostAndPort hostAndPort = (HostAndPort) args.argument(2);
+                                    networkCluster.getNodes().add(new NetworkClusterNode(
+                                            (String) args.argument(1),
+                                            new HostAndPort[]{hostAndPort}
+                                    ));
+                                    CloudNet.getInstance().getConfig().getIpWhitelist().add(hostAndPort.getHost()); //setClusterConfig already saves, so we don't have to call the save method again to save the ipWhitelist
+                                    CloudNet.getInstance().getConfig().setClusterConfig(networkCluster);
+                                    CloudNet.getInstance().getClusterNodeServerProvider().setClusterServers(networkCluster);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-cluster-create-node-success"));
+                                },
+                                exactStringIgnoreCase("add"),
+                                dynamicString(
+                                        "nodeId",
+                                        LanguageManager.getMessage("command-cluster-create-node-already-existing"),
+                                        nodeId -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().noneMatch(node -> node.getUniqueId().equals(nodeId))
+                                ),
+                                hostAndPort("host")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    NetworkCluster networkCluster = CloudNet.getInstance().getConfig().getClusterConfig();
+
+                                    networkCluster.getNodes().removeIf(node -> node.getUniqueId().equals(args.argument(1))); //always true because the predicate given in the arguments of this SubCommand returns false if no node with that id is found
+
+                                    CloudNet.getInstance().getConfig().setClusterConfig(networkCluster);
+                                    CloudNet.getInstance().getClusterNodeServerProvider().setClusterServers(networkCluster);
+
+                                    sender.sendMessage(LanguageManager.getMessage("command-cluster-remove-node-success"));
+                                },
+                                anyStringIgnoreCase("remove", "rm"),
+                                dynamicString(
+                                        "nodeId",
+                                        LanguageManager.getMessage("command-cluster-remove-node-not-found"),
+                                        nodeId -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().anyMatch(node -> node.getUniqueId().equals(nodeId)),
+                                        () -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().map(NetworkClusterNode::getUniqueId).collect(Collectors.toList())
+                                )
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
+                                        if (properties.containsKey("id") && !node.getNodeInfo().getUniqueId().contains(properties.get("id"))) {
+                                            continue;
+                                        }
+
+                                        displayNode(sender, node);
+                                    }
+                                },
+                                subCommand -> subCommand.enableProperties().appendUsage("| id=<id>"),
+                                exactStringIgnoreCase("nodes")
+                        )
+
+                        .prefix(exactStringIgnoreCase("push"))
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    pushTasks(sender);
+                                    pushGroups(sender);
+                                    pushPermissions(sender);
+                                    pushLocalTemplates(sender);
+                                },
+                                anyStringIgnoreCase("all", "*")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplate(sender, (ServiceTemplate) args.argument(2)),
+                                anyStringIgnoreCase("local-template", "lt"),
+                                template("prefix/name")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushLocalTemplates(sender),
+                                anyStringIgnoreCase("local-templates", "lts")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushTasks(sender),
+                                anyStringIgnoreCase("tasks", "t")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushGroups(sender),
+                                anyStringIgnoreCase("groups", "g")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> pushPermissions(sender),
+                                anyStringIgnoreCase("local-perms", "lp")
+                        )
+
+                        .getSubCommands(),
+                "cluster", "clu"
+        );
+
+        super.prefix = "cloudnet";
+        super.permission = "cloudnet.command.cluster";
+        super.description = LanguageManager.getMessage("command-description-cluster");
     }
 
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        if (args.length == 0) {
-            sender.sendMessage(
-                    " ",
-                    "ClusterId: " + getCloudNet().getConfig().getClusterConfig().getClusterId(),
-                    " ",
-                    "cluster shutdown",
-                    "cluster add <nodeId> <host> <port>",
-                    "cluster nodes | id=<id>",
-                    "cluster push all",
-                    "cluster push local-template <prefix/name>",
-                    "cluster push local-templates",
-                    "cluster push tasks",
-                    "cluster push groups",
-                    "cluster push local-perms"
-            );
-            return;
-        }
-
-        if (args[0].toLowerCase().contains("push")) {
-            if (args.length > 1) {
-
-                if (args[1].equalsIgnoreCase("all")) {
-                    this.pushTasks(sender);
-                    this.pushGroups(sender);
-                    this.pushPermissions(sender);
-                    this.pushLocalTemplates(sender);
-                    return;
-                }
-
-                if (args.length == 3 && args[1].equalsIgnoreCase("local-template")) {
-                    ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
-                    ServiceTemplate serviceTemplate = ServiceTemplate.parse(args[2]);
-
-                    if (serviceTemplate != null && storage.has(serviceTemplate)) {
-                        this.pushLocalTemplate(sender, storage, serviceTemplate);
-                    }
-                    return;
-                }
-
-                if (args[1].equalsIgnoreCase("local-templates")) {
-                    this.pushLocalTemplates(sender);
-                    return;
-                }
-
-                if (args[1].equalsIgnoreCase("local-perms")) {
-                    this.pushPermissions(sender);
-                    return;
-                }
-
-                if (args[1].equalsIgnoreCase("tasks")) {
-                    this.pushTasks(sender);
-                    return;
-                }
-
-                if (args[1].equalsIgnoreCase("groups")) {
-                    this.pushGroups(sender);
-                    return;
-                }
-            }
-            return;
-        }
-
-        if (args[0].toLowerCase().contains("shutdown")) {
-            for (IClusterNodeServer node : getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
-                node.sendCommandLine("stop");
-            }
-
-            getCloudNet().getCommandMap().dispatchCommand(sender, "stop");
-            return;
-        }
-
-        if (args[0].toLowerCase().contains("nodes")) {
-            for (IClusterNodeServer node : getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
-                if (properties.containsKey("id") && !node.getNodeInfo().getUniqueId().contains(properties.get("id"))) {
-                    continue;
-                }
-
-                this.displayNode(sender, node);
-            }
-            return;
-        }
-
-        if (args[0].toLowerCase().contains("add") && args.length == 4 && Validate.testStringParseToInt(args[3])) {
-            NetworkCluster networkCluster = getCloudNet().getConfig().getClusterConfig();
-            networkCluster.getNodes().add(new NetworkClusterNode(
-                    args[1],
-                    new HostAndPort[]{
-                            new HostAndPort(args[2], Integer.parseInt(args[3]))
-                    }
-            ));
-            getCloudNet().getConfig().getIpWhitelist().add(args[2]); //setClusterConfig already saves, so we don't have to call the save method again to save the ipWhitelist
-            getCloudNet().getConfig().setClusterConfig(networkCluster);
-            getCloudNet().getClusterNodeServerProvider().setClusterServers(networkCluster);
-
-            sender.sendMessage(LanguageManager.getMessage("command-cluster-create-node-success"));
-        }
+    private static void pushLocalTemplate(ICommandSender sender, ServiceTemplate serviceTemplate) {
+        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        pushLocalTemplate(sender, storage, serviceTemplate);
     }
 
-    private void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+    private static void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
         byte[] bytes = storage.toZipByteArray(serviceTemplate);
 
         if (bytes != null) {
-            getCloudNet().deployTemplateInCluster(serviceTemplate, bytes);
+            CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, bytes);
 
             sender.sendMessage(
                     LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
@@ -141,31 +156,31 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
         }
     }
 
-    private void pushLocalTemplates(ICommandSender sender) {
+    private static void pushLocalTemplates(ICommandSender sender) {
         ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
         for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
-            this.pushLocalTemplate(sender, storage, serviceTemplate);
+            pushLocalTemplate(sender, storage, serviceTemplate);
         }
     }
 
-    private void pushPermissions(ICommandSender sender) {
-        getCloudNet().publishPermissionGroupUpdates(getCloudNet().getPermissionManagement().getGroups(), NetworkUpdateType.SET);
+    private static void pushPermissions(ICommandSender sender) {
+        CloudNet.getInstance().publishPermissionGroupUpdates(CloudNet.getInstance().getPermissionManagement().getGroups(), NetworkUpdateType.SET);
 
         sender.sendMessage(LanguageManager.getMessage("command-cluster-push-permissions-success"));
     }
 
-    private void pushTasks(ICommandSender sender) {
-        getCloudNet().updateServiceTasksInCluster(getCloudNet().getServiceTaskProvider().getPermanentServiceTasks(), NetworkUpdateType.SET);
+    private static void pushTasks(ICommandSender sender) {
+        CloudNet.getInstance().updateServiceTasksInCluster(CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), NetworkUpdateType.SET);
         sender.sendMessage(LanguageManager.getMessage("command-cluster-push-tasks-success"));
     }
 
-    private void pushGroups(ICommandSender sender) {
-        getCloudNet().updateGroupConfigurationsInCluster(getCloudNet().getGroupConfigurationProvider().getGroupConfigurations(), NetworkUpdateType.SET);
+    private static void pushGroups(ICommandSender sender) {
+        CloudNet.getInstance().updateGroupConfigurationsInCluster(CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations(), NetworkUpdateType.SET);
         sender.sendMessage(LanguageManager.getMessage("command-cluster-push-groups-success"));
     }
 
-    private void displayNode(ICommandSender sender, IClusterNodeServer node) {
+    private static void displayNode(ICommandSender sender, IClusterNodeServer node) {
         Validate.checkNotNull(node);
 
         List<String> list = Iterables.newArrayList();
@@ -214,23 +229,4 @@ public final class CommandCluster extends CommandDefault implements ITabComplete
         sender.sendMessage(list.toArray(new String[0]));
     }
 
-    @Override
-    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        return args.length == 1 ? Arrays.asList(
-                "shutdown",
-                "add",
-                "nodes",
-                "push"
-        ) :
-                args.length == 2 ?
-                        args[0].equalsIgnoreCase("push") ?
-                                Arrays.asList(
-                                        "all",
-                                        "local-template",
-                                        "local-templates",
-                                        "tasks",
-                                        "groups",
-                                        "local-perms"
-                                ) : null : null;
-    }
 }

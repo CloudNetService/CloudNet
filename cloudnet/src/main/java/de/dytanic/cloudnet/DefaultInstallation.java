@@ -46,11 +46,11 @@ public class DefaultInstallation {
         this.defaultTaskInstallations.put("java-bungee-1.12.2", () -> this.installJavaBungee("1.12.2"));
         this.defaultTaskInstallations.put("java-bungee-1.13.2", () -> this.installJavaBungee("1.13.2"));
         this.defaultTaskInstallations.put("java-bungee-1.14.4", () -> this.installJavaBungee("1.14.4"));
-        this.defaultTaskInstallations.put("java-bungee-1.15.1", () -> this.installJavaBungee("1.15.1"));
+        this.defaultTaskInstallations.put("java-bungee-1.15.2", () -> this.installJavaBungee("1.15.2"));
         this.defaultTaskInstallations.put("java-velocity-1.12.2", () -> this.installJavaVelocity("1.12.2"));
         this.defaultTaskInstallations.put("java-velocity-1.13.2", () -> this.installJavaVelocity("1.13.2"));
         this.defaultTaskInstallations.put("java-velocity-1.14.4", () -> this.installJavaVelocity("1.14.4"));
-        this.defaultTaskInstallations.put("java-velocity-1.15.1", () -> this.installJavaVelocity("1.15.1"));
+        this.defaultTaskInstallations.put("java-velocity-1.15.2", () -> this.installJavaVelocity("1.15.2"));
     }
 
     private List<String> detectAllIPAddresses() throws SocketException {
@@ -215,6 +215,8 @@ public class DefaultInstallation {
                 animation.addEntry(entry);
             }
 
+            animation.setCancellable(false);
+
             console.clearScreen();
             console.startAnimation(animation);
 
@@ -335,12 +337,12 @@ public class DefaultInstallation {
     }
 
     private void installRecommended() {
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Proxy bungeecord");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Lobby minecraft_server");
 
         //Create groups
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create group Global-Server");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create group Global-Proxy");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "groups create Global-Server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "groups create Global-Proxy");
 
         //Add groups
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy add group Global-Proxy");
@@ -361,8 +363,8 @@ public class DefaultInstallation {
         );
 
         //Add templates
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks group Global-Server add template local Global bukkit");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks group Global-Proxy add template local Global proxy");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "groups group Global-Server add template local:Global/bukkit");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "groups group Global-Proxy add template local:Global/proxy");
 
         //Set configurations
         this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks task Proxy set minServiceCount 1");
@@ -370,8 +372,8 @@ public class DefaultInstallation {
     }
 
     private void installBedrock() {
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy waterdog");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby nukkit");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Proxy waterdog");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Lobby nukkit");
 
         this.installServerVersions(
                 new PreparedTemplate(
@@ -391,8 +393,8 @@ public class DefaultInstallation {
     }
 
     private void installJavaBungee(String spigotVersion) {
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy bungeecord");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Proxy bungeecord");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Lobby minecraft_server");
 
         this.installServerVersions(
                 new PreparedTemplate(
@@ -412,8 +414,8 @@ public class DefaultInstallation {
     }
 
     private void installJavaVelocity(String spigotVersion) {
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Proxy velocity");
-        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create task Lobby minecraft_server");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Proxy velocity");
+        this.cloudNet.getCommandMap().dispatchCommand(this.cloudNet.getConsoleCommandSender(), "tasks create Lobby minecraft_server");
 
         this.installServerVersions(
                 new PreparedTemplate(

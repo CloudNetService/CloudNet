@@ -23,15 +23,7 @@ public final class PacketClientServiceInfoUpdateListener implements IPacketListe
             ICloudService cloudService = cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
 
             if (cloudService != null) {
-                cloudService.setServiceInfoSnapshot(serviceInfoSnapshot);
-                cloudServiceManager.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
-
-                CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-
-                CloudNet.getInstance().getNetworkClient()
-                        .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
-                CloudNet.getInstance().getNetworkServer()
-                        .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
+                cloudService.updateServiceInfoSnapshot(serviceInfoSnapshot);
             }
         }
     }

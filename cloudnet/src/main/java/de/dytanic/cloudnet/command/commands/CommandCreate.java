@@ -140,15 +140,15 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
         return Arrays.asList(
-                "name",
-                "task",
-                "port",
-                "templates",
-                "deployments",
-                "autoDeleteOnStop",
-                "memory",
-                "jvmOptions",
-                "groups",
+                "name=",
+                "task=",
+                "port=",
+                "templates=",
+                "deployments=",
+                "autoDeleteOnStop=",
+                "memory=",
+                "jvmOptions=",
+                "groups=",
                 "--start"
         );
     }

@@ -34,6 +34,11 @@ public interface IPermissionManagement {
 
     List<IPermissionUser> getUsers(String name);
 
+    default IPermissionUser getFirstUser(String name) {
+        List<IPermissionUser> users = this.getUsers(name);
+        return users.isEmpty() ? null : users.get(0);
+    }
+
 
     Collection<IPermissionUser> getUsers();
 

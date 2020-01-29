@@ -1,10 +1,14 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import de.dytanic.cloudnet.common.collection.Iterables;
 
 import java.util.Collection;
 
+@EqualsAndHashCode(callSuper = false)
+@ToString(callSuper = true)
 public class GroupConfiguration extends ServiceConfigurationBase implements INameable {
 
     protected String name;

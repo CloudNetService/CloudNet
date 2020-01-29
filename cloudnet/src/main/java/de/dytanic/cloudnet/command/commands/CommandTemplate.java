@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.ICommandSender;
+import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.JavaVersion;
-import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
@@ -14,204 +15,226 @@ import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
-public class CommandTemplate extends CommandDefault {
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
+public class CommandTemplate extends SubCommandHandler {
     public CommandTemplate() {
-        super("template", "t");
-    }
+        super(
+                SubCommandBuilder.create()
 
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        if ((args.length == 1 || args.length == 2) && args[0].equalsIgnoreCase("list")) {
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String storageName = (String) args.argument("storage").orElse("local");
+                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, storageName);
 
-            String storageName = args.length == 2 ? args[1] : "local";
-            ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, storageName);
+                                    List<String> messages = new ArrayList<>();
+                                    messages.add(LanguageManager.getMessage("command-template-list-templates").replace("%storage%", storageName));
 
-            if (storage == null) {
-                sender.sendMessage(LanguageManager.getMessage("command-template-storage-not-found").replace("%storage%", storageName));
-                return;
-            }
+                                    for (ServiceTemplate template : storage.getTemplates()) {
+                                        messages.add("  " + template.getTemplatePath());
+                                    }
 
-            List<String> messages = new ArrayList<>();
-            messages.add(LanguageManager.getMessage("command-template-list-templates").replace("%storage%", storageName));
+                                    sender.sendMessage(messages.toArray(new String[0]));
+                                },
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(subCommand.getRequiredArguments().length),
+                                exactStringIgnoreCase("list"),
+                                dynamicString(
+                                        "storage",
+                                        LanguageManager.getMessage("command-template-storage-not-found"),
+                                        input -> CloudNet.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, input)
+                                )
+                        )
 
-            for (ServiceTemplate template : storage.getTemplates()) {
-                messages.add("  " + template.getTemplatePath());
-            }
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    List<String> messages = new ArrayList<>();
+                                    messages.add(LanguageManager.getMessage("command-template-list-versions"));
 
-            sender.sendMessage(messages.toArray(new String[0]));
-        } else if (args.length == 1 && args[0].equalsIgnoreCase("versions")) {
-            List<String> messages = new ArrayList<>();
-            messages.add(LanguageManager.getMessage("command-template-list-versions"));
+                                    for (ServiceVersionType versionType : CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().values()) {
+                                        messages.add("  " + versionType.getName() + ":");
 
-            for (ServiceVersionType versionType : CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().values()) {
-                messages.add("  " + versionType.getName() + ":");
+                                        for (ServiceVersion version : versionType.getVersions()) {
+                                            messages.add("    " + version.getName());
+                                        }
+                                    }
 
-                for (ServiceVersion version : versionType.getVersions()) {
-                    messages.add("    " + version.getName());
-                }
-            }
+                                    sender.sendMessage(messages.toArray(new String[0]));
+                                },
+                                exactStringIgnoreCase("versions")
+                        )
 
-            sender.sendMessage(messages.toArray(new String[0]));
-        } else if (args.length == 4 && args[0].equalsIgnoreCase("install")) {
-            this.handleWithTemplateAndStorage(sender, args[1], (template, storage) -> {
-                Optional<ServiceVersionType> optionalVersionType = CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(args[2]);
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
 
-                if (!optionalVersionType.isPresent()) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-invalid-version-type").replace("%versionType%", args[2]));
-                    return;
-                }
+                                    ServiceTemplate template = (ServiceTemplate) args.argument("template").get();
+                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
+                                    ServiceVersionType versionType = CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType((String) args.argument("versionType").get()).get();
 
-                ServiceVersionType versionType = optionalVersionType.get();
-                Optional<ServiceVersion> optionalVersion = versionType.getVersion(args[3]);
+                                    Optional<ServiceVersion> optionalVersion = versionType.getVersion((String) args.argument("version").get());
 
-                if (!optionalVersion.isPresent()) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-invalid-version").replace("%versionType%", args[2]).replace("%version%", args[3]));
-                    return;
-                }
+                                    if (!optionalVersion.isPresent()) { //the version might be available, but not for the given version type
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-invalid-version"));
+                                        return;
+                                    }
 
-                ServiceVersion version = optionalVersion.get();
+                                    ServiceVersion version = optionalVersion.get();
 
-                if (!versionType.getInstallerType().canInstall(version)) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-install-wrong-java")
-                            .replace("%version%", versionType.getName() + "-" + version.getName())
-                            .replace("%java%", JavaVersion.getRuntimeVersion().getName())
-                    );
-                    return;
-                }
+                                    if (!versionType.getInstallerType().canInstall(version)) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-install-wrong-java")
+                                                .replace("%version%", versionType.getName() + "-" + version.getName())
+                                                .replace("%java%", JavaVersion.getRuntimeVersion().getName())
+                                        );
+                                        return;
+                                    }
 
-                super.getCloudNet().scheduleTask(() -> {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-install-try")
-                            .replace("%version%", versionType.getName() + "-" + version.getName())
-                            .replace("%template%", template.toString())
-                    );
+                                    CloudNet.getInstance().scheduleTask(() -> {
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-install-try")
+                                                .replace("%version%", versionType.getName() + "-" + version.getName())
+                                                .replace("%template%", template.toString())
+                                        );
 
-                    if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, storage, template)) {
-                        sender.sendMessage(LanguageManager.getMessage("command-template-install-success")
-                                .replace("%version%", versionType.getName() + "-" + version.getName())
-                                .replace("%template%", template.toString())
-                        );
-                    } else {
-                        sender.sendMessage(LanguageManager.getMessage("command-template-install-failed")
-                                .replace("%version%", versionType.getName() + "-" + version.getName())
-                                .replace("%template%", template.toString())
-                        );
-                    }
-                    return null;
-                });
-            });
+                                        if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, storage, template)) {
+                                            sender.sendMessage(LanguageManager.getMessage("command-template-install-success")
+                                                    .replace("%version%", versionType.getName() + "-" + version.getName())
+                                                    .replace("%template%", template.toString())
+                                            );
+                                        } else {
+                                            sender.sendMessage(LanguageManager.getMessage("command-template-install-failed")
+                                                    .replace("%version%", versionType.getName() + "-" + version.getName())
+                                                    .replace("%template%", template.toString())
+                                            );
+                                        }
+                                        return null;
+                                    });
+                                },
+                                subCommand -> subCommand.appendUsage("| example: template install Lobby/default paperspigot 1.13.2"),
+                                exactStringIgnoreCase("install"),
+                                template("template", true),
+                                dynamicString(
+                                        "versionType",
+                                        LanguageManager.getMessage("command-template-invalid-version-type"),
+                                        input -> CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(input).isPresent(),
+                                        () -> CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().keySet()
+                                ),
+                                dynamicString(
+                                        "version",
+                                        LanguageManager.getMessage("command-template-invalid-version"),
+                                        input -> CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().values().stream()
+                                                .map(ServiceVersionType::getVersions)
+                                                .flatMap(Collection::parallelStream)
+                                                .map(ServiceVersion::getName)
+                                                .anyMatch(name -> name.equalsIgnoreCase(input)),
+                                        () -> CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().values().stream()
+                                                .map(ServiceVersionType::getVersions)
+                                                .flatMap(Collection::parallelStream)
+                                                .map(ServiceVersion::getName)
+                                                .collect(Collectors.toList())
+                                )
+                        )
 
-        } else if (args.length == 2 && args[0].equalsIgnoreCase("delete")) {
-            this.handleWithTemplateAndStorage(sender, args[1], (template, storage) -> {
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    ServiceTemplate template = (ServiceTemplate) args.argument("template").get();
+                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
 
-                if (!storage.has(template)) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-delete-template-not-found")
-                            .replace("%template%", template.getTemplatePath())
-                            .replace("%storage%", template.getStorage())
-                    );
-                    return;
-                }
+                                    if (!storage.has(template)) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-delete-template-not-found")
+                                                .replace("%template%", template.getTemplatePath())
+                                                .replace("%storage%", template.getStorage())
+                                        );
+                                        return;
+                                    }
 
-                storage.delete(template);
-                sender.sendMessage(LanguageManager.getMessage("command-template-delete-success")
-                        .replace("%template%", template.getTemplatePath())
-                        .replace("%storage%", template.getStorage())
-                );
+                                    storage.delete(template);
+                                    sender.sendMessage(LanguageManager.getMessage("command-template-delete-success")
+                                            .replace("%template%", template.getTemplatePath())
+                                            .replace("%storage%", template.getStorage())
+                                    );
+                                },
+                                anyStringIgnoreCase("delete", "remove", "rm"),
+                                template("template", true)
+                        )
 
-            });
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("create")) {
-            this.handleWithTemplateAndStorage(sender, args[1], (template, storage) -> {
-                if (storage.has(template)) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-create-template-already-exists")
-                            .replace("%template%", template.getTemplatePath())
-                            .replace("%storage%", template.getStorage())
-                    );
-                    return;
-                }
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    ServiceTemplate template = (ServiceTemplate) args.argument("template").get();
+                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
+                                    ServiceEnvironmentType environment = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
 
-                ServiceEnvironmentType environment;
-                try {
-                    environment = ServiceEnvironmentType.valueOf(args[2].toUpperCase());
-                } catch (Exception exception) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-environment-not-found")
-                            .replace("%env%", args[2])
-                            .replace("%availableEnvs%", Arrays.toString(ServiceEnvironmentType.values()))
-                    );
-                    return;
-                }
+                                    if (storage.has(template)) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-create-template-already-exists")
+                                                .replace("%template%", template.getTemplatePath())
+                                                .replace("%storage%", template.getStorage())
+                                        );
+                                        return;
+                                    }
 
-                try {
-                    if (TemplateStorageUtil.createAndPrepareTemplate(storage, template.getPrefix(), template.getName(), environment)) {
-                        sender.sendMessage(LanguageManager.getMessage("command-template-create-success")
-                                .replace("%template%", template.getTemplatePath())
-                                .replace("%storage%", template.getStorage())
-                        );
-                    }
-                } catch (IOException exception) {
-                    sender.sendMessage(LanguageManager.getMessage("command-template-create-failed")
-                            .replace("%template%", template.getTemplatePath())
-                            .replace("%storage%", template.getStorage())
-                    );
-                    exception.printStackTrace();
-                }
-            });
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("copy")) {
-            this.handleWithTemplateAndStorage(sender, args[1], (sourceTemplate, sourceStorage) ->
-                    this.handleWithTemplateAndStorage(sender, args[2], (targetTemplate, targetStorage) -> {
-                        if (sourceTemplate.equals(targetTemplate)) {
-                            sender.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
-                            return;
-                        }
+                                    try {
+                                        if (TemplateStorageUtil.createAndPrepareTemplate(storage, template.getPrefix(), template.getName(), environment)) {
+                                            sender.sendMessage(LanguageManager.getMessage("command-template-create-success")
+                                                    .replace("%template%", template.getTemplatePath())
+                                                    .replace("%storage%", template.getStorage())
+                                            );
+                                        }
+                                    } catch (IOException exception) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-create-failed")
+                                                .replace("%template%", template.getTemplatePath())
+                                                .replace("%storage%", template.getStorage())
+                                        );
+                                        exception.printStackTrace();
+                                    }
+                                },
+                                anyStringIgnoreCase("create", "new"),
+                                template("template"),
+                                exactEnum(ServiceEnvironmentType.class)
+                        )
 
-                        super.getCloudNet().scheduleTask(() -> {
-                            sender.sendMessage(LanguageManager.getMessage("command-template-copy")
-                                    .replace("%sourceTemplate%", sourceTemplate.toString())
-                                    .replace("%targetTemplate%", targetTemplate.toString())
-                            );
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    ServiceTemplate sourceTemplate = (ServiceTemplate) args.argument("storage:prefix/name (sourceTemplate)").get();
+                                    ServiceTemplate targetTemplate = (ServiceTemplate) args.argument("storage:prefix/name (targetTemplate)").get();
+                                    ITemplateStorage sourceStorage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, sourceTemplate.getStorage());
+                                    ITemplateStorage targetStorage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, targetTemplate.getStorage());
 
-                            targetStorage.delete(targetTemplate);
-                            targetStorage.create(targetTemplate);
+                                    if (sourceTemplate.equals(targetTemplate)) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
+                                        return;
+                                    }
 
-                            byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
+                                    CloudNet.getInstance().scheduleTask(() -> {
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-copy")
+                                                .replace("%sourceTemplate%", sourceTemplate.toString())
+                                                .replace("%targetTemplate%", targetTemplate.toString())
+                                        );
 
-                            targetStorage.deploy(zippedTemplate, targetTemplate);
-                            sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
-                                    .replace("%sourceTemplate%", sourceTemplate.toString())
-                                    .replace("%targetTemplate%", targetTemplate.toString())
-                            );
-                            return null;
-                        });
-                    }));
-        } else {
-            sender.sendMessage(
-                    "template install <[storage:]prefix/name> <versionType> <version> | example: template install Lobby/default paperspigot 1.13.2",
-                    "template versions",
-                    "template list [storage]",
-                    "template delete <[storage:]prefix/name>",
-                    "template create <[storage:]prefix/name> <" + Arrays.toString(ServiceEnvironmentType.values()) + ">",
-                    "template copy <[storage:]prefix/name (sourceTemplate)> <[storage:]prefix/name (targetTemplate)>"
-            );
-        }
-    }
+                                        targetStorage.delete(targetTemplate);
+                                        targetStorage.create(targetTemplate);
 
-    private void handleWithTemplateAndStorage(ICommandSender sender, String templateString, BiConsumer<ServiceTemplate, ITemplateStorage> consumer) {
-        ServiceTemplate template = ServiceTemplate.parse(templateString);
-        if (template == null) {
-            sender.sendMessage(LanguageManager.getMessage("command-template-invalid-template"));
-            return;
-        }
+                                        byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
 
-        ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
-        if (storage == null) {
-            sender.sendMessage(LanguageManager.getMessage("command-template-storage-not-found").replace("%storage%", template.getStorage()));
-            return;
-        }
+                                        targetStorage.deploy(zippedTemplate, targetTemplate);
+                                        sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
+                                                .replace("%sourceTemplate%", sourceTemplate.toString())
+                                                .replace("%targetTemplate%", targetTemplate.toString())
+                                        );
+                                        return null;
+                                    });
+                                },
+                                anyStringIgnoreCase("copy", "cp"),
+                                template("storage:prefix/name (sourceTemplate)"),
+                                template("storage:prefix/name (targetTemplate)")
+                        )
 
-        consumer.accept(template, storage);
+                        .getSubCommands(),
+                "template", "t"
+        );
+        super.prefix = "cloudnet";
+        super.permission = "cloudnet.command." + super.names[0];
+        super.description = LanguageManager.getMessage("command-description-template");
     }
 }
