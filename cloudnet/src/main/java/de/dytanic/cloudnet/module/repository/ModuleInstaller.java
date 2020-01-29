@@ -12,7 +12,7 @@ public interface ModuleInstaller {
 
     IModuleProvider getModuleProvider();
 
-    void installModule(IConsole console, RepositoryModuleInfo moduleInfo) throws IOException;
+    void installModule(IConsole console, String baseURL, RepositoryModuleInfo moduleInfo) throws IOException;
 
     void uninstallModule(ModuleId moduleId) throws IOException;
 

@@ -23,16 +23,6 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         super("modules", "module");
     }
 
-    /**
-     * An unsafe implementation for managing the module system
-     * Use the "reload" for a save module reloading
-     *
-     * @param sender
-     * @param command
-     * @param args
-     * @param commandLine
-     * @param properties
-     */
     @Deprecated
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
@@ -93,7 +83,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
             }
 
             try {
-                moduleInstaller.installModule(super.getCloudNet().getConsole(), moduleInfo);
+                moduleInstaller.installModule(super.getCloudNet().getConsole(), moduleRepository.getBaseURL(), moduleInfo);
 
                 sender.sendMessage(LanguageManager.getMessage("command-modules-install-success").replace("%id%", moduleId.toString()));
             } catch (IOException exception) {
@@ -138,7 +128,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
     private void displayRemoteModuleInfo(ICommandSender sender, RepositoryModuleInfo moduleInfo) {
         List<String> messages = new ArrayList<>();
 
-        messages.add("Module: " + moduleInfo.getModuleId().getGroup() + ":" + moduleInfo.getModuleId().getName() + "-" + moduleInfo.getModuleId().getVersion());
+        messages.add("Module: " + moduleInfo.getModuleId().getGroup() + ":" + moduleInfo.getModuleId().getName() + ":" + moduleInfo.getModuleId().getVersion());
 
         messages.add("* Runs on this CloudNet installation: " +
                 (moduleInfo.getRequiredCloudNetVersion() == null || CommandModules.class.getPackage().getImplementationVersion().equals(moduleInfo.getRequiredCloudNetVersion()))
@@ -158,6 +148,10 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
         if (moduleInfo.getSourceUrl() != null && !moduleInfo.getSourceUrl().isEmpty()) {
             messages.add("* SourceCode: " + moduleInfo.getSourceUrl());
+        }
+
+        if (moduleInfo.getSupportUrl() != null && !moduleInfo.getSupportUrl().isEmpty()) {
+            messages.add("* Support: " + moduleInfo.getSupportUrl());
         }
 
         if (moduleInfo.getDepends() != null && moduleInfo.getDepends().length != 0) {

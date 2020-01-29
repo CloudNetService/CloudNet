@@ -6,19 +6,24 @@ import de.dytanic.cloudnet.driver.module.ModuleId;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 
 public class RemoteModuleRepository implements ModuleRepository {
+
+    public static final String VERSION_PARENT = "v3";
 
     private String baseUrl = System.getProperty("cloudnet.modules.repository.url", "https://cloudnetservice.eu/api");
 
     @Override
     public boolean isReachable() {
         try {
-            URLConnection connection = new URL(this.baseUrl + "status").openConnection();
+            URLConnection connection = new URL(this.baseUrl).openConnection();
             try (InputStream inputStream = connection.getInputStream()) {
                 JsonDocument document = JsonDocument.newDocument().read(inputStream);
                 return document.getBoolean("available");
@@ -37,10 +42,10 @@ public class RemoteModuleRepository implements ModuleRepository {
     @Override
     public Collection<RepositoryModuleInfo> loadAvailableModules() {
         try {
-            URLConnection connection = new URL(this.baseUrl + "modules/list").openConnection();
-            try (InputStream inputStream = connection.getInputStream()) {
-                JsonDocument document = JsonDocument.newDocument().read(inputStream);
-                Collection<RepositoryModuleInfo> moduleInfos = document.get("modules", TypeToken.getParameterized(Collection.class, RepositoryModuleInfo.class).getType());
+            URLConnection connection = new URL(this.baseUrl + VERSION_PARENT + "/modules/list").openConnection();
+            try (InputStream inputStream = connection.getInputStream();
+                 Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+                Collection<RepositoryModuleInfo> moduleInfos = JsonDocument.GSON.fromJson(reader, TypeToken.getParameterized(Collection.class, RepositoryModuleInfo.class).getType());
                 if (moduleInfos != null) {
                     return moduleInfos;
                 }
@@ -55,7 +60,7 @@ public class RemoteModuleRepository implements ModuleRepository {
     public RepositoryModuleInfo loadRepositoryModuleInfo(ModuleId moduleId) {
         try {
             URLConnection connection = new URL(
-                    this.baseUrl + String.format("modules/list/%s/%s", moduleId.getGroup(), moduleId.getName())
+                    this.baseUrl + String.format("%s/modules/latest/%s/%s", VERSION_PARENT, moduleId.getGroup(), moduleId.getName())
             ).openConnection();
             try (InputStream inputStream = connection.getInputStream()) {
                 JsonDocument document = JsonDocument.newDocument().read(inputStream);

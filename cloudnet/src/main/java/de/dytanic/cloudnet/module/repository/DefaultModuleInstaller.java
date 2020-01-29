@@ -28,12 +28,12 @@ public class DefaultModuleInstaller implements ModuleInstaller {
     }
 
     @Override
-    public void installModule(IConsole console, RepositoryModuleInfo moduleInfo) throws IOException {
+    public void installModule(IConsole console, String baseURL, RepositoryModuleInfo moduleInfo) throws IOException {
         Path modulePath = this.getModulePath(moduleInfo.getModuleId());
 
         Files.createDirectories(this.moduleProvider.getModuleDirectory().toPath());
 
-        URL url = new URL(moduleInfo.getDownloadUrl());
+        URL url = new URL(baseURL + String.format("%s/modules/file/%s/%s", RemoteModuleRepository.VERSION_PARENT, moduleInfo.getModuleId().getGroup(), moduleInfo.getModuleId().getName()));
         URLConnection connection = url.openConnection();
 
         try (InputStream inputStream = connection.getInputStream()) {
@@ -43,7 +43,11 @@ public class DefaultModuleInstaller implements ModuleInstaller {
         IModuleWrapper moduleWrapper = null;
         try {
             moduleWrapper = this.moduleProvider.loadModule(modulePath);
-            moduleWrapper.startModule();
+            if (moduleWrapper != null) {
+                moduleWrapper.startModule();
+            } else {
+                Files.delete(modulePath);
+            }
         } catch (Throwable throwable) {
             if (moduleWrapper != null) {
                 moduleWrapper.stopModule();
