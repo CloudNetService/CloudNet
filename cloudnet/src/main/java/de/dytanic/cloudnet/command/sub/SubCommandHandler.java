@@ -64,12 +64,8 @@ public class SubCommandHandler extends Command implements ITabCompleter {
         Optional<String> optionalInvalidMessage = this.subCommands.stream()
                 .map(subCommand -> subCommand.getInvalidArgumentMessage(args))
                 .filter(Objects::nonNull)
-                .filter(pair -> pair.getSecond() == 0)
-                // all static values must match
-                // (e.g. "tasks task <name> set minServiceCount <value>" -> "task", "set" and "minServiceCount" must match,
-                //   otherwise this wasn't the sub command printed by the user -> e.g. "tasks task Lobby set maintenance 1")
-                // now, we find the pair with the most matching arguments:
-                .min(Comparator.comparingInt(Pair::getSecond))
+                .filter(pair -> pair.getSecond() == 0) // all static values must match
+                .findFirst()
                 .map(Pair::getFirst);
 
         Optional<Pair<SubCommand, SubCommandArgument<?>[]>> optionalSubCommand = this.subCommands.stream()
