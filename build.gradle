@@ -69,8 +69,9 @@ allprojects {
         dependencySpongeVersion = '7.0.0'
         dependencyBungeeCordVersion = '1.15-SNAPSHOT'
         dependencyVelocityVersion = '1.0.0-SNAPSHOT'
-        //dependencyGoMintVersion = '1.0.0-SNAPSHOT'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
+        dependencyGuavaVersion = '28.2-jre'
+        dependencyAnnotationsVersion = '16.0.2'
 
         testJunitVersion = '4.12'
 
@@ -174,6 +175,7 @@ subprojects {
     targetCompatibility = 1.8
 
     dependencies {
+        compile group: 'org.jetbrains', name: 'annotations', version: dependencyAnnotationsVersion
         compileOnly group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
         testCompile group: 'junit', name: 'junit', version: testJunitVersion
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
