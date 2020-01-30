@@ -292,7 +292,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
 
         Object entry;
-        Enumeration enumeration = properties.keys();
+        Enumeration<?> enumeration = properties.keys();
 
         while (enumeration.hasMoreElements() && (entry = enumeration.nextElement()) != null) {
             append(entry.toString(), properties.getProperty(entry.toString()));

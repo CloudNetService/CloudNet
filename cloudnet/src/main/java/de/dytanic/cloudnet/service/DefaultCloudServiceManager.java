@@ -252,7 +252,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 new ProcessConfiguration(
                         serviceTask.getProcessConfiguration().getEnvironment(),
                         serviceTask.getProcessConfiguration().getMaxHeapMemorySize(),
-                        serviceTask.getProcessConfiguration().getJvmOptions()
+                        new ArrayList<>(serviceTask.getProcessConfiguration().getJvmOptions())
                 ),
                 serviceTask.getProperties(),
                 serviceTask.getStartPort()
@@ -326,11 +326,13 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         for (GroupConfiguration groupConfiguration : this.getGroupConfigurations()) {
-            if (groupConfiguration.getTargetEnvironments().contains(processConfiguration.getEnvironment())) {
-                groups.add(groupConfiguration.getName());
+            String groupName = groupConfiguration.getName();
+
+            if (!groups.contains(groupName) && groupConfiguration.getTargetEnvironments().contains(processConfiguration.getEnvironment())) {
+                groups.add(groupName);
             }
 
-            if (groups.contains(groupConfiguration.getName())) {
+            if (groups.contains(groupName)) {
                 includes.addAll(groupConfiguration.getIncludes());
                 templates.addAll(groupConfiguration.getTemplates());
                 deployments.addAll(groupConfiguration.getDeployments());

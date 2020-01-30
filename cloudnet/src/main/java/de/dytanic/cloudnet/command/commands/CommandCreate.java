@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -220,9 +221,9 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                             processConfiguration.getEnvironment(),
                             properties.containsKey("memory") && Validate.testStringParseToInt(properties.get("memory")) ?
                                     Integer.parseInt(properties.get("memory")) : processConfiguration.getMaxHeapMemorySize(),
-                            properties.containsKey("jvmOptions") ?
+                            new ArrayList<>(properties.containsKey("jvmOptions") ?
                                     Arrays.asList(properties.get("jvmOptions").split(";")) :
-                                    processConfiguration.getJvmOptions()
+                                    processConfiguration.getJvmOptions())
                     ),
                     Validate.testStringParseToInt(properties.getOrDefault("port", String.valueOf(startPort))) ?
                             Integer.parseInt(properties.getOrDefault("port", String.valueOf(startPort)))
