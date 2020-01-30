@@ -16,7 +16,6 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.eula.MinecraftEULA;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
@@ -88,8 +87,7 @@ public class DefaultInstallation {
 
         String preferredIP = this.detectPreferredIP(internalIPs);
 
-        MinecraftEULA eula = new MinecraftEULA();
-        if (!eula.isAccepted()) {
+        if (!configFileAvailable) {
             entries.add(new QuestionListEntry<>(
                     "eula",
                     LanguageManager.getMessage("cloudnet-init-eula"),
@@ -105,9 +103,8 @@ public class DefaultInstallation {
                         }
                     }
             ));
-        }
 
-        if (!configFileAvailable) {
+
             entries.add(new QuestionListEntry<>(
                     "nodeId",
                     LanguageManager.getMessage("cloudnet-init-setup-node-id"),
@@ -201,15 +198,6 @@ public class DefaultInstallation {
                     () -> null,
                     "&r> &e"
             );
-
-            animation.addEntryCompletionListener((entry, result) -> {
-                if (entry.getKey().equals("eula")) {
-                    boolean accepted = (boolean) result;
-                    if (accepted) {
-                        eula.setAccepted(true);
-                    }
-                }
-            });
 
             for (QuestionListEntry<?> entry : entries) {
                 animation.addEntry(entry);
