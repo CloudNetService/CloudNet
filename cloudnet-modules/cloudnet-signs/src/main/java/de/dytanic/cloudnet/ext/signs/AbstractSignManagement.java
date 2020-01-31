@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs;
 
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -18,6 +17,8 @@ import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationTaskEntry;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +55,7 @@ public abstract class AbstractSignManagement {
         return instance;
     }
 
-    protected abstract void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot);
+    protected abstract void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot);
 
     /**
      * Removes all signs that don't exist anymore
@@ -67,7 +68,7 @@ public abstract class AbstractSignManagement {
      * @param runnable the task
      * @param delay    the delay the task should have
      */
-    protected abstract void runTaskLater(Runnable runnable, long delay);
+    protected abstract void runTaskLater(@NotNull Runnable runnable, long delay);
 
     private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction) {
         this.putService(serviceInfoSnapshot, stateFunction, true);
@@ -89,31 +90,31 @@ public abstract class AbstractSignManagement {
         }
     }
 
-    public void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onRegisterService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
-    public void onStartService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onStartService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STARTING);
     }
 
-    public void onConnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onConnectService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
     }
 
-    public void onUpdateServiceInfo(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onUpdateServiceInfo(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
     }
 
-    public void onDisconnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onDisconnectService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
-    public void onStopService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onStopService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
-    public void onUnregisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onUnregisterService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         if (!this.isMatchingCloudService(serviceInfoSnapshot)) {
             return;
         }
@@ -127,16 +128,12 @@ public abstract class AbstractSignManagement {
         this.updateSigns();
     }
 
-    public void onSignAdd(Sign sign) {
-        Validate.checkNotNull(sign);
-
+    public void onSignAdd(@NotNull Sign sign) {
         this.signs.add(sign);
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
 
-    public void onSignRemove(Sign sign) {
-        Validate.checkNotNull(sign);
-
+    public void onSignRemove(@NotNull Sign sign) {
         Sign signEntry = Iterables.first(this.signs, filterSign -> filterSign.getSignId() == sign.getSignId());
 
         if (signEntry != null) {
@@ -284,9 +281,7 @@ public abstract class AbstractSignManagement {
         }
     }
 
-    protected String addDataToLine(Sign sign, String input, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(input);
-
+    protected String addDataToLine(@NotNull Sign sign, @NotNull String input, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         if (serviceInfoSnapshot == null) {
             return input;
         }
@@ -412,9 +407,7 @@ public abstract class AbstractSignManagement {
         }
     }
 
-    public void sendSignAddUpdate(Sign sign) {
-        Validate.checkNotNull(sign);
-
+    public void sendSignAddUpdate(@NotNull Sign sign) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
                         SignConstants.SIGN_CHANNEL_NAME,
@@ -423,9 +416,7 @@ public abstract class AbstractSignManagement {
                 );
     }
 
-    public void sendSignRemoveUpdate(Sign sign) {
-        Validate.checkNotNull(sign);
-
+    public void sendSignRemoveUpdate(@NotNull Sign sign) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
                         SignConstants.SIGN_CHANNEL_NAME,
@@ -452,9 +443,7 @@ public abstract class AbstractSignManagement {
         return null;
     }
 
-    public void updateSignConfiguration(SignConfiguration signConfiguration) {
-        Validate.checkNotNull(signConfiguration);
-
+    public void updateSignConfiguration(@NotNull SignConfiguration signConfiguration) {
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SignConstants.SIGN_CHANNEL_NAME,
                 SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
@@ -544,7 +533,7 @@ public abstract class AbstractSignManagement {
         return this.signs;
     }
 
-    public void setSigns(Set<Sign> signs) {
+    public void setSigns(@NotNull Set<Sign> signs) {
         this.signs = signs;
     }
 

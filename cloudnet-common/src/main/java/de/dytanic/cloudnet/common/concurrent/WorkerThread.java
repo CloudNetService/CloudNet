@@ -46,7 +46,7 @@ public class WorkerThread extends Thread implements ExecutorService {
         this.tasks.clear();
     }
 
-    public <T> ITask submit(Callable<T> task, ITaskListener<T> listener) {
+    public <T> ITask<T> submit(Callable<T> task, ITaskListener<T> listener) {
         return this.submit(task, new ITaskListener[]{listener});
     }
 

@@ -214,7 +214,7 @@ public interface IPermissionManagement {
     }
 
     default boolean hasPermission(IPermissionUser permissionUser, Permission permission) {
-        if (permissionUser == null || permission == null || permission.getName() == null) {
+        if (permissionUser == null || permission == null) {
             return false;
         }
 
@@ -236,7 +236,7 @@ public interface IPermissionManagement {
     }
 
     default boolean hasPermission(IPermissionUser permissionUser, String group, Permission permission) {
-        if (permissionUser == null || group == null || permission == null || permission.getName() == null) {
+        if (permissionUser == null || group == null || permission == null) {
             return false;
         }
 

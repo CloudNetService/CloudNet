@@ -205,7 +205,7 @@ public final class JLine2Console implements IConsole {
         this.toggleHandlers(false, this.consoleInputHandler.values());
     }
 
-    private void toggleHandlers(boolean enabled, Collection handlers) {
+    private void toggleHandlers(boolean enabled, Collection<?> handlers) {
         for (Object handler : handlers) {
             ((ConsoleHandler<?>) handler).setEnabled(enabled);
         }

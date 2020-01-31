@@ -8,6 +8,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -41,8 +43,9 @@ public final class BridgePlayerManager implements IPlayerManager {
         return this.getRegisteredCountAsync().get(5, TimeUnit.SECONDS, -1L);
     }
 
+    @Nullable
     @Override
-    public ICloudPlayer getOnlinePlayer(UUID uniqueId) {
+    public ICloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
         try {
             return this.getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -53,7 +56,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(String name) {
+    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
         try {
             return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -64,7 +67,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(ServiceEnvironmentType environment) {
+    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
         try {
             return this.getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -86,7 +89,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ICloudOfflinePlayer getOfflinePlayer(UUID uniqueId) {
+    public ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
         try {
             return this.getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -97,7 +100,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(String name) {
+    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
         try {
             return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -142,7 +145,7 @@ public final class BridgePlayerManager implements IPlayerManager {
 
 
     @Override
-    public ITask<? extends ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
+    public ITask<? extends ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
@@ -157,7 +160,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(String name) {
+    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
@@ -172,7 +175,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(ServiceEnvironmentType environment) {
+    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
@@ -198,7 +201,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(UUID uniqueId) {
+    public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
@@ -213,7 +216,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(String name) {
+    public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
@@ -240,7 +243,7 @@ public final class BridgePlayerManager implements IPlayerManager {
 
 
     @Override
-    public void updateOfflinePlayer(ICloudOfflinePlayer cloudOfflinePlayer) {
+    public void updateOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
         Validate.checkNotNull(cloudOfflinePlayer);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
@@ -251,7 +254,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void updateOnlinePlayer(ICloudPlayer cloudPlayer) {
+    public void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer) {
         Validate.checkNotNull(cloudPlayer);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
@@ -262,14 +265,14 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxySendPlayer(ICloudPlayer cloudPlayer, String serviceName) {
+    public void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName) {
         Validate.checkNotNull(cloudPlayer);
 
         this.proxySendPlayer(cloudPlayer.getUniqueId(), serviceName);
     }
 
     @Override
-    public void proxySendPlayer(UUID uniqueId, String serviceName) {
+    public void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceName);
 
@@ -283,14 +286,14 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxyKickPlayer(ICloudPlayer cloudPlayer, String kickMessage) {
+    public void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String kickMessage) {
         Validate.checkNotNull(cloudPlayer);
 
         this.proxyKickPlayer(cloudPlayer.getUniqueId(), kickMessage);
     }
 
     @Override
-    public void proxyKickPlayer(UUID uniqueId, String kickMessage) {
+    public void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String kickMessage) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(kickMessage);
 
@@ -304,14 +307,14 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message) {
+    public void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
         Validate.checkNotNull(cloudPlayer);
 
         this.proxySendPlayerMessage(cloudPlayer.getUniqueId(), message);
     }
 
     @Override
-    public void proxySendPlayerMessage(UUID uniqueId, String message) {
+    public void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(message);
 
@@ -325,7 +328,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void broadcastMessage(String message) {
+    public void broadcastMessage(@NotNull String message) {
         Validate.checkNotNull(message);
 
         getCloudNetDriver().getMessenger().sendChannelMessage(
@@ -337,7 +340,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void broadcastMessage(String message, String permission) {
+    public void broadcastMessage(@NotNull String message, @NotNull String permission) {
         Validate.checkNotNull(message);
         Validate.checkNotNull(permission);
 

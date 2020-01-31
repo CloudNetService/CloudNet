@@ -90,7 +90,7 @@ public final class NukkitCloudNetHelper {
                     Map<String, String> gameRules = Maps.newHashMap();
 
                     for (GameRule gameRule : level.getGameRules().getRules()) {
-                        GameRules.Value type = level.getGameRules().getGameRules().get(gameRule);
+                        GameRules.Value<?> type = level.getGameRules().getGameRules().get(gameRule);
 
                         switch (type.getType()) {
                             case FLOAT:

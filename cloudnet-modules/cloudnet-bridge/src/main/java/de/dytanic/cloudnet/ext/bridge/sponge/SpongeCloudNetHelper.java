@@ -118,7 +118,7 @@ public final class SpongeCloudNetHelper {
         if (login) {
             worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
         } else {
-            Location location = player.getLocation();
+            Location<?> location = player.getLocation();
             worldPosition = new WorldPosition(
                     location.getX(),
                     location.getY(),

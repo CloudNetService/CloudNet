@@ -11,6 +11,8 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.player.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -51,20 +53,21 @@ public final class NodePlayerManager implements IPlayerManager {
         return this.getDatabase().getDocumentsCount();
     }
 
+    @Nullable
     @Override
-    public CloudPlayer getOnlinePlayer(UUID uniqueId) {
+    public CloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
         return onlineCloudPlayers.get(uniqueId);
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(String name) {
+    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return Iterables.filter(this.onlineCloudPlayers.values(), cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name));
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(ServiceEnvironmentType environment) {
+    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
         return Iterables.filter(this.onlineCloudPlayers.values(), cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
@@ -77,7 +80,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ICloudOfflinePlayer getOfflinePlayer(UUID uniqueId) {
+    public ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
@@ -86,7 +89,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(String name) {
+    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return Iterables.map(this.getDatabase().get(new JsonDocument("name", name)), jsonDocument -> jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
@@ -113,17 +116,17 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<ICloudPlayer> getOnlinePlayerAsync(UUID uniqueId) {
+    public ITask<ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId) {
         return this.schedule(() -> this.getOnlinePlayer(uniqueId));
     }
 
     @Override
-    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(String name) {
+    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name) {
         return this.schedule(() -> this.getOnlinePlayers(name));
     }
 
     @Override
-    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(ServiceEnvironmentType environment) {
+    public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment) {
         return this.schedule(() -> this.getOnlinePlayers(environment));
     }
 
@@ -133,12 +136,12 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(UUID uniqueId) {
+    public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId) {
         return this.schedule(() -> this.getOfflinePlayer(uniqueId));
     }
 
     @Override
-    public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(String name) {
+    public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name) {
         return this.schedule(() -> this.getOfflinePlayers(name));
     }
 
@@ -148,7 +151,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void updateOfflinePlayer(ICloudOfflinePlayer cloudOfflinePlayer) {
+    public void updateOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
         Validate.checkNotNull(cloudOfflinePlayer);
 
         this.updateOfflinePlayer0(cloudOfflinePlayer);
@@ -166,7 +169,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void updateOnlinePlayer(ICloudPlayer cloudPlayer) {
+    public void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer) {
         Validate.checkNotNull(cloudPlayer);
 
         this.updateOnlinePlayer0(cloudPlayer);
@@ -187,14 +190,14 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxySendPlayer(ICloudPlayer cloudPlayer, String serviceName) {
+    public void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName) {
         Validate.checkNotNull(cloudPlayer);
 
         this.proxySendPlayer(cloudPlayer.getUniqueId(), serviceName);
     }
 
     @Override
-    public void proxySendPlayer(UUID uniqueId, String serviceName) {
+    public void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceName);
 
@@ -208,14 +211,14 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message) {
+    public void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
         Validate.checkNotNull(cloudPlayer);
 
         this.proxySendPlayerMessage(cloudPlayer.getUniqueId(), message);
     }
 
     @Override
-    public void proxySendPlayerMessage(UUID uniqueId, String message) {
+    public void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(message);
 
@@ -229,14 +232,14 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxyKickPlayer(ICloudPlayer cloudPlayer, String kickMessage) {
+    public void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String kickMessage) {
         Validate.checkNotNull(cloudPlayer);
 
         this.proxyKickPlayer(cloudPlayer.getUniqueId(), kickMessage);
     }
 
     @Override
-    public void proxyKickPlayer(UUID uniqueId, String kickMessage) {
+    public void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String kickMessage) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(kickMessage);
 
@@ -250,7 +253,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void broadcastMessage(String message) {
+    public void broadcastMessage(@NotNull String message) {
         Validate.checkNotNull(message);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
@@ -262,7 +265,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void broadcastMessage(String message, String permission) {
+    public void broadcastMessage(@NotNull String message, @NotNull String permission) {
         Validate.checkNotNull(message);
         Validate.checkNotNull(permission);
 

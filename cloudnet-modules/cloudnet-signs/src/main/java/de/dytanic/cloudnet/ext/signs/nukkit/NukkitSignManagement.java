@@ -14,6 +14,8 @@ import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignLayout;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
@@ -39,7 +41,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
 
 
     @Override
-    protected void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
+    protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         Server.getInstance().getScheduler().scheduleTask(this.plugin, () -> {
             Location location = this.toLocation(sign.getWorldPosition());
 
@@ -72,7 +74,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
     }
 
     @Override
-    protected void runTaskLater(Runnable runnable, long delay) {
+    protected void runTaskLater(@NotNull Runnable runnable, long delay) {
         Server.getInstance().getScheduler().scheduleDelayedTask(this.plugin, runnable, Math.toIntExact(delay));
     }
 

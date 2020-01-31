@@ -14,6 +14,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,7 +43,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
 
     @Override
-    protected void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
+    protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             Location location = this.toLocation(sign.getWorldPosition());
 
@@ -77,7 +79,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     @Override
-    protected void runTaskLater(Runnable runnable, long delay) {
+    protected void runTaskLater(@NotNull Runnable runnable, long delay) {
         Bukkit.getScheduler().runTaskLater(this.plugin, runnable, delay);
     }
 

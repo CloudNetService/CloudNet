@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -56,10 +57,11 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     }
 
     @Override
-    public void setProperties(JsonDocument properties) {
+    public void setProperties(@NotNull JsonDocument properties) {
         this.properties = properties;
     }
 
+    @NotNull
     public UUID getUniqueId() {
         return this.uniqueId;
     }
@@ -72,7 +74,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
         return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
@@ -104,7 +106,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
         return this.lastNetworkConnectionInfo;
     }
 
-    public void setLastNetworkConnectionInfo(NetworkConnectionInfo lastNetworkConnectionInfo) {
+    public void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo) {
         this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
     }
 
