@@ -62,7 +62,6 @@ final class DefaultCloudServiceManagerConfiguration {
             this.tasks.clear();
 
             if (!Files.exists(TASKS_DIRECTORY)) {
-                Files.createDirectories(TASKS_DIRECTORY);
                 return;
             }
             Files.walkFileTree(TASKS_DIRECTORY, new SimpleFileVisitor<Path>() {
@@ -84,6 +83,10 @@ final class DefaultCloudServiceManagerConfiguration {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public boolean isFileCreated() {
+        return Files.exists(GROUPS_CONFIG_FILE) || Files.exists(TASKS_DIRECTORY);
     }
 
     public void deleteTask(String name) {

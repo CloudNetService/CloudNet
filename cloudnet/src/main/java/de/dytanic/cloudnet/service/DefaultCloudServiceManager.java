@@ -519,6 +519,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         return value;
     }
 
+    @Override
+    public boolean isFileCreated() {
+        return this.config.isFileCreated();
+    }
+
 
     private int checkAndReplacePort(int port) {
         Collection<Integer> ports = Iterables.map(this.cloudServices.values(), iCloudService -> iCloudService.getServiceConfiguration().getPort());
