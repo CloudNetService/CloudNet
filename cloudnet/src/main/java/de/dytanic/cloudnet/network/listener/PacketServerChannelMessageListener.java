@@ -48,9 +48,8 @@ public final class PacketServerChannelMessageListener implements IPacketListener
                         packet.getHeader().getDocument("data")
                 );
                 for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-                    if (cloudService.getNetworkChannel() != null) {
-                        cloudService.getNetworkChannel().sendPacket(response);
-                    }
+                    cloudService.getNetworkChannel();
+                    cloudService.getNetworkChannel().sendPacket(response);
                 }
 
                 CloudNetDriver.getInstance().getEventManager().callEvent(

@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -66,6 +68,7 @@ public class WorkerThread extends Thread implements ExecutorService {
         this.interrupt();
     }
 
+    @NotNull
     @Deprecated
     @Override
     public List<Runnable> shutdownNow() {
@@ -86,26 +89,30 @@ public class WorkerThread extends Thread implements ExecutorService {
     }
 
     @Override
-    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean awaitTermination(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
         this.join();
         return true;
     }
 
+    @NotNull
     @Override
-    public <T> ITask<T> submit(Callable<T> task) {
+    public <T> ITask<T> submit(@NotNull Callable<T> task) {
         return this.submit(task, new ITaskListener[0]);
     }
 
+    @NotNull
     @Override
-    public <T> ITask<T> submit(Runnable task, T result) {
+    public <T> ITask<T> submit(@NotNull Runnable task, T result) {
         return this.submit(Executors.callable(task, result));
     }
 
+    @NotNull
     @Override
-    public ITask<?> submit(Runnable task) {
+    public ITask<?> submit(@NotNull Runnable task) {
         return (ITask<?>) Executors.callable(task);
     }
 
+    @NotNull
     @Override
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) {
         List<Future<T>> list = new ArrayList<>(tasks.size());
@@ -116,25 +123,27 @@ public class WorkerThread extends Thread implements ExecutorService {
         return list;
     }
 
+    @NotNull
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) {
+    public <T> List<Future<T>> invokeAll(@NotNull Collection<? extends Callable<T>> tasks, long timeout, @NotNull TimeUnit unit) {
         return this.invokeAll(tasks);
     }
 
+    @NotNull
     @Deprecated
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks) {
+    public <T> T invokeAny(@NotNull Collection<? extends Callable<T>> tasks) {
         throw new UnsupportedOperationException("Method invokeAny(Collection<? extends Callable<T>> tasks) won't support");
     }
 
     @Deprecated
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) {
+    public <T> T invokeAny(@NotNull Collection<? extends Callable<T>> tasks, long timeout, @NotNull TimeUnit unit) {
         throw new UnsupportedOperationException("Method invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) won't support");
     }
 
     @Override
-    public final void execute(Runnable command) {
+    public final void execute(@NotNull Runnable command) {
         this.submit(command);
     }
 

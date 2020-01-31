@@ -6,6 +6,8 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.ext.cloudperms.listener.PermissionsUpdateListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,18 +54,20 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
 
+    @NotNull
     @Override
     public IPermissionManagementHandler getPermissionManagementHandler() {
         throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
     }
 
     @Override
-    public void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler) {
+    public void setPermissionManagementHandler(@NotNull IPermissionManagementHandler permissionManagementHandler) {
         throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
     }
 
+    @NotNull
     @Override
-    public IPermissionUser addUser(IPermissionUser permissionUser) {
+    public IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         try {
@@ -76,49 +80,50 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void updateUser(IPermissionUser permissionUser) {
+    public void updateUser(@NotNull IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         this.getDriver().getPermissionProvider().updateUser(permissionUser);
     }
 
     @Override
-    public void deleteUser(String name) {
+    public void deleteUser(@NotNull String name) {
         Validate.checkNotNull(name);
 
         this.getDriver().getPermissionProvider().deleteUser(name);
     }
 
     @Override
-    public void deleteUser(IPermissionUser permissionUser) {
+    public void deleteUser(@NotNull IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         this.getDriver().getPermissionProvider().deleteUser(permissionUser);
     }
 
     @Override
-    public boolean containsUser(UUID uniqueId) {
+    public boolean containsUser(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.cachedPermissionUsers.containsKey(uniqueId) || this.getDriver().getPermissionProvider().containsUser(uniqueId);
     }
 
     @Override
-    public boolean containsUser(String name) {
+    public boolean containsUser(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.getDriver().getPermissionProvider().containsUser(name);
     }
 
+    @Nullable
     @Override
-    public IPermissionUser getUser(UUID uniqueId) {
+    public IPermissionUser getUser(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.cachedPermissionUsers.containsKey(uniqueId) ? this.cachedPermissionUsers.get(uniqueId) : this.getDriver().getPermissionProvider().getUser(uniqueId);
     }
 
     @Override
-    public List<IPermissionUser> getUsers(String name) {
+    public List<IPermissionUser> getUsers(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.getDriver().getPermissionProvider().getUsers(name);
@@ -130,21 +135,21 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void setUsers(Collection<? extends IPermissionUser> users) {
+    public void setUsers(@NotNull Collection<? extends IPermissionUser> users) {
         Validate.checkNotNull(users);
 
         this.getDriver().getPermissionProvider().setUsers(users);
     }
 
     @Override
-    public Collection<IPermissionUser> getUsersByGroup(String group) {
+    public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
         Validate.checkNotNull(group);
 
         return this.getDriver().getPermissionProvider().getUsersByGroup(group);
     }
 
     @Override
-    public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
+    public IPermissionGroup addGroup(@NotNull IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
         this.getDriver().getPermissionProvider().addGroup(permissionGroup);
@@ -153,35 +158,36 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void updateGroup(IPermissionGroup permissionGroup) {
+    public void updateGroup(@NotNull IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
         this.getDriver().getPermissionProvider().updateGroup(permissionGroup);
     }
 
     @Override
-    public void deleteGroup(String group) {
+    public void deleteGroup(@NotNull String group) {
         Validate.checkNotNull(group);
 
         this.getDriver().getPermissionProvider().deleteGroup(group);
     }
 
     @Override
-    public void deleteGroup(IPermissionGroup group) {
+    public void deleteGroup(@NotNull IPermissionGroup group) {
         Validate.checkNotNull(group);
 
         this.getDriver().getPermissionProvider().deleteGroup(group);
     }
 
     @Override
-    public boolean containsGroup(String name) {
+    public boolean containsGroup(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cachedPermissionGroups.containsKey(name);
     }
 
+    @Nullable
     @Override
-    public IPermissionGroup getGroup(String name) {
+    public IPermissionGroup getGroup(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cachedPermissionGroups.get(name);
@@ -193,7 +199,7 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void setGroups(Collection<? extends IPermissionGroup> groups) {
+    public void setGroups(@NotNull Collection<? extends IPermissionGroup> groups) {
         Validate.checkNotNull(groups);
 
         this.getDriver().getPermissionProvider().setGroups(groups);

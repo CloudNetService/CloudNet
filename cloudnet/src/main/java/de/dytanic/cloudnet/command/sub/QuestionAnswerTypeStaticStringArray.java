@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class QuestionAnswerTypeStaticStringArray implements QuestionAnswerType<String> {
 

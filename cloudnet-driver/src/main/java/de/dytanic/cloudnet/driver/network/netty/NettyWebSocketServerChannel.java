@@ -49,11 +49,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
-        for (IWebSocketListener listener : webSocketListeners) {
-            if (Iterables.first(listeners, webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)) != null) {
-                webSocketListeners.remove(listener);
-            }
-        }
+        webSocketListeners.removeIf(listener -> Iterables.first(listeners, webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)) != null);
 
         return this;
     }
@@ -62,22 +58,14 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes) {
         Validate.checkNotNull(classes);
 
-        for (IWebSocketListener listener : webSocketListeners) {
-            if (classes.contains(listener.getClass())) {
-                webSocketListeners.remove(listener);
-            }
-        }
+        webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
 
         return this;
     }
 
     @Override
     public IWebSocketChannel removeListener(ClassLoader classLoader) {
-        for (IWebSocketListener listener : webSocketListeners) {
-            if (listener.getClass().getClassLoader().equals(classLoader)) {
-                webSocketListeners.remove(listener);
-            }
-        }
+        webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
 
         return this;
     }

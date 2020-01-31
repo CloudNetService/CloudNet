@@ -6,6 +6,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEve
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.Queue;
 
 public interface ICloudService {
 
+    @NotNull
     String getRuntime();
 
     List<ServiceRemoteInclusion> getIncludes();
@@ -27,34 +30,44 @@ public interface ICloudService {
 
     List<String> getGroups();
 
+    @NotNull
     ServiceLifeCycle getLifeCycle();
 
+    @NotNull
     ICloudServiceManager getCloudServiceManager();
 
+    @NotNull
     ServiceConfiguration getServiceConfiguration();
 
+    @NotNull
     ServiceId getServiceId();
 
     String getConnectionKey();
 
+    @NotNull
     File getDirectory();
 
+    @NotNull
     INetworkChannel getNetworkChannel();
 
     void setNetworkChannel(INetworkChannel channel);
 
+    @NotNull
     ServiceInfoSnapshot getServiceInfoSnapshot();
 
-    void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot);
+    void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
+    @NotNull
     ServiceInfoSnapshot getLastServiceInfoSnapshot();
 
+    @Nullable
     Process getProcess();
 
-    void runCommand(String commandLine);
+    void runCommand(@NotNull String commandLine);
 
     int getConfiguredMaxHeapMemory();
 
+    @NotNull
     IServiceConsoleLogCache getServiceConsoleLogCache();
 
 
@@ -80,13 +93,13 @@ public interface ICloudService {
         deployResources(true);
     }
 
-    void offerTemplate(ServiceTemplate template);
+    void offerTemplate(@NotNull ServiceTemplate template);
 
-    void offerInclusion(ServiceRemoteInclusion inclusion);
+    void offerInclusion(@NotNull ServiceRemoteInclusion inclusion);
 
-    void addDeployment(ServiceDeployment deployment);
+    void addDeployment(@NotNull ServiceDeployment deployment);
 
-    default void updateServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+    default void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.setServiceInfoSnapshot(serviceInfoSnapshot);
         this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
 

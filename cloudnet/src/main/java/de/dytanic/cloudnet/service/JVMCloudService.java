@@ -18,6 +18,7 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.service.*;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.URL;
@@ -120,7 +121,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     @Override
-    public void runCommand(String commandLine) {
+    public void runCommand(@NotNull String commandLine) {
         if (this.lifeCycle == ServiceLifeCycle.RUNNING && this.process != null) {
             try {
                 OutputStream outputStream = this.process.getOutputStream();
@@ -212,6 +213,7 @@ final class JVMCloudService implements ICloudService {
                 (this.lifeCycle == ServiceLifeCycle.RUNNING && this.process != null && this.process.isAlive());
     }
 
+    @NotNull
     @Override
     public final String getRuntime() {
         return RUNTIME;
@@ -594,19 +596,19 @@ final class JVMCloudService implements ICloudService {
     }
 
     @Override
-    public void offerTemplate(ServiceTemplate template) {
+    public void offerTemplate(@NotNull ServiceTemplate template) {
         this.waitingTemplates.offer(template);
         this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
     }
 
     @Override
-    public void offerInclusion(ServiceRemoteInclusion inclusion) {
+    public void offerInclusion(@NotNull ServiceRemoteInclusion inclusion) {
         this.waitingIncludes.offer(inclusion);
         this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
     }
 
     @Override
-    public void addDeployment(ServiceDeployment deployment) {
+    public void addDeployment(@NotNull ServiceDeployment deployment) {
         this.deployments.add(deployment);
         this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
     }
@@ -1054,6 +1056,7 @@ final class JVMCloudService implements ICloudService {
         return this.waitingTemplates;
     }
 
+    @NotNull
     public DefaultServiceConsoleLogCache getServiceConsoleLogCache() {
         return this.serviceConsoleLogCache;
     }
@@ -1066,22 +1069,27 @@ final class JVMCloudService implements ICloudService {
         return this.lifeCycleLock;
     }
 
+    @NotNull
     public ServiceLifeCycle getLifeCycle() {
         return this.lifeCycle;
     }
 
+    @NotNull
     public ICloudServiceManager getCloudServiceManager() {
         return this.cloudServiceManager;
     }
 
+    @NotNull
     public ServiceConfiguration getServiceConfiguration() {
         return this.serviceConfiguration;
     }
 
+    @NotNull
     public ServiceId getServiceId() {
         return this.serviceId;
     }
 
+    @NotNull
     public File getDirectory() {
         return this.directory;
     }
@@ -1094,24 +1102,27 @@ final class JVMCloudService implements ICloudService {
         return this.configuredMaxHeapMemory;
     }
 
+    @NotNull
     public INetworkChannel getNetworkChannel() {
         return this.networkChannel;
     }
 
-    public void setNetworkChannel(INetworkChannel networkChannel) {
+    public void setNetworkChannel(@NotNull INetworkChannel networkChannel) {
         this.networkChannel = networkChannel;
     }
 
+    @NotNull
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
         return this.serviceInfoSnapshot;
     }
 
     @Override
-    public void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.lastServiceInfoSnapshot = this.serviceInfoSnapshot;
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
+    @NotNull
     public ServiceInfoSnapshot getLastServiceInfoSnapshot() {
         return this.lastServiceInfoSnapshot;
     }

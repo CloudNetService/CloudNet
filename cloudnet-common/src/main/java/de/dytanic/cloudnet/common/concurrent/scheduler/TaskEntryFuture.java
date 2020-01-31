@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent.scheduler;
 
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -66,7 +67,7 @@ public class TaskEntryFuture<T> implements Future<T> {
 
 
     @Override
-    public synchronized T get(long pTimeout, TimeUnit pUnit) throws InterruptedException {
+    public synchronized T get(long pTimeout, @NotNull TimeUnit pUnit) throws InterruptedException {
 
         waits = true;
         /*

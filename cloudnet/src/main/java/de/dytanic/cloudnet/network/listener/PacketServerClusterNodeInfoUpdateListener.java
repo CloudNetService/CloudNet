@@ -25,9 +25,8 @@ public final class PacketServerClusterNodeInfoUpdateListener implements IPacketL
 
             Packet packet1 = new PacketServerClusterNodeInfoUpdate(snapshot);
             for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-                if (cloudService.getNetworkChannel() != null) {
-                    cloudService.getNetworkChannel().sendPacket(packet1);
-                }
+                cloudService.getNetworkChannel();
+                cloudService.getNetworkChannel().sendPacket(packet1);
             }
         }
     }

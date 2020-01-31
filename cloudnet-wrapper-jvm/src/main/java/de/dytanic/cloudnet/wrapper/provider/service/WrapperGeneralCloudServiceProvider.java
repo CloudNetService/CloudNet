@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return null;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot getCloudServiceByName(String name) {
         try {
@@ -96,6 +98,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return null;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
         try {

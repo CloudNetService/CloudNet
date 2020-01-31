@@ -27,6 +27,7 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.management.ManagementFactory;
 import java.util.*;
@@ -50,7 +51,7 @@ public abstract class CloudNetDriver {
 
     private int pid = -2;
 
-    public CloudNetDriver(ILogger logger) {
+    public CloudNetDriver(@NotNull ILogger logger) {
         this.logger = logger;
     }
 
@@ -67,7 +68,7 @@ public abstract class CloudNetDriver {
         return Optional.ofNullable(CloudNetDriver.instance);
     }
 
-    protected static void setInstance(CloudNetDriver instance) {
+    protected static void setInstance(@NotNull CloudNetDriver instance) {
         CloudNetDriver.instance = instance;
     }
 
@@ -77,16 +78,22 @@ public abstract class CloudNetDriver {
     public abstract void stop();
 
 
+    @NotNull
     public abstract PermissionProvider getPermissionProvider();
 
+    @NotNull
     public abstract CloudServiceFactory getCloudServiceFactory();
 
+    @NotNull
     public abstract ServiceTaskProvider getServiceTaskProvider();
 
+    @NotNull
     public abstract NodeInfoProvider getNodeInfoProvider();
 
+    @NotNull
     public abstract GroupConfigurationProvider getGroupConfigurationProvider();
 
+    @NotNull
     public abstract CloudMessenger getMessenger();
 
 
@@ -96,7 +103,7 @@ public abstract class CloudNetDriver {
      * @param name the name of the service
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    public abstract SpecificCloudServiceProvider getCloudServiceProvider(String name);
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -104,7 +111,7 @@ public abstract class CloudNetDriver {
      * @param uniqueId the uniqueId of the service
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    public abstract SpecificCloudServiceProvider getCloudServiceProvider(UUID uniqueId);
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -112,26 +119,28 @@ public abstract class CloudNetDriver {
      * @param serviceInfoSnapshot the info of the service to create a provider for
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    public abstract SpecificCloudServiceProvider getCloudServiceProvider(ServiceInfoSnapshot serviceInfoSnapshot);
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
     /**
      * Returns the general CloudServiceProvider
      *
      * @return the instance of the {@link GeneralCloudServiceProvider}
      */
+    @NotNull
     public abstract GeneralCloudServiceProvider getCloudServiceProvider();
 
+    @NotNull
     public abstract INetworkClient getNetworkClient();
 
     public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
 
-    public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName);
+    public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName);
 
     public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
 
-    public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName);
+    public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName);
 
-    public abstract void setGlobalLogLevel(LogLevel logLevel);
+    public abstract void setGlobalLogLevel(@NotNull LogLevel logLevel);
 
     public abstract void setGlobalLogLevel(int logLevel);
 
@@ -1470,9 +1479,9 @@ public abstract class CloudNetDriver {
     }
 
 
-    public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(UUID uniqueId, String commandLine);
+    public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine);
 
-    public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine);
+    public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine);
 
     /**
      * @see #getPacketQueryProvider()
@@ -1520,31 +1529,39 @@ public abstract class CloudNetDriver {
         return this.getPacketQueryProvider().sendCallablePacket(networkChannel, channel, header, body, function);
     }
 
+    @NotNull
     public PacketQueryProvider getPacketQueryProvider() {
         return packetQueryProvider;
     }
 
+    @NotNull
     public IServicesRegistry getServicesRegistry() {
         return this.servicesRegistry;
     }
 
+    @NotNull
     public IEventManager getEventManager() {
         return this.eventManager;
     }
 
+    @NotNull
     public IModuleProvider getModuleProvider() {
         return this.moduleProvider;
     }
 
+    @NotNull
     public ITaskScheduler getTaskScheduler() {
         return this.taskScheduler;
     }
 
+    @NotNull
     public ILogger getLogger() {
         return this.logger;
     }
 
+    @NotNull
     public DriverEnvironment getDriverEnvironment() {
         return this.driverEnvironment;
     }
+
 }

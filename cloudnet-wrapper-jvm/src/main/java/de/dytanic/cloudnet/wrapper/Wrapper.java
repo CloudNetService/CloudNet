@@ -39,6 +39,7 @@ import de.dytanic.cloudnet.wrapper.provider.*;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperCloudServiceFactory;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperSpecificCloudServiceProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -197,51 +198,58 @@ public final class Wrapper extends CloudNetDriver {
         this.servicesRegistry.unregisterAll();
     }
 
+    @NotNull
     @Override
     public PermissionProvider getPermissionProvider() {
         return this.permissionProvider;
     }
 
+    @NotNull
     @Override
     public CloudServiceFactory getCloudServiceFactory() {
         return this.cloudServiceFactory;
     }
 
+    @NotNull
     @Override
     public ServiceTaskProvider getServiceTaskProvider() {
         return this.serviceTaskProvider;
     }
 
+    @NotNull
     @Override
     public NodeInfoProvider getNodeInfoProvider() {
         return this.nodeInfoProvider;
     }
 
+    @NotNull
     @Override
     public GroupConfigurationProvider getGroupConfigurationProvider() {
         return this.groupConfigurationProvider;
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(String name) {
+    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         return new WrapperSpecificCloudServiceProvider(this, name);
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(UUID uniqueId) {
+    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
         return new WrapperSpecificCloudServiceProvider(this, uniqueId);
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         return new WrapperSpecificCloudServiceProvider(this, serviceInfoSnapshot);
     }
 
+    @NotNull
     @Override
     public GeneralCloudServiceProvider getCloudServiceProvider() {
         return this.generalCloudServiceProvider;
     }
 
+    @NotNull
     @Override
     public CloudMessenger getMessenger() {
         return this.messenger;
@@ -271,7 +279,7 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
-    public Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName) {
+    public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
         Validate.checkNotNull(serviceName);
 
         try {
@@ -283,8 +291,8 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     @Override
-    public void setGlobalLogLevel(LogLevel logLevel) {
-        this.setGlobalLogLevel(logLevel != null ? logLevel.getLevel() : LogLevel.ALL.getLevel());
+    public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
+        this.setGlobalLogLevel(logLevel.getLevel());
     }
 
     @Override
@@ -299,7 +307,7 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
-    public Pair<Boolean, String[]> sendCommandLineAsPermissionUser(UUID uniqueId, String commandLine) {
+    public Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
@@ -332,7 +340,7 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
-    public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName) {
+    public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
         Validate.checkNotNull(serviceName);
 
         return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
@@ -348,7 +356,7 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
-    public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine) {
+    public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
@@ -382,6 +390,7 @@ public final class Wrapper extends CloudNetDriver {
      *
      * @return the new ServiceInfoSnapshot instance
      */
+    @NotNull
     public ServiceInfoSnapshot createServiceInfoSnapshot() {
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
@@ -417,7 +426,7 @@ public final class Wrapper extends CloudNetDriver {
         this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
     }
 
-    public synchronized void publishServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public synchronized void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         if (currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
             this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
@@ -435,7 +444,7 @@ public final class Wrapper extends CloudNetDriver {
      *
      * @param classLoader the ClassLoader from which the IPacketListener implementations derive.
      */
-    public void unregisterPacketListenersByClassLoader(ClassLoader classLoader) {
+    public void unregisterPacketListenersByClassLoader(@NotNull ClassLoader classLoader) {
         networkClient.getPacketRegistry().removeListeners(classLoader);
 
         for (INetworkChannel channel : networkClient.getChannels()) {
@@ -469,7 +478,7 @@ public final class Wrapper extends CloudNetDriver {
         return applicationFile.exists() && this.startApplication(applicationFile, mainClass);
     }
 
-    private boolean startApplication(File applicationFile, String mainClass) throws Exception {
+    private boolean startApplication(@NotNull File applicationFile, @NotNull String mainClass) throws Exception {
         Class<?> main = Class.forName(mainClass);
         Method method = main.getMethod("main", String[].class);
 
@@ -503,39 +512,47 @@ public final class Wrapper extends CloudNetDriver {
         return true;
     }
 
+    @NotNull
     public IWrapperConfiguration getConfig() {
         return this.config;
     }
 
+    @NotNull
     public File getWorkDirectory() {
         return this.workDirectory;
     }
 
+    @NotNull
     public List<String> getCommandLineArguments() {
         return this.commandLineArguments;
     }
 
+    @NotNull
     public INetworkClient getNetworkClient() {
         return this.networkClient;
     }
 
+    @NotNull
     public Thread getMainThread() {
         return this.mainThread;
     }
 
+    @NotNull
     public ServiceInfoSnapshot getLastServiceInfoSnapShot() {
         return this.lastServiceInfoSnapShot;
     }
 
+    @NotNull
     public ServiceInfoSnapshot getCurrentServiceInfoSnapshot() {
         return this.currentServiceInfoSnapshot;
     }
 
+    @NotNull
     public IDatabaseProvider getDatabaseProvider() {
         return databaseProvider;
     }
 
-    public void setDatabaseProvider(IDatabaseProvider databaseProvider) {
+    public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {
         Validate.checkNotNull(databaseProvider);
         this.databaseProvider = databaseProvider;
     }

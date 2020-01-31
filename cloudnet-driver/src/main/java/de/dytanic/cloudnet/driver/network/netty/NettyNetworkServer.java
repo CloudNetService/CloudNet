@@ -19,6 +19,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -74,7 +75,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public boolean addListener(HostAndPort hostAndPort) {
+    public boolean addListener(@NotNull HostAndPort hostAndPort) {
         Validate.checkNotNull(hostAndPort);
         Validate.checkNotNull(hostAndPort.getHost());
 
@@ -134,7 +135,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(@NotNull IPacket packet) {
         Validate.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels) {
@@ -143,7 +144,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(@NotNull IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels) {

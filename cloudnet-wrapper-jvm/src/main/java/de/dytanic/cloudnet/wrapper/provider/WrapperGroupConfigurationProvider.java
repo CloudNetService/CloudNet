@@ -9,6 +9,8 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -36,8 +38,9 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
         return null;
     }
 
+    @Nullable
     @Override
-    public GroupConfiguration getGroupConfiguration(String name) {
+    public GroupConfiguration getGroupConfiguration(@NotNull String name) {
         Validate.checkNotNull(name);
 
         try {
@@ -49,7 +52,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public boolean isGroupConfigurationPresent(String name) {
+    public boolean isGroupConfigurationPresent(@NotNull String name) {
         Validate.checkNotNull(name);
 
         try {
@@ -61,7 +64,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
+    public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
 
         try {
@@ -72,7 +75,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public void removeGroupConfiguration(String name) {
+    public void removeGroupConfiguration(@NotNull String name) {
         Validate.checkNotNull(name);
 
         try {
@@ -83,7 +86,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
+    public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
         this.removeGroupConfiguration(groupConfiguration.getName());
     }
@@ -97,7 +100,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
+    public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
@@ -107,7 +110,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
+    public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
@@ -117,7 +120,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<Void> addGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
+    public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_group_configuration").append("groupConfiguration", groupConfiguration), null,
@@ -125,7 +128,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(String name) {
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_group_configuration").append("name", name), null,
@@ -133,7 +136,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
 
         return this.removeGroupConfigurationAsync(groupConfiguration.getName());

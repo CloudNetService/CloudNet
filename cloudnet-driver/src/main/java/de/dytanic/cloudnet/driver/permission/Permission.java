@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.permission;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,27 +16,28 @@ public final class Permission {
 
     private long timeOutMillis;
 
-    public Permission(String name, int potency) {
+    public Permission(@NotNull String name, int potency) {
         this.name = name;
         this.potency = potency;
     }
 
-    public Permission(String name, int potency, long time, TimeUnit timeUnit) {
+    public Permission(@NotNull String name, int potency, long time, @NotNull TimeUnit timeUnit) {
         this.name = name;
         this.potency = potency;
         this.timeOutMillis = System.currentTimeMillis() + timeUnit.toMillis(time);
     }
 
-    public Permission(String name) {
+    public Permission(@NotNull String name) {
         this.name = name;
     }
 
-    public Permission(String name, int potency, long timeOutMillis) {
+    public Permission(@NotNull String name, int potency, long timeOutMillis) {
         this.name = name;
         this.potency = potency;
         this.timeOutMillis = timeOutMillis;
     }
 
+    @NotNull
     public String getName() {
         return this.name;
     }

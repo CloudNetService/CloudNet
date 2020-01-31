@@ -7,8 +7,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import java.util.UUID;
-
 final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
     @Override
@@ -29,18 +27,16 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
         NettyUtils.writeVarInt(byteBuf, packet.getChannel());
 
         //Writing the uniqueId
-        NettyUtils.writeString(byteBuf, packet.getUniqueId() != null ? packet.getUniqueId().toString() : UUID.randomUUID().toString());
+        packet.getUniqueId();
+        NettyUtils.writeString(byteBuf, packet.getUniqueId().toString());
 
         byte[] data;
 
         //Writing the header
-        if (packet.getHeader() != null) {
-            data = packet.getHeader().toByteArray();
-            NettyUtils.writeVarInt(byteBuf, data.length);
-            byteBuf.writeBytes(data);
-        } else {
-            NettyUtils.writeString(byteBuf, "{}");
-        }
+        packet.getHeader();
+        data = packet.getHeader().toByteArray();
+        NettyUtils.writeVarInt(byteBuf, data.length);
+        byteBuf.writeBytes(data);
 
         //Writing the body
         data = packet.getBody();

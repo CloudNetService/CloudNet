@@ -21,6 +21,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -95,7 +96,7 @@ public final class NettyNetworkClient implements INetworkClient {
 
 
     @Override
-    public boolean connect(HostAndPort hostAndPort) {
+    public boolean connect(@NotNull HostAndPort hostAndPort) {
         Validate.checkNotNull(hostAndPort);
         Validate.checkNotNull(hostAndPort.getHost());
 
@@ -148,7 +149,7 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(@NotNull IPacket packet) {
         Validate.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels) {
@@ -157,7 +158,7 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(@NotNull IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels) {

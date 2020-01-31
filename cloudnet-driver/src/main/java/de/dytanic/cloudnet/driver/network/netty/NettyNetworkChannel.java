@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,7 +47,7 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(@NotNull IPacket packet) {
         Validate.checkNotNull(packet);
 
         if (this.channel.eventLoop().inEventLoop()) {
@@ -80,7 +81,7 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(@NotNull IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (IPacket packet : packets) {

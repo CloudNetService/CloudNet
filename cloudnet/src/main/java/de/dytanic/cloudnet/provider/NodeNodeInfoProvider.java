@@ -11,6 +11,8 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -34,8 +36,9 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         return this.cloudNet.getConfig().getClusterConfig().getNodes().toArray(new NetworkClusterNode[0]);
     }
 
+    @Nullable
     @Override
-    public NetworkClusterNode getNode(String uniqueId) {
+    public NetworkClusterNode getNode(@NotNull String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
@@ -49,7 +52,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots = Iterables.newArrayList();
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-            if (clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null) {
+            if (clusterNodeServer.isConnected()) {
+                clusterNodeServer.getNodeInfoSnapshot();
                 nodeInfoSnapshots.add(clusterNodeServer.getNodeInfoSnapshot());
             }
         }
@@ -57,14 +61,16 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         return nodeInfoSnapshots.toArray(new NetworkClusterNodeInfoSnapshot[0]);
     }
 
+    @Nullable
     @Override
-    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
+    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
         if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
             return this.cloudNet.getCurrentNetworkClusterNodeInfoSnapshot();
         }
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-            if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null) {
+            if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected()) {
+                clusterNodeServer.getNodeInfoSnapshot();
                 return clusterNodeServer.getNodeInfoSnapshot();
             }
         }
@@ -73,7 +79,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public String[] sendCommandLine(String commandLine) {
+    public String[] sendCommandLine(@NotNull String commandLine) {
         Validate.checkNotNull(commandLine);
 
         Collection<String> collection = Iterables.newArrayList();
@@ -95,7 +101,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
+    public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
         Validate.checkNotNull(nodeUniqueId);
         Validate.checkNotNull(commandLine);
 
@@ -116,14 +122,15 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(collection), commandLine);
     }
 
+    @Nullable
     @Override
-    public CommandInfo getConsoleCommand(String commandLine) {
+    public CommandInfo getConsoleCommand(@NotNull String commandLine) {
         Command command = this.cloudNet.getCommandMap().getCommandFromLine(commandLine);
         return command != null ? command.getInfo() : null;
     }
 
     @Override
-    public Collection<String> getConsoleTabCompleteResults(String commandLine) {
+    public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
         return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
     }
 
@@ -133,22 +140,22 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
+    public ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.getConsoleCommand(commandLine));
     }
 
     @Override
-    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(String commandLine) {
+    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.getConsoleTabCompleteResults(commandLine));
     }
 
     @Override
-    public ITask<String[]> sendCommandLineAsync(String commandLine) {
+    public ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.sendCommandLine(commandLine));
     }
 
     @Override
-    public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
+    public ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.sendCommandLine(nodeUniqueId, commandLine));
     }
 
@@ -158,7 +165,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
+    public ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getNode(uniqueId));
@@ -170,7 +177,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
+    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getNodeInfoSnapshot(uniqueId));

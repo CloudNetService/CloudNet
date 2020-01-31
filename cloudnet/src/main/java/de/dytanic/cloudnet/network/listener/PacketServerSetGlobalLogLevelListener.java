@@ -17,11 +17,10 @@ public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
     }
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         for (ICloudService localCloudService : CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices()) {
-            if (localCloudService.getNetworkChannel() != null) {
-                localCloudService.getNetworkChannel().sendPacket(packet);
-            }
+            localCloudService.getNetworkChannel();
+            localCloudService.getNetworkChannel().sendPacket(packet);
         }
         if (this.redirectToCluster) {
             for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {

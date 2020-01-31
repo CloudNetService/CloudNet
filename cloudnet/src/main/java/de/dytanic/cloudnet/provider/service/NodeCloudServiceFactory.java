@@ -7,9 +7,10 @@ import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -21,6 +22,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         this.cloudNet = cloudNet;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
@@ -48,6 +50,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         Validate.checkNotNull(serviceConfiguration);
@@ -70,6 +73,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
                                                   Collection<ServiceTemplate> templates,
@@ -81,6 +85,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
     }
 
+    @Nullable
     @Override
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
                                                               Collection<ServiceRemoteInclusion> includes,

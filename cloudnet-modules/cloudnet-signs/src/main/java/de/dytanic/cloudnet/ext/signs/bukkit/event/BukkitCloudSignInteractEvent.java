@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
@@ -35,6 +36,7 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
         this.targetServer = targetServer;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLER_LIST;

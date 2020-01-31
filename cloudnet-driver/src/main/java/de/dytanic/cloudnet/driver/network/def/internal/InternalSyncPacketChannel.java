@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
@@ -53,14 +54,11 @@ public final class InternalSyncPacketChannel {
         }
     }
 
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body) {
+    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body) {
         return sendCallablePacket(channel, header, body, null);
     }
 
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener) {
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(header);
-
+    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener) {
         Packet packet = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
         checkCachedValidation();
 

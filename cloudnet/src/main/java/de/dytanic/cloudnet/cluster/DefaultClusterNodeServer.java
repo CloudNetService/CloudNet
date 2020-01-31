@@ -14,6 +14,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterChannelMessage;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Queue;
@@ -39,16 +40,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void sendClusterChannelMessage(String channel, String message, JsonDocument header, byte[] body) {
+    public void sendClusterChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument header, byte[] body) {
         saveSendPacket(new PacketServerClusterChannelMessage(channel, message, header, body));
     }
 
     @Override
-    public void sendCustomChannelMessage(String channel, String message, JsonDocument data) {
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(message);
-        Validate.checkNotNull(data);
-
+    public void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         saveSendPacket(new PacketClientServerChannelMessage(channel, message, data));
     }
 
@@ -58,9 +55,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void saveSendPacket(IPacket packet) {
-        Validate.checkNotNull(packet);
-
+    public void saveSendPacket(@NotNull IPacket packet) {
         if (this.channel != null) {
             this.channel.sendPacket(packet);
         }
@@ -68,14 +63,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public boolean isAcceptableConnection(INetworkChannel channel, String nodeId) {
-        return channel != null && this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
+    public boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
+        return this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
     }
 
     @Override
-    public String[] sendCommandLine(String commandLine) {
-        Validate.checkNotNull(commandLine);
-
+    public String[] sendCommandLine(@NotNull String commandLine) {
         if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(channel,
@@ -93,12 +86,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
+    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource) {
         this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 
     @Override
-    public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
+    public ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
         if (this.channel != null) {
@@ -120,7 +113,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
+    public ServiceInfoSnapshot createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
         Validate.checkNotNull(serviceConfiguration);
 
         if (this.channel != null) {
@@ -225,7 +218,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine) {
+    public ServiceInfoSnapshot sendCommandLineToCloudService(@NotNull UUID uniqueId, @NotNull String commandLine) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(commandLine);
 
@@ -246,7 +239,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate) {
+    public ServiceInfoSnapshot addServiceTemplateToCloudService(@NotNull UUID uniqueId, @NotNull ServiceTemplate serviceTemplate) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceTemplate);
 
@@ -267,7 +260,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
+    public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(@NotNull UUID uniqueId, @NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceRemoteInclusion);
 
@@ -288,7 +281,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment) {
+    public ServiceInfoSnapshot addServiceDeploymentToCloudService(@NotNull UUID uniqueId, @NotNull ServiceDeployment serviceDeployment) {
         Validate.checkNotNull(uniqueId);
         Validate.checkNotNull(serviceDeployment);
 
@@ -310,7 +303,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
+    public Queue<String> getCachedLogMessagesFromService(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         if (this.channel != null) {
@@ -330,7 +323,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
+    public void setCloudServiceLifeCycle(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull ServiceLifeCycle lifeCycle) {
         Validate.checkNotNull(serviceInfoSnapshot);
         Validate.checkNotNull(lifeCycle);
 
@@ -348,7 +341,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void restartCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         if (this.channel != null) {
@@ -365,7 +358,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void killCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         Validate.checkNotNull(serviceInfoSnapshot);
 
         if (this.channel != null) {
@@ -382,7 +375,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
+    public void runCommand(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull String command) {
         Validate.checkNotNull(serviceInfoSnapshot);
         Validate.checkNotNull(command);
 
@@ -401,7 +394,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void includeWaitingServiceInclusions(UUID uniqueId) {
+    public void includeWaitingServiceInclusions(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         if (this.channel != null) {
@@ -418,7 +411,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void includeWaitingServiceTemplates(UUID uniqueId) {
+    public void includeWaitingServiceTemplates(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         if (this.channel != null) {
@@ -435,7 +428,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void deployResources(UUID uniqueId, boolean removeDeployments) {
+    public void deployResources(@NotNull UUID uniqueId, boolean removeDeployments) {
         Validate.checkNotNull(uniqueId);
 
         if (this.channel != null) {
@@ -461,23 +454,26 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         this.channel = null;
     }
 
+    @NotNull
     public DefaultClusterNodeServerProvider getProvider() {
         return this.provider;
     }
 
+    @NotNull
     public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot() {
         return this.nodeInfoSnapshot;
     }
 
-    public void setNodeInfoSnapshot(NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+    public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
         this.nodeInfoSnapshot = nodeInfoSnapshot;
     }
 
+    @NotNull
     public NetworkClusterNode getNodeInfo() {
         return this.nodeInfo;
     }
 
-    public void setNodeInfo(NetworkClusterNode nodeInfo) {
+    public void setNodeInfo(@NotNull NetworkClusterNode nodeInfo) {
         this.nodeInfo = nodeInfo;
     }
 
@@ -485,7 +481,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         return this.channel;
     }
 
-    public void setChannel(INetworkChannel channel) {
+    public void setChannel(@NotNull INetworkChannel channel) {
         this.channel = channel;
     }
 }

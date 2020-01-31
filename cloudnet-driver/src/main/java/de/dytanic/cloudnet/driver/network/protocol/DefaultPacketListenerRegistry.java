@@ -63,11 +63,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     @Override
     public void removeListeners(ClassLoader classLoader) {
         for (Map.Entry<Integer, List<IPacketListener>> listenerCollectionEntry : this.listeners.entrySet()) {
-            for (IPacketListener listener : listenerCollectionEntry.getValue()) {
-                if (listener.getClass().getClassLoader().equals(classLoader)) {
-                    listenerCollectionEntry.getValue().remove(listener);
-                }
-            }
+            listenerCollectionEntry.getValue().removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
         }
     }
 

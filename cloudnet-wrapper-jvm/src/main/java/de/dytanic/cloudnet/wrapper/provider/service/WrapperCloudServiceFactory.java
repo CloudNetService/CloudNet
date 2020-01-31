@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -22,6 +23,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         this.wrapper = wrapper;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
@@ -34,6 +36,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         Validate.checkNotNull(serviceConfiguration);
@@ -46,6 +49,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(String name,
                                                   String runtime,
@@ -73,6 +77,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
                                                               int amount,

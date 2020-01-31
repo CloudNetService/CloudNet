@@ -27,29 +27,21 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
 
     @EventListener
     public void handle(PermissionUpdateUserEvent event) {
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
-
-            Bukkit.getOnlinePlayers().stream()
-                    .filter(player -> player.getUniqueId().equals(event.getPermissionUser().getUniqueId()))
-                    .findFirst()
-                    .ifPresent(value -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(value));
-
-        });
+        Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.getOnlinePlayers().stream()
+                .filter(player -> player.getUniqueId().equals(event.getPermissionUser().getUniqueId()))
+                .findFirst()
+                .ifPresent(value -> BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(value)));
     }
 
     @EventListener
     public void handle(PermissionUpdateGroupEvent event) {
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
+        Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.getOnlinePlayers().forEach(player -> {
+            IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
 
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
-
-                if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName())) {
-                    BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player);
-                }
-            });
-
-        });
+            if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName())) {
+                BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player);
+            }
+        }));
     }
 
 }

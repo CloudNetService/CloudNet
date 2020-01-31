@@ -68,7 +68,7 @@ public final class V1HttpSession {
         return true;
     }
 
-    public boolean isAuthorized(IHttpContext context) throws Exception {
+    public boolean isAuthorized(IHttpContext context) {
         if (!context.hasCookie(COOKIE_NAME)) {
             return false;
         }

@@ -139,10 +139,9 @@ public final class CommandReport extends Command {
                 writer.println("Node: " + clusterNodeServer.getNodeInfo().getUniqueId() + " | Connected: " + clusterNodeServer.isConnected());
                 gson.toJson(clusterNodeServer.getNodeInfo(), writer);
 
-                if (clusterNodeServer.getNodeInfoSnapshot() != null) {
-                    writer.println();
-                    gson.toJson(clusterNodeServer.getNodeInfoSnapshot(), writer);
-                }
+                clusterNodeServer.getNodeInfoSnapshot();
+                writer.println();
+                gson.toJson(clusterNodeServer.getNodeInfoSnapshot(), writer);
 
                 writer.println();
             }

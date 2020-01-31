@@ -9,6 +9,8 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -22,15 +24,16 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
         return this.servers.values();
     }
 
+    @Nullable
     @Override
-    public IClusterNodeServer getNodeServer(String uniqueId) {
+    public IClusterNodeServer getNodeServer(@NotNull String uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.servers.get(uniqueId);
     }
 
     @Override
-    public IClusterNodeServer getNodeServer(INetworkChannel channel) {
+    public IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
         Validate.checkNotNull(channel);
 
         for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
@@ -43,7 +46,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void setClusterServers(NetworkCluster networkCluster) {
+    public void setClusterServers(@NotNull NetworkCluster networkCluster) {
         for (NetworkClusterNode clusterNode : networkCluster.getNodes()) {
             if (this.servers.containsKey(clusterNode.getUniqueId())) {
                 this.servers.get(clusterNode.getUniqueId()).setNodeInfo(clusterNode);
@@ -62,7 +65,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
+    public void sendPacket(@NotNull IPacket packet) {
         Validate.checkNotNull(packet);
 
         for (IClusterNodeServer nodeServer : this.servers.values()) {
@@ -71,7 +74,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
+    public void sendPacket(@NotNull IPacket... packets) {
         Validate.checkNotNull(packets);
 
         for (IPacket packet : packets) {
@@ -80,7 +83,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
+    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource) {
         this.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 

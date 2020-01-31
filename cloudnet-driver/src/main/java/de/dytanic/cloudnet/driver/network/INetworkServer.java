@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.network;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * The network server represents a server that can register and receive INetworkClient connections and packets
  * It is made for a simple read and write network with a client and a server.
@@ -23,5 +25,5 @@ public interface INetworkServer extends INetworkComponent, AutoCloseable {
      * @param hostAndPort the address that should the server bind
      * @return true when the binding was successful or false if an error was threw or the port is already bind
      */
-    boolean addListener(HostAndPort hostAndPort);
+    boolean addListener(@NotNull HostAndPort hostAndPort);
 }

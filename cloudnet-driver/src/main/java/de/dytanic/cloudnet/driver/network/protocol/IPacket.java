@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ public interface IPacket {
      *
      * @return the own uniqueId
      */
+    @NotNull
     UUID getUniqueId();
 
     /**
@@ -47,6 +49,7 @@ public interface IPacket {
      *
      * @return the header as JsonDocument instance from this packet
      */
+    @NotNull
     JsonDocument getHeader();
 
     /**

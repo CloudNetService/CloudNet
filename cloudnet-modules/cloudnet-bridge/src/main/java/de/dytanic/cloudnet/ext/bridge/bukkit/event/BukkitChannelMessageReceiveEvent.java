@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent {
 
@@ -21,6 +22,7 @@ public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent 
         return BukkitChannelMessageReceiveEvent.handlerList;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlerList;

@@ -7,6 +7,8 @@ import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.PermissionProvider;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,58 +25,59 @@ public class NodePermissionProvider implements PermissionProvider {
     private IPermissionManagement getPermissionManagement() {
         return this.cloudNet.getPermissionManagement();
     }
-    
+
     @Override
-    public void addUser(IPermissionUser permissionUser) {
+    public void addUser(@NotNull IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         this.getPermissionManagement().addUser(permissionUser);
     }
 
     @Override
-    public void updateUser(IPermissionUser permissionUser) {
+    public void updateUser(@NotNull IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         this.getPermissionManagement().updateUser(permissionUser);
     }
 
     @Override
-    public void deleteUser(String name) {
+    public void deleteUser(@NotNull String name) {
         Validate.checkNotNull(name);
 
         this.getPermissionManagement().deleteUser(name);
     }
 
     @Override
-    public void deleteUser(IPermissionUser permissionUser) {
+    public void deleteUser(@NotNull IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         this.getPermissionManagement().deleteUser(permissionUser);
     }
 
     @Override
-    public boolean containsUser(UUID uniqueId) {
+    public boolean containsUser(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.getPermissionManagement().containsUser(uniqueId);
     }
 
     @Override
-    public boolean containsUser(String name) {
+    public boolean containsUser(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.getPermissionManagement().containsUser(name);
     }
 
+    @Nullable
     @Override
-    public IPermissionUser getUser(UUID uniqueId) {
+    public IPermissionUser getUser(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.getPermissionManagement().getUser(uniqueId);
     }
 
     @Override
-    public List<IPermissionUser> getUsers(String name) {
+    public List<IPermissionUser> getUsers(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.getPermissionManagement().getUsers(name);
@@ -86,56 +89,57 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public void setUsers(Collection<? extends IPermissionUser> users) {
+    public void setUsers(@NotNull Collection<? extends IPermissionUser> users) {
         Validate.checkNotNull(users);
 
         this.getPermissionManagement().setUsers(users);
     }
 
     @Override
-    public Collection<IPermissionUser> getUsersByGroup(String group) {
+    public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
         Validate.checkNotNull(group);
 
         return this.getPermissionManagement().getUsersByGroup(group);
     }
 
     @Override
-    public void addGroup(IPermissionGroup permissionGroup) {
+    public void addGroup(@NotNull IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
         this.getPermissionManagement().addGroup(permissionGroup);
     }
 
     @Override
-    public void updateGroup(IPermissionGroup permissionGroup) {
+    public void updateGroup(@NotNull IPermissionGroup permissionGroup) {
         Validate.checkNotNull(permissionGroup);
 
         this.getPermissionManagement().updateGroup(permissionGroup);
     }
 
     @Override
-    public void deleteGroup(String group) {
+    public void deleteGroup(@NotNull String group) {
         Validate.checkNotNull(group);
 
         this.getPermissionManagement().deleteGroup(group);
     }
 
     @Override
-    public void deleteGroup(IPermissionGroup group) {
+    public void deleteGroup(@NotNull IPermissionGroup group) {
         Validate.checkNotNull(group);
 
         this.getPermissionManagement().deleteGroup(group);
     }
 
     @Override
-    public boolean containsGroup(String group) {
+    public boolean containsGroup(@NotNull String group) {
         Validate.checkNotNull(group);
 
         return this.getPermissionManagement().containsGroup(group);
     }
 
+    @Nullable
     @Override
-    public IPermissionGroup getGroup(String name) {
+    public IPermissionGroup getGroup(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.getPermissionManagement().getGroup(name);
@@ -147,21 +151,21 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public void setGroups(Collection<? extends IPermissionGroup> groups) {
+    public void setGroups(@NotNull Collection<? extends IPermissionGroup> groups) {
         Validate.checkNotNull(groups);
 
         this.getPermissionManagement().setGroups(groups);
     }
 
     @Override
-    public ITask<Void> addUserAsync(IPermissionUser permissionUser) {
+    public ITask<Void> addUserAsync(@NotNull IPermissionUser permissionUser) {
         Validate.checkNotNull(permissionUser);
 
         return this.cloudNet.scheduleTask(() -> null);
     }
 
     @Override
-    public ITask<Void> updateUserAsync(IPermissionUser permissionUser) {
+    public ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser) {
         return this.cloudNet.scheduleTask(() -> {
             this.updateUser(permissionUser);
             return null;
@@ -169,7 +173,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Void> deleteUserAsync(String name) {
+    public ITask<Void> deleteUserAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteUser(name);
             return null;
@@ -177,7 +181,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Void> deleteUserAsync(IPermissionUser permissionUser) {
+    public ITask<Void> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteUser(permissionUser);
             return null;
@@ -185,28 +189,28 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Boolean> containsUserAsync(UUID uniqueId) {
+    public ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.containsUser(uniqueId));
     }
 
     @Override
-    public ITask<Boolean> containsUserAsync(String name) {
+    public ITask<Boolean> containsUserAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cloudNet.scheduleTask(() -> this.containsUser(name));
     }
 
     @Override
-    public ITask<IPermissionUser> getUserAsync(UUID uniqueId) {
+    public ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
         Validate.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getUser(uniqueId));
     }
 
     @Override
-    public ITask<List<IPermissionUser>> getUsersAsync(String name) {
+    public ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cloudNet.scheduleTask(() -> this.getUsers(name));
@@ -218,7 +222,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Void> setUsersAsync(Collection<? extends IPermissionUser> users) {
+    public ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users) {
         return this.cloudNet.scheduleTask(() -> {
             this.setUsers(users);
             return null;
@@ -226,14 +230,14 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Collection<IPermissionUser>> getUsersByGroupAsync(String group) {
+    public ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
         Validate.checkNotNull(group);
 
         return this.cloudNet.scheduleTask(() -> this.getUsersByGroup(group));
     }
 
     @Override
-    public ITask<Void> addGroupAsync(IPermissionGroup permissionGroup) {
+    public ITask<Void> addGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         return this.cloudNet.scheduleTask(() -> {
             this.addGroup(permissionGroup);
             return null;
@@ -241,7 +245,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Void> updateGroupAsync(IPermissionGroup permissionGroup) {
+    public ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         return this.cloudNet.scheduleTask(() -> {
             this.updateGroup(permissionGroup);
             return null;
@@ -249,7 +253,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Void> deleteGroupAsync(String name) {
+    public ITask<Void> deleteGroupAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteGroup(name);
             return null;
@@ -257,7 +261,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Void> deleteGroupAsync(IPermissionGroup permissionGroup) {
+    public ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteGroup(permissionGroup);
             return null;
@@ -265,14 +269,14 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Boolean> containsGroupAsync(String name) {
+    public ITask<Boolean> containsGroupAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cloudNet.scheduleTask(() -> this.containsGroup(name));
     }
 
     @Override
-    public ITask<IPermissionGroup> getGroupAsync(String name) {
+    public ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cloudNet.scheduleTask(() -> this.getGroup(name));
@@ -284,7 +288,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
-    public ITask<Void> setGroupsAsync(Collection<? extends IPermissionGroup> groups) {
+    public ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups) {
         return this.cloudNet.scheduleTask(() -> {
             this.setGroups(groups);
             return null;

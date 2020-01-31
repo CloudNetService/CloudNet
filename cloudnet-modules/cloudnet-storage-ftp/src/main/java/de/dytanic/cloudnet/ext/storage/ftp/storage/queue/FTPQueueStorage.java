@@ -6,6 +6,8 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.storage.ftp.storage.AbstractFTPStorage;
 import de.dytanic.cloudnet.template.ITemplateStorage;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +62,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(byte[] zipInput, ServiceTemplate target) {
+    public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(zipInput, target));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -68,7 +70,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(File directory, ServiceTemplate target, Predicate<File> fileFilter) {
+    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -76,7 +78,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(Path[] paths, ServiceTemplate target) {
+    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(paths, target));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -84,7 +86,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(File[] files, ServiceTemplate target) {
+    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(files, target));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -92,7 +94,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, File directory) {
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -100,7 +102,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, Path directory) {
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -108,7 +110,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, File[] directories) {
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directories));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -116,7 +118,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, Path[] directories) {
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directories));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -124,7 +126,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public byte[] toZipByteArray(ServiceTemplate template) {
+    public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         ITask<byte[]> ftpTask = new FTPTask<>(() -> this.executingStorage.toZipByteArray(template));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -132,7 +134,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean delete(ServiceTemplate template) {
+    public boolean delete(@NotNull ServiceTemplate template) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.delete(template));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -140,7 +142,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean create(ServiceTemplate template) {
+    public boolean create(@NotNull ServiceTemplate template) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.create(template));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -148,20 +150,22 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean has(ServiceTemplate template) {
+    public boolean has(@NotNull ServiceTemplate template) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.has(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
     }
 
+    @Nullable
     @Override
-    public OutputStream appendOutputStream(ServiceTemplate template, String path) throws IOException {
+    public OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         return this.createDataTransfer(() -> this.executingStorage.appendOutputStream(template, path));
     }
 
+    @Nullable
     @Override
-    public OutputStream newOutputStream(ServiceTemplate template, String path) throws IOException {
+    public OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         return this.createDataTransfer(() -> this.executingStorage.newOutputStream(template, path));
     }
 
@@ -197,7 +201,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean createFile(ServiceTemplate template, String path) throws IOException {
+    public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.createFile(template, path));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -205,7 +209,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean createDirectory(ServiceTemplate template, String path) throws IOException {
+    public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.createDirectory(template, path));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -213,7 +217,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean hasFile(ServiceTemplate template, String path) throws IOException {
+    public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.hasFile(template, path));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -221,7 +225,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deleteFile(ServiceTemplate template, String path) throws IOException {
+    public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deleteFile(template, path));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -229,7 +233,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public String[] listFiles(ServiceTemplate template, String dir) throws IOException {
+    public String[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
         FTPTask<String[]> ftpTask = new FTPTask<>(() -> this.executingStorage.listFiles(template, dir));
         this.ftpTaskQueue.add(ftpTask);
 

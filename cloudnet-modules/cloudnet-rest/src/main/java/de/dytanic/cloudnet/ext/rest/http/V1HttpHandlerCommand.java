@@ -19,7 +19,7 @@ public final class V1HttpHandlerCommand extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, IHttpContext context) {
         if (context.request().body().length == 0) {
             this.send400Response(context, "Empty http body");
             return;

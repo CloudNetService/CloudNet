@@ -4,10 +4,11 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +27,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
         return Collections.unmodifiableCollection(this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().keySet());
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot getCloudServiceByName(String name) {
         return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values().stream()
@@ -65,6 +67,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
         return Iterables.filter(this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values(), serviceInfoSnapshot -> Iterables.contains(group, serviceInfoSnapshot.getConfiguration().getGroups()));
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
         Validate.checkNotNull(uniqueId);

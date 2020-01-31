@@ -1,9 +1,10 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 public interface ICloudServiceFactory {
 
-    ICloudService createCloudService(ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration);
+    ICloudService createCloudService(@NotNull ICloudServiceManager cloudServiceManager, @NotNull ServiceConfiguration serviceConfiguration);
 
 }

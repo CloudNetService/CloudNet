@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
 
 public class NodeMessenger implements CloudMessenger {
     private CloudNet cloudNet;
@@ -18,7 +19,7 @@ public class NodeMessenger implements CloudMessenger {
     }
 
     @Override
-    public void sendChannelMessage(String channel, String message, JsonDocument data) {
+    public void sendChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         Validate.checkNotNull(channel);
         Validate.checkNotNull(message);
         Validate.checkNotNull(data);
@@ -27,10 +28,11 @@ public class NodeMessenger implements CloudMessenger {
     }
 
     @Override
-    public void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data) {
+    public void sendChannelMessage(@NotNull ServiceInfoSnapshot targetServiceInfoSnapshot, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         if (targetServiceInfoSnapshot.getServiceId().getNodeUniqueId().equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
             ICloudService cloudService = this.cloudNet.getCloudServiceManager().getCloudService(targetServiceInfoSnapshot.getServiceId().getUniqueId());
-            if (cloudService != null && cloudService.getNetworkChannel() != null) {
+            if (cloudService != null) {
+                cloudService.getNetworkChannel();
                 cloudService.getNetworkChannel().sendPacket(new PacketClientServerChannelMessage(channel, message, data));
             }
         } else {
@@ -47,7 +49,7 @@ public class NodeMessenger implements CloudMessenger {
     }
 
     @Override
-    public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
+    public void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.cloudNet.getCloudServiceProvider().getCloudServices(targetServiceTask.getName())) {
             this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
         }

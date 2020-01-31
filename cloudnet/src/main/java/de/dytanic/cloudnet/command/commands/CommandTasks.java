@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommand;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
-import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -18,7 +17,6 @@ import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
@@ -27,8 +25,6 @@ import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
@@ -219,51 +215,37 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 })
 
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setMinServiceCount((Integer) args.argument(4));
-                        },
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setMinServiceCount((Integer) args.argument(4)),
                         exactStringIgnoreCase("minServiceCount"),
                         integer("amount", amount -> amount >= 0)
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setMaintenance((Boolean) args.argument(4));
-                        },
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setMaintenance((Boolean) args.argument(4)),
                         exactStringIgnoreCase("maintenance"),
                         boolean_("enabled")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setMaxHeapMemorySize((Integer) args.argument(4));
-                        },
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setMaxHeapMemorySize((Integer) args.argument(4)),
                         exactStringIgnoreCase("maxHeapMemory"),
                         integer("memory", memory -> memory > 0)
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setStartPort((Integer) args.argument(4));
-                        },
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setStartPort((Integer) args.argument(4)),
                         exactStringIgnoreCase("startPort"),
                         integer("startPort", 0, 65535)
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setAutoDeleteOnStop((Boolean) args.argument(4));
-                        },
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setAutoDeleteOnStop((Boolean) args.argument(4)),
                         exactStringIgnoreCase("autoDeleteOnStop"),
                         boolean_("autoDeleteOnStop")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).setStaticServices((Boolean) args.argument(4));
-                        },
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setStaticServices((Boolean) args.argument(4)),
                         exactStringIgnoreCase("staticServices"),
                         boolean_("staticServices")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setEnvironment((ServiceEnvironmentType) args.argument(4));
-                        },
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setEnvironment((ServiceEnvironmentType) args.argument(4)),
                         exactStringIgnoreCase("environment"),
                         exactEnum(ServiceEnvironmentType.class)
                 )
@@ -273,9 +255,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
     private static void handleTaskAddCommands(SubCommandBuilder builder) {
         builder
-                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                    CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) internalProperties.get("task"));
-                })
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) internalProperties.get("task")))
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
@@ -325,7 +305,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ((ServiceTask) internalProperties.get("task")).getAssociatedNodes().remove((String) args.argument(4));
+                            ((ServiceTask) internalProperties.get("task")).getAssociatedNodes().remove(args.argument(4));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-node-success"));
                         },
                         exactStringIgnoreCase("node"),

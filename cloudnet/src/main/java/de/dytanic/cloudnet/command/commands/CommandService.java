@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.command.sub.SubCommand;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.WildcardUtil;

@@ -3,8 +3,10 @@ package de.dytanic.cloudnet.provider;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -21,36 +23,37 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
         return this.cloudNet.getCloudServiceManager().getGroupConfigurations();
     }
 
+    @Nullable
     @Override
-    public GroupConfiguration getGroupConfiguration(String name) {
+    public GroupConfiguration getGroupConfiguration(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().getGroupConfiguration(name);
     }
 
     @Override
-    public boolean isGroupConfigurationPresent(String name) {
+    public boolean isGroupConfigurationPresent(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().isGroupConfigurationPresent(name);
     }
 
     @Override
-    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
+    public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
 
         this.cloudNet.getCloudServiceManager().addGroupConfiguration(groupConfiguration);
     }
 
     @Override
-    public void removeGroupConfiguration(String name) {
+    public void removeGroupConfiguration(@NotNull String name) {
         Validate.checkNotNull(name);
 
         this.cloudNet.getCloudServiceManager().removeGroupConfiguration(name);
     }
 
     @Override
-    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
+    public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
         Validate.checkNotNull(groupConfiguration);
 
         this.cloudNet.getCloudServiceManager().removeGroupConfiguration(groupConfiguration);
@@ -62,17 +65,17 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
-    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
+    public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.getGroupConfiguration(name));
     }
 
     @Override
-    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
+    public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.isGroupConfigurationPresent(name));
     }
 
     @Override
-    public ITask<Void> addGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
+    public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         return this.cloudNet.scheduleTask(() -> {
             this.addGroupConfiguration(groupConfiguration);
             return null;
@@ -80,7 +83,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(String name) {
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.removeGroupConfiguration(name);
             return null;
@@ -88,7 +91,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         return this.cloudNet.scheduleTask(() -> {
             this.removeGroupConfiguration(groupConfiguration);
             return null;

@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -37,7 +38,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ServiceTask getServiceTask(String name) {
+    public ServiceTask getServiceTask(@NotNull String name) {
         Validate.checkNotNull(name);
 
         try {
@@ -49,7 +50,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public boolean isServiceTaskPresent(String name) {
+    public boolean isServiceTaskPresent(@NotNull String name) {
         Validate.checkNotNull(name);
 
         try {
@@ -61,7 +62,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public void addPermanentServiceTask(ServiceTask serviceTask) {
+    public void addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
         try {
             this.addPermanentServiceTaskAsync(serviceTask).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -70,7 +71,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public void removePermanentServiceTask(String name) {
+    public void removePermanentServiceTask(@NotNull String name) {
         try {
             this.removePermanentServiceTaskAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -79,7 +80,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public void removePermanentServiceTask(ServiceTask serviceTask) {
+    public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
         this.removePermanentServiceTask(serviceTask.getName());
     }
@@ -93,7 +94,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<ServiceTask> getServiceTaskAsync(String name) {
+    public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
@@ -103,7 +104,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<Boolean> isServiceTaskPresentAsync(String name) {
+    public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
@@ -113,7 +114,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<Void> addPermanentServiceTaskAsync(ServiceTask serviceTask) {
+    public ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
@@ -121,7 +122,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<Void> removePermanentServiceTaskAsync(String name) {
+    public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
         Validate.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
@@ -129,7 +130,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<Void> removePermanentServiceTaskAsync(ServiceTask serviceTask) {
+    public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         Validate.checkNotNull(serviceTask);
 
         return this.removePermanentServiceTaskAsync(serviceTask.getName());

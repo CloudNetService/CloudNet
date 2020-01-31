@@ -16,6 +16,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -127,11 +128,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     public IHttpServer removeHandler(IHttpHandler handler) {
         Validate.checkNotNull(handler);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
-            if (registeredHandler.httpHandler.equals(handler)) {
-                this.registeredHandlers.remove(registeredHandler);
-            }
-        }
+        this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.equals(handler));
 
         return this;
     }
@@ -140,11 +137,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     public IHttpServer removeHandler(Class<? extends IHttpHandler> handler) {
         Validate.checkNotNull(handler);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
-            if (registeredHandler.httpHandler.getClass().equals(handler)) {
-                this.registeredHandlers.remove(registeredHandler);
-            }
-        }
+        this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().equals(handler));
 
         return this;
     }
@@ -153,11 +146,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
     public IHttpServer removeHandler(ClassLoader classLoader) {
         Validate.checkNotNull(classLoader);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
-            if (registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader)) {
-                this.registeredHandlers.remove(registeredHandler);
-            }
-        }
+        this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader));
 
         return this;
     }
@@ -205,7 +194,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         }
 
         @Override
-        public int compareTo(HttpHandlerEntry httpHandlerEntry) {
+        public int compareTo(@NotNull HttpHandlerEntry httpHandlerEntry) {
             Validate.checkNotNull(httpHandlerEntry);
 
             return this.priority + httpHandlerEntry.priority;
