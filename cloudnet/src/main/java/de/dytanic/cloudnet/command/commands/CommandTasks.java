@@ -135,8 +135,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                         new ArrayList<>(Collections.singletonList(name)),
                                         new ProcessConfiguration(
                                                 type,
-                                                type == ServiceEnvironmentType.BUNGEECORD || type == ServiceEnvironmentType.VELOCITY ||
-                                                        type == ServiceEnvironmentType.PROX_PROX ? 128 : 372,
+                                                type.getDefaultStartPort(),
                                                 Iterables.newArrayList()
                                         ),
                                         type.getDefaultStartPort(),

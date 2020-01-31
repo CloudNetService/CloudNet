@@ -761,23 +761,6 @@ final class JVMCloudService implements ICloudService {
                 });
             }
             break;
-            case PROX_PROX: {
-                File file = new File(this.directory, "config.yml");
-                this.copyDefaultFile("files/proxprox/config.yml", file);
-
-                this.rewriteServiceConfigurationFile(file, line -> {
-                    if (line.startsWith("ip: ")) {
-                        line = "ip: " + CloudNet.getInstance().getConfig().getHostAddress();
-                    }
-
-                    if (line.startsWith("port: ")) {
-                        line = "port: " + serviceConfiguration.getPort();
-                    }
-
-                    return line;
-                });
-            }
-            break;
             case MINECRAFT_SERVER: {
                 File file = new File(this.directory, "server.properties");
                 this.copyDefaultFile("files/nms/server.properties", file);
@@ -831,23 +814,6 @@ final class JVMCloudService implements ICloudService {
                      OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
                     properties.store(writer, "Edit by CloudNet");
                 }
-            }
-            break;
-            case GO_MINT: {
-                File file = new File(this.directory, "server.yml");
-                this.copyDefaultFile("files/gomint/server.yml", file);
-
-                this.rewriteServiceConfigurationFile(file, line -> {
-                    if (line.startsWith("  ip: ")) {
-                        line = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
-                    }
-
-                    if (line.startsWith("  port: ")) {
-                        line = "  port: " + serviceConfiguration.getPort();
-                    }
-
-                    return line;
-                });
             }
             break;
             case GLOWSTONE: {

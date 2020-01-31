@@ -57,15 +57,6 @@ public final class TemplateStorageUtil {
             byte[] buffer = new byte[3072];
 
             switch (environment) {
-                case PROX_PROX: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "config.yml");
-                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/proxprox/config.yml")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, outputStream, buffer);
-                        }
-                    }
-                }
-                break;
                 case BUNGEECORD: {
                     prepareProxyTemplate(storage, serviceTemplate, buffer, "config.yml", "files/bungee/config.yml");
                 }
@@ -88,15 +79,6 @@ public final class TemplateStorageUtil {
 
                     try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "nukkit.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nukkit/nukkit.yml")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, outputStream, buffer);
-                        }
-                    }
-                }
-                break;
-                case GO_MINT: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.yml");
-                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }

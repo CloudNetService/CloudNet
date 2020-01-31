@@ -5,8 +5,6 @@ jar {
 dependencies {
     compileOnly project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
-    compileOnly files('../libs/proxprox-1.0-SNAPSHOT.jar')
-    compileOnly files('../libs/gomint-1.0-SNAPSHOT.jar')
     compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
     compileOnly group: 'org.spongepowered', name: 'spongeapi', version: dependencySpongeVersion
     compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencyBukkitVersion
