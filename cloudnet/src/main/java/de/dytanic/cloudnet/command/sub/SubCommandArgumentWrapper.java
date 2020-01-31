@@ -61,7 +61,7 @@ public class SubCommandArgumentWrapper {
                 .map(SubCommandArgument::getAnswer);
     }
 
-    public Optional<Object> argument(Class<? extends QuestionAnswerType<?>> answerTypeClass) {
+    public Optional<Object> argument(Class<? extends QuestionAnswerType> answerTypeClass) {
         return Arrays.stream(this.arguments)
                 .filter(argument -> answerTypeClass.isAssignableFrom(argument.getAnswerType().getClass()))
                 .findFirst()

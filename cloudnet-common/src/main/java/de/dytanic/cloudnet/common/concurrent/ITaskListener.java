@@ -12,9 +12,9 @@ public interface ITaskListener<T> {
      * An default implementation that prints an error into the System.err stream, if the
      * operation wasn't successful
      */
-    ITaskListener<?> FIRE_EXCEPTION_ON_FAILURE = new ITaskListener<Object>() {
+    ITaskListener FIRE_EXCEPTION_ON_FAILURE = new ITaskListener() {
         @Override
-        public void onFailure(ITask<Object> task, Throwable th) {
+        public void onFailure(ITask task, Throwable th) {
             th.printStackTrace();
         }
     };
