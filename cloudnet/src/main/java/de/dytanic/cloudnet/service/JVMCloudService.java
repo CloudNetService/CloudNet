@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.service;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.Value;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -26,6 +25,8 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -44,19 +45,19 @@ final class JVMCloudService implements ICloudService {
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
 
-    private final List<ServiceRemoteInclusion> includes = Iterables.newArrayList();
+    private final List<ServiceRemoteInclusion> includes = new ArrayList<>();
 
-    private final List<ServiceTemplate> templates = Iterables.newArrayList();
+    private final List<ServiceTemplate> templates = new ArrayList<>();
 
-    private final List<ServiceDeployment> deployments = Iterables.newCopyOnWriteArrayList();
+    private final List<ServiceDeployment> deployments = new CopyOnWriteArrayList<>();
 
-    private final Queue<ServiceRemoteInclusion> waitingIncludes = Iterables.newConcurrentLinkedQueue();
+    private final Queue<ServiceRemoteInclusion> waitingIncludes = new ConcurrentLinkedQueue<>();
 
-    private final Queue<ServiceTemplate> waitingTemplates = Iterables.newConcurrentLinkedQueue();
+    private final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
 
     private final DefaultServiceConsoleLogCache serviceConsoleLogCache = new DefaultServiceConsoleLogCache(this);
 
-    private final List<String> groups = Iterables.newArrayList();
+    private final List<String> groups = new ArrayList<>();
 
     private final Lock lifeCycleLock = new ReentrantLock();
 
@@ -616,7 +617,7 @@ final class JVMCloudService implements ICloudService {
     private void startWrapper() throws Exception {
         this.configuredMaxHeapMemory = this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize();
 
-        List<String> commandArguments = Iterables.newArrayList();
+        List<String> commandArguments = new ArrayList<>();
 
         commandArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
 
@@ -853,7 +854,7 @@ final class JVMCloudService implements ICloudService {
 
     private void rewriteServiceConfigurationFile(File file, UnaryOperator<String> unaryOperator) throws Exception {
         List<String> lines = Files.readAllLines(file.toPath());
-        List<String> replacedLines = Iterables.newArrayList(lines.size());
+        List<String> replacedLines = new ArrayList<>(lines.size());
 
         for (String line : lines) {
             replacedLines.add(unaryOperator.apply(line));
@@ -1068,7 +1069,6 @@ final class JVMCloudService implements ICloudService {
         return this.configuredMaxHeapMemory;
     }
 
-    @NotNull
     public INetworkChannel getNetworkChannel() {
         return this.networkChannel;
     }

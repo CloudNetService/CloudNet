@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.DriverCommandSender;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -14,6 +13,7 @@ import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -44,12 +44,15 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
             return this.cloudNet.getConfig().getIdentity();
         }
-        return Iterables.first(this.cloudNet.getConfig().getClusterConfig().getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId));
+        return this.cloudNet.getConfig().getClusterConfig().getNodes().stream()
+                .filter(networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
-        Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots = Iterables.newArrayList();
+        Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots = new ArrayList<>();
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
             if (clusterNodeServer.isConnected()) {
@@ -82,7 +85,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     public String[] sendCommandLine(@NotNull String commandLine) {
         Validate.checkNotNull(commandLine);
 
-        Collection<String> collection = Iterables.newArrayList();
+        Collection<String> collection = new ArrayList<>();
 
         if (this.cloudNet.isMainThread()) {
             this.sendCommandLine0(collection, commandLine);

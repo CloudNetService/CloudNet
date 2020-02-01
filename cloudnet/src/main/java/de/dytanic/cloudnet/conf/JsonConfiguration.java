@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.conf;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -68,12 +67,13 @@ public final class JsonConfiguration implements IConfiguration {
     public void load() {
         this.document = JsonDocument.newDocument(CONFIG_FILE_PATH);
 
-        Collection<String> addresses = Iterables.newHashSet();
+        Collection<String> addresses = new HashSet<>();
         addresses.add("127.0.0.1");
         addresses.add("127.0.1.1");
 
         try {
-            Iterables.forEach(NetworkInterface.getNetworkInterfaces(), networkInterface -> Iterables.forEach(networkInterface.getInetAddresses(), inetAddress -> addresses.add(inetAddress.getHostAddress())));
+            Collections.list(NetworkInterface.getNetworkInterfaces()).forEach(networkInterface ->
+                    Collections.list(networkInterface.getInetAddresses()).forEach(inetAddress -> addresses.add(inetAddress.getHostAddress())));
         } catch (SocketException exception) {
             exception.printStackTrace();
         }

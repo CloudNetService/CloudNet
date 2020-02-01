@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
@@ -21,12 +19,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public final class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
-    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = Maps.newConcurrentHashMap();
+    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-    protected final List<HttpHandlerEntry> registeredHandlers = Iterables.newCopyOnWriteArrayList();
+    protected final List<HttpHandlerEntry> registeredHandlers = new CopyOnWriteArrayList<>();
 
     protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup(), workerGroup = NettyUtils.newEventLoopGroup();
 
@@ -153,7 +154,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public Collection<IHttpHandler> getHttpHandlers() {
-        return Iterables.map(this.registeredHandlers, httpHandlerEntry -> httpHandlerEntry.httpHandler);
+        return this.registeredHandlers.stream().map(httpHandlerEntry -> httpHandlerEntry.httpHandler).collect(Collectors.toList());
     }
 
     @Override

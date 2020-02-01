@@ -1,12 +1,12 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public interface IPermissionUser extends IPermissible {
 
@@ -32,27 +32,30 @@ public interface IPermissionUser extends IPermissible {
     }
 
     default IPermissionUser addGroup(@NotNull String group, long timeOutMillis) {
-        PermissionUserGroupInfo groupInfo = Iterables.first(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group));
+        PermissionUserGroupInfo groupInfo = this.getGroups().stream()
+                .filter(permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group))
+                .findFirst().orElse(null);
 
         if (groupInfo != null) {
-            removeGroup(groupInfo.getGroup());
+            this.removeGroup(groupInfo.getGroup());
         }
 
         groupInfo = new PermissionUserGroupInfo(group, timeOutMillis);
 
-        getGroups().add(groupInfo);
+        this.getGroups().add(groupInfo);
         return this;
     }
 
     default IPermissionUser removeGroup(@NotNull String group) {
-        Collection<PermissionUserGroupInfo> groupInfo = Iterables.filter(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group));
+        Collection<PermissionUserGroupInfo> groupInfo = this.getGroups().stream()
+                .filter(permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group)).collect(Collectors.toList());
 
-        getGroups().removeAll(groupInfo);
+        this.getGroups().removeAll(groupInfo);
 
         return this;
     }
 
     default boolean inGroup(@NotNull String group) {
-        return Iterables.first(getGroups(), permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group)) != null;
+        return this.getGroups().stream().anyMatch(permissionUserGroupInfo -> permissionUserGroupInfo.getGroup().equalsIgnoreCase(group));
     }
 }

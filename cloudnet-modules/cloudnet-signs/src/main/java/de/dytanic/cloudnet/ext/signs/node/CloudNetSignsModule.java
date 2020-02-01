@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.signs.node;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -19,6 +18,7 @@ import de.dytanic.cloudnet.ext.signs.node.listener.SignsTaskSetupListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public final class CloudNetSignsModule extends NodeCloudNetModule {
@@ -74,13 +74,10 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
 
         Collection<Sign> signs = this.loadSigns();
 
-        Sign first = Iterables.first(signs, s -> sign.getSignId() == s.getSignId());
+        signs.stream()
+                .filter(s -> sign.getSignId() == s.getSignId())
+                .findFirst().ifPresent(signs::remove);
 
-        if (first != null) {
-            signs.remove(first);
-        }
-
-        signs.remove(first);
         this.write(signs);
     }
 
@@ -88,7 +85,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
         IDatabase database = getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(SIGN_STORE_DOCUMENT);
 
-        return document != null ? document.get("signs", SignConstants.COLLECTION_SIGNS, Iterables.newArrayList()) : Iterables.newArrayList();
+        return document != null ? document.get("signs", SignConstants.COLLECTION_SIGNS, new ArrayList<>()) : new ArrayList<>();
     }
 
     public void write(Collection<Sign> signs) {

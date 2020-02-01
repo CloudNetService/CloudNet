@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.permission;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -12,6 +10,8 @@ import de.dytanic.cloudnet.driver.permission.*;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class DefaultDatabasePermissionManagement implements ClusterSynchronizedPermissionManagement {
 
@@ -19,7 +19,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     private final File file = new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
-    private final Map<String, IPermissionGroup> permissionGroupsMap = Maps.newConcurrentHashMap();
+    private final Map<String, IPermissionGroup> permissionGroupsMap = new ConcurrentHashMap<>();
     private final Callable<AbstractDatabaseProvider> databaseProviderCallable;
     private IPermissionManagementHandler permissionManagementHandler;
 
@@ -98,7 +98,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public List<IPermissionUser> getUsers(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.map(this.getDatabase().get("name", name), strings -> {
+        return this.getDatabase().get("name", name).stream().map(strings -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
 
             if (this.testPermissionUser(permissionUser)) {
@@ -106,12 +106,12 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
             }
 
             return permissionUser;
-        });
+        }).collect(Collectors.toList());
     }
 
     @Override
     public Collection<IPermissionUser> getUsers() {
-        Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
+        Collection<IPermissionUser> permissionUsers = new ArrayList<>();
 
         this.getDatabase().iterate((s, strings) -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
@@ -140,7 +140,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     public Collection<IPermissionUser> getUsersByGroup(String group) {
         Validate.checkNotNull(group);
 
-        Collection<IPermissionUser> permissionUsers = Iterables.newArrayList();
+        Collection<IPermissionUser> permissionUsers = new ArrayList<>();
 
         this.getDatabase().iterate((s, strings) -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
@@ -253,7 +253,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     private void saveGroups() {
-        List<IPermissionGroup> permissionGroups = Iterables.newArrayList(this.permissionGroupsMap.values());
+        List<IPermissionGroup> permissionGroups = new ArrayList<>(this.permissionGroupsMap.values());
         Collections.sort(permissionGroups);
 
         new JsonDocument("groups", permissionGroups).write(this.file);

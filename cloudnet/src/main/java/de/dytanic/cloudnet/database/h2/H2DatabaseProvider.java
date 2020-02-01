@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.database.h2;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
@@ -14,6 +13,7 @@ import org.h2.Driver;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -115,7 +115,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
         return this.executeQuery(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
                 resultSet -> {
-                    Collection<String> collection = Iterables.newArrayList();
+                    Collection<String> collection = new ArrayList<>();
                     while (resultSet.next()) {
                         collection.add(resultSet.getString("table_name"));
                     }

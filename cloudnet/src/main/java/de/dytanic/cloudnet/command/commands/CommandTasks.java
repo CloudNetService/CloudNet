@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommand;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandTasks extends CommandServiceConfigurationBase {
+
     public CommandTasks() {
         super(
                 SubCommandBuilder.create()
@@ -122,11 +122,11 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                 ServiceEnvironmentType type = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
 
                                 CloudNet.getInstance().getCloudServiceManager().addPermanentServiceTask(new ServiceTask(
-                                        Iterables.newArrayList(),
-                                        Iterables.newArrayList(Collections.singletonList(
+                                        new ArrayList<>(),
+                                        new ArrayList<>(Collections.singletonList(
                                                 new ServiceTemplate(name, "default", LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE)
                                         )),
-                                        Iterables.newArrayList(),
+                                        new ArrayList<>(),
                                         name,
                                         "jvm",
                                         true,
@@ -136,7 +136,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                         new ProcessConfiguration(
                                                 type,
                                                 type.getDefaultStartPort(),
-                                                Iterables.newArrayList()
+                                                new ArrayList<>()
                                         ),
                                         type.getDefaultStartPort(),
                                         0
@@ -337,7 +337,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
     }
 
     private static void displayTask(ICommandSender sender, ServiceTask serviceTask) {
-        Collection<String> messages = Iterables.newArrayList();
+        Collection<String> messages = new ArrayList<>();
 
         messages.addAll(Arrays.asList(
                 " ",

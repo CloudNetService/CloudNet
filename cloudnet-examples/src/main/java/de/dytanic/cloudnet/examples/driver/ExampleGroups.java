@@ -1,10 +1,8 @@
 package de.dytanic.cloudnet.examples.driver;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 public final class ExampleGroups {
@@ -37,10 +35,4 @@ public final class ExampleGroups {
         CloudNetDriver.getInstance().getGroupConfigurationProvider().removeGroupConfiguration("TestGroup"); //remove the group configuration in network
     }
 
-    public void checkGroupConfiguration(ServiceConfiguration serviceConfiguration) {
-        if (Iterables.contains("TestGroup", serviceConfiguration.getGroups())) //shortcut for contains element in array as example on group items
-        {
-            System.out.println("Has group contained");
-        }
-    }
 }

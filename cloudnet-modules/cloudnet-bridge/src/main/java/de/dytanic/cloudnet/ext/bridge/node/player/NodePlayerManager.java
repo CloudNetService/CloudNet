@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.ext.bridge.node.player;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -14,16 +12,19 @@ import de.dytanic.cloudnet.ext.bridge.player.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class NodePlayerManager implements IPlayerManager {
 
     private static NodePlayerManager instance;
 
-    private final Map<UUID, CloudPlayer> onlineCloudPlayers = Maps.newConcurrentHashMap();
+    private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
 
     private final String databaseName;
 
@@ -63,20 +64,20 @@ public final class NodePlayerManager implements IPlayerManager {
     public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.filter(this.onlineCloudPlayers.values(), cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name));
+        return this.onlineCloudPlayers.values().stream().filter(cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
     }
 
     @Override
     public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
         Validate.checkNotNull(environment);
 
-        return Iterables.filter(this.onlineCloudPlayers.values(), cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
-                (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment() == environment));
+        return this.onlineCloudPlayers.values().stream().filter(cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
+                (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment() == environment)).collect(Collectors.toList());
     }
 
     @Override
     public List<? extends ICloudPlayer> getOnlinePlayers() {
-        return Iterables.newArrayList(this.onlineCloudPlayers.values());
+        return new ArrayList<>(this.onlineCloudPlayers.values());
     }
 
     @Override
@@ -92,13 +93,13 @@ public final class NodePlayerManager implements IPlayerManager {
     public List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.map(this.getDatabase().get(new JsonDocument("name", name)), jsonDocument -> jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE));
+        return this.getDatabase().get(new JsonDocument("name", name)).stream().map(jsonDocument -> (CloudOfflinePlayer) jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)).collect(Collectors.toList());
     }
 
     @Override
     @Deprecated
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-        List<? extends ICloudOfflinePlayer> cloudOfflinePlayers = Iterables.newArrayList();
+        List<? extends ICloudOfflinePlayer> cloudOfflinePlayers = new ArrayList<>();
 
         this.getDatabase().iterate((s, jsonDocument) -> cloudOfflinePlayers.add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)));
 

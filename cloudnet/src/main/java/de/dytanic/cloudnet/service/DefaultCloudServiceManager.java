@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -19,7 +17,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
@@ -28,9 +28,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     private final File
             tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
             persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
-    private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = Maps.newConcurrentHashMap();
-    private final Map<UUID, ICloudService> cloudServices = Maps.newConcurrentHashMap();
-    private final Map<String, ICloudServiceFactory> cloudServiceFactories = Maps.newConcurrentHashMap();
+    private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = new ConcurrentHashMap<>();
+    private final Map<UUID, ICloudService> cloudServices = new ConcurrentHashMap<>();
+    private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
 
     @Override
     public void init() {
@@ -137,7 +137,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public ServiceTask getServiceTask(@NotNull String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.getServiceTasks(), serviceTask -> serviceTask.getName().equalsIgnoreCase(name));
+        return this.getServiceTasks().stream().filter(serviceTask -> serviceTask.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -172,7 +172,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public GroupConfiguration getGroupConfiguration(@NotNull String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(name));
+        return this.getGroupConfigurations().stream().filter(groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -235,7 +235,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public boolean isGroupConfigurationPresent(@NotNull String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.first(this.getGroupConfigurations(), groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(group)) != null;
+        return this.getGroupConfigurations().stream().anyMatch(groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(group));
     }
 
     @Override
@@ -247,10 +247,10 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 serviceTask.getRuntime(),
                 serviceTask.isAutoDeleteOnStop(),
                 serviceTask.isStaticServices(),
-                Iterables.newArrayList(serviceTask.getIncludes()),
-                Iterables.newArrayList(serviceTask.getTemplates()),
-                Iterables.newArrayList(serviceTask.getDeployments()),
-                Iterables.newArrayList(serviceTask.getGroups()),
+                new ArrayList<>(serviceTask.getIncludes()),
+                new ArrayList<>(serviceTask.getTemplates()),
+                new ArrayList<>(serviceTask.getDeployments()),
+                new ArrayList<>(serviceTask.getGroups()),
                 serviceTask.getDeletedFilesAfterStop(),
                 new ProcessConfiguration(
                         serviceTask.getProcessConfiguration().getEnvironment(),
@@ -418,21 +418,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public ICloudService getCloudService(@NotNull Predicate<ICloudService> predicate) {
         Validate.checkNotNull(predicate);
 
-        return Iterables.first(this.cloudServices.values(), predicate);
+        return this.cloudServices.values().stream().filter(predicate).findFirst().orElse(null);
     }
 
     @Override
     public Collection<ICloudService> getLocalCloudServices(@NotNull String taskName) {
         Validate.checkNotNull(taskName);
 
-        return Iterables.filter(this.cloudServices.values(), iCloudService -> iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName));
+        return this.cloudServices.values().stream().filter(iCloudService -> iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName)).collect(Collectors.toList());
     }
 
     @Override
     public Collection<ICloudService> getLocalCloudServices(@NotNull Predicate<ICloudService> predicate) {
         Validate.checkNotNull(predicate);
 
-        return Iterables.filter(this.cloudServices.values(), predicate);
+        return this.cloudServices.values().stream().filter(predicate).collect(Collectors.toList());
     }
 
     @Override
@@ -453,7 +453,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull Predicate<ServiceInfoSnapshot> predicate) {
         Validate.checkNotNull(predicate);
 
-        return Iterables.first(this.globalServiceInfoSnapshots.values(), predicate);
+        return this.globalServiceInfoSnapshots.values().stream().filter(predicate).findFirst().orElse(null);
     }
 
     @Override
@@ -474,7 +474,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull Predicate<ServiceInfoSnapshot> predicate) {
         Validate.checkNotNull(predicate);
 
-        return Iterables.filter(this.globalServiceInfoSnapshots.values(), predicate);
+        return this.globalServiceInfoSnapshots.values().stream().filter(predicate).collect(Collectors.toList());
     }
 
     @Override
@@ -486,7 +486,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public Collection<Integer> getReservedTaskIds(@NotNull String task) {
         Validate.checkNotNull(task);
 
-        Collection<Integer> taskIdList = Iterables.newArrayList();
+        Collection<Integer> taskIdList = new ArrayList<>();
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.globalServiceInfoSnapshots.values()) {
             if (serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task)) {
@@ -528,7 +528,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
 
     private int checkAndReplacePort(int port) {
-        Collection<Integer> ports = Iterables.map(this.cloudServices.values(), iCloudService -> iCloudService.getServiceConfiguration().getPort());
+        Collection<Integer> ports = this.cloudServices.values().stream().map(iCloudService -> iCloudService.getServiceConfiguration().getPort()).collect(Collectors.toList());
 
         while (ports.contains(port)) {
             port++;

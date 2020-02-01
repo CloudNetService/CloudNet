@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.ext.signs;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -21,9 +19,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class AbstractSignManagement {
 
@@ -36,7 +36,7 @@ public abstract class AbstractSignManagement {
             new AtomicInteger(-1), //starting
             new AtomicInteger(-1) //search
     };
-    private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = Maps.newConcurrentHashMap();
+    private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = new ConcurrentHashMap<>();
     protected Set<Sign> signs;
 
     public AbstractSignManagement() {
@@ -134,11 +134,9 @@ public abstract class AbstractSignManagement {
     }
 
     public void onSignRemove(@NotNull Sign sign) {
-        Sign signEntry = Iterables.first(this.signs, filterSign -> filterSign.getSignId() == sign.getSignId());
-
-        if (signEntry != null) {
-            this.signs.remove(signEntry);
-        }
+        this.signs.stream()
+                .filter(filterSign -> filterSign.getSignId() == sign.getSignId())
+                .findFirst().ifPresent(signEntry -> this.signs.remove(signEntry));
 
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
@@ -149,18 +147,17 @@ public abstract class AbstractSignManagement {
             return;
         }
 
-        List<Sign> signs = Iterables.newArrayList(Iterables.filter(this.signs, sign -> Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())));
+        List<Sign> signs = this.signs.stream()
+                .filter(sign -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup()))
+                .collect(Collectors.toList());
 
-        Collections.sort(signs);
         if (signs.isEmpty()) {
             return;
         }
 
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = Iterables.newArrayList();
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = Iterables.newArrayList(Iterables.filter(this.services.entrySet(),
-                item -> item.getValue().getSecond() != ServiceInfoState.STOPPED));
-
-        entries.sort(ENTRY_COMPARATOR);
+        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = new ArrayList<>();
+        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = this.services.entrySet().stream()
+                .filter(item -> item.getValue().getSecond() != ServiceInfoState.STOPPED).sorted(ENTRY_COMPARATOR).collect(Collectors.toList());
 
         for (Sign sign : signs) {
             this.updateSign(sign, signConfiguration, cachedFilter, entries);
@@ -171,8 +168,9 @@ public abstract class AbstractSignManagement {
                             SignConfigurationEntry signConfiguration,
                             List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter,
                             List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries) {
-        Iterables.filter(entries, entry -> {
-            boolean access = Iterables.contains(sign.getTargetGroup(), entry.getValue().getFirst().getConfiguration().getGroups());
+
+        cachedFilter.addAll(entries.stream().filter(entry -> {
+            boolean access = Arrays.asList(entry.getValue().getFirst().getConfiguration().getGroups()).contains(sign.getTargetGroup());
 
             if (sign.getTemplatePath() != null) {
                 boolean condition = false;
@@ -188,7 +186,7 @@ public abstract class AbstractSignManagement {
             }
 
             return access;
-        }, cachedFilter);
+        }).collect(Collectors.toList()));
 
         cachedFilter.sort(ENTRY_COMPARATOR_2);
 
@@ -319,16 +317,21 @@ public abstract class AbstractSignManagement {
     }
 
     private SignConfigurationTaskEntry getValidSignConfigurationTaskEntryFromSignConfigurationEntry(SignConfigurationEntry entry, String targetTask) {
-        return Iterables.first(entry.getTaskLayouts(), signConfigurationTaskEntry -> signConfigurationTaskEntry.getTask() != null &&
-                signConfigurationTaskEntry.getEmptyLayout() != null &&
-                signConfigurationTaskEntry.getFullLayout() != null &&
-                signConfigurationTaskEntry.getOnlineLayout() != null &&
-                signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask));
+        return entry.getTaskLayouts().stream()
+                .filter(signConfigurationTaskEntry -> signConfigurationTaskEntry.getTask() != null &&
+                        signConfigurationTaskEntry.getEmptyLayout() != null &&
+                        signConfigurationTaskEntry.getFullLayout() != null &&
+                        signConfigurationTaskEntry.getOnlineLayout() != null &&
+                        signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask))
+                .findFirst()
+                .orElse(null);
     }
 
     public SignConfigurationEntry getOwnSignConfigurationEntry() {
-        return Iterables.first(SignConfigurationProvider.load().getConfigurations(),
-                signConfigurationEntry -> Iterables.contains(signConfigurationEntry.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()));
+        return SignConfigurationProvider.load().getConfigurations().stream()
+                .filter(signConfigurationEntry -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(signConfigurationEntry.getTargetGroup()))
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean isEmptyService(ServiceInfoSnapshot serviceInfoSnapshot) {

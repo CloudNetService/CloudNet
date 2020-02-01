@@ -1,12 +1,12 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -23,7 +23,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     public static final Type TYPE = new TypeToken<PermissionGroup>() {
     }.getType();
 
-    protected Collection<String> groups = Iterables.newArrayList();
+    protected Collection<String> groups = new ArrayList<>();
 
     private String prefix = "&7";
     private String color = "&7";

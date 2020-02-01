@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
@@ -11,6 +10,8 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public final class V1HttpHandlerTasks extends V1HttpHandler {
 
@@ -33,7 +34,9 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(new JsonDocument("task", Iterables.first(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask -> serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name")))).toByteArray())
+                    .body(new JsonDocument("task", CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
+                            .filter(serviceTask -> serviceTask.getName().toLowerCase().contains(context.request().pathParameters().get("name")))
+                            .findFirst().orElse(null)).toByteArray())
                     .context()
                     .closeAfter(true)
                     .cancelNext()
@@ -43,8 +46,10 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
                     .header("Content-Type", "application/json")
-                    .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask -> !context.request().queryParameters().containsKey("name") ||
-                            containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName()))))
+                    .body(GSON.toJson(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
+                            .filter(serviceTask -> !context.request().queryParameters().containsKey("name") ||
+                                    containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName()))
+                            .collect(Collectors.toList())))
                     .context()
                     .closeAfter(true)
                     .cancelNext()
@@ -62,23 +67,23 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
         }
 
         if (serviceTask.getGroups() == null) {
-            serviceTask.setGroups(Iterables.newArrayList());
+            serviceTask.setGroups(new ArrayList<>());
         }
 
         if (serviceTask.getAssociatedNodes() == null) {
-            serviceTask.setAssociatedNodes(Iterables.newArrayList());
+            serviceTask.setAssociatedNodes(new ArrayList<>());
         }
 
         if (serviceTask.getTemplates() == null) {
-            serviceTask.setTemplates(Iterables.newArrayList());
+            serviceTask.setTemplates(new ArrayList<>());
         }
 
         if (serviceTask.getIncludes() == null) {
-            serviceTask.setIncludes(Iterables.newArrayList());
+            serviceTask.setIncludes(new ArrayList<>());
         }
 
         if (serviceTask.getDeployments() == null) {
-            serviceTask.setDeployments(Iterables.newArrayList());
+            serviceTask.setDeployments(new ArrayList<>());
         }
 
         int status = !CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(serviceTask.getName()) ?

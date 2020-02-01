@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -16,6 +15,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -311,7 +311,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_user_by_name").append("name", name), null,
                 documentPair -> {
-                    List<IPermissionUser> collection = Iterables.newArrayList();
+                    List<IPermissionUser> collection = new ArrayList<>();
                     collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
                     }.getType()));
 
@@ -324,7 +324,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_users"), null,
                 documentPair -> {
-                    Collection<IPermissionUser> collection = Iterables.newArrayList();
+                    Collection<IPermissionUser> collection = new ArrayList<>();
                     collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
                     }.getType()));
 
@@ -345,7 +345,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_users_by_group").append("group", group), null,
                 documentPair -> {
-                    List<IPermissionUser> collection = Iterables.newArrayList();
+                    List<IPermissionUser> collection = new ArrayList<>();
                     collection.addAll(documentPair.getFirst().get("permissionUsers", new TypeToken<List<PermissionUser>>() {
                     }.getType()));
 
@@ -400,9 +400,9 @@ public class WrapperPermissionProvider implements PermissionProvider {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_groups"), null,
                 documentPair -> {
-                    List<IPermissionGroup> collection = Iterables.newArrayList();
+                    List<IPermissionGroup> collection = new ArrayList<>();
                     collection.addAll(documentPair.getFirst().get("permissionGroups", new TypeToken<List<PermissionGroup>>() {
-                    }.getType(), Iterables.newArrayList()));
+                    }.getType(), new ArrayList<>()));
 
                     return collection;
                 });

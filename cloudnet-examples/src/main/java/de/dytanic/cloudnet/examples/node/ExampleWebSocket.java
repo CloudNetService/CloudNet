@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.examples.node;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Value;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.driver.event.Event;
@@ -12,10 +11,11 @@ import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 
 import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ExampleWebSocket {
 
-    private final Collection<IWebSocketChannel> channels = Iterables.newCopyOnWriteArrayList();
+    private final Collection<IWebSocketChannel> channels = new CopyOnWriteArrayList<>();
 
     @EventListener
     public void handlePostEventsToWebSocketChannels(Event event) {

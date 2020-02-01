@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
@@ -11,14 +9,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class DefaultJsonFilePermissionManagement implements ClusterSynchronizedPermissionManagement {
 
     private final File file;
 
-    private final Map<UUID, IPermissionUser> permissionUsers = Maps.newConcurrentHashMap();
+    private final Map<UUID, IPermissionUser> permissionUsers = new ConcurrentHashMap<>();
 
-    private final Map<String, IPermissionGroup> permissionGroups = Maps.newConcurrentHashMap();
+    private final Map<String, IPermissionGroup> permissionGroups = new ConcurrentHashMap<>();
 
     private IPermissionManagementHandler permissionManagementHandler;
 
@@ -59,7 +59,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     public void deleteUserWithoutClusterSync(String name) {
         Validate.checkNotNull(name);
 
-        for (IPermissionUser permissionUser : Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name))) {
+        for (IPermissionUser permissionUser : this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.getName().equals(name)).collect(Collectors.toList())) {
             this.permissionUsers.remove(permissionUser.getUniqueId());
         }
 
@@ -85,7 +85,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     public boolean containsUser(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(permissionUsers.values(), permissionUser -> permissionUser.getName().equalsIgnoreCase(name)) != null;
+        return this.permissionUsers.values().stream().anyMatch(permissionUser -> permissionUser.getName().equalsIgnoreCase(name));
     }
 
     @Override
@@ -104,11 +104,11 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     public List<IPermissionUser> getUsers(String name) {
         Validate.checkNotNull(name);
 
-        List<IPermissionUser> permissionUsers = Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name));
+        List<IPermissionUser> permissionUsers = this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.getName().equals(name)).collect(Collectors.toList());
 
         for (IPermissionUser user : permissionUsers) {
-            if (testPermissionUser(user)) {
-                updateUser(user);
+            if (this.testPermissionUser(user)) {
+                this.updateUser(user);
             }
         }
 
@@ -157,7 +157,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     public Collection<IPermissionUser> getUsersByGroup(String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.inGroup(group));
+        return this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.inGroup(group)).collect(Collectors.toList());
     }
 
     @Override

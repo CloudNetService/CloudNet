@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -12,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -63,7 +63,7 @@ public final class BridgePlayerManager implements IPlayerManager {
             exception.printStackTrace();
         }
 
-        return Iterables.newArrayList();
+        return new ArrayList<>();
     }
 
     @Override
@@ -74,7 +74,7 @@ public final class BridgePlayerManager implements IPlayerManager {
             exception.printStackTrace();
         }
 
-        return Iterables.newArrayList();
+        return new ArrayList<>();
     }
 
     @Override
@@ -85,7 +85,7 @@ public final class BridgePlayerManager implements IPlayerManager {
             exception.printStackTrace();
         }
 
-        return Iterables.newArrayList();
+        return new ArrayList<>();
     }
 
     @Override
@@ -107,7 +107,7 @@ public final class BridgePlayerManager implements IPlayerManager {
             exception.printStackTrace();
         }
 
-        return Iterables.newArrayList();
+        return new ArrayList<>();
     }
 
     @Override
@@ -118,7 +118,7 @@ public final class BridgePlayerManager implements IPlayerManager {
             exception.printStackTrace();
         }
 
-        return Iterables.newArrayList();
+        return new ArrayList<>();
     }
 
     @Override

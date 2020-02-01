@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -17,8 +15,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,7 +27,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     private static BungeeCloudNetSyncProxyPlugin instance;
 
 
-    private final Map<UUID, Integer> onlineCountOfProxies = Maps.newConcurrentHashMap();
+    private final Map<UUID, Integer> onlineCountOfProxies = new ConcurrentHashMap<>();
 
 
     private volatile AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
@@ -59,14 +59,14 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
         Validate.checkNotNull(serviceInfoSnapshot);
         Validate.checkNotNull(syncProxyProxyLoginConfiguration);
 
-        return Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), serviceInfoSnapshot.getConfiguration().getGroups());
+        return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(syncProxyProxyLoginConfiguration.getTargetGroup());
     }
 
     public SyncProxyProxyLoginConfiguration getProxyLoginConfiguration() {
         for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration :
                 SyncProxyConfigurationProvider.load().getLoginConfigurations()) {
             if (syncProxyProxyLoginConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(syncProxyProxyLoginConfiguration.getTargetGroup())) {
                 return syncProxyProxyLoginConfiguration;
             }
         }
@@ -78,7 +78,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
         for (SyncProxyTabListConfiguration syncProxyTabListConfiguration :
                 SyncProxyConfigurationProvider.load().getTabListConfigurations()) {
             if (syncProxyTabListConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(syncProxyTabListConfiguration.getTargetGroup())) {
                 return syncProxyTabListConfiguration;
             }
         }

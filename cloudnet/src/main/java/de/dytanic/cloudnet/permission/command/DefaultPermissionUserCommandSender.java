@@ -1,11 +1,11 @@
 package de.dytanic.cloudnet.permission.command;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class DefaultPermissionUserCommandSender implements IPermissionUserCommandSender {
 
@@ -13,7 +13,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     protected final IPermissionManagement permissionManagement;
 
-    protected final Queue<String> writtenMessages = Iterables.newConcurrentLinkedQueue();
+    protected final Queue<String> writtenMessages = new ConcurrentLinkedQueue<>();
 
     public DefaultPermissionUserCommandSender(IPermissionUser permissionUser, IPermissionManagement permissionManagement) {
         this.permissionUser = permissionUser;

@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
@@ -25,12 +23,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class NettyNetworkServer extends NettySSLServer implements INetworkServer {
 
-    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = Maps.newConcurrentHashMap();
+    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-    protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
+    protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 

@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -9,10 +8,12 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
 
-    protected Collection<DefaultModuleWrapper> moduleWrappers = Iterables.newCopyOnWriteArrayList();
+    protected Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
 
     protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
 
@@ -39,14 +40,14 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public Collection<IModuleWrapper> getModules(String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.filter(this.getModules(), defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group));
+        return this.getModules().stream().filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group)).collect(Collectors.toList());
     }
 
     @Override
     public IModuleWrapper getModule(String name) {
         Validate.checkNotNull(name);
 
-        return Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getName().equals(name));
+        return this.moduleWrappers.stream().filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getName().equals(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -55,7 +56,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
         DefaultModuleWrapper moduleWrapper = null;
 
-        if (Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString())) != null) {
+        if (this.moduleWrappers.stream().anyMatch(defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString()))) {
             return null;
         }
 

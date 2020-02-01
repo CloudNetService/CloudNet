@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.driver.network.def.internal;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
@@ -15,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is the internal api channel for synchronized communication between driver api and cloudnet node.
@@ -27,7 +27,7 @@ import java.util.UUID;
 @UnsafeClass
 public final class InternalSyncPacketChannel {
 
-    private final static Map<UUID, SynchronizedCallback> WAITING_PACKETS = Maps.newConcurrentHashMap();
+    private final static Map<UUID, SynchronizedCallback> WAITING_PACKETS = new ConcurrentHashMap<>();
 
     private InternalSyncPacketChannel() {
         throw new UnsupportedOperationException();

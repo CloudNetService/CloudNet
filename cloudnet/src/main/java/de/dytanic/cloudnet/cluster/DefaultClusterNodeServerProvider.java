@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -14,10 +12,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
 
-    protected final Map<String, IClusterNodeServer> servers = Maps.newConcurrentHashMap();
+    protected final Map<String, IClusterNodeServer> servers = new ConcurrentHashMap<>();
 
     @Override
     public Collection<IClusterNodeServer> getNodeServers() {
@@ -56,7 +55,9 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
         }
 
         for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
-            NetworkClusterNode node = Iterables.first(networkCluster.getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()));
+            NetworkClusterNode node = networkCluster.getNodes().stream()
+                    .filter(networkClusterNode -> networkClusterNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
+                    .findFirst().orElse(null);
 
             if (node == null) {
                 this.servers.remove(clusterNodeServer.getNodeInfo().getUniqueId());

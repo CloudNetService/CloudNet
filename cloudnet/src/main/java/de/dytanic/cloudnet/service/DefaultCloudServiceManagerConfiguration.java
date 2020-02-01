@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.service;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -14,6 +13,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 final class DefaultCloudServiceManagerConfiguration {
 
@@ -27,9 +27,9 @@ final class DefaultCloudServiceManagerConfiguration {
     private static final Path GROUPS_CONFIG_FILE = Paths.get(System.getProperty("cloudnet.config.groups.path", "local/groups.json"));
     private static final Path TASKS_DIRECTORY = Paths.get(System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
-    private final List<ServiceTask> tasks = Iterables.newCopyOnWriteArrayList();
+    private final List<ServiceTask> tasks = new CopyOnWriteArrayList<>();
 
-    private final List<GroupConfiguration> groups = Iterables.newCopyOnWriteArrayList();
+    private final List<GroupConfiguration> groups = new CopyOnWriteArrayList<>();
 
     public void load() {
         this.loadGroups();

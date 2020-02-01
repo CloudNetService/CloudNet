@@ -8,7 +8,6 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Location;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
@@ -16,6 +15,8 @@ import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.nukkit.NukkitSignManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+
+import java.util.Arrays;
 
 
 public class CommandCloudSign extends Command {
@@ -57,7 +58,7 @@ public class CommandCloudSign extends Command {
 
             if (blockEntity instanceof BlockEntitySign) {
                 for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
-                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 
@@ -85,7 +86,7 @@ public class CommandCloudSign extends Command {
 
             if (blockEntity instanceof BlockEntitySign) {
                 for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
-                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 

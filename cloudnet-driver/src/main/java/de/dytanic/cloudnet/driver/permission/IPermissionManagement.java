@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
-
 import java.util.*;
+import java.util.stream.Collectors;
 
 public interface IPermissionManagement {
 
@@ -115,7 +114,7 @@ public interface IPermissionManagement {
 
         boolean result = testPermissible(permissionUser);
 
-        List<PermissionUserGroupInfo> groupsToRemove = Iterables.newArrayList();
+        List<PermissionUserGroupInfo> groupsToRemove = new ArrayList<>();
 
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             if (groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis()) {
@@ -138,7 +137,7 @@ public interface IPermissionManagement {
 
         boolean result = false;
 
-        Collection<String> haveToRemove = Iterables.newArrayList();
+        Collection<String> haveToRemove = new ArrayList<>();
 
         for (Permission permission : permissible.getPermissions()) {
             if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis()) {
@@ -184,7 +183,7 @@ public interface IPermissionManagement {
     }
 
     default Collection<IPermissionGroup> getGroups(IPermissionUser permissionUser) {
-        Collection<IPermissionGroup> permissionGroups = Iterables.newArrayList();
+        Collection<IPermissionGroup> permissionGroups = new ArrayList<>();
 
         if (permissionUser == null) {
             return permissionGroups;
@@ -206,7 +205,9 @@ public interface IPermissionManagement {
     }
 
     default Collection<IPermissionGroup> getExtendedGroups(IPermissionGroup group) {
-        return group == null ? Collections.EMPTY_LIST : Iterables.filter(this.getGroups(), permissionGroup -> group.getGroups().contains(permissionGroup.getName()));
+        return group == null ?
+                Collections.EMPTY_LIST :
+                this.getGroups().stream().filter(permissionGroup -> group.getGroups().contains(permissionGroup.getName())).collect(Collectors.toList());
     }
 
     default boolean hasPermission(IPermissionUser permissionUser, String permission) {

@@ -4,8 +4,6 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -17,14 +15,17 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class VelocityCloudNetHelper {
 
-    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = Maps.newConcurrentHashMap();
+    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = new ConcurrentHashMap<>();
 
     private static ProxyServer proxyServer;
 
@@ -39,8 +40,7 @@ public final class VelocityCloudNetHelper {
         handleWithListenerInfoServerPriority(collection -> {
             for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
                 if (bungeeFallbackConfiguration != null && bungeeFallbackConfiguration.getFallbacks() != null &&
-                        bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(bungeeFallbackConfiguration.getTargetGroup(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups())) {
+                        bungeeFallbackConfiguration.getTargetGroup() != null && Arrays.asList(Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()).contains(bungeeFallbackConfiguration.getTargetGroup())) {
                     if (!collection.contains(name) && bungeeFallbackConfiguration.getDefaultFallbackTask().equals(serviceInfoSnapshot.getServiceId().getTaskName())) {
                         collection.add(name);
                     }
@@ -110,14 +110,13 @@ public final class VelocityCloudNetHelper {
     }
 
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
-        return Iterables.filter(
-                SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(), stringServiceInfoSnapshotEntry -> {
-                    if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey())) {
-                        return false;
-                    }
+        return SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet().stream().filter(stringServiceInfoSnapshotEntry -> {
+            if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey())) {
+                return false;
+            }
 
-                    return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
-                });
+            return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
+        }).collect(Collectors.toList());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -130,14 +129,14 @@ public final class VelocityCloudNetHelper {
                 .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
                 .append("Compression-Level", proxyServer.getConfiguration().getCompressionLevel())
                 .append("Connection-Timeout", proxyServer.getConfiguration().getConnectTimeout())
-                .append("Players", Iterables.map(proxyServer.getAllPlayers(), player -> new VelocityCloudNetPlayerInfo(
+                .append("Players", proxyServer.getAllPlayers().stream().map(player -> new VelocityCloudNetPlayerInfo(
                         player.getUniqueId(),
                         player.getUsername(),
                         player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : null,
                         (int) player.getPing(),
                         new HostAndPort(player.getRemoteAddress())
-                )))
-                .append("Plugins", Iterables.map(proxyServer.getPluginManager().getPlugins(), pluginContainer -> {
+                )).collect(Collectors.toList()))
+                .append("Plugins", proxyServer.getPluginManager().getPlugins().stream().map(pluginContainer -> {
                     PluginInfo pluginInfo = new PluginInfo(
                             pluginContainer.getDescription().getName().orElse(null),
                             pluginContainer.getDescription().getVersion().orElse(null)
@@ -149,7 +148,7 @@ public final class VelocityCloudNetHelper {
                     ;
 
                     return pluginInfo;
-                }))
+                }).collect(Collectors.toList()))
         ;
     }
 

@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible> {
 
@@ -36,44 +36,43 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
             return null;
         }
 
-        return Iterables.first(getPermissions(), permission -> permission.getName().equalsIgnoreCase(name));
+        return this.getPermissions().stream().filter(permission -> permission.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     default boolean isPermissionSet(@NotNull String name) {
-        return Iterables.first(getPermissions(), permission -> permission.getName().equalsIgnoreCase(name)) != null;
+        return this.getPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(name));
     }
 
     default boolean addPermission(@NotNull String permission) {
-        return addPermission(permission, 0);
+        return this.addPermission(permission, 0);
     }
 
     default boolean addPermission(@NotNull String permission, boolean value) {
-        return addPermission(new Permission(permission, value ? 1 : -1));
+        return this.addPermission(new Permission(permission, value ? 1 : -1));
     }
 
     default boolean addPermission(@NotNull String permission, int potency) {
-        return addPermission(new Permission(permission, potency));
+        return this.addPermission(new Permission(permission, potency));
     }
 
     default boolean addPermission(@NotNull String group, @NotNull String permission) {
-        return addPermission(group, permission, 0);
+        return this.addPermission(group, permission, 0);
     }
 
     default boolean addPermission(@NotNull String group, @NotNull String permission, int potency) {
-        return addPermission(group, new Permission(permission, potency));
+        return this.addPermission(group, new Permission(permission, potency));
     }
 
     default boolean addPermission(@NotNull String group, @NotNull String permission, int potency, long time, TimeUnit millis) {
-        return addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() + millis.toMillis(time))));
+        return this.addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() + millis.toMillis(time))));
     }
 
     default Collection<String> getPermissionNames() {
-        return Iterables.map(getPermissions(), Permission::getName);
+        return this.getPermissions().stream().map(Permission::getName).collect(Collectors.toList());
     }
 
     default PermissionCheckResult hasPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
-
-        Permission targetPerms = Iterables.first(permissions, perm -> perm.getName().equalsIgnoreCase(permission.getName()));
+        Permission targetPerms = permissions.stream().filter(perm -> perm.getName().equalsIgnoreCase(permission.getName())).findFirst().orElse(null);
 
         if (targetPerms != null && permission.getName().equalsIgnoreCase(targetPerms.getName()) && targetPerms.getPotency() < 0) {
             return PermissionCheckResult.FORBIDDEN;

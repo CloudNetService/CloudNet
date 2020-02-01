@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.provider.service;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -12,6 +11,7 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
@@ -103,7 +103,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         Validate.checkNotNull(processConfiguration);
 
         if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(nodeUniqueId)) {
-            Collection<ServiceInfoSnapshot> collection = Iterables.newArrayList();
+            Collection<ServiceInfoSnapshot> collection = new ArrayList<>();
 
             for (int i = 0; i < amount; i++) {
                 ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(

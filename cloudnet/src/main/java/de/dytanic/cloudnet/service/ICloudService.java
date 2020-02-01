@@ -47,7 +47,6 @@ public interface ICloudService {
     @NotNull
     File getDirectory();
 
-    @NotNull
     INetworkChannel getNetworkChannel();
 
     void setNetworkChannel(INetworkChannel channel);

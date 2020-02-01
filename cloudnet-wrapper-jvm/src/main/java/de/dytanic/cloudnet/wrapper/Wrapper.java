@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.wrapper;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -45,6 +44,7 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -407,7 +408,9 @@ public final class Wrapper extends CloudNetDriver {
                         ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
-                        Iterables.map(Thread.getAllStackTraces().keySet(), thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority())),
+                        Thread.getAllStackTraces().keySet()
+                                .stream().map(thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority()))
+                                .collect(Collectors.toList()),
                         CPUUsageResolver.getProcessCPUUsage(),
                         this.getOwnPID()
                 ),
@@ -482,7 +485,7 @@ public final class Wrapper extends CloudNetDriver {
         Class<?> main = Class.forName(mainClass);
         Method method = main.getMethod("main", String[].class);
 
-        Collection<String> arguments = Iterables.newArrayList(this.commandLineArguments);
+        Collection<String> arguments = new ArrayList<>(this.commandLineArguments);
 
         this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, applicationFile, arguments));
 

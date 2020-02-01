@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.*;
@@ -45,7 +44,10 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         if (args[0].equalsIgnoreCase("by") && args.length > 2 && Validate.testStringParseToInt(args[2])) {
-            ServiceTask serviceTask = Iterables.first(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks(), serviceTask1 -> serviceTask1.getName().equalsIgnoreCase(args[1]));
+            ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
+                    .filter(task -> task.getName().equalsIgnoreCase(args[1]))
+                    .findFirst()
+                    .orElse(null);
 
             if (serviceTask != null) {
                 int count = Integer.parseInt(args[2]);
@@ -100,16 +102,16 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                             null,
                             false,
                             false,
-                            Iterables.newArrayList(),
-                            Iterables.newArrayList(),
-                            Iterables.newArrayList(),
-                            Iterables.newArrayList(),
-                            Iterables.newArrayList(),
-                            Iterables.newArrayList(),
+                            new ArrayList<>(),
+                            new ArrayList<>(),
+                            new ArrayList<>(),
+                            new ArrayList<>(),
+                            new ArrayList<>(),
+                            new ArrayList<>(),
                             new ProcessConfiguration(
                                     environmentType,
                                     372,
-                                    Iterables.newArrayList()
+                                    new ArrayList<>()
                             ),
                             46949
                     );
@@ -171,9 +173,9 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
             ProcessConfiguration processConfiguration,
             int startPort
     ) {
-        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = Iterables.newArrayList(count);
-        Collection<ServiceTemplate> temps = Iterables.newArrayList();
-        Collection<ServiceDeployment> deploy = Iterables.newArrayList();
+        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = new ArrayList<>(count);
+        Collection<ServiceTemplate> temps = new ArrayList<>();
+        Collection<ServiceDeployment> deploy = new ArrayList<>();
 
         if (properties.containsKey("templates")) {
             String[] templateEntries = properties.get("templates").split(";");
@@ -197,7 +199,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                 if (item.length() > 3 && item.contains(":") && item.contains("/")) {
                     ServiceTemplate template = ServiceTemplate.parse(item);
                     if (template != null) {
-                        deploy.add(new ServiceDeployment(template, Iterables.newArrayList()));
+                        deploy.add(new ServiceDeployment(template, new ArrayList<>()));
                     }
                 }
             }

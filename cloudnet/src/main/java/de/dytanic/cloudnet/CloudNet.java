@@ -9,8 +9,6 @@ import de.dytanic.cloudnet.command.ICommandMap;
 import de.dytanic.cloudnet.command.commands.*;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -95,6 +93,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -133,7 +132,7 @@ public final class CloudNet extends CloudNetDriver {
     private final ConsoleCommandSender consoleCommandSender;
 
 
-    private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
+    private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
     private IHttpServer httpServer;
@@ -472,7 +471,7 @@ public final class CloudNet extends CloudNetDriver {
     public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
         Validate.checkNotNull(serviceName);
 
-        Collection<ServiceTemplate> collection = Iterables.newArrayList();
+        Collection<ServiceTemplate> collection = new ArrayList<>();
 
         if (servicesRegistry.containsService(ITemplateStorage.class, serviceName)) {
             collection.addAll(servicesRegistry.getService(ITemplateStorage.class, serviceName).getTemplates());
@@ -573,8 +572,9 @@ public final class CloudNet extends CloudNetDriver {
         }
 
         for (ICloudService cloudService : getCloudServiceManager().getCloudServices().values()) {
-            cloudService.getNetworkChannel();
-            cloudService.getNetworkChannel().sendPacket(packet);
+            if (cloudService.getNetworkChannel() != null) {
+                cloudService.getNetworkChannel().sendPacket(packet);
+            }
         }
     }
 
@@ -620,28 +620,32 @@ public final class CloudNet extends CloudNetDriver {
                         ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
                         ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
-                        Iterables.map(Thread.getAllStackTraces().keySet(), thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority())),
+                        Thread.getAllStackTraces().keySet().stream()
+                                .map(thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority()))
+                                .collect(Collectors.toList()),
                         CPUUsageResolver.getProcessCPUUsage(),
                         this.getOwnPID()
                 ),
-                Iterables.map(this.moduleProvider.getModules(), moduleWrapper -> new NetworkClusterNodeExtensionSnapshot(
+                this.moduleProvider.getModules().stream().map(moduleWrapper -> new NetworkClusterNodeExtensionSnapshot(
                         moduleWrapper.getModuleConfiguration().getGroup(),
                         moduleWrapper.getModuleConfiguration().getName(),
                         moduleWrapper.getModuleConfiguration().getVersion(),
                         moduleWrapper.getModuleConfiguration().getAuthor(),
                         moduleWrapper.getModuleConfiguration().getWebsite(),
                         moduleWrapper.getModuleConfiguration().getDescription()
-                )),
+                )).collect(Collectors.toList()),
                 ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
         );
     }
 
     public Collection<IClusterNodeServer> getValidClusterNodeServers(ServiceTask serviceTask) {
-        return Iterables.filter(clusterNodeServerProvider.getNodeServers(), clusterNodeServer -> {
-            if (!clusterNodeServer.isConnected()) return false;
+        return clusterNodeServerProvider.getNodeServers().stream().filter(clusterNodeServer -> {
+            if (!clusterNodeServer.isConnected()) {
+                return false;
+            }
             clusterNodeServer.getNodeInfoSnapshot();
             return serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(clusterNodeServer.getNodeInfo().getUniqueId());
-        });
+        }).collect(Collectors.toList());
     }
 
     public NetworkClusterNodeInfoSnapshot searchLogicNode(ServiceTask serviceTask) {
@@ -720,11 +724,11 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private Map<String, Map<String, JsonDocument>> allocateDatabaseData() {
-        Map<String, Map<String, JsonDocument>> map = Maps.newHashMap();
+        Map<String, Map<String, JsonDocument>> map = new HashMap<>();
 
         for (String name : databaseProvider.getDatabaseNames()) {
             if (!map.containsKey(name)) {
-                map.put(name, Maps.newHashMap());
+                map.put(name, new HashMap<>());
             }
             IDatabase database = databaseProvider.getDatabase(name);
             map.get(name).putAll(database.entries());

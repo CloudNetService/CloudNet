@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.template;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +66,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
         Validate.checkNotNull(paths);
         Validate.checkNotNull(target);
 
-        return this.deploy(Iterables.map(Arrays.asList(paths), Path::toFile).toArray(new File[0]), target);
+        return this.deploy(Arrays.stream(paths).map(Path::toFile).toArray(File[]::new), target);
     }
 
     @Override
@@ -283,7 +282,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public Collection<ServiceTemplate> getTemplates() {
-        Collection<ServiceTemplate> templates = Iterables.newArrayList();
+        Collection<ServiceTemplate> templates = new ArrayList<>();
 
         File[] files = this.storageDirectory.listFiles();
 

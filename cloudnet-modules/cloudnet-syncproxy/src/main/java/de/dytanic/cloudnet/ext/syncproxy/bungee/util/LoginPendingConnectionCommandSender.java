@@ -1,19 +1,19 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee.util;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
 public class LoginPendingConnectionCommandSender implements CommandSender {
 
-    private final Collection<String> permissions = Iterables.newArrayList(), groups = Iterables.newArrayList();
+    private final Collection<String> permissions = new ArrayList<>(), groups = new ArrayList<>();
 
     private final PendingConnection pendingConnection;
 

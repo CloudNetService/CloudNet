@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -199,10 +198,9 @@ public final class BridgeHelper {
 
     public static boolean isFallbackService(ServiceInfoSnapshot serviceInfoSnapshot) {
         for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
-            if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                    bungeeFallbackConfiguration.getTargetGroup(),
-                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            )) {
+            if (bungeeFallbackConfiguration.getTargetGroup() != null &&
+                    Arrays.asList(Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()).contains(bungeeFallbackConfiguration.getTargetGroup()
+                    )) {
                 for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks()) {
                     if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
                         return true;

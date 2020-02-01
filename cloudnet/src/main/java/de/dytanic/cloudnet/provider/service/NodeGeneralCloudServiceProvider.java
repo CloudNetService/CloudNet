@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.provider.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -10,9 +9,11 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
@@ -43,7 +44,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
-        return Iterables.filter(this.getCloudServices(), serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING);
+        return this.getCloudServices().stream().filter(serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING).collect(Collectors.toList());
     }
 
     @Override
@@ -64,7 +65,10 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(String group) {
         Validate.checkNotNull(group);
 
-        return Iterables.filter(this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values(), serviceInfoSnapshot -> Iterables.contains(group, serviceInfoSnapshot.getConfiguration().getGroups()));
+        return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values()
+                .stream()
+                .filter(serviceInfoSnapshot -> Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(group))
+                .collect(Collectors.toList());
     }
 
     @Nullable
@@ -87,7 +91,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
         int amount = 0;
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values()) {
-            if (Iterables.contains(group, serviceInfoSnapshot.getConfiguration().getGroups())) {
+            if (Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(group)) {
                 amount++;
             }
         }

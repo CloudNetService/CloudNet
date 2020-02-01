@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
@@ -11,6 +10,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -114,7 +114,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public Map<String, String> headers() {
-        Map<String, String> maps = Maps.newHashMap(this.httpRequest.headers().size());
+        Map<String, String> maps = new HashMap<>(this.httpRequest.headers().size());
 
         for (String key : this.httpRequest.headers().names()) {
             maps.put(key, this.httpRequest.headers().get(key));

@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.Value;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
@@ -13,12 +12,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.*;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
-    private final List<IWebSocketListener> webSocketListeners = Iterables.newCopyOnWriteArrayList();
+    private final List<IWebSocketListener> webSocketListeners = new CopyOnWriteArrayList<>();
 
     private final IHttpChannel httpChannel;
 
@@ -49,7 +50,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
         Validate.checkNotNull(listeners);
 
-        webSocketListeners.removeIf(listener -> Iterables.first(listeners, webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)) != null);
+        webSocketListeners.removeIf(listener -> Arrays.stream(listeners).anyMatch(webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)));
 
         return this;
     }

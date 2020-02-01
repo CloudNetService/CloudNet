@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.database.mysql;
 
 import com.zaxxer.hikari.HikariDataSource;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
@@ -15,10 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
@@ -110,7 +106,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         return this.executeQuery(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
                 resultSet -> {
-                    Collection<String> collection = Iterables.newArrayList();
+                    Collection<String> collection = new ArrayList<>();
                     while (resultSet.next()) {
                         collection.add(resultSet.getString("table_name"));
                     }

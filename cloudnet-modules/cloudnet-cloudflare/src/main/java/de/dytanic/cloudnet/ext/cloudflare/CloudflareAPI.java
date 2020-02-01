@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.cloudflare;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
@@ -20,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class CloudflareAPI implements AutoCloseable {
 
@@ -36,7 +36,7 @@ public final class CloudflareAPI implements AutoCloseable {
     */
     private final IDatabase database;
 
-    private final Map<String, Pair<String, JsonDocument>> createdRecords = Maps.newConcurrentHashMap();
+    private final Map<String, Pair<String, JsonDocument>> createdRecords = new ConcurrentHashMap<>();
 
     protected CloudflareAPI(IDatabase database) {
         instance = this;

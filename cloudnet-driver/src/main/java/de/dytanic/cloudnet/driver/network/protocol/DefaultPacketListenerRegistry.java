@@ -1,19 +1,19 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Default IPacketListenerRegistry implementation
  */
 public final class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
 
-    private final Map<Integer, List<IPacketListener>> listeners = Maps.newConcurrentHashMap();
+    private final Map<Integer, List<IPacketListener>> listeners = new ConcurrentHashMap<>();
 
     private final IPacketListenerRegistry parent;
 
@@ -30,7 +30,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
         Validate.checkNotNull(listeners);
 
         if (!this.listeners.containsKey(channel)) {
-            this.listeners.put(channel, Iterables.newCopyOnWriteArrayList());
+            this.listeners.put(channel, new CopyOnWriteArrayList<>());
         }
 
         for (IPacketListener listener : listeners) {
@@ -92,7 +92,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
 
     @Override
     public Collection<IPacketListener> getListeners() {
-        Collection<IPacketListener> listeners = Iterables.newCopyOnWriteArrayList();
+        Collection<IPacketListener> listeners = new CopyOnWriteArrayList<>();
 
         for (List<IPacketListener> list : this.listeners.values()) {
             listeners.addAll(list);

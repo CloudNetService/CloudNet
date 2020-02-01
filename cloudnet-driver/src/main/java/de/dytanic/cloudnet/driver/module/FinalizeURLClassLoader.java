@@ -1,17 +1,14 @@
 package de.dytanic.cloudnet.driver.module;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
-
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class FinalizeURLClassLoader extends URLClassLoader {
 
-    private static final Collection<FinalizeURLClassLoader> CLASS_LOADERS = Iterables
-            .newCopyOnWriteArrayList();
-
+    private static final Collection<FinalizeURLClassLoader> CLASS_LOADERS = new CopyOnWriteArrayList<>();
     static {
         ClassLoader.registerAsParallelCapable();
     }

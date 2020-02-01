@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.database.sql;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -10,10 +8,7 @@ import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.sql.ResultSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
@@ -140,7 +135,7 @@ public abstract class SQLDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 "SELECT " + TABLE_COLUMN_VALUE + " FROM " + this.name + " WHERE " + TABLE_COLUMN_VALUE + " LIKE ?",
                 resultSet -> {
-                    List<JsonDocument> jsonDocuments = Iterables.newArrayList();
+                    List<JsonDocument> jsonDocuments = new ArrayList<>();
 
                     while (resultSet.next()) {
                         jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
@@ -158,7 +153,7 @@ public abstract class SQLDatabase implements IDatabase {
 
         StringBuilder stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM ").append(this.name);
 
-        Collection<String> collection = Iterables.newArrayList();
+        Collection<String> collection = new ArrayList<>();
 
         if (filters.size() > 0) {
             stringBuilder.append(" WHERE ");
@@ -181,7 +176,7 @@ public abstract class SQLDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 stringBuilder.toString(),
                 resultSet -> {
-                    List<JsonDocument> jsonDocuments = Iterables.newArrayList();
+                    List<JsonDocument> jsonDocuments = new ArrayList<>();
 
                     while (resultSet.next()) {
                         jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
@@ -198,7 +193,7 @@ public abstract class SQLDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 "SELECT " + TABLE_COLUMN_KEY + " FROM " + this.name,
                 resultSet -> {
-                    Collection<String> keys = Iterables.newArrayList();
+                    Collection<String> keys = new ArrayList<>();
 
                     while (resultSet.next()) {
                         keys.add(resultSet.getString(TABLE_COLUMN_KEY));
@@ -214,7 +209,7 @@ public abstract class SQLDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 "SELECT " + TABLE_COLUMN_VALUE + " FROM " + this.name,
                 resultSet -> {
-                    Collection<JsonDocument> documents = Iterables.newArrayList();
+                    Collection<JsonDocument> documents = new ArrayList<>();
 
                     while (resultSet.next()) {
                         documents.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
@@ -230,7 +225,7 @@ public abstract class SQLDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 "SELECT * FROM " + this.name,
                 resultSet -> {
-                    Map<String, JsonDocument> map = Maps.newWeakHashMap();
+                    Map<String, JsonDocument> map = new WeakHashMap<>();
 
                     while (resultSet.next()) {
                         map.put(resultSet.getString(TABLE_COLUMN_KEY), JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
@@ -248,7 +243,7 @@ public abstract class SQLDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 "SELECT * FROM " + this.name,
                 resultSet -> {
-                    Map<String, JsonDocument> map = Maps.newHashMap();
+                    Map<String, JsonDocument> map = new HashMap<>();
 
                     while (resultSet.next()) {
                         String key = resultSet.getString(TABLE_COLUMN_KEY);

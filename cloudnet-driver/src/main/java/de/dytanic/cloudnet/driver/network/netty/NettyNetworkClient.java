@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -26,10 +25,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class NettyNetworkClient implements INetworkClient {
 
-    protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
+    protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 

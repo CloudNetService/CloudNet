@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.ext.cloudperms.listener.PermissionsUpdateListener;
@@ -13,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -20,8 +20,8 @@ import java.util.concurrent.TimeoutException;
 public class CloudPermissionsManagement implements IPermissionManagement {
 
     private static CloudPermissionsManagement instance;
-    private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps.newConcurrentHashMap();
-    private final Map<UUID, IPermissionUser> cachedPermissionUsers = Maps.newConcurrentHashMap();
+    private final Map<String, IPermissionGroup> cachedPermissionGroups = new ConcurrentHashMap<>();
+    private final Map<UUID, IPermissionUser> cachedPermissionUsers = new ConcurrentHashMap<>();
 
     protected CloudPermissionsManagement() {
         this.init();

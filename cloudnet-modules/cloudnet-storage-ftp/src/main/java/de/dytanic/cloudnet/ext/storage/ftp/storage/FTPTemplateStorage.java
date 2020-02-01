@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
@@ -20,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -155,7 +155,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         Validate.checkNotNull(paths);
         Validate.checkNotNull(target);
 
-        return this.deploy(Iterables.map(Arrays.asList(paths), Path::toFile).toArray(new File[0]), target);
+        return this.deploy(Arrays.stream(paths).map(Path::toFile).toArray(File[]::new), target);
     }
 
     @Override
@@ -289,7 +289,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         Validate.checkNotNull(template);
         Validate.checkNotNull(directories);
 
-        return this.copy(template, Iterables.map(Arrays.asList(directories), Path::toFile).toArray(new File[0]));
+        return this.copy(template, Arrays.stream(directories).map(Path::toFile).toArray(File[]::new));
     }
 
     @Override
@@ -454,7 +454,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
     @Override
     public Collection<ServiceTemplate> getTemplates() {
-        Collection<ServiceTemplate> templates = Iterables.newArrayList();
+        Collection<ServiceTemplate> templates = new ArrayList<>();
 
         try {
             FTPFile[] files = this.ftpClient.listFiles();
