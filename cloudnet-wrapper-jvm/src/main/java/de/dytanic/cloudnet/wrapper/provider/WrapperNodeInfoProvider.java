@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -59,7 +59,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public String[] sendCommandLine(@NotNull String commandLine) {
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(commandLine);
 
         try {
             return this.sendCommandLineAsync(commandLine).get(5, TimeUnit.SECONDS);
@@ -71,7 +71,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
-        Validate.checkNotNull(nodeUniqueId, commandLine);
+        Preconditions.checkNotNull(nodeUniqueId, commandLine);
 
         try {
             return this.sendCommandLineAsync(nodeUniqueId, commandLine).get(5, TimeUnit.SECONDS);
@@ -94,7 +94,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     @Nullable
     @Override
     public NetworkClusterNode getNode(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         try {
             return this.getNodeAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -117,7 +117,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     @Nullable
     @Override
     public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         try {
             return this.getNodeInfoSnapshotAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -149,7 +149,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(commandLine);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "tab_complete").append("commandLine", commandLine), null,
@@ -159,7 +159,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(commandLine);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine").append("commandLine", commandLine), null,
@@ -187,7 +187,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_by_uniqueId").append("uniqueId", uniqueId), null,
@@ -205,7 +205,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_info_snapshot_by_uniqueId").append("uniqueId", uniqueId), null,

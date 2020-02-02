@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
@@ -57,7 +57,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
     public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction,
                                Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction) {
-        Validate.checkNotNull(player);
+        Preconditions.checkNotNull(player);
 
         IPermissionUser playerPermissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
         AtomicReference<IPermissionGroup> playerPermissionGroup = new AtomicReference<>(playerIPermissionGroupFunction != null ? playerIPermissionGroupFunction.apply(player) : null);
@@ -151,7 +151,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     public void injectCloudPermissible(Player player) {
-        Validate.checkNotNull(player);
+        Preconditions.checkNotNull(player);
 
         try {
             Field field;
@@ -177,8 +177,8 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     private void injectCloudPermissible0(Player player, Field field) throws Exception {
-        Validate.checkNotNull(player);
-        Validate.checkNotNull(field);
+        Preconditions.checkNotNull(player);
+        Preconditions.checkNotNull(field);
 
         field.setAccessible(true);
         field.set(player, new BukkitCloudNetCloudPermissionsPermissible(player));

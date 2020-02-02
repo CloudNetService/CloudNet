@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.provider.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
@@ -50,7 +50,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
 
     @Override
     public void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(serviceTemplate);
+        Preconditions.checkNotNull(serviceTemplate);
 
         ICloudService cloudService = this.getCloudService();
 
@@ -81,7 +81,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
 
     @Override
     public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(serviceRemoteInclusion);
+        Preconditions.checkNotNull(serviceRemoteInclusion);
 
         ICloudService cloudService = this.getCloudService();
 
@@ -111,7 +111,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
 
     @Override
     public void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(serviceDeployment);
+        Preconditions.checkNotNull(serviceDeployment);
 
         ICloudService cloudService = this.getCloudService();
 
@@ -166,7 +166,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
 
     @Override
     public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(lifeCycle);
+        Preconditions.checkNotNull(lifeCycle);
 
         ICloudService cloudService = this.getCloudService();
         if (cloudService != null) {

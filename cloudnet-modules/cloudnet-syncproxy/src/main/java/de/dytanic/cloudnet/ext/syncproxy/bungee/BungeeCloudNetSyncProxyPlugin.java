@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -56,8 +56,8 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
     }
 
     public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(syncProxyProxyLoginConfiguration);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(syncProxyProxyLoginConfiguration);
 
         return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(syncProxyProxyLoginConfiguration.getTargetGroup());
     }

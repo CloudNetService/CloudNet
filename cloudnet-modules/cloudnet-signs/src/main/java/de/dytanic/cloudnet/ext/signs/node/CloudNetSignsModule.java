@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.signs.node;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -61,7 +61,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
     }
 
     public void addSignToFile(Sign sign) {
-        Validate.checkNotNull(sign);
+        Preconditions.checkNotNull(sign);
 
         Collection<Sign> signs = this.loadSigns();
         signs.add(sign);
@@ -70,7 +70,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
     }
 
     public void removeSignToFile(Sign sign) {
-        Validate.checkNotNull(sign);
+        Preconditions.checkNotNull(sign);
 
         Collection<Sign> signs = this.loadSigns();
 
@@ -89,7 +89,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
     }
 
     public void write(Collection<Sign> signs) {
-        Validate.checkNotNull(signs);
+        Preconditions.checkNotNull(signs);
 
         IDatabase database = getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(SIGN_STORE_DOCUMENT);

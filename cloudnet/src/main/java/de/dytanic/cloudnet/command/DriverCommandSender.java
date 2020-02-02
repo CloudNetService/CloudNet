@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.command;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,14 +23,14 @@ public final class DriverCommandSender implements ICommandSender {
 
     @Override
     public void sendMessage(String message) {
-        Validate.checkNotNull(message);
+        Preconditions.checkNotNull(message);
 
         this.messages.add(message);
     }
 
     @Override
     public void sendMessage(String... messages) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
         this.messages.addAll(Arrays.asList(messages));
     }

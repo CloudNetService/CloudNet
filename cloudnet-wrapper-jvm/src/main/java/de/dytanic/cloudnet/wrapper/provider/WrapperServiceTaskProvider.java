@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -39,7 +39,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ServiceTask getServiceTask(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         try {
             return this.getServiceTaskAsync(name).get(5, TimeUnit.SECONDS);
@@ -51,7 +51,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public boolean isServiceTaskPresent(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         try {
             return this.isServiceTaskPresentAsync(name).get(5, TimeUnit.SECONDS);
@@ -81,7 +81,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
         this.removePermanentServiceTask(serviceTask.getName());
     }
 
@@ -95,7 +95,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_service_task").append("name", name), null,
@@ -105,7 +105,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_service_task_present").append("name", name), null,
@@ -115,7 +115,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
                 VOID_FUNCTION);
@@ -123,7 +123,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
                 VOID_FUNCTION);
@@ -131,7 +131,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         return this.removePermanentServiceTaskAsync(serviceTask.getName());
     }

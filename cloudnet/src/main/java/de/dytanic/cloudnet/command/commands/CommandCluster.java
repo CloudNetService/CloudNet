@@ -5,7 +5,7 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -181,7 +181,7 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void displayNode(ICommandSender sender, IClusterNodeServer node) {
-        Validate.checkNotNull(node);
+        Preconditions.checkNotNull(node);
 
         List<String> list = new ArrayList<>();
 

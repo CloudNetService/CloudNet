@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -36,7 +36,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void addUser(@NotNull IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         try {
             this.addUserAsync(permissionUser).get(5, TimeUnit.SECONDS);
@@ -47,7 +47,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void updateUser(@NotNull IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         try {
             this.updateUserAsync(permissionUser).get(5, TimeUnit.SECONDS);
@@ -58,7 +58,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void deleteUser(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         try {
             this.deleteUserAsync(name).get(5, TimeUnit.SECONDS);
@@ -69,7 +69,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void deleteUser(@NotNull IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         try {
             this.deleteUserAsync(permissionUser).get(5, TimeUnit.SECONDS);
@@ -80,7 +80,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public boolean containsUser(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         try {
             return this.containsUserAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -92,7 +92,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public boolean containsUser(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         try {
             return this.containsUserAsync(name).get(5, TimeUnit.SECONDS);
@@ -105,7 +105,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
     @Nullable
     @Override
     public IPermissionUser getUser(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         try {
             return this.getUserAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -117,7 +117,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public List<IPermissionUser> getUsers(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         try {
             return this.getUsersAsync(name).get(5, TimeUnit.SECONDS);
@@ -139,7 +139,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void setUsers(@NotNull Collection<? extends IPermissionUser> users) {
-        Validate.checkNotNull(users);
+        Preconditions.checkNotNull(users);
 
         try {
             this.setUsersAsync(users).get(5, TimeUnit.SECONDS);
@@ -150,7 +150,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         try {
             return this.getUsersByGroupAsync(group).get(5, TimeUnit.SECONDS);
@@ -162,7 +162,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void addGroup(@NotNull IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         try {
             this.addGroupAsync(permissionGroup).get(5, TimeUnit.SECONDS);
@@ -173,7 +173,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void updateGroup(@NotNull IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         try {
             this.updateGroupAsync(permissionGroup).get(5, TimeUnit.SECONDS);
@@ -184,7 +184,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void deleteGroup(@NotNull String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         try {
             this.deleteGroupAsync(group).get(5, TimeUnit.SECONDS);
@@ -195,7 +195,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void deleteGroup(@NotNull IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         try {
             this.deleteGroupAsync(permissionGroup).get(5, TimeUnit.SECONDS);
@@ -206,7 +206,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public boolean containsGroup(@NotNull String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         try {
             return this.containsGroupAsync(group).get(5, TimeUnit.SECONDS);
@@ -219,7 +219,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
     @Nullable
     @Override
     public IPermissionGroup getGroup(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         try {
             return this.getGroupAsync(name).get(5, TimeUnit.SECONDS);
@@ -241,7 +241,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public void setGroups(@NotNull Collection<? extends IPermissionGroup> groups) {
-        Validate.checkNotNull(groups);
+        Preconditions.checkNotNull(groups);
 
         try {
             this.setGroupsAsync(groups).get(5, TimeUnit.SECONDS);
@@ -253,7 +253,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<Void> addUserAsync(@NotNull IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_add_user").append("permissionUser", permissionUser), null,
                 VOID_FUNCTION);
@@ -279,7 +279,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_user_with_uuid").append("uniqueId", uniqueId), null,
@@ -288,7 +288,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<Boolean> containsUserAsync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_user_with_name").append("name", name), null,
@@ -297,7 +297,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_user_by_uuid").append("uniqueId", uniqueId), null,
@@ -306,7 +306,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_user_by_name").append("name", name), null,
@@ -340,7 +340,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_users_by_group").append("group", group), null,
@@ -379,7 +379,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<Boolean> containsGroupAsync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_group").append("name", name), null,
@@ -388,7 +388,7 @@ public class WrapperPermissionProvider implements PermissionProvider {
 
     @Override
     public ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_group").append("name", name), null,

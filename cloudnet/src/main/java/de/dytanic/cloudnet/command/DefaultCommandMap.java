@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 
 import java.util.*;
@@ -32,7 +32,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     @Override
     public void unregisterCommand(Class<? extends Command> command) {
-        Validate.checkNotNull(command);
+        Preconditions.checkNotNull(command);
 
         for (Command commandEntry : this.registeredCommands.values()) {
             if (commandEntry.getClass().equals(command)) {
@@ -49,7 +49,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     @Override
     public void unregisterCommands(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
         for (Command commandEntry : this.registeredCommands.values()) {
             if (commandEntry.getClass().getClassLoader().equals(classLoader)) {

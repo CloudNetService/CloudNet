@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
@@ -11,9 +11,9 @@ public class ServiceTemplate implements INameable {
     private boolean alwaysCopyToStaticServices;
 
     public ServiceTemplate(String prefix, String name, String storage) {
-        Validate.checkNotNull(prefix);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(storage);
+        Preconditions.checkNotNull(prefix);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(storage);
 
         this.prefix = prefix;
         this.name = name;

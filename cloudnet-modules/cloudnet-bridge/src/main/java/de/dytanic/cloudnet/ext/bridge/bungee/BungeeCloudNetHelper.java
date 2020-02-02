@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.bungee;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -70,14 +70,14 @@ public final class BungeeCloudNetHelper {
     }
 
     public static boolean isServiceEnvironmentTypeProvidedForBungeeCord(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
         ServiceEnvironmentType currentServiceEnvironment = Wrapper.getInstance().getCurrentServiceInfoSnapshot().getServiceId().getEnvironment();
         return (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer() && currentServiceEnvironment.isMinecraftJavaProxy())
                 || (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer() && currentServiceEnvironment.isMinecraftBedrockProxy());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         serviceInfoSnapshot.getProperties()
                 .append("Online", true)
@@ -126,8 +126,8 @@ public final class BungeeCloudNetHelper {
 
 
     public static ServerInfo createServerInfo(String name, InetSocketAddress address) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(address);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(address);
 
         // with rakNet enabled to support bedrock servers on Waterdog
         if (Wrapper.getInstance().getCurrentServiceInfoSnapshot().getServiceId().getEnvironment() == ServiceEnvironmentType.WATERDOG) {

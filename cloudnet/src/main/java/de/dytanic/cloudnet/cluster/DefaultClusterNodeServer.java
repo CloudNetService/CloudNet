@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.cluster;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -92,7 +92,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         if (this.channel != null) {
             try {
@@ -114,7 +114,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
+        Preconditions.checkNotNull(serviceConfiguration);
 
         if (this.channel != null) {
             try {
@@ -139,12 +139,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             JsonDocument properties, Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         if (this.channel != null) {
             try {
@@ -181,13 +181,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         if (this.channel != null) {
             try {
@@ -219,8 +219,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot sendCommandLineToCloudService(@NotNull UUID uniqueId, @NotNull String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         if (this.channel != null) {
             try {
@@ -240,8 +240,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot addServiceTemplateToCloudService(@NotNull UUID uniqueId, @NotNull ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceTemplate);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(serviceTemplate);
 
         if (this.channel != null) {
             try {
@@ -261,8 +261,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(@NotNull UUID uniqueId, @NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceRemoteInclusion);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(serviceRemoteInclusion);
 
         if (this.channel != null) {
             try {
@@ -282,8 +282,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot addServiceDeploymentToCloudService(@NotNull UUID uniqueId, @NotNull ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceDeployment);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(serviceDeployment);
 
         if (this.channel != null) {
             try {
@@ -304,7 +304,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public Queue<String> getCachedLogMessagesFromService(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {
@@ -324,8 +324,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void setCloudServiceLifeCycle(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(lifeCycle);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(lifeCycle);
 
         if (this.channel != null) {
             try {
@@ -342,7 +342,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void restartCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         if (this.channel != null) {
             try {
@@ -359,7 +359,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void killCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         if (this.channel != null) {
             try {
@@ -376,8 +376,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void runCommand(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull String command) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(command);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(command);
 
         if (this.channel != null) {
             try {
@@ -395,7 +395,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void includeWaitingServiceInclusions(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {
@@ -412,7 +412,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void includeWaitingServiceTemplates(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {
@@ -429,7 +429,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void deployResources(@NotNull UUID uniqueId, boolean removeDeployments) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {

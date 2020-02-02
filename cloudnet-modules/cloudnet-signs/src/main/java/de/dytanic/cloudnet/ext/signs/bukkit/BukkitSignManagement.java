@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
@@ -84,9 +84,9 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     private void updateSign(Location location, Sign sign, org.bukkit.block.Sign bukkitSign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(location);
-        Validate.checkNotNull(bukkitSign);
-        Validate.checkNotNull(signLayout);
+        Preconditions.checkNotNull(location);
+        Preconditions.checkNotNull(bukkitSign);
+        Preconditions.checkNotNull(signLayout);
 
         if (signLayout.getLines() != null &&
                 signLayout.getLines().length == 4) {
@@ -103,7 +103,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     private void changeBlock(Location location, String blockType, int subId) {
-        Validate.checkNotNull(location);
+        Preconditions.checkNotNull(location);
 
         if (blockType != null && subId != -1) {
 
@@ -165,7 +165,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     public Location toLocation(SignPosition signPosition) {
-        Validate.checkNotNull(signPosition);
+        Preconditions.checkNotNull(signPosition);
 
         return Bukkit.getWorld(signPosition.getWorld()) != null ? new Location(
                 Bukkit.getWorld(signPosition.getWorld()),

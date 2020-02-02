@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
@@ -78,7 +78,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
-        Validate.checkNotNull(environment);
+        Preconditions.checkNotNull(environment);
 
         try {
             return this.getCloudServicesAsync(environment).get(5, TimeUnit.SECONDS);
@@ -180,7 +180,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
-        Validate.checkNotNull(environment);
+        Preconditions.checkNotNull(environment);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloud_services_with_environment").append("serviceEnvironment", environment), null,

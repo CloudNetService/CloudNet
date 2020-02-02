@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.velocity;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -34,8 +34,8 @@ public final class VelocityCloudNetHelper {
     }
 
     public static void addServerToVelocityPrioritySystemConfiguration(ServiceInfoSnapshot serviceInfoSnapshot, String name) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         handleWithListenerInfoServerPriority(collection -> {
             for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
@@ -50,7 +50,7 @@ public final class VelocityCloudNetHelper {
     }
 
     public static void removeServerToVelocityPrioritySystemConfiguration(ServiceInfoSnapshot serviceInfoSnapshot, String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         handleWithListenerInfoServerPriority(collection -> collection.remove(name));
     }
@@ -89,7 +89,7 @@ public final class VelocityCloudNetHelper {
     }
 
     public static boolean isServiceEnvironmentTypeProvidedForVelocity(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
         return serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer();
     }
 

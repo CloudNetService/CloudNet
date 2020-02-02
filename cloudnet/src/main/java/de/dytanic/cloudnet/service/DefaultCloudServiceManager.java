@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -44,7 +44,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void setServiceTasks(@NotNull Collection<ServiceTask> tasks) {
-        Validate.checkNotNull(tasks);
+        Preconditions.checkNotNull(tasks);
 
         this.setServiceTasksWithoutClusterSync(tasks);
         CloudNet.getInstance().updateServiceTasksInCluster(tasks, NetworkUpdateType.SET);
@@ -52,7 +52,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void setServiceTasksWithoutClusterSync(@NotNull Collection<ServiceTask> tasks) {
-        Validate.checkNotNull(tasks);
+        Preconditions.checkNotNull(tasks);
 
         this.config.getTasks().clear();
         this.config.getTasks().addAll(tasks);
@@ -61,7 +61,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public boolean addPermanentServiceTask(@NotNull ServiceTask task) {
-        Validate.checkNotNull(task);
+        Preconditions.checkNotNull(task);
         if (this.addPermanentServiceTaskWithoutClusterSync(task)) {
             CloudNet.getInstance().updateServiceTasksInCluster(Collections.singletonList(task), NetworkUpdateType.ADD);
             return true;
@@ -71,14 +71,14 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void removePermanentServiceTask(@NotNull ServiceTask task) {
-        Validate.checkNotNull(task);
+        Preconditions.checkNotNull(task);
         this.removePermanentServiceTaskWithoutClusterSync(task);
         CloudNet.getInstance().updateServiceTasksInCluster(Collections.singletonList(task), NetworkUpdateType.REMOVE);
     }
 
     @Override
     public boolean addPermanentServiceTaskWithoutClusterSync(@NotNull ServiceTask task) {
-        Validate.checkNotNull(task);
+        Preconditions.checkNotNull(task);
 
         ServiceTaskAddEvent serviceTaskAddEvent = new ServiceTaskAddEvent(this, task);
         CloudNetDriver.getInstance().getEventManager().callEvent(serviceTaskAddEvent);
@@ -99,13 +99,13 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void removePermanentServiceTaskWithoutClusterSync(@NotNull ServiceTask task) {
-        Validate.checkNotNull(task);
+        Preconditions.checkNotNull(task);
         this.removePermanentServiceTaskWithoutClusterSync(task.getName());
     }
 
     @Override
     public void removePermanentServiceTaskWithoutClusterSync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         for (ServiceTask serviceTask : this.config.getTasks()) {
             if (serviceTask.getName().equalsIgnoreCase(name)) {
@@ -135,14 +135,14 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @Nullable
     @Override
     public ServiceTask getServiceTask(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.getServiceTasks().stream().filter(serviceTask -> serviceTask.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
     public boolean isTaskPresent(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return this.getServiceTask(name) != null;
     }
 
@@ -153,7 +153,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-        Validate.checkNotNull(groupConfigurations);
+        Preconditions.checkNotNull(groupConfigurations);
 
         this.setGroupConfigurationsWithoutClusterSync(groupConfigurations);
         CloudNet.getInstance().updateGroupConfigurationsInCluster(groupConfigurations, NetworkUpdateType.SET);
@@ -161,7 +161,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void setGroupConfigurationsWithoutClusterSync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-        Validate.checkNotNull(groupConfigurations);
+        Preconditions.checkNotNull(groupConfigurations);
 
         this.config.getGroups().clear();
         this.config.getGroups().addAll(groupConfigurations);
@@ -170,14 +170,14 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public GroupConfiguration getGroupConfiguration(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.getGroupConfigurations().stream().filter(groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
     public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+        Preconditions.checkNotNull(groupConfiguration);
 
         this.addGroupConfigurationWithoutClusterSync(groupConfiguration);
         CloudNet.getInstance().updateGroupConfigurationsInCluster(Collections.singletonList(groupConfiguration), NetworkUpdateType.ADD);
@@ -185,7 +185,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void addGroupConfigurationWithoutClusterSync(@NotNull GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+        Preconditions.checkNotNull(groupConfiguration);
 
         for (GroupConfiguration group : this.config.getGroups()) {
             if (group.getName().equalsIgnoreCase(groupConfiguration.getName())) {
@@ -199,7 +199,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+        Preconditions.checkNotNull(groupConfiguration);
 
         this.removeGroupConfigurationWithoutClusterSync(groupConfiguration.getName());
         CloudNet.getInstance().updateGroupConfigurationsInCluster(Collections.singletonList(groupConfiguration), NetworkUpdateType.REMOVE);
@@ -207,14 +207,14 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void removeGroupConfigurationWithoutClusterSync(@NotNull GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+        Preconditions.checkNotNull(groupConfiguration);
 
         this.removeGroupConfigurationWithoutClusterSync(groupConfiguration.getName());
     }
 
     @Override
     public void removeGroupConfiguration(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         if (this.isGroupConfigurationPresent(name)) {
             GroupConfiguration groupConfiguration = this.getGroupConfiguration(name);
@@ -224,7 +224,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void removeGroupConfigurationWithoutClusterSync(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.config.getGroups().removeIf(group -> group.getName().equalsIgnoreCase(name));
 
@@ -233,14 +233,14 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public boolean isGroupConfigurationPresent(@NotNull String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         return this.getGroupConfigurations().stream().anyMatch(groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(group));
     }
 
     @Override
     public ICloudService runTask(@NotNull ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         return this.runTask(
                 serviceTask.getName(),
@@ -314,11 +314,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             Integer port
     ) {
 
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         int taskId = 1;
 
@@ -408,7 +408,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @Nullable
     @Override
     public ICloudService getCloudService(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.cloudServices.get(uniqueId);
     }
@@ -416,21 +416,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @Nullable
     @Override
     public ICloudService getCloudService(@NotNull Predicate<ICloudService> predicate) {
-        Validate.checkNotNull(predicate);
+        Preconditions.checkNotNull(predicate);
 
         return this.cloudServices.values().stream().filter(predicate).findFirst().orElse(null);
     }
 
     @Override
     public Collection<ICloudService> getLocalCloudServices(@NotNull String taskName) {
-        Validate.checkNotNull(taskName);
+        Preconditions.checkNotNull(taskName);
 
         return this.cloudServices.values().stream().filter(iCloudService -> iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName)).collect(Collectors.toList());
     }
 
     @Override
     public Collection<ICloudService> getLocalCloudServices(@NotNull Predicate<ICloudService> predicate) {
-        Validate.checkNotNull(predicate);
+        Preconditions.checkNotNull(predicate);
 
         return this.cloudServices.values().stream().filter(predicate).collect(Collectors.toList());
     }
@@ -443,7 +443,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @Nullable
     @Override
     public ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.globalServiceInfoSnapshots.get(uniqueId);
     }
@@ -451,28 +451,28 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @Nullable
     @Override
     public ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull Predicate<ServiceInfoSnapshot> predicate) {
-        Validate.checkNotNull(predicate);
+        Preconditions.checkNotNull(predicate);
 
         return this.globalServiceInfoSnapshots.values().stream().filter(predicate).findFirst().orElse(null);
     }
 
     @Override
     public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull String taskName) {
-        Validate.checkNotNull(taskName);
+        Preconditions.checkNotNull(taskName);
 
         return this.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName));
     }
 
     @Override
     public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull ServiceEnvironmentType environment) {
-        Validate.checkNotNull(environment);
+        Preconditions.checkNotNull(environment);
 
         return this.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getEnvironment() == environment);
     }
 
     @Override
     public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull Predicate<ServiceInfoSnapshot> predicate) {
-        Validate.checkNotNull(predicate);
+        Preconditions.checkNotNull(predicate);
 
         return this.globalServiceInfoSnapshots.values().stream().filter(predicate).collect(Collectors.toList());
     }
@@ -484,7 +484,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public Collection<Integer> getReservedTaskIds(@NotNull String task) {
-        Validate.checkNotNull(task);
+        Preconditions.checkNotNull(task);
 
         Collection<Integer> taskIdList = new ArrayList<>();
 

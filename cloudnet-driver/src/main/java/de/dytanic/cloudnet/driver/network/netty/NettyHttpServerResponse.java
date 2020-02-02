@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
@@ -46,26 +46,26 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     @Override
     public String header(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return this.httpResponse.headers().getAsString(name);
     }
 
     @Override
     public int headerAsInt(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return this.httpResponse.headers().getInt(name);
     }
 
     @Override
     public boolean headerAsBoolean(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return Boolean.parseBoolean(this.httpResponse.headers().get(name));
     }
 
     @Override
     public IHttpResponse header(String name, String value) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(value);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(value);
 
         this.httpResponse.headers().set(name, value);
         return this;
@@ -73,7 +73,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     @Override
     public IHttpResponse removeHeader(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         this.httpResponse.headers().remove(name);
         return this;
     }
@@ -86,7 +86,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     @Override
     public boolean hasHeader(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return this.httpResponse.headers().contains(name);
     }
 
@@ -108,7 +108,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     @Override
     public IHttpResponse version(HttpVersion version) {
-        Validate.checkNotNull(version);
+        Preconditions.checkNotNull(version);
 
         this.httpResponse.setProtocolVersion(this.getNettyHttpVersion(version));
         return this;
@@ -126,7 +126,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     @Override
     public IHttpResponse body(byte[] byteArray) {
-        Validate.checkNotNull(byteArray);
+        Preconditions.checkNotNull(byteArray);
 
         this.httpResponse.content().clear();
         this.httpResponse.content().writeBytes(byteArray);
@@ -135,7 +135,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     @Override
     public IHttpResponse body(String text) {
-        Validate.checkNotNull(text);
+        Preconditions.checkNotNull(text);
 
         this.httpResponse.content().clear();
         this.httpResponse.content().writeBytes(text.getBytes(StandardCharsets.UTF_8));

@@ -7,7 +7,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -89,8 +89,8 @@ public final class VelocityCloudNetSyncProxyPlugin {
     }
 
     public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(syncProxyProxyLoginConfiguration);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(syncProxyProxyLoginConfiguration);
 
         return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(syncProxyProxyLoginConfiguration.getTargetGroup());
     }

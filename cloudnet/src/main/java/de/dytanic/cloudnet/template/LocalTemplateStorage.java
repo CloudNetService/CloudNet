@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.template;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        Validate.checkNotNull(target);
+        Preconditions.checkNotNull(target);
 
         try {
             FileUtils.extract(zipInput, new File(this.storageDirectory, target.getTemplatePath()).toPath());
@@ -44,8 +44,8 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
-        Validate.checkNotNull(directory);
-        Validate.checkNotNull(target);
+        Preconditions.checkNotNull(directory);
+        Preconditions.checkNotNull(target);
 
         if (!directory.isDirectory()) {
             return false;
@@ -63,16 +63,16 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        Validate.checkNotNull(paths);
-        Validate.checkNotNull(target);
+        Preconditions.checkNotNull(paths);
+        Preconditions.checkNotNull(target);
 
         return this.deploy(Arrays.stream(paths).map(Path::toFile).toArray(File[]::new), target);
     }
 
     @Override
     public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        Validate.checkNotNull(files);
-        Validate.checkNotNull(target);
+        Preconditions.checkNotNull(files);
+        Preconditions.checkNotNull(target);
 
         byte[] buffer = new byte[32768];
 
@@ -100,8 +100,8 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
-        Validate.checkNotNull(template);
-        Validate.checkNotNull(directory);
+        Preconditions.checkNotNull(template);
+        Preconditions.checkNotNull(directory);
 
         byte[] buffer = new byte[32768];
         File templateDirectory = new File(this.storageDirectory, template.getTemplatePath());
@@ -119,15 +119,15 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
-        Validate.checkNotNull(template);
-        Validate.checkNotNull(directory);
+        Preconditions.checkNotNull(template);
+        Preconditions.checkNotNull(directory);
 
         return this.copy(template, directory.toFile());
     }
 
     @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        Validate.checkNotNull(directories);
+        Preconditions.checkNotNull(directories);
         boolean value = true;
 
         for (File directory : directories) {
@@ -141,7 +141,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        Validate.checkNotNull(directories);
+        Preconditions.checkNotNull(directories);
         boolean value = true;
 
         for (Path path : directories) {
@@ -161,7 +161,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean delete(@NotNull ServiceTemplate template) {
-        Validate.checkNotNull(template);
+        Preconditions.checkNotNull(template);
 
         FileUtils.delete(new File(this.storageDirectory, template.getTemplatePath()));
         return true;
@@ -179,7 +179,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean has(@NotNull ServiceTemplate template) {
-        Validate.checkNotNull(template);
+        Preconditions.checkNotNull(template);
 
         return new File(this.storageDirectory, template.getTemplatePath()).exists();
     }

@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -18,7 +18,7 @@ public final class SyncProxyConfigurationProvider {
     }
 
     public static void setLocal(SyncProxyConfiguration syncProxyConfiguration) {
-        Validate.checkNotNull(syncProxyConfiguration);
+        Preconditions.checkNotNull(syncProxyConfiguration);
 
         loadedConfiguration = syncProxyConfiguration;
     }

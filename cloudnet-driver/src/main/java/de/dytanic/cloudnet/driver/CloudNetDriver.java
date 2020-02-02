@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
@@ -618,7 +618,7 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public void stopCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
     }
@@ -630,7 +630,7 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public void startCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
     }
@@ -642,7 +642,7 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public void deleteCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
     }
@@ -654,7 +654,7 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
     }
@@ -666,7 +666,7 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
     }
@@ -678,7 +678,7 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
     }
@@ -690,7 +690,7 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
     }
@@ -1490,11 +1490,11 @@ public abstract class CloudNetDriver {
      */
     @Deprecated
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
-        Validate.checkNotNull(networkChannel);
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(id);
-        Validate.checkNotNull(data);
-        Validate.checkNotNull(function);
+        Preconditions.checkNotNull(networkChannel);
+        Preconditions.checkNotNull(channel);
+        Preconditions.checkNotNull(id);
+        Preconditions.checkNotNull(data);
+        Preconditions.checkNotNull(function);
 
         return this.getPacketQueryProvider().sendCallablePacket(networkChannel, channel, id, data, function);
     }

@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -26,35 +26,35 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     @Nullable
     @Override
     public GroupConfiguration getGroupConfiguration(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().getGroupConfiguration(name);
     }
 
     @Override
     public boolean isGroupConfigurationPresent(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().isGroupConfigurationPresent(name);
     }
 
     @Override
     public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+        Preconditions.checkNotNull(groupConfiguration);
 
         this.cloudNet.getCloudServiceManager().addGroupConfiguration(groupConfiguration);
     }
 
     @Override
     public void removeGroupConfiguration(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.cloudNet.getCloudServiceManager().removeGroupConfiguration(name);
     }
 
     @Override
     public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+        Preconditions.checkNotNull(groupConfiguration);
 
         this.cloudNet.getCloudServiceManager().removeGroupConfiguration(groupConfiguration);
     }

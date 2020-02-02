@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -82,7 +82,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(serviceTemplate);
+        Preconditions.checkNotNull(serviceTemplate);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -103,7 +103,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(serviceRemoteInclusion);
+        Preconditions.checkNotNull(serviceRemoteInclusion);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -124,7 +124,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(serviceDeployment);
+        Preconditions.checkNotNull(serviceDeployment);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -164,7 +164,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(lifeCycle);
+        Preconditions.checkNotNull(lifeCycle);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -224,7 +224,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     @Override
     public ITask<Void> runCommandAsync(@NotNull String command) {
-        Validate.checkNotNull(command);
+        Preconditions.checkNotNull(command);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()

@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.permission.command;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
@@ -27,7 +27,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     @Override
     public void sendMessage(String message) {
-        Validate.checkNotNull(message);
+        Preconditions.checkNotNull(message);
 
         this.writtenMessages.add(message);
 
@@ -38,7 +38,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     @Override
     public void sendMessage(String... messages) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
         for (String message : messages) {
             this.sendMessage(message);

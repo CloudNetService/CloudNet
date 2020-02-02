@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,7 +8,7 @@ import java.util.Collections;
 public interface ClusterSynchronizedPermissionManagement extends IPermissionManagement {
 
     default IPermissionUser addUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleAddUser(this, permissionUser);
         }
@@ -16,7 +16,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
     }
 
     default void updateUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleUpdateUser(this, permissionUser);
         }
@@ -24,14 +24,14 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
     }
 
     default void deleteUser(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         for (IPermissionUser permissionUser : this.getUsers(name)) {
             this.deleteUser(permissionUser);
         }
     }
 
     default void deleteUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleDeleteUser(this, permissionUser);
         }
@@ -50,7 +50,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
     }
 
     default IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleAddGroup(this, permissionGroup);
         }
@@ -59,7 +59,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
     }
 
     default void updateGroup(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleUpdateGroup(this, permissionGroup);
         }

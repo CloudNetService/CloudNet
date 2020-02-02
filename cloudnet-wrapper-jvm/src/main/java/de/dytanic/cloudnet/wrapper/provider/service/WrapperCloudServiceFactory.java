@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
@@ -26,7 +26,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         try {
             return this.createCloudServiceAsync(serviceTask).get(5, TimeUnit.SECONDS);
@@ -39,7 +39,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
+        Preconditions.checkNotNull(serviceConfiguration);
 
         try {
             return this.createCloudServiceAsync(serviceConfiguration).get(5, TimeUnit.SECONDS);
@@ -62,12 +62,12 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                   ProcessConfiguration processConfiguration,
                                                   JsonDocument properties,
                                                   Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         try {
             return this.createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
@@ -92,13 +92,13 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                               ProcessConfiguration processConfiguration,
                                                               JsonDocument properties,
                                                               Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         try {
             return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
@@ -110,7 +110,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
 
     @Override
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), null,
@@ -120,7 +120,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
 
     @Override
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
+        Preconditions.checkNotNull(serviceConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), null,
@@ -140,12 +140,12 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                               ProcessConfiguration processConfiguration,
                                                               JsonDocument properties,
                                                               Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom")
@@ -179,13 +179,13 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                                           ProcessConfiguration processConfiguration,
                                                                           JsonDocument properties,
                                                                           Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom_selected_node_and_amount")

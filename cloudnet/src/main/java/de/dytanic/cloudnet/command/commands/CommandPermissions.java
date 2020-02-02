@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.command.sub.SubCommandArgumentWrapper;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Triple;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.permission.*;
@@ -244,7 +244,7 @@ public class CommandPermissions extends SubCommandHandler {
                         ),
                         dynamicString(
                                 "time in days | lifetime",
-                                input -> input.equalsIgnoreCase("lifetime") || Validate.testStringParseToInt(input)
+                                input -> input.equalsIgnoreCase("lifetime") || Preconditions.testStringParseToInt(input)
                         )
                 )
 
@@ -470,7 +470,7 @@ public class CommandPermissions extends SubCommandHandler {
                         integer("potency"),
                         dynamicString(
                                 "time in days | lifetime",
-                                input -> input.equalsIgnoreCase("lifetime") || Validate.testStringParseToInt(input)
+                                input -> input.equalsIgnoreCase("lifetime") || Preconditions.testStringParseToInt(input)
                         )
                 )
                 .generateCommand(
@@ -487,7 +487,7 @@ public class CommandPermissions extends SubCommandHandler {
                         integer("potency"),
                         dynamicString(
                                 "time in days | lifetime",
-                                input -> input.equalsIgnoreCase("lifetime") || Validate.testStringParseToInt(input)
+                                input -> input.equalsIgnoreCase("lifetime") || Preconditions.testStringParseToInt(input)
                         ),
                         dynamicString(
                                 "targetGroup",

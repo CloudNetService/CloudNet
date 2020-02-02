@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.signs.configuration;
 
 import com.google.common.collect.ImmutableMap;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntryType;
 
@@ -17,15 +17,15 @@ public final class SignConfigurationReaderAndWriter {
     }
 
     public static void write(SignConfiguration signConfiguration, File file) {
-        Validate.checkNotNull(signConfiguration);
-        Validate.checkNotNull(file);
+        Preconditions.checkNotNull(signConfiguration);
+        Preconditions.checkNotNull(file);
 
         file.getParentFile().mkdirs();
         new JsonDocument("config", signConfiguration).write(file);
     }
 
     public static SignConfiguration read(File file) {
-        Validate.checkNotNull(file);
+        Preconditions.checkNotNull(file);
 
         JsonDocument document = JsonDocument.newDocument(file);
 

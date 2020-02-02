@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     private boolean done;
 
     OutputStreamCloseTask(OutputStream outputStream) {
-        Validate.checkNotNull(outputStream, "OutputStream is null!");
+        Preconditions.checkNotNull(outputStream, "OutputStream is null!");
 
         this.outputStream = outputStream;
     }

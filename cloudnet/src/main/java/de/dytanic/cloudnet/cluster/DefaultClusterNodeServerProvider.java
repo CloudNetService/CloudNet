@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.cluster;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -26,14 +26,14 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     @Nullable
     @Override
     public IClusterNodeServer getNodeServer(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.servers.get(uniqueId);
     }
 
     @Override
     public IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
-        Validate.checkNotNull(channel);
+        Preconditions.checkNotNull(channel);
 
         for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
             if (clusterNodeServer.getChannel() != null && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
@@ -67,7 +67,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
     @Override
     public void sendPacket(@NotNull IPacket packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
         for (IClusterNodeServer nodeServer : this.servers.values()) {
             nodeServer.saveSendPacket(packet);
@@ -76,7 +76,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
     @Override
     public void sendPacket(@NotNull IPacket... packets) {
-        Validate.checkNotNull(packets);
+        Preconditions.checkNotNull(packets);
 
         for (IPacket packet : packets) {
             this.sendPacket(packet);

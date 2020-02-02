@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -24,35 +24,35 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
     @Override
     public ServiceTask getServiceTask(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().getServiceTask(name);
     }
 
     @Override
     public boolean isServiceTaskPresent(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().isTaskPresent(name);
     }
 
     @Override
     public void addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         this.cloudNet.getCloudServiceManager().addPermanentServiceTask(serviceTask);
     }
 
     @Override
     public void removePermanentServiceTask(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.cloudNet.getCloudServiceManager().removePermanentServiceTask(name);
     }
 
     @Override
     public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         this.cloudNet.getCloudServiceManager().removePermanentServiceTask(serviceTask);
     }

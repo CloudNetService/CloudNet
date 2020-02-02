@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
@@ -27,21 +27,21 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
 
     @Override
     public void addListener(int channel, IPacketListener... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         if (!this.listeners.containsKey(channel)) {
             this.listeners.put(channel, new CopyOnWriteArrayList<>());
         }
 
         for (IPacketListener listener : listeners) {
-            Validate.checkNotNull(listener);
+            Preconditions.checkNotNull(listener);
             this.listeners.get(channel).add(listener);
         }
     }
 
     @Override
     public void removeListener(int channel, IPacketListener... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         if (this.listeners.containsKey(channel)) {
             this.listeners.get(channel).removeAll(Arrays.asList(listeners));
@@ -103,7 +103,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
 
     @Override
     public void handlePacket(INetworkChannel channel, IPacket packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
         if (packet.isShowDebug()) {
             CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(

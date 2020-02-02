@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -281,7 +281,7 @@ public final class Wrapper extends CloudNetDriver {
      */
     @Override
     public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
-        Validate.checkNotNull(serviceName);
+        Preconditions.checkNotNull(serviceName);
 
         try {
             return this.getTemplateStorageTemplatesAsync(serviceName).get(5, TimeUnit.SECONDS);
@@ -309,8 +309,8 @@ public final class Wrapper extends CloudNetDriver {
      */
     @Override
     public Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         try {
             return this.sendCommandLineAsPermissionUserAsync(uniqueId, commandLine).get(5, TimeUnit.SECONDS);
@@ -342,7 +342,7 @@ public final class Wrapper extends CloudNetDriver {
      */
     @Override
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-        Validate.checkNotNull(serviceName);
+        Preconditions.checkNotNull(serviceName);
 
         return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_template_storage_templates").append("serviceName", serviceName), null,
@@ -358,8 +358,8 @@ public final class Wrapper extends CloudNetDriver {
      */
     @Override
     public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_as_permission_user").append("uniqueId", uniqueId).append("commandLine", commandLine), null,
@@ -556,7 +556,7 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {
-        Validate.checkNotNull(databaseProvider);
+        Preconditions.checkNotNull(databaseProvider);
         this.databaseProvider = databaseProvider;
     }
 }

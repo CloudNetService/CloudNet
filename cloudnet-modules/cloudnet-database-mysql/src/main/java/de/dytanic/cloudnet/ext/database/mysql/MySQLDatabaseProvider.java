@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.database.mysql;
 
 import com.zaxxer.hikari.HikariDataSource;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
@@ -57,7 +57,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public IDatabase getDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
@@ -70,7 +70,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean containsDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
@@ -85,7 +85,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean deleteDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.cachedDatabaseInstances.remove(name);
 
@@ -156,8 +156,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     }
 
     public int executeUpdate(String query, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(objects);
 
         try (Connection connection = this.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -176,9 +176,9 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     }
 
     public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(callback);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(callback);
+        Preconditions.checkNotNull(objects);
 
         try (Connection connection = this.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {

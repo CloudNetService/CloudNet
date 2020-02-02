@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.examples.bridge;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -45,7 +45,7 @@ public final class PlayerAPIExample {
 
     public void getPlayerExample(Player player) //Bukkit Player
     {
-        Validate.checkNotNull(player);
+        Preconditions.checkNotNull(player);
 
         ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId()); //Returns an online cloudPlayers
 

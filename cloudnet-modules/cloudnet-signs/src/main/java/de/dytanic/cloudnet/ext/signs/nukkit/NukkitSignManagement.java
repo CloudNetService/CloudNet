@@ -8,7 +8,7 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.utils.Faceable;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
@@ -79,8 +79,8 @@ public final class NukkitSignManagement extends AbstractSignManagement {
     }
 
     private void updateSign(Sign sign, BlockEntitySign nukkitSign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(nukkitSign);
-        Validate.checkNotNull(signLayout);
+        Preconditions.checkNotNull(nukkitSign);
+        Preconditions.checkNotNull(signLayout);
 
         if (signLayout.getLines() != null &&
                 signLayout.getLines().length == 4) {
@@ -99,7 +99,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
     }
 
     private void changeBlock(BlockEntitySign nukkitSign, String blockType, int subId) {
-        Validate.checkNotNull(nukkitSign);
+        Preconditions.checkNotNull(nukkitSign);
 
         if (blockType != null && subId != -1) {
 
@@ -126,7 +126,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
     }
 
     public Location toLocation(SignPosition signPosition) {
-        Validate.checkNotNull(signPosition);
+        Preconditions.checkNotNull(signPosition);
 
         return Server.getInstance().getLevelByName(signPosition.getWorld()) != null ? new Location(
                 signPosition.getX(),

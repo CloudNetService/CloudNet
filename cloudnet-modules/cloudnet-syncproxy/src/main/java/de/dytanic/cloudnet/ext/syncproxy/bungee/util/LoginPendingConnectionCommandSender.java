@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee.util;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -69,7 +69,7 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
 
     @Override
     public boolean hasPermission(String permission) {
-        Validate.checkNotNull(permission);
+        Preconditions.checkNotNull(permission);
 
         return ProxyServer.getInstance().getPluginManager().callEvent(new PermissionCheckEvent(
                 this,
@@ -80,7 +80,7 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
 
     @Override
     public void setPermission(String permission, boolean value) {
-        Validate.checkNotNull(permission);
+        Preconditions.checkNotNull(permission);
 
         if (value) {
             this.permissions.add(permission.toLowerCase());

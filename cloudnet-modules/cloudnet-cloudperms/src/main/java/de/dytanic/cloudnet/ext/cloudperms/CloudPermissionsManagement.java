@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.ext.cloudperms.listener.PermissionsUpdateListener;
@@ -158,7 +158,7 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     @Nullable
     @Override
     public IPermissionGroup getGroup(@NotNull String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.cachedPermissionGroups.get(name);
     }

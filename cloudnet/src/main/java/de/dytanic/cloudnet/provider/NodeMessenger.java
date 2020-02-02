@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
@@ -20,9 +20,9 @@ public class NodeMessenger implements CloudMessenger {
 
     @Override
     public void sendChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(message);
-        Validate.checkNotNull(data);
+        Preconditions.checkNotNull(channel);
+        Preconditions.checkNotNull(message);
+        Preconditions.checkNotNull(data);
 
         this.cloudNet.sendAll(new PacketClientServerChannelMessage(channel, message, data));
     }

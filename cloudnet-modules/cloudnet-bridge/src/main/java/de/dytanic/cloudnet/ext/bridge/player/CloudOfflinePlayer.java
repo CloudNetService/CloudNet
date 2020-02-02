@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
@@ -40,7 +40,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
 
 
     public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer) {
-        Validate.checkNotNull(cloudPlayer);
+        Preconditions.checkNotNull(cloudPlayer);
 
         CloudOfflinePlayer cloudOfflinePlayer = new CloudOfflinePlayer(
                 cloudPlayer.getUniqueId(),

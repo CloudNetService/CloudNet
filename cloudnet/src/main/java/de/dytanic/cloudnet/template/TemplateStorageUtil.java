@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.template;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -43,10 +43,10 @@ public final class TemplateStorageUtil {
     }
 
     public static boolean createAndPrepareTemplate(ITemplateStorage storage, String prefix, String name, ServiceEnvironmentType environment) throws IOException {
-        Validate.checkNotNull(storage);
-        Validate.checkNotNull(prefix);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(environment);
+        Preconditions.checkNotNull(storage);
+        Preconditions.checkNotNull(prefix);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(environment);
 
         ServiceTemplate serviceTemplate = new ServiceTemplate(prefix, name, storage.getName());
 

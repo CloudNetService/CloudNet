@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.*;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import io.netty.channel.Channel;
@@ -134,7 +134,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public HttpCookie cookie(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.cookies.stream().filter(httpCookie -> httpCookie.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
@@ -146,14 +146,14 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public boolean hasCookie(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.cookies.stream().anyMatch(httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
     }
 
     @Override
     public IHttpContext setCookies(Collection<HttpCookie> cookies) {
-        Validate.checkNotNull(cookies);
+        Preconditions.checkNotNull(cookies);
 
         this.cookies.clear();
         this.cookies.addAll(cookies);
@@ -164,7 +164,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public IHttpContext addCookie(HttpCookie httpCookie) {
-        Validate.checkNotNull(httpCookie);
+        Preconditions.checkNotNull(httpCookie);
 
         HttpCookie cookie = cookie(httpCookie.getName());
 
@@ -179,7 +179,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public IHttpContext removeCookie(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         HttpCookie cookie = cookie(name);
         if (cookie != null) {

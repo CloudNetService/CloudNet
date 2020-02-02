@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.command.ITabCompleter;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
@@ -90,7 +90,7 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public void startAnimation(AbstractConsoleAnimation animation) {
-        Validate.checkNotNull(animation);
+        Preconditions.checkNotNull(animation);
 
         animation.setConsole(this);
 

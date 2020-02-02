@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
@@ -35,7 +35,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     @Override
     public IWebSocketChannel addListener(IWebSocketListener... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         for (IWebSocketListener listener : listeners) {
             if (listener != null) {
@@ -48,7 +48,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     @Override
     public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         webSocketListeners.removeIf(listener -> Arrays.stream(listeners).anyMatch(webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)));
 
@@ -57,7 +57,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     @Override
     public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes) {
-        Validate.checkNotNull(classes);
+        Preconditions.checkNotNull(classes);
 
         webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
 
@@ -84,16 +84,16 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     @Override
     public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, String text) {
-        Validate.checkNotNull(webSocketFrameType);
-        Validate.checkNotNull(text);
+        Preconditions.checkNotNull(webSocketFrameType);
+        Preconditions.checkNotNull(text);
 
         return this.sendWebSocketFrame(webSocketFrameType, text.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
     public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, byte[] bytes) {
-        Validate.checkNotNull(webSocketFrameType);
-        Validate.checkNotNull(bytes);
+        Preconditions.checkNotNull(webSocketFrameType);
+        Preconditions.checkNotNull(bytes);
 
         WebSocketFrame webSocketFrame;
 
@@ -123,7 +123,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     @Override
     public void close(int statusCode, String reasonText) {
-        Validate.checkNotNull(statusCode);
+        Preconditions.checkNotNull(statusCode);
 
         AtomicReference<Integer> statusCodeReference = new AtomicReference<>(statusCode);
         AtomicReference<String> reasonTextReference = new AtomicReference<>(reasonText);

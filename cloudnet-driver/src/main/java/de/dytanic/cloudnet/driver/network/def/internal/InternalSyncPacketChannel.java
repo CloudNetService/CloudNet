@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.def.internal;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -34,7 +34,7 @@ public final class InternalSyncPacketChannel {
     }
 
     public static boolean handleIncomingChannel(Packet packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
         if (WAITING_PACKETS.containsKey(packet.getUniqueId())) {
             try {

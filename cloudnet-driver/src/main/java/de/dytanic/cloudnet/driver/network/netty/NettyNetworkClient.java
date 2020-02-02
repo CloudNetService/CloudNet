@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -97,8 +97,8 @@ public final class NettyNetworkClient implements INetworkClient {
 
     @Override
     public boolean connect(@NotNull HostAndPort hostAndPort) {
-        Validate.checkNotNull(hostAndPort);
-        Validate.checkNotNull(hostAndPort.getHost());
+        Preconditions.checkNotNull(hostAndPort);
+        Preconditions.checkNotNull(hostAndPort.getHost());
 
         try {
             new Bootstrap()
@@ -150,7 +150,7 @@ public final class NettyNetworkClient implements INetworkClient {
 
     @Override
     public void sendPacket(@NotNull IPacket packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
@@ -159,7 +159,7 @@ public final class NettyNetworkClient implements INetworkClient {
 
     @Override
     public void sendPacket(@NotNull IPacket... packets) {
-        Validate.checkNotNull(packets);
+        Preconditions.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);

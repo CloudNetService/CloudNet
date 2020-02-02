@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.command.DefaultCommandMap;
 import de.dytanic.cloudnet.command.ICommandMap;
 import de.dytanic.cloudnet.command.commands.*;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -448,7 +448,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public ServiceInfoSnapshot getCloudServiceByNameOrUniqueId(String argument) {
-        Validate.checkNotNull(argument);
+        Preconditions.checkNotNull(argument);
 
         return this.getCloudServiceProvider().getCloudServices().stream()
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(argument.toLowerCase()))
@@ -469,7 +469,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
-        Validate.checkNotNull(serviceName);
+        Preconditions.checkNotNull(serviceName);
 
         Collection<ServiceTemplate> collection = new ArrayList<>();
 
@@ -493,8 +493,8 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         IPermissionUser permissionUser = permissionManagement.getUser(uniqueId);
         if (permissionUser != null) {
@@ -514,15 +514,15 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-        Validate.checkNotNull(serviceName);
+        Preconditions.checkNotNull(serviceName);
 
         return scheduleTask(() -> CloudNet.this.getTemplateStorageTemplates(serviceName));
     }
 
     @Override
     public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         return scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
     }
@@ -543,8 +543,8 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] resource) {
-        Validate.checkNotNull(serviceTemplate);
-        Validate.checkNotNull(resource);
+        Preconditions.checkNotNull(serviceTemplate);
+        Preconditions.checkNotNull(resource);
 
         this.getClusterNodeServerProvider().deployTemplateInCluster(serviceTemplate, resource);
     }
@@ -565,7 +565,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void sendAll(IPacket packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
         for (IClusterNodeServer clusterNodeServer : getClusterNodeServerProvider().getNodeServers()) {
             clusterNodeServer.saveSendPacket(packet);
@@ -586,7 +586,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void sendAll(IPacket... packets) {
-        Validate.checkNotNull(packets);
+        Preconditions.checkNotNull(packets);
 
         for (IClusterNodeServer clusterNodeServer : getClusterNodeServerProvider().getNodeServers()) {
             for (IPacket packet : packets) {
@@ -649,7 +649,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public NetworkClusterNodeInfoSnapshot searchLogicNode(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(serviceTask).stream().map(IClusterNodeServer::getNodeInfoSnapshot).collect(Collectors.toList());
         if (serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(this.config.getIdentity().getUniqueId())) {
@@ -681,7 +681,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void unregisterPacketListenersByClassLoader(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
         networkClient.getPacketRegistry().removeListeners(classLoader);
         networkServer.getPacketRegistry().removeListeners(classLoader);

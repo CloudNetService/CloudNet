@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.DriverCommandSender;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -39,7 +39,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     @Nullable
     @Override
     public NetworkClusterNode getNode(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
             return this.cloudNet.getConfig().getIdentity();
@@ -83,7 +83,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public String[] sendCommandLine(@NotNull String commandLine) {
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(commandLine);
 
         Collection<String> collection = new ArrayList<>();
 
@@ -105,8 +105,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(commandLine);
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(nodeUniqueId)) {
             return this.sendCommandLine(commandLine);
@@ -169,7 +169,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getNode(uniqueId));
     }
@@ -181,7 +181,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
     @Override
     public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getNodeInfoSnapshot(uniqueId));
     }

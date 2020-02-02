@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.conf;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -199,7 +199,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void setClusterConfig(NetworkCluster clusterConfig) {
-        Validate.checkNotNull(clusterConfig);
+        Preconditions.checkNotNull(clusterConfig);
 
         this.clusterConfig = clusterConfig;
         this.save();
@@ -211,7 +211,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void setIpWhitelist(Collection<String> whitelist) {
-        Validate.checkNotNull(whitelist);
+        Preconditions.checkNotNull(whitelist);
 
         this.ipWhitelist = whitelist;
         this.save();
@@ -297,7 +297,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void setHttpListeners(Collection<HostAndPort> httpListeners) {
-        Validate.checkNotNull(httpListeners);
+        Preconditions.checkNotNull(httpListeners);
 
         this.httpListeners = httpListeners;
         this.save();

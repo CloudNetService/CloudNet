@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
@@ -54,8 +54,8 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public boolean addListener(HostAndPort hostAndPort) {
-        Validate.checkNotNull(hostAndPort);
-        Validate.checkNotNull(hostAndPort.getHost());
+        Preconditions.checkNotNull(hostAndPort);
+        Preconditions.checkNotNull(hostAndPort.getHost());
 
         if (!channelFutures.containsKey(hostAndPort.getPort())) {
             try {
@@ -95,8 +95,8 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public IHttpServer registerHandler(String path, Integer port, int priority, IHttpHandler... handlers) {
-        Validate.checkNotNull(path);
-        Validate.checkNotNull(handlers);
+        Preconditions.checkNotNull(path);
+        Preconditions.checkNotNull(handlers);
 
         if (!path.startsWith("/")) {
             path = "/" + path;
@@ -127,7 +127,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public IHttpServer removeHandler(IHttpHandler handler) {
-        Validate.checkNotNull(handler);
+        Preconditions.checkNotNull(handler);
 
         this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.equals(handler));
 
@@ -136,7 +136,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public IHttpServer removeHandler(Class<? extends IHttpHandler> handler) {
-        Validate.checkNotNull(handler);
+        Preconditions.checkNotNull(handler);
 
         this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().equals(handler));
 
@@ -145,7 +145,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public IHttpServer removeHandler(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
         this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader));
 
@@ -196,7 +196,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
         @Override
         public int compareTo(@NotNull HttpHandlerEntry httpHandlerEntry) {
-            Validate.checkNotNull(httpHandlerEntry);
+            Preconditions.checkNotNull(httpHandlerEntry);
 
             return this.priority + httpHandlerEntry.priority;
         }

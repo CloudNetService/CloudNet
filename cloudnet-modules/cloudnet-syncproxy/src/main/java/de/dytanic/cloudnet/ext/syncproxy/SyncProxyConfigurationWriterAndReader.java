@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
 import com.google.common.collect.ImmutableMap;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
@@ -24,15 +24,15 @@ public final class SyncProxyConfigurationWriterAndReader {
     }
 
     public static void write(SyncProxyConfiguration syncProxyConfiguration, File file) {
-        Validate.checkNotNull(syncProxyConfiguration);
-        Validate.checkNotNull(file);
+        Preconditions.checkNotNull(syncProxyConfiguration);
+        Preconditions.checkNotNull(file);
 
         file.getParentFile().mkdirs();
         new JsonDocument("config", syncProxyConfiguration).write(file);
     }
 
     public static SyncProxyConfiguration read(File file) {
-        Validate.checkNotNull(file);
+        Preconditions.checkNotNull(file);
 
         JsonDocument document = JsonDocument.newDocument(file);
         if (document == null || !document.contains("config")) {

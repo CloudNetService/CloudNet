@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -43,7 +43,7 @@ public final class BukkitCloudNetHelper {
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         Collection<BukkitCloudNetPlayerInfo> players = new ArrayList<>();
         Bukkit.getOnlinePlayers().forEach(player -> {

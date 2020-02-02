@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.http;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -105,7 +105,7 @@ public final class V1HttpSession {
     }
 
     public void logout(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
         if (sessionEntry != null) {
@@ -116,7 +116,7 @@ public final class V1HttpSession {
     }
 
     public IPermissionUser getUser(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
 

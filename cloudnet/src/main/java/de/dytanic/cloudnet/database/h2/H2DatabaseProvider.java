@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.database.h2;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
@@ -69,7 +69,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public H2Database getDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
@@ -82,7 +82,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean containsDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
@@ -97,7 +97,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean deleteDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.cachedDatabaseInstances.remove(name);
 
@@ -155,8 +155,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
 
     public int executeUpdate(String query, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(objects);
 
         try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
             int i = 1;
@@ -174,9 +174,9 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
 
     public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(callback);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(callback);
+        Preconditions.checkNotNull(objects);
 
         try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
             int i = 1;

@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.database.sql;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -21,8 +21,8 @@ public abstract class SQLDatabase implements IDatabase {
     protected String name;
 
     public SQLDatabase(SQLDatabaseProvider databaseProvider, String name) {
-        Validate.checkNotNull(databaseProvider);
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(databaseProvider);
+        Preconditions.checkNotNull(name);
 
         this.databaseProvider = databaseProvider;
         this.name = name;
@@ -47,8 +47,8 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public boolean insert(String key, JsonDocument document) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(document);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(document);
 
         if (this.databaseProvider.getDatabaseHandler() != null) {
             this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
@@ -58,8 +58,8 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     public boolean insert0(String key, JsonDocument document) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(document);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(document);
 
         return !contains(key) ?
                 this.databaseProvider.executeUpdate(
@@ -70,8 +70,8 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public boolean update(String key, JsonDocument document) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(document);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(document);
 
         if (this.databaseProvider.getDatabaseHandler() != null) {
             this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
@@ -89,7 +89,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public boolean contains(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return this.databaseProvider.executeQuery(
                 "SELECT " + TABLE_COLUMN_KEY + " FROM " + this.name + " WHERE " + TABLE_COLUMN_KEY + "=?",
@@ -100,7 +100,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public boolean delete(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         if (this.databaseProvider.getDatabaseHandler() != null) {
             this.databaseProvider.getDatabaseHandler().handleDelete(this, key);
@@ -118,7 +118,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public JsonDocument get(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return this.databaseProvider.executeQuery(
                 "SELECT " + TABLE_COLUMN_VALUE + " FROM " + this.name + " WHERE " + TABLE_COLUMN_KEY + "=?",
@@ -129,8 +129,8 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public List<JsonDocument> get(String fieldName, Object fieldValue) {
-        Validate.checkNotNull(fieldName);
-        Validate.checkNotNull(fieldValue);
+        Preconditions.checkNotNull(fieldName);
+        Preconditions.checkNotNull(fieldValue);
 
         return this.databaseProvider.executeQuery(
                 "SELECT " + TABLE_COLUMN_VALUE + " FROM " + this.name + " WHERE " + TABLE_COLUMN_VALUE + " LIKE ?",
@@ -149,7 +149,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public List<JsonDocument> get(JsonDocument filters) {
-        Validate.checkNotNull(filters);
+        Preconditions.checkNotNull(filters);
 
         StringBuilder stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM ").append(this.name);
 
@@ -238,7 +238,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate) {
-        Validate.checkNotNull(predicate);
+        Preconditions.checkNotNull(predicate);
 
         return this.databaseProvider.executeQuery(
                 "SELECT * FROM " + this.name,
@@ -261,7 +261,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public void iterate(BiConsumer<String, JsonDocument> consumer) {
-        Validate.checkNotNull(consumer);
+        Preconditions.checkNotNull(consumer);
 
         this.databaseProvider.executeQuery(
                 "SELECT * FROM " + this.name,

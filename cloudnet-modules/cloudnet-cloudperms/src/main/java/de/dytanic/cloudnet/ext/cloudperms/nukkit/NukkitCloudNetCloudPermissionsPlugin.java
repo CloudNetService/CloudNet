@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.ext.cloudperms.nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudNetCloudPermissionsPlayerListener;
@@ -46,7 +46,7 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
     }
 
     public void injectCloudPermissible(Player player) {
-        Validate.checkNotNull(player);
+        Preconditions.checkNotNull(player);
 
         try {
             Field field = Player.class.getDeclaredField("perm");

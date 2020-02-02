@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
@@ -76,8 +76,8 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     @Override
     public boolean addListener(@NotNull HostAndPort hostAndPort) {
-        Validate.checkNotNull(hostAndPort);
-        Validate.checkNotNull(hostAndPort.getHost());
+        Preconditions.checkNotNull(hostAndPort);
+        Preconditions.checkNotNull(hostAndPort.getHost());
 
         if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
@@ -136,7 +136,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     @Override
     public void sendPacket(@NotNull IPacket packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
@@ -145,7 +145,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     @Override
     public void sendPacket(@NotNull IPacket... packets) {
-        Validate.checkNotNull(packets);
+        Preconditions.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);

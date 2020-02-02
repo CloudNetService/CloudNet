@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.permission;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -32,7 +32,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public IPermissionUser addUserWithoutClusterSync(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         this.getDatabase().insert(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
         return permissionUser;
@@ -40,14 +40,14 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public void updateUserWithoutClusterSync(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         this.getDatabase().update(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser));
     }
 
     @Override
     public void deleteUserWithoutClusterSync(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         for (IPermissionUser permissionUser : this.getUsers(name)) {
             this.getDatabase().delete(permissionUser.getUniqueId().toString());
@@ -56,28 +56,28 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public void deleteUserWithoutClusterSync(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         this.getDatabase().delete(permissionUser.getUniqueId().toString());
     }
 
     @Override
     public boolean containsUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.getDatabase().contains(uniqueId.toString());
     }
 
     @Override
     public boolean containsUser(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.getUsers(name).size() > 0;
     }
 
     @Override
     public IPermissionUser getUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
 
@@ -96,7 +96,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public List<IPermissionUser> getUsers(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.getDatabase().get("name", name).stream().map(strings -> {
             IPermissionUser permissionUser = strings.toInstanceOf(PermissionUser.TYPE);
@@ -125,7 +125,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public void setUsersWithoutClusterSync(Collection<? extends IPermissionUser> users) {
-        Validate.checkNotNull(users);
+        Preconditions.checkNotNull(users);
 
         this.getDatabase().clear();
 
@@ -138,7 +138,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public Collection<IPermissionUser> getUsersByGroup(String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         Collection<IPermissionUser> permissionUsers = new ArrayList<>();
 
@@ -157,7 +157,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public IPermissionGroup addGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         this.testPermissionGroup(permissionGroup);
         if (this.getGroup(permissionGroup.getName()) != null) {
@@ -171,7 +171,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public void updateGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         this.testPermissionGroup(permissionGroup);
         this.permissionGroupsMap.put(permissionGroup.getName(), permissionGroup);
@@ -181,7 +181,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public void deleteGroupWithoutClusterSync(String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         IPermissionGroup permissionGroup = this.permissionGroupsMap.remove(group);
         if (permissionGroup != null) {
@@ -191,21 +191,21 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public void deleteGroupWithoutClusterSync(IPermissionGroup group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
         this.deleteGroupWithoutClusterSync(group.getName());
     }
 
     @Override
     public boolean containsGroup(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return this.permissionGroupsMap.containsKey(name);
     }
 
     @Override
     public IPermissionGroup getGroup(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         IPermissionGroup permissionGroup = this.permissionGroupsMap.get(name);
 
@@ -229,7 +229,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
 
     @Override
     public void setGroupsWithoutClusterSync(Collection<? extends IPermissionGroup> groups) {
-        Validate.checkNotNull(groups);
+        Preconditions.checkNotNull(groups);
 
         this.permissionGroupsMap.clear();
 

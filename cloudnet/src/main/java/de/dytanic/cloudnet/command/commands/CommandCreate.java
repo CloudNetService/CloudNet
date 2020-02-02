@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.*;
@@ -43,7 +43,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
             return;
         }
 
-        if (args[0].equalsIgnoreCase("by") && args.length > 2 && Validate.testStringParseToInt(args[2])) {
+        if (args[0].equalsIgnoreCase("by") && args.length > 2 && Preconditions.testStringParseToInt(args[2])) {
             ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
                     .filter(task -> task.getName().equalsIgnoreCase(args[1]))
                     .findFirst()
@@ -83,7 +83,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
             return;
         }
 
-        if (args[0].equalsIgnoreCase("new") && args.length > 3 && Validate.testStringParseToInt(args[2])) {
+        if (args[0].equalsIgnoreCase("new") && args.length > 3 && Preconditions.testStringParseToInt(args[2])) {
             ServiceEnvironmentType environmentType;
 
             try {
@@ -221,13 +221,13 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                     properties.containsKey("deletedFilesAfterStop") ? Arrays.asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop,
                     new ProcessConfiguration(
                             processConfiguration.getEnvironment(),
-                            properties.containsKey("memory") && Validate.testStringParseToInt(properties.get("memory")) ?
+                            properties.containsKey("memory") && Preconditions.testStringParseToInt(properties.get("memory")) ?
                                     Integer.parseInt(properties.get("memory")) : processConfiguration.getMaxHeapMemorySize(),
                             new ArrayList<>(properties.containsKey("jvmOptions") ?
                                     Arrays.asList(properties.get("jvmOptions").split(";")) :
                                     processConfiguration.getJvmOptions())
                     ),
-                    Validate.testStringParseToInt(properties.getOrDefault("port", String.valueOf(startPort))) ?
+                    Preconditions.testStringParseToInt(properties.getOrDefault("port", String.valueOf(startPort))) ?
                             Integer.parseInt(properties.getOrDefault("port", String.valueOf(startPort)))
                             :
                             46949,
