@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
@@ -16,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
@@ -125,14 +125,14 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public void close(int statusCode, String reasonText) {
         Validate.checkNotNull(statusCode);
 
-        Value<Integer> statusCodeWrapper = new Value<>(statusCode);
-        Value<String> reasonTextWrapper = new Value<>(reasonText);
+        AtomicReference<Integer> statusCodeReference = new AtomicReference<>(statusCode);
+        AtomicReference<String> reasonTextReference = new AtomicReference<>(reasonText);
 
         for (IWebSocketListener listener : webSocketListeners) {
-            listener.handleClose(this, statusCodeWrapper, reasonTextWrapper);
+            listener.handleClose(this, statusCodeReference, reasonTextReference);
         }
 
-        this.channel.writeAndFlush(new CloseWebSocketFrame(statusCodeWrapper.getValue(), reasonTextWrapper.getValue())).addListener(ChannelFutureListener.CLOSE);
+        this.channel.writeAndFlush(new CloseWebSocketFrame(statusCodeReference.get(), reasonTextReference.get())).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override

@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
@@ -16,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -149,13 +149,13 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public ITask<String> readLine() {
-        Value<String> value = new Value<>();
-        ITask<String> task = new ListenableTask<>(value::getValue);
+        AtomicReference<String> reference = new AtomicReference<>();
+        ITask<String> task = new ListenableTask<>(reference::get);
 
         UUID uniqueId = UUID.randomUUID();
         this.consoleInputHandler.put(uniqueId, new ConsoleHandler<>(input -> {
             this.consoleInputHandler.remove(uniqueId);
-            value.setValue(input);
+            reference.set(input);
             try {
                 task.call();
             } catch (Exception exception) {

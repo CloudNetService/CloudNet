@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -29,6 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
@@ -750,11 +750,11 @@ final class JVMCloudService implements ICloudService {
                 File file = new File(this.directory, "velocity.toml");
                 this.copyDefaultFile("files/velocity/velocity.toml", file);
 
-                Value<Boolean> value = new Value<>(true);
+                AtomicReference<Boolean> reference = new AtomicReference<>(true);
 
                 this.rewriteServiceConfigurationFile(file, line -> {
-                    if (value.getValue() && line.startsWith("bind =")) {
-                        value.setValue(false);
+                    if (reference.get() && line.startsWith("bind =")) {
+                        reference.set(false);
                         return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort() + "\"";
                     }
 

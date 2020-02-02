@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -9,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public interface IPlayerManager {
 
@@ -165,10 +165,10 @@ public interface IPlayerManager {
      * @return the online player if there is at least one player with the given name online or null if there is no player with that name online
      */
     default ITask<ICloudPlayer> getFirstOnlinePlayerAsync(@NotNull String name) {
-        Value<ICloudPlayer> result = new Value<>();
-        ITask<ICloudPlayer> task = new ListenableTask<>(result::getValue);
+        AtomicReference<ICloudPlayer> result = new AtomicReference<>();
+        ITask<ICloudPlayer> task = new ListenableTask<>(result::get);
         this.getOnlinePlayersAsync(name)
-                .onComplete(players -> result.setValue(players.isEmpty() ? null : players.get(0)))
+                .onComplete(players -> result.set(players.isEmpty() ? null : players.get(0)))
                 .onCancelled(listITask -> task.cancel(true));
         return task;
     }
@@ -234,10 +234,10 @@ public interface IPlayerManager {
      * @return the registered player if there is at least one player with the given name registered or null if there is no player with that name registered
      */
     default ITask<ICloudOfflinePlayer> getFirstOfflinePlayerAsync(@NotNull String name) {
-        Value<ICloudOfflinePlayer> result = new Value<>();
-        ITask<ICloudOfflinePlayer> task = new ListenableTask<>(result::getValue);
+        AtomicReference<ICloudOfflinePlayer> result = new AtomicReference<>();
+        ITask<ICloudOfflinePlayer> task = new ListenableTask<>(result::get);
         this.getOfflinePlayersAsync(name)
-                .onComplete(players -> result.setValue(players.isEmpty() ? null : players.get(0)))
+                .onComplete(players -> result.set(players.isEmpty() ? null : players.get(0)))
                 .onCancelled(listITask -> task.cancel(true));
         return task;
     }

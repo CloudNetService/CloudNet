@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -19,6 +18,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 public class FTPQueueStorage implements Runnable, ITemplateStorage {
@@ -170,13 +170,13 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     private OutputStream createDataTransfer(Callable<OutputStream> outputStreamCallable) throws IOException {
-        Value<OutputStream> outputStreamValue = new Value<>();
-        ListenableTask<OutputStream> valueTask = new ListenableTask<>(outputStreamValue::getValue);
+        AtomicReference<OutputStream> outputStreamReference = new AtomicReference<>();
+        ListenableTask<OutputStream> valueTask = new ListenableTask<>(outputStreamReference::get);
 
         FTPTask<Void> ftpTask = new FTPTask<>(() -> {
             OutputStreamCloseTask outputStreamCloseTask = new OutputStreamCloseTask(outputStreamCallable.call());
 
-            outputStreamValue.setValue(outputStreamCloseTask);
+            outputStreamReference.set(outputStreamCloseTask);
             valueTask.call();
 
             outputStreamCloseTask.get();
