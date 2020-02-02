@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
@@ -8,7 +9,6 @@ import de.dytanic.cloudnet.command.sub.SubCommandArgumentWrapper;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.INameable;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Triple;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.permission.*;
@@ -244,7 +244,7 @@ public class CommandPermissions extends SubCommandHandler {
                         ),
                         dynamicString(
                                 "time in days | lifetime",
-                                input -> input.equalsIgnoreCase("lifetime") || Preconditions.testStringParseToInt(input)
+                                input -> input.equalsIgnoreCase("lifetime") || Ints.tryParse(input) != null
                         )
                 )
 
@@ -470,7 +470,7 @@ public class CommandPermissions extends SubCommandHandler {
                         integer("potency"),
                         dynamicString(
                                 "time in days | lifetime",
-                                input -> input.equalsIgnoreCase("lifetime") || Preconditions.testStringParseToInt(input)
+                                input -> input.equalsIgnoreCase("lifetime") || Ints.tryParse(input) != null
                         )
                 )
                 .generateCommand(
@@ -487,7 +487,7 @@ public class CommandPermissions extends SubCommandHandler {
                         integer("potency"),
                         dynamicString(
                                 "time in days | lifetime",
-                                input -> input.equalsIgnoreCase("lifetime") || Preconditions.testStringParseToInt(input)
+                                input -> input.equalsIgnoreCase("lifetime") || Ints.tryParse(input) != null
                         ),
                         dynamicString(
                                 "targetGroup",

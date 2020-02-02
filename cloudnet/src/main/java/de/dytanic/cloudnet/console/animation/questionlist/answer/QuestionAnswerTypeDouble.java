@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
-import com.google.common.base.Preconditions;
+import com.google.common.primitives.Doubles;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 
@@ -10,7 +10,7 @@ public class QuestionAnswerTypeDouble implements QuestionAnswerType<Double> {
 
     @Override
     public boolean isValidInput(String input) {
-        return Preconditions.testStringParseToDouble(input);
+        return Doubles.tryParse(input) != null;
     }
 
     @Override

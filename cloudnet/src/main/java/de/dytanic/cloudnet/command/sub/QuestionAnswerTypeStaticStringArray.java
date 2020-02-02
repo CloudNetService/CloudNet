@@ -13,7 +13,7 @@ public class QuestionAnswerTypeStaticStringArray implements QuestionAnswerType<S
     private boolean ignoreCase;
 
     public QuestionAnswerTypeStaticStringArray(String[] allowedValues, boolean ignoreCase) {
-        Preconditions.assertFalse(allowedValues.length == 0, "At least one value has to be provided");
+        Preconditions.checkArgument(allowedValues.length > 0, "At least one value has to be provided");
         this.allowedValues = allowedValues;
         this.ignoreCase = ignoreCase;
     }

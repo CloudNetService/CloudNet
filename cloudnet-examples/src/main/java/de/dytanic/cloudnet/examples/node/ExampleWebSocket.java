@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ExampleWebSocket {
@@ -46,7 +47,7 @@ public class ExampleWebSocket {
                 }
 
                 @Override
-                public void handleClose(IWebSocketChannel channel, AtomicReference<Integer> statusCode, AtomicReference<String> reasonText) //handle the closing output
+                public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) //handle the closing output
                 {
                     if (!channels.contains(channel)) {
                         statusCode.set(500);

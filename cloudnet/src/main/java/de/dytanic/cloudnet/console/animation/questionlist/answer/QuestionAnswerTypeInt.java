@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
-import com.google.common.base.Preconditions;
+import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 
@@ -10,7 +10,7 @@ public class QuestionAnswerTypeInt implements QuestionAnswerType<Integer> {
 
     @Override
     public boolean isValidInput(String input) {
-        return Preconditions.testStringParseToInt(input);
+        return Ints.tryParse(input) != null;
     }
 
     @Override

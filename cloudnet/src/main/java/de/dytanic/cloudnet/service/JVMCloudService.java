@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
@@ -750,7 +750,7 @@ final class JVMCloudService implements ICloudService {
                 File file = new File(this.directory, "velocity.toml");
                 this.copyDefaultFile("files/velocity/velocity.toml", file);
 
-                AtomicReference<Boolean> reference = new AtomicReference<>(true);
+                AtomicBoolean reference = new AtomicBoolean(true);
 
                 this.rewriteServiceConfigurationFile(file, line -> {
                     if (reference.get() && line.startsWith("bind =")) {

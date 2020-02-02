@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.command.commands;
 
+import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.*;
@@ -43,47 +43,42 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
             return;
         }
 
-        if (args[0].equalsIgnoreCase("by") && args.length > 2 && Preconditions.testStringParseToInt(args[2])) {
-            ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
+        Integer count;
+        if (args[0].equalsIgnoreCase("by") && args.length > 2 && (count = Ints.tryParse(args[2])) != null) {
+            CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
                     .filter(task -> task.getName().equalsIgnoreCase(args[1]))
-                    .findFirst()
-                    .orElse(null);
+                    .findFirst().ifPresent(serviceTask -> CloudNet.getInstance().getTaskScheduler().schedule(() -> {
+                sender.sendMessage(LanguageManager.getMessage("command-create-start"));
+                Collection<ServiceInfoSnapshot> serviceInfoSnapshots = runCloudService(
+                        properties,
+                        count,
+                        serviceTask.getName(),
+                        serviceTask.getRuntime(),
+                        serviceTask.isAutoDeleteOnStop(),
+                        serviceTask.isStaticServices(),
+                        serviceTask.getAssociatedNodes(),
+                        serviceTask.getIncludes(),
+                        serviceTask.getTemplates(),
+                        serviceTask.getDeployments(),
+                        serviceTask.getGroups(),
+                        serviceTask.getDeletedFilesAfterStop(),
+                        serviceTask.getProcessConfiguration(),
+                        serviceTask.getStartPort()
+                );
 
-            if (serviceTask != null) {
-                int count = Integer.parseInt(args[2]);
+                if (serviceInfoSnapshots.isEmpty()) {
+                    sender.sendMessage(LanguageManager.getMessage("command-create-by-task-failed"));
+                    return;
+                }
+                this.listAndStartServices(sender, serviceInfoSnapshots, properties);
 
-                CloudNet.getInstance().getTaskScheduler().schedule(() -> {
-                    sender.sendMessage(LanguageManager.getMessage("command-create-start"));
-                    Collection<ServiceInfoSnapshot> serviceInfoSnapshots = runCloudService(
-                            properties,
-                            count,
-                            serviceTask.getName(),
-                            serviceTask.getRuntime(),
-                            serviceTask.isAutoDeleteOnStop(),
-                            serviceTask.isStaticServices(),
-                            serviceTask.getAssociatedNodes(),
-                            serviceTask.getIncludes(),
-                            serviceTask.getTemplates(),
-                            serviceTask.getDeployments(),
-                            serviceTask.getGroups(),
-                            serviceTask.getDeletedFilesAfterStop(),
-                            serviceTask.getProcessConfiguration(),
-                            serviceTask.getStartPort()
-                    );
+                sender.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
+            }));
 
-                    if (serviceInfoSnapshots.isEmpty()) {
-                        sender.sendMessage(LanguageManager.getMessage("command-create-by-task-failed"));
-                        return;
-                    }
-                    this.listAndStartServices(sender, serviceInfoSnapshots, properties);
-
-                    sender.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
-                });
-            }
             return;
         }
 
-        if (args[0].equalsIgnoreCase("new") && args.length > 3 && Preconditions.testStringParseToInt(args[2])) {
+        if (args[0].equalsIgnoreCase("new") && args.length > 3 && Ints.tryParse(args[2]) != null) {
             ServiceEnvironmentType environmentType;
 
             try {
@@ -208,6 +203,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
         }
 
         for (int i = 0; i < count; i++) {
+            Integer finalStartPort;
             ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(new ServiceTask(
                     includes,
                     temps,
@@ -221,16 +217,17 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                     properties.containsKey("deletedFilesAfterStop") ? Arrays.asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop,
                     new ProcessConfiguration(
                             processConfiguration.getEnvironment(),
-                            properties.containsKey("memory") && Preconditions.testStringParseToInt(properties.get("memory")) ?
+                            properties.containsKey("memory") && Ints.tryParse(properties.get("memory")) != null ?
                                     Integer.parseInt(properties.get("memory")) : processConfiguration.getMaxHeapMemorySize(),
                             new ArrayList<>(properties.containsKey("jvmOptions") ?
                                     Arrays.asList(properties.get("jvmOptions").split(";")) :
                                     processConfiguration.getJvmOptions())
                     ),
-                    Preconditions.testStringParseToInt(properties.getOrDefault("port", String.valueOf(startPort))) ?
-                            Integer.parseInt(properties.getOrDefault("port", String.valueOf(startPort)))
+                    (finalStartPort = Ints.tryParse(properties.getOrDefault("port", String.valueOf(startPort)))) != null
+                            ?
+                            finalStartPort
                             :
-                            46949,
+                            processConfiguration.getEnvironment().getDefaultStartPort(),
                     0
             ));
 

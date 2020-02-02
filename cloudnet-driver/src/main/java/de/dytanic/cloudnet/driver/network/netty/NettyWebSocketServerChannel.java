@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
@@ -123,9 +124,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     @Override
     public void close(int statusCode, String reasonText) {
-        Preconditions.checkNotNull(statusCode);
-
-        AtomicReference<Integer> statusCodeReference = new AtomicReference<>(statusCode);
+        AtomicInteger statusCodeReference = new AtomicInteger(statusCode);
         AtomicReference<String> reasonTextReference = new AtomicReference<>(reasonText);
 
         for (IWebSocketListener listener : webSocketListeners) {
