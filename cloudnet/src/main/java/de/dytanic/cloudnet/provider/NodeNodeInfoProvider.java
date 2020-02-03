@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.provider;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.DriverCommandSender;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -56,8 +56,9 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
             if (clusterNodeServer.isConnected()) {
-                clusterNodeServer.getNodeInfoSnapshot();
-                nodeInfoSnapshots.add(clusterNodeServer.getNodeInfoSnapshot());
+                if (clusterNodeServer.getNodeInfoSnapshot() != null) {
+                    nodeInfoSnapshots.add(clusterNodeServer.getNodeInfoSnapshot());
+                }
             }
         }
 
@@ -73,8 +74,9 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
             if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected()) {
-                clusterNodeServer.getNodeInfoSnapshot();
-                return clusterNodeServer.getNodeInfoSnapshot();
+                if (clusterNodeServer.getNodeInfoSnapshot() != null) {
+                    return clusterNodeServer.getNodeInfoSnapshot();
+                }
             }
         }
 

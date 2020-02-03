@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.provider;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
@@ -32,8 +32,9 @@ public class NodeMessenger implements CloudMessenger {
         if (targetServiceInfoSnapshot.getServiceId().getNodeUniqueId().equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
             ICloudService cloudService = this.cloudNet.getCloudServiceManager().getCloudService(targetServiceInfoSnapshot.getServiceId().getUniqueId());
             if (cloudService != null) {
-                cloudService.getNetworkChannel();
-                cloudService.getNetworkChannel().sendPacket(new PacketClientServerChannelMessage(channel, message, data));
+                if (cloudService.getNetworkChannel() != null) {
+                    cloudService.getNetworkChannel().sendPacket(new PacketClientServerChannelMessage(channel, message, data));
+                }
             }
         } else {
             IClusterNodeServer nodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(targetServiceInfoSnapshot.getServiceId().getNodeUniqueId());

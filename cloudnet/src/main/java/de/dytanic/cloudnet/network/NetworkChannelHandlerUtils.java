@@ -58,9 +58,10 @@ final class NetworkChannelHandlerUtils {
         }
 
         for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-            cloudService.getNetworkChannel();
-            for (Packet packet : removed) {
-                cloudService.getNetworkChannel().sendPacket(packet);
+            if (cloudService.getNetworkChannel() != null) {
+                for (Packet packet : removed) {
+                    cloudService.getNetworkChannel().sendPacket(packet);
+                }
             }
         }
 

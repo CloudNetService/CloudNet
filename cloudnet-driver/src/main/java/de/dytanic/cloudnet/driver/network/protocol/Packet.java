@@ -56,12 +56,10 @@ public class Packet implements IPacket {
         return this.channel;
     }
 
-    @NotNull
     public UUID getUniqueId() {
         return this.uniqueId;
     }
 
-    @NotNull
     public JsonDocument getHeader() {
         return this.header;
     }

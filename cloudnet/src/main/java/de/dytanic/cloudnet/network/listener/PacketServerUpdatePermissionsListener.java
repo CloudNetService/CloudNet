@@ -105,8 +105,9 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
 
     private void sendUpdateToAllServices(IPacket packet) {
         for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-            cloudService.getNetworkChannel();
-            cloudService.getNetworkChannel().sendPacket(packet);
+            if (cloudService.getNetworkChannel() != null) {
+                cloudService.getNetworkChannel().sendPacket(packet);
+            }
         }
     }
 }

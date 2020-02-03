@@ -1,11 +1,11 @@
 package de.dytanic.cloudnet.command.commands;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -197,33 +197,34 @@ public final class CommandCluster extends SubCommandHandler {
             list.add("- " + hostAndPort.getHost() + ":" + hostAndPort.getPort());
         }
 
-        node.getNodeInfoSnapshot();
-        list.add(" ");
-        list.add("* ClusterNodeInfoSnapshot from " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(node.getNodeInfoSnapshot().getCreationTime()));
+        if (node.getNodeInfoSnapshot() != null) {
+            list.add(" ");
+            list.add("* ClusterNodeInfoSnapshot from " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(node.getNodeInfoSnapshot().getCreationTime()));
 
-        list.addAll(Arrays.asList(
-                "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage " +
-                        node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory() + "/" + node.getNodeInfoSnapshot().getMaxMemory() + "MB",
-                " ",
-                "CPU usage process: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
-                "CPU usage system: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getSystemCpuUsage()) + "%",
-                "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().getThreads().size(),
-                "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +
-                        (node.getNodeInfoSnapshot().getProcessSnapshot().getMaxHeapMemory() / 1048576) + "MB",
-                "Loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getCurrentLoadedClassCount(),
-                "Unloaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getUnloadedClassCount(),
-                "Total loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getTotalLoadedClassCount(),
-                " ",
-                "Extensions: ",
-                node.getNodeInfoSnapshot().getExtensions().stream().map(networkClusterNodeExtensionSnapshot -> networkClusterNodeExtensionSnapshot.getGroup() + ":" +
-                        networkClusterNodeExtensionSnapshot.getName() + ":" +
-                        networkClusterNodeExtensionSnapshot.getVersion()).collect(Collectors.toList()).toString(),
-                " ",
-                "Properties:"
-        ));
+            list.addAll(Arrays.asList(
+                    "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage " +
+                            node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory() + "/" + node.getNodeInfoSnapshot().getMaxMemory() + "MB",
+                    " ",
+                    "CPU usage process: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
+                    "CPU usage system: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getSystemCpuUsage()) + "%",
+                    "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().getThreads().size(),
+                    "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +
+                            (node.getNodeInfoSnapshot().getProcessSnapshot().getMaxHeapMemory() / 1048576) + "MB",
+                    "Loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getCurrentLoadedClassCount(),
+                    "Unloaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getUnloadedClassCount(),
+                    "Total loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getTotalLoadedClassCount(),
+                    " ",
+                    "Extensions: ",
+                    node.getNodeInfoSnapshot().getExtensions().stream().map(networkClusterNodeExtensionSnapshot -> networkClusterNodeExtensionSnapshot.getGroup() + ":" +
+                            networkClusterNodeExtensionSnapshot.getName() + ":" +
+                            networkClusterNodeExtensionSnapshot.getVersion()).collect(Collectors.toList()).toString(),
+                    " ",
+                    "Properties:"
+            ));
 
-        list.addAll(Arrays.asList(node.getNodeInfoSnapshot().getProperties().toPrettyJson().split("\n")));
-        list.add(" ");
+            list.addAll(Arrays.asList(node.getNodeInfoSnapshot().getProperties().toPrettyJson().split("\n")));
+            list.add(" ");
+        }
 
         sender.sendMessage(list.toArray(new String[0]));
     }

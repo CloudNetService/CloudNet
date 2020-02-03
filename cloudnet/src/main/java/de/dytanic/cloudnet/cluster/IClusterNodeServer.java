@@ -26,7 +26,6 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
 
-    @NotNull
     NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
 
     void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);

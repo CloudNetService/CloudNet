@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.cluster;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -459,7 +459,6 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         return this.provider;
     }
 
-    @NotNull
     public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot() {
         return this.nodeInfoSnapshot;
     }

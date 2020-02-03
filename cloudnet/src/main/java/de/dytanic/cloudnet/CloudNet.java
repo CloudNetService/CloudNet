@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
@@ -8,7 +9,6 @@ import de.dytanic.cloudnet.command.DefaultCommandMap;
 import de.dytanic.cloudnet.command.ICommandMap;
 import de.dytanic.cloudnet.command.commands.*;
 import de.dytanic.cloudnet.common.Properties;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -597,8 +597,9 @@ public final class CloudNet extends CloudNetDriver {
         }
 
         for (ICloudService cloudService : getCloudServiceManager().getCloudServices().values()) {
-            cloudService.getNetworkChannel();
-            cloudService.getNetworkChannel().sendPacket(packets);
+            if (cloudService.getNetworkChannel() != null) {
+                cloudService.getNetworkChannel().sendPacket(packets);
+            }
         }
     }
 
@@ -643,7 +644,6 @@ public final class CloudNet extends CloudNetDriver {
             if (!clusterNodeServer.isConnected()) {
                 return false;
             }
-            clusterNodeServer.getNodeInfoSnapshot();
             return serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(clusterNodeServer.getNodeInfo().getUniqueId());
         }).collect(Collectors.toList());
     }
@@ -669,9 +669,11 @@ public final class CloudNet extends CloudNetDriver {
         boolean allow = true;
 
         for (IClusterNodeServer clusterNodeServer : clusterNodeServers) {
-            clusterNodeServer.getNodeInfoSnapshot();
-            if (
-                    clusterNodeServer.getNodeInfoSnapshot().getMaxMemory() - clusterNodeServer.getNodeInfoSnapshot().getReservedMemory() > this.currentNetworkClusterNodeInfoSnapshot.getMaxMemory() - this.currentNetworkClusterNodeInfoSnapshot.getReservedMemory() && clusterNodeServer.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage() * clusterNodeServer.getNodeInfoSnapshot().getCurrentServicesCount() < this.currentNetworkClusterNodeInfoSnapshot.getProcessSnapshot().getCpuUsage() * this.currentNetworkClusterNodeInfoSnapshot.getCurrentServicesCount()
+            if (clusterNodeServer.getNodeInfoSnapshot() != null
+                    && clusterNodeServer.getNodeInfoSnapshot().getMaxMemory() - clusterNodeServer.getNodeInfoSnapshot().getReservedMemory()
+                    > this.currentNetworkClusterNodeInfoSnapshot.getMaxMemory() - this.currentNetworkClusterNodeInfoSnapshot.getReservedMemory()
+                    && clusterNodeServer.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage() * clusterNodeServer.getNodeInfoSnapshot().getCurrentServicesCount()
+                    < this.currentNetworkClusterNodeInfoSnapshot.getProcessSnapshot().getCpuUsage() * this.currentNetworkClusterNodeInfoSnapshot.getCurrentServicesCount()
             ) {
                 allow = false;
             }

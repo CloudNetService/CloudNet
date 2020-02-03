@@ -71,8 +71,9 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
 
     private void sendUpdateToAllServices(ServiceInfoSnapshot serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType type) {
         for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-            cloudService.getNetworkChannel();
-            cloudService.getNetworkChannel().sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, type));
+            if (cloudService.getNetworkChannel() != null) {
+                cloudService.getNetworkChannel().sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, type));
+            }
         }
     }
 }
