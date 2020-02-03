@@ -59,7 +59,7 @@ public final class CloudNetSignListener {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
                 if (sign != null) {
-                    AbstractSignManagement.getInstance().onSignAdd(sign);
+                    AbstractSignManagement.getInstance().addSign(sign);
                 }
             }
             break;
@@ -67,7 +67,7 @@ public final class CloudNetSignListener {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
                 if (sign != null) {
-                    AbstractSignManagement.getInstance().onSignRemove(sign);
+                    AbstractSignManagement.getInstance().removeSign(sign);
                 }
             }
             break;

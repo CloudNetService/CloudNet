@@ -42,8 +42,10 @@ public abstract class AbstractSignManagement {
     public AbstractSignManagement() {
         instance = this;
 
-        this.signs = new HashSet<>();
-        this.signs.addAll(this.getSignsFromNode());
+        Collection<Sign> signsFromNode = this.getSignsFromNode();
+        this.signs = signsFromNode == null ? new HashSet<>() : signsFromNode.stream()
+                .filter(sign -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup()))
+                .collect(Collectors.toSet());
 
         // fetching the already existing services and making them available for the signs, if matching
         Wrapper.getInstance().getCloudServiceProvider().getCloudServices().stream()
@@ -128,12 +130,27 @@ public abstract class AbstractSignManagement {
         this.updateSigns();
     }
 
-    public void onSignAdd(@NotNull Sign sign) {
-        this.signs.add(sign);
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+    /**
+     * Adds a sign to this wrapper instance
+     *
+     * @param sign the sign to add
+     * @return if the sign is allowed to exist on this wrapper instance
+     */
+    public boolean addSign(@NotNull Sign sign) {
+        if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
+            this.signs.add(sign);
+            CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+            return true;
+        }
+        return false;
     }
 
-    public void onSignRemove(@NotNull Sign sign) {
+    /**
+     * Removes a sign from this wrapper instance
+     *
+     * @param sign the sign to remove
+     */
+    public void removeSign(@NotNull Sign sign) {
         this.signs.stream()
                 .filter(filterSign -> filterSign.getSignId() == sign.getSignId())
                 .findFirst().ifPresent(signEntry -> this.signs.remove(signEntry));
@@ -147,13 +164,8 @@ public abstract class AbstractSignManagement {
             return;
         }
 
-        List<Sign> signs = this.signs.stream()
-                .filter(sign -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup()))
-                .collect(Collectors.toList());
-
-        if (signs.isEmpty()) {
-            return;
-        }
+        List<Sign> signs = new ArrayList<>(this.signs);
+        Collections.sort(signs);
 
         List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = new ArrayList<>();
         List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = this.services.entrySet().stream()
@@ -410,6 +422,11 @@ public abstract class AbstractSignManagement {
         }
     }
 
+    /**
+     * Adds a sign to the whole cluster and the database
+     *
+     * @param sign the sign to add
+     */
     public void sendSignAddUpdate(@NotNull Sign sign) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
@@ -419,6 +436,11 @@ public abstract class AbstractSignManagement {
                 );
     }
 
+    /**
+     * Removes a sign from the whole cluster and the database
+     *
+     * @param sign the sign to remove
+     */
     public void sendSignRemoveUpdate(@NotNull Sign sign) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
@@ -428,7 +450,13 @@ public abstract class AbstractSignManagement {
                 );
     }
 
-    protected Collection<Sign> getSignsFromNode() {
+    /**
+     * Returns all signs contained in the CloudNet sign database
+     *
+     * @return all signs or null, if an error occurred
+     */
+    @Nullable
+    public Collection<Sign> getSignsFromNode() {
         ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
                 CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
@@ -455,7 +483,6 @@ public abstract class AbstractSignManagement {
     }
 
     private boolean isMatchingCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-
         if (serviceInfoSnapshot != null) {
 
             ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
@@ -532,12 +559,14 @@ public abstract class AbstractSignManagement {
         return this.indexes;
     }
 
+    /**
+     * Returns a copy of the signs allowed to exist on this wrapper instance
+     * Use {@link AbstractSignManagement#addSign(Sign)} and {@link AbstractSignManagement#removeSign(Sign)} for local modification
+     *
+     * @return a copy of the signs
+     */
     public Set<Sign> getSigns() {
-        return this.signs;
-    }
-
-    public void setSigns(@NotNull Set<Sign> signs) {
-        this.signs = signs;
+        return new HashSet<>(this.signs);
     }
 
     private enum ServiceInfoState {
