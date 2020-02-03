@@ -188,9 +188,8 @@ public class CommandService extends SubCommandHandler {
     }
 
     private static void display(ICommandSender sender, ServiceInfoSnapshot serviceInfoSnapshot, boolean full) {
-        Collection<String> list = new ArrayList<>();
 
-        list.addAll(Arrays.asList(
+        Collection<String> list = new ArrayList<>(Arrays.asList(
                 " ",
                 "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
                 "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),

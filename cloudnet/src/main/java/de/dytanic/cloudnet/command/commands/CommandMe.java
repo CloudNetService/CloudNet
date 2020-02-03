@@ -18,11 +18,10 @@ public final class CommandMe extends CommandDefault {
 
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        List<String> messages = new ArrayList<>();
 
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
-        messages.addAll(Arrays.asList(
+        List<String> messages = new ArrayList<>(Arrays.asList(
                 " ",
                 "CloudNet " + CommandMe.class.getPackage().getImplementationTitle()
                         + " " + CommandMe.class.getPackage().getImplementationVersion() + " by Dytanic & the CloudNet Community",

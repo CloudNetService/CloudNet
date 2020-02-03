@@ -337,9 +337,8 @@ public class CommandTasks extends CommandServiceConfigurationBase {
     }
 
     private static void displayTask(ICommandSender sender, ServiceTask serviceTask) {
-        Collection<String> messages = new ArrayList<>();
 
-        messages.addAll(Arrays.asList(
+        Collection<String> messages = new ArrayList<>(Arrays.asList(
                 " ",
                 "* Name: " + serviceTask.getName(),
                 "* Minimal Services: " + serviceTask.getMinServiceCount(),

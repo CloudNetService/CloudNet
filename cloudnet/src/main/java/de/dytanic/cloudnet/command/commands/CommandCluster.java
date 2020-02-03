@@ -183,9 +183,7 @@ public final class CommandCluster extends SubCommandHandler {
     private static void displayNode(ICommandSender sender, IClusterNodeServer node) {
         Preconditions.checkNotNull(node);
 
-        List<String> list = new ArrayList<>();
-
-        list.addAll(Arrays.asList(
+        List<String> list = new ArrayList<>(Arrays.asList(
                 " ",
                 "Id: " + node.getNodeInfo().getUniqueId(),
                 "State: " + (node.isConnected() ? "Connected" : "Not connected"),
