@@ -24,11 +24,19 @@ public class HostAndPort {
     protected int port;
 
     public HostAndPort(InetSocketAddress socketAddress) {
+        if (socketAddress == null) {
+            return;
+        }
+
         this.host = socketAddress.getAddress().getHostAddress();
         this.port = socketAddress.getPort();
     }
 
     public HostAndPort(SocketAddress socketAddress) {
+        if (socketAddress == null) {
+            return;
+        }
+
         String[] address = socketAddress.toString().split(":");
 
         this.host = address[0].replaceFirst("/", "");
