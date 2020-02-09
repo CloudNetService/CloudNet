@@ -23,7 +23,7 @@ jar {
 
 dependencies {
     compile project(':cloudnet-driver')
-    compile group: 'jline', name: 'jline', version: dependencyJLine2Version
+    compile group: 'org.jline', name: 'jline', version: dependencyJLine3Version
     compile group: 'org.fusesource.jansi', name: 'jansi', version: dependencyJAnsiVersion
     compile group: 'com.h2database', name: 'h2', version: dependencyH2Version
 }

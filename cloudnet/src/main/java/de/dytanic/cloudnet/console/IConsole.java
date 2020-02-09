@@ -3,6 +3,8 @@ package de.dytanic.cloudnet.console;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.UserInterruptException;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +31,10 @@ public interface IConsole extends AutoCloseable {
 
     void setCommandHistory(List<String> history);
 
+    /**
+     * @deprecated use {@link #setBuffer(String)} instead
+     */
+    @Deprecated
     void setCommandInputValue(String commandInputValue);
 
     ITask<String> readLine();
@@ -63,15 +69,25 @@ public interface IConsole extends AutoCloseable {
 
     IConsole writeLine(String text);
 
+    IConsole writeDirectly(String text);
+
     boolean hasColorSupport();
+
+    String readLine(String prompt, String buffer) throws EndOfFileException, UserInterruptException;
 
     void setPrompt(String prompt);
 
     String getPrompt();
 
+    void reset();
+
     void resetPrompt();
 
     void clearScreen();
+
+    String getBuffer();
+
+    void setBuffer(String buffer);
 
     String getScreenName();
 

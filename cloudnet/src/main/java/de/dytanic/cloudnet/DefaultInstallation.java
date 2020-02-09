@@ -101,6 +101,11 @@ public class DefaultInstallation {
                         public String getInvalidInputMessage(String input) {
                             return LanguageManager.getMessage("cloudnet-init-eula-not-accepted");
                         }
+
+                        @Override
+                        public String getRecommendation() {
+                            return "no";
+                        }
                     }
             ));
 
