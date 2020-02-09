@@ -118,8 +118,7 @@ public class LabyModUtils {
         return cloudPlayer.getProperties().get("labyModOptions", LabyModPlayerOptions.class);
     }
 
-    private static String getDisplay(ServiceInfoSnapshot serviceInfoSnapshot) {
-        ServiceDisplay serviceDisplay = getConfiguration().getGameModeSwitchMessages();
+    private static String getDisplay(ServiceInfoSnapshot serviceInfoSnapshot, ServiceDisplay serviceDisplay) {
         if (serviceDisplay == null || !serviceDisplay.isEnabled()) {
             return null;
         }
@@ -128,7 +127,7 @@ public class LabyModUtils {
     }
 
     public static byte[] getShowGameModeMessageContents(ServiceInfoSnapshot serviceInfoSnapshot) {
-        String display = getDisplay(serviceInfoSnapshot);
+        String display = getDisplay(serviceInfoSnapshot, getConfiguration().getGameModeSwitchMessages());
         if (display == null) {
             return null;
         }
@@ -140,7 +139,7 @@ public class LabyModUtils {
     }
 
     public static byte[] getDiscordRPCGameInfoUpdateMessageContents(ICloudPlayer cloudPlayer, ServiceInfoSnapshot serviceInfoSnapshot) {
-        String display = getDisplay(serviceInfoSnapshot);
+        String display = getDisplay(serviceInfoSnapshot, getConfiguration().getDiscordRPC());
         if (display == null) {
             return null;
         }
