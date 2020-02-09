@@ -50,10 +50,12 @@ public class JLine3Completer implements Completer {
             return;
         }
 
-        List<String> sortedResponses = temp.stream()
+        candidates.addAll(temp
+                .stream()
                 .filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString)))
                 .sorted()
-                .collect(Collectors.toList());
-        candidates.addAll(sortedResponses.stream().map(Candidate::new).collect(Collectors.toList()));
+                .map(Candidate::new)
+                .collect(Collectors.toList())
+        );
     }
 }
