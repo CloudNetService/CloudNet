@@ -89,11 +89,12 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         for (String a : input) {
             ansi.a(a);
         }
-        this.console.forceWrite(ansi.restoreCursorPosition().toString());
+
+        this.console.writeDirectly(ansi.restoreCursorPosition().toString());
     }
 
     protected void eraseLastLine() {
-        this.console.writeRaw(
+        this.console.writeDirectly(
                 Ansi.ansi()
                         .reset()
                         .cursorUp(1)

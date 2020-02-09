@@ -5,13 +5,16 @@ import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
-import jline.console.ConsoleReader;
-import jline.console.history.History;
-import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
+import org.jline.reader.*;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -19,59 +22,62 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class JLine2Console implements IConsole {
+public final class JLine3Console implements IConsole {
 
-    private final ConsoleReader consoleReader;
+    private final LineReader lineReader;
 
-    private final String
-            user = System.getProperty("user.name"),
-            version = System.getProperty("cloudnet.launcher.select.version");
+    private final String user = System.getProperty("user.name");
+
+    private final String version = System.getProperty("cloudnet.launcher.select.version");
+
     private String prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
 
     private String screenName = version;
+
+    private String buffer = null;
 
     private Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
 
     private boolean printingEnabled = true;
 
     private Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
+
     private Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public JLine2Console() throws Exception {
+    public JLine3Console() throws Exception {
         AnsiConsole.systemInstall();
 
-        this.consoleReader = new ConsoleReader();
-        this.consoleReader.setExpandEvents(false);
+        Terminal terminal = TerminalBuilder
+                .builder()
+                .system(true)
+                .encoding(StandardCharsets.UTF_8)
+                .build();
 
-        this.consoleReader.addCompleter(new JLine2Completer(this));
+        this.lineReader = LineReaderBuilder
+                .builder()
+                .terminal(terminal)
+                .completer(new JLine3Completer(this))
+                .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
+                .build();
 
         this.executorService.execute(() -> {
             while (!Thread.interrupted()) {
-                try {
-                    String input = this.prompt != null ?
-                            this.consoleReader.readLine(
-                                    ConsoleColor.toColouredString('&', this.prompt)
-                                            .replace("%version%", this.version)
-                                            .replace("%screen%", this.screenName)
-                                            .replace("%user%", this.user)
-                            ) : this.consoleReader.readLine();
-                    this.resetPrompt();
-                    if (input == null) {
-                        continue;
-                    }
+                String input = this.call(this.buffer);
 
-                    if (!this.consoleInputHandler.isEmpty()) {
-                        for (ConsoleHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
-                            if (value.isEnabled()) {
-                                value.getHandler().accept(input);
-                            }
+                if (input == null) {
+                    continue;
+                }
+
+                this.buffer = null;
+
+                if (!this.consoleInputHandler.isEmpty()) {
+                    for (ConsoleHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
+                        if (value.isEnabled()) {
+                            value.getHandler().accept(input);
                         }
                     }
-
-                } catch (IOException exception) {
-                    exception.printStackTrace();
                 }
 
                 if (!this.runningAnimations.isEmpty()) {
@@ -120,31 +126,33 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public List<String> getCommandHistory() {
-        ListIterator<History.Entry> iterator = this.consoleReader.getHistory().entries();
         List<String> history = new ArrayList<>();
-        while (iterator.hasNext()) {
-            history.add(iterator.next().value().toString());
+        for (History.Entry entry : this.lineReader.getHistory()) {
+            history.add(entry.line());
         }
+
         return history;
     }
 
     @Override
     public void setCommandHistory(List<String> history) {
-        this.consoleReader.getHistory().clear();
+        try {
+            this.lineReader.getHistory().purge();
+        } catch (final IOException ex) {
+            ex.printStackTrace();
+        }
+
         if (history != null) {
             for (String historyEntry : history) {
-                this.consoleReader.getHistory().add(historyEntry);
+                this.lineReader.getHistory().add(historyEntry);
             }
         }
     }
 
     @Override
+    @Deprecated
     public void setCommandInputValue(String commandInputValue) {
-        try {
-            this.consoleReader.putString(commandInputValue);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+        this.setBuffer(commandInputValue);
     }
 
     @Override
@@ -205,7 +213,7 @@ public final class JLine2Console implements IConsole {
         this.toggleHandlers(false, this.consoleInputHandler.values());
     }
 
-    private void toggleHandlers(boolean enabled, Collection handlers) {
+    private void toggleHandlers(boolean enabled, Collection<?> handlers) {
         for (Object handler : handlers) {
             ((ConsoleHandler<?>) handler).setEnabled(enabled);
         }
@@ -236,6 +244,7 @@ public final class JLine2Console implements IConsole {
         if (this.printingEnabled) {
             this.forceWrite(text);
         }
+
         return this;
     }
 
@@ -244,12 +253,22 @@ public final class JLine2Console implements IConsole {
         if (this.printingEnabled) {
             this.forceWriteLine(text);
         }
+
+        return this;
+    }
+
+    @Override
+    public IConsole writeDirectly(String text) {
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(text);
+        this.lineReader.getTerminal().writer().flush();
+
         return this;
     }
 
     @Override
     public IConsole forceWrite(String text) {
-        return this.writeRaw(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
+        return this.forceWriteLine(text);
     }
 
     @Override
@@ -260,12 +279,10 @@ public final class JLine2Console implements IConsole {
 
         rawText = ConsoleColor.toColouredString('&', rawText);
 
-        try {
-            this.consoleReader.print(rawText);
-            this.consoleReader.flush();
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(rawText);
+        this.lineReader.getTerminal().writer().flush();
+
         return this;
     }
 
@@ -276,15 +293,12 @@ public final class JLine2Console implements IConsole {
         }
 
         text = ConsoleColor.toColouredString('&', text);
-
-        if (!text.endsWith(System.lineSeparator())) {
-            text = text + System.lineSeparator();
-        }
+        text += ConsoleColor.DEFAULT;
 
         try {
-            this.consoleReader.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + text + ConsoleColor.DEFAULT);
-            this.consoleReader.drawLine();
-            this.consoleReader.flush();
+            this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+            this.lineReader.getTerminal().writer().print(text);
+            this.lineReader.getTerminal().writer().flush();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -300,31 +314,59 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public boolean hasColorSupport() {
-        return !(this.consoleReader.getTerminal() instanceof jline.UnsupportedTerminal);
+        return true;
+    }
+
+    @Override
+    public String readLine(String prompt, String buffer) throws EndOfFileException, UserInterruptException {
+        return this.lineReader.readLine(prompt, null, buffer);
     }
 
     @Override
     public void resetPrompt() {
-        this.consoleReader.setPrompt(ConsoleColor.DEFAULT.toString());
+        this.prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
     }
 
     @Override
     public void clearScreen() {
-        try {
-            this.consoleReader.clearScreen();
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.clear_screen);
+        this.lineReader.getTerminal().flush();
+    }
+
+    @Override
+    public String getBuffer() {
+        return this.buffer;
+    }
+
+    @Override
+    public void setBuffer(String buffer) {
+        this.buffer = buffer;
     }
 
     @Override
     public void close() {
-        this.executorService.shutdownNow();
-        this.consoleReader.close();
+        try {
+            this.executorService.shutdownNow();
+            this.lineReader.getTerminal().flush();
+            this.lineReader.getTerminal().close();
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
-    public ConsoleReader getConsoleReader() {
-        return this.consoleReader;
+    private String call(String buffer) {
+        try {
+            String prompt = this.prompt != null ? ConsoleColor.toColouredString('&', this.prompt)
+                    .replace("%version%", this.version)
+                    .replace("%screen%", this.screenName)
+                    .replace("%user%", this.user) : null;
+            return this.readLine(prompt, buffer);
+        } catch (final UserInterruptException ex) {
+            System.out.println(LanguageManager.getMessage("cloudnet-user-console-interrupt-warning"));
+        } catch (final EndOfFileException ignored) {
+        }
+
+        return null;
     }
 
     public String getUser() {
@@ -337,6 +379,21 @@ public final class JLine2Console implements IConsole {
 
     public String getPrompt() {
         return this.prompt;
+    }
+
+    @Override
+    public void reset() {
+        if (!this.lineReader.isReading()) {
+            return;
+        }
+
+        lineReader.callWidget(LineReader.REDRAW_LINE);
+        lineReader.callWidget(LineReader.REDISPLAY);
+
+        if (this.buffer != null) {
+            this.lineReader.getBuffer().write(this.buffer);
+            this.buffer = null;
+        }
     }
 
     @Override

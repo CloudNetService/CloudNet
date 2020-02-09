@@ -109,9 +109,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         console.disableAllHandlers();
-
         CloudNet.getInstance().getEventManager().callEvent(new SetupInitiateEvent(this));
-
     }
 
     @Override
@@ -137,7 +135,6 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
                 super.getConsole().forceWriteLine(line);
             }
         }
-
 
         ITask<Void> task = new ListenableTask<>(() -> null);
         UUID handlerId = UUID.randomUUID();
@@ -213,7 +210,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
         String recommendation = answerType.getRecommendation();
         if (recommendation != null) {
-            super.getConsole().setCommandInputValue(recommendation);
+            super.getConsole().setBuffer(recommendation);
+            super.getConsole().reset();
         }
 
         super.getConsole().togglePrinting(false);
