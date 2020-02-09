@@ -22,6 +22,7 @@ import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.net.InetSocketAddress;
+import java.util.Base64;
 import java.util.UUID;
 
 public final class BungeeCloudNetListener {
@@ -141,6 +142,15 @@ public final class BungeeCloudNetListener {
                     BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
                             ComponentSerializer.parse(event.getData().getString("messages"));
                     proxiedPlayer.sendMessage(messages);
+                }
+            }
+            break;
+            case "send_plugin_message_to_proxy_player": {
+                ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
+
+                if (proxiedPlayer != null) {
+                    byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
+                    proxiedPlayer.sendData(event.getData().getString("tag"), data);
                 }
             }
             break;

@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.node.player;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Iterables;
@@ -12,6 +13,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.player.*;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -225,6 +227,29 @@ public final class NodePlayerManager implements IPlayerManager {
                 new JsonDocument()
                         .append("uniqueId", uniqueId)
                         .append("message", message)
+        );
+    }
+
+    @Override
+    public void proxySendPluginMessage(ICloudPlayer cloudPlayer, String tag, byte[] data) {
+        Preconditions.checkNotNull(cloudPlayer);
+
+        this.proxySendPluginMessage(cloudPlayer.getUniqueId(), tag, data);
+    }
+
+    @Override
+    public void proxySendPluginMessage(UUID uniqueId, String tag, byte[] data) {
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(tag);
+        Preconditions.checkNotNull(data);
+
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
+                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                "send_plugin_message_to_proxy_player",
+                new JsonDocument()
+                        .append("uniqueId", uniqueId)
+                        .append("tag", tag)
+                        .append("data", Base64.getEncoder().encodeToString(data))
         );
     }
 

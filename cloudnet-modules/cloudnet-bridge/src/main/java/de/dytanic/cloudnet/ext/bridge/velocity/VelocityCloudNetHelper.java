@@ -74,8 +74,8 @@ public final class VelocityCloudNetHelper {
                 true,
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.VELOCITY,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }

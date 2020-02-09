@@ -89,8 +89,8 @@ public final class ProxProxCloudNetHelper {
                 false,
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.PROX_PROX,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }

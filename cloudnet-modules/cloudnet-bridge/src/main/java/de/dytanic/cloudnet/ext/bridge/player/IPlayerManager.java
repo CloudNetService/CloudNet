@@ -311,12 +311,30 @@ public interface IPlayerManager {
     void proxySendPlayerMessage(ICloudPlayer cloudPlayer, String message);
 
     /**
-     * Sends a message to a specific online player.
+     * Sends a plugin message to a specific online player.
      *
      * @param uniqueId the uuid of the player to send the message to
      * @param message  the message to be sent to the player
      */
     void proxySendPlayerMessage(UUID uniqueId, String message);
+
+    /**
+     * Sends a plugin message to a specific online player.
+     *
+     * @param cloudPlayer the player to send the message to
+     * @param tag         the tag of the plugin message
+     * @param data        the data of the plugin message
+     */
+    void proxySendPluginMessage(ICloudPlayer cloudPlayer, String tag, byte[] data);
+
+    /**
+     * Sends a message to a specific online player.
+     *
+     * @param uniqueId the uuid of the player to send the message to
+     * @param tag      the tag of the plugin message
+     * @param data     the data of the plugin message
+     */
+    void proxySendPluginMessage(UUID uniqueId, String tag, byte[] data);
 
     /**
      * Broadcasts a specific message over the whole network.

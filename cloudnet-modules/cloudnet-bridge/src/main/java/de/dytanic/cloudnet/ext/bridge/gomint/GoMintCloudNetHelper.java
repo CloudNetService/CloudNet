@@ -140,8 +140,8 @@ public final class GoMintCloudNetHelper {
                 false,
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.GO_MINT,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }
@@ -178,8 +178,8 @@ public final class GoMintCloudNetHelper {
                 new HostAndPort(player.getConnection().getConnection().getAddress()),
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.GO_MINT,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }

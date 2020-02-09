@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceId;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -12,14 +13,13 @@ public class NetworkServiceInfo {
 
     protected ServiceEnvironmentType environment;
 
-    protected UUID uniqueId;
+    protected ServiceId serviceId;
+    protected String[] groups;
 
-    protected String serverName;
-
-    public NetworkServiceInfo(ServiceEnvironmentType environment, UUID uniqueId, String serverName) {
+    public NetworkServiceInfo(ServiceEnvironmentType environment, ServiceId serviceId, String[] groups) {
         this.environment = environment;
-        this.uniqueId = uniqueId;
-        this.serverName = serverName;
+        this.serviceId = serviceId;
+        this.groups = groups;
     }
 
     public NetworkServiceInfo() {
@@ -34,19 +34,26 @@ public class NetworkServiceInfo {
     }
 
     public UUID getUniqueId() {
-        return this.uniqueId;
-    }
-
-    public void setUniqueId(UUID uniqueId) {
-        this.uniqueId = uniqueId;
+        return this.serviceId.getUniqueId();
     }
 
     public String getServerName() {
-        return this.serverName;
+        return this.serviceId.getName();
     }
 
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
+    public String[] getGroups() {
+        return this.groups;
     }
 
+    public String getTaskName() {
+        return this.serviceId.getTaskName();
+    }
+
+    public ServiceId getServiceId() {
+        return this.serviceId;
+    }
+
+    public void setServiceId(ServiceId serviceId) {
+        this.serviceId = serviceId;
+    }
 }

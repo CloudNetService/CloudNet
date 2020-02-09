@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxprox.ProxProxCloudNetHelper;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.gomint.proxprox.api.data.ServerDataHolder;
 import io.gomint.proxprox.api.event.*;
 import io.gomint.proxprox.api.plugin.event.EventHandler;
@@ -37,8 +38,12 @@ public final class ProxProxPlayerListener implements Listener {
 
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerConnectRequest(ProxProxCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
-                            serviceInfoSnapshot.getServiceId().getName()));
+                    new NetworkServiceInfo(
+                            serviceInfoSnapshot.getServiceId().getEnvironment(),
+                            Wrapper.getInstance().getServiceId(),
+                            Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+                    )
+            );
         }
     }
 
@@ -48,8 +53,12 @@ public final class ProxProxPlayerListener implements Listener {
 
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerSwitch(ProxProxCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
-                            serviceInfoSnapshot.getServiceId().getName()));
+                    new NetworkServiceInfo(
+                            serviceInfoSnapshot.getServiceId().getEnvironment(),
+                            Wrapper.getInstance().getServiceId(),
+                            Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+                    )
+            );
         }
     }
 
