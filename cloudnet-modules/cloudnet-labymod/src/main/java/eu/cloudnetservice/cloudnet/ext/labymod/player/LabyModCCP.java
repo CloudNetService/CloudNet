@@ -1,0 +1,19 @@
+package eu.cloudnetservice.cloudnet.ext.labymod.player;
+
+public class LabyModCCP {
+    private boolean enabled;
+    private int version;
+
+    public LabyModCCP(boolean enabled, int version) {
+        this.enabled = enabled;
+        this.version = version;
+    }
+
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public int getVersion() {
+        return this.version;
+    }
+}
