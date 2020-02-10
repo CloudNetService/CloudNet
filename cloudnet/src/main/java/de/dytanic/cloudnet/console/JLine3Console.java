@@ -175,7 +175,9 @@ public final class JLine3Console implements IConsole {
     }
 
     public Collection<ITabCompleter> getTabCompletionHandler() {
-        return this.tabCompletionHandler.values().stream()
+        return this.tabCompletionHandler
+                .values()
+                .stream()
                 .filter(ConsoleHandler::isEnabled)
                 .map(ConsoleHandler::getHandler)
                 .collect(Collectors.toList());
@@ -259,7 +261,6 @@ public final class JLine3Console implements IConsole {
 
     @Override
     public IConsole writeDirectly(String text) {
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(text);
         this.lineReader.getTerminal().writer().flush();
 
@@ -279,7 +280,6 @@ public final class JLine3Console implements IConsole {
 
         rawText = ConsoleColor.toColouredString('&', rawText);
 
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(rawText);
         this.lineReader.getTerminal().writer().flush();
 
@@ -293,7 +293,9 @@ public final class JLine3Console implements IConsole {
         }
 
         text = ConsoleColor.toColouredString('&', text);
-        text += ConsoleColor.DEFAULT;
+        if (!text.endsWith(System.lineSeparator())) {
+            text += System.lineSeparator();
+        }
 
         try {
             this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
@@ -307,6 +309,11 @@ public final class JLine3Console implements IConsole {
             for (AbstractConsoleAnimation animation : this.runningAnimations.values()) {
                 animation.addToCursor(1);
             }
+        }
+
+        if (lineReader.isReading()) {
+            this.lineReader.callWidget(LineReader.REDRAW_LINE);
+            this.lineReader.callWidget(LineReader.REDISPLAY);
         }
 
         return this;
@@ -324,7 +331,7 @@ public final class JLine3Console implements IConsole {
 
     @Override
     public void resetPrompt() {
-        this.prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
+        this.setPrompt(System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r"));
     }
 
     @Override
