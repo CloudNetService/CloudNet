@@ -106,6 +106,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     public void updateAsSmartService(ServiceConfiguration configuration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
         configuration.setTemplates(this.applyTemplateInstaller(configuration, new ArrayList<>(serviceTask.getTemplates()), smartTask.getTemplateInstaller()));
+        configuration.setInitTemplates(configuration.getTemplates());
         configuration.getProcessConfig().setMaxHeapMemorySize(
                 this.applyDynamicMemory(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), configuration, serviceTask, smartTask)
         );
@@ -137,6 +138,22 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                     ServiceTemplate item = taskTemplates.get(RANDOM.nextInt(taskTemplates.size()));
                     outTemplates.add(item);
                 }
+                break;
+            }
+            case INSTALL_BALANCED: {
+                if (!taskTemplates.isEmpty()) {
+                    Collection<ServiceInfoSnapshot> services = super.getCloudNet().getCloudServiceProvider().getCloudServices(configuration.getServiceId().getTaskName());
+                    taskTemplates.stream()
+                            .min(Comparator.comparingLong(serviceTemplate ->
+                                    services.stream()
+                                            .map(serviceInfoSnapshot -> serviceInfoSnapshot.getConfiguration().getInitTemplates())
+                                            .flatMap(Arrays::stream)
+                                            .filter(serviceTemplate::equals)
+                                            .count()
+                            ))
+                            .ifPresent(outTemplates::add);
+                }
+
                 break;
             }
         }
