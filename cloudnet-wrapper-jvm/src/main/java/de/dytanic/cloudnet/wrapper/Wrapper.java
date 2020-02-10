@@ -106,7 +106,7 @@ public final class Wrapper extends CloudNetDriver {
             currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
 
     Wrapper(List<String> commandLineArguments, ILogger logger) {
-        super(logger);
+        super.setLogger(logger);
         setInstance(this);
 
         this.commandLineArguments = commandLineArguments;

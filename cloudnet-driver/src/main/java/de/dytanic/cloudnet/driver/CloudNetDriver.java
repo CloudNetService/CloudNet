@@ -45,14 +45,10 @@ public abstract class CloudNetDriver {
     protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
 
     protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
-    protected final ILogger logger;
+    protected ILogger logger;
     protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
     private int pid = -2;
-
-    public CloudNetDriver(ILogger logger) {
-        this.logger = logger;
-    }
 
     public static CloudNetDriver getInstance() {
         return CloudNetDriver.instance;
@@ -71,8 +67,11 @@ public abstract class CloudNetDriver {
         CloudNetDriver.instance = instance;
     }
 
+    public void setLogger(ILogger logger) {
+        this.logger = logger;
+    }
 
-    public abstract void start() throws Exception;
+    public abstract void start() throws Throwable;
 
     public abstract void stop();
 

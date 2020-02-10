@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.console;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.Value;
@@ -44,7 +45,7 @@ public final class JLine3Console implements IConsole {
 
     private Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private ExecutorService executorService;
 
     public JLine3Console() throws Exception {
         AnsiConsole.systemInstall();
@@ -61,32 +62,6 @@ public final class JLine3Console implements IConsole {
                 .completer(new JLine3Completer(this))
                 .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
                 .build();
-
-        this.executorService.execute(() -> {
-            while (!Thread.interrupted()) {
-                String input = this.call(this.buffer);
-
-                if (input == null) {
-                    continue;
-                }
-
-                this.buffer = null;
-
-                if (!this.consoleInputHandler.isEmpty()) {
-                    for (ConsoleHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
-                        if (value.isEnabled()) {
-                            value.getHandler().accept(input);
-                        }
-                    }
-                }
-
-                if (!this.runningAnimations.isEmpty()) {
-                    for (AbstractConsoleAnimation animation : this.runningAnimations.values()) {
-                        animation.addToCursor(1);
-                    }
-                }
-            }
-        });
     }
 
     @Override
@@ -343,6 +318,12 @@ public final class JLine3Console implements IConsole {
     }
 
     @Override
+    public void clearScreenAndCache() {
+        this.clearScreen();
+        CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries().clear();
+    }
+
+    @Override
     public String getBuffer() {
         return this.buffer;
     }
@@ -403,6 +384,40 @@ public final class JLine3Console implements IConsole {
             this.lineReader.getBuffer().write(this.buffer);
             this.buffer = null;
         }
+    }
+
+    @Override
+    public void start() {
+        if (this.executorService != null) {
+            return;
+        }
+
+        this.executorService = Executors.newCachedThreadPool();
+        this.executorService.execute(() -> {
+            while (!Thread.interrupted()) {
+                String input = this.call(this.buffer);
+
+                if (input == null) {
+                    continue;
+                }
+
+                this.buffer = null;
+
+                if (!this.consoleInputHandler.isEmpty()) {
+                    for (ConsoleHandler<Consumer<String>> value : this.consoleInputHandler.values()) {
+                        if (value.isEnabled()) {
+                            value.getHandler().accept(input);
+                        }
+                    }
+                }
+
+                if (!this.runningAnimations.isEmpty()) {
+                    for (AbstractConsoleAnimation animation : this.runningAnimations.values()) {
+                        animation.addToCursor(1);
+                    }
+                }
+            }
+        });
     }
 
     @Override

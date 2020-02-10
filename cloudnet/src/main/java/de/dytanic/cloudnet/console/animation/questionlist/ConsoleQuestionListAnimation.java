@@ -43,8 +43,15 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     }
 
     public ConsoleQuestionListAnimation(String name, Supplier<Collection<String>> lastCachedMessagesSupplier, Supplier<String> headerSupplier, Supplier<String> footerSupplier, String overwritePrompt) {
+        this(name, lastCachedMessagesSupplier, null, headerSupplier, footerSupplier, overwritePrompt);
+    }
+
+    public ConsoleQuestionListAnimation(String name, Supplier<Collection<String>> lastCachedMessagesSupplier,
+                                        String afterInstallPrompt, Supplier<String> headerSupplier,
+                                        Supplier<String> footerSupplier, String overwritePrompt) {
         super(name);
         this.lastCachedMessagesSupplier = lastCachedMessagesSupplier;
+        this.previousPrompt = afterInstallPrompt;
         this.headerSupplier = headerSupplier;
         this.footerSupplier = footerSupplier;
         this.overwritePrompt = overwritePrompt;
@@ -89,8 +96,10 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     public void setConsole(IConsole console) {
         super.setConsole(console);
         this.previousPrintingEnabled = console.isPrintingEnabled();
-        this.previousPrompt = console.getPrompt();
         this.previousHistory = console.getCommandHistory();
+        if (this.previousPrompt == null) {
+            this.previousPrompt = console.getPrompt();
+        }
 
         console.setCommandHistory(null);
 
