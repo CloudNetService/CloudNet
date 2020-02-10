@@ -93,7 +93,7 @@ public class CommandGroups extends CommandServiceConfigurationBase {
                                         sender.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-not-found"));
                                         return;
                                     }
-                                    configuration.getTargetEnvironments().add(environment);
+                                    configuration.getTargetEnvironments().remove(environment);
                                     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(configuration);
                                     sender.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-success"));
                                 },
