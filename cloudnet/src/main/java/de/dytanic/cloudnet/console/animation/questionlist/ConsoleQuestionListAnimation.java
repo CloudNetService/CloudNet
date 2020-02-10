@@ -94,10 +94,6 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
         console.setCommandHistory(null);
 
-        if (this.overwritePrompt != null) {
-            console.setPrompt(this.overwritePrompt);
-        }
-
         String header = this.headerSupplier.get();
         if (header != null) {
             console.forceWriteLine(header);
@@ -109,6 +105,10 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         console.disableAllHandlers();
+        if (this.overwritePrompt != null) {
+            console.setPrompt(this.overwritePrompt);
+        }
+
         CloudNet.getInstance().getEventManager().callEvent(new SetupInitiateEvent(this));
     }
 
@@ -182,8 +182,10 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
             super.getConsole().writeRaw( //print result message and remove question
                     this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
-                            .a("&r").a(entry.getQuestion())
-                            .a(" &r> &a").a(input)
+                            .a("&r")
+                            .a(entry.getQuestion())
+                            .a(" &r> &a")
+                            .a(input)
                             .a(System.lineSeparator())
                             .toString()
             );
