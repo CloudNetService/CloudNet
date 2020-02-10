@@ -353,6 +353,7 @@ public final class JLine3Console implements IConsole {
             return this.readLine(prompt, buffer);
         } catch (final UserInterruptException ex) {
             System.out.println(LanguageManager.getMessage("cloudnet-user-console-interrupt-warning"));
+            System.exit(-1);
         } catch (final EndOfFileException ignored) {
         }
 
