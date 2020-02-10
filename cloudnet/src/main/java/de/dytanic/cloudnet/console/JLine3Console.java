@@ -261,6 +261,8 @@ public final class JLine3Console implements IConsole {
 
     @Override
     public IConsole writeDirectly(String text) {
+        text = ConsoleColor.toColouredString('&', text);
+
         this.lineReader.getTerminal().writer().print(text);
         this.lineReader.getTerminal().writer().flush();
 
