@@ -81,9 +81,13 @@ public interface IConsole extends AutoCloseable {
 
     void reset();
 
+    void start();
+
     void resetPrompt();
 
     void clearScreen();
+
+    void clearScreenAndCache();
 
     String getBuffer();
 

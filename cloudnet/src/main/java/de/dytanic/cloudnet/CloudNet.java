@@ -19,14 +19,17 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.logging.*;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfigurationRegistry;
+import de.dytanic.cloudnet.console.ConsoleLogHandler;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.JLine3Console;
+import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
+import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -125,11 +128,11 @@ public final class CloudNet extends CloudNetDriver {
 
     private final Properties commandLineProperties;
 
-    private final IConsole console;
+    private IConsole console;
 
-    private final QueuedConsoleLogHandler queuedConsoleLogHandler;
+    private QueuedConsoleLogHandler queuedConsoleLogHandler;
 
-    private final ConsoleCommandSender consoleCommandSender;
+    private ConsoleCommandSender consoleCommandSender;
 
 
     private final Queue<ITask<?>> processQueue = Iterables.newConcurrentLinkedQueue();
@@ -153,19 +156,11 @@ public final class CloudNet extends CloudNetDriver {
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
 
-    CloudNet(List<String> commandLineArguments, ILogger logger, IConsole console) {
-        super(logger);
+    CloudNet(List<String> commandLineArguments) {
         setInstance(this);
 
-        logger.setLevel(this.defaultLogLevel);
-
-        this.console = console;
         this.commandLineArguments = commandLineArguments;
         this.commandLineProperties = Properties.parseLine(commandLineArguments.toArray(new String[0]));
-
-        this.consoleCommandSender = new ConsoleCommandSender(logger);
-
-        logger.addLogHandler(queuedConsoleLogHandler = new QueuedConsoleLogHandler());
 
         this.cloudServiceManager.init();
 
@@ -184,19 +179,35 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public synchronized void start() throws Exception {
+    public synchronized void start() throws Throwable {
         File tempDirectory = new File(System.getProperty("cloudnet.tempDir", "temp"));
         tempDirectory.mkdirs();
 
         new File(tempDirectory, "caches").mkdir();
 
         try (InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
-            Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(
+                    Objects.requireNonNull(inputStream, String.format("File %s is missing. Corrupt build of CloudNet?", "wrapper.jar")),
+                    new File(tempDirectory, "caches/wrapper.jar").toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
         }
 
         boolean configFileAvailable = this.config.isFileExists();
         this.config.load();
-        this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
+
+        String prompt = null;
+        if (!configFileAvailable || !this.getCloudServiceManager().isFileCreated()) {
+            prompt = DefaultInstallation.SETUP_PROMPT;
+        }
+
+        this.initLoggerAndConsole(prompt);
+        this.consoleCommandSender = new ConsoleCommandSender(this.logger);
+
+        this.logger.setLevel(this.defaultLogLevel);
+        this.logger.addLogHandler(queuedConsoleLogHandler = new QueuedConsoleLogHandler());
+
+        this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable, System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r"));
 
         if (this.config.getMaxMemory() < 2048) {
             CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
@@ -1017,6 +1028,43 @@ public final class CloudNet extends CloudNetDriver {
                 ex.printStackTrace();
             }
         });
+    }
+
+    private void initLoggerAndConsole(String prompt) throws Throwable {
+        this.console = new JLine3Console();
+        this.logger = new DefaultAsyncLogger();
+
+        logger.setLevel(LogLevel.FATAL);
+
+        initLoggerAndConsole(console, logger);
+        HeaderReader.readAndPrintHeader(console);
+
+        if (prompt != null) {
+            console.setPrompt(prompt);
+        }
+
+        console.start();
+    }
+
+    private void initLoggerAndConsole(IConsole console, ILogger logger) throws Throwable {
+        for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
+                new DefaultFileLogHandler(new File("local/logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB).setEnableErrorLog(true),
+                new ConsoleLogHandler(console).setFormatter(console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter())
+        }) {
+            logger.addLogHandler(logHandler);
+        }
+
+        System.setOut(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
+        System.setErr(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                logger.close();
+                console.close();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }));
     }
 
     public ICommandMap getCommandMap() {

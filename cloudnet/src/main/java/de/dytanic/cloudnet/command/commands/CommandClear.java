@@ -11,6 +11,6 @@ public final class CommandClear extends CommandDefault {
 
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        getCloudNet().getConsole().clearScreen();
+        getCloudNet().getConsole().clearScreenAndCache();
     }
 }

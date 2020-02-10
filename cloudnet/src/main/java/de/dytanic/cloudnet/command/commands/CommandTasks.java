@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.DefaultInstallation;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommand;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
-import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -18,7 +18,6 @@ import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
@@ -27,8 +26,6 @@ import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
@@ -400,7 +397,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         "&f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/ \n" +
                         "&f                             &b                     |_|    ",
                 () -> "Task creation complete!",
-                "&r> &e"
+                DefaultInstallation.SETUP_PROMPT
         );
 
         animation.addEntry(
@@ -419,6 +416,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                 if (CloudNet.getInstance().getServiceTaskProvider().isServiceTaskPresent(input)) {
                                     return "&c" + LanguageManager.getMessage("command-tasks-setup-task-already-exists");
                                 }
+
                                 return super.getInvalidInputMessage(input);
                             }
                         }
@@ -452,7 +450,12 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 new QuestionListEntry<>(
                         "maintenance",
                         LanguageManager.getMessage("command-tasks-setup-question-maintenance"),
-                        new QuestionAnswerTypeBoolean()
+                        new QuestionAnswerTypeBoolean() {
+                            @Override
+                            public String getRecommendation() {
+                                return super.getTrueString();
+                            }
+                        }
                 )
         );
 
@@ -481,7 +484,12 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 new QuestionListEntry<>(
                         "minServiceCount",
                         LanguageManager.getMessage("command-tasks-setup-question-minservices"),
-                        new QuestionAnswerTypeInt()
+                        new QuestionAnswerTypeInt() {
+                            @Override
+                            public String getRecommendation() {
+                                return "1";
+                            }
+                        }
                 )
         );
 

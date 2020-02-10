@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 
 public class DefaultInstallation {
 
+    public static final String SETUP_PROMPT = "&r> &e";
+
     private CloudNet cloudNet;
 
     private final Map<String, Runnable> defaultTaskInstallations = new HashMap<>();
@@ -78,7 +80,7 @@ public class DefaultInstallation {
         }
     }
 
-    public void executeFirstStartSetup(IConsole console, boolean configFileAvailable) throws SocketException {
+    public void executeFirstStartSetup(IConsole console, boolean configFileAvailable, String promptAfterInstall) throws SocketException {
         Collection<QuestionListEntry<?>> entries = new ArrayList<>();
 
         List<String> internalIPs = this.detectAllIPAddresses();
@@ -194,6 +196,7 @@ public class DefaultInstallation {
             ConsoleQuestionListAnimation animation = new ConsoleQuestionListAnimation(
                     "DefaultInstallation",
                     null,
+                    promptAfterInstall,
                     () -> "&f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _ \n" +
                             "&f  / __\\| |  ___   _   _   __| |&b  /\\ \\ \\  /__\\/__   \\ &3  \\_   \\ _ __   ___ | |_   __ _ | || |\n" +
                             "&f / /   | | / _ \\ | | | | / _` |&b /  \\/ / /_\\    / /\\/ &3   / /\\/| '_ \\ / __|| __| / _` || || |\n" +
@@ -201,7 +204,7 @@ public class DefaultInstallation {
                             "&f\\____/ |_| \\___/  \\__,_| \\__,_|&b\\_\\ \\/  \\__/   \\/     &3\\____/  |_| |_||___/ \\__| \\__,_||_||_|\n" +
                             "&f                               &b                      &3                                      ",
                     () -> null,
-                    "&r> &e"
+                    SETUP_PROMPT
             );
 
             for (QuestionListEntry<?> entry : entries) {
