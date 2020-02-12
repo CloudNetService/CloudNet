@@ -14,6 +14,8 @@ include 'cloudnet-plugins'
 // modules for cloudnet
 include 'cloudnet-modules:cloudnet-signs'
 findProject(':cloudnet-modules:cloudnet-signs')?.name = 'cloudnet-signs'
+include 'cloudnet-modules:cloudnet-npcs'
+findProject(':cloudnet-modules:cloudnet-npcs')?.name = 'cloudnet-npcs'
 include 'cloudnet-modules:cloudnet-bridge'
 findProject(':cloudnet-modules:cloudnet-bridge')?.name = 'cloudnet-bridge'
 include 'cloudnet-modules:cloudnet-smart'
