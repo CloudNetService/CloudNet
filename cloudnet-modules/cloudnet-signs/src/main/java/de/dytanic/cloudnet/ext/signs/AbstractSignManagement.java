@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
@@ -346,63 +347,16 @@ public abstract class AbstractSignManagement {
                 .orElse(null);
     }
 
-    private boolean isEmptyService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.isConnected() &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online") &&
-                serviceInfoSnapshot.getProperties().contains("Online-Count") &&
-                serviceInfoSnapshot.getProperties().getInt("Online-Count") == 0;
-    }
-
-    private boolean isFullService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.isConnected() &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online") &&
-                serviceInfoSnapshot.getProperties().contains("Online-Count") &&
-                serviceInfoSnapshot.getProperties().contains("Max-Players") &&
-                serviceInfoSnapshot.getProperties().getInt("Online-Count") >=
-                        serviceInfoSnapshot.getProperties().getInt("Max-Players");
-    }
-
-    private boolean isStartingService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING && !serviceInfoSnapshot.getProperties().contains("Online");
-    }
-
-    private boolean isIngameService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING
-                && serviceInfoSnapshot.isConnected()
-                &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online")
-                && (
-                (serviceInfoSnapshot.getProperties().contains("Motd") &&
-                        (
-                                serviceInfoSnapshot.getProperties().getString("Motd").toLowerCase().contains("ingame") ||
-                                        serviceInfoSnapshot.getProperties().getString("Motd").toLowerCase().contains("running")
-                        )
-                ) ||
-                        (serviceInfoSnapshot.getProperties().contains("Extra") &&
-                                (
-                                        serviceInfoSnapshot.getProperties().getString("Extra").toLowerCase().contains("ingame") ||
-                                                serviceInfoSnapshot.getProperties().getString("Extra").toLowerCase().contains("running")
-                                )
-                        ) ||
-                        (serviceInfoSnapshot.getProperties().contains("State") &&
-                                (
-                                        serviceInfoSnapshot.getProperties().getString("State").toLowerCase().contains("ingame") ||
-                                                serviceInfoSnapshot.getProperties().getString("State").toLowerCase().contains("running")
-                                )
-                        )
-        );
-    }
-
     private ServiceInfoState fromServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot, SignConfigurationEntry signConfiguration) {
-        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING || this.isIngameService(serviceInfoSnapshot)) {
+        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING || ServiceInfoSnapshotUtil.isIngameService(serviceInfoSnapshot)) {
             return ServiceInfoState.STOPPED;
         }
 
-        if (this.isEmptyService(serviceInfoSnapshot)) {
+        if (ServiceInfoSnapshotUtil.isEmptyService(serviceInfoSnapshot)) {
             return ServiceInfoState.EMPTY_ONLINE;
         }
 
-        if (this.isFullService(serviceInfoSnapshot)) {
+        if (ServiceInfoSnapshotUtil.isFullService(serviceInfoSnapshot)) {
             if (!signConfiguration.isSwitchToSearchingWhenServiceIsFull()) {
                 return ServiceInfoState.FULL_ONLINE;
             } else {
@@ -410,7 +364,7 @@ public abstract class AbstractSignManagement {
             }
         }
 
-        if (this.isStartingService(serviceInfoSnapshot)) {
+        if (ServiceInfoSnapshotUtil.isStartingService(serviceInfoSnapshot)) {
             return ServiceInfoState.STARTING;
         }
 
