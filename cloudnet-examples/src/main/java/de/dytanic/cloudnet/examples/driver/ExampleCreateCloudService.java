@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.examples.driver;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -24,12 +23,13 @@ public final class ExampleCreateCloudService {
         }
 
         //wrapper filter is more specific
-        ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby"),
-                serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
+        Optional<ServiceInfoSnapshot> optionalServiceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby").stream()
+                .filter(serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
                         serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
-                        serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name));
+                        serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name))
+                .findFirst();
 
-        if (serviceInfoSnapshot != null) {
+        if (optionalServiceInfoSnapshot.isPresent()) {
             //Service is online and exists
         } else {
             //Service is not online or doesn't exist
@@ -48,11 +48,13 @@ public final class ExampleCreateCloudService {
 
         //use this as alternative filtering
         CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync("Lobby").onComplete(serviceInfoSnapshots -> {
-            ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(serviceInfoSnapshots, serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
-                    serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
-                    serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name));
+            Optional<ServiceInfoSnapshot> optionalServiceInfoSnapshot = serviceInfoSnapshots.stream()
+                    .filter(serviceInfoSnapshot1 -> serviceInfoSnapshot1.getLifeCycle() == ServiceLifeCycle.RUNNING &&
+                            serviceInfoSnapshot1.getServiceId().getEnvironment() == ServiceEnvironmentType.MINECRAFT_SERVER &&
+                            serviceInfoSnapshot1.getServiceId().getName().equalsIgnoreCase(name))
+                    .findFirst();
 
-            if (serviceInfoSnapshot != null) {
+            if (optionalServiceInfoSnapshot.isPresent()) {
                 //Service is online and exists
             } else {
                 //Service is not online or doesn't exist
@@ -106,13 +108,13 @@ public final class ExampleCreateCloudService {
                     "jvm",
                     true,
                     false,
-                    Iterables.newArrayList(),
+                    new ArrayList<>(),
                     Collections.singletonList(new ServiceTemplate(
                             "Lobby",
                             "default",
                             "local"
                     )),
-                    Iterables.newArrayList(),
+                    new ArrayList<>(),
                     Collections.singletonList("Lobby"),
                     new ProcessConfiguration(
                             ServiceEnvironmentType.MINECRAFT_SERVER,
@@ -149,7 +151,7 @@ public final class ExampleCreateCloudService {
 
             serviceTask.setTemplates(
                     serviceTask.getTemplates().size() > 1 ?
-                            Iterables.newArrayList(new ServiceTemplate[]{Iterables.newArrayList(serviceTask.getTemplates()).get(new Random().nextInt(serviceTask.getTemplates().size()))})
+                            new ArrayList<>(Collections.singletonList(new ArrayList<>(serviceTask.getTemplates()).get(new Random().nextInt(serviceTask.getTemplates().size()))))
                             :
                             serviceTask.getTemplates()
             );

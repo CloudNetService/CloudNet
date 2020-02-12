@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -15,6 +14,8 @@ import de.dytanic.cloudnet.ext.cloudflare.listener.CloudflareStartAndStopListene
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 public final class CloudNetCloudflareModule extends NodeCloudNetModule {
@@ -34,7 +35,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void loadConfiguration() {
         this.cloudflareConfiguration = getConfig().get("config", CloudflareConfiguration.TYPE, new CloudflareConfiguration(
-                Iterables.newArrayList(new CloudflareConfigurationEntry[]{
+                new ArrayList<>(Collections.singletonList(
                         new CloudflareConfigurationEntry(
                                 false,
                                 getInitialHostAddress(),
@@ -42,13 +43,11 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
                                 "api_token_string",
                                 "zoneId",
                                 "example.com",
-                                Iterables.newArrayList(
-                                        new CloudflareGroupConfiguration[]{
-                                                new CloudflareGroupConfiguration("Proxy", "@", 1, 1)
-                                        }
-                                )
+                                new ArrayList<>(Collections.singletonList(
+                                        new CloudflareGroupConfiguration("Proxy", "@", 1, 1)
+                                ))
                         )
-                })
+                ))
         ));
 
         saveConfig();

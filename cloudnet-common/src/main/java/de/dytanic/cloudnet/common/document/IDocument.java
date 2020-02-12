@@ -14,7 +14,7 @@ import java.util.Properties;
  * A document is a wrapper to persistence data or read data in the heap or
  * easy into the following implementation format of this interface.
  */
-public interface IDocument<Document extends IDocument> extends IJsonDocPropertyable, Serializable, IPersistable, IReadable, Iterable<String> {
+public interface IDocument<Document extends IDocument<?>> extends IJsonDocPropertyable, Serializable, IPersistable, IReadable, Iterable<String> {
 
     Collection<String> keys();
 

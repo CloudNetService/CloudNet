@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.signs.configuration;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -19,7 +19,7 @@ public final class SignConfigurationProvider {
     }
 
     public static void setLocal(SignConfiguration signConfiguration) {
-        Validate.checkNotNull(signConfiguration);
+        Preconditions.checkNotNull(signConfiguration);
 
         loadedConfiguration = signConfiguration;
     }

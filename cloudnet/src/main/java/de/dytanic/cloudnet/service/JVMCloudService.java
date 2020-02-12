@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
-import de.dytanic.cloudnet.common.Value;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -18,6 +16,7 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.service.*;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.URL;
@@ -25,8 +24,11 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
@@ -43,19 +45,19 @@ final class JVMCloudService implements ICloudService {
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
 
-    private final List<ServiceRemoteInclusion> includes = Iterables.newArrayList();
+    private final List<ServiceRemoteInclusion> includes = new ArrayList<>();
 
-    private final List<ServiceTemplate> templates = Iterables.newArrayList();
+    private final List<ServiceTemplate> templates = new ArrayList<>();
 
-    private final List<ServiceDeployment> deployments = Iterables.newCopyOnWriteArrayList();
+    private final List<ServiceDeployment> deployments = new CopyOnWriteArrayList<>();
 
-    private final Queue<ServiceRemoteInclusion> waitingIncludes = Iterables.newConcurrentLinkedQueue();
+    private final Queue<ServiceRemoteInclusion> waitingIncludes = new ConcurrentLinkedQueue<>();
 
-    private final Queue<ServiceTemplate> waitingTemplates = Iterables.newConcurrentLinkedQueue();
+    private final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
 
     private final DefaultServiceConsoleLogCache serviceConsoleLogCache = new DefaultServiceConsoleLogCache(this);
 
-    private final List<String> groups = Iterables.newArrayList();
+    private final List<String> groups = new ArrayList<>();
 
     private final Lock lifeCycleLock = new ReentrantLock();
 
@@ -120,7 +122,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     @Override
-    public void runCommand(String commandLine) {
+    public void runCommand(@NotNull String commandLine) {
         if (this.lifeCycle == ServiceLifeCycle.RUNNING && this.process != null) {
             try {
                 OutputStream outputStream = this.process.getOutputStream();
@@ -212,6 +214,7 @@ final class JVMCloudService implements ICloudService {
                 (this.lifeCycle == ServiceLifeCycle.RUNNING && this.process != null && this.process.isAlive());
     }
 
+    @NotNull
     @Override
     public final String getRuntime() {
         return RUNTIME;
@@ -594,19 +597,19 @@ final class JVMCloudService implements ICloudService {
     }
 
     @Override
-    public void offerTemplate(ServiceTemplate template) {
+    public void offerTemplate(@NotNull ServiceTemplate template) {
         this.waitingTemplates.offer(template);
         this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
     }
 
     @Override
-    public void offerInclusion(ServiceRemoteInclusion inclusion) {
+    public void offerInclusion(@NotNull ServiceRemoteInclusion inclusion) {
         this.waitingIncludes.offer(inclusion);
         this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
     }
 
     @Override
-    public void addDeployment(ServiceDeployment deployment) {
+    public void addDeployment(@NotNull ServiceDeployment deployment) {
         this.deployments.add(deployment);
         this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
     }
@@ -614,7 +617,7 @@ final class JVMCloudService implements ICloudService {
     private void startWrapper() throws Exception {
         this.configuredMaxHeapMemory = this.serviceConfiguration.getProcessConfig().getMaxHeapMemorySize();
 
-        List<String> commandArguments = Iterables.newArrayList();
+        List<String> commandArguments = new ArrayList<>();
 
         commandArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
 
@@ -747,29 +750,12 @@ final class JVMCloudService implements ICloudService {
                 File file = new File(this.directory, "velocity.toml");
                 this.copyDefaultFile("files/velocity/velocity.toml", file);
 
-                Value<Boolean> value = new Value<>(true);
+                AtomicBoolean reference = new AtomicBoolean(true);
 
                 this.rewriteServiceConfigurationFile(file, line -> {
-                    if (value.getValue() && line.startsWith("bind =")) {
-                        value.setValue(false);
+                    if (reference.get() && line.startsWith("bind =")) {
+                        reference.set(false);
                         return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort() + "\"";
-                    }
-
-                    return line;
-                });
-            }
-            break;
-            case PROX_PROX: {
-                File file = new File(this.directory, "config.yml");
-                this.copyDefaultFile("files/proxprox/config.yml", file);
-
-                this.rewriteServiceConfigurationFile(file, line -> {
-                    if (line.startsWith("ip: ")) {
-                        line = "ip: " + CloudNet.getInstance().getConfig().getHostAddress();
-                    }
-
-                    if (line.startsWith("port: ")) {
-                        line = "port: " + serviceConfiguration.getPort();
                     }
 
                     return line;
@@ -831,23 +817,6 @@ final class JVMCloudService implements ICloudService {
                 }
             }
             break;
-            case GO_MINT: {
-                File file = new File(this.directory, "server.yml");
-                this.copyDefaultFile("files/gomint/server.yml", file);
-
-                this.rewriteServiceConfigurationFile(file, line -> {
-                    if (line.startsWith("  ip: ")) {
-                        line = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
-                    }
-
-                    if (line.startsWith("  port: ")) {
-                        line = "  port: " + serviceConfiguration.getPort();
-                    }
-
-                    return line;
-                });
-            }
-            break;
             case GLOWSTONE: {
                 File file = new File(this.directory, "config/glowstone.yml");
                 file.getParentFile().mkdirs();
@@ -885,7 +854,7 @@ final class JVMCloudService implements ICloudService {
 
     private void rewriteServiceConfigurationFile(File file, UnaryOperator<String> unaryOperator) throws Exception {
         List<String> lines = Files.readAllLines(file.toPath());
-        List<String> replacedLines = Iterables.newArrayList(lines.size());
+        List<String> replacedLines = new ArrayList<>(lines.size());
 
         for (String line : lines) {
             replacedLines.add(unaryOperator.apply(line));
@@ -1054,6 +1023,7 @@ final class JVMCloudService implements ICloudService {
         return this.waitingTemplates;
     }
 
+    @NotNull
     public DefaultServiceConsoleLogCache getServiceConsoleLogCache() {
         return this.serviceConsoleLogCache;
     }
@@ -1066,22 +1036,27 @@ final class JVMCloudService implements ICloudService {
         return this.lifeCycleLock;
     }
 
+    @NotNull
     public ServiceLifeCycle getLifeCycle() {
         return this.lifeCycle;
     }
 
+    @NotNull
     public ICloudServiceManager getCloudServiceManager() {
         return this.cloudServiceManager;
     }
 
+    @NotNull
     public ServiceConfiguration getServiceConfiguration() {
         return this.serviceConfiguration;
     }
 
+    @NotNull
     public ServiceId getServiceId() {
         return this.serviceId;
     }
 
+    @NotNull
     public File getDirectory() {
         return this.directory;
     }
@@ -1098,20 +1073,22 @@ final class JVMCloudService implements ICloudService {
         return this.networkChannel;
     }
 
-    public void setNetworkChannel(INetworkChannel networkChannel) {
+    public void setNetworkChannel(@NotNull INetworkChannel networkChannel) {
         this.networkChannel = networkChannel;
     }
 
+    @NotNull
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
         return this.serviceInfoSnapshot;
     }
 
     @Override
-    public void setServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.lastServiceInfoSnapshot = this.serviceInfoSnapshot;
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
+    @NotNull
     public ServiceInfoSnapshot getLastServiceInfoSnapshot() {
         return this.lastServiceInfoSnapshot;
     }

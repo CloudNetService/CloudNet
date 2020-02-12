@@ -3,6 +3,8 @@ package de.dytanic.cloudnet.driver.provider;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,80 +12,82 @@ import java.util.UUID;
 
 public interface PermissionProvider {
 
-    void addUser(IPermissionUser permissionUser);
+    void addUser(@NotNull IPermissionUser permissionUser);
 
-    void updateUser(IPermissionUser permissionUser);
+    void updateUser(@NotNull IPermissionUser permissionUser);
 
-    void deleteUser(String name);
+    void deleteUser(@NotNull String name);
 
-    void deleteUser(IPermissionUser permissionUser);
+    void deleteUser(@NotNull IPermissionUser permissionUser);
 
-    boolean containsUser(UUID uniqueId);
+    boolean containsUser(@NotNull UUID uniqueId);
 
-    boolean containsUser(String name);
+    boolean containsUser(@NotNull String name);
 
-    IPermissionUser getUser(UUID uniqueId);
+    @Nullable
+    IPermissionUser getUser(@NotNull UUID uniqueId);
 
-    List<IPermissionUser> getUsers(String name);
+    List<IPermissionUser> getUsers(@NotNull String name);
 
     Collection<IPermissionUser> getUsers();
 
-    void setUsers(Collection<? extends IPermissionUser> users);
+    void setUsers(@NotNull Collection<? extends IPermissionUser> users);
 
-    Collection<IPermissionUser> getUsersByGroup(String group);
+    Collection<IPermissionUser> getUsersByGroup(@NotNull String group);
 
-    void addGroup(IPermissionGroup permissionGroup);
+    void addGroup(@NotNull IPermissionGroup permissionGroup);
 
-    void updateGroup(IPermissionGroup permissionGroup);
+    void updateGroup(@NotNull IPermissionGroup permissionGroup);
 
-    void deleteGroup(String name);
+    void deleteGroup(@NotNull String name);
 
-    void deleteGroup(IPermissionGroup permissionGroup);
+    void deleteGroup(@NotNull IPermissionGroup permissionGroup);
 
-    boolean containsGroup(String group);
+    boolean containsGroup(@NotNull String group);
 
-    IPermissionGroup getGroup(String name);
+    @Nullable
+    IPermissionGroup getGroup(@NotNull String name);
 
     Collection<IPermissionGroup> getGroups();
 
-    void setGroups(Collection<? extends IPermissionGroup> groups);
+    void setGroups(@NotNull Collection<? extends IPermissionGroup> groups);
 
-    ITask<Void> addUserAsync(IPermissionUser permissionUser);
+    ITask<Void> addUserAsync(@NotNull IPermissionUser permissionUser);
 
-    ITask<Void> updateUserAsync(IPermissionUser permissionUser);
+    ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser);
 
-    ITask<Void> deleteUserAsync(String name);
+    ITask<Void> deleteUserAsync(@NotNull String name);
 
-    ITask<Void> deleteUserAsync(IPermissionUser permissionUser);
+    ITask<Void> deleteUserAsync(@NotNull IPermissionUser permissionUser);
 
-    ITask<Boolean> containsUserAsync(UUID uniqueId);
+    ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId);
 
-    ITask<Boolean> containsUserAsync(String name);
+    ITask<Boolean> containsUserAsync(@NotNull String name);
 
-    ITask<IPermissionUser> getUserAsync(UUID uniqueId);
+    ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId);
 
-    ITask<List<IPermissionUser>> getUsersAsync(String name);
+    ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name);
 
     ITask<Collection<IPermissionUser>> getUsersAsync();
 
-    ITask<Void> setUsersAsync(Collection<? extends IPermissionUser> users);
+    ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users);
 
-    ITask<Collection<IPermissionUser>> getUsersByGroupAsync(String group);
+    ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group);
 
-    ITask<Void> addGroupAsync(IPermissionGroup permissionGroup);
+    ITask<Void> addGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
-    ITask<Void> updateGroupAsync(IPermissionGroup permissionGroup);
+    ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
-    ITask<Void> deleteGroupAsync(String name);
+    ITask<Void> deleteGroupAsync(@NotNull String name);
 
-    ITask<Void> deleteGroupAsync(IPermissionGroup permissionGroup);
+    ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
-    ITask<Boolean> containsGroupAsync(String name);
+    ITask<Boolean> containsGroupAsync(@NotNull String name);
 
-    ITask<IPermissionGroup> getGroupAsync(String name);
+    ITask<IPermissionGroup> getGroupAsync(@NotNull String name);
 
     ITask<Collection<IPermissionGroup>> getGroupsAsync();
 
-    ITask<Void> setGroupsAsync(Collection<? extends IPermissionGroup> groups);
+    ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups);
 
 }

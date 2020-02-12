@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge.node;
 
-import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
@@ -23,14 +21,16 @@ import java.util.Map;
 
 public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
-    private static final Map<String, String> DEFAULT_MESSAGES = Maps.of(
-            new Pair<>("command-hub-success-connect", "&7You did successfully connect to %server%"),
-            new Pair<>("command-hub-already-in-hub", "&cYou are already connected"),
-            new Pair<>("command-hub-no-server-found", "&7Hub server cannot be found"),
-            new Pair<>("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server"),
-            new Pair<>("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode"),
-            new Pair<>("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%")
-    );
+    private static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>();
+
+    static {
+        DEFAULT_MESSAGES.put("command-hub-success-connect", "&7You did successfully connect to %server%");
+        DEFAULT_MESSAGES.put("command-hub-already-in-hub", "&cYou are already connected");
+        DEFAULT_MESSAGES.put("command-hub-no-server-found", "&7Hub server cannot be found");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode");
+        DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%");
+    }
 
     private static CloudNetBridgeModule instance;
 

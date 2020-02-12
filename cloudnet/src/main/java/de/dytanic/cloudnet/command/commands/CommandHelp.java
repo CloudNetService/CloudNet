@@ -4,10 +4,10 @@ import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -53,7 +53,7 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        Collection<String> x = Iterables.newArrayList();
+        Collection<String> x = new ArrayList<>();
 
         for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
             x.addAll(Arrays.asList(commandInfo.getNames()));

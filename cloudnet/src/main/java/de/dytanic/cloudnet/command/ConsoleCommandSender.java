@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.command;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 
@@ -31,7 +31,7 @@ public final class ConsoleCommandSender implements ICommandSender {
 
     @Override
     public void sendMessage(String... messages) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
         for (String message : messages) {
             this.sendMessage(message);

@@ -17,4 +17,5 @@ public interface ICloudPlayer extends ICloudOfflinePlayer {
     NetworkPlayerServerInfo getNetworkPlayerServerInfo();
 
     void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo);
+
 }

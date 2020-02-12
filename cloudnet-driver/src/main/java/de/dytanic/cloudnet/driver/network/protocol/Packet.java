@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -30,18 +31,18 @@ public class Packet implements IPacket {
 
     protected byte[] body;
 
-    public Packet(int channel, JsonDocument header) {
+    public Packet(int channel, @NotNull JsonDocument header) {
         this(channel, header, null);
     }
 
-    public Packet(int channel, JsonDocument header, byte[] body) {
+    public Packet(int channel, @NotNull JsonDocument header, byte[] body) {
         this.channel = channel;
         this.header = header;
         this.body = body;
         this.uniqueId = UUID.randomUUID();
     }
 
-    public Packet(int channel, UUID uniqueId, JsonDocument header, byte[] body) {
+    public Packet(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, byte[] body) {
         this.channel = channel;
         this.uniqueId = uniqueId;
         this.header = header;
@@ -66,4 +67,5 @@ public class Packet implements IPacket {
     public byte[] getBody() {
         return this.body;
     }
+
 }

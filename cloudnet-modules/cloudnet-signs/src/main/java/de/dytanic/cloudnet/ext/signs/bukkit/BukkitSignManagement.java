@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
@@ -14,6 +14,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,7 +43,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
 
     @Override
-    protected void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
+    protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             Location location = this.toLocation(sign.getWorldPosition());
 
@@ -77,14 +79,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     @Override
-    protected void runTaskLater(Runnable runnable, long delay) {
+    protected void runTaskLater(@NotNull Runnable runnable, long delay) {
         Bukkit.getScheduler().runTaskLater(this.plugin, runnable, delay);
     }
 
     private void updateSign(Location location, Sign sign, org.bukkit.block.Sign bukkitSign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(location);
-        Validate.checkNotNull(bukkitSign);
-        Validate.checkNotNull(signLayout);
+        Preconditions.checkNotNull(location);
+        Preconditions.checkNotNull(bukkitSign);
+        Preconditions.checkNotNull(signLayout);
 
         if (signLayout.getLines() != null &&
                 signLayout.getLines().length == 4) {
@@ -101,7 +103,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     private void changeBlock(Location location, String blockType, int subId) {
-        Validate.checkNotNull(location);
+        Preconditions.checkNotNull(location);
 
         if (blockType != null && subId != -1) {
 
@@ -163,7 +165,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     public Location toLocation(SignPosition signPosition) {
-        Validate.checkNotNull(signPosition);
+        Preconditions.checkNotNull(signPosition);
 
         return Bukkit.getWorld(signPosition.getWorld()) != null ? new Location(
                 Bukkit.getWorld(signPosition.getWorld()),

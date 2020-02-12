@@ -1,8 +1,5 @@
 package de.dytanic.cloudnet.ext.signs;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -18,11 +15,15 @@ import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationTaskEntry;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class AbstractSignManagement {
 
@@ -35,14 +36,16 @@ public abstract class AbstractSignManagement {
             new AtomicInteger(-1), //starting
             new AtomicInteger(-1) //search
     };
-    private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = Maps.newConcurrentHashMap();
+    private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = new ConcurrentHashMap<>();
     protected Set<Sign> signs;
 
     public AbstractSignManagement() {
         instance = this;
 
-        this.signs = new HashSet<>();
-        this.signs.addAll(this.getSignsFromNode());
+        Collection<Sign> signsFromNode = this.getSignsFromNode();
+        this.signs = signsFromNode == null ? new HashSet<>() : signsFromNode.stream()
+                .filter(sign -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup()))
+                .collect(Collectors.toSet());
 
         // fetching the already existing services and making them available for the signs, if matching
         Wrapper.getInstance().getCloudServiceProvider().getCloudServices().stream()
@@ -54,7 +57,7 @@ public abstract class AbstractSignManagement {
         return instance;
     }
 
-    protected abstract void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot);
+    protected abstract void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot);
 
     /**
      * Removes all signs that don't exist anymore
@@ -67,7 +70,7 @@ public abstract class AbstractSignManagement {
      * @param runnable the task
      * @param delay    the delay the task should have
      */
-    protected abstract void runTaskLater(Runnable runnable, long delay);
+    protected abstract void runTaskLater(@NotNull Runnable runnable, long delay);
 
     private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction) {
         this.putService(serviceInfoSnapshot, stateFunction, true);
@@ -89,31 +92,31 @@ public abstract class AbstractSignManagement {
         }
     }
 
-    public void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onRegisterService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
-    public void onStartService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onStartService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STARTING);
     }
 
-    public void onConnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onConnectService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
     }
 
-    public void onUpdateServiceInfo(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onUpdateServiceInfo(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
     }
 
-    public void onDisconnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onDisconnectService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
-    public void onStopService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onStopService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
     }
 
-    public void onUnregisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void onUnregisterService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         if (!this.isMatchingCloudService(serviceInfoSnapshot)) {
             return;
         }
@@ -127,21 +130,30 @@ public abstract class AbstractSignManagement {
         this.updateSigns();
     }
 
-    public void onSignAdd(Sign sign) {
-        Validate.checkNotNull(sign);
-
-        this.signs.add(sign);
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+    /**
+     * Adds a sign to this wrapper instance
+     *
+     * @param sign the sign to add
+     * @return if the sign is allowed to exist on this wrapper instance
+     */
+    public boolean addSign(@NotNull Sign sign) {
+        if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
+            this.signs.add(sign);
+            CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+            return true;
+        }
+        return false;
     }
 
-    public void onSignRemove(Sign sign) {
-        Validate.checkNotNull(sign);
-
-        Sign signEntry = Iterables.first(this.signs, filterSign -> filterSign.getSignId() == sign.getSignId());
-
-        if (signEntry != null) {
-            this.signs.remove(signEntry);
-        }
+    /**
+     * Removes a sign from this wrapper instance
+     *
+     * @param sign the sign to remove
+     */
+    public void removeSign(@NotNull Sign sign) {
+        this.signs.stream()
+                .filter(filterSign -> filterSign.getSignId() == sign.getSignId())
+                .findFirst().ifPresent(signEntry -> this.signs.remove(signEntry));
 
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
@@ -152,18 +164,12 @@ public abstract class AbstractSignManagement {
             return;
         }
 
-        List<Sign> signs = Iterables.newArrayList(Iterables.filter(this.signs, sign -> Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())));
-
+        List<Sign> signs = new ArrayList<>(this.signs);
         Collections.sort(signs);
-        if (signs.isEmpty()) {
-            return;
-        }
 
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = Iterables.newArrayList();
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = Iterables.newArrayList(Iterables.filter(this.services.entrySet(),
-                item -> item.getValue().getSecond() != ServiceInfoState.STOPPED));
-
-        entries.sort(ENTRY_COMPARATOR);
+        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = new ArrayList<>();
+        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = this.services.entrySet().stream()
+                .filter(item -> item.getValue().getSecond() != ServiceInfoState.STOPPED).sorted(ENTRY_COMPARATOR).collect(Collectors.toList());
 
         for (Sign sign : signs) {
             this.updateSign(sign, signConfiguration, cachedFilter, entries);
@@ -174,8 +180,9 @@ public abstract class AbstractSignManagement {
                             SignConfigurationEntry signConfiguration,
                             List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter,
                             List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries) {
-        Iterables.filter(entries, entry -> {
-            boolean access = Iterables.contains(sign.getTargetGroup(), entry.getValue().getFirst().getConfiguration().getGroups());
+
+        cachedFilter.addAll(entries.stream().filter(entry -> {
+            boolean access = Arrays.asList(entry.getValue().getFirst().getConfiguration().getGroups()).contains(sign.getTargetGroup());
 
             if (sign.getTemplatePath() != null) {
                 boolean condition = false;
@@ -191,7 +198,7 @@ public abstract class AbstractSignManagement {
             }
 
             return access;
-        }, cachedFilter);
+        }).collect(Collectors.toList()));
 
         cachedFilter.sort(ENTRY_COMPARATOR_2);
 
@@ -284,9 +291,7 @@ public abstract class AbstractSignManagement {
         }
     }
 
-    protected String addDataToLine(Sign sign, String input, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(input);
-
+    protected String addDataToLine(@NotNull Sign sign, @NotNull String input, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         if (serviceInfoSnapshot == null) {
             return input;
         }
@@ -324,16 +329,21 @@ public abstract class AbstractSignManagement {
     }
 
     private SignConfigurationTaskEntry getValidSignConfigurationTaskEntryFromSignConfigurationEntry(SignConfigurationEntry entry, String targetTask) {
-        return Iterables.first(entry.getTaskLayouts(), signConfigurationTaskEntry -> signConfigurationTaskEntry.getTask() != null &&
-                signConfigurationTaskEntry.getEmptyLayout() != null &&
-                signConfigurationTaskEntry.getFullLayout() != null &&
-                signConfigurationTaskEntry.getOnlineLayout() != null &&
-                signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask));
+        return entry.getTaskLayouts().stream()
+                .filter(signConfigurationTaskEntry -> signConfigurationTaskEntry.getTask() != null &&
+                        signConfigurationTaskEntry.getEmptyLayout() != null &&
+                        signConfigurationTaskEntry.getFullLayout() != null &&
+                        signConfigurationTaskEntry.getOnlineLayout() != null &&
+                        signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask))
+                .findFirst()
+                .orElse(null);
     }
 
     public SignConfigurationEntry getOwnSignConfigurationEntry() {
-        return Iterables.first(SignConfigurationProvider.load().getConfigurations(),
-                signConfigurationEntry -> Iterables.contains(signConfigurationEntry.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()));
+        return SignConfigurationProvider.load().getConfigurations().stream()
+                .filter(signConfigurationEntry -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(signConfigurationEntry.getTargetGroup()))
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean isEmptyService(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -412,9 +422,12 @@ public abstract class AbstractSignManagement {
         }
     }
 
-    public void sendSignAddUpdate(Sign sign) {
-        Validate.checkNotNull(sign);
-
+    /**
+     * Adds a sign to the whole cluster and the database
+     *
+     * @param sign the sign to add
+     */
+    public void sendSignAddUpdate(@NotNull Sign sign) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
                         SignConstants.SIGN_CHANNEL_NAME,
@@ -423,9 +436,12 @@ public abstract class AbstractSignManagement {
                 );
     }
 
-    public void sendSignRemoveUpdate(Sign sign) {
-        Validate.checkNotNull(sign);
-
+    /**
+     * Removes a sign from the whole cluster and the database
+     *
+     * @param sign the sign to remove
+     */
+    public void sendSignRemoveUpdate(@NotNull Sign sign) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
                         SignConstants.SIGN_CHANNEL_NAME,
@@ -434,7 +450,13 @@ public abstract class AbstractSignManagement {
                 );
     }
 
-    protected Collection<Sign> getSignsFromNode() {
+    /**
+     * Returns all signs contained in the CloudNet sign database
+     *
+     * @return all signs or null, if an error occurred
+     */
+    @Nullable
+    public Collection<Sign> getSignsFromNode() {
         ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
                 CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
@@ -452,9 +474,7 @@ public abstract class AbstractSignManagement {
         return null;
     }
 
-    public void updateSignConfiguration(SignConfiguration signConfiguration) {
-        Validate.checkNotNull(signConfiguration);
-
+    public void updateSignConfiguration(@NotNull SignConfiguration signConfiguration) {
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SignConstants.SIGN_CHANNEL_NAME,
                 SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
@@ -463,7 +483,6 @@ public abstract class AbstractSignManagement {
     }
 
     private boolean isMatchingCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-
         if (serviceInfoSnapshot != null) {
 
             ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
@@ -540,12 +559,14 @@ public abstract class AbstractSignManagement {
         return this.indexes;
     }
 
+    /**
+     * Returns a copy of the signs allowed to exist on this wrapper instance
+     * Use {@link AbstractSignManagement#addSign(Sign)} and {@link AbstractSignManagement#removeSign(Sign)} for local modification
+     *
+     * @return a copy of the signs
+     */
     public Set<Sign> getSigns() {
-        return this.signs;
-    }
-
-    public void setSigns(Set<Sign> signs) {
-        this.signs = signs;
+        return new HashSet<>(this.signs);
     }
 
     private enum ServiceInfoState {

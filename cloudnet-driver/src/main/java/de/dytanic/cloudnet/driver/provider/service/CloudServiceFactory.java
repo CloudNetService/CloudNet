@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.provider.service;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -14,6 +15,7 @@ public interface CloudServiceFactory {
      * @param serviceTask the task the service should be created from
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
 
     /**
@@ -22,6 +24,7 @@ public interface CloudServiceFactory {
      * @param serviceConfiguration the configuration for the new service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
 
     /**
@@ -39,6 +42,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     default ServiceInfoSnapshot createCloudService(String name,
                                                    String runtime,
                                                    boolean autoDeleteOnStop,
@@ -68,6 +72,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ServiceInfoSnapshot createCloudService(
             String name,
             String runtime,
@@ -99,6 +104,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     default Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
                                                                int amount,
                                                                String name,
@@ -132,6 +138,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     Collection<ServiceInfoSnapshot> createCloudService(
             String nodeUniqueId,
             int amount,
@@ -154,6 +161,7 @@ public interface CloudServiceFactory {
      * @param serviceTask the task the service should be created from
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask);
 
     /**
@@ -162,6 +170,7 @@ public interface CloudServiceFactory {
      * @param serviceConfiguration the configuration for the new service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration);
 
     /**

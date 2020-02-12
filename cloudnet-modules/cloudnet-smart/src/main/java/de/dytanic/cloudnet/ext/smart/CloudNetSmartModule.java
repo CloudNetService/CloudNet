@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.ext.smart;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -18,6 +16,7 @@ import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
@@ -27,7 +26,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     private static CloudNetSmartModule instance;
 
-    private final Map<UUID, CloudNetServiceSmartProfile> providedSmartServices = Maps.newConcurrentHashMap();
+    private final Map<UUID, CloudNetServiceSmartProfile> providedSmartServices = new ConcurrentHashMap<>();
 
     public CloudNetSmartModule() {
         instance = this;
@@ -100,8 +99,11 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public ServiceInfoSnapshot getFreeNonStartedService(String taskName) {
-        return Iterables.first(CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().values(), serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName) &&
-                (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED || serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED));
+        return CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().values().stream()
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName) &&
+                        (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED || serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED))
+                .findFirst()
+                .orElse(null);
     }
 
     public void updateAsSmartService(ServiceConfiguration configuration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {

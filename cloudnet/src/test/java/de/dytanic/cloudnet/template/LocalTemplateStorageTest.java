@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.template;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.junit.Assert;
@@ -25,8 +24,8 @@ public final class LocalTemplateStorageTest {
         }
 
         Assert.assertEquals(1, storage.getTemplates().size());
-        Assert.assertNotNull(Iterables.first(storage.getTemplates(), serviceTemplate -> serviceTemplate.getPrefix().equals("Test") &&
-                serviceTemplate.getName().equals("default")));
+        Assert.assertNotNull(storage.getTemplates().stream().filter(serviceTemplate -> serviceTemplate.getPrefix().equals("Test") &&
+                serviceTemplate.getName().equals("default")).findFirst().orElse(null));
 
         storage.deploy(new File(directory, "Test/default"), new ServiceTemplate("Lobby", "fun", "local"));
         Assert.assertTrue(new File(directory, "Lobby/fun/plugins/test_file.yml").exists());

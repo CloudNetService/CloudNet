@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.driver.network.def.internal;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
@@ -11,9 +10,11 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is the internal api channel for synchronized communication between driver api and cloudnet node.
@@ -26,14 +27,14 @@ import java.util.UUID;
 @UnsafeClass
 public final class InternalSyncPacketChannel {
 
-    private final static Map<UUID, SynchronizedCallback> WAITING_PACKETS = Maps.newConcurrentHashMap();
+    private final static Map<UUID, SynchronizedCallback> WAITING_PACKETS = new ConcurrentHashMap<>();
 
     private InternalSyncPacketChannel() {
         throw new UnsupportedOperationException();
     }
 
     public static boolean handleIncomingChannel(Packet packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
         if (WAITING_PACKETS.containsKey(packet.getUniqueId())) {
             try {
@@ -53,14 +54,11 @@ public final class InternalSyncPacketChannel {
         }
     }
 
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body) {
+    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body) {
         return sendCallablePacket(channel, header, body, null);
     }
 
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(INetworkChannel channel, JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener) {
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(header);
-
+    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener) {
         Packet packet = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
         checkCachedValidation();
 

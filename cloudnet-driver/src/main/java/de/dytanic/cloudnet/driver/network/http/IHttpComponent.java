@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import java.util.Collection;
 
-public interface IHttpComponent<T extends IHttpComponent> extends AutoCloseable {
+public interface IHttpComponent<T extends IHttpComponent<?>> extends AutoCloseable {
 
     boolean isSslEnabled();
 

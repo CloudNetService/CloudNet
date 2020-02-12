@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge.node.listener;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -174,8 +173,11 @@ public final class NodeCustomChannelMessageListener {
         CloudPlayer cloudPlayer = NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId());
 
         if (cloudPlayer == null) {
-            cloudPlayer = Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
-                    cloudPlayer1.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()));
+            cloudPlayer = NodePlayerManager.getInstance().getOnlineCloudPlayers().values().stream()
+                    .filter(cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
+                            cloudPlayer1.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()))
+                    .findFirst()
+                    .orElse(null);
 
             if (cloudPlayer == null) {
                 ICloudOfflinePlayer cloudOfflinePlayer = getOrRegisterOfflinePlayer(networkConnectionInfo);
@@ -232,7 +234,10 @@ public final class NodeCustomChannelMessageListener {
     private void logoutPlayer(NetworkConnectionInfo networkConnectionInfo) {
         CloudPlayer cloudPlayer = networkConnectionInfo.getUniqueId() != null ?
                 NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId()) :
-                Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()));
+                NodePlayerManager.getInstance().getOnlineCloudPlayers().values().stream()
+                        .filter(cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()))
+                        .findFirst()
+                        .orElse(null);
 
         if (cloudPlayer != null) {
             if (cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())) {

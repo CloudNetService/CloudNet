@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.event;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.lang.reflect.Method;
@@ -14,7 +14,7 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager registerListener(Object listener) {
-        Validate.checkNotNull(listener);
+        Preconditions.checkNotNull(listener);
 
         this.registerListener0(listener);
         return this;
@@ -22,14 +22,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListener(Object listener) {
-        Validate.checkNotNull(listener);
+        Preconditions.checkNotNull(listener);
 
         for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
-                if (registeredEventListener.getInstance().equals(listener)) {
-                    listeners.getValue().remove(registeredEventListener);
-                }
-            }
+            listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().equals(listener));
         }
 
         return this;
@@ -37,14 +33,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListener(Class<?> listener) {
-        Validate.checkNotNull(listener);
+        Preconditions.checkNotNull(listener);
 
         for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
-                if (registeredEventListener.getInstance().getClass().equals(listener)) {
-                    listeners.getValue().remove(registeredEventListener);
-                }
-            }
+            listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().getClass().equals(listener));
         }
 
         return this;
@@ -52,14 +44,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListeners(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
         for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
-                if (registeredEventListener.getInstance().getClass().getClassLoader().equals(classLoader)) {
-                    listeners.getValue().remove(registeredEventListener);
-                }
-            }
+            listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().getClass().getClassLoader().equals(classLoader));
         }
 
         return this;
@@ -67,7 +55,7 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListeners(Object... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         for (Object listener : listeners) {
             unregisterListener(listener);
@@ -78,7 +66,7 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListeners(Class<?>... classes) {
-        Validate.checkNotNull(classes);
+        Preconditions.checkNotNull(classes);
 
         for (Object listener : classes) {
             unregisterListener(listener);
@@ -98,7 +86,7 @@ public final class DefaultEventManager implements IEventManager {
         if (channel == null) {
             channel = "*";
         }
-        Validate.checkNotNull(event);
+        Preconditions.checkNotNull(event);
 
         fireEvent(channel, event);
         return event;

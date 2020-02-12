@@ -1,8 +1,9 @@
 package de.dytanic.cloudnet.ext.report;
 
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.logging.DefaultFileLogHandler;
@@ -89,7 +90,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
 
     public String executePaste(String content) {
-        Validate.checkNotNull(content);
+        Preconditions.checkNotNull(content);
 
         try {
             byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
@@ -243,8 +244,9 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         }
 
         try {
-            int maxLines = properties.containsKey("maxLines") && Validate.testStringParseToInt(properties.get("maxLines")) ?
-                    Integer.parseInt(properties.get("maxLines")) : -1;
+            Integer parsedMaxLines;
+
+            int maxLines = properties.containsKey("maxLines") && (parsedMaxLines = Ints.tryParse(properties.get("maxLines"))) != null ? parsedMaxLines : -1;
             if (maxLines <= 0) {
                 maxLines = 512;
             }

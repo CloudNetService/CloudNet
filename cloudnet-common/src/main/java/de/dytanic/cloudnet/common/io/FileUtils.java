@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.common.io;
 
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
 
 import java.io.*;
@@ -10,6 +9,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -27,8 +27,7 @@ import java.util.zip.ZipOutputStream;
  */
 public final class FileUtils {
 
-    private static final Map<String, String> zipFileSystemProperties = Maps
-            .newHashMap();
+    private static final Map<String, String> zipFileSystemProperties = new HashMap<>();
 
     static {
         zipFileSystemProperties.put("create", "false");

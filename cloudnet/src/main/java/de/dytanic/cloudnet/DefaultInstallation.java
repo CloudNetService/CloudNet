@@ -428,7 +428,7 @@ public class DefaultInstallation {
         }
     }
 
-    private final class PreparedTemplate {
+    private static final class PreparedTemplate {
         private ServiceTemplate template;
         private ServiceVersionType versionType;
         private ServiceVersion version;

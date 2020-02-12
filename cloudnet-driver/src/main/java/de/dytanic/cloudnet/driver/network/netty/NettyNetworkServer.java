@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
@@ -19,17 +17,20 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class NettyNetworkServer extends NettySSLServer implements INetworkServer {
 
-    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = Maps.newConcurrentHashMap();
+    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-    protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
+    protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
@@ -74,9 +75,9 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public boolean addListener(HostAndPort hostAndPort) {
-        Validate.checkNotNull(hostAndPort);
-        Validate.checkNotNull(hostAndPort.getHost());
+    public boolean addListener(@NotNull HostAndPort hostAndPort) {
+        Preconditions.checkNotNull(hostAndPort);
+        Preconditions.checkNotNull(hostAndPort.getHost());
 
         if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
@@ -134,8 +135,8 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
-        Validate.checkNotNull(packet);
+    public void sendPacket(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
@@ -143,8 +144,8 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
-        Validate.checkNotNull(packets);
+    public void sendPacket(@NotNull IPacket... packets) {
+        Preconditions.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);

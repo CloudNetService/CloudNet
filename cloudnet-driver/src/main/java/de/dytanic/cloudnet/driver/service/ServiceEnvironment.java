@@ -23,12 +23,8 @@ public enum ServiceEnvironment {
     WATERDOG_DEFAULT("waterdog"),
     //Nukkit
     NUKKIT_DEFAULT("nukkit"),
-    //GoMint
-    GO_MINT_DEFAULT("gomint"),
     //Velocity
-    VELOCITY_DEFAULT("velocity"),
-    //ProxProx
-    PROX_PROX_DEFAULT("proxprox");
+    VELOCITY_DEFAULT("velocity");
 
     private final String name;
 

@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
 
@@ -13,6 +15,7 @@ public interface SpecificCloudServiceProvider {
      * @return the info or {@code null}, if the service doesn't exist
      * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
      */
+    @Nullable
     ServiceInfoSnapshot getServiceInfoSnapshot();
 
     /**
@@ -20,21 +23,21 @@ public interface SpecificCloudServiceProvider {
      *
      * @param serviceTemplate the template to be added to the list of templates of this service
      */
-    void addServiceTemplate(ServiceTemplate serviceTemplate);
+    void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate);
 
     /**
      * Adds a remote inclusion to this service. This remote inclusion won't be included directly after adding it but when the service is prepared.
      *
      * @param serviceRemoteInclusion the inclusion to be added to the list of inclusions of this service
      */
-    void addServiceRemoteInclusion(ServiceRemoteInclusion serviceRemoteInclusion);
+    void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion);
 
     /**
      * Adds a deployment to this service, which will be used when {@link #deployResources()} or {@link #deployResources(boolean)} is called.
      *
      * @param serviceDeployment the deployment to be added to the list of deployments of this service
      */
-    void addServiceDeployment(ServiceDeployment serviceDeployment);
+    void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment);
 
     /**
      * Gets a queue containing the last messages of this services console. The max size of this queue can be configured in the nodes config.json.
@@ -69,7 +72,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param lifeCycle the lifeCycle to be set
      */
-    void setCloudServiceLifeCycle(ServiceLifeCycle lifeCycle);
+    void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle);
 
     /**
      * Stops this service like {@link #stop()} and starts it after it like {@link #start()}.
@@ -86,7 +89,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param command the command to be executed
      */
-    void runCommand(String command);
+    void runCommand(@NotNull String command);
 
     /**
      * Copies all templates of this service into the directory where this service is located in
@@ -136,21 +139,21 @@ public interface SpecificCloudServiceProvider {
      *
      * @param serviceTemplate the template to be added to the list of templates of this service
      */
-    ITask<Void> addServiceTemplateAsync(ServiceTemplate serviceTemplate);
+    ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate);
 
     /**
      * Adds a remote inclusion to this service. This remote inclusion won't be included directly after adding it but when the service is prepared
      *
      * @param serviceRemoteInclusion the inclusion to be added to the list of inclusions of this service
      */
-    ITask<Void> addServiceRemoteInclusionAsync(ServiceRemoteInclusion serviceRemoteInclusion);
+    ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion);
 
     /**
      * Adds a deployment to this service, which will be used when {@link #deployResources()} or {@link #deployResources(boolean)} is called
      *
      * @param serviceDeployment the deployment to be added to the list of deployments of this service
      */
-    ITask<Void> addServiceDeploymentAsync(ServiceDeployment serviceDeployment);
+    ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment);
 
     /**
      * Gets a queue containing the last messages of this services console. The max size of this queue can be configured in the nodes config.json.
@@ -185,7 +188,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param lifeCycle the lifeCycle to be set
      */
-    ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle);
+    ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle);
 
     /**
      * Stops this service like {@link #stop()} and starts it after it like {@link #start()}.
@@ -202,7 +205,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param command the command to be executed
      */
-    ITask<Void> runCommandAsync(String command);
+    ITask<Void> runCommandAsync(@NotNull String command);
 
     /**
      * Copies all templates of this service into the directory where this service is located in

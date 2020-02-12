@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
@@ -13,10 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
@@ -176,7 +172,7 @@ public final class CommandPlayers extends SubCommandHandler {
             return;
         }
 
-        List<String> messages = Iterables.newArrayList();
+        List<String> messages = new ArrayList<>();
 
         messages.addAll(Arrays.asList(
                 "* CloudPlayer " + cloudOfflinePlayer.getUniqueId() + " " + cloudOfflinePlayer.getName(),

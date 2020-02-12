@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -23,7 +23,7 @@ public final class BridgeConfigurationProvider {
     }
 
     public static BridgeConfiguration update(BridgeConfiguration bridgeConfiguration) {
-        Validate.checkNotNull(bridgeConfiguration);
+        Preconditions.checkNotNull(bridgeConfiguration);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
@@ -36,7 +36,7 @@ public final class BridgeConfigurationProvider {
     }
 
     public static void setLocal(BridgeConfiguration bridgeConfiguration) {
-        Validate.checkNotNull(bridgeConfiguration);
+        Preconditions.checkNotNull(bridgeConfiguration);
 
         loadedConfiguration = bridgeConfiguration;
     }

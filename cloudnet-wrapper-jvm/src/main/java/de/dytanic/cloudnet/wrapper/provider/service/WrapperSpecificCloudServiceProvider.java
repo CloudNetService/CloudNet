@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -9,6 +9,8 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
 import java.util.UUID;
@@ -41,6 +43,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
         if (this.serviceInfoSnapshot != null) {
@@ -69,7 +72,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public void addServiceTemplate(ServiceTemplate serviceTemplate) {
+    public void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate) {
         try {
             this.addServiceTemplateAsync(serviceTemplate).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -78,8 +81,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public ITask<Void> addServiceTemplateAsync(ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(serviceTemplate);
+    public ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(serviceTemplate);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -90,7 +93,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public void addServiceRemoteInclusion(ServiceRemoteInclusion serviceRemoteInclusion) {
+    public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
         try {
             this.addServiceRemoteInclusionAsync(serviceRemoteInclusion).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -99,8 +102,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public ITask<Void> addServiceRemoteInclusionAsync(ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(serviceRemoteInclusion);
+    public ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
+        Preconditions.checkNotNull(serviceRemoteInclusion);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -111,7 +114,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public void addServiceDeployment(ServiceDeployment serviceDeployment) {
+    public void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment) {
         try {
             this.addServiceDeploymentAsync(serviceDeployment).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -120,8 +123,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public ITask<Void> addServiceDeploymentAsync(ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(serviceDeployment);
+    public ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
+        Preconditions.checkNotNull(serviceDeployment);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -151,7 +154,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public void setCloudServiceLifeCycle(ServiceLifeCycle lifeCycle) {
+    public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
         try {
             this.setCloudServiceLifeCycleAsync(lifeCycle).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -160,8 +163,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(lifeCycle);
+    public ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
+        Preconditions.checkNotNull(lifeCycle);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -211,7 +214,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public void runCommand(String command) {
+    public void runCommand(@NotNull String command) {
         try {
             this.runCommandAsync(command).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -220,8 +223,8 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public ITask<Void> runCommandAsync(String command) {
-        Validate.checkNotNull(command);
+    public ITask<Void> runCommandAsync(@NotNull String command) {
+        Preconditions.checkNotNull(command);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()

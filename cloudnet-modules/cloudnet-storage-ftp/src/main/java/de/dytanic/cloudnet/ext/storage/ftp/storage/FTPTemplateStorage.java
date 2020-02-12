@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
@@ -14,10 +13,13 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPSClient;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -91,9 +93,9 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(byte[] zipInput, ServiceTemplate target) {
-        Validate.checkNotNull(zipInput);
-        Validate.checkNotNull(target);
+    public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
+        Preconditions.checkNotNull(zipInput);
+        Preconditions.checkNotNull(target);
 
         if (this.has(target)) {
             this.delete(target);
@@ -129,9 +131,9 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(File directory, ServiceTemplate target, Predicate<File> fileFilter) {
-        Validate.checkNotNull(directory);
-        Validate.checkNotNull(target);
+    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+        Preconditions.checkNotNull(directory);
+        Preconditions.checkNotNull(target);
 
         if (directory.exists()) {
             File[] files = directory.listFiles();
@@ -149,21 +151,21 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(Path[] paths, ServiceTemplate target) {
-        Validate.checkNotNull(paths);
-        Validate.checkNotNull(target);
+    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
+        Preconditions.checkNotNull(paths);
+        Preconditions.checkNotNull(target);
 
-        return this.deploy(Iterables.map(Arrays.asList(paths), Path::toFile).toArray(new File[0]), target);
+        return this.deploy(Arrays.stream(paths).map(Path::toFile).toArray(File[]::new), target);
     }
 
     @Override
-    public boolean deploy(File[] files, ServiceTemplate target) {
+    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
         return this.deploy(files, target, null);
     }
 
     private boolean deploy(File[] files, ServiceTemplate target, Predicate<File> fileFilter) {
-        Validate.checkNotNull(files);
-        Validate.checkNotNull(target);
+        Preconditions.checkNotNull(files);
+        Preconditions.checkNotNull(target);
 
         if (this.has(target)) {
             this.delete(target);
@@ -206,9 +208,9 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, File directory) {
-        Validate.checkNotNull(template);
-        Validate.checkNotNull(directory);
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
+        Preconditions.checkNotNull(template);
+        Preconditions.checkNotNull(directory);
 
         if (!this.has(template)) {
             return false;
@@ -259,17 +261,17 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, Path directory) {
-        Validate.checkNotNull(template);
-        Validate.checkNotNull(directory);
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
+        Preconditions.checkNotNull(template);
+        Preconditions.checkNotNull(directory);
 
         return this.copy(template, directory.toFile());
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, File[] directories) {
-        Validate.checkNotNull(template);
-        Validate.checkNotNull(directories);
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
+        Preconditions.checkNotNull(template);
+        Preconditions.checkNotNull(directories);
 
         boolean value = true;
 
@@ -283,15 +285,15 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean copy(ServiceTemplate template, Path[] directories) {
-        Validate.checkNotNull(template);
-        Validate.checkNotNull(directories);
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
+        Preconditions.checkNotNull(template);
+        Preconditions.checkNotNull(directories);
 
-        return this.copy(template, Iterables.map(Arrays.asList(directories), Path::toFile).toArray(new File[0]));
+        return this.copy(template, Arrays.stream(directories).map(Path::toFile).toArray(File[]::new));
     }
 
     @Override
-    public byte[] toZipByteArray(ServiceTemplate template) {
+    public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         if (!this.has(template)) {
             return FileUtils.emptyZipByteArray();
         }
@@ -330,8 +332,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean delete(ServiceTemplate template) {
-        Validate.checkNotNull(template);
+    public boolean delete(@NotNull ServiceTemplate template) {
+        Preconditions.checkNotNull(template);
 
         try {
             this.deleteDir(template.getTemplatePath());
@@ -343,8 +345,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean create(ServiceTemplate template) {
-        Validate.checkNotNull(template);
+    public boolean create(@NotNull ServiceTemplate template) {
+        Preconditions.checkNotNull(template);
 
         try {
             this.createDirectories(template.getTemplatePath());
@@ -370,8 +372,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean has(ServiceTemplate template) {
-        Validate.checkNotNull(template);
+    public boolean has(@NotNull ServiceTemplate template) {
+        Preconditions.checkNotNull(template);
 
         try {
             return this.ftpClient.listFiles(template.getTemplatePath()).length > 0;
@@ -381,16 +383,18 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
     }
 
+    @Nullable
     @Override
-    public OutputStream appendOutputStream(ServiceTemplate template, String path) throws IOException {
+    public OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         String fullPath = template.getTemplatePath() + "/" + path;
 
         this.createParent(fullPath);
         return this.ftpClient.appendFileStream(fullPath);
     }
 
+    @Nullable
     @Override
-    public OutputStream newOutputStream(ServiceTemplate template, String path) throws IOException {
+    public OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         String fullPath = template.getTemplatePath() + "/" + path;
 
         this.createParent(fullPath);
@@ -407,7 +411,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean createFile(ServiceTemplate template, String path) throws IOException {
+    public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         String fullPath = template.getTemplatePath() + "/" + path;
 
         this.createParent(fullPath);
@@ -426,31 +430,31 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean createDirectory(ServiceTemplate template, String path) throws IOException {
+    public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         this.createDirectories(template.getTemplatePath() + "/" + path);
         return true;
     }
 
     @Override
-    public boolean hasFile(ServiceTemplate template, String path) throws IOException {
+    public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         FTPFile file = this.ftpClient.mlistFile(template.getTemplatePath() + "/" + path);
         return file != null;
     }
 
     @Override
-    public boolean deleteFile(ServiceTemplate template, String path) throws IOException {
+    public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         return this.ftpClient.deleteFile(template.getTemplatePath() + "/" + path);
     }
 
     @Override
-    public String[] listFiles(ServiceTemplate template, String dir) throws IOException {
+    public String[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
         FTPFile[] fileList = this.ftpClient.mlistDir(template.getTemplatePath() + "/" + dir);
         return fileList == null ? new String[0] : Arrays.stream(fileList).map(FTPFile::getName).toArray(String[]::new);
     }
 
     @Override
     public Collection<ServiceTemplate> getTemplates() {
-        Collection<ServiceTemplate> templates = Iterables.newArrayList();
+        Collection<ServiceTemplate> templates = new ArrayList<>();
 
         try {
             FTPFile[] files = this.ftpClient.listFiles();

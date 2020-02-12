@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -24,7 +23,10 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
                     for (HostAndPort hostAndPort : node.getListeners()) {
                         if (hostAndPort.getPort() == channel.getServerAddress().getPort() &&
                                 hostAndPort.getHost().equals(channel.getServerAddress().getHost())) {
-                            IClusterNodeServer nodeServer = Iterables.first(CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers(), clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId().equals(node.getUniqueId()));
+
+                            IClusterNodeServer nodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().stream()
+                                    .filter(clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId().equals(node.getUniqueId()))
+                                    .findFirst().orElse(null);
 
                             if (nodeServer != null && nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
                                 nodeServer.setChannel(channel);

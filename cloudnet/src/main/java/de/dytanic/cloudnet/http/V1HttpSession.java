@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.http;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -10,6 +9,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class V1HttpSession {
 
@@ -17,7 +17,7 @@ public final class V1HttpSession {
 
     private static final long EXPIRE_TIME = 1000 * 60 * 60 * 24;
 
-    private final Collection<SessionEntry> entries = Iterables.newCopyOnWriteArrayList();
+    private final Collection<SessionEntry> entries = new CopyOnWriteArrayList<>();
 
     public boolean auth(IHttpContext context) throws Exception {
         if (isAuthorized(context)) {
@@ -40,7 +40,7 @@ public final class V1HttpSession {
         }
 
         List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
-        IPermissionUser permissionUser = Iterables.first(permissionUsers, iPermissionUser -> iPermissionUser.checkPassword(credentials[1]));
+        IPermissionUser permissionUser = permissionUsers.stream().filter(iPermissionUser -> iPermissionUser.checkPassword(credentials[1])).findFirst().orElse(null);
 
         if (permissionUser == null) {
             return false;
@@ -68,7 +68,7 @@ public final class V1HttpSession {
         return true;
     }
 
-    public boolean isAuthorized(IHttpContext context) throws Exception {
+    public boolean isAuthorized(IHttpContext context) {
         if (!context.hasCookie(COOKIE_NAME)) {
             return false;
         }
@@ -105,7 +105,7 @@ public final class V1HttpSession {
     }
 
     public void logout(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
         if (sessionEntry != null) {
@@ -116,7 +116,7 @@ public final class V1HttpSession {
     }
 
     public IPermissionUser getUser(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
 
