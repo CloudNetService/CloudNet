@@ -2,10 +2,10 @@ package de.dytanic.cloudnet.ext.signs.bukkit;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignLayout;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -164,14 +164,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         }
     }
 
-    public Location toLocation(SignPosition signPosition) {
-        Preconditions.checkNotNull(signPosition);
+    public Location toLocation(WorldPosition worldPosition) {
+        Preconditions.checkNotNull(worldPosition);
 
-        return Bukkit.getWorld(signPosition.getWorld()) != null ? new Location(
-                Bukkit.getWorld(signPosition.getWorld()),
-                signPosition.getX(),
-                signPosition.getY(),
-                signPosition.getZ()
+        return Bukkit.getWorld(worldPosition.getWorld()) != null ? new Location(
+                Bukkit.getWorld(worldPosition.getWorld()),
+                worldPosition.getX(),
+                worldPosition.getY(),
+                worldPosition.getZ()
         ) : null;
     }
 

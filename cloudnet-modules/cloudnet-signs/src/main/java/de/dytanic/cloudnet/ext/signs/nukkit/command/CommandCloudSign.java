@@ -8,9 +8,9 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Location;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.nukkit.NukkitSignManagement;
@@ -106,7 +106,7 @@ public class CommandCloudSign extends Command {
                 Sign sign = new Sign(
                         entry.getTargetGroup(),
                         args[1],
-                        new SignPosition(block.getX(), block.getY(), block.getZ(), 0, 0, entry.getTargetGroup(), block.getLevel().getName()),
+                        new WorldPosition(block.getX(), block.getY(), block.getZ(), 0, 0, block.getLevel().getName()),
                         args.length == 3 ? args[2] : null
                 );
 

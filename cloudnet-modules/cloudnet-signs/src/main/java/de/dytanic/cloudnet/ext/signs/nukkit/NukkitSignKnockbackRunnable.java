@@ -5,9 +5,9 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 
 import java.util.Arrays;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class NukkitSignKnockbackRunnable implements Runnable {
 
-    private final Map<SignPosition, Location> signLocations = new HashMap<>();
+    private final Map<WorldPosition, Location> signLocations = new HashMap<>();
 
     private final SignConfigurationEntry ownConfigurationEntry;
 

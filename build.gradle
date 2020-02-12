@@ -52,6 +52,11 @@ allprojects {
         }
 
         maven {
+            name 'papermc'
+            url 'https://papermc.io/repo/repository/maven-public/'
+        }
+
+        maven {
             name 'jitpack.io'
             url 'https://jitpack.io'
         }

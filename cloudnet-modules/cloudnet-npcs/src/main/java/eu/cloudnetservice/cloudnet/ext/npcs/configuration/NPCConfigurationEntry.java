@@ -1,9 +1,11 @@
-package eu.cloudnetservice.cloudnet.ext.npcs;
+package eu.cloudnetservice.cloudnet.ext.npcs.configuration;
 
 
 import java.util.*;
 
 public class NPCConfigurationEntry {
+
+    private String targetGroup = "Lobby";
 
     private int inventorySize = 54;
 
@@ -38,6 +40,20 @@ public class NPCConfigurationEntry {
         }
     }
 
+    public NPCConfigurationEntry(String targetGroup, int inventorySize, int startSlot, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout) {
+        this.targetGroup = targetGroup;
+        this.inventorySize = inventorySize;
+        this.startSlot = startSlot;
+        this.onlineItem = onlineItem;
+        this.emptyItem = emptyItem;
+        this.fullItem = fullItem;
+        this.inventoryLayout = inventoryLayout;
+    }
+
+    public String getTargetGroup() {
+        return targetGroup;
+    }
+
     public int getInventorySize() {
         return inventorySize;
     }
@@ -61,6 +77,7 @@ public class NPCConfigurationEntry {
     public Map<Integer, ItemLayout> getInventoryLayout() {
         return inventoryLayout;
     }
+
 
     public static class ItemLayout {
 

@@ -6,6 +6,6 @@ dependencies {
     compileOnly project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
     compileOnly project(':cloudnet-modules:cloudnet-bridge')
-    compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
+    compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: dependencyBukkitVersion
     compile group: 'com.github.realpanamo', name: 'NPC-Lib', version: '1.3-SNAPSHOT'
 }
