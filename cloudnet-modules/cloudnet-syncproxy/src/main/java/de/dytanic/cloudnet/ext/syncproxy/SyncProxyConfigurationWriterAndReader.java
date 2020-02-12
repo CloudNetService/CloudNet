@@ -70,7 +70,7 @@ public final class SyncProxyConfigurationWriterAndReader {
                 Collections.singletonList(
                         new SyncProxyTabList(
                                 " \n&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
-                                " \n &7Sponsored by &8» &fEU-Hosting.ch &8▎ &7Discord &8» &fdiscord.gg/UNQ4wET \n &7powered by &8» &b&b&lCloud&f&lNet \n "
+                                " \n &7Sponsored by &8» &fOpusX.io &8▎ &7Discord &8» &fdiscord.gg/UNQ4wET \n &7powered by &8» &b&b&lCloud&f&lNet \n "
                         )
                 ),
                 1
@@ -85,13 +85,13 @@ public final class SyncProxyConfigurationWriterAndReader {
                 new ArrayList<>(),
                 Collections.singletonList(new SyncProxyMotd(
                         "&b&lCloud&f&lNet &6Eruption &8■ &7next &bgeneration &7cloud system",
-                        "&7Sponsored by &8» &bEU-Hosting.ch &8▎ &8» &c%proxy%",
+                        "&7Sponsored by &8» &bOpusX.io &8▎ &8» &c%proxy%",
                         false,
                         1,
                         new String[]{
                                 " ",
                                 "&b&lCloud&f&lNet &8× &7your &bfree &7cloudsystem",
-                                "&7Sponsored by &8» &bEU-Hosting.ch",
+                                "&7Sponsored by &8» &bOpusX.io",
                                 "&7Discord &8» &fdiscord.gg/UNQ4wET",
                                 " "
                         },

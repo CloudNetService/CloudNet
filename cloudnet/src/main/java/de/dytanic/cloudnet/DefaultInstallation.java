@@ -39,7 +39,7 @@ public class DefaultInstallation {
     public DefaultInstallation(CloudNet cloudNet) {
         this.cloudNet = cloudNet;
 
-        this.defaultTaskInstallations.put("nothing", () -> {});
+        this.defaultTaskInstallations.put("nothing", () -> this.cloudNet.getCloudServiceManager().removeAllPermanentServiceTasks());
         this.defaultTaskInstallations.put("recommended", this::installRecommended);
         this.defaultTaskInstallations.put("bedrock", this::installBedrock);
         this.defaultTaskInstallations.put("java-bungee-1.12.2", () -> this.installJavaBungee("1.12.2"));
@@ -181,7 +181,7 @@ public class DefaultInstallation {
 
         }
 
-        if (this.cloudNet.getCloudServiceManager().getGroupConfigurations().isEmpty() && this.cloudNet.getCloudServiceManager().getServiceTasks().isEmpty()) {
+        if (!this.cloudNet.getCloudServiceManager().isFileCreated()) {
             this.applyTaskQuestions(entries);
         }
 

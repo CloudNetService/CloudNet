@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.node;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
@@ -12,6 +13,7 @@ import de.dytanic.cloudnet.ext.bridge.node.listener.*;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -105,6 +107,18 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
         registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(), new NodeCustomChannelMessageListener(), new BridgeDefaultConfigurationListener());
+    }
+
+    @Override
+    public JsonDocument reloadConfig() {
+        getModuleWrapper().getDataFolder().mkdirs();
+        File file = new File(getModuleWrapper().getDataFolder(), "config.json");
+
+        if (!file.exists()) {
+            this.createConfiguration();
+        }
+
+        return super.config = JsonDocument.newDocument(file);
     }
 
     public BridgeConfiguration getBridgeConfiguration() {

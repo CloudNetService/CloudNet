@@ -219,4 +219,6 @@ public interface ICloudServiceManager {
 
     int getCurrentReservedMemory();
 
+    boolean isFileCreated();
+
 }
