@@ -4,6 +4,8 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -25,7 +27,8 @@ public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender
      * @param uniqueId the uniqueId from the node, that should retrieve
      * @return the IClusterNodeServer instance or null if the node doesn't registered
      */
-    IClusterNodeServer getNodeServer(String uniqueId);
+    @Nullable
+    IClusterNodeServer getNodeServer(@NotNull String uniqueId);
 
     /**
      * Returns the node with the specific channel that is configured
@@ -33,14 +36,15 @@ public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender
      * @param channel the channel, that the node is connected with
      * @return the IClusterNodeServer instance or null if the node doesn't registered
      */
-    IClusterNodeServer getNodeServer(INetworkChannel channel);
+    @Nullable
+    IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel);
 
     /**
      * Set, replace or update all cluster nodes that are configured
      *
      * @param networkCluster the specific cluster network node configuration, that can create new IClusterNodeServer instances
      */
-    void setClusterServers(NetworkCluster networkCluster);
+    void setClusterServers(@NotNull NetworkCluster networkCluster);
 
     /**
      * Deploys to all online nodes a packet with an zip byte array resource.
@@ -48,5 +52,5 @@ public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender
      * @param serviceTemplate the specific template prefix and name configuration
      * @param zipResource     the template data as zip archive resource
      */
-    void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource);
+    void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource);
 }

@@ -1,12 +1,11 @@
 package de.dytanic.cloudnet.command.sub;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class QuestionAnswerTypeStaticStringArray implements QuestionAnswerType<String> {
 
@@ -14,7 +13,7 @@ public class QuestionAnswerTypeStaticStringArray implements QuestionAnswerType<S
     private boolean ignoreCase;
 
     public QuestionAnswerTypeStaticStringArray(String[] allowedValues, boolean ignoreCase) {
-        Validate.assertFalse(allowedValues.length == 0, "At least one value has to be provided");
+        Preconditions.checkArgument(allowedValues.length > 0, "At least one value has to be provided");
         this.allowedValues = allowedValues;
         this.ignoreCase = ignoreCase;
     }

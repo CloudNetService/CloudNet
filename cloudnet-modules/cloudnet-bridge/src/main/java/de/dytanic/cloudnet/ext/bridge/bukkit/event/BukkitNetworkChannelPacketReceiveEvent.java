@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNetEvent {
 
@@ -21,6 +22,7 @@ public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNet
         return BukkitNetworkChannelPacketReceiveEvent.handlerList;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlerList;

@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 
 public interface IPermissionGroup extends IPermissible {
@@ -16,18 +18,18 @@ public interface IPermissionGroup extends IPermissible {
 
     String getPrefix();
 
-    void setPrefix(String prefix);
+    void setPrefix(@NotNull String prefix);
 
     String getColor();
 
-    void setColor(String color);
+    void setColor(@NotNull String color);
 
     String getSuffix();
 
-    void setSuffix(String suffix);
+    void setSuffix(@NotNull String suffix);
 
     String getDisplay();
 
-    void setDisplay(String display);
+    void setDisplay(@NotNull String display);
 
 }

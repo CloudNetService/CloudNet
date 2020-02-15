@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
@@ -22,36 +23,36 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ServiceTask getServiceTask(String name) {
-        Validate.checkNotNull(name);
+    public ServiceTask getServiceTask(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().getServiceTask(name);
     }
 
     @Override
-    public boolean isServiceTaskPresent(String name) {
-        Validate.checkNotNull(name);
+    public boolean isServiceTaskPresent(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().isTaskPresent(name);
     }
 
     @Override
-    public void addPermanentServiceTask(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+    public void addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
+        Preconditions.checkNotNull(serviceTask);
 
         this.cloudNet.getCloudServiceManager().addPermanentServiceTask(serviceTask);
     }
 
     @Override
-    public void removePermanentServiceTask(String name) {
-        Validate.checkNotNull(name);
+    public void removePermanentServiceTask(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         this.cloudNet.getCloudServiceManager().removePermanentServiceTask(name);
     }
 
     @Override
-    public void removePermanentServiceTask(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+    public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
+        Preconditions.checkNotNull(serviceTask);
 
         this.cloudNet.getCloudServiceManager().removePermanentServiceTask(serviceTask);
     }
@@ -62,17 +63,17 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<ServiceTask> getServiceTaskAsync(String name) {
+    public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.getServiceTask(name));
     }
 
     @Override
-    public ITask<Boolean> isServiceTaskPresentAsync(String name) {
+    public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.isServiceTaskPresent(name));
     }
 
     @Override
-    public ITask<Void> addPermanentServiceTaskAsync(ServiceTask serviceTask) {
+    public ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         return this.cloudNet.scheduleTask(() -> {
             this.addPermanentServiceTask(serviceTask);
             return null;
@@ -80,7 +81,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<Void> removePermanentServiceTaskAsync(String name) {
+    public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.removePermanentServiceTask(name);
             return null;
@@ -88,7 +89,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
-    public ITask<Void> removePermanentServiceTaskAsync(ServiceTask serviceTask) {
+    public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         return this.cloudNet.scheduleTask(() -> {
             this.removePermanentServiceTask(serviceTask);
             return null;

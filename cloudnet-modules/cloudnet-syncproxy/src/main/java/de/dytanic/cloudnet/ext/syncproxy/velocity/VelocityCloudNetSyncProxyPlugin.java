@@ -7,9 +7,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -20,8 +18,10 @@ import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocitySyncProxyClou
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,7 +33,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
     private final ProxyServer proxyServer;
 
 
-    private final Map<UUID, Integer> onlineCountOfProxies = Maps.newConcurrentHashMap();
+    private final Map<UUID, Integer> onlineCountOfProxies = new ConcurrentHashMap<>();
 
 
     private volatile AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
@@ -89,17 +89,17 @@ public final class VelocityCloudNetSyncProxyPlugin {
     }
 
     public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(syncProxyProxyLoginConfiguration);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(syncProxyProxyLoginConfiguration);
 
-        return Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), serviceInfoSnapshot.getConfiguration().getGroups());
+        return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(syncProxyProxyLoginConfiguration.getTargetGroup());
     }
 
     public SyncProxyProxyLoginConfiguration getProxyLoginConfiguration() {
         for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration :
                 SyncProxyConfigurationProvider.load().getLoginConfigurations()) {
             if (syncProxyProxyLoginConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyProxyLoginConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(syncProxyProxyLoginConfiguration.getTargetGroup())) {
                 return syncProxyProxyLoginConfiguration;
             }
         }
@@ -111,7 +111,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
         for (SyncProxyTabListConfiguration syncProxyTabListConfiguration :
                 SyncProxyConfigurationProvider.load().getTabListConfigurations()) {
             if (syncProxyTabListConfiguration.getTargetGroup() != null &&
-                    Iterables.contains(syncProxyTabListConfiguration.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(syncProxyTabListConfiguration.getTargetGroup())) {
                 return syncProxyTabListConfiguration;
             }
         }

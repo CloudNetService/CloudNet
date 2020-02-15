@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.common.logging;
 /**
  * An interface for a provider, which provides all log handlers for a log handlers
  */
-public interface ILogHandlerProvider<T extends ILogHandlerProvider> {
+public interface ILogHandlerProvider<T extends ILogHandlerProvider<?>> {
 
     /**
      * Adds a new ILogHandler instance, into the collection by the LogHandlerProvider implementation

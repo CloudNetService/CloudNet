@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.ext.syncproxy.node.command;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -155,8 +154,10 @@ public final class CommandSyncProxy extends SubCommandHandler {
     }
 
     private static SyncProxyProxyLoginConfiguration getSyncProxyLoginConfiguration(String group) {
-        return Iterables.first(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration().getLoginConfigurations(),
-                syncProxyProxyLoginConfiguration -> syncProxyProxyLoginConfiguration.getTargetGroup().equalsIgnoreCase(group));
+        return CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration().getLoginConfigurations().stream()
+                .filter(syncProxyProxyLoginConfiguration -> syncProxyProxyLoginConfiguration.getTargetGroup().equalsIgnoreCase(group))
+                .findFirst()
+                .orElse(null);
     }
 
     private static void displayListConfiguration(ICommandSender sender, SyncProxyConfiguration syncProxyConfiguration) {

@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudServiceConnectNetworkEvent extends BukkitCloudNetEvent {
 
@@ -17,6 +18,7 @@ public final class BukkitCloudServiceConnectNetworkEvent extends BukkitCloudNetE
         return BukkitCloudServiceConnectNetworkEvent.handlerList;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlerList;

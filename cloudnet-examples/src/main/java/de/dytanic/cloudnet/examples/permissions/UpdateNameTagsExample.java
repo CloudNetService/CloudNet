@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.examples.permissions;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.EventPriority;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
@@ -12,12 +11,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
 public final class UpdateNameTagsExample {
 
-    private final Collection<UUID> nickedPlayers = Iterables.newArrayList();
+    private final Collection<UUID> nickedPlayers = new ArrayList<>();
 
     @EventHandler
     public void executeBukkitExampleOnPlayerJoinEvent(PlayerJoinEvent event) {

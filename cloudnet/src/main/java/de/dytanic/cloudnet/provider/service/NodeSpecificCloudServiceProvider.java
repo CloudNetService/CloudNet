@@ -2,11 +2,13 @@ package de.dytanic.cloudnet.provider.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
 import java.util.UUID;
@@ -28,6 +30,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
         return this.serviceInfoSnapshot;
@@ -46,8 +49,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void addServiceTemplate(ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(serviceTemplate);
+    public void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(serviceTemplate);
 
         ICloudService cloudService = this.getCloudService();
 
@@ -69,7 +72,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> addServiceTemplateAsync(ServiceTemplate serviceTemplate) {
+    public ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceTemplate(serviceTemplate);
             return null;
@@ -77,8 +80,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void addServiceRemoteInclusion(ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(serviceRemoteInclusion);
+    public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
+        Preconditions.checkNotNull(serviceRemoteInclusion);
 
         ICloudService cloudService = this.getCloudService();
 
@@ -99,7 +102,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> addServiceRemoteInclusionAsync(ServiceRemoteInclusion serviceRemoteInclusion) {
+    public ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceRemoteInclusion(serviceRemoteInclusion);
             return null;
@@ -107,8 +110,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void addServiceDeployment(ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(serviceDeployment);
+    public void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment) {
+        Preconditions.checkNotNull(serviceDeployment);
 
         ICloudService cloudService = this.getCloudService();
 
@@ -129,7 +132,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> addServiceDeploymentAsync(ServiceDeployment serviceDeployment) {
+    public ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceDeployment(serviceDeployment);
             return null;
@@ -162,8 +165,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void setCloudServiceLifeCycle(ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(lifeCycle);
+    public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
+        Preconditions.checkNotNull(lifeCycle);
 
         ICloudService cloudService = this.getCloudService();
         if (cloudService != null) {
@@ -201,7 +204,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle) {
+    public ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
         return this.cloudNet.scheduleTask(() -> {
             this.setCloudServiceLifeCycle(lifeCycle);
             return null;
@@ -267,7 +270,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void runCommand(String command) {
+    public void runCommand(@NotNull String command) {
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
@@ -288,7 +291,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> runCommandAsync(String command) {
+    public ITask<Void> runCommandAsync(@NotNull String command) {
         return this.cloudNet.scheduleTask(() -> {
             this.runCommand(command);
             return null;

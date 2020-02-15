@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.player;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable {
     /**
      * Return the unique identifier of a player from the Minecraft Java or Bedrock Edition
      */
+    @NotNull
     UUID getUniqueId();
 
     /**
@@ -22,7 +24,7 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable {
      *
      * @param name the name, that should be changed from this object
      */
-    void setName(String name);
+    void setName(@NotNull String name);
 
     /**
      * Returns the XBoxId from the offlinePlayer if the player has to be connect from the Minecraft Bedrock Edition
@@ -39,9 +41,9 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable {
 
     NetworkConnectionInfo getLastNetworkConnectionInfo();
 
-    void setLastNetworkConnectionInfo(NetworkConnectionInfo lastNetworkConnectionInfo);
+    void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo);
 
     JsonDocument getProperties();
 
-    void setProperties(JsonDocument properties);
+    void setProperties(@NotNull JsonDocument properties);
 }

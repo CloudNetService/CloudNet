@@ -205,6 +205,7 @@ public abstract class SubCommand implements SubCommandExecutor {
 
     public SubCommandArgument<?>[] parseArgsIgnoreLength(String[] args) {
         List<SubCommandArgument<?>> result = new ArrayList<>();
+
         for (int i = 0; i < args.length; i++) {
             if (this.propertiesEnabled && i >= this.getBeginOfProperties()) {
                 break;

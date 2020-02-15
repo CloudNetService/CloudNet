@@ -1,10 +1,12 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
@@ -27,12 +29,12 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
 
     private String hashedPassword;
 
-    public PermissionUser(UUID uniqueId, String name, String password, int potency) {
+    public PermissionUser(@NotNull UUID uniqueId, @NotNull String name, @Nullable String password, int potency) {
         this.uniqueId = uniqueId;
         this.name = name;
         this.hashedPassword = password == null ? null : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
         this.potency = potency;
-        this.groups = Iterables.newArrayList();
+        this.groups = new ArrayList<>();
     }
 
     public void changePassword(String password) {
@@ -43,6 +45,7 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
         return this.hashedPassword != null && password != null && this.hashedPassword.equals(Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password)));
     }
 
+    @NotNull
     public UUID getUniqueId() {
         return this.uniqueId;
     }

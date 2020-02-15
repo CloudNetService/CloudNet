@@ -140,7 +140,6 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
             printWriter.close();
         }
         if (writternBytes != 0L) {
-            writternBytes = 0L;
         }
 
         entry = null;

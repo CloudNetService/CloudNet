@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.conf;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -26,8 +26,8 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public IConfigurationRegistry put(String key, Object object) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(object);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(object);
 
         entries.append(key, object);
         this.save();
@@ -37,8 +37,8 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public IConfigurationRegistry put(String key, String string) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(string);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(string);
 
         entries.append(key, string);
         this.save();
@@ -48,8 +48,8 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public IConfigurationRegistry put(String key, Number number) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(number);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(number);
 
         entries.append(key, number);
         this.save();
@@ -59,8 +59,8 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public IConfigurationRegistry put(String key, Boolean bool) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(bool);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(bool);
 
         entries.append(key, bool);
         this.save();
@@ -70,8 +70,8 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public IConfigurationRegistry put(String key, byte[] bytes) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(bytes);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(bytes);
 
         entries.append(key, bytes);
         this.save();
@@ -81,7 +81,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public IConfigurationRegistry remove(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         entries.remove(key);
         this.save();
@@ -91,128 +91,128 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public boolean contains(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.contains(key);
     }
 
     @Override
     public <T> T getObject(String key, Class<T> clazz) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(clazz);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(clazz);
 
         return entries.get(key, clazz);
     }
 
     @Override
     public <T> T getObject(String key, Type type) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(type);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(type);
 
         return entries.get(key, type);
     }
 
     @Override
     public String getString(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.getString(key);
     }
 
     @Override
     public String getString(String key, String def) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(def);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(def);
 
         return entries.getString(key, def);
     }
 
     @Override
     public Integer getInt(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.getInt(key);
     }
 
     @Override
     public Integer getInt(String key, Integer def) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(def);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(def);
 
         return entries.getInt(key, def);
     }
 
     @Override
     public Double getDouble(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.getDouble(key);
     }
 
     @Override
     public Double getDouble(String key, Double def) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(def);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(def);
 
         return entries.getDouble(key, def);
     }
 
     @Override
     public Short getShort(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.getShort(key);
     }
 
     @Override
     public Short getShort(String key, Short def) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(def);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(def);
 
         return entries.getShort(key, def);
     }
 
     @Override
     public Long getLong(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.getLong(key);
     }
 
     @Override
     public Long getLong(String key, Long def) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(def);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(def);
 
         return entries.getLong(key, def);
     }
 
     @Override
     public Boolean getBoolean(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.getBoolean(key);
     }
 
     @Override
     public Boolean getBoolean(String key, Boolean def) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(def);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(def);
 
         return entries.getBoolean(key, def);
     }
 
     @Override
     public byte[] getBytes(String key) {
-        Validate.checkNotNull(key);
+        Preconditions.checkNotNull(key);
 
         return entries.getBinary(key);
     }
 
     @Override
     public byte[] getBytes(String key, byte[] bytes) {
-        Validate.checkNotNull(key);
-        Validate.checkNotNull(bytes);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(bytes);
 
         return entries.getBinary(key, bytes);
     }

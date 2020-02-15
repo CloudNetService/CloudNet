@@ -1,11 +1,9 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.command.sub.SubCommand;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.WildcardUtil;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -25,6 +23,7 @@ import java.util.stream.Collectors;
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandService extends SubCommandHandler {
+
     public CommandService() {
         super(
                 SubCommandBuilder.create()
@@ -35,7 +34,7 @@ public class CommandService extends SubCommandHandler {
                                             .filter(serviceInfoSnapshot -> !properties.containsKey("id")
                                                     || serviceInfoSnapshot.getServiceId().getUniqueId().toString().toLowerCase().contains(properties.get("id").toLowerCase()))
                                             .filter(serviceInfoSnapshot -> !properties.containsKey("group")
-                                                    || Iterables.contains(properties.get("group"), serviceInfoSnapshot.getConfiguration().getGroups()))
+                                                    || Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(properties.get("group")))
                                             .filter(serviceInfoSnapshot -> !properties.containsKey("task")
                                                     || properties.get("task").toLowerCase().contains(serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase()))
                                             .collect(Collectors.toSet());
@@ -189,9 +188,8 @@ public class CommandService extends SubCommandHandler {
     }
 
     private static void display(ICommandSender sender, ServiceInfoSnapshot serviceInfoSnapshot, boolean full) {
-        Collection<String> list = Iterables.newArrayList();
 
-        list.addAll(Arrays.asList(
+        Collection<String> list = new ArrayList<>(Arrays.asList(
                 " ",
                 "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
                 "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),

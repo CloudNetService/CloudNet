@@ -28,12 +28,13 @@ public class NukkitSignInteractionListener implements Listener {
                 for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
                     Location location = NukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
 
-                    if (location == null || sign.getServiceInfoSnapshot() == null ||
-                            !location.equals(event.getBlock().getLocation())) {
+                    if (location == null || !location.equals(event.getBlock().getLocation())) {
                         continue;
                     }
 
-                    NukkitCloudSignInteractEvent signInteractEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign, sign.getServiceInfoSnapshot().getServiceId().getName());
+                    String targetServer = sign.getServiceInfoSnapshot() == null ? null : sign.getServiceInfoSnapshot().getName();
+
+                    NukkitCloudSignInteractEvent signInteractEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign, targetServer);
                     Server.getInstance().getPluginManager().callEvent(signInteractEvent);
 
                     if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {

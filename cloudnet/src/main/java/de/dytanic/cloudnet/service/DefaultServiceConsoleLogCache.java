@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -11,10 +10,11 @@ import de.dytanic.cloudnet.network.packet.PacketServerConsoleLogEntryReceive;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCache {
 
-    private final Queue<String> cachedLogMessages = Iterables.newConcurrentLinkedQueue();
+    private final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
 
     private final byte[] buffer = new byte[1024];
 

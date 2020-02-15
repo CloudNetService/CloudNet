@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudflare.listener;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -16,6 +15,7 @@ import de.dytanic.cloudnet.ext.cloudflare.CloudflareGroupConfiguration;
 import de.dytanic.cloudnet.ext.cloudflare.dns.SRVRecord;
 import de.dytanic.cloudnet.service.ICloudService;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 public final class CloudflareStartAndStopListener {
@@ -58,7 +58,10 @@ public final class CloudflareStartAndStopListener {
     @EventListener
     public void handle(CloudServicePostStopEvent event) {
         this.handle0(event.getCloudService(), (cloudflareConfigurationEntry, cloudflareGroupConfiguration) -> {
-            Pair<String, JsonDocument> entry = Iterables.first(CloudflareAPI.getInstance().getCreatedRecords().values(), item -> item.getFirst().equalsIgnoreCase(event.getCloudService().getServiceId().getName()));
+            Pair<String, JsonDocument> entry = CloudflareAPI.getInstance().getCreatedRecords().values().stream()
+                    .filter(item -> item.getFirst().equalsIgnoreCase(event.getCloudService().getServiceId().getName()))
+                    .findFirst()
+                    .orElse(null);
 
             if (entry != null) {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().deleteRecord(
@@ -84,7 +87,7 @@ public final class CloudflareStartAndStopListener {
         for (CloudflareConfigurationEntry entry : CloudNetCloudflareModule.getInstance().getCloudflareConfiguration().getEntries()) {
             if (entry != null && entry.isEnabled() && entry.getGroups() != null) {
                 for (CloudflareGroupConfiguration groupConfiguration : entry.getGroups()) {
-                    if (groupConfiguration != null && Iterables.contains(groupConfiguration.getName(), cloudService.getServiceConfiguration().getGroups())) {
+                    if (groupConfiguration != null && Arrays.asList(cloudService.getServiceConfiguration().getGroups()).contains(groupConfiguration.getName())) {
                         handler.accept(entry, groupConfiguration);
                         break;
                     }

@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.module;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -9,10 +8,12 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
 
-    protected Collection<DefaultModuleWrapper> moduleWrappers = Iterables.newCopyOnWriteArrayList();
+    protected Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
 
     protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
 
@@ -27,7 +28,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public void setModuleDirectory(File moduleDirectory) {
-        this.moduleDirectory = Validate.checkNotNull(moduleDirectory);
+        this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory);
     }
 
     @Override
@@ -37,25 +38,25 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public Collection<IModuleWrapper> getModules(String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
-        return Iterables.filter(this.getModules(), defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group));
+        return this.getModules().stream().filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group)).collect(Collectors.toList());
     }
 
     @Override
     public IModuleWrapper getModule(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
-        return Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getName().equals(name));
+        return this.moduleWrappers.stream().filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getName().equals(name)).findFirst().orElse(null);
     }
 
     @Override
     public IModuleWrapper loadModule(URL url) {
-        Validate.checkNotNull(url);
+        Preconditions.checkNotNull(url);
 
         DefaultModuleWrapper moduleWrapper = null;
 
-        if (Iterables.first(this.moduleWrappers, defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString())) != null) {
+        if (this.moduleWrappers.stream().anyMatch(defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString()))) {
             return null;
         }
 
@@ -77,14 +78,14 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public IModuleWrapper loadModule(File file) {
-        Validate.checkNotNull(file);
+        Preconditions.checkNotNull(file);
 
         return loadModule(file.toPath());
     }
 
     @Override
     public IModuleWrapper loadModule(Path path) {
-        Validate.checkNotNull(path);
+        Preconditions.checkNotNull(path);
 
         try {
             return loadModule(path.toUri().toURL());
@@ -97,7 +98,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public IModuleProvider loadModule(URL... urls) {
-        Validate.checkNotNull(urls);
+        Preconditions.checkNotNull(urls);
 
         for (URL url : urls) {
             loadModule(url);
@@ -108,7 +109,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public IModuleProvider loadModule(File... files) {
-        Validate.checkNotNull(files);
+        Preconditions.checkNotNull(files);
 
         for (File file : files) {
             loadModule(file);
@@ -119,7 +120,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public IModuleProvider loadModule(Path... paths) {
-        Validate.checkNotNull(paths);
+        Preconditions.checkNotNull(paths);
 
         for (Path path : paths) {
             loadModule(path);

@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.common.unsafe;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 
 import java.net.URI;
@@ -26,7 +26,7 @@ public final class ResourceResolver {
      * @see java.security.CodeSource
      */
     public static URI resolveURIFromResourceByClass(Class<?> clazz) {
-        Validate.checkNotNull(clazz);
+        Preconditions.checkNotNull(clazz);
 
         try {
             return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();

@@ -1,17 +1,19 @@
 package de.dytanic.cloudnet.provider;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.DriverCommandSender;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -34,38 +36,47 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         return this.cloudNet.getConfig().getClusterConfig().getNodes().toArray(new NetworkClusterNode[0]);
     }
 
+    @Nullable
     @Override
-    public NetworkClusterNode getNode(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public NetworkClusterNode getNode(@NotNull String uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
             return this.cloudNet.getConfig().getIdentity();
         }
-        return Iterables.first(this.cloudNet.getConfig().getClusterConfig().getNodes(), networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId));
+        return this.cloudNet.getConfig().getClusterConfig().getNodes().stream()
+                .filter(networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
-        Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots = Iterables.newArrayList();
+        Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots = new ArrayList<>();
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-            if (clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null) {
-                nodeInfoSnapshots.add(clusterNodeServer.getNodeInfoSnapshot());
+            if (clusterNodeServer.isConnected()) {
+                if (clusterNodeServer.getNodeInfoSnapshot() != null) {
+                    nodeInfoSnapshots.add(clusterNodeServer.getNodeInfoSnapshot());
+                }
             }
         }
 
         return nodeInfoSnapshots.toArray(new NetworkClusterNodeInfoSnapshot[0]);
     }
 
+    @Nullable
     @Override
-    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
+    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
         if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
             return this.cloudNet.getCurrentNetworkClusterNodeInfoSnapshot();
         }
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-            if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected() && clusterNodeServer.getNodeInfoSnapshot() != null) {
-                return clusterNodeServer.getNodeInfoSnapshot();
+            if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected()) {
+                if (clusterNodeServer.getNodeInfoSnapshot() != null) {
+                    return clusterNodeServer.getNodeInfoSnapshot();
+                }
             }
         }
 
@@ -73,10 +84,10 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public String[] sendCommandLine(String commandLine) {
-        Validate.checkNotNull(commandLine);
+    public String[] sendCommandLine(@NotNull String commandLine) {
+        Preconditions.checkNotNull(commandLine);
 
-        Collection<String> collection = Iterables.newArrayList();
+        Collection<String> collection = new ArrayList<>();
 
         if (this.cloudNet.isMainThread()) {
             this.sendCommandLine0(collection, commandLine);
@@ -95,9 +106,9 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(commandLine);
+    public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(nodeUniqueId)) {
             return this.sendCommandLine(commandLine);
@@ -116,14 +127,15 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(collection), commandLine);
     }
 
+    @Nullable
     @Override
-    public CommandInfo getConsoleCommand(String commandLine) {
+    public CommandInfo getConsoleCommand(@NotNull String commandLine) {
         Command command = this.cloudNet.getCommandMap().getCommandFromLine(commandLine);
         return command != null ? command.getInfo() : null;
     }
 
     @Override
-    public Collection<String> getConsoleTabCompleteResults(String commandLine) {
+    public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
         return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
     }
 
@@ -133,22 +145,22 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
+    public ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.getConsoleCommand(commandLine));
     }
 
     @Override
-    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(String commandLine) {
+    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.getConsoleTabCompleteResults(commandLine));
     }
 
     @Override
-    public ITask<String[]> sendCommandLineAsync(String commandLine) {
+    public ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.sendCommandLine(commandLine));
     }
 
     @Override
-    public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
+    public ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
         return this.cloudNet.scheduleTask(() -> this.sendCommandLine(nodeUniqueId, commandLine));
     }
 
@@ -158,8 +170,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getNode(uniqueId));
     }
@@ -170,8 +182,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getNodeInfoSnapshot(uniqueId));
     }

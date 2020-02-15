@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.*;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import io.netty.channel.Channel;
@@ -14,12 +13,14 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 final class NettyHttpServerContext implements IHttpContext {
 
-    protected final Collection<HttpCookie> cookies = Iterables.newArrayList();
+    protected final Collection<HttpCookie> cookies = new ArrayList<>();
 
     protected final Channel nettyChannel;
 
@@ -49,13 +50,13 @@ final class NettyHttpServerContext implements IHttpContext {
         this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
         if (this.httpRequest.headers().contains("Cookie")) {
-            this.cookies.addAll(Iterables.map(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")), cookie -> new HttpCookie(
+            this.cookies.addAll(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")).stream().map(cookie -> new HttpCookie(
                     cookie.name(),
                     cookie.value(),
                     cookie.domain(),
                     cookie.path(),
                     cookie.maxAge()
-            )));
+            )).collect(Collectors.toList()));
         }
 
         this.updateHeaderResponse();
@@ -133,9 +134,9 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public HttpCookie cookie(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
-        return Iterables.first(this.cookies, httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
+        return this.cookies.stream().filter(httpCookie -> httpCookie.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -145,14 +146,14 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public boolean hasCookie(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
-        return Iterables.first(this.cookies, httpCookie -> httpCookie.getName().equalsIgnoreCase(name)) != null;
+        return this.cookies.stream().anyMatch(httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
     }
 
     @Override
     public IHttpContext setCookies(Collection<HttpCookie> cookies) {
-        Validate.checkNotNull(cookies);
+        Preconditions.checkNotNull(cookies);
 
         this.cookies.clear();
         this.cookies.addAll(cookies);
@@ -163,7 +164,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public IHttpContext addCookie(HttpCookie httpCookie) {
-        Validate.checkNotNull(httpCookie);
+        Preconditions.checkNotNull(httpCookie);
 
         HttpCookie cookie = cookie(httpCookie.getName());
 
@@ -178,7 +179,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public IHttpContext removeCookie(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         HttpCookie cookie = cookie(name);
         if (cookie != null) {
@@ -201,14 +202,14 @@ final class NettyHttpServerContext implements IHttpContext {
             this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
         } else {
             this.httpServerResponse.httpResponse.headers()
-                    .set("Set-Cookie", ServerCookieEncoder.LAX.encode(Iterables.map(this.cookies, httpCookie -> {
+                    .set("Set-Cookie", ServerCookieEncoder.LAX.encode(this.cookies.stream().map(httpCookie -> {
                         Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
                         cookie.setDomain(httpCookie.getDomain());
                         cookie.setMaxAge(httpCookie.getMaxAge());
                         cookie.setPath(httpCookie.getPath());
 
                         return cookie;
-                    })));
+                    }).collect(Collectors.toList())));
         }
     }
 

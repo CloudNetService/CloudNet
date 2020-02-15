@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
@@ -12,8 +12,8 @@ public class BaseComponentMessenger {
     }
 
     public static void sendMessage(ICloudPlayer cloudPlayer, BaseComponent[] messages) {
-        Validate.checkNotNull(cloudPlayer);
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(cloudPlayer);
+        Preconditions.checkNotNull(messages);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
@@ -25,7 +25,7 @@ public class BaseComponentMessenger {
     }
 
     public static void broadcastMessage(BaseComponent[] messages) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
@@ -36,7 +36,7 @@ public class BaseComponentMessenger {
     }
 
     public static void broadcastMessage(BaseComponent[] messages, String permission) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,

@@ -9,13 +9,14 @@ import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.scheduler.Task;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+
+import java.util.Arrays;
 
 public final class NukkitPlayerListener implements Listener {
 
@@ -30,7 +31,7 @@ public final class NukkitPlayerListener implements Listener {
                 && this.bridgeConfiguration.isOnlyProxyProtection()
                 && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null
                 && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
-                .noneMatch(group -> Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups()));
+                .noneMatch(group -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(group));
     }
 
 

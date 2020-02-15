@@ -1,12 +1,11 @@
 package de.dytanic.cloudnet.command.commands;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -19,6 +18,7 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -181,11 +181,9 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void displayNode(ICommandSender sender, IClusterNodeServer node) {
-        Validate.checkNotNull(node);
+        Preconditions.checkNotNull(node);
 
-        List<String> list = Iterables.newArrayList();
-
-        list.addAll(Arrays.asList(
+        List<String> list = new ArrayList<>(Arrays.asList(
                 " ",
                 "Id: " + node.getNodeInfo().getUniqueId(),
                 "State: " + (node.isConnected() ? "Connected" : "Not connected"),
@@ -215,9 +213,9 @@ public final class CommandCluster extends SubCommandHandler {
                     "Total loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getTotalLoadedClassCount(),
                     " ",
                     "Extensions: ",
-                    Iterables.map(node.getNodeInfoSnapshot().getExtensions(), networkClusterNodeExtensionSnapshot -> networkClusterNodeExtensionSnapshot.getGroup() + ":" +
+                    node.getNodeInfoSnapshot().getExtensions().stream().map(networkClusterNodeExtensionSnapshot -> networkClusterNodeExtensionSnapshot.getGroup() + ":" +
                             networkClusterNodeExtensionSnapshot.getName() + ":" +
-                            networkClusterNodeExtensionSnapshot.getVersion()).toString(),
+                            networkClusterNodeExtensionSnapshot.getVersion()).collect(Collectors.toList()).toString(),
                     " ",
                     "Properties:"
             ));

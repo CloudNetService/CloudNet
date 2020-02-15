@@ -28,12 +28,13 @@ public final class BukkitSignInteractionListener implements Listener {
                 for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
                     Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
 
-                    if (location == null || sign.getServiceInfoSnapshot() == null ||
-                            !location.equals(event.getClickedBlock().getLocation())) {
+                    if (location == null || !location.equals(event.getClickedBlock().getLocation())) {
                         continue;
                     }
 
-                    BukkitCloudSignInteractEvent signInteractEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign, sign.getServiceInfoSnapshot().getServiceId().getName());
+                    String targetServer = sign.getServiceInfoSnapshot() == null ? null : sign.getServiceInfoSnapshot().getName();
+
+                    BukkitCloudSignInteractEvent signInteractEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign, targetServer);
                     Bukkit.getPluginManager().callEvent(signInteractEvent);
 
                     if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {

@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Queue;
@@ -13,37 +14,39 @@ import java.util.UUID;
 
 public interface IClusterNodeServer extends AutoCloseable {
 
-    void sendClusterChannelMessage(String channel, String message, JsonDocument header, byte[] body);
+    void sendClusterChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument header, byte[] body);
 
-    void sendCustomChannelMessage(String channel, String message, JsonDocument data);
+    void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
 
+    @NotNull
     IClusterNodeServerProvider getProvider();
 
+    @NotNull
     NetworkClusterNode getNodeInfo();
 
-    void setNodeInfo(NetworkClusterNode nodeInfo);
+    void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
 
     NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
 
-    void setNodeInfoSnapshot(NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
+    void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
 
     INetworkChannel getChannel();
 
-    void setChannel(INetworkChannel channel);
+    void setChannel(@NotNull INetworkChannel channel);
 
     boolean isConnected();
 
-    void saveSendPacket(IPacket packet);
+    void saveSendPacket(@NotNull IPacket packet);
 
-    boolean isAcceptableConnection(INetworkChannel channel, String nodeId);
+    boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
 
-    String[] sendCommandLine(String commandLine);
+    String[] sendCommandLine(@NotNull String commandLine);
 
-    void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource);
+    void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource);
 
-    ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
+    ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask);
 
-    ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
+    ServiceInfoSnapshot createCloudService(@NotNull ServiceConfiguration serviceConfiguration);
 
     ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
                                            Collection<ServiceRemoteInclusion> includes,
@@ -80,31 +83,31 @@ public interface IClusterNodeServer extends AutoCloseable {
         return createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
-    ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine);
+    ServiceInfoSnapshot sendCommandLineToCloudService(@NotNull UUID uniqueId, @NotNull String commandLine);
 
-    ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate);
+    ServiceInfoSnapshot addServiceTemplateToCloudService(@NotNull UUID uniqueId, @NotNull ServiceTemplate serviceTemplate);
 
-    ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion);
+    ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(@NotNull UUID uniqueId, @NotNull ServiceRemoteInclusion serviceRemoteInclusion);
 
-    ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment);
+    ServiceInfoSnapshot addServiceDeploymentToCloudService(@NotNull UUID uniqueId, @NotNull ServiceDeployment serviceDeployment);
 
-    Queue<String> getCachedLogMessagesFromService(UUID uniqueId);
+    Queue<String> getCachedLogMessagesFromService(@NotNull UUID uniqueId);
 
-    void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle);
+    void setCloudServiceLifeCycle(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull ServiceLifeCycle lifeCycle);
 
-    void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot);
+    void restartCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
-    void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot);
+    void killCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
-    void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command);
+    void runCommand(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull String command);
 
-    void includeWaitingServiceInclusions(UUID uniqueId);
+    void includeWaitingServiceInclusions(@NotNull UUID uniqueId);
 
-    void includeWaitingServiceTemplates(UUID uniqueId);
+    void includeWaitingServiceTemplates(@NotNull UUID uniqueId);
 
-    void deployResources(UUID uniqueId, boolean removeDeployments);
+    void deployResources(@NotNull UUID uniqueId, boolean removeDeployments);
 
-    default void deployResources(UUID uniqueId) {
+    default void deployResources(@NotNull UUID uniqueId) {
         deployResources(uniqueId, true);
     }
 }
