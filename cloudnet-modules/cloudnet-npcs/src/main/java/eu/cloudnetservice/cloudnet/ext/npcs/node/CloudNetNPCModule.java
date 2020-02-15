@@ -10,11 +10,12 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
+import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.CloudNetNPCMessageListener;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.IncludePluginListener;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class CloudNetNPCModule extends NodeCloudNetModule {
 
@@ -22,43 +23,78 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
 
     private static final String DOCUMENT_NPC_KEY = "npcs";
 
-    private NPCConfiguration configuration;
+    private NPCConfiguration npcConfiguration;
 
-    @ModuleTask(event = ModuleLifeCycle.STARTED)
+    private Set<CloudNPC> cachedNPCs = this.loadNPCs();
+
+    @ModuleTask(event = ModuleLifeCycle.STARTED, order = 127)
     public void loadConfiguration() {
         super.getModuleWrapper().getDataFolder().mkdirs();
 
-        this.configuration = super.getConfig().get("config", NPCConfiguration.class, new NPCConfiguration());
+        this.npcConfiguration = super.getConfig().get("config", NPCConfiguration.class, new NPCConfiguration());
 
         for (Map.Entry<String, String> entry : NPCConfiguration.DEFAULT_MESSAGES.entrySet()) {
-            if (!this.configuration.getMessages().containsKey(entry.getKey())) {
-                this.configuration.getMessages().put(entry.getKey(), entry.getValue());
+            if (!this.npcConfiguration.getMessages().containsKey(entry.getKey())) {
+                this.npcConfiguration.getMessages().put(entry.getKey(), entry.getValue());
             }
         }
 
+        this.saveNPCConfiguration();
+    }
+
+    public void saveNPCConfiguration() {
+        super.getConfig().append("config", this.npcConfiguration);
         super.saveConfig();
     }
 
-    @ModuleTask(event = ModuleLifeCycle.STARTED, order = 64)
+    @ModuleTask(event = ModuleLifeCycle.STARTED, order = 126)
     public void registerListeners() {
-        super.registerListeners(new IncludePluginListener(this.configuration));
+        super.registerListeners(new IncludePluginListener(this), new CloudNetNPCMessageListener(this));
     }
 
-    public Collection<CloudNPC> loadNPCs() {
+    public void addNPC(CloudNPC npc) {
+        if (!this.cachedNPCs.contains(npc)) {
+            this.cachedNPCs.add(npc);
+
+            this.saveNPCs(this.cachedNPCs);
+        }
+    }
+
+    public void removeNPC(CloudNPC npc) {
+        if (this.cachedNPCs.contains(npc)) {
+            this.cachedNPCs.remove(npc);
+
+            this.saveNPCs(this.cachedNPCs);
+        }
+    }
+
+    public Set<CloudNPC> loadNPCs() {
         IDatabase database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(NPC_DOCUMENT_NAME);
 
         return document == null ? new HashSet<>() : document.get(DOCUMENT_NPC_KEY, NPCConstants.NPC_COLLECTION_TYPE);
     }
 
-    public void saveNPCs(Collection<CloudNPC> npcs) {
+    public void saveNPCs(Set<CloudNPC> npcs) {
         IDatabase database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
 
         database.update(NPC_DOCUMENT_NAME, new JsonDocument(DOCUMENT_NPC_KEY, npcs));
     }
 
-    public NPCConfiguration getConfiguration() {
-        return configuration;
+    public NPCConfiguration getNPCConfiguration() {
+        return npcConfiguration;
+    }
+
+    public void setNPCConfiguration(NPCConfiguration npcConfiguration) {
+        this.npcConfiguration = npcConfiguration;
+    }
+
+    public Set<CloudNPC> getCachedNPCs() {
+        return cachedNPCs;
+    }
+
+    public void setCachedNPCs(Set<CloudNPC> cachedNPCs) {
+        this.cachedNPCs = cachedNPCs;
     }
 
 }

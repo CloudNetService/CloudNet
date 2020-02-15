@@ -4,7 +4,6 @@ package de.dytanic.cloudnet.ext.signs.nukkit;
 import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
-import de.dytanic.cloudnet.ext.signs.CloudNetSignListener;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.nukkit.command.CommandCloudSign;
 import de.dytanic.cloudnet.ext.signs.nukkit.listener.NukkitSignInteractionListener;
@@ -30,7 +29,7 @@ public class NukkitCloudNetSignsPlugin extends PluginBase {
         super.getServer().getCommandMap().register("CloudNet-Signs", new CommandCloudSign());
 
         //CloudNet listeners
-        CloudNetDriver.getInstance().getEventManager().registerListener(new CloudNetSignListener());
+        CloudNetDriver.getInstance().getEventManager().registerListener(NukkitSignManagement.getInstance());
 
         //Nukkit listeners
         super.getServer().getPluginManager().registerEvents(new NukkitSignInteractionListener(), this);

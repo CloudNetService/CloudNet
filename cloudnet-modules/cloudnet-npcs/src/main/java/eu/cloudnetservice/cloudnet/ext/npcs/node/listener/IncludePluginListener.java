@@ -4,17 +4,17 @@ package eu.cloudnetservice.cloudnet.ext.npcs.node.listener;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
-import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
+import eu.cloudnetservice.cloudnet.ext.npcs.node.CloudNetNPCModule;
 
 import java.io.File;
 import java.util.Arrays;
 
 public class IncludePluginListener {
 
-    private NPCConfiguration configuration;
+    private CloudNetNPCModule npcModule;
 
-    public IncludePluginListener(NPCConfiguration configuration) {
-        this.configuration = configuration;
+    public IncludePluginListener(CloudNetNPCModule npcModule) {
+        this.npcModule = npcModule;
     }
 
     @EventListener
@@ -23,7 +23,7 @@ public class IncludePluginListener {
             return;
         }
 
-        boolean installPlugin = this.configuration.getConfigurations().stream()
+        boolean installPlugin = this.npcModule.getNPCConfiguration().getConfigurations().stream()
                 .anyMatch(npcConfigurationEntry -> Arrays.asList(event.getCloudService().getServiceConfiguration().getGroups()).contains(npcConfigurationEntry.getTargetGroup()));
 
         new File(event.getCloudService().getDirectory(), "plugins").mkdirs();

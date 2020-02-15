@@ -2,10 +2,16 @@ package eu.cloudnetservice.cloudnet.ext.npcs;
 
 
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import lombok.EqualsAndHashCode;
 
 import java.util.Set;
+import java.util.UUID;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CloudNPC {
+
+    @EqualsAndHashCode.Include
+    private UUID uuid;
 
     private String displayName;
 
@@ -17,12 +23,17 @@ public class CloudNPC {
 
     private boolean imitatePlayer;
 
-    public CloudNPC(String displayName, Set<NPCProfileProperty> profileProperties, WorldPosition position, boolean lookAtPlayer, boolean imitatePlayer) {
+    public CloudNPC(UUID uuid, String displayName, Set<NPCProfileProperty> profileProperties, WorldPosition position, boolean lookAtPlayer, boolean imitatePlayer) {
+        this.uuid = uuid;
         this.displayName = displayName;
         this.profileProperties = profileProperties;
         this.position = position;
         this.lookAtPlayer = lookAtPlayer;
         this.imitatePlayer = imitatePlayer;
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
     public String getDisplayName() {

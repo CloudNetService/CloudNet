@@ -11,6 +11,8 @@ public class NPCConfigurationEntry {
 
     private int startSlot = 10;
 
+    private boolean showFullServices = true;
+
     private ItemLayout onlineItem = new ItemLayout("LIME_DYE", "§a%name%", Arrays.asList(
             " ",
             "§e%state%",
@@ -40,10 +42,11 @@ public class NPCConfigurationEntry {
         }
     }
 
-    public NPCConfigurationEntry(String targetGroup, int inventorySize, int startSlot, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout) {
+    public NPCConfigurationEntry(String targetGroup, int inventorySize, int startSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout) {
         this.targetGroup = targetGroup;
         this.inventorySize = inventorySize;
         this.startSlot = startSlot;
+        this.showFullServices = showFullServices;
         this.onlineItem = onlineItem;
         this.emptyItem = emptyItem;
         this.fullItem = fullItem;
@@ -60,6 +63,10 @@ public class NPCConfigurationEntry {
 
     public int getStartSlot() {
         return startSlot;
+    }
+
+    public boolean isShowFullServices() {
+        return showFullServices;
     }
 
     public ItemLayout getOnlineItem() {
