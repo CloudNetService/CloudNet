@@ -15,19 +15,30 @@ public class CloudNPC {
 
     private String displayName;
 
+    private String infoLine;
+
     private Set<NPCProfileProperty> profileProperties;
 
     private WorldPosition position;
+
+    private String targetGroup;
+
+    private String itemInHand;
 
     private boolean lookAtPlayer;
 
     private boolean imitatePlayer;
 
-    public CloudNPC(UUID uuid, String displayName, Set<NPCProfileProperty> profileProperties, WorldPosition position, boolean lookAtPlayer, boolean imitatePlayer) {
+    private transient int entityId;
+
+    public CloudNPC(UUID uuid, String displayName, String infoLine, Set<NPCProfileProperty> profileProperties, WorldPosition position, String targetGroup, String itemInHand, boolean lookAtPlayer, boolean imitatePlayer) {
         this.uuid = uuid;
         this.displayName = displayName;
+        this.infoLine = infoLine;
         this.profileProperties = profileProperties;
         this.position = position;
+        this.targetGroup = targetGroup;
+        this.itemInHand = itemInHand;
         this.lookAtPlayer = lookAtPlayer;
         this.imitatePlayer = imitatePlayer;
     }
@@ -36,12 +47,24 @@ public class CloudNPC {
         return uuid;
     }
 
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     public String getDisplayName() {
         return displayName;
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public String getInfoLine() {
+        return infoLine;
+    }
+
+    public void setInfoLine(String infoLine) {
+        this.infoLine = infoLine;
     }
 
     public Set<NPCProfileProperty> getProfileProperties() {
@@ -60,6 +83,22 @@ public class CloudNPC {
         this.position = position;
     }
 
+    public String getTargetGroup() {
+        return targetGroup;
+    }
+
+    public void setTargetGroup(String targetGroup) {
+        this.targetGroup = targetGroup;
+    }
+
+    public String getItemInHand() {
+        return itemInHand;
+    }
+
+    public void setItemInHand(String itemInHand) {
+        this.itemInHand = itemInHand;
+    }
+
     public boolean isLookAtPlayer() {
         return lookAtPlayer;
     }
@@ -74,6 +113,14 @@ public class CloudNPC {
 
     public void setImitatePlayer(boolean imitatePlayer) {
         this.imitatePlayer = imitatePlayer;
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
     }
 
     public static class NPCProfileProperty {

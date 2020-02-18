@@ -88,7 +88,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
             String[] lines = new String[4];
 
             for (int i = 0; i < lines.length; i++) {
-                String line = super.addDataToLine(sign, signLayout.getLines()[i], serviceInfoSnapshot).replace('&', '§');
+                String line = super.replaceServiceInfo(signLayout.getLines()[i], sign.getTargetGroup(), serviceInfoSnapshot).replace('&', '§');
                 lines[i] = line;
             }
 

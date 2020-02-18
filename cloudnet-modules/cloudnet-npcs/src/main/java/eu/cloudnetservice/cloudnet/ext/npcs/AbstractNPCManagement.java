@@ -22,13 +22,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class AbstractNPCManagement extends ServiceInfoStateWatcher {
+public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
 
-    private NPCConfiguration npcConfiguration;
+    protected NPCConfiguration npcConfiguration;
 
-    private NPCConfigurationEntry ownNPCConfigurationEntry;
+    protected NPCConfigurationEntry ownNPCConfigurationEntry;
 
-    private Set<CloudNPC> cloudNPCS;
+    protected Set<CloudNPC> cloudNPCS;
 
     public AbstractNPCManagement() {
         this.setNPCConfiguration(this.getNPCConfigurationFromNode());
@@ -37,11 +37,6 @@ public class AbstractNPCManagement extends ServiceInfoStateWatcher {
         this.cloudNPCS = npcsFromNode == null ? new HashSet<>() : npcsFromNode.stream()
                 .filter(npc -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(npc.getPosition().getGroup()))
                 .collect(Collectors.toSet());
-    }
-
-    @Override
-    protected void handleUpdate() {
-
     }
 
     @Override
@@ -101,8 +96,7 @@ public class AbstractNPCManagement extends ServiceInfoStateWatcher {
      */
     public boolean addNPC(@NotNull CloudNPC npc) {
         if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(npc.getPosition().getGroup())) {
-            this.cloudNPCS.add(npc);
-            return true;
+            return this.cloudNPCS.add(npc);
         }
         return false;
     }
@@ -214,6 +208,14 @@ public class AbstractNPCManagement extends ServiceInfoStateWatcher {
 
     public NPCConfigurationEntry getOwnNPCConfigurationEntry() {
         return ownNPCConfigurationEntry;
+    }
+
+    @Nullable
+    public CloudNPC getNPC(int entityId) {
+        return this.cloudNPCS.stream()
+                .filter(npc -> npc.getEntityId() == entityId)
+                .findFirst()
+                .orElse(null);
     }
 
     /**

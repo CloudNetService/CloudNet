@@ -25,7 +25,7 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
 
     private NPCConfiguration npcConfiguration;
 
-    private Set<CloudNPC> cachedNPCs = this.loadNPCs();
+    private Set<CloudNPC> cachedNPCs;
 
     @ModuleTask(event = ModuleLifeCycle.STARTED, order = 127)
     public void loadConfiguration() {
@@ -40,6 +40,8 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
         }
 
         this.saveNPCConfiguration();
+
+        this.cachedNPCs = this.loadNPCs();
     }
 
     public void saveNPCConfiguration() {

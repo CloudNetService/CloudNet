@@ -92,7 +92,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
                 signLayout.getLines().length == 4) {
 
             for (int i = 0; i < 4; i++) {
-                String line = ChatColor.translateAlternateColorCodes('&', super.addDataToLine(sign, signLayout.getLines()[i], serviceInfoSnapshot));
+                String line = ChatColor.translateAlternateColorCodes('&', super.replaceServiceInfo(signLayout.getLines()[i], sign.getTargetGroup(), serviceInfoSnapshot));
                 bukkitSign.setLine(i, line);
             }
 

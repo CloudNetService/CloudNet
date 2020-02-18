@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.ext.signs;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -282,43 +281,6 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             }
             break;
         }
-    }
-
-    protected String addDataToLine(@NotNull Sign sign, @NotNull String input, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (serviceInfoSnapshot == null) {
-            return input;
-        }
-
-        input = input.replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName());
-        input = input.replace("%task_id%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()));
-        input = input.replace("%group%", sign.getTargetGroup());
-        input = input.replace("%name%", serviceInfoSnapshot.getServiceId().getName());
-        input = input.replace("%uuid%", serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0]);
-        input = input.replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-        input = input.replace("%environment%", String.valueOf(serviceInfoSnapshot.getServiceId().getEnvironment()));
-        input = input.replace("%life_cycle%", String.valueOf(serviceInfoSnapshot.getLifeCycle()));
-        input = input.replace("%runtime%", serviceInfoSnapshot.getConfiguration().getRuntime());
-        input = input.replace("%port%", String.valueOf(serviceInfoSnapshot.getConfiguration().getPort()));
-        input = input.replace("%cpu_usage%", CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()));
-        input = input.replace("%threads%", String.valueOf(serviceInfoSnapshot.getProcessSnapshot().getThreads().size()));
-
-
-        input = input.replace("%online%",
-                (serviceInfoSnapshot.getProperties().contains("Online") && serviceInfoSnapshot.getProperties().getBoolean("Online")
-                        ? "Online" : "Offline"
-                ));
-        input = input.replace("%online_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Online-Count")));
-        input = input.replace("%max_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Max-Players")));
-        input = input.replace("%motd%", serviceInfoSnapshot.getProperties().getString("Motd", ""));
-        input = input.replace("%extra%", serviceInfoSnapshot.getProperties().getString("Extra", ""));
-        input = input.replace("%state%", serviceInfoSnapshot.getProperties().getString("State", ""));
-        input = input.replace("%version%", serviceInfoSnapshot.getProperties().getString("Version", ""));
-        input = input.replace("%whitelist%", (serviceInfoSnapshot.getProperties().contains("Whitelist-Enabled") &&
-                serviceInfoSnapshot.getProperties().getBoolean("Whitelist-Enabled")
-                ? "Enabled" : "Disabled"
-        ));
-
-        return input;
     }
 
     private SignConfigurationTaskEntry getValidSignConfigurationTaskEntryFromSignConfigurationEntry(SignConfigurationEntry entry, String targetTask) {
