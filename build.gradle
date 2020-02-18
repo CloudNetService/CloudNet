@@ -57,11 +57,6 @@ allprojects {
         }
 
         maven {
-            name 'dmulloy2-repo'
-            url "https://repo.dmulloy2.net/nexus/repository/public/"
-        }
-
-        maven {
             name 'jitpack.io'
             url 'https://jitpack.io'
         }
