@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.driver.service;
 import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import de.dytanic.cloudnet.common.collection.Iterables;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @EqualsAndHashCode(callSuper = false)
@@ -12,8 +12,8 @@ import java.util.Collection;
 public class GroupConfiguration extends ServiceConfigurationBase implements INameable {
 
     protected String name;
-    protected Collection<String> jvmOptions = Iterables.newArrayList();
-    protected Collection<ServiceEnvironmentType> targetEnvironments = Iterables.newArrayList();
+    protected Collection<String> jvmOptions = new ArrayList<>();
+    protected Collection<ServiceEnvironmentType> targetEnvironments = new ArrayList<>();
 
     public GroupConfiguration() {
     }

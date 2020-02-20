@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Queue;
@@ -201,7 +203,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
     @Override
-    public void execute(Runnable command) {
+    public void execute(@NotNull Runnable command) {
         schedule(command);
     }
 

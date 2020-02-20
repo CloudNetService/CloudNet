@@ -112,7 +112,7 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void load(Path path) throws IOException {
-        if (path == null) {
+        if (path != null) {
             load(path.toFile());
         }
     }

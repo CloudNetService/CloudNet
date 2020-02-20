@@ -4,6 +4,8 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -129,7 +131,7 @@ public class AsyncPrintStream extends PrintStream {
     }
 
     @Override
-    public void println(char[] x) {
+    public void println(@NotNull char[] x) {
         ASYNC_QUEUE.offer(() -> println0(x));
     }
 
@@ -239,7 +241,7 @@ public class AsyncPrintStream extends PrintStream {
     }
 
     @Override
-    public void print(char[] x) {
+    public void print(@NotNull char[] x) {
         if (!isWorkerThread()) {
             ASYNC_QUEUE.offer(() -> print0(x));
         } else {

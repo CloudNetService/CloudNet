@@ -3,13 +3,13 @@ package de.dytanic.cloudnet.command.commands;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfigurationBase;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandGroups extends CommandServiceConfigurationBase {
+
     public CommandGroups() {
         super(
                 SubCommandBuilder.create()
@@ -93,7 +94,7 @@ public class CommandGroups extends CommandServiceConfigurationBase {
                                         sender.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-not-found"));
                                         return;
                                     }
-                                    configuration.getTargetEnvironments().add(environment);
+                                    configuration.getTargetEnvironments().remove(environment);
                                     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(configuration);
                                     sender.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-success"));
                                 },
@@ -147,9 +148,8 @@ public class CommandGroups extends CommandServiceConfigurationBase {
     }
 
     private static void displayGroup(ICommandSender sender, GroupConfiguration groupConfiguration) {
-        Collection<String> messages = Iterables.newArrayList();
 
-        messages.addAll(Arrays.asList(
+        Collection<String> messages = new ArrayList<>(Arrays.asList(
                 " ",
                 "* Name: " + groupConfiguration.getName(),
                 " ",

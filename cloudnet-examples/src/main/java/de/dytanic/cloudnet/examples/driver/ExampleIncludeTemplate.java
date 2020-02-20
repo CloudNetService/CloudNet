@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.examples.driver;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
@@ -8,6 +7,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -26,19 +26,19 @@ public final class ExampleIncludeTemplate {
                 "jvm",
                 true,
                 false,
-                Iterables.newArrayList(),
-                Iterables.newArrayList(new ServiceTemplate[]{
+                new ArrayList<>(),
+                new ArrayList<>(Collections.singletonList(
                         new ServiceTemplate(
                                 "Lobby", "test1",
                                 "local"
                         )
-                }),
-                Iterables.newArrayList(),
+                )),
+                new ArrayList<>(),
                 Collections.singletonList("PrivateServerGroup"),
                 new ProcessConfiguration(
                         ServiceEnvironmentType.MINECRAFT_SERVER,
                         256,
-                        Iterables.newArrayList()
+                        new ArrayList<>()
                 ),
                 JsonDocument.newDocument().append("UUID", playerUniqueId), //define useful properties to call up later
                 null

@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
@@ -15,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
@@ -49,7 +49,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                 File[] files = file.listFiles();
 
                 if (files != null) {
-                    Collection<JsonDocument> documents = Iterables.newArrayList(files.length);
+                    Collection<JsonDocument> documents = new ArrayList<>(files.length);
 
                     for (File item : files) {
                         documents.add(getFileEntry(item));
@@ -162,7 +162,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
 
 
     private JsonDocument getFileEntry(File file) {
-        Validate.checkNotNull(file);
+        Preconditions.checkNotNull(file);
 
         return new JsonDocument()
                 .append("name", file.getName())
@@ -186,8 +186,8 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     private void send404Response(IHttpContext context, String reason) {
-        Validate.checkNotNull(context);
-        Validate.checkNotNull(reason);
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(reason);
 
         context
                 .response()

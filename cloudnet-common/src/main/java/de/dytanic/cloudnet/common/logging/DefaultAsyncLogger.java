@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.common.logging;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
@@ -15,7 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class DefaultAsyncLogger implements ILogger {
 
-    protected final Collection<ILogHandler> handlers = Iterables.newArrayList();
+    protected final Collection<ILogHandler> handlers = new ArrayList<>();
     private final BlockingQueue<LogHandlerRunnable> entries = new LinkedBlockingQueue<>();
     private final Thread logThread = new Thread() {
 

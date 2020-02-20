@@ -4,7 +4,6 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationProvider;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyProxyLoginConfiguration;
@@ -12,9 +11,11 @@ import de.dytanic.cloudnet.ext.syncproxy.velocity.VelocityCloudNetSyncProxyPlugi
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public final class VelocityProxyLoginConfigurationImplListener {
 
@@ -58,13 +59,11 @@ public final class VelocityProxyLoginConfigurationImplListener {
                                         (syncProxyMotd.getAutoSlotMaxPlayersDistance() + onlinePlayers) :
                                         syncProxyProxyLoginConfiguration.getMaxPlayers(),
                                 syncProxyMotd.getPlayerInfo() != null ?
-                                        Iterables.map(
-                                                syncProxyMotd.getPlayerInfo(),
-                                                s -> new ServerPing.SamplePlayer(
+                                        Arrays.stream(syncProxyMotd.getPlayerInfo())
+                                                .map(s -> new ServerPing.SamplePlayer(
                                                         s.replace("&", "§"),
                                                         UUID.randomUUID()
-                                                )
-                                        )
+                                                )).collect(Collectors.toList())
                                         :
                                         Collections.EMPTY_LIST
                         ),

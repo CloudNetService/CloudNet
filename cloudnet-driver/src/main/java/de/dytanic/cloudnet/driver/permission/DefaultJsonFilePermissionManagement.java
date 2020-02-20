@@ -1,9 +1,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
@@ -11,19 +9,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class DefaultJsonFilePermissionManagement implements ClusterSynchronizedPermissionManagement {
 
     private final File file;
 
-    private final Map<UUID, IPermissionUser> permissionUsers = Maps.newConcurrentHashMap();
+    private final Map<UUID, IPermissionUser> permissionUsers = new ConcurrentHashMap<>();
 
-    private final Map<String, IPermissionGroup> permissionGroups = Maps.newConcurrentHashMap();
+    private final Map<String, IPermissionGroup> permissionGroups = new ConcurrentHashMap<>();
 
     private IPermissionManagementHandler permissionManagementHandler;
 
     public DefaultJsonFilePermissionManagement(File file) {
-        Validate.checkNotNull(file);
+        Preconditions.checkNotNull(file);
 
         this.file = file;
         this.file.getParentFile().mkdirs();
@@ -33,7 +33,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public IPermissionUser addUserWithoutClusterSync(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         this.deleteUserWithoutClusterSync(permissionUser);
         this.permissionUsers.put(permissionUser.getUniqueId(), permissionUser);
@@ -44,7 +44,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public void updateUserWithoutClusterSync(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         if (permissionManagementHandler != null) {
             permissionManagementHandler.handleUpdateUser(this, permissionUser);
@@ -57,9 +57,9 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public void deleteUserWithoutClusterSync(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
-        for (IPermissionUser permissionUser : Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name))) {
+        for (IPermissionUser permissionUser : this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.getName().equals(name)).collect(Collectors.toList())) {
             this.permissionUsers.remove(permissionUser.getUniqueId());
         }
 
@@ -68,7 +68,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public void deleteUserWithoutClusterSync(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
+        Preconditions.checkNotNull(permissionUser);
 
         this.permissionUsers.remove(permissionUser.getUniqueId());
         this.save();
@@ -76,21 +76,21 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public boolean containsUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
 
         return this.permissionUsers.containsKey(uniqueId);
     }
 
     @Override
     public boolean containsUser(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
-        return Iterables.first(permissionUsers.values(), permissionUser -> permissionUser.getName().equalsIgnoreCase(name)) != null;
+        return this.permissionUsers.values().stream().anyMatch(permissionUser -> permissionUser.getName().equalsIgnoreCase(name));
     }
 
     @Override
     public IPermissionUser getUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(uniqueId);
         IPermissionUser permissionUser = this.permissionUsers.get(uniqueId);
 
         if (testPermissionUser(permissionUser)) {
@@ -102,13 +102,13 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public List<IPermissionUser> getUsers(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
-        List<IPermissionUser> permissionUsers = Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.getName().equals(name));
+        List<IPermissionUser> permissionUsers = this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.getName().equals(name)).collect(Collectors.toList());
 
         for (IPermissionUser user : permissionUsers) {
-            if (testPermissionUser(user)) {
-                updateUser(user);
+            if (this.testPermissionUser(user)) {
+                this.updateUser(user);
             }
         }
 
@@ -141,7 +141,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public void setUsersWithoutClusterSync(Collection<? extends IPermissionUser> users) {
-        Validate.checkNotNull(users);
+        Preconditions.checkNotNull(users);
 
         this.permissionGroups.clear();
 
@@ -155,14 +155,14 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public Collection<IPermissionUser> getUsersByGroup(String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
 
-        return Iterables.filter(this.permissionUsers.values(), permissionUser -> permissionUser.inGroup(group));
+        return this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.inGroup(group)).collect(Collectors.toList());
     }
 
     @Override
     public IPermissionGroup addGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         if (permissionManagementHandler != null) {
             permissionManagementHandler.handleAddGroup(this, permissionGroup);
@@ -176,7 +176,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public void updateGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         if (permissionManagementHandler != null) {
             permissionManagementHandler.handleUpdateGroup(this, permissionGroup);
@@ -189,7 +189,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public void deleteGroupWithoutClusterSync(String group) {
-        Validate.checkNotNull(group);
+        Preconditions.checkNotNull(group);
         IPermissionGroup permissionGroup = this.permissionGroups.remove(group);
         this.save();
 
@@ -202,7 +202,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public void deleteGroupWithoutClusterSync(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
+        Preconditions.checkNotNull(permissionGroup);
 
         if (permissionManagementHandler != null) {
             permissionManagementHandler.handleDeleteGroup(this, permissionGroup);
@@ -214,14 +214,14 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
 
     @Override
     public boolean containsGroup(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         return permissionGroups.containsKey(name);
     }
 
     @Override
     public IPermissionGroup getGroup(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         IPermissionGroup permissionGroup = this.permissionGroups.get(name);
 
         if (permissionGroup != null && testPermissionGroup(permissionGroup)) {

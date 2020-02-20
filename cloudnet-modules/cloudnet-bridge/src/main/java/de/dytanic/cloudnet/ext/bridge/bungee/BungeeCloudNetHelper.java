@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.bungee;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -23,10 +21,12 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class BungeeCloudNetHelper {
 
-    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = Maps.newConcurrentHashMap();
+    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = new ConcurrentHashMap<>();
 
     private BungeeCloudNetHelper() {
         throw new UnsupportedOperationException();
@@ -58,26 +58,26 @@ public final class BungeeCloudNetHelper {
     }
 
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
-        return Iterables.filter(
-                SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet(), stringServiceInfoSnapshotEntry -> {
+        return SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet().stream().
+                filter(stringServiceInfoSnapshotEntry -> {
                     if (stringServiceInfoSnapshotEntry.getValue().getLifeCycle() != ServiceLifeCycle.RUNNING
                             || (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey()))) {
                         return false;
                     }
 
                     return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
-                });
+                }).collect(Collectors.toList());
     }
 
     public static boolean isServiceEnvironmentTypeProvidedForBungeeCord(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
         ServiceEnvironmentType currentServiceEnvironment = Wrapper.getInstance().getCurrentServiceInfoSnapshot().getServiceId().getEnvironment();
         return (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer() && currentServiceEnvironment.isMinecraftJavaProxy())
                 || (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer() && currentServiceEnvironment.isMinecraftBedrockProxy());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         serviceInfoSnapshot.getProperties()
                 .append("Online", true)
@@ -86,14 +86,14 @@ public final class BungeeCloudNetHelper {
                 .append("Online-Count", ProxyServer.getInstance().getOnlineCount())
                 .append("Channels", ProxyServer.getInstance().getChannels())
                 .append("BungeeCord-Name", ProxyServer.getInstance().getName())
-                .append("Players", Iterables.map(ProxyServer.getInstance().getPlayers(), proxiedPlayer -> new BungeeCloudNetPlayerInfo(
+                .append("Players", ProxyServer.getInstance().getPlayers().stream().map(proxiedPlayer -> new BungeeCloudNetPlayerInfo(
                         proxiedPlayer.getUniqueId(),
                         proxiedPlayer.getName(),
                         proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : null,
                         proxiedPlayer.getPing(),
                         new HostAndPort(proxiedPlayer.getPendingConnection().getAddress())
-                )))
-                .append("Plugins", Iterables.map(ProxyServer.getInstance().getPluginManager().getPlugins(), plugin -> {
+                )).collect(Collectors.toList()))
+                .append("Plugins", ProxyServer.getInstance().getPluginManager().getPlugins().stream().map(plugin -> {
                     PluginInfo pluginInfo = new PluginInfo(plugin.getDescription().getName(), plugin.getDescription().getVersion());
 
                     pluginInfo.getProperties()
@@ -103,7 +103,7 @@ public final class BungeeCloudNetHelper {
                     ;
 
                     return pluginInfo;
-                }))
+                }).collect(Collectors.toList()))
         ;
     }
 
@@ -126,8 +126,8 @@ public final class BungeeCloudNetHelper {
 
 
     public static ServerInfo createServerInfo(String name, InetSocketAddress address) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(address);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(address);
 
         // with rakNet enabled to support bedrock servers on Waterdog
         if (Wrapper.getInstance().getCurrentServiceInfoSnapshot().getServiceId().getEnvironment() == ServiceEnvironmentType.WATERDOG) {

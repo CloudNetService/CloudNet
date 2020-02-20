@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -54,7 +55,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     }
 
     @Override
-    public boolean isPermissionSet(String name) {
+    public boolean isPermissionSet(@NotNull String name) {
         return hasPermission(name);
     }
 
@@ -69,10 +70,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     }
 
     @Override
-    public boolean hasPermission(String inName) {
-        if (inName == null) {
-            return false;
-        }
+    public boolean hasPermission(@NotNull String inName) {
 
         if (this.getDefaultPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(inName))) {
             return true;

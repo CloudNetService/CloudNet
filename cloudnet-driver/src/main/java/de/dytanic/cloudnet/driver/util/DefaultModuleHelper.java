@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.util;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.unsafe.ResourceResolver;
@@ -24,8 +24,8 @@ public final class DefaultModuleHelper {
     }
 
     public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
-        Validate.checkNotNull(clazz);
-        Validate.checkNotNull(target);
+        Preconditions.checkNotNull(clazz);
+        Preconditions.checkNotNull(target);
 
         try {
             target.getParentFile().mkdirs();

@@ -29,7 +29,7 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
         NettyUtils.writeVarInt(byteBuf, packet.getChannel());
 
         //Writing the uniqueId
-        NettyUtils.writeString(byteBuf, packet.getUniqueId() != null ? packet.getUniqueId().toString() : UUID.randomUUID().toString());
+        NettyUtils.writeString(byteBuf, (packet.getUniqueId() != null ? packet.getUniqueId() : UUID.randomUUID()).toString());
 
         byte[] data;
 

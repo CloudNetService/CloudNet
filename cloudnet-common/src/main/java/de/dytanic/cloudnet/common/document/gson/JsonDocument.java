@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
 import de.dytanic.cloudnet.common.document.IReadable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -880,6 +881,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         return toJson();
     }
 
+    @NotNull
     @Override
     public Iterator<String> iterator() {
         return this.jsonObject.keySet().iterator();

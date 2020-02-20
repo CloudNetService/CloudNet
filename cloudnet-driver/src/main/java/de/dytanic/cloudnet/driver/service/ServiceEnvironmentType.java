@@ -24,11 +24,6 @@ public enum ServiceEnvironmentType {
             false, false, false, true,
             44955
     ),
-    GO_MINT(
-            new ServiceEnvironment[]{ServiceEnvironment.GO_MINT_DEFAULT},
-            false, false, false, true,
-            44955
-    ),
     BUNGEECORD(
             new ServiceEnvironment[]{
                     ServiceEnvironment.BUNGEECORD_HEXACORD,
@@ -48,13 +43,7 @@ public enum ServiceEnvironmentType {
             new ServiceEnvironment[]{ServiceEnvironment.WATERDOG_DEFAULT},
             false, true, false, false,
             19132
-    ),
-    PROX_PROX(
-            new ServiceEnvironment[]{ServiceEnvironment.PROX_PROX_DEFAULT},
-            false, true, false, false,
-            19132
-    ),
-    ;
+    );
 
     private final ServiceEnvironment[] environments;
 

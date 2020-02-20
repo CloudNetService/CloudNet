@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class BukkitBridgeProxyPlayerServerConnectRequestEvent extends BukkitBridgeEvent {
 
@@ -19,6 +20,7 @@ public class BukkitBridgeProxyPlayerServerConnectRequestEvent extends BukkitBrid
         return BukkitBridgeProxyPlayerServerConnectRequestEvent.handlerList;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlerList;

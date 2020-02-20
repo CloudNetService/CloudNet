@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.module;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -104,9 +104,9 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     }
 
     private String replaceAll(String text, IModuleProvider moduleProvider, IModuleWrapper moduleWrapper) {
-        Validate.checkNotNull(text);
-        Validate.checkNotNull(moduleProvider);
-        Validate.checkNotNull(moduleWrapper);
+        Preconditions.checkNotNull(text);
+        Preconditions.checkNotNull(moduleProvider);
+        Preconditions.checkNotNull(moduleWrapper);
 
         return text.replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
                 .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())

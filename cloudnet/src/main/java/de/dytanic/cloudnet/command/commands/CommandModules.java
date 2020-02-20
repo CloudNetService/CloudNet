@@ -3,12 +3,12 @@ package de.dytanic.cloudnet.command.commands;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +38,8 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
         if (args.length == 0) {
             sender.sendMessage(
-                    "Modules(" + moduleWrappers.size() + "): " + Arrays.toString(Iterables.map(moduleWrappers, moduleWrapper -> moduleWrapper.getModule().getName()).toArray(new String[0])),
+                    "Modules(" + moduleWrappers.size() + "): " + Arrays.toString(moduleWrappers.stream()
+                            .map(moduleWrapper -> moduleWrapper.getModule().getName()).toArray(String[]::new)),
                     " ",
                     "modules list | group=<name> name=<name> version=<version>"
             );
@@ -68,7 +69,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
     }
 
     private void displayModuleInfo(ICommandSender sender, IModuleWrapper moduleWrapper) {
-        List<String> list = Iterables.newArrayList();
+        List<String> list = new ArrayList<>();
 
         list.add("* Module: " +
                 moduleWrapper.getModuleConfiguration().getGroup() + ":" +

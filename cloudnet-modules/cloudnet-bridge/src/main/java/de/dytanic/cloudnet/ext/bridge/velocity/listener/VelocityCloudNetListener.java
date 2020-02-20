@@ -6,7 +6,6 @@ import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -175,8 +174,11 @@ public final class VelocityCloudNetListener {
     }
 
     private Player getPlayer(JsonDocument data) {
-        return Iterables.first(VelocityCloudNetHelper.getProxyServer().getAllPlayers(), player -> data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class)) ||
-                data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")));
+        return VelocityCloudNetHelper.getProxyServer().getAllPlayers().stream()
+                .filter(player -> data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class))
+                        || data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")))
+                .findFirst()
+                .orElse(null);
     }
 
     @EventListener

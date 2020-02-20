@@ -12,7 +12,7 @@ import java.io.File;
 
 public class DriverModule extends DefaultModule {
 
-    private JsonDocument config;
+    protected JsonDocument config;
 
     public final JsonDocument getConfig() {
         if (config == null) {
@@ -22,7 +22,7 @@ public class DriverModule extends DefaultModule {
         return config;
     }
 
-    public final JsonDocument reloadConfig() {
+    public JsonDocument reloadConfig() {
         return config = reloadConfig0();
     }
 

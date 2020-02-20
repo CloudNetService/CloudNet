@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -15,6 +14,8 @@ import de.dytanic.cloudnet.ext.cloudflare.listener.CloudflareStartAndStopListene
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 public final class CloudNetCloudflareModule extends NodeCloudNetModule {
@@ -34,7 +35,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void loadConfiguration() {
         this.cloudflareConfiguration = getConfig().get("config", CloudflareConfiguration.TYPE, new CloudflareConfiguration(
-                Iterables.newArrayList(new CloudflareConfigurationEntry[]{
+                new ArrayList<>(Collections.singletonList(
                         new CloudflareConfigurationEntry(
                                 false,
                                 getInitialHostAddress(),
@@ -42,13 +43,11 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
                                 "api_token_string",
                                 "zoneId",
                                 "example.com",
-                                Iterables.newArrayList(
-                                        new CloudflareGroupConfiguration[]{
-                                                new CloudflareGroupConfiguration("Proxy", "@", 1, 1)
-                                        }
-                                )
+                                new ArrayList<>(Collections.singletonList(
+                                        new CloudflareGroupConfiguration("Proxy", "@", 1, 1)
+                                ))
                         )
-                })
+                ))
         ));
 
         saveConfig();
@@ -56,11 +55,19 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
     public void initCloudflareAPI() {
+        if (this.cloudflareConfiguration.getEntries().stream().noneMatch(CloudflareConfigurationEntry::isEnabled)) {
+            return;
+        }
+
         new CloudflareAPI(getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME));
     }
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
     public void addedDefaultCloudflareDNSServices() {
+        if (CloudflareAPI.getInstance() == null) {
+            return;
+        }
+
         for (CloudflareConfigurationEntry cloudflareConfigurationEntry : this.getCloudflareConfiguration().getEntries()) {
             if (cloudflareConfigurationEntry.isEnabled()) {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
@@ -90,11 +97,19 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
     public void registerListeners() {
+        if (CloudflareAPI.getInstance() == null) {
+            return;
+        }
+
         registerListener(new CloudflareStartAndStopListener());
     }
 
     @ModuleTask(order = 123, event = ModuleLifeCycle.STARTED)
     public void registerHttpHandlers() {
+        if (CloudflareAPI.getInstance() == null) {
+            return;
+        }
+
         getHttpServer().registerHandler("/api/v1/modules/cloudflare/config",
                 new V1CloudflareConfigurationHttpHandler("cloudnet.http.v1.modules.cloudflare.config"));
     }
@@ -119,6 +134,10 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
     public void removeRecordsOnDelete() {
+        if (this.cloudflareConfiguration.getEntries().stream().noneMatch(CloudflareConfigurationEntry::isEnabled)) {
+            return;
+        }
+
         for (Map.Entry<String, Pair<String, JsonDocument>> entry : CloudflareAPI.getInstance().getCreatedRecords().entrySet()) {
             CloudflareAPI.getInstance().deleteRecord(
                     entry.getValue().getSecond().getString("email"),

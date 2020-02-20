@@ -1,80 +1,78 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible> {
 
-    void setName(String name);
+    void setName(@NotNull String name);
 
     int getPotency();
 
     void setPotency(int potency);
 
-    boolean addPermission(Permission permission);
+    boolean addPermission(@NotNull Permission permission);
 
-    boolean addPermission(String group, Permission permission);
+    boolean addPermission(@NotNull String group, @NotNull Permission permission);
 
-    boolean removePermission(String permission);
+    boolean removePermission(@NotNull String permission);
 
-    boolean removePermission(String group, String permission);
+    boolean removePermission(@NotNull String group, @NotNull String permission);
 
     Collection<Permission> getPermissions();
 
     Map<String, Collection<Permission>> getGroupPermissions();
 
-
+    @Nullable
     default Permission getPermission(String name) {
         if (name == null) {
             return null;
         }
 
-        return Iterables.first(getPermissions(), permission -> permission.getName().equalsIgnoreCase(name));
+        return this.getPermissions().stream().filter(permission -> permission.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
-    default boolean isPermissionSet(String name) {
-        return Iterables.first(getPermissions(), permission -> permission.getName().equalsIgnoreCase(name)) != null;
+    default boolean isPermissionSet(@NotNull String name) {
+        return this.getPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(name));
     }
 
-    default boolean addPermission(String permission) {
-        return addPermission(permission, 0);
+    default boolean addPermission(@NotNull String permission) {
+        return this.addPermission(permission, 0);
     }
 
-    default boolean addPermission(String permission, boolean value) {
-        return addPermission(new Permission(permission, value ? 1 : -1));
+    default boolean addPermission(@NotNull String permission, boolean value) {
+        return this.addPermission(new Permission(permission, value ? 1 : -1));
     }
 
-    default boolean addPermission(String permission, int potency) {
-        return addPermission(new Permission(permission, potency));
+    default boolean addPermission(@NotNull String permission, int potency) {
+        return this.addPermission(new Permission(permission, potency));
     }
 
-    default boolean addPermission(String group, String permission) {
-        return addPermission(group, permission, 0);
+    default boolean addPermission(@NotNull String group, @NotNull String permission) {
+        return this.addPermission(group, permission, 0);
     }
 
-    default boolean addPermission(String group, String permission, int potency) {
-        return addPermission(group, new Permission(permission, potency));
+    default boolean addPermission(@NotNull String group, @NotNull String permission, int potency) {
+        return this.addPermission(group, new Permission(permission, potency));
     }
 
-    default boolean addPermission(String group, String permission, int potency, long time, TimeUnit millis) {
-        return addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() + millis.toMillis(time))));
+    default boolean addPermission(@NotNull String group, @NotNull String permission, int potency, long time, TimeUnit millis) {
+        return this.addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() + millis.toMillis(time))));
     }
 
     default Collection<String> getPermissionNames() {
-        return Iterables.map(getPermissions(), Permission::getName);
+        return this.getPermissions().stream().map(Permission::getName).collect(Collectors.toList());
     }
 
-    default PermissionCheckResult hasPermission(Collection<Permission> permissions, Permission permission) {
-        if (permissions == null || permission == null || permission.getName() == null) {
-            return PermissionCheckResult.DENIED;
-        }
-
-        Permission targetPerms = Iterables.first(permissions, perm -> perm.getName().equalsIgnoreCase(permission.getName()));
+    default PermissionCheckResult hasPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
+        Permission targetPerms = permissions.stream().filter(perm -> perm.getName().equalsIgnoreCase(permission.getName())).findFirst().orElse(null);
 
         if (targetPerms != null && permission.getName().equalsIgnoreCase(targetPerms.getName()) && targetPerms.getPotency() < 0) {
             return PermissionCheckResult.FORBIDDEN;
@@ -100,19 +98,15 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
         return PermissionCheckResult.DENIED;
     }
 
-    default PermissionCheckResult hasPermission(String group, Permission permission) {
-        if (group == null || permission == null) {
-            return PermissionCheckResult.DENIED;
-        }
-
+    default PermissionCheckResult hasPermission(@NotNull String group, @NotNull Permission permission) {
         return getGroupPermissions().containsKey(group) ? hasPermission(getGroupPermissions().get(group), permission) : PermissionCheckResult.DENIED;
     }
 
-    default PermissionCheckResult hasPermission(Permission permission) {
+    default PermissionCheckResult hasPermission(@NotNull Permission permission) {
         return hasPermission(getPermissions(), permission);
     }
 
-    default PermissionCheckResult hasPermission(String permission) {
+    default PermissionCheckResult hasPermission(@NotNull String permission) {
         return hasPermission(new Permission(permission, 0));
     }
 

@@ -1,16 +1,18 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.ext.cloudperms.listener.PermissionsUpdateListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -18,8 +20,8 @@ import java.util.concurrent.TimeoutException;
 public class CloudPermissionsManagement implements IPermissionManagement {
 
     private static CloudPermissionsManagement instance;
-    private final Map<String, IPermissionGroup> cachedPermissionGroups = Maps.newConcurrentHashMap();
-    private final Map<UUID, IPermissionUser> cachedPermissionUsers = Maps.newConcurrentHashMap();
+    private final Map<String, IPermissionGroup> cachedPermissionGroups = new ConcurrentHashMap<>();
+    private final Map<UUID, IPermissionUser> cachedPermissionUsers = new ConcurrentHashMap<>();
 
     protected CloudPermissionsManagement() {
         this.init();
@@ -52,20 +54,20 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
 
+    @NotNull
     @Override
     public IPermissionManagementHandler getPermissionManagementHandler() {
         throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
     }
 
     @Override
-    public void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler) {
+    public void setPermissionManagementHandler(@NotNull IPermissionManagementHandler permissionManagementHandler) {
         throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
     }
 
+    @NotNull
     @Override
-    public IPermissionUser addUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
-
+    public IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
         try {
             this.getDriver().getPermissionProvider().addUserAsync(permissionUser).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -76,51 +78,38 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void updateUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
-
+    public void updateUser(@NotNull IPermissionUser permissionUser) {
         this.getDriver().getPermissionProvider().updateUser(permissionUser);
     }
 
     @Override
-    public void deleteUser(String name) {
-        Validate.checkNotNull(name);
-
+    public void deleteUser(@NotNull String name) {
         this.getDriver().getPermissionProvider().deleteUser(name);
     }
 
     @Override
-    public void deleteUser(IPermissionUser permissionUser) {
-        Validate.checkNotNull(permissionUser);
-
+    public void deleteUser(@NotNull IPermissionUser permissionUser) {
         this.getDriver().getPermissionProvider().deleteUser(permissionUser);
     }
 
     @Override
-    public boolean containsUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
+    public boolean containsUser(@NotNull UUID uniqueId) {
         return this.cachedPermissionUsers.containsKey(uniqueId) || this.getDriver().getPermissionProvider().containsUser(uniqueId);
     }
 
     @Override
-    public boolean containsUser(String name) {
-        Validate.checkNotNull(name);
-
+    public boolean containsUser(@NotNull String name) {
         return this.getDriver().getPermissionProvider().containsUser(name);
     }
 
+    @Nullable
     @Override
-    public IPermissionUser getUser(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
-
+    public IPermissionUser getUser(@NotNull UUID uniqueId) {
         return this.cachedPermissionUsers.containsKey(uniqueId) ? this.cachedPermissionUsers.get(uniqueId) : this.getDriver().getPermissionProvider().getUser(uniqueId);
     }
 
     @Override
-    public List<IPermissionUser> getUsers(String name) {
-        Validate.checkNotNull(name);
-
+    public List<IPermissionUser> getUsers(@NotNull String name) {
         return this.getDriver().getPermissionProvider().getUsers(name);
     }
 
@@ -130,59 +119,46 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void setUsers(Collection<? extends IPermissionUser> users) {
-        Validate.checkNotNull(users);
-
+    public void setUsers(@NotNull Collection<? extends IPermissionUser> users) {
         this.getDriver().getPermissionProvider().setUsers(users);
     }
 
     @Override
-    public Collection<IPermissionUser> getUsersByGroup(String group) {
-        Validate.checkNotNull(group);
-
+    public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
         return this.getDriver().getPermissionProvider().getUsersByGroup(group);
     }
 
     @Override
-    public IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
-
+    public IPermissionGroup addGroup(@NotNull IPermissionGroup permissionGroup) {
         this.getDriver().getPermissionProvider().addGroup(permissionGroup);
 
         return permissionGroup;
     }
 
     @Override
-    public void updateGroup(IPermissionGroup permissionGroup) {
-        Validate.checkNotNull(permissionGroup);
-
+    public void updateGroup(@NotNull IPermissionGroup permissionGroup) {
         this.getDriver().getPermissionProvider().updateGroup(permissionGroup);
     }
 
     @Override
-    public void deleteGroup(String group) {
-        Validate.checkNotNull(group);
-
+    public void deleteGroup(@NotNull String group) {
         this.getDriver().getPermissionProvider().deleteGroup(group);
     }
 
     @Override
-    public void deleteGroup(IPermissionGroup group) {
-        Validate.checkNotNull(group);
-
+    public void deleteGroup(@NotNull IPermissionGroup group) {
         this.getDriver().getPermissionProvider().deleteGroup(group);
     }
 
     @Override
-    public boolean containsGroup(String name) {
-        Validate.checkNotNull(name);
-
+    public boolean containsGroup(@NotNull String name) {
         return this.cachedPermissionGroups.containsKey(name);
     }
 
+    @Nullable
     @Override
-    public IPermissionGroup getGroup(String name) {
-        Validate.checkNotNull(name);
+    public IPermissionGroup getGroup(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.cachedPermissionGroups.get(name);
     }
@@ -193,9 +169,7 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void setGroups(Collection<? extends IPermissionGroup> groups) {
-        Validate.checkNotNull(groups);
-
+    public void setGroups(@NotNull Collection<? extends IPermissionGroup> groups) {
         this.getDriver().getPermissionProvider().setGroups(groups);
     }
 

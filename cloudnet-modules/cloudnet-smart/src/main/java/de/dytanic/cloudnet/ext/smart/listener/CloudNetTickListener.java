@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.smart.listener;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
@@ -17,13 +16,14 @@ import de.dytanic.cloudnet.service.ICloudService;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class CloudNetTickListener {
 
-    private final Collection<UUID> newInstanceDelay = Iterables.newCopyOnWriteArrayList();
+    private final Collection<UUID> newInstanceDelay = new CopyOnWriteArrayList<>();
 
     private final AtomicInteger ticksPerSecond = new AtomicInteger();
 

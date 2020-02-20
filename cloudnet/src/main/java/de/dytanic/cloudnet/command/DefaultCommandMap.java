@@ -1,17 +1,16 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public final class DefaultCommandMap implements ICommandMap {
 
-    private final Map<String, Command> registeredCommands = Maps.newConcurrentHashMap();
+    private final Map<String, Command> registeredCommands = new ConcurrentHashMap<>();
 
     @Override
     public void registerCommand(Command command) {
@@ -33,7 +32,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     @Override
     public void unregisterCommand(Class<? extends Command> command) {
-        Validate.checkNotNull(command);
+        Preconditions.checkNotNull(command);
 
         for (Command commandEntry : this.registeredCommands.values()) {
             if (commandEntry.getClass().equals(command)) {
@@ -50,7 +49,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     @Override
     public void unregisterCommands(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
         for (Command commandEntry : this.registeredCommands.values()) {
             if (commandEntry.getClass().getClassLoader().equals(classLoader)) {
@@ -123,7 +122,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     @Override
     public Collection<CommandInfo> getCommandInfos() {
-        Collection<Command> commands = Iterables.newArrayList();
+        Collection<Command> commands = new ArrayList<>();
 
         for (Command command : this.registeredCommands.values()) {
             if (!commands.contains(command)) {
@@ -131,7 +130,7 @@ public final class DefaultCommandMap implements ICommandMap {
             }
         }
 
-        return Iterables.map(commands, this::commandInfoFilter);
+        return commands.stream().map(this::commandInfoFilter).collect(Collectors.toList());
     }
 
     @Override

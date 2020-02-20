@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.provider.service;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -84,6 +85,7 @@ public interface GeneralCloudServiceProvider {
      * @param name the name of the service
      * @return the info of the service or {@code null} if the service doesn't exist
      */
+    @Nullable
     ServiceInfoSnapshot getCloudServiceByName(String name);
 
     /**
@@ -92,6 +94,7 @@ public interface GeneralCloudServiceProvider {
      * @param uniqueId the uniqueId of the service
      * @return the info of the service or {@code null} if the service doesn't exist
      */
+    @Nullable
     ServiceInfoSnapshot getCloudService(UUID uniqueId);
 
 

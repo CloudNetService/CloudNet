@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.listener;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
@@ -18,6 +17,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Arrays;
+
 public final class BukkitPlayerListener implements Listener {
 
     private final BukkitCloudNetBridgePlugin plugin;
@@ -34,7 +35,7 @@ public final class BukkitPlayerListener implements Listener {
                 && this.bridgeConfiguration.isOnlyProxyProtection()
                 && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null
                 && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
-                .noneMatch(group -> Iterables.contains(group, Wrapper.getInstance().getServiceConfiguration().getGroups()));
+                .noneMatch(group -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(group));
     }
 
 

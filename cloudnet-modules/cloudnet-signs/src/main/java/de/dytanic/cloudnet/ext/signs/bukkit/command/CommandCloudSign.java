@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.command;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignPosition;
@@ -15,11 +14,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 public final class CommandCloudSign implements CommandExecutor {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
             return false;
         }
@@ -45,7 +47,7 @@ public final class CommandCloudSign implements CommandExecutor {
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
-                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 
@@ -77,7 +79,7 @@ public final class CommandCloudSign implements CommandExecutor {
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
-                    if (!Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+                    if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 

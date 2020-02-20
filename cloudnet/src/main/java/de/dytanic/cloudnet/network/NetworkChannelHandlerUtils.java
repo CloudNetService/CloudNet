@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
@@ -14,6 +13,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +47,7 @@ final class NetworkChannelHandlerUtils {
             exception.printStackTrace();
         }
 
-        Collection<Packet> removed = Iterables.newArrayList();
+        Collection<Packet> removed = new ArrayList<>();
 
         for (Map.Entry<UUID, ServiceInfoSnapshot> entry : CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().entrySet()) {
             if (entry.getValue().getServiceId().getNodeUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId())) {
