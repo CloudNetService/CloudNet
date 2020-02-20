@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
@@ -159,6 +160,12 @@ public class LabyModUtils {
         return getLMCMessageContents("server_gamemode", document);
     }
 
+    public static boolean canSpectate(ServiceInfoSnapshot serviceInfoSnapshot) {
+        return getConfiguration().isDiscordSpectateEnabled() &&
+                !isExcluded(getConfiguration().getExcludedSpectateGroups(), serviceInfoSnapshot.getConfiguration().getGroups()) &&
+                ServiceInfoSnapshotUtil.isIngameService(serviceInfoSnapshot);
+    }
+
     public static byte[] getDiscordRPCGameInfoUpdateMessageContents(ICloudPlayer cloudPlayer, ServiceInfoSnapshot serviceInfoSnapshot) {
         String display = getDisplay(serviceInfoSnapshot, getConfiguration().getDiscordRPC());
         if (display == null) {
@@ -187,8 +194,7 @@ public class LabyModUtils {
             modified = true;
         }
 
-        if (getConfiguration().isDiscordSpectateEnabled() &&
-                !isExcluded(getConfiguration().getExcludedSpectateGroups(), serviceInfoSnapshot.getConfiguration().getGroups()) /* && TODO check if service is Ingame */) {
+        if (canSpectate(serviceInfoSnapshot)) {
             options.createNewSpectateSecret();
 
             spectateSecret = true;

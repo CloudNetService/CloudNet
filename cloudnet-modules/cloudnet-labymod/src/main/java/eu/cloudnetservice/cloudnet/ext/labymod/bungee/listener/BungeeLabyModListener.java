@@ -2,8 +2,12 @@ package eu.cloudnetservice.cloudnet.ext.labymod.bungee.listener;
 
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.EventPriority;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
@@ -27,6 +31,32 @@ public class BungeeLabyModListener implements Listener {
         if (cloudPlayer != null && LabyModUtils.getLabyModOptions(cloudPlayer) != null) {
             ServiceInfoSnapshot serviceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getServer().getInfo().getName());
             this.sendLabyModServerUpdate(event.getPlayer(), cloudPlayer, serviceInfoSnapshot);
+        }
+    }
+
+    @EventListener(priority = EventPriority.HIGHEST)
+    public void handle(CloudServiceInfoUpdateEvent event) {
+        ServiceInfoSnapshot newServiceInfoSnapshot = event.getServiceInfo();
+        ServiceInfoSnapshot oldServiceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(newServiceInfoSnapshot.getServiceId().getName());
+        if (oldServiceInfoSnapshot == null) {
+            return;
+        }
+
+        if (LabyModUtils.canSpectate(newServiceInfoSnapshot) &&
+                !ServiceInfoSnapshotUtil.isIngameService(oldServiceInfoSnapshot)) {
+            for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+                if (player.getServer() == null || player.getServer().getInfo() == null) {
+                    continue;
+                }
+                if (!player.getServer().getInfo().getName().equals(newServiceInfoSnapshot.getName())) {
+                    continue;
+                }
+
+                ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId());
+                if (cloudPlayer != null && LabyModUtils.getLabyModOptions(cloudPlayer) != null) {
+                    this.sendLabyModServerUpdate(player, cloudPlayer, newServiceInfoSnapshot);
+                }
+            }
         }
     }
 

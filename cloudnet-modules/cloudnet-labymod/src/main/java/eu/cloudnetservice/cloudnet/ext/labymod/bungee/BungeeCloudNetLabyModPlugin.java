@@ -1,5 +1,6 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.bungee;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.bungee.listener.BungeeLabyModListener;
@@ -15,6 +16,13 @@ public class BungeeCloudNetLabyModPlugin extends Plugin {
         }
         this.getProxy().registerChannel("LMC");
 
-        this.getProxy().getPluginManager().registerListener(this, new BungeeLabyModListener());
+        BungeeLabyModListener listener = new BungeeLabyModListener();
+        this.getProxy().getPluginManager().registerListener(this, listener);
+        CloudNetDriver.getInstance().getEventManager().registerListener(listener);
+    }
+
+    @Override
+    public void onDisable() {
+        CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
     }
 }
