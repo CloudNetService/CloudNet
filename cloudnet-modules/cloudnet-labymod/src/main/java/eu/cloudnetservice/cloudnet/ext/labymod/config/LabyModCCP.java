@@ -1,4 +1,4 @@
-package eu.cloudnetservice.cloudnet.ext.labymod.player;
+package eu.cloudnetservice.cloudnet.ext.labymod.config;
 
 public class LabyModCCP {
     private boolean enabled;

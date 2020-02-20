@@ -6,14 +6,19 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
-import eu.cloudnetservice.cloudnet.ext.labymod.player.DiscordJoinMatchConfig;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.player.LabyModPlayerOptions;
-import eu.cloudnetservice.cloudnet.ext.labymod.player.ServiceDisplay;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -96,7 +101,7 @@ public class LabyModUtils {
     public static LabyModConfiguration getConfiguration() {
         if (cachedConfiguration == null) {
             ITask<LabyModConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                    LabyModConstants.GET_CONFIGURATION_CHANNEL_NAME,
+                    LabyModConstants.CLOUDNET_CHANNEL_NAME,
                     LabyModConstants.GET_CONFIGURATION,
                     new JsonDocument(),
                     documentPair -> documentPair.get("labyModConfig", LabyModConfiguration.class));
@@ -116,6 +121,22 @@ public class LabyModUtils {
 
     public static LabyModPlayerOptions getLabyModOptions(ICloudPlayer cloudPlayer) {
         return cloudPlayer.getProperties().get("labyModOptions", LabyModPlayerOptions.class);
+    }
+
+    public static ITask<ICloudPlayer> getPlayerByJoinSecret(UUID joinSecret) {
+        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                LabyModConstants.CLOUDNET_CHANNEL_NAME,
+                LabyModConstants.GET_PLAYER_JOIN_SECRET,
+                new JsonDocument().append("joinSecret", joinSecret),
+                document -> document.get("player", CloudPlayer.TYPE));
+    }
+
+    public static ITask<ICloudPlayer> getPlayerBySpectateSecret(UUID spectateSecret) {
+        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                LabyModConstants.CLOUDNET_CHANNEL_NAME,
+                LabyModConstants.GET_PLAYER_SPECTATE_SECRET,
+                new JsonDocument().append("spectateSecret", spectateSecret),
+                document -> document.get("player", CloudPlayer.TYPE));
     }
 
     private static String getDisplay(ServiceInfoSnapshot serviceInfoSnapshot, ServiceDisplay serviceDisplay) {
@@ -146,6 +167,9 @@ public class LabyModUtils {
 
         DiscordJoinMatchConfig joinMatchConfig = getConfiguration().getDiscordJoinMatch();
         boolean joinSecret = false;
+        boolean spectateSecret = false;
+
+        boolean modified = false;
 
         LabyModPlayerOptions options = getLabyModOptions(cloudPlayer);
         if (options == null) {
@@ -154,12 +178,27 @@ public class LabyModUtils {
 
         if (joinMatchConfig != null && joinMatchConfig.isEnabled() && !joinMatchConfig.isExcluded(serviceInfoSnapshot)) {
             options.createNewJoinSecret();
-            setLabyModOptions(cloudPlayer, options);
-            BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
 
             joinSecret = true;
+            modified = true;
         } else if (options.getJoinSecret() != null) {
             options.removeJoinSecret();
+
+            modified = true;
+        }
+
+        if (getConfiguration().isDiscordSpectateEnabled() &&
+                !isExcluded(getConfiguration().getExcludedSpectateGroups(), serviceInfoSnapshot.getConfiguration().getGroups()) /* && TODO check if service is Ingame */) {
+            options.createNewSpectateSecret();
+
+            spectateSecret = true;
+            modified = true;
+        } else if (options.getSpectateSecret() != null) {
+            options.removeSpectateSecret();
+            modified = true;
+        }
+
+        if (modified) {
             setLabyModOptions(cloudPlayer, options);
             BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
         }
@@ -181,10 +220,21 @@ public class LabyModUtils {
         if (cloudPlayer.getConnectedService() != null) {
             document.append("matchSecret", cloudPlayer.getConnectedService().getUniqueId() + ":" + domain);
         }
-        /*document.append("hasSpectateSecret", true)
-                .append("spectateSecret", cloudPlayer.getLabyModOptions().getJoinSecret() + ":" + domain);*/
+        document.append("hasSpectateSecret", spectateSecret);
+        if (spectateSecret) {
+            document.append("spectateSecret", options.getSpectateSecret() + ":" + domain);
+        }
 
         return getLMCMessageContents("discord_rpc", document);
+    }
+
+    public static boolean isExcluded(Collection<String> excludedGroups, String[] serviceGroups) {
+        for (String excludedGroup : excludedGroups) {
+            if (Arrays.asList(serviceGroups).contains(excludedGroup)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

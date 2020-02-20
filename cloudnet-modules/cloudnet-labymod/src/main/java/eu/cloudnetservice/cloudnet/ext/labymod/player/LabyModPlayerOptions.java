@@ -1,5 +1,10 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.player;
 
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModAddon;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModCCP;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModMod;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModShadow;
+
 import java.util.Collection;
 import java.util.UUID;
 
@@ -12,6 +17,8 @@ public class LabyModPlayerOptions {
     private Collection<LabyModMod> mods;
     private UUID joinSecret;
     private long lastJoinSecretRedeem = -1;
+    private UUID spectateSecret;
+    private long lastSpectateSecretRedeem = -1;
 
     public LabyModPlayerOptions(String version, LabyModCCP ccp, LabyModShadow shadow, Collection<LabyModAddon> addons, Collection<LabyModMod> mods) {
         this.version = version;
@@ -64,4 +71,26 @@ public class LabyModPlayerOptions {
     public void createNewJoinSecret() {
         this.joinSecret = UUID.randomUUID();
     }
+
+
+    public UUID getSpectateSecret() {
+        return this.spectateSecret;
+    }
+
+    public long getLastSpectateSecretRedeem() {
+        return this.lastSpectateSecretRedeem;
+    }
+
+    public void setLastSpectateSecretRedeem(long lastSpectateSecretRedeem) {
+        this.lastSpectateSecretRedeem = lastSpectateSecretRedeem;
+    }
+
+    public void removeSpectateSecret() {
+        this.spectateSecret = null;
+    }
+
+    public void createNewSpectateSecret() {
+        this.spectateSecret = UUID.randomUUID();
+    }
+
 }

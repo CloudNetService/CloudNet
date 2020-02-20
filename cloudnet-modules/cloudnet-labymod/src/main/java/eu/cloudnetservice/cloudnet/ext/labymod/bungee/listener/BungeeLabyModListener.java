@@ -3,11 +3,10 @@ package eu.cloudnetservice.cloudnet.ext.labymod.bungee.listener;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
-import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConfiguration;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.player.LabyModPlayerOptions;
@@ -77,35 +76,58 @@ public class BungeeLabyModListener implements Listener {
                     return;
                 }
 
-                BridgePlayerManager.getInstance().getOnlinePlayersAsync().onComplete(onlinePlayers -> onlinePlayers.stream()
-                        .filter(o -> LabyModUtils.getLabyModOptions(o) != null)
-                        .filter(o -> LabyModUtils.getLabyModOptions(o).getJoinSecret() != null)
-                        .filter(o -> LabyModUtils.getLabyModOptions(o).getJoinSecret().equals(joinSecret))
-                        .findFirst()
-                        .ifPresent(secretOwner -> {
-                            if (secretOwner.getConnectedService() == null) {
-                                return;
-                            }
-                            LabyModPlayerOptions options = LabyModUtils.getLabyModOptions(secretOwner);
-                            if (options.getLastJoinSecretRedeem() != -1 &&
-                                    options.getLastJoinSecretRedeem() + 1000 > System.currentTimeMillis()) {
-                                return;
-                            }
-                            options.setLastJoinSecretRedeem(System.currentTimeMillis());
+                LabyModUtils.getPlayerByJoinSecret(joinSecret).onComplete(secretOwner -> {
+                    if (secretOwner == null || secretOwner.getConnectedService() == null) {
+                        return;
+                    }
+                    LabyModPlayerOptions options = LabyModUtils.getLabyModOptions(secretOwner);
+                    if (options == null || (options.getLastJoinSecretRedeem() != -1 &&
+                            options.getLastJoinSecretRedeem() + 1000 > System.currentTimeMillis())) {
+                        return;
+                    }
+                    options.setLastJoinSecretRedeem(System.currentTimeMillis());
 
-                            ServiceInfoSnapshot connectedService = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(secretOwner.getConnectedService().getServerName());
+                    this.connectTo(player, secretOwner);
+                });
+            }
 
-                            byte[] discordRPCData = LabyModUtils.getDiscordRPCGameInfoUpdateMessageContents(cloudPlayer, connectedService);
-                            if (discordRPCData != null) {
-                                BridgePlayerManager.getInstance().proxySendPluginMessage(secretOwner, LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
-                            }
+            if (messageContents.contains("spectateSecret")) {
+                UUID spectateSecret = messageContents.get("spectateSecret", UUID.class);
+                if (spectateSecret == null) {
+                    return;
+                }
 
-                            player.connect(ProxyServer.getInstance().getServerInfo(secretOwner.getConnectedService().getServerName()));
+                LabyModUtils.getPlayerBySpectateSecret(spectateSecret).onComplete(secretOwner -> {
+                    if (secretOwner == null || secretOwner.getConnectedService() == null) {
+                        return;
+                    }
+                    LabyModPlayerOptions options = LabyModUtils.getLabyModOptions(secretOwner);
+                    if (options == null || (options.getLastSpectateSecretRedeem() != -1 &&
+                            options.getLastSpectateSecretRedeem() + 1000 > System.currentTimeMillis())) {
+                        return;
+                    }
+                    options.setLastSpectateSecretRedeem(System.currentTimeMillis());
 
-                            BridgePlayerManager.getInstance().updateOnlinePlayer(secretOwner);
-                        }));
+                    this.connectTo(player, secretOwner);
+                });
             }
         }
+    }
+
+    private void connectTo(ProxiedPlayer player, ICloudPlayer target) {
+        ServiceInfoSnapshot connectedService = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(target.getConnectedService().getServerName());
+
+        if (connectedService == null) {
+            BridgePlayerManager.getInstance().updateOnlinePlayer(target);
+            return;
+        }
+
+        byte[] discordRPCData = LabyModUtils.getDiscordRPCGameInfoUpdateMessageContents(target, connectedService);
+        if (discordRPCData != null) {
+            BridgePlayerManager.getInstance().proxySendPluginMessage(target, LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
+        }
+
+        player.connect(ProxyServer.getInstance().getServerInfo(target.getConnectedService().getServerName()));
     }
 
     private void sendLabyModServerUpdate(ProxiedPlayer player, ICloudPlayer cloudPlayer, ServiceInfoSnapshot serviceInfoSnapshot) {

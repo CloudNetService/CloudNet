@@ -1,6 +1,6 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.bungee;
 
-import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConfiguration;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.bungee.listener.BungeeLabyModListener;
 import net.md_5.bungee.api.plugin.Plugin;

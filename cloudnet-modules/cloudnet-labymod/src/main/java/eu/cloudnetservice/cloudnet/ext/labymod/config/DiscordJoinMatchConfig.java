@@ -1,8 +1,8 @@
-package eu.cloudnetservice.cloudnet.ext.labymod.player;
+package eu.cloudnetservice.cloudnet.ext.labymod.config;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 public class DiscordJoinMatchConfig {
@@ -32,12 +32,7 @@ public class DiscordJoinMatchConfig {
     }
 
     public boolean isExcluded(ServiceInfoSnapshot serviceInfoSnapshot) {
-        for (String excludedGroup : this.excludedGroups) {
-            if (Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(excludedGroup)) {
-                return true;
-            }
-        }
-        return false;
+        return LabyModUtils.isExcluded(this.excludedGroups, serviceInfoSnapshot.getConfiguration().getGroups());
     }
 
 }

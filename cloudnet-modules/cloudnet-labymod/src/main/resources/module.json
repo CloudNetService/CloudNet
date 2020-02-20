@@ -4,7 +4,13 @@
   "version": "1.0",
   "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
-  "runtimeModule": true,
   "description": "This module adds support for the LabyMod Discord RPC Protocol and the ingame messages when a player plays a gamemode",
-  "main": "eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule"
+  "main": "eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule",
+  "dependencies": [
+    {
+      "group": "de.dytanic.cloudnet.modules",
+      "name": "CloudNet-Bridge",
+      "version": "1.1"
+    }
+  ]
 }

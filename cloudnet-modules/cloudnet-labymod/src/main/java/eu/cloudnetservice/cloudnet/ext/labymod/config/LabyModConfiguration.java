@@ -1,22 +1,25 @@
-package eu.cloudnetservice.cloudnet.ext.labymod;
+package eu.cloudnetservice.cloudnet.ext.labymod.config;
 
-import eu.cloudnetservice.cloudnet.ext.labymod.player.DiscordJoinMatchConfig;
-import eu.cloudnetservice.cloudnet.ext.labymod.player.ServiceDisplay;
+import java.util.Collection;
 
 public class LabyModConfiguration {
 
     private boolean enabled;
     private ServiceDisplay discordRPC;
     private DiscordJoinMatchConfig discordJoinMatch;
+    private boolean discordSpectateEnabled;
+    private Collection<String> excludedSpectateGroups;
     private ServiceDisplay gameModeSwitchMessages;
     private String loginDomain;
 
-    public LabyModConfiguration(boolean enabled, ServiceDisplay discordRPC, DiscordJoinMatchConfig discordJoinMatch, ServiceDisplay gameModeSwitchMessages, String loginDomain) {
+    public LabyModConfiguration(boolean enabled, ServiceDisplay discordRPC, DiscordJoinMatchConfig discordJoinMatch, ServiceDisplay gameModeSwitchMessages, String loginDomain, boolean discordSpectateEnabled, Collection<String> excludedSpectateGroups) {
         this.enabled = enabled;
         this.discordRPC = discordRPC;
         this.discordJoinMatch = discordJoinMatch;
         this.gameModeSwitchMessages = gameModeSwitchMessages;
         this.loginDomain = loginDomain;
+        this.discordSpectateEnabled = discordSpectateEnabled;
+        this.excludedSpectateGroups = excludedSpectateGroups;
     }
 
     public boolean isEnabled() {
@@ -59,4 +62,19 @@ public class LabyModConfiguration {
         this.loginDomain = loginDomain;
     }
 
+    public boolean isDiscordSpectateEnabled() {
+        return this.discordSpectateEnabled;
+    }
+
+    public void setDiscordSpectateEnabled(boolean discordSpectateEnabled) {
+        this.discordSpectateEnabled = discordSpectateEnabled;
+    }
+
+    public Collection<String> getExcludedSpectateGroups() {
+        return this.excludedSpectateGroups;
+    }
+
+    public void setExcludedSpectateGroups(Collection<String> excludedSpectateGroups) {
+        this.excludedSpectateGroups = excludedSpectateGroups;
+    }
 }
