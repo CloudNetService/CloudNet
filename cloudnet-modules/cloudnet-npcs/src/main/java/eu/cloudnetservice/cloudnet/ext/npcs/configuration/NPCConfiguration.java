@@ -1,6 +1,11 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.configuration;
 
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 public class NPCConfiguration {
@@ -9,6 +14,20 @@ public class NPCConfiguration {
 
     static {
         // TODO: default messages
+    }
+
+    /**
+     * Updates the NPCConfiguration in the whole cluster
+     *
+     * @param npcConfiguration the new NPCConfiguration
+     */
+    public static void sendNPCConfigurationUpdate(@NotNull NPCConfiguration npcConfiguration) {
+        CloudNetDriver.getInstance().getMessenger()
+                .sendChannelMessage(
+                        NPCConstants.NPC_CHANNEL_NAME,
+                        NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE,
+                        new JsonDocument("npcConfiguration", npcConfiguration)
+                );
     }
 
     private Collection<NPCConfigurationEntry> configurations = new ArrayList<>(Collections.singletonList(new NPCConfigurationEntry()));

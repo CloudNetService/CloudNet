@@ -2,12 +2,14 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
 
 import com.github.realpanamo.npc.event.PlayerNPCInteractEvent;
+import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 
 public class NPCInventoryListener implements Listener {
 
@@ -30,11 +32,24 @@ public class NPCInventoryListener implements Listener {
 
     @EventHandler
     public void handleInventoryClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() != null && event.getWhoClicked() instanceof Player) {
+        Inventory inventory = event.getClickedInventory();
 
-            if (this.npcManagement.getNPCInventories().containsValue(event.getClickedInventory())) {
+        if (inventory != null && event.getCurrentItem() != null && event.getWhoClicked() instanceof Player) {
+
+            if (this.npcManagement.getNPCInventories().containsValue(inventory)) {
                 event.setCancelled(true);
-                // todo: handle item click
+
+                Player player = (Player) event.getWhoClicked();
+                int slot = event.getSlot();
+
+                CloudNPC cloudNPC = this.npcManagement.getByInventory(inventory);
+
+                if (cloudNPC != null && cloudNPC.getServerSlots().containsKey(slot)) {
+                    String serverName = cloudNPC.getServerSlots().get(slot);
+
+                    BridgePlayerManager.getInstance().proxySendPlayer(player.getUniqueId(), serverName);
+                }
+
             }
 
         }

@@ -4,6 +4,8 @@ package eu.cloudnetservice.cloudnet.ext.npcs;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import lombok.EqualsAndHashCode;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +32,8 @@ public class CloudNPC {
     private boolean imitatePlayer;
 
     private transient int entityId;
+
+    private transient Map<Integer, String> serverSlots = new HashMap<>();
 
     public CloudNPC(UUID uuid, String displayName, String infoLine, Set<NPCProfileProperty> profileProperties, WorldPosition position, String targetGroup, String itemInHand, boolean lookAtPlayer, boolean imitatePlayer) {
         this.uuid = uuid;
@@ -121,6 +125,10 @@ public class CloudNPC {
 
     public void setEntityId(int entityId) {
         this.entityId = entityId;
+    }
+
+    public Map<Integer, String> getServerSlots() {
+        return serverSlots;
     }
 
     public static class NPCProfileProperty {

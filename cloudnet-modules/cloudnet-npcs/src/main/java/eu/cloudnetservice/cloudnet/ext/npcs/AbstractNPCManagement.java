@@ -138,20 +138,6 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
                 );
     }
 
-    /**
-     * Updates the NPCConfiguration in the whole cluster
-     *
-     * @param npcConfiguration the new NPCConfiguration
-     */
-    public void sendNPCConfigurationUpdate(@NotNull NPCConfiguration npcConfiguration) {
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        NPCConstants.NPC_CHANNEL_NAME,
-                        NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE,
-                        new JsonDocument("npcConfiguration", npcConfiguration)
-                );
-    }
-
     public NPCConfiguration getNPCConfigurationFromNode() {
         ITask<NPCConfiguration> npcConfiguration = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
                 CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),

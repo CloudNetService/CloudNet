@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
+import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,6 +20,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,17 +33,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
     private Map<CloudNPC, Inventory> npcInventories = new HashMap<>();
 
-    public BukkitNPCManagement(NPCPool npcPool) {
+    public BukkitNPCManagement(@NotNull NPCPool npcPool) {
         this.npcPool = npcPool;
-
-        this.defaultItems = new ItemStack[super.ownNPCConfigurationEntry.getInventorySize()];
-
-        Map<Integer, NPCConfigurationEntry.ItemLayout> inventoryLayout = super.ownNPCConfigurationEntry.getInventoryLayout();
-        for (int index = 0; index < this.defaultItems.length; index++) {
-            if (inventoryLayout.containsKey(index)) {
-                this.defaultItems[index] = this.toItemStack(inventoryLayout.get(index));
-            }
-        }
 
         super.cloudNPCS.forEach(this::createNPC);
     }
@@ -70,8 +63,27 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         super.removeNPC(npc);
     }
 
+    @Override
+    public void setNPCConfiguration(NPCConfiguration npcConfiguration) {
+        super.setNPCConfiguration(npcConfiguration);
+
+        this.createDefaultItems();
+    }
+
+    private void createDefaultItems() {
+        int inventorySize = super.ownNPCConfigurationEntry.getInventorySize();
+        this.defaultItems = new ItemStack[inventorySize % 9 == 0 ? inventorySize : 54];
+
+        Map<Integer, NPCConfigurationEntry.ItemLayout> inventoryLayout = super.ownNPCConfigurationEntry.getInventoryLayout();
+        for (int index = 0; index < this.defaultItems.length; index++) {
+            if (inventoryLayout.containsKey(index)) {
+                this.defaultItems[index] = this.toItemStack(inventoryLayout.get(index));
+            }
+        }
+    }
+
     private Inventory createInventory(CloudNPC cloudNPC) {
-        Inventory inventory = Bukkit.createInventory(null, super.ownNPCConfigurationEntry.getInventorySize(), cloudNPC.getDisplayName());
+        Inventory inventory = Bukkit.createInventory(null, this.defaultItems.length, cloudNPC.getDisplayName());
 
         this.npcInventories.put(cloudNPC, inventory);
 
@@ -82,7 +94,18 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         return this.npcInventories.get(cloudNPC);
     }
 
-    public void updateInventory(CloudNPC cloudNPC, Inventory inventory) {
+    @Nullable
+    public CloudNPC getByInventory(Inventory inventory) {
+        return this.npcInventories.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(inventory))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void updateInventory(@NotNull CloudNPC cloudNPC, @NotNull Inventory inventory) {
+        cloudNPC.getServerSlots().clear();
+
         List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services = super.services.values().stream()
                 .filter(pair -> (pair.getSecond() != ServiceInfoState.STOPPED && pair.getSecond() != ServiceInfoState.STARTING)
                         && Arrays.asList(pair.getFirst().getConfiguration().getGroups()).contains(cloudNPC.getTargetGroup()))
@@ -93,6 +116,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         for (int index = 0; index < services.size(); index++) {
             Pair<ServiceInfoSnapshot, ServiceInfoState> serviceInfo = services.get(index);
+
+            ServiceInfoSnapshot infoSnapshot = serviceInfo.getFirst();
             ServiceInfoState infoState = serviceInfo.getSecond();
 
             NPCConfigurationEntry.ItemLayout itemLayout = infoState == ServiceInfoState.FULL_ONLINE
@@ -100,7 +125,10 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                     : infoState == ServiceInfoState.EMPTY_ONLINE ? super.ownNPCConfigurationEntry.getEmptyItem()
                     : super.ownNPCConfigurationEntry.getOnlineItem();
 
-            items[index + super.ownNPCConfigurationEntry.getStartSlot()] = this.toItemStack(itemLayout, cloudNPC.getTargetGroup(), serviceInfo.getFirst());
+            int slot = index + super.ownNPCConfigurationEntry.getStartSlot();
+            items[slot] = this.toItemStack(itemLayout, cloudNPC.getTargetGroup(), infoSnapshot);
+
+            cloudNPC.getServerSlots().put(slot, infoSnapshot.getName());
         }
 
         inventory.setContents(items);
@@ -124,8 +152,9 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 .lookAtPlayer(cloudNPC.isLookAtPlayer())
                 .imitatePlayer(cloudNPC.isImitatePlayer())
                 .spawnCustomizer((spawnedNPC, player) -> {
-                    Material material = Material.getMaterial(cloudNPC.getItemInHand());
+                    spawnedNPC.metadata().queueSkinLayers(true).send(player);
 
+                    Material material = Material.getMaterial(cloudNPC.getItemInHand());
                     if (material != null) {
                         spawnedNPC.equipment().queue(EnumWrappers.ItemSlot.MAINHAND, new ItemStack(material)).send(player);
                     }

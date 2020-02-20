@@ -9,7 +9,7 @@ public class NPCConfigurationEntry {
 
     private int inventorySize = 54;
 
-    private int startSlot = 10;
+    private int startSlot = 9;
 
     private boolean showFullServices = true;
 

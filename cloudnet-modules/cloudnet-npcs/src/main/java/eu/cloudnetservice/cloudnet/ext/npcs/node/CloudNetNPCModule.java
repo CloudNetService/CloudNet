@@ -39,6 +39,7 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
             }
         }
 
+        NPCConfiguration.sendNPCConfigurationUpdate(this.npcConfiguration);
         this.saveNPCConfiguration();
 
         this.cachedNPCs = this.loadNPCs();
