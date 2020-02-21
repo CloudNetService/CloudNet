@@ -69,8 +69,8 @@ public class CloudNPCCommand implements CommandExecutor {
             return;
         }
 
-        boolean lookAtPlayer = args[4].equalsIgnoreCase("true") || args[5].equalsIgnoreCase("yes");
-        boolean imitatePlayer = args[5].equalsIgnoreCase("true") || args[6].equalsIgnoreCase("yes");
+        boolean lookAtPlayer = args[4].equalsIgnoreCase("true") || args[4].equalsIgnoreCase("yes");
+        boolean imitatePlayer = args[5].equalsIgnoreCase("true") || args[5].equalsIgnoreCase("yes");
 
         PlayerProfile skinProfile = Bukkit.createProfile(skinUUID);
         if (!skinProfile.complete()) {
