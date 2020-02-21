@@ -13,7 +13,10 @@ public class NPCConfiguration {
     public static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>();
 
     static {
-        // TODO: default messages
+        DEFAULT_MESSAGES.put("command-create-invalid-uuid", "§7The provided UUID doesn't follow the correct format!");
+        DEFAULT_MESSAGES.put("command-create-invalid-material", "§7The provided item isn't a valid material! (Use AIR for no item in hand)");
+        DEFAULT_MESSAGES.put("command-create-texture-fetch-fail", "§7Unable to fetch skin of the provided UUID! Try again later.");
+        DEFAULT_MESSAGES.put("command-create-success", "§7Successfully created the server selector NPC!");
     }
 
     /**
