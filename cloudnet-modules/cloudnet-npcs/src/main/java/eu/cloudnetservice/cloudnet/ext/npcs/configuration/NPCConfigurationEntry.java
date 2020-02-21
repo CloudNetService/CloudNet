@@ -7,6 +7,8 @@ public class NPCConfigurationEntry {
 
     private String targetGroup = "Lobby";
 
+    private double infoLineDistance = 0.1D;
+
     private int inventorySize = 54;
 
     private int startSlot = 9;
@@ -42,8 +44,9 @@ public class NPCConfigurationEntry {
         }
     }
 
-    public NPCConfigurationEntry(String targetGroup, int inventorySize, int startSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout) {
+    public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout) {
         this.targetGroup = targetGroup;
+        this.infoLineDistance = infoLineDistance;
         this.inventorySize = inventorySize;
         this.startSlot = startSlot;
         this.showFullServices = showFullServices;
@@ -55,6 +58,10 @@ public class NPCConfigurationEntry {
 
     public String getTargetGroup() {
         return targetGroup;
+    }
+
+    public double getInfoLineDistance() {
+        return infoLineDistance;
     }
 
     public int getInventorySize() {

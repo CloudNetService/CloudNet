@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 public class NPCInventoryListener implements Listener {
 
@@ -33,20 +34,17 @@ public class NPCInventoryListener implements Listener {
     @EventHandler
     public void handleInventoryClick(InventoryClickEvent event) {
         Inventory inventory = event.getClickedInventory();
+        ItemStack currentItem = event.getCurrentItem();
 
-        if (inventory != null && event.getCurrentItem() != null && event.getWhoClicked() instanceof Player) {
+        if (inventory != null && currentItem != null && event.getWhoClicked() instanceof Player) {
 
             if (this.npcManagement.getNPCInventories().containsValue(inventory)) {
                 event.setCancelled(true);
 
-                Player player = (Player) event.getWhoClicked();
-                int slot = event.getSlot();
+                String serverName = this.npcManagement.readServer(currentItem, event.getSlot());
 
-                CloudNPC cloudNPC = this.npcManagement.getByInventory(inventory);
-
-                if (cloudNPC != null && cloudNPC.getServerSlots().containsKey(slot)) {
-                    String serverName = cloudNPC.getServerSlots().get(slot);
-
+                if (serverName != null) {
+                    Player player = (Player) event.getWhoClicked();
                     BridgePlayerManager.getInstance().proxySendPlayer(player.getUniqueId(), serverName);
                 }
 

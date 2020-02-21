@@ -1,7 +1,6 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 
-import com.github.realpanamo.npc.NPCPool;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener.NPCInventoryListener;
 import org.bukkit.Bukkit;
@@ -9,14 +8,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitCloudNetNPCPlugin extends JavaPlugin {
 
+    private BukkitNPCManagement npcManagement;
+
     @Override
     public void onEnable() {
-        NPCPool npcPool = new NPCPool(this);
+        this.npcManagement = new BukkitNPCManagement(this);
 
-        BukkitNPCManagement npcManagement = new BukkitNPCManagement(npcPool);
+        CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);
+        Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(this.npcManagement), this);
+    }
 
-        CloudNetDriver.getInstance().getEventManager().registerListener(npcManagement);
-        Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(npcManagement), this);
+    @Override
+    public void onDisable() {
+        this.npcManagement.shutdown();
     }
 
 }
