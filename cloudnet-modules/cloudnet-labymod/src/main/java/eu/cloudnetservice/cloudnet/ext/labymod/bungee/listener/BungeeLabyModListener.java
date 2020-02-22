@@ -90,6 +90,7 @@ public class BungeeLabyModListener implements Listener {
             if (!labyModOptions.isValid()) {
                 return;
             }
+            labyModOptions.setCreationTime(System.currentTimeMillis());
             LabyModUtils.setLabyModOptions(cloudPlayer, labyModOptions);
             BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
 
