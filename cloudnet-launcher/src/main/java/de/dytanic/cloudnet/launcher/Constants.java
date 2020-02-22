@@ -9,7 +9,6 @@ public final class Constants {
 
     public static final List<CloudNetModule> DEFAULT_MODULES = Arrays.asList(
             new CloudNetModule("cloudnet-bridge", "cloudnet-bridge.jar"),
-            new CloudNetModule("cloudnet-labymod", "cloudnet-labymod.jar"),
             new CloudNetModule("cloudnet-signs", "cloudnet-signs.jar"),
             new CloudNetModule("cloudnet-syncproxy", "cloudnet-syncproxy.jar"),
             new CloudNetModule("cloudnet-cloudflare", "cloudnet-cloudflare.jar"),
