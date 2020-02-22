@@ -101,7 +101,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     public ArmorStand getInfoLineStand(@NotNull CloudNPC cloudNPC) {
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        if (location.getWorld() == null) {
+        if (location.getWorld() == null || !location.isChunkLoaded()) {
             return null;
         }
 
