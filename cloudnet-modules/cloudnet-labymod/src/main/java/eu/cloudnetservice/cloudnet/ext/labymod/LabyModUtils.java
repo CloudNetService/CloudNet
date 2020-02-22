@@ -11,8 +11,8 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
-import eu.cloudnetservice.cloudnet.ext.labymod.player.LabyModPlayerOptions;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
+import eu.cloudnetservice.cloudnet.ext.labymod.player.LabyModPlayerOptions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -117,11 +117,11 @@ public class LabyModUtils {
     }
 
     public static void setLabyModOptions(ICloudPlayer cloudPlayer, LabyModPlayerOptions options) {
-        cloudPlayer.getProperties().append("labyModOptions", options);
+        cloudPlayer.getOnlineProperties().append("labyModOptions", options);
     }
 
     public static LabyModPlayerOptions getLabyModOptions(ICloudPlayer cloudPlayer) {
-        return cloudPlayer.getProperties().get("labyModOptions", LabyModPlayerOptions.class);
+        return cloudPlayer.getOnlineProperties().get("labyModOptions", LabyModPlayerOptions.class);
     }
 
     public static ITask<ICloudPlayer> getPlayerByJoinSecret(UUID joinSecret) {

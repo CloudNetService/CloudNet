@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public class LabyModPlayerOptions {
 
+    private long creationTime;
     private String version;
     private LabyModCCP ccp;
     private LabyModShadow shadow;
@@ -26,6 +27,14 @@ public class LabyModPlayerOptions {
         this.shadow = shadow;
         this.addons = addons;
         this.mods = mods;
+    }
+
+    public void setCreationTime(long creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public long getCreationTime() {
+        return this.creationTime;
     }
 
     public String getVersion() {
