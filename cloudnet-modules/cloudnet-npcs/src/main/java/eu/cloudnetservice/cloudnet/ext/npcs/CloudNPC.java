@@ -29,8 +29,6 @@ public class CloudNPC {
 
     private boolean imitatePlayer;
 
-    private transient int entityId;
-
     public CloudNPC(UUID uuid, String displayName, String infoLine, Set<NPCProfileProperty> profileProperties, WorldPosition position, String targetGroup, String itemInHand, boolean lookAtPlayer, boolean imitatePlayer) {
         this.uuid = uuid;
         this.displayName = displayName;
@@ -115,13 +113,6 @@ public class CloudNPC {
         this.imitatePlayer = imitatePlayer;
     }
 
-    public int getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(int entityId) {
-        this.entityId = entityId;
-    }
 
     public static class NPCProfileProperty {
 

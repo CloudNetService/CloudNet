@@ -56,11 +56,10 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     }
 
     public void addNPC(CloudNPC npc) {
-        if (!this.cachedNPCs.contains(npc)) {
-            this.cachedNPCs.add(npc);
+        this.cachedNPCs.remove(npc);
+        this.cachedNPCs.add(npc);
 
-            this.saveNPCs(this.cachedNPCs);
-        }
+        this.saveNPCs(this.cachedNPCs);
     }
 
     public void removeNPC(CloudNPC npc) {

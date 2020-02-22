@@ -16,7 +16,11 @@ public class NPCConfiguration {
         DEFAULT_MESSAGES.put("command-create-invalid-uuid", "§7The provided UUID doesn't follow the correct format!");
         DEFAULT_MESSAGES.put("command-create-invalid-material", "§7The provided item isn't a valid material! (Use AIR for no item in hand)");
         DEFAULT_MESSAGES.put("command-create-texture-fetch-fail", "§7Unable to fetch skin of the provided UUID! Try again later.");
-        DEFAULT_MESSAGES.put("command-create-success", "§7Successfully created the server selector NPC!");
+        DEFAULT_MESSAGES.put("command-create-display-name-too-long", "§7The NPC displayName cannot be longer than 16 chars!");
+        DEFAULT_MESSAGES.put("command-create-success", "§7Successfully created the server selector NPC.");
+        DEFAULT_MESSAGES.put("command-edit-info-line-success", "§7Successfully edited the info line of the NPC.");
+        DEFAULT_MESSAGES.put("command-remove-success", "§7Successfully removed the server selector NPC.");
+        DEFAULT_MESSAGES.put("command-no-npc-in-range", "§7There is no NPC in the range of 5 blocks!");
     }
 
     /**

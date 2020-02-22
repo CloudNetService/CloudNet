@@ -59,33 +59,35 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equals(NPCConstants.NPC_CHANNEL_NAME)) {
-            return;
+
+        if (event.getChannel().equals(NPCConstants.NPC_CHANNEL_NAME)) {
+
+            switch (event.getMessage().toLowerCase()) {
+                case NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE: {
+                    NPCConfiguration npcConfiguration = event.getData().get("npcConfiguration", NPCConfiguration.class);
+                    this.setNPCConfiguration(npcConfiguration);
+                }
+                break;
+                case NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE: {
+                    CloudNPC npc = event.getData().get("npc", CloudNPC.class);
+
+                    if (npc != null) {
+                        this.addNPC(npc);
+                    }
+                }
+                break;
+                case NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE: {
+                    CloudNPC npc = event.getData().get("npc", CloudNPC.class);
+
+                    if (npc != null) {
+                        this.removeNPC(npc);
+                    }
+                }
+                break;
+            }
+
         }
 
-        switch (event.getMessage().toLowerCase()) {
-            case NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE: {
-                NPCConfiguration npcConfiguration = event.getData().get("npcConfiguration", NPCConfiguration.class);
-                this.setNPCConfiguration(npcConfiguration);
-            }
-            break;
-            case NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE: {
-                CloudNPC npc = event.getData().get("npc", CloudNPC.class);
-
-                if (npc != null) {
-                    this.addNPC(npc);
-                }
-            }
-            break;
-            case NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE: {
-                CloudNPC npc = event.getData().get("npc", CloudNPC.class);
-
-                if (npc != null) {
-                    this.removeNPC(npc);
-                }
-            }
-            break;
-        }
     }
 
     /**
@@ -96,7 +98,10 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
      */
     public boolean addNPC(@NotNull CloudNPC npc) {
         if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(npc.getPosition().getGroup())) {
-            return this.cloudNPCS.add(npc);
+            this.cloudNPCS.remove(npc);
+            this.cloudNPCS.add(npc);
+
+            return true;
         }
         return false;
     }
@@ -196,13 +201,6 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
         return ownNPCConfigurationEntry;
     }
 
-    @Nullable
-    public CloudNPC getNPC(int entityId) {
-        return this.cloudNPCS.stream()
-                .filter(npc -> npc.getEntityId() == entityId)
-                .findFirst()
-                .orElse(null);
-    }
 
     /**
      * Returns a copy of the NPCs allowed to exist on this wrapper instance

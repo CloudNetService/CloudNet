@@ -3,7 +3,6 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
 import com.github.realpanamo.npc.event.PlayerNPCInteractEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
-import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,11 +22,10 @@ public class NPCInventoryListener implements Listener {
     @EventHandler
     public void handleNPCInteract(PlayerNPCInteractEvent event) {
         if (event.getAction() == PlayerNPCInteractEvent.Action.RIGHT_CLICKED) {
-            CloudNPC cloudNPC = this.npcManagement.getNPC(event.getNPC().getEntityId());
-
-            if (cloudNPC != null) {
-                event.getPlayer().openInventory(this.npcManagement.getInventory(cloudNPC));
-            }
+            this.npcManagement.getNPCProperties().stream()
+                    .filter(properties -> properties.getEntityId() == event.getNPC().getEntityId())
+                    .findFirst()
+                    .ifPresent(properties -> event.getPlayer().openInventory(properties.getInventory()));
         }
     }
 
@@ -37,19 +35,20 @@ public class NPCInventoryListener implements Listener {
         ItemStack currentItem = event.getCurrentItem();
 
         if (inventory != null && currentItem != null && event.getWhoClicked() instanceof Player) {
+            this.npcManagement.getNPCProperties().stream()
+                    .filter(properties -> properties.getInventory().equals(inventory))
+                    .findFirst()
+                    .ifPresent(properties -> {
+                        event.setCancelled(true);
+                        int slot = event.getSlot();
 
-            if (this.npcManagement.getNPCInventories().containsValue(inventory)) {
-                event.setCancelled(true);
+                        if (properties.getServerSlots().containsKey(slot)) {
+                            Player player = (Player) event.getWhoClicked();
+                            String serverName = properties.getServerSlots().get(slot);
 
-                String serverName = this.npcManagement.readServer(currentItem, event.getSlot());
-
-                if (serverName != null) {
-                    Player player = (Player) event.getWhoClicked();
-                    BridgePlayerManager.getInstance().proxySendPlayer(player.getUniqueId(), serverName);
-                }
-
-            }
-
+                            BridgePlayerManager.getInstance().proxySendPlayer(player.getUniqueId(), serverName);
+                        }
+                    });
         }
     }
 

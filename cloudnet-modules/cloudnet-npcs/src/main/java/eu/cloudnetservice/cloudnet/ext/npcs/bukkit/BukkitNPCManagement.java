@@ -13,14 +13,15 @@ import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +37,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
     private ItemStack[] defaultItems;
 
-    private Map<CloudNPC, Inventory> npcInventories = new HashMap<>();
+    private Map<UUID, BukkitNPCProperties> npcProperties = new HashMap<>();
 
     private Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts = new HashMap<>();
 
@@ -54,13 +55,14 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
     @Override
     public boolean addNPC(@NotNull CloudNPC npc) {
-        boolean success = super.addNPC(npc);
+        boolean allowed = super.addNPC(npc);
 
-        if (success) {
-            Bukkit.getScheduler().runTask(this.javaPlugin, () -> this.createNPC(npc));
+        if (allowed) {
+            Runnable task = this.npcProperties.containsKey(npc.getUUID()) ? () -> this.updateNPC(npc) : () -> this.createNPC(npc);
+            Bukkit.getScheduler().runTask(this.javaPlugin, task);
         }
 
-        return success;
+        return allowed;
     }
 
     @Override
@@ -95,15 +97,13 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         super.cloudNPCS.forEach(this::destroyNPC);
     }
 
-    @NotNull
-    public Inventory getInventory(@NotNull CloudNPC cloudNPC) {
-        return this.npcInventories.computeIfAbsent(cloudNPC, npc ->
-                Bukkit.createInventory(null, this.defaultItems.length, npc.getDisplayName()));
-    }
-
-    @NotNull
+    @Nullable
     public ArmorStand getInfoLineStand(@NotNull CloudNPC cloudNPC) {
         Location location = this.toLocation(cloudNPC.getPosition());
+
+        if (location.getWorld() == null) {
+            return null;
+        }
 
         ArmorStand armorStand = location.getWorld()
                 .getNearbyEntitiesByType(ArmorStand.class, location, super.ownNPCConfigurationEntry.getInfoLineDistance() + 0.1D)
@@ -145,6 +145,9 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     private void updateInventory(CloudNPC cloudNPC, List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services) {
         ItemStack[] items = this.defaultItems.clone();
 
+        BukkitNPCProperties properties = this.npcProperties.get(cloudNPC.getUUID());
+        properties.getServerSlots().clear();
+
         for (int index = 0; index < services.size(); index++) {
             Pair<ServiceInfoSnapshot, ServiceInfoState> serviceInfo = services.get(index);
 
@@ -154,14 +157,12 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             ItemStack itemStack = this.toItemStack(itemLayout, cloudNPC.getTargetGroup(), infoSnapshot);
             int slot = index + super.ownNPCConfigurationEntry.getStartSlot();
 
-            if (itemStack != null) {
-                this.writeServer(itemStack, slot, infoSnapshot.getName());
-            }
+            properties.getServerSlots().put(slot, infoSnapshot.getName());
 
             items[slot] = itemStack;
         }
 
-        this.getInventory(cloudNPC).setContents(items);
+        properties.getInventory().setContents(items);
     }
 
     private void updateInfoLine(CloudNPC cloudNPC, List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services) {
@@ -179,27 +180,10 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 )
                 .replace("%online_servers%", String.valueOf(services.size()));
 
-        this.getInfoLineStand(cloudNPC).setCustomName(ChatColor.translateAlternateColorCodes('&', infoLine));
-    }
-
-    public void writeServer(@NotNull ItemStack itemStack, int slot, String serverName) {
-        itemStack.getItemMeta().getPersistentDataContainer().set(
-                new NamespacedKey(this.javaPlugin, String.valueOf(slot)),
-                PersistentDataType.STRING,
-                serverName
-        );
-    }
-
-    @Nullable
-    public String readServer(@NotNull ItemStack itemStack, int slot) {
-        if (itemStack.hasItemMeta()) {
-            return itemStack.getItemMeta().getPersistentDataContainer().get(
-                    new NamespacedKey(this.javaPlugin, String.valueOf(slot)),
-                    PersistentDataType.STRING
-            );
+        ArmorStand infoLineStand = this.getInfoLineStand(cloudNPC);
+        if (infoLineStand != null) {
+            infoLineStand.setCustomName(ChatColor.translateAlternateColorCodes('&', infoLine));
         }
-
-        return null;
     }
 
     private void createNPC(CloudNPC cloudNPC) {
@@ -214,12 +198,19 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 cloudNPC.getDisplayName()
         );
 
+        Location location = this.toLocation(cloudNPC.getPosition());
+        if (location.getWorld() == null) {
+            super.sendNPCRemoveUpdate(cloudNPC);
+            return;
+        }
+
         NPC npc = builder
                 .uuid(cloudNPC.getUUID())
-                .location(this.toLocation(cloudNPC.getPosition()))
+                .location(location)
                 .lookAtPlayer(cloudNPC.isLookAtPlayer())
                 .imitatePlayer(cloudNPC.isImitatePlayer())
                 .spawnCustomizer((spawnedNPC, player) -> {
+                    spawnedNPC.rotation().queueRotate(location.getYaw(), location.getPitch()).send(player);
                     spawnedNPC.metadata().queueSkinLayers(true).send(player);
 
                     Material material = Material.getMaterial(cloudNPC.getItemInHand());
@@ -228,18 +219,27 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                     }
                 }).build(this.npcPool);
 
-        cloudNPC.setEntityId(npc.getEntityId());
+        this.npcProperties.put(cloudNPC.getUUID(), new BukkitNPCProperties(
+                npc.getEntityId(),
+                Bukkit.createInventory(null, this.defaultItems.length, cloudNPC.getDisplayName()),
+                new HashMap<>()
+        ));
+
         this.updateNPC(cloudNPC);
     }
 
     private void destroyNPC(CloudNPC cloudNPC) {
-        this.npcInventories.remove(cloudNPC);
-        this.getInfoLineStand(cloudNPC).remove();
+        BukkitNPCProperties properties = this.npcProperties.remove(cloudNPC.getUUID());
 
-        this.npcPool.removeNPC(cloudNPC.getEntityId());
+        ArmorStand infoLineStand = this.getInfoLineStand(cloudNPC);
+        if (infoLineStand != null) {
+            infoLineStand.remove();
+        }
+
+        this.npcPool.removeNPC(properties.getEntityId());
     }
 
-    private Location toLocation(WorldPosition position) {
+    public Location toLocation(WorldPosition position) {
         return new Location(
                 Bukkit.getWorld(position.getWorld()),
                 position.getX(),
@@ -275,8 +275,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         return this.toItemStack(itemLayout, null, null);
     }
 
-    public Map<CloudNPC, Inventory> getNPCInventories() {
-        return npcInventories;
+    public Collection<BukkitNPCProperties> getNPCProperties() {
+        return npcProperties.values();
     }
 
 }
