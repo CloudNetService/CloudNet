@@ -37,7 +37,8 @@ public class CommandService extends SubCommandHandler {
                                                     || Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(properties.get("group")))
                                             .filter(serviceInfoSnapshot -> !properties.containsKey("task")
                                                     || properties.get("task").toLowerCase().contains(serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase()))
-                                            .collect(Collectors.toSet());
+                                            .sorted()
+                                            .collect(Collectors.toList());
 
                                     for (ServiceInfoSnapshot serviceInfoSnapshot : targetServiceInfoSnapshots) {
                                         if (!properties.containsKey("names")) {

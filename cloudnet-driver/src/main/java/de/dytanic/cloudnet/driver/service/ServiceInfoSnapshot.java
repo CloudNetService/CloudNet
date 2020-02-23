@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.service;
 
+import com.google.common.collect.ComparisonChain;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
@@ -9,12 +10,13 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable {
+public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot> {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
     }.getType();
@@ -98,5 +100,13 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     @Override
     public String getName() {
         return this.serviceId.getName();
+    }
+
+    @Override
+    public int compareTo(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+        return ComparisonChain.start()
+                .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
+                .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
+                .result();
     }
 }
