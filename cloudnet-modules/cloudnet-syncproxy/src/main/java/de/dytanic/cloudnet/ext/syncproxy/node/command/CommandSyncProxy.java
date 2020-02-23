@@ -133,6 +133,27 @@ public final class CommandSyncProxy extends SubCommandHandler {
                                 dynamicString("name")
                         )
 
+                        .removeLastPrefix()
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String targetGroup = (String) args.argument("targetGroup").get();
+                                    boolean maintenance = (boolean) args.argument("enabled").get();
+
+                                    SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
+                                    configuration.setMaintenance(maintenance);
+                                    saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
+
+                                    sender.sendMessage(
+                                            LanguageManager.getMessage("module-syncproxy-command-set-maintenance")
+                                                    .replace("%group%", configuration.getTargetGroup())
+                                                    .replace("%maintenance%", String.valueOf(maintenance))
+                                    );
+                                },
+                                exactStringIgnoreCase("maintenance"),
+                                boolean_("enabled")
+                        )
+
                         .getSubCommands(),
                 "syncproxy", "sp"
         );
