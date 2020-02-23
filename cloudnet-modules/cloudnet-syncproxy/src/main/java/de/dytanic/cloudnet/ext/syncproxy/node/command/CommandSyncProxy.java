@@ -85,7 +85,7 @@ public final class CommandSyncProxy extends SubCommandHandler {
                                     );
                                 },
                                 exactStringIgnoreCase("maxPlayers"),
-                                boolean_("enabled")
+                                bool("enabled")
                         )
 
                         .prefix(exactStringIgnoreCase("whitelist"))
@@ -151,7 +151,7 @@ public final class CommandSyncProxy extends SubCommandHandler {
                                     );
                                 },
                                 exactStringIgnoreCase("maintenance"),
-                                boolean_("enabled")
+                                bool("enabled")
                         )
 
                         .getSubCommands(),

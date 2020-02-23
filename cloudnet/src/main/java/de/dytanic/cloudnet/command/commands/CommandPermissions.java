@@ -369,7 +369,7 @@ public class CommandPermissions extends SubCommandHandler {
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setDefaultGroup((boolean) args.argument(4)),
                         exactStringIgnoreCase("defaultGroup"),
-                        boolean_("defaultGroup")
+                        bool("defaultGroup")
                 )
                 .removeLastPrefix()
                 .removeLastPostHandler()

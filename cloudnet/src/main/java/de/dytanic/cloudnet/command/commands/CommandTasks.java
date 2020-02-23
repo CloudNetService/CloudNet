@@ -221,7 +221,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setMaintenance((Boolean) args.argument(4)),
                         exactStringIgnoreCase("maintenance"),
-                        boolean_("enabled")
+                        bool("enabled")
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setMaxHeapMemorySize((Integer) args.argument(4)),
@@ -236,12 +236,12 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setAutoDeleteOnStop((Boolean) args.argument(4)),
                         exactStringIgnoreCase("autoDeleteOnStop"),
-                        boolean_("autoDeleteOnStop")
+                        bool("autoDeleteOnStop")
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).setStaticServices((Boolean) args.argument(4)),
                         exactStringIgnoreCase("staticServices"),
-                        boolean_("staticServices")
+                        bool("staticServices")
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((ServiceTask) internalProperties.get("task")).getProcessConfiguration().setEnvironment((ServiceEnvironmentType) args.argument(4)),

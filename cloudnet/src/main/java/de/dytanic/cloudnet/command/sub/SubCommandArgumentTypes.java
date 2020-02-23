@@ -215,11 +215,11 @@ public class SubCommandArgumentTypes {
         };
     }
 
-    public static QuestionAnswerType<Boolean> boolean_(String key) {
-        return boolean_(key, null);
+    public static QuestionAnswerType<Boolean> bool(String key) {
+        return bool(key, null);
     }
 
-    public static QuestionAnswerType<Boolean> boolean_(String key, String invalidMessage) {
+    public static QuestionAnswerType<Boolean> bool(String key, String invalidMessage) {
         return new QuestionAnswerTypeBoolean("true", "false") {
             @Override
             public String getRecommendation() {
