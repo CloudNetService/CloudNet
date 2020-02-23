@@ -77,7 +77,7 @@ public final class DefaultCommandMap implements ICommandMap {
             Command command = this.getCommandFromLine(commandLine);
 
             if (command instanceof ITabCompleter) {
-                String[] args = commandLine.split(" ");
+                String[] args = this.formatArgs(commandLine.split(" "));
                 String testString = args.length <= 1 || commandLine.endsWith(" ") ? "" : args[args.length - 1].toLowerCase().trim();
                 if (commandLine.endsWith(" ")) {
                     args = Arrays.copyOfRange(args, 1, args.length + 1);
@@ -88,7 +88,10 @@ public final class DefaultCommandMap implements ICommandMap {
 
                 Collection<String> responses = ((ITabCompleter) command).complete(commandLine, args, Properties.parseLine(args));
                 if (responses != null && !responses.isEmpty()) {
-                    return responses.stream().filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString))).collect(Collectors.toList());
+                    return responses.stream()
+                            .filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString)))
+                            .map(response -> response.contains(" ") ? "\"" + response + "\"" : response)
+                            .collect(Collectors.toList());
                 }
             }
         }
@@ -148,7 +151,7 @@ public final class DefaultCommandMap implements ICommandMap {
             return null;
         }
 
-        String[] a = commandLine.split(" ");
+        String[] a = this.formatArgs(commandLine.split(" "));
         return a.length >= 1 ? this.registeredCommands.get(a[0].toLowerCase()) : null;
     }
 
@@ -175,7 +178,7 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     public boolean dispatchCommand0(ICommandSender commandSender, String commandLine) {
-        String[] args = commandLine.split(" ");
+        String[] args = this.formatArgs(commandLine.split(" "));
 
         if (!this.registeredCommands.containsKey(args[0].toLowerCase())) {
             return false;
@@ -188,7 +191,7 @@ public final class DefaultCommandMap implements ICommandMap {
             return false;
         }
 
-        args = args.length > 1 ? commandLine.replaceFirst(args[0] + " ", "").split(" ") : new String[0];
+        args = Arrays.copyOfRange(args, 1, args.length);
 
         try {
             command.execute(commandSender, commandName, args, commandLine, Properties.parseLine(args));
@@ -198,6 +201,41 @@ public final class DefaultCommandMap implements ICommandMap {
             exception.printStackTrace();
         }
         return false;
+    }
+
+    private String[] formatArgs(String[] args) {
+        Collection<String> newArgs = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        for (String arg : args) {
+            boolean starts = arg.startsWith("\"");
+            boolean ends = arg.endsWith("\"");
+
+            if (starts || current.length() > 0) {
+
+                if (starts) {
+                    arg = arg.substring(1);
+                }
+
+                current.append(arg);
+
+                if (ends) {
+                    newArgs.add(current.substring(0, current.length() - 1));
+                    current.setLength(0);
+                } else {
+                    current.append(' ');
+                }
+
+            } else {
+                newArgs.add(arg);
+            }
+        }
+
+        if (current.length() > 0) {
+            newArgs.add(current.toString());
+        }
+
+        return newArgs.toArray(new String[0]);
     }
 
 
