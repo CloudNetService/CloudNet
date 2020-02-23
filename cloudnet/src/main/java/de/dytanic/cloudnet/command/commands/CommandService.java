@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
@@ -11,13 +12,12 @@ import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.event.ServiceListCommandEvent;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
@@ -40,7 +40,17 @@ public class CommandService extends SubCommandHandler {
                                             .sorted()
                                             .collect(Collectors.toList());
 
+                                    Collection<Function<ServiceInfoSnapshot, String>> additionalParameters = CloudNet.getInstance().getEventManager().callEvent(new ServiceListCommandEvent(new ArrayList<>()))
+                                            .getAdditionalParameters();
                                     for (ServiceInfoSnapshot serviceInfoSnapshot : targetServiceInfoSnapshots) {
+                                        String extension = additionalParameters.stream()
+                                                .map(function -> function.apply(serviceInfoSnapshot))
+                                                .filter(Objects::nonNull)
+                                                .collect(Collectors.joining(" | "));
+                                        if (!extension.isEmpty()) {
+                                            extension = " | " + extension;
+                                        }
+
                                         if (!properties.containsKey("names")) {
                                             sender.sendMessage(
                                                     serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0] +
@@ -49,11 +59,12 @@ public class CommandService extends SubCommandHandler {
                                                             " | Status: " + serviceInfoSnapshot.getLifeCycle() +
                                                             " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":" +
                                                             serviceInfoSnapshot.getAddress().getPort() +
-                                                            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
+                                                            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected") +
+                                                            extension
                                             );
                                         } else {
                                             sender.sendMessage(serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId() +
-                                                    " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
+                                                    " | " + serviceInfoSnapshot.getServiceId().getUniqueId() + extension);
                                         }
                                     }
 
