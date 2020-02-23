@@ -285,7 +285,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         exactStringIgnoreCase("group"),
                         dynamicString(
                                 "name",
-                                LanguageManager.getMessage("command-tasks-group-not-found"),
+                                LanguageManager.getMessage("command-service-base-group-not-found"),
                                 name -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name),
                                 () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
                                         .map(GroupConfiguration::getName)
