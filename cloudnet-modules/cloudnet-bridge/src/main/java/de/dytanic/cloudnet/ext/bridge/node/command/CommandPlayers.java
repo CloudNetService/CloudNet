@@ -32,7 +32,7 @@ public final class CommandPlayers extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     sender.sendMessage("=> Online: " + NodePlayerManager.getInstance().getOnlineCount());
-                                    if (NodePlayerManager.getInstance().getRegisteredCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
+                                    if (NodePlayerManager.getInstance().getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
