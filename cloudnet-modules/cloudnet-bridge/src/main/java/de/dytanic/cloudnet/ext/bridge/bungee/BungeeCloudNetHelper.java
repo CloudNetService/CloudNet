@@ -19,6 +19,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -135,7 +136,7 @@ public final class BungeeCloudNetHelper {
                 Class<ProxyServer> proxyServerClass = ProxyServer.class;
 
                 Method method = proxyServerClass.getMethod("constructServerInfo",
-                        String.class, InetSocketAddress.class, String.class, boolean.class, boolean.class, String.class);
+                        String.class, SocketAddress.class, String.class, boolean.class, boolean.class, String.class);
                 method.setAccessible(true);
                 return (ServerInfo) method.invoke(ProxyServer.getInstance(), name, address, "CloudNet provided serverInfo", false, true, "default");
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
