@@ -32,7 +32,7 @@ public final class CommandPlayers extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     sender.sendMessage("=> Online: " + NodePlayerManager.getInstance().getOnlineCount());
-                                    if (NodePlayerManager.getInstance().getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
+                                    if (!properties.containsKey("force") && NodePlayerManager.getInstance().getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
@@ -46,7 +46,8 @@ public final class CommandPlayers extends SubCommandHandler {
                                                         cloudPlayer.getConnectedService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getConnectedService().getServerName() : null)
                                         );
                                     }
-                                }
+                                },
+                                subCommand -> subCommand.enableProperties().appendUsage("| --force")
                         )
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
@@ -95,7 +96,7 @@ public final class CommandPlayers extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     sender.sendMessage("=> Registered: " + NodePlayerManager.getInstance().getRegisteredCount());
-                                    if (NodePlayerManager.getInstance().getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
+                                    if (!properties.containsKey("force") && NodePlayerManager.getInstance().getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
@@ -104,6 +105,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                         sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | Last login: " + DATE_FORMAT.format(new Date(cloudPlayer.getLastLoginTimeMillis())));
                                     }
                                 },
+                                subCommand -> subCommand.enableProperties().appendUsage("| --force"),
                                 anyStringIgnoreCase("registered", "all")
                         )
 
