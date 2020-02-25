@@ -34,19 +34,19 @@ public class CloudNetNPCMessageListener {
 
     @EventListener
     public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(NPCConstants.NPC_CHANNEL_NAME)) {
-            return;
-        }
+        if (event.getChannelName().equalsIgnoreCase(NPCConstants.NPC_CHANNEL_NAME)) {
 
-        switch (event.getId().toLowerCase()) {
-            case NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE: {
-                event.setCallbackPacket(new JsonDocument("npcs", this.npcModule.getCachedNPCs()));
+            switch (event.getId().toLowerCase()) {
+                case NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE: {
+                    event.setCallbackPacket(new JsonDocument("npcs", this.npcModule.getCachedNPCs()));
+                }
+                break;
+                case NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE: {
+                    event.setCallbackPacket(new JsonDocument("npcConfiguration", this.npcModule.getNPCConfiguration()));
+                }
+                break;
             }
-            break;
-            case NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE: {
-                event.setCallbackPacket(new JsonDocument("npcConfiguration", this.npcModule.getNPCConfiguration()));
-            }
-            break;
+
         }
     }
 

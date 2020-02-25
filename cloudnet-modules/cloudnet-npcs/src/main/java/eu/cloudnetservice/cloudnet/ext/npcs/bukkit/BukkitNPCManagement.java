@@ -18,13 +18,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,9 +57,11 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     public boolean addNPC(@NotNull CloudNPC npc) {
         boolean allowed = super.addNPC(npc);
 
-        if (allowed) {
-            Runnable task = this.npcProperties.containsKey(npc.getUUID()) ? () -> this.updateNPC(npc) : () -> this.createNPC(npc);
-            Bukkit.getScheduler().runTask(this.javaPlugin, task);
+        if (allowed && this.npcProperties.containsKey(npc.getUUID())) {
+            Bukkit.getScheduler().runTask(this.javaPlugin, () -> {
+                this.destroyNPC(npc);
+                this.createNPC(npc);
+            });
         }
 
         return allowed;
@@ -97,12 +99,12 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         super.cloudNPCS.forEach(this::destroyNPC);
     }
 
-    @Nullable
-    public ArmorStand getInfoLineStand(@NotNull CloudNPC cloudNPC) {
+
+    public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC) {
         Location location = this.toLocation(cloudNPC.getPosition());
 
         if (location.getWorld() == null || !location.isChunkLoaded()) {
-            return null;
+            return Optional.empty();
         }
 
         ArmorStand armorStand = location.getWorld()
@@ -124,7 +126,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             armorStand.setCustomNameVisible(true);
         }
 
-        return armorStand;
+        return Optional.of(armorStand);
     }
 
     public void updateNPC(@NotNull CloudNPC cloudNPC) {
@@ -180,10 +182,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 )
                 .replace("%online_servers%", String.valueOf(services.size()));
 
-        ArmorStand infoLineStand = this.getInfoLineStand(cloudNPC);
-        if (infoLineStand != null) {
-            infoLineStand.setCustomName(ChatColor.translateAlternateColorCodes('&', infoLine));
-        }
+        this.getInfoLineStand(cloudNPC).ifPresent(infoLineStand ->
+                infoLineStand.setCustomName(ChatColor.translateAlternateColorCodes('&', infoLine)));
     }
 
     private void createNPC(CloudNPC cloudNPC) {
@@ -231,10 +231,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     private void destroyNPC(CloudNPC cloudNPC) {
         BukkitNPCProperties properties = this.npcProperties.remove(cloudNPC.getUUID());
 
-        ArmorStand infoLineStand = this.getInfoLineStand(cloudNPC);
-        if (infoLineStand != null) {
-            infoLineStand.remove();
-        }
+        this.getInfoLineStand(cloudNPC).ifPresent(Entity::remove);
 
         this.npcPool.removeNPC(properties.getEntityId());
     }

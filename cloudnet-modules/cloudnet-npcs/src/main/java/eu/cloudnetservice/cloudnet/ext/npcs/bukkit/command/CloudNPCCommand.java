@@ -38,16 +38,30 @@ public class CloudNPCCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            if (args.length >= 7 && args[0].equalsIgnoreCase("create")) {
-                this.createNPC(player, args);
+            if (args.length >= 7) {
+                if (args[0].equalsIgnoreCase("create")) {
+                    Location location = player.getLocation();
+
+                    this.createNPC(player, new UUID(RANDOM.nextLong(), 0), DEFAULT_INFO_LINE, new WorldPosition(
+                            location.getX(),
+                            location.getY(),
+                            location.getZ(),
+                            location.getYaw(),
+                            location.getPitch(),
+                            location.getWorld().getName(),
+                            this.npcManagement.getOwnNPCConfigurationEntry().getTargetGroup()
+                    ), args);
+                } else if (args[0].equalsIgnoreCase("edit")) {
+                    this.editNPC(player, args);
+                } else {
+                    this.sendHelp(sender);
+                }
             } else if (args.length >= 2 && args[0].equalsIgnoreCase("editInfoLine")) {
                 this.editInfoLine(player, args);
             } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
                 this.removeNPC(player);
             } else {
-                player.sendMessage("§7/cloudnpc create <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
-                player.sendMessage("§7/cloudnpc editInfoLine <newInfoLine>");
-                player.sendMessage("§7/cloudnpc remove");
+                this.sendHelp(sender);
             }
 
             return true;
@@ -56,18 +70,18 @@ public class CloudNPCCommand implements CommandExecutor {
         return false;
     }
 
-    private void createNPC(Player player, String[] args) {
+    private void createNPC(CommandSender sender, UUID uuid, String infoLine, WorldPosition position, String[] args) {
         UUID skinUUID;
         try {
             skinUUID = UUID.fromString(args[2]);
         } catch (IllegalArgumentException exception) {
-            player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-invalid-uuid"));
+            sender.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-invalid-uuid"));
             return;
         }
 
         Material itemInHandMaterial = Material.getMaterial(args[3].toUpperCase());
         if (itemInHandMaterial == null) {
-            player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-invalid-material"));
+            sender.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-invalid-material"));
             return;
         }
 
@@ -76,7 +90,7 @@ public class CloudNPCCommand implements CommandExecutor {
 
         PlayerProfile skinProfile = Bukkit.createProfile(skinUUID);
         if (!skinProfile.complete()) {
-            player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
+            sender.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
             return;
         }
 
@@ -87,28 +101,18 @@ public class CloudNPCCommand implements CommandExecutor {
 
         String displayName = displayNameBuilder.substring(0, displayNameBuilder.length() - 1);
         if (displayName.length() > 16) {
-            player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-display-name-too-long"));
+            sender.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-display-name-too-long"));
             return;
         }
 
-        Location location = player.getLocation();
-
         CloudNPC cloudNPC = new CloudNPC(
-                new UUID(RANDOM.nextLong(), 0),
+                uuid,
                 ChatColor.translateAlternateColorCodes('&', displayName),
-                DEFAULT_INFO_LINE,
+                infoLine,
                 skinProfile.getProperties().stream()
                         .map(property -> new CloudNPC.NPCProfileProperty(property.getName(), property.getValue(), property.getSignature()))
                         .collect(Collectors.toSet()),
-                new WorldPosition(
-                        location.getX(),
-                        location.getY(),
-                        location.getZ(),
-                        location.getYaw(),
-                        location.getPitch(),
-                        location.getWorld().getName(),
-                        this.npcManagement.getOwnNPCConfigurationEntry().getTargetGroup()
-                ),
+                position,
                 args[1],
                 itemInHandMaterial.name(),
                 lookAtPlayer,
@@ -116,7 +120,12 @@ public class CloudNPCCommand implements CommandExecutor {
         );
 
         this.npcManagement.sendNPCAddUpdate(cloudNPC);
-        player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-success"));
+        sender.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-success"));
+    }
+
+    private void editNPC(Player player, String[] args) {
+        this.getNearest(player).ifPresent(cloudNPC ->
+                this.createNPC(player, cloudNPC.getUUID(), cloudNPC.getInfoLine(), cloudNPC.getPosition(), args));
     }
 
     private void editInfoLine(Player player, String[] args) {
@@ -140,6 +149,13 @@ public class CloudNPCCommand implements CommandExecutor {
 
             player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-remove-success"));
         });
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage("§7/cloudnpc create <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
+        sender.sendMessage("§7/cloudnpc edit <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
+        sender.sendMessage("§7/cloudnpc editInfoLine <newInfoLine>");
+        sender.sendMessage("§7/cloudnpc remove");
     }
 
     private Optional<CloudNPC> getNearest(Player player) {
