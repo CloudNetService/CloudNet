@@ -83,8 +83,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         Map<Integer, NPCConfigurationEntry.ItemLayout> inventoryLayout = super.ownNPCConfigurationEntry.getInventoryLayout();
         for (int index = 0; index < this.defaultItems.length; index++) {
-            if (inventoryLayout.containsKey(index)) {
-                this.defaultItems[index] = this.toItemStack(inventoryLayout.get(index));
+            if (inventoryLayout.containsKey(index + 1)) {
+                this.defaultItems[index] = this.toItemStack(inventoryLayout.get(index + 1));
             }
         }
 
@@ -98,7 +98,6 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     public void shutdown() {
         super.cloudNPCS.forEach(this::destroyNPC);
     }
-
 
     public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC) {
         Location location = this.toLocation(cloudNPC.getPosition());
@@ -157,10 +156,13 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             ServiceInfoSnapshot infoSnapshot = serviceInfo.getFirst();
 
             ItemStack itemStack = this.toItemStack(itemLayout, cloudNPC.getTargetGroup(), infoSnapshot);
-            int slot = index + super.ownNPCConfigurationEntry.getStartSlot();
+            int slot = index + super.ownNPCConfigurationEntry.getStartSlot() - 1;
+
+            if (slot < 0 || slot > super.ownNPCConfigurationEntry.getEndSlot() - 1) {
+                break;
+            }
 
             properties.getServerSlots().put(slot, infoSnapshot.getName());
-
             items[slot] = itemStack;
         }
 
