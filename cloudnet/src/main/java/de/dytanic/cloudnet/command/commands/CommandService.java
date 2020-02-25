@@ -14,6 +14,7 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.event.ServiceListCommandEvent;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
@@ -23,6 +24,8 @@ import java.util.stream.Collectors;
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandService extends SubCommandHandler {
+
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public CommandService() {
         super(
@@ -84,6 +87,7 @@ public class CommandService extends SubCommandHandler {
                                             .map(ServiceInfoSnapshot::getName)
                                             .collect(Collectors.toList());
                                     values.addAll(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
+                                            .filter(serviceTask -> CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(serviceTask.getName()).size() > 1)
                                             .map(serviceTask -> serviceTask.getName() + "-*")
                                             .collect(Collectors.toList()));
                                     return values;
@@ -211,8 +215,15 @@ public class CommandService extends SubCommandHandler {
                 " ",
                 "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
                 "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),
-                "* Port: " + serviceInfoSnapshot.getConfiguration().getPort(),
-                "* Connected: " + serviceInfoSnapshot.isConnected(),
+                "* Port: " + serviceInfoSnapshot.getConfiguration().getPort()
+        ));
+        if (serviceInfoSnapshot.isConnected()) {
+            list.add("* Connected: " + DATE_FORMAT.format(serviceInfoSnapshot.getConnectedTime()));
+        } else {
+            list.add("* Connected: false");
+        }
+
+        list.addAll(Arrays.asList(
                 "* Lifecycle: " + serviceInfoSnapshot.getLifeCycle(),
                 "* Groups: " + Arrays.toString(serviceInfoSnapshot.getConfiguration().getGroups()),
                 " "
@@ -241,7 +252,7 @@ public class CommandService extends SubCommandHandler {
         }
 
         list.add(" ");
-        list.add("* ServiceInfoSnapshot | " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(serviceInfoSnapshot.getCreationTime()));
+        list.add("* ServiceInfoSnapshot | " + DATE_FORMAT.format(serviceInfoSnapshot.getCreationTime()));
 
         list.addAll(Arrays.asList(
                 "PID: " + serviceInfoSnapshot.getProcessSnapshot().getPid(),

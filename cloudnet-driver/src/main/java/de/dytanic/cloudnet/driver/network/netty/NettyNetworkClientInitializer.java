@@ -7,12 +7,18 @@ import io.netty.channel.ChannelInitializer;
 final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
 
     private final NettyNetworkClient nettyNetworkClient;
-
     private final HostAndPort hostAndPort;
 
+    private final Runnable handler;
+
     public NettyNetworkClientInitializer(NettyNetworkClient nettyNetworkClient, HostAndPort hostAndPort) {
+        this(nettyNetworkClient, hostAndPort, null);
+    }
+
+    public NettyNetworkClientInitializer(NettyNetworkClient nettyNetworkClient, HostAndPort hostAndPort, Runnable handler) {
         this.nettyNetworkClient = nettyNetworkClient;
         this.hostAndPort = hostAndPort;
+        this.handler = handler;
     }
 
     @Override
@@ -27,7 +33,10 @@ final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
                 .addLast("packet-decoder", new NettyPacketDecoder())
                 .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
                 .addLast("packet-encoder", new NettyPacketEncoder())
-                .addLast("network-client-handler", new NettyNetworkClientHandler(nettyNetworkClient, hostAndPort))
-        ;
+                .addLast("network-client-handler", new NettyNetworkClientHandler(nettyNetworkClient, hostAndPort));
+
+        if (this.handler != null) {
+            this.handler.run();
+        }
     }
 }

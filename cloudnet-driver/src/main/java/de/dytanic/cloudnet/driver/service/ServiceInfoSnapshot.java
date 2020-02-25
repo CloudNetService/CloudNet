@@ -27,7 +27,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     protected HostAndPort address;
 
-    protected boolean connected;
+    protected long connectedTime;
 
     protected ServiceLifeCycle lifeCycle;
 
@@ -35,15 +35,15 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     protected ServiceConfiguration configuration;
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
-        this(creationTime, serviceId, address, connected, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
+    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+        this(creationTime, serviceId, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
     }
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
+    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
         this.creationTime = creationTime;
         this.serviceId = serviceId;
         this.address = address;
-        this.connected = connected;
+        this.connectedTime = connectedTime;
         this.lifeCycle = lifeCycle;
         this.processSnapshot = processSnapshot;
         this.properties = properties;
@@ -66,11 +66,15 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     }
 
     public boolean isConnected() {
-        return this.connected;
+        return this.connectedTime != -1;
     }
 
-    public void setConnected(boolean connected) {
-        this.connected = connected;
+    public long getConnectedTime() {
+        return this.connectedTime;
+    }
+
+    public void setConnectedTime(long connectedTime) {
+        this.connectedTime = connectedTime;
     }
 
     public ServiceLifeCycle getLifeCycle() {

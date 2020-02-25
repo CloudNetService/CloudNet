@@ -399,7 +399,7 @@ public final class Wrapper extends CloudNetDriver {
                 System.currentTimeMillis(),
                 this.getServiceId(),
                 this.currentServiceInfoSnapshot.getAddress(),
-                true,
+                this.networkClient.getConnectedTime(),
                 ServiceLifeCycle.RUNNING,
                 new ProcessSnapshot(
                         memoryMXBean.getHeapMemoryUsage().getUsed(),

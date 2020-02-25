@@ -409,7 +409,7 @@ final class JVMCloudService implements ICloudService {
                 System.currentTimeMillis(),
                 this.serviceId,
                 new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), this.serviceConfiguration.getPort()),
-                false,
+                -1,
                 lifeCycle,
                 this.serviceInfoSnapshot != null ?
                         this.serviceInfoSnapshot.getProcessSnapshot() :
