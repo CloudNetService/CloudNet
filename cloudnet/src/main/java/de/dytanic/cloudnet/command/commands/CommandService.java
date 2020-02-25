@@ -79,9 +79,15 @@ public class CommandService extends SubCommandHandler {
                                 "name",
                                 LanguageManager.getMessage("command-service-service-not-found"),
                                 input -> !WildcardUtil.filterWildcard(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input).isEmpty(),
-                                () -> CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
-                                        .map(ServiceInfoSnapshot::getName)
-                                        .collect(Collectors.toList())
+                                () -> {
+                                    Collection<String> values = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                                            .map(ServiceInfoSnapshot::getName)
+                                            .collect(Collectors.toList());
+                                    values.addAll(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
+                                            .map(serviceTask -> serviceTask.getName() + "-*")
+                                            .collect(Collectors.toList()));
+                                    return values;
+                                }
                         ))
                         .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             Collection<ServiceInfoSnapshot> serviceInfoSnapshots = WildcardUtil.filterWildcard(
