@@ -5,6 +5,9 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -20,6 +23,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static net.md_5.bungee.api.chat.ClickEvent.Action.RUN_COMMAND;
 
 public class CloudNPCCommand implements CommandExecutor {
 
@@ -58,8 +63,16 @@ public class CloudNPCCommand implements CommandExecutor {
                 }
             } else if (args.length >= 2 && args[0].equalsIgnoreCase("editInfoLine")) {
                 this.editInfoLine(player, args);
-            } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
-                this.removeNPC(player);
+            } else if (args.length == 1) {
+                if (args[0].equalsIgnoreCase("remove")) {
+                    this.removeNPC(player);
+                } else if (args[0].equalsIgnoreCase("list")) {
+                    this.listNPCs(sender);
+                } else if (args[0].equalsIgnoreCase("cleanup")) {
+                    this.cleanupNPCs(sender);
+                } else {
+                    this.sendHelp(sender);
+                }
             } else {
                 this.sendHelp(sender);
             }
@@ -151,13 +164,6 @@ public class CloudNPCCommand implements CommandExecutor {
         });
     }
 
-    private void sendHelp(CommandSender sender) {
-        sender.sendMessage("§7/cloudnpc create <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
-        sender.sendMessage("§7/cloudnpc edit <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
-        sender.sendMessage("§7/cloudnpc editInfoLine <newInfoLine>");
-        sender.sendMessage("§7/cloudnpc remove");
-    }
-
     private Optional<CloudNPC> getNearest(Player player) {
         Location location = player.getLocation();
 
@@ -170,6 +176,41 @@ public class CloudNPCCommand implements CommandExecutor {
         }
 
         return optionalCloudNPC;
+    }
+
+    private void listNPCs(CommandSender sender) {
+        for (CloudNPC cloudNPC : this.npcManagement.getCloudNPCS()) {
+            WorldPosition position = cloudNPC.getPosition();
+
+            int x = (int) position.getX(), y = (int) position.getY(), z = (int) position.getZ();
+
+            BaseComponent[] textComponent = new ComponentBuilder(String.format(
+                    "§7> %s §8- §7%d, %d, %d §8- §7%s",
+                    cloudNPC.getDisplayName(), x, y, z, position.getWorld()
+            )).append(
+                    new ComponentBuilder(" [§7Teleport§f]")
+                            .event(new ClickEvent(RUN_COMMAND, String.format("/tp %d %d %d", x, y, z)))
+                            .create()
+            ).create();
+
+            sender.sendMessage(textComponent);
+        }
+    }
+
+    private void cleanupNPCs(CommandSender sender) {
+        this.npcManagement.getCloudNPCS().stream()
+                .filter(npc -> !this.npcManagement.isWorldLoaded(npc))
+                .forEach(this.npcManagement::sendNPCRemoveUpdate);
+
+        sender.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-cleanup-success"));
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage("§7/cloudnpc create <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
+        sender.sendMessage("§7/cloudnpc edit <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
+        sender.sendMessage("§7/cloudnpc editInfoLine <newInfoLine>");
+        sender.sendMessage("§7/cloudnpc list");
+        sender.sendMessage("§7/cloudnpc cleanup");
     }
 
 }

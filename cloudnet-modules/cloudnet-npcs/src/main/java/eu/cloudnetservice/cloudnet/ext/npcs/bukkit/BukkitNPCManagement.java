@@ -57,11 +57,12 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     public boolean addNPC(@NotNull CloudNPC npc) {
         boolean allowed = super.addNPC(npc);
 
-        if (allowed && this.npcProperties.containsKey(npc.getUUID())) {
-            Bukkit.getScheduler().runTask(this.javaPlugin, () -> {
-                this.destroyNPC(npc);
-                this.createNPC(npc);
-            });
+        if (allowed) {
+            if (this.npcProperties.containsKey(npc.getUUID())) {
+                Bukkit.getScheduler().runTask(this.javaPlugin, () -> this.destroyNPC(npc));
+            }
+
+            Bukkit.getScheduler().runTaskLater(this.javaPlugin, () -> this.createNPC(npc), 2L);
         }
 
         return allowed;
@@ -129,6 +130,11 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     }
 
     public void updateNPC(@NotNull CloudNPC cloudNPC) {
+        if (!this.npcProperties.containsKey(cloudNPC.getUUID())) {
+            this.createNPC(cloudNPC);
+            return;
+        }
+
         List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services = this.filterNPCServices(cloudNPC);
 
         this.updateInventory(cloudNPC, services);
@@ -189,6 +195,10 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     }
 
     private void createNPC(CloudNPC cloudNPC) {
+        if (!this.isWorldLoaded(cloudNPC)) {
+            return;
+        }
+
         NPC.Builder builder = new NPC.Builder(
                 cloudNPC.getProfileProperties().stream()
                         .map(npcProfileProperty -> new ProfileProperty(
@@ -201,10 +211,6 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         );
 
         Location location = this.toLocation(cloudNPC.getPosition());
-        if (location.getWorld() == null) {
-            super.sendNPCRemoveUpdate(cloudNPC);
-            return;
-        }
 
         NPC npc = builder
                 .uuid(cloudNPC.getUUID())
@@ -231,11 +237,17 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     }
 
     private void destroyNPC(CloudNPC cloudNPC) {
-        BukkitNPCProperties properties = this.npcProperties.remove(cloudNPC.getUUID());
-
         this.getInfoLineStand(cloudNPC).ifPresent(Entity::remove);
 
-        this.npcPool.removeNPC(properties.getEntityId());
+        BukkitNPCProperties properties = this.npcProperties.remove(cloudNPC.getUUID());
+
+        if (properties != null) {
+            this.npcPool.removeNPC(properties.getEntityId());
+        }
+    }
+
+    public boolean isWorldLoaded(CloudNPC cloudNPC) {
+        return this.toLocation(cloudNPC.getPosition()).getWorld() != null;
     }
 
     public Location toLocation(WorldPosition position) {

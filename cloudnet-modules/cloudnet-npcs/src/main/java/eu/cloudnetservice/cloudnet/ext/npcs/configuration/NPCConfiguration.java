@@ -21,6 +21,7 @@ public class NPCConfiguration {
         DEFAULT_MESSAGES.put("command-edit-info-line-success", "§7Successfully edited the info line of the NPC.");
         DEFAULT_MESSAGES.put("command-remove-success", "§7Successfully removed the server selector NPC.");
         DEFAULT_MESSAGES.put("command-no-npc-in-range", "§7There is no NPC in the range of 5 blocks!");
+        DEFAULT_MESSAGES.put("command-cleanup-success", "§7All NPCs on unloaded worlds have been removed successfully.");
     }
 
     /**

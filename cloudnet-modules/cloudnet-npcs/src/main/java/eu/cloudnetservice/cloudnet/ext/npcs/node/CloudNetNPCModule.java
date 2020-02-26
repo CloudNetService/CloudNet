@@ -12,6 +12,7 @@ import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.CloudNetNPCMessageListener;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.IncludePluginListener;
+import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.NPCTaskSetupListener;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -52,7 +53,11 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
 
     @ModuleTask(event = ModuleLifeCycle.STARTED, order = 126)
     public void registerListeners() {
-        super.registerListeners(new IncludePluginListener(this), new CloudNetNPCMessageListener(this));
+        super.registerListeners(
+                new IncludePluginListener(this),
+                new CloudNetNPCMessageListener(this),
+                new NPCTaskSetupListener(this)
+        );
     }
 
     public void addNPC(CloudNPC npc) {

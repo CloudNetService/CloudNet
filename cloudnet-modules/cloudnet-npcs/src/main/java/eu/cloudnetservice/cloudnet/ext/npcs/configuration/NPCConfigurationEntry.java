@@ -46,6 +46,10 @@ public class NPCConfigurationEntry {
         }
     }
 
+    public NPCConfigurationEntry(String targetGroup) {
+        this.targetGroup = targetGroup;
+    }
+
     public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout) {
         this.targetGroup = targetGroup;
         this.infoLineDistance = infoLineDistance;
