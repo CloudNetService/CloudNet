@@ -352,13 +352,13 @@ public class CommandPermissions extends SubCommandHandler {
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setPrefix((String) args.argument(4)),
                         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("prefix"),
-                        dynamicString("prefix", 16)
+                        dynamicString("prefix")
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setSuffix((String) args.argument(4)),
                         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("suffix"),
-                        dynamicString("suffix", 16)
+                        dynamicString("suffix")
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setColor((String) args.argument(4)),
