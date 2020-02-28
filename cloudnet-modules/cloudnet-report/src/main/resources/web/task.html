@@ -1,0 +1,68 @@
+<div class="col">
+    <div class="card shadow mb-3">
+        <div class="card-header py-3">
+            <p class="text-primary m-0 font-weight-bold">${task.name}</p>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Minimal services</strong><span><br>${task.minServiceCount}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Maintenance</strong><span><br>${task.maintenance}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Nodes</strong><span><br>${task.nodes}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Max memory</strong><span><br>${task.maxMemory} MB<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Environment</strong><span><br>${task.environment}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Runtime</strong><span><br>${task.runtime}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Auto delete on stop</strong><span><br>${task.autoDeleteOnStop}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Static</strong><span><br>${task.static}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Groups</strong><span><br>${task.groups}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>JVM Options</strong><span><br>${task.jvmOptions}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Deleted files after stop</strong><span><br>${task.deletedFilesAfterStop}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Templates</strong><span><br>${task.templates}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Deployments</strong><span><br>${task.deployments}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Includes</strong><span><br>${task.includes}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Properties</strong><span><br>${task.properties}<br></span></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

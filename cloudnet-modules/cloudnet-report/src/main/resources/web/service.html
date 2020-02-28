@@ -1,0 +1,71 @@
+<div class="col">
+    <div class="card shadow mb-3">
+        <div class="card-header py-3">
+            <p class="text-primary m-0 font-weight-bold">${service.name}</p>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Snapshot of this service created at</strong><span><br>${service.creationTime}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Connected at</strong><span><br>${service.connectedTime}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Unique ID</strong><span><br>${service.uniqueId}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Max memory</strong><span><br>${service.maxMemory} MB<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Environment</strong><span><br>${service.environment}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Node</strong><span><br>${service.node}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Runtime</strong><span><br>${service.runtime}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Auto delete on stop</strong><span><br>${service.autoDeleteOnStop}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Static</strong><span><br>${service.static}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Groups</strong><span><br>${service.groups}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>JVM Options</strong><span><br>${service.jvmOptions}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Deleted files after stop</strong><span><br>${service.deletedFilesAfterStop}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Templates</strong><span><br>${service.templates}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Deployments</strong><span><br>${service.deployments}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Includes</strong><span><br>${service.includes}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Process Information</strong><span><br>Heap Usage: ${service.process.heapUsage}<br>Non Heap Usage: ${service.process.noHeapUsage}<br>Max Heap Memory: ${service.process.maxHeap}<br>Classes loaded (Current/Total/Unloaded): ${service.process.currentClasses} / ${service.process.totalClasses} / ${service.process.unloadedClasses}<br>Threads: ${service.process.threadCount}<br>CPU&nbsp;Usage: ${service.process.cpuUsage}<br>Process ID: ${service.process.pid}<br></span></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

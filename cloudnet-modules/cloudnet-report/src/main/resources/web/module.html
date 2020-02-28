@@ -1,0 +1,41 @@
+<div class="row mb-3">
+    <div class="col">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="text-primary font-weight-bold m-0">${module.name}@${module.version}</h6>
+            </div>
+            <div class="card-body">
+                <div class="form-group"><strong>Description</strong><span><br>${module.desc}<br></span></div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Group</strong><span><br>${module.group}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Author</strong><span><br>${module.author}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Website</strong><span><br>${module.website}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Main</strong><span><br>${module.main}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Restarts on CloudNet reload</strong><span><br>${module.restartOnReload}<br></span></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group"><strong>Dependencies</strong><span><br>${module.dependencies}<br></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group"><strong>Repositories</strong><span><br>${module.repositories}<br></span></div>
+                    </div>
+                </div>
+                <button type="button" class="collapsible">Config</button>
+                <div class="form-group content"><span><br>${module.config}<br></span></div>
+            </div>
+        </div>
+    </div>
+</div>

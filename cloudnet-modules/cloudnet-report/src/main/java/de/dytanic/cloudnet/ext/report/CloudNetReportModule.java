@@ -11,16 +11,21 @@ import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.ILogHandler;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.module.*;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
+import de.dytanic.cloudnet.driver.network.http.RedirectHttpHandler;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.report.command.CommandPaste;
 import de.dytanic.cloudnet.ext.report.command.CommandReport;
+import de.dytanic.cloudnet.ext.report.command.CommandWebReport;
 import de.dytanic.cloudnet.ext.report.listener.CloudNetReportListener;
 import de.dytanic.cloudnet.ext.report.util.PasteServerType;
+import de.dytanic.cloudnet.ext.report.web.CloudNetWebReportAssetsHandler;
+import de.dytanic.cloudnet.ext.report.web.CloudNetWebReportHandler;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
@@ -33,6 +38,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +53,8 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     private File savingRecordsDirectory;
 
     private final IFormatter logFormatter = new DefaultLogFormatter();
+
+    private boolean webEnabled = false;
 
     public static CloudNetReportModule getInstance() {
         return CloudNetReportModule.instance;
@@ -82,12 +90,35 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     public void registerCommands() {
         registerCommand(new CommandReport());
         registerCommand(new CommandPaste());
+        registerCommand(new CommandWebReport());
+    }
+
+    @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
+    public void registerHttpHandlers() {
+        registerHttpHandler("/report", new RedirectHttpHandler("/report/index.html"));
+        registerHttpHandler("/report/{type}", new CloudNetWebReportHandler());
+        CloudNetWebReportAssetsHandler assetsHandler = new CloudNetWebReportAssetsHandler();
+        registerHttpHandler(assetsHandler.getPath(), assetsHandler);
     }
 
     public String getPasteURL() {
         return this.getConfig().getString("pasteServerUrl");
     }
 
+    public String[] getWebReportURLs() {
+        IConfiguration configuration = super.getCloudNet().getConfig();
+        return configuration.getHttpListeners().stream()
+                .map(address -> (configuration.getWebSslConfig().isEnabled() ? "https" : "http") + "://" + address.toString() + "/report")
+                .toArray(String[]::new);
+    }
+
+    public boolean isWebEnabled() {
+        return this.webEnabled;
+    }
+
+    public void setWebEnabled(boolean webEnabled) {
+        this.webEnabled = webEnabled;
+    }
 
     public String executePaste(String content) {
         Preconditions.checkNotNull(content);
@@ -142,6 +173,48 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         return this.savingRecordsDirectory;
     }
 
+
+    public Collection<String> getNodeLog(Properties properties) {
+        File logFile = null;
+        for (ILogHandler logHandler : CloudNet.getInstance().getLogger().getLogHandlers()) {
+            if (logHandler instanceof DefaultFileLogHandler) {
+                logFile = ((DefaultFileLogHandler) logHandler).getEntry();
+            }
+        }
+
+        try {
+            Integer parsedMaxLines;
+
+            int maxLines = properties.containsKey("maxLines") && (parsedMaxLines = Ints.tryParse(properties.get("maxLines"))) != null ? parsedMaxLines : -1;
+            if (maxLines <= 0) {
+                maxLines = 512;
+            }
+
+            List<String> logLines;
+
+            if (logFile != null) {
+                List<String> lines = Files.readAllLines(logFile.toPath());
+                if (lines.size() >= maxLines) {
+                    logLines = lines.stream().skip(lines.size() - maxLines).collect(Collectors.toList());
+                } else {
+                    logLines = lines;
+                }
+            } else {
+                logLines = CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries().stream()
+                        .map(this.logFormatter::format)
+                        .collect(Collectors.toList());
+            }
+
+            return logLines;
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
+    public Collection<String> getNodeLog() {
+        return this.getNodeLog(new Properties());
+    }
 
     private void appendComponent(StringBuilder builder, String component, String content, boolean lastComponent) {
         builder.append(component).append(": \n");
@@ -236,41 +309,11 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
         builder.append('\n');
 
-        File logFile = null;
-        for (ILogHandler logHandler : CloudNet.getInstance().getLogger().getLogHandlers()) {
-            if (logHandler instanceof DefaultFileLogHandler) {
-                logFile = ((DefaultFileLogHandler) logHandler).getEntry();
-            }
-        }
-
-        try {
-            Integer parsedMaxLines;
-
-            int maxLines = properties.containsKey("maxLines") && (parsedMaxLines = Ints.tryParse(properties.get("maxLines"))) != null ? parsedMaxLines : -1;
-            if (maxLines <= 0) {
-                maxLines = 512;
-            }
-
-            List<String> logLines;
-
-            if (logFile != null) {
-                List<String> lines = Files.readAllLines(logFile.toPath());
-                if (lines.size() >= maxLines) {
-                    logLines = lines.stream().skip(lines.size() - maxLines).collect(Collectors.toList());
-                } else {
-                    logLines = lines;
-                }
-            } else {
-                logLines = CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries().stream()
-                        .map(this.logFormatter::format)
-                        .collect(Collectors.toList());
-            }
-
+        Collection<String> logLines = this.getNodeLog();
+        if (logLines != null) {
             for (String logLine : logLines) {
                 builder.append(logLine).append('\n');
             }
-        } catch (IOException exception) {
-            exception.printStackTrace();
         }
 
         builder.append("\nConfig:\n");
