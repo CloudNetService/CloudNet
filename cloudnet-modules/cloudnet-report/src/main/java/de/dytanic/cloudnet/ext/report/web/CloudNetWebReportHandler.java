@@ -1,14 +1,14 @@
 package de.dytanic.cloudnet.ext.report.web;
 
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
+import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 import de.dytanic.cloudnet.ext.report.web.type.ReportHandlers;
 
-public class CloudNetWebReportHandler extends MethodHttpHandlerAdapter {
+public class CloudNetWebReportHandler implements IHttpHandler {
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handle(String path, IHttpContext context) throws Exception {
         if (!CloudNetReportModule.getInstance().isWebEnabled()) {
             context.response()
                     .statusCode(404)
@@ -37,5 +37,4 @@ public class CloudNetWebReportHandler extends MethodHttpHandlerAdapter {
                 .body(response)
                 .context();
     }
-
 }

@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 
-public interface IHttpServer extends IHttpComponent<IHttpServer> {
+public interface IHttpServer extends MethodHttpComponent<IHttpServer> {
 
     boolean addListener(int port);
 

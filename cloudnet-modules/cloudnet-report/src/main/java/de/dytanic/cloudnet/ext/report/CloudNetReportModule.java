@@ -95,10 +95,10 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void registerHttpHandlers() {
-        registerHttpHandler("/report", new RedirectHttpHandler("/report/index.html"));
-        registerHttpHandler("/report/{type}", new CloudNetWebReportHandler());
+        getHttpServer().redirect("/report", "/report/index.html");
+        getHttpServer().get("/report/{type}", new CloudNetWebReportHandler());
         CloudNetWebReportAssetsHandler assetsHandler = new CloudNetWebReportAssetsHandler();
-        registerHttpHandler(assetsHandler.getPath(), assetsHandler);
+        getHttpServer().get(assetsHandler.getPath(), assetsHandler);
     }
 
     public String getPasteURL() {

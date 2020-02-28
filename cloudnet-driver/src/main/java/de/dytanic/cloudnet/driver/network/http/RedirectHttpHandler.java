@@ -11,7 +11,7 @@ public class RedirectHttpHandler extends MethodHttpHandlerAdapter {
     @Override
     public void handleGet(String path, IHttpContext context) throws Exception {
         context.response()
-                .statusCode(301)
+                .statusCode(HttpResponseCode.HTTP_MOVED_PERM)
                 .header("Location", this.redirectResponse)
                 .body(" ")
                 .context()

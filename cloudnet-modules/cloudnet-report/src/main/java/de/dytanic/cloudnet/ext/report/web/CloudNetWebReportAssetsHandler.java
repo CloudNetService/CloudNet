@@ -2,12 +2,12 @@ package de.dytanic.cloudnet.ext.report.web;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
+import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 
 import java.io.InputStream;
 
-public class CloudNetWebReportAssetsHandler extends MethodHttpHandlerAdapter {
+public class CloudNetWebReportAssetsHandler implements IHttpHandler {
 
     private final String path = "/report/assets/*";
     private final String replacePath = "/report/assets/";
@@ -17,7 +17,7 @@ public class CloudNetWebReportAssetsHandler extends MethodHttpHandlerAdapter {
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handle(String path, IHttpContext context) throws Exception {
         if (path.contains("..")) {
             return;
         }
@@ -34,4 +34,5 @@ public class CloudNetWebReportAssetsHandler extends MethodHttpHandlerAdapter {
         }
 
     }
+
 }
