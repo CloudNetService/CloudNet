@@ -1,5 +1,6 @@
-name: CloudNet-LabyMod
+name: 'CloudNet-LabyMod'
 version: '1.0'
-author: CloudNetService
+author: 'CloudNetService'
+depend: ['CloudNet-Bridge']
 
-main: eu.cloudnetservice.cloudnet.ext.labymod.bungee.BungeeCloudNetLabyModPlugin
+main: 'eu.cloudnetservice.cloudnet.ext.labymod.bungee.BungeeCloudNetLabyModPlugin'
