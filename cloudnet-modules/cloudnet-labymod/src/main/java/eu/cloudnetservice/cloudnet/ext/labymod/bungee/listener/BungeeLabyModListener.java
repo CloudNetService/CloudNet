@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import eu.cloudnetservice.cloudnet.ext.labymod.LabyModChannelUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
@@ -73,7 +74,7 @@ public class BungeeLabyModListener implements Listener {
 
         ProxiedPlayer player = (ProxiedPlayer) event.getSender();
 
-        Pair<String, JsonDocument> pair = LabyModUtils.readLMCMessageContents(event.getData());
+        Pair<String, JsonDocument> pair = LabyModChannelUtils.readLMCMessageContents(event.getData());
         String messageKey = pair.getFirst();
         JsonDocument messageContents = pair.getSecond();
 

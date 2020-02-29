@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
+import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.LabyModCustomChannelMessageListener;
@@ -14,10 +15,9 @@ import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 public class CloudNetLabyModModule extends NodeCloudNetModule {
-
-    private static final Collection<ServiceEnvironmentType> SUPPORTED_ENVIRONMENTS = Arrays.asList(ServiceEnvironmentType.BUNGEECORD/*, TODO: ServiceEnvironmentType.VELOCITY*/);
 
     private LabyModConfiguration configuration;
 
@@ -51,7 +51,7 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
     }
 
     public boolean isSupportedEnvironment(ServiceEnvironmentType environment) {
-        return SUPPORTED_ENVIRONMENTS.contains(environment);
+        return LabyModConstants.SUPPORTED_ENVIRONMENTS.contains(environment);
     }
 
 }
