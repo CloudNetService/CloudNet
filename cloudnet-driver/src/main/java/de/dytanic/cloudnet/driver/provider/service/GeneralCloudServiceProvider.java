@@ -34,7 +34,7 @@ public interface GeneralCloudServiceProvider {
     /**
      * Gets a list with the infos of all services in the cloud that are from the given task
      *
-     * @param taskName the name of the task every service in the list should have
+     * @param taskName the case-insensitive name of the task every service in the list should have
      * @return a list containing the infos of every service with the given task in the whole cloud
      */
     Collection<ServiceInfoSnapshot> getCloudServices(String taskName);
@@ -51,7 +51,7 @@ public interface GeneralCloudServiceProvider {
     /**
      * Gets a list with the infos of all services in the cloud that have the given group
      *
-     * @param group the name of the task every service in the list should have
+     * @param group the case-insensitive name of the task every service in the list should have
      * @return a list containing the infos of every service with the given group in the whole cloud
      */
     Collection<ServiceInfoSnapshot> getCloudServicesByGroup(String group);
