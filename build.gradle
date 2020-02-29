@@ -89,6 +89,7 @@ allprojects {
 
         //cloudNet modules
         cloudnetModuleBridgeFileName = 'cloudnet-bridge.jar'
+        cloudnetModuleLabyModFileName = 'cloudnet-labymod.jar'
         cloudnetModuleSignsFileName = 'cloudnet-signs.jar'
         cloudnetModuleSmartFileName = 'cloudnet-smart.jar'
         cloudnetModuleSyncProxyFileName = 'cloudnet-syncproxy.jar'

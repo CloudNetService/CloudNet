@@ -1,0 +1,10 @@
+{
+  "id": "cloudnet_labymod_velocity",
+  "name": "CloudNet-LabyMod",
+  "version": "1.0",
+  "url": "https://cloudnetservice.eu",
+  "authors": [
+    "CloudNetService"
+  ],
+  "main": "eu.cloudnetservice.cloudnet.ext.labymod.velocity.VelocityCloudNetLabyModPlugin"
+}

@@ -21,6 +21,8 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
 
     protected NetworkPlayerServerInfo networkPlayerServerInfo;
 
+    protected JsonDocument onlineProperties;
+
     public CloudPlayer(ICloudOfflinePlayer cloudOfflinePlayer,
                        NetworkServiceInfo loginService,
                        NetworkServiceInfo connectedService,
@@ -37,6 +39,7 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
 
         //
         this.properties = cloudOfflinePlayer.getProperties();
+        this.onlineProperties = new JsonDocument();
         //
 
         this.loginService = loginService;
@@ -108,4 +111,8 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
         this.networkPlayerServerInfo = networkPlayerServerInfo;
     }
 
+    @Override
+    public JsonDocument getOnlineProperties() {
+        return this.onlineProperties;
+    }
 }

@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
 import java.util.concurrent.TimeUnit;
@@ -51,8 +52,12 @@ public final class VelocityPlayerListener {
 
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerConnectRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
-                            serviceInfoSnapshot.getServiceId().getName()));
+                    new NetworkServiceInfo(
+                            serviceInfoSnapshot.getServiceId().getEnvironment(),
+                            Wrapper.getInstance().getServiceId(),
+                            Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+                    )
+            );
 
             try {
                 Thread.sleep(100);
@@ -68,8 +73,12 @@ public final class VelocityPlayerListener {
 
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerSwitch(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    new NetworkServiceInfo(serviceInfoSnapshot.getServiceId().getEnvironment(), serviceInfoSnapshot.getServiceId().getUniqueId(),
-                            serviceInfoSnapshot.getServiceId().getName()));
+                    new NetworkServiceInfo(
+                            serviceInfoSnapshot.getServiceId().getEnvironment(),
+                            Wrapper.getInstance().getServiceId(),
+                            Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+                    )
+            );
         }
     }
 
