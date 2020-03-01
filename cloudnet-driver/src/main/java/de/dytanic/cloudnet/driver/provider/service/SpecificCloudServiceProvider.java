@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
 
+/**
+ * This class provides access to a specific service in the cluster.
+ */
 public interface SpecificCloudServiceProvider {
 
     /**

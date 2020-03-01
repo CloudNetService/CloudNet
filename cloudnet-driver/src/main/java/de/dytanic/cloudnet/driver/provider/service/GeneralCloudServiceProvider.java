@@ -8,6 +8,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * This class provides methods to get information to the services in the cluster.
+ */
 public interface GeneralCloudServiceProvider {
 
     /**

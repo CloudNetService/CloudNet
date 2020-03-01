@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * This class provides methods to get and modify the permission users and groups in CloudNet's database.
+ */
 public interface PermissionProvider {
 
     /**

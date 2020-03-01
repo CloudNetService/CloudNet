@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * This class provides methods to create and prepare services in the network.
+ */
 public interface CloudServiceFactory {
 
     /**
