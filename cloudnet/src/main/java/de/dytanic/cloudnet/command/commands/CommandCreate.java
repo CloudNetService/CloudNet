@@ -112,7 +112,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                             new ArrayList<>(),
                             new ProcessConfiguration(
                                     environmentType,
-                                    372,
+                                    environmentType.isMinecraftProxy() ? 256 : 512,
                                     new ArrayList<>()
                             ),
                             46949

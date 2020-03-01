@@ -135,7 +135,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                         new ArrayList<>(Collections.singletonList(name)),
                                         new ProcessConfiguration(
                                                 type,
-                                                type.getDefaultStartPort(),
+                                                type.isMinecraftProxy() ? 256 : 512,
                                                 new ArrayList<>()
                                         ),
                                         type.getDefaultStartPort(),
