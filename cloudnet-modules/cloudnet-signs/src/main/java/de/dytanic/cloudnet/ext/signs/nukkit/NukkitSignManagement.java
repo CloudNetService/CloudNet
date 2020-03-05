@@ -94,14 +94,14 @@ public final class NukkitSignManagement extends AbstractSignManagement {
 
             nukkitSign.setText(lines);
 
-            this.changeBlock(nukkitSign, signLayout.getBlockType(), signLayout.getSubId());
+            this.changeBlock(nukkitSign, signLayout.getBlockType());
         }
     }
 
-    private void changeBlock(BlockEntitySign nukkitSign, String blockType, int subId) {
+    private void changeBlock(BlockEntitySign nukkitSign, String blockType) {
         Preconditions.checkNotNull(nukkitSign);
 
-        if (blockType != null && subId != -1) {
+        if (blockType != null) {
 
             Block block = nukkitSign.getBlock();
 
@@ -118,7 +118,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
                     return;
                 }
 
-                backBlockLocation.getLevel().setBlock(backBlockLocation, Block.get(itemId, subId), true, true);
+                backBlockLocation.getLevel().setBlock(backBlockLocation, Block.get(itemId, 0), true, true);
             }
 
 

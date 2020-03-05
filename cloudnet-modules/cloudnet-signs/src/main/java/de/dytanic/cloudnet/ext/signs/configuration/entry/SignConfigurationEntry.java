@@ -48,7 +48,7 @@ public class SignConfigurationEntry {
                                         "%motd%"
                                 },
                                 onlineBlockType,
-                                0
+                                -1
                         ),
                         new SignLayout(
                                 new String[]{
@@ -58,7 +58,7 @@ public class SignConfigurationEntry {
                                         "%motd%"
                                 },
                                 onlineBlockType,
-                                0
+                                -1
                         ),
                         new SignLayout(
                                 new String[]{
@@ -68,7 +68,7 @@ public class SignConfigurationEntry {
                                         "%motd%"
                                 },
                                 fullBlockType,
-                                0
+                                -1
                         )
                 )),
                 new SignLayout(
@@ -79,7 +79,7 @@ public class SignConfigurationEntry {
                                 "%motd%"
                         },
                         onlineBlockType,
-                        0
+                        -1
                 ),
                 new SignLayout(
                         new String[]{
@@ -89,7 +89,7 @@ public class SignConfigurationEntry {
                                 "%motd%"
                         },
                         onlineBlockType,
-                        0
+                        -1
                 ),
                 new SignLayout(
                         new String[]{
@@ -99,7 +99,7 @@ public class SignConfigurationEntry {
                                 "%motd%"
                         },
                         fullBlockType,
-                        0
+                        -1
                 ),
                 new SignLayoutConfiguration(
                         Arrays.asList(
@@ -111,7 +111,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         startingBlock,
-                                        0
+                                        -1
                                 ),
                                 new SignLayout(
                                         new String[]{
@@ -121,7 +121,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         startingBlock,
-                                        0
+                                        -1
                                 ),
                                 new SignLayout(
                                         new String[]{
@@ -131,7 +131,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         startingBlock,
-                                        0
+                                        -1
                                 ),
                                 new SignLayout(
                                         new String[]{
@@ -141,7 +141,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         startingBlock,
-                                        0
+                                        -1
                                 )
                         ),
                         2
@@ -156,7 +156,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         searchingBlock,
-                                        0
+                                        -1
                                 ),
                                 new SignLayout(
                                         new String[]{
@@ -166,7 +166,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         searchingBlock,
-                                        0
+                                        -1
                                 ),
                                 new SignLayout(
                                         new String[]{
@@ -176,7 +176,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         searchingBlock,
-                                        0
+                                        -1
                                 ),
                                 new SignLayout(
                                         new String[]{
@@ -186,7 +186,7 @@ public class SignConfigurationEntry {
                                                 ""
                                         },
                                         searchingBlock,
-                                        0
+                                        -1
                                 )
                         ),
                         2
