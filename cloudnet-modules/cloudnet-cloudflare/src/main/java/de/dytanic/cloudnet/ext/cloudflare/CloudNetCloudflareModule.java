@@ -55,11 +55,19 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
     public void initCloudflareAPI() {
+        if (this.cloudflareConfiguration.getEntries().stream().noneMatch(CloudflareConfigurationEntry::isEnabled)) {
+            return;
+        }
+
         new CloudflareAPI(getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME));
     }
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
     public void addedDefaultCloudflareDNSServices() {
+        if (CloudflareAPI.getInstance() == null) {
+            return;
+        }
+
         for (CloudflareConfigurationEntry cloudflareConfigurationEntry : this.getCloudflareConfiguration().getEntries()) {
             if (cloudflareConfigurationEntry.isEnabled()) {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
@@ -89,11 +97,19 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
     public void registerListeners() {
+        if (CloudflareAPI.getInstance() == null) {
+            return;
+        }
+
         registerListener(new CloudflareStartAndStopListener());
     }
 
     @ModuleTask(order = 123, event = ModuleLifeCycle.STARTED)
     public void registerHttpHandlers() {
+        if (CloudflareAPI.getInstance() == null) {
+            return;
+        }
+
         getHttpServer().registerHandler("/api/v1/modules/cloudflare/config",
                 new V1CloudflareConfigurationHttpHandler("cloudnet.http.v1.modules.cloudflare.config"));
     }
@@ -118,6 +134,10 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
     public void removeRecordsOnDelete() {
+        if (this.cloudflareConfiguration.getEntries().stream().noneMatch(CloudflareConfigurationEntry::isEnabled)) {
+            return;
+        }
+
         for (Map.Entry<String, Pair<String, JsonDocument>> entry : CloudflareAPI.getInstance().getCreatedRecords().entrySet()) {
             CloudflareAPI.getInstance().deleteRecord(
                     entry.getValue().getSecond().getString("email"),

@@ -19,7 +19,7 @@ import java.util.*;
  * It includes simple append and remove operations, file reading and writing to
  * create simple configuration files
  */
-public class JsonDocument implements IDocument<JsonDocument> {
+public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
     public static Gson GSON = new GsonBuilder()
             .serializeNulls()
@@ -887,4 +887,8 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return this.jsonObject.keySet().iterator();
     }
 
+    @Override
+    public JsonDocument clone() {
+        return new JsonDocument(this.jsonObject.deepCopy());
+    }
 }

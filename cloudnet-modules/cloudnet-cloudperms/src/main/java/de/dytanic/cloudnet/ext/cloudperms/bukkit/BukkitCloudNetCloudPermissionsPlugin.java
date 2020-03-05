@@ -137,13 +137,9 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             exception.printStackTrace();
         }
 
-        team.setPrefix(ChatColor.translateAlternateColorCodes('&',
-                prefix.length() > 16 ?
-                        prefix.substring(0, 16) : prefix));
+        team.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
 
-        team.setSuffix(ChatColor.translateAlternateColorCodes('&',
-                suffix.length() > 16 ?
-                        suffix.substring(0, 16) : suffix));
+        team.setSuffix(ChatColor.translateAlternateColorCodes('&', suffix));
 
         team.addEntry(target.getName());
 

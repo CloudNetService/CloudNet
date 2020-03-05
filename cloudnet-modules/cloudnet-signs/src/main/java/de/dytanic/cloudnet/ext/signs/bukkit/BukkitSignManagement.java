@@ -105,7 +105,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     private void changeBlock(Location location, String blockType, int subId) {
         Preconditions.checkNotNull(location);
 
-        if (blockType != null && subId != -1) {
+        if (blockType != null) {
 
             BlockState signBlockState = location.getBlock().getState();
             MaterialData signMaterialData = signBlockState.getData();
@@ -127,7 +127,9 @@ public final class BukkitSignManagement extends AbstractSignManagement {
 
                 if (backBlockMaterial != null) {
                     backBlockState.setType(backBlockMaterial);
-                    backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    if (subId > -1) {
+                        backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    }
                     backBlockState.update(true);
                 }
 

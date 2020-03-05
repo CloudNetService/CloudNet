@@ -1,0 +1,11 @@
+jar {
+    archiveName = cloudnetModuleLabyModFileName
+}
+
+dependencies {
+    compileOnly project(':cloudnet')
+    compileOnly project(':cloudnet-modules:cloudnet-bridge')
+    compileOnly project(':cloudnet-wrapper-jvm')
+    compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
+    compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
+}

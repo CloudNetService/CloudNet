@@ -137,8 +137,8 @@ public final class NukkitCloudNetHelper {
                 false,
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.NUKKIT,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }
@@ -171,8 +171,8 @@ public final class NukkitCloudNetHelper {
                 new HostAndPort(player.getAddress(), player.getPort()),
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.NUKKIT,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }

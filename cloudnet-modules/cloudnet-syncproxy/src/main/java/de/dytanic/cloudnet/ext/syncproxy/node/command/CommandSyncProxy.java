@@ -85,7 +85,7 @@ public final class CommandSyncProxy extends SubCommandHandler {
                                     );
                                 },
                                 exactStringIgnoreCase("maxPlayers"),
-                                boolean_("enabled")
+                                bool("enabled")
                         )
 
                         .prefix(exactStringIgnoreCase("whitelist"))
@@ -131,6 +131,27 @@ public final class CommandSyncProxy extends SubCommandHandler {
                                 },
                                 exactStringIgnoreCase("remove"),
                                 dynamicString("name")
+                        )
+
+                        .removeLastPrefix()
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String targetGroup = (String) args.argument("targetGroup").get();
+                                    boolean maintenance = (boolean) args.argument("enabled").get();
+
+                                    SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
+                                    configuration.setMaintenance(maintenance);
+                                    saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
+
+                                    sender.sendMessage(
+                                            LanguageManager.getMessage("module-syncproxy-command-set-maintenance")
+                                                    .replace("%group%", configuration.getTargetGroup())
+                                                    .replace("%maintenance%", String.valueOf(maintenance))
+                                    );
+                                },
+                                exactStringIgnoreCase("maintenance"),
+                                bool("enabled")
                         )
 
                         .getSubCommands(),

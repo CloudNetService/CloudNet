@@ -45,6 +45,8 @@ public final class NettyNetworkClient implements INetworkClient {
 
     protected SslContext sslContext;
 
+    protected long connectedTime;
+
     public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler) {
         this(networkChannelHandler, null, null);
     }
@@ -108,7 +110,7 @@ public final class NettyNetworkClient implements INetworkClient {
                     .option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2500)
                     .channel(NettyUtils.getSocketChannelClass())
-                    .handler(new NettyNetworkClientInitializer(this, hostAndPort))
+                    .handler(new NettyNetworkClientInitializer(this, hostAndPort, () -> this.connectedTime = System.currentTimeMillis()))
                     .connect(hostAndPort.getHost(), hostAndPort.getPort())
                     .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
                     .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
@@ -146,6 +148,11 @@ public final class NettyNetworkClient implements INetworkClient {
         }
 
         this.channels.clear();
+    }
+
+    @Override
+    public long getConnectedTime() {
+        return this.connectedTime;
     }
 
     @Override

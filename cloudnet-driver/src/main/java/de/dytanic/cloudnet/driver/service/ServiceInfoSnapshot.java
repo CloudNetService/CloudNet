@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.service;
 
+import com.google.common.collect.ComparisonChain;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
@@ -9,12 +10,13 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable {
+public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot> {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
     }.getType();
@@ -25,7 +27,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     protected HostAndPort address;
 
-    protected boolean connected;
+    protected long connectedTime;
 
     protected ServiceLifeCycle lifeCycle;
 
@@ -33,15 +35,15 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     protected ServiceConfiguration configuration;
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
-        this(creationTime, serviceId, address, connected, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
+    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+        this(creationTime, serviceId, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
     }
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, boolean connected, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
+    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
         this.creationTime = creationTime;
         this.serviceId = serviceId;
         this.address = address;
-        this.connected = connected;
+        this.connectedTime = connectedTime;
         this.lifeCycle = lifeCycle;
         this.processSnapshot = processSnapshot;
         this.properties = properties;
@@ -64,11 +66,15 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     }
 
     public boolean isConnected() {
-        return this.connected;
+        return this.connectedTime != -1;
     }
 
-    public void setConnected(boolean connected) {
-        this.connected = connected;
+    public long getConnectedTime() {
+        return this.connectedTime;
+    }
+
+    public void setConnectedTime(long connectedTime) {
+        this.connectedTime = connectedTime;
     }
 
     public ServiceLifeCycle getLifeCycle() {
@@ -98,5 +104,13 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     @Override
     public String getName() {
         return this.serviceId.getName();
+    }
+
+    @Override
+    public int compareTo(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+        return ComparisonChain.start()
+                .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
+                .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
+                .result();
     }
 }

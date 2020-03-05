@@ -108,8 +108,8 @@ public final class SpongeCloudNetHelper {
                 false,
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }
@@ -144,8 +144,8 @@ public final class SpongeCloudNetHelper {
                 new HostAndPort(player.getConnection().getAddress()),
                 new NetworkServiceInfo(
                         ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }

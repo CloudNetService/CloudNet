@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.node.command;
 
+import com.google.common.primitives.Longs;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
@@ -27,10 +28,11 @@ public final class CommandPlayers extends SubCommandHandler {
         super(
                 SubCommandBuilder.create()
 
+                        .prefix(anyStringIgnoreCase("online", "list"))
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     sender.sendMessage("=> Online: " + NodePlayerManager.getInstance().getOnlineCount());
-                                    if (NodePlayerManager.getInstance().getRegisteredCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
+                                    if (!properties.containsKey("force") && NodePlayerManager.getInstance().getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
@@ -45,12 +47,56 @@ public final class CommandPlayers extends SubCommandHandler {
                                         );
                                     }
                                 },
-                                anyStringIgnoreCase("online", "list")
+                                subCommand -> subCommand.enableProperties().appendUsage("| --force")
                         )
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    Long limit = properties.containsKey("limit") ? Longs.tryParse(properties.get("limit")) : null;
+                                    if (limit == null) {
+                                        limit = Long.MAX_VALUE;
+                                    }
+                                    long currentIndex = 0;
+
+                                    List<String> messages = new ArrayList<>();
+
+                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers()) {
+                                        if (properties.containsKey("name") &&
+                                                !player.getName().toLowerCase().contains(properties.get("name").toLowerCase())) {
+                                            continue;
+                                        }
+
+                                        if (currentIndex++ >= limit) {
+                                            break;
+                                        }
+
+                                        if (properties.containsKey("connect")) {
+                                            NodePlayerManager.getInstance().proxySendPlayer(player, properties.get("connect"));
+                                        }
+                                        if (properties.containsKey("message")) {
+                                            NodePlayerManager.getInstance().proxySendPlayerMessage(player, properties.get("message"));
+                                        }
+                                        if (properties.containsKey("kick")) {
+                                            NodePlayerManager.getInstance().proxyKickPlayer(player, properties.get("kick"));
+                                        }
+                                        if (properties.containsKey("showName")) {
+                                            messages.add(player.getName());
+                                        }
+                                    }
+
+                                    if (!messages.isEmpty()) {
+                                        Collections.sort(messages);
+                                        sender.sendMessage(String.join("; ", messages));
+                                    }
+                                },
+                                subCommand -> subCommand.enableProperties().appendUsage("| limit=50 | connect=Lobby-1 | \"message=Message to a User\" | \"kick=You got kicked\" | --showName | name=derrop"),
+                                anyStringIgnoreCase("foreach", "for")
+                        )
+                        .removeLastPrefix()
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     sender.sendMessage("=> Registered: " + NodePlayerManager.getInstance().getRegisteredCount());
-                                    if (NodePlayerManager.getInstance().getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
+                                    if (!properties.containsKey("force") && NodePlayerManager.getInstance().getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
@@ -59,6 +105,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                         sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | Last login: " + DATE_FORMAT.format(new Date(cloudPlayer.getLastLoginTimeMillis())));
                                     }
                                 },
+                                subCommand -> subCommand.enableProperties().appendUsage("| --force"),
                                 anyStringIgnoreCase("registered", "all")
                         )
 

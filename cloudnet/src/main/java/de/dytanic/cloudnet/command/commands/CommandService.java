@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
@@ -11,18 +12,20 @@ import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.event.ServiceListCommandEvent;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandService extends SubCommandHandler {
+
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public CommandService() {
         super(
@@ -37,9 +40,20 @@ public class CommandService extends SubCommandHandler {
                                                     || Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(properties.get("group")))
                                             .filter(serviceInfoSnapshot -> !properties.containsKey("task")
                                                     || properties.get("task").toLowerCase().contains(serviceInfoSnapshot.getServiceId().getTaskName().toLowerCase()))
-                                            .collect(Collectors.toSet());
+                                            .sorted()
+                                            .collect(Collectors.toList());
 
+                                    Collection<Function<ServiceInfoSnapshot, String>> additionalParameters = CloudNet.getInstance().getEventManager().callEvent(new ServiceListCommandEvent(new ArrayList<>()))
+                                            .getAdditionalParameters();
                                     for (ServiceInfoSnapshot serviceInfoSnapshot : targetServiceInfoSnapshots) {
+                                        String extension = additionalParameters.stream()
+                                                .map(function -> function.apply(serviceInfoSnapshot))
+                                                .filter(Objects::nonNull)
+                                                .collect(Collectors.joining(" | "));
+                                        if (!extension.isEmpty()) {
+                                            extension = " | " + extension;
+                                        }
+
                                         if (!properties.containsKey("names")) {
                                             sender.sendMessage(
                                                     serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0] +
@@ -48,11 +62,12 @@ public class CommandService extends SubCommandHandler {
                                                             " | Status: " + serviceInfoSnapshot.getLifeCycle() +
                                                             " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":" +
                                                             serviceInfoSnapshot.getAddress().getPort() +
-                                                            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
+                                                            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected") +
+                                                            extension
                                             );
                                         } else {
                                             sender.sendMessage(serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId() +
-                                                    " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
+                                                    " | " + serviceInfoSnapshot.getServiceId().getUniqueId() + extension);
                                         }
                                     }
 
@@ -67,9 +82,16 @@ public class CommandService extends SubCommandHandler {
                                 "name",
                                 LanguageManager.getMessage("command-service-service-not-found"),
                                 input -> !WildcardUtil.filterWildcard(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input).isEmpty(),
-                                () -> CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
-                                        .map(ServiceInfoSnapshot::getName)
-                                        .collect(Collectors.toList())
+                                () -> {
+                                    Collection<String> values = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                                            .map(ServiceInfoSnapshot::getName)
+                                            .collect(Collectors.toList());
+                                    values.addAll(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
+                                            .filter(serviceTask -> CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(serviceTask.getName()).size() > 1)
+                                            .map(serviceTask -> serviceTask.getName() + "-*")
+                                            .collect(Collectors.toList()));
+                                    return values;
+                                }
                         ))
                         .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             Collection<ServiceInfoSnapshot> serviceInfoSnapshots = WildcardUtil.filterWildcard(
@@ -193,8 +215,15 @@ public class CommandService extends SubCommandHandler {
                 " ",
                 "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
                 "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),
-                "* Port: " + serviceInfoSnapshot.getConfiguration().getPort(),
-                "* Connected: " + serviceInfoSnapshot.isConnected(),
+                "* Port: " + serviceInfoSnapshot.getConfiguration().getPort()
+        ));
+        if (serviceInfoSnapshot.isConnected()) {
+            list.add("* Connected: " + DATE_FORMAT.format(serviceInfoSnapshot.getConnectedTime()));
+        } else {
+            list.add("* Connected: false");
+        }
+
+        list.addAll(Arrays.asList(
                 "* Lifecycle: " + serviceInfoSnapshot.getLifeCycle(),
                 "* Groups: " + Arrays.toString(serviceInfoSnapshot.getConfiguration().getGroups()),
                 " "
@@ -223,7 +252,7 @@ public class CommandService extends SubCommandHandler {
         }
 
         list.add(" ");
-        list.add("* ServiceInfoSnapshot | " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(serviceInfoSnapshot.getCreationTime()));
+        list.add("* ServiceInfoSnapshot | " + DATE_FORMAT.format(serviceInfoSnapshot.getCreationTime()));
 
         list.addAll(Arrays.asList(
                 "PID: " + serviceInfoSnapshot.getProcessSnapshot().getPid(),

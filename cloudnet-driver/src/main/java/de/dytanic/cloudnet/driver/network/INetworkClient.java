@@ -14,4 +14,10 @@ public interface INetworkClient extends INetworkComponent, AutoCloseable {
      * @return true if the connection was success or false if the connection was unsuccessful or refused
      */
     boolean connect(@NotNull HostAndPort hostAndPort);
+
+    /**
+     * Gets the time when this client was connected to the server in milliseconds
+     */
+    long getConnectedTime();
+
 }

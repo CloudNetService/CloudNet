@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.player.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -229,6 +230,29 @@ public final class NodePlayerManager implements IPlayerManager {
                 new JsonDocument()
                         .append("uniqueId", uniqueId)
                         .append("message", message)
+        );
+    }
+
+    @Override
+    public void proxySendPluginMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String tag, @NotNull byte[] data) {
+        Preconditions.checkNotNull(cloudPlayer);
+
+        this.proxySendPluginMessage(cloudPlayer.getUniqueId(), tag, data);
+    }
+
+    @Override
+    public void proxySendPluginMessage(@NotNull UUID uniqueId, @NotNull String tag, @NotNull byte[] data) {
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(tag);
+        Preconditions.checkNotNull(data);
+
+        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
+                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                "send_plugin_message_to_proxy_player",
+                new JsonDocument()
+                        .append("uniqueId", uniqueId)
+                        .append("tag", tag)
+                        .append("data", Base64.getEncoder().encodeToString(data))
         );
     }
 

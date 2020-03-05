@@ -106,7 +106,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                             channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));
 
                             cloudService.setNetworkChannel(channel);
-                            cloudService.getServiceInfoSnapshot().setConnected(true);
+                            cloudService.getServiceInfoSnapshot().setConnectedTime(System.currentTimeMillis());
 
                             CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthCloudServiceSuccessEvent(cloudService, channel));
 

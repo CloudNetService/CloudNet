@@ -33,8 +33,7 @@ public final class CommandCloudSign implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            sender.sendMessage("§7/cloudsign create <targetGroup>");
-            sender.sendMessage("§7/cloudsign create <targetGroup> <templatePath>");
+            sender.sendMessage("§7/cloudsign create <targetGroup> [templatePath]");
             sender.sendMessage("§7/cloudsign remove");
             sender.sendMessage("§7/cloudsign cleanup");
             return true;

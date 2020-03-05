@@ -23,7 +23,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         if (args.length == 0) {
             sender.sendMessage(
-                    "create by <task> <count>",
+                    "create by <task> [count]",
                     "create new <name> <count> <" + Arrays.toString(ServiceEnvironmentType.values()) + ">",
                     " ",
                     "parameters: ",
@@ -43,8 +43,15 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
             return;
         }
 
-        Integer count;
-        if (args[0].equalsIgnoreCase("by") && args.length > 2 && (count = Ints.tryParse(args[2])) != null) {
+        if (args[0].equalsIgnoreCase("by") && args.length > 1) {
+            Integer countObj;
+            if (args.length == 2) {
+                countObj = 1;
+            } else if ((countObj = Ints.tryParse(args[2])) == null) {
+                return;
+            }
+            int count = countObj;
+
             CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
                     .filter(task -> task.getName().equalsIgnoreCase(args[1]))
                     .findFirst().ifPresent(serviceTask -> CloudNet.getInstance().getTaskScheduler().schedule(() -> {
@@ -105,7 +112,7 @@ public final class CommandCreate extends CommandDefault implements ITabCompleter
                             new ArrayList<>(),
                             new ProcessConfiguration(
                                     environmentType,
-                                    372,
+                                    environmentType.isMinecraftProxy() ? 256 : 512,
                                     new ArrayList<>()
                             ),
                             46949
