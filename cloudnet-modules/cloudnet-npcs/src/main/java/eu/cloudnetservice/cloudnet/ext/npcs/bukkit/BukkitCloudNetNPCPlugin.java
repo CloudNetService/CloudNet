@@ -41,13 +41,13 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
     }
 
     private void registerListeners() {
-        PluginCommand cloudNPCCommand = this.getCommand("cloudnpc");
+        PluginCommand pluginCommand = this.getCommand("cloudnpc");
 
-        if (cloudNPCCommand != null) {
-            cloudNPCCommand.setExecutor(new CloudNPCCommand(this.npcManagement));
-            cloudNPCCommand.setPermission("cloudnet.command.cloudnpc");
-            cloudNPCCommand.setUsage("/cloudnpc create <targetGroup> <displayName> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer>");
-            cloudNPCCommand.setDescription("Adds or removes server selector NPCs");
+        if (pluginCommand != null) {
+            pluginCommand.setExecutor(new CloudNPCCommand(this.npcManagement));
+            pluginCommand.setPermission("cloudnet.command.cloudnpc");
+            pluginCommand.setUsage("/cloudnpc create <targetGroup> <displayName> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer>");
+            pluginCommand.setDescription("Adds or removes server selector NPCs");
         }
 
         CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);

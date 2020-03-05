@@ -14,7 +14,6 @@ import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -190,8 +189,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 )
                 .replace("%online_servers%", String.valueOf(services.size()));
 
-        this.getInfoLineStand(cloudNPC).ifPresent(infoLineStand ->
-                infoLineStand.setCustomName(ChatColor.translateAlternateColorCodes('&', infoLine)));
+        this.getInfoLineStand(cloudNPC).ifPresent(infoLineStand -> infoLineStand.setCustomName(infoLine));
     }
 
     private void createNPC(CloudNPC cloudNPC) {
