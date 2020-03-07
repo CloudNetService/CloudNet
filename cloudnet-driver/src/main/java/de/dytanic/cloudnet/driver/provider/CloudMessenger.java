@@ -25,9 +25,10 @@ public interface CloudMessenger {
      * Sends a channel message to a specific service in the cluster.
      * It can be received with the {@link ChannelMessageReceiveEvent}.
      *
-     * @param channel the channel to identify the message, this can be anything and doesn't have to be registered
-     * @param message the message to identify the message, this can be anything and doesn't have to be registered
-     * @param data    extra data for the message
+     * @param targetServiceInfoSnapshot the info of the service which will receive the message
+     * @param channel                   the channel to identify the message, this can be anything and doesn't have to be registered
+     * @param message                   the message to identify the message, this can be anything and doesn't have to be registered
+     * @param data                      extra data for the message
      */
     void sendChannelMessage(@NotNull ServiceInfoSnapshot targetServiceInfoSnapshot, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
 
@@ -35,9 +36,10 @@ public interface CloudMessenger {
      * Sends a channel message to all services of a specific task in the cluster.
      * It can be received with the {@link ChannelMessageReceiveEvent}.
      *
-     * @param channel the channel to identify the message, this can be anything and doesn't have to be registered
-     * @param message the message to identify the message, this can be anything and doesn't have to be registered
-     * @param data    extra data for the message
+     * @param targetServiceTask the task which will receive the message
+     * @param channel           the channel to identify the message, this can be anything and doesn't have to be registered
+     * @param message           the message to identify the message, this can be anything and doesn't have to be registered
+     * @param data              extra data for the message
      */
     void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
     
