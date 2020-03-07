@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
+import de.dytanic.cloudnet.driver.provider.PermissionProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,22 +13,92 @@ import java.util.stream.Collectors;
 
 public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible> {
 
+    /**
+     * Sets the name of this permissible.
+     * <p>
+     * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
+     * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+     * You can also use the {@link PermissionProvider} to update.
+     *
+     * @param name the new name
+     */
     void setName(@NotNull String name);
 
+    /**
+     * Gets the potency of this permissible.
+     * If this permissible is an {@link IPermissionGroup}, {@link IPermissionManagement#getHighestPermissionGroup(IPermissionUser)} is sorted by the potency.
+     * If this permissible is an {@link IPermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you want.
+     *
+     * @return the potency of this permissible
+     */
     int getPotency();
 
+    /**
+     * Sets the potency of this permissible.
+     * <p>
+     * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
+     * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+     * You can also use the {@link PermissionProvider} to update.
+     *
+     * @param potency the new potency
+     */
     void setPotency(int potency);
 
+    /**
+     * Adds a new permission to this permissible and updates it if a permission with that name already exists.
+     * <p>
+     * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
+     * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+     * You can also use the {@link PermissionProvider} to update.
+     *
+     * @param permission the permission
+     * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission} was null
+     */
     boolean addPermission(@NotNull Permission permission);
 
+    /**
+     * Adds a new permission to this permissible and updates it if a permission with that name already exists.
+     * This permission will be only effective on servers which have the specified group.
+     * <p>
+     * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
+     * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+     * You can also use the {@link PermissionProvider} to update.
+     *
+     * @param group the group where this permission should be effective
+     * @param permission the permission
+     * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission} was null
+     */
     boolean addPermission(@NotNull String group, @NotNull Permission permission);
 
+    /**
+     * Removes a permission out of this permissible.
+     *
+     * @param permission the permission
+     * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code permission} doesn't exist
+     */
     boolean removePermission(@NotNull String permission);
 
+    /**
+     * Removes a permission for a specific group out of this permissible.
+     *
+     * @param group the group where this permission is effective
+     * @param permission the permission
+     * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code permission} doesn't exist
+     */
     boolean removePermission(@NotNull String group, @NotNull String permission);
 
+    /**
+     * Gets all effective global permissions. Permissions which are only effective on specific groups are not included.
+     *
+     * @return a mutable list of all permissions
+     */
     Collection<Permission> getPermissions();
 
+    /**
+     * Gets all effective permissions on a specific group. Global permissions are not included.
+     *
+     * @return a mutable map containing mutable lists of permissions
+     */
     Map<String, Collection<Permission>> getGroupPermissions();
 
     @Nullable
