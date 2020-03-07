@@ -217,7 +217,10 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 .imitatePlayer(cloudNPC.isImitatePlayer())
                 .spawnCustomizer((spawnedNPC, player) -> {
                     spawnedNPC.rotation().queueRotate(location.getYaw(), location.getPitch()).send(player);
-                    spawnedNPC.metadata().queueSkinLayers(true).send(player);
+                    spawnedNPC.metadata()
+                            .queueSkinLayers(true)
+                            .queueSneaking(false)
+                            .send(player);
 
                     Material material = Material.getMaterial(cloudNPC.getItemInHand());
                     if (material != null) {

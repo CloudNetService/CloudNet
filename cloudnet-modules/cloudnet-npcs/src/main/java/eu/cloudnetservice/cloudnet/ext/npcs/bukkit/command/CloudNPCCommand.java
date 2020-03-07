@@ -2,6 +2,8 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command;
 
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
@@ -32,7 +34,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
     private static final String DEFAULT_INFO_LINE = "§8• §7%online_players% of %max_players% players online §8•";
 
     private static final List<String> EDIT_COMMAND_PROPERTIES = Arrays.asList(
-            "infoLine", "targetGroup", "skinUUID", "shouldLookAtPlayer", "shouldImitatePlayer", "displayName"
+            "infoLine", "targetGroup", "skinOwnerName", "itemInHand", "shouldLookAtPlayer", "shouldImitatePlayer", "displayName"
     );
 
     private BukkitNPCManagement npcManagement;
@@ -71,14 +73,6 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
     }
 
     private void createNPC(Player player, String[] args) {
-        UUID skinUUID;
-        try {
-            skinUUID = UUID.fromString(args[2]);
-        } catch (IllegalArgumentException exception) {
-            player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-invalid-uuid"));
-            return;
-        }
-
         Material itemInHandMaterial = Material.getMaterial(args[3].toUpperCase());
         if (itemInHandMaterial == null) {
             player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-invalid-material"));
@@ -88,7 +82,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
         boolean lookAtPlayer = args[4].equalsIgnoreCase("true") || args[4].equalsIgnoreCase("yes");
         boolean imitatePlayer = args[5].equalsIgnoreCase("true") || args[5].equalsIgnoreCase("yes");
 
-        PlayerProfile skinProfile = Bukkit.createProfile(skinUUID);
+        PlayerProfile skinProfile = Bukkit.createProfile(args[2]);
         if (!skinProfile.complete()) {
             player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
             return;
@@ -149,16 +143,8 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
                     cloudNPC.setTargetGroup(value.split(" ")[0]);
                     break;
                 }
-                case "skinuuid": {
-                    UUID skinUUID;
-                    try {
-                        skinUUID = UUID.fromString(value);
-                    } catch (IllegalArgumentException exception) {
-                        player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-invalid-uuid"));
-                        return;
-                    }
-
-                    PlayerProfile skinProfile = Bukkit.createProfile(skinUUID);
+                case "skinownername": {
+                    PlayerProfile skinProfile = Bukkit.createProfile(value.split(" ")[0]);
                     if (!skinProfile.complete()) {
                         player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
                         return;
@@ -258,8 +244,9 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage("§8> §7/cloudnpc create <targetGroup> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
+        sender.sendMessage("§8> §7/cloudnpc create <targetGroup> <skinOwnerName> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer> <displayName>");
         sender.sendMessage(String.format("§8> §7/cloudnpc edit <%s> <value>", String.join(", ", EDIT_COMMAND_PROPERTIES)));
+        sender.sendMessage("§8> §7/cloudnpc remove");
         sender.sendMessage("§8> §7/cloudnpc list");
         sender.sendMessage("§8> §7/cloudnpc cleanup");
     }
@@ -268,11 +255,40 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
     @Nullable
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("create", "edit", "list", "cleanup");
+            return Arrays.asList("create", "edit", "remove", "list", "cleanup");
         }
 
-        if (args.length == 2 && args[0].equalsIgnoreCase("edit")) {
-            return EDIT_COMMAND_PROPERTIES;
+        if (args[0].equalsIgnoreCase("create")) {
+            if (args.length == 2) {
+                return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+                        .map(GroupConfiguration::getName)
+                        .collect(Collectors.toList());
+            } else if (args.length == 4) {
+                return Arrays.stream(Material.values())
+                        .map(Material::name)
+                        .collect(Collectors.toList());
+            } else if (args.length == 5 || args.length == 6) {
+                return Arrays.asList("true", "false");
+            }
+        } else if (args[0].equalsIgnoreCase("edit")) {
+            if (args.length == 2) {
+                return EDIT_COMMAND_PROPERTIES;
+            } else if (args.length == 3) {
+                String editProperty = args[1];
+
+                if (editProperty.equalsIgnoreCase("targetGroup")) {
+                    return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+                            .map(GroupConfiguration::getName)
+                            .collect(Collectors.toList());
+                } else if (editProperty.equalsIgnoreCase("itemInHand")) {
+                    return Arrays.stream(Material.values())
+                            .map(Material::name)
+                            .collect(Collectors.toList());
+                } else if (editProperty.toLowerCase().startsWith("should")) {
+                    return Arrays.asList("true", "false");
+                }
+
+            }
         }
 
         return Collections.emptyList();
