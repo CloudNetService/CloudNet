@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.launcher.version.VersionInfo;
 import de.dytanic.cloudnet.launcher.version.update.FallbackUpdater;
 import de.dytanic.cloudnet.launcher.version.update.RepositoryUpdater;
 import de.dytanic.cloudnet.launcher.version.update.Updater;
+import de.dytanic.cloudnet.launcher.version.update.jenkins.JenkinsUpdater;
 import de.dytanic.cloudnet.launcher.version.util.Dependency;
 import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
@@ -191,13 +192,22 @@ public final class CloudNetLauncher {
         // handles the installing of the artifacts contained in the launcher itself
         versionInfo.put(Constants.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(Constants.FALLBACK_VERSION), gitHubRepository));
 
-        if (this.variables.get(Constants.LAUNCHER_DEV_MODE).equalsIgnoreCase("true")) {
+        if (this.variables.getOrDefault(Constants.LAUNCHER_DEV_MODE, "false").equalsIgnoreCase("true")) {
             // dev mode is on, only using the fallback version
             return versionInfo;
         }
 
-        if (this.variables.get(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
+        if (this.variables.getOrDefault(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE, "true").equalsIgnoreCase("true")) {
             Updater updater = new RepositoryUpdater(this.variables.get(Constants.CLOUDNET_REPOSITORY));
+
+            if (updater.init(LAUNCHER_VERSIONS, gitHubRepository)) {
+                versionInfo.put(updater.getFullVersion(), updater);
+            }
+        }
+
+        if (this.variables.getOrDefault(Constants.CLOUDNET_SNAPSHOTS, "false").equalsIgnoreCase("true")) {
+            Updater updater = new JenkinsUpdater(this.variables.getOrDefault(Constants.CLOUDNET_SNAPSHOTS_JOB_URL,
+                    "https://ci.cloudnetservice.eu/job/CloudNetService/job/CloudNet-v3/job/development/"));
 
             if (updater.init(LAUNCHER_VERSIONS, gitHubRepository)) {
                 versionInfo.put(updater.getFullVersion(), updater);
