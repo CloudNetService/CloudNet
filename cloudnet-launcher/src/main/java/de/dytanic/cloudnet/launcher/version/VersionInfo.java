@@ -54,9 +54,7 @@ public interface VersionInfo {
 
                 }
             }
-
-        } catch (IOException exception) {
-            return new GitCommit(gitCommitHash, null, null);
+        } catch (IOException ignored) {
         }
 
         return new GitCommit(gitCommitHash, null, null);

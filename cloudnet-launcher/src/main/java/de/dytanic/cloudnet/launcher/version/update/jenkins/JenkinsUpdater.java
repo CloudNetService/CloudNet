@@ -37,12 +37,14 @@ public class JenkinsUpdater implements Updater {
         try (InputStream inputStream = this.readFromURL(this.jenkinsJobUrl + "lastSuccessfulBuild/api/json")) {
             this.jenkinsBuild = Constants.GSON.fromJson(new InputStreamReader(inputStream), JenkinsBuild.class);
 
-            this.appVersion = this.readImplementationVersion(
+            String[] versionParts = this.readImplementationVersion(
                     this.jenkinsBuild.getArtifacts().stream()
                             .filter(artifact -> artifact.getFileName().equalsIgnoreCase("launcher.jar"))
                             .findFirst()
                             .orElse(null)
-            );
+            ).split("-");
+
+            this.appVersion = versionParts[0] + "-" + versionParts[1];
             this.latestGitCommit = this.requestLatestGitCommit(this.jenkinsBuild.getGitCommitHash());
 
             this.targetDirectory = versionDirectory.resolve(this.getFullVersion());
@@ -99,7 +101,7 @@ public class JenkinsUpdater implements Updater {
 
     @Override
     public String getCurrentVersion() {
-        return null;
+        return this.appVersion;
     }
 
     @Override
