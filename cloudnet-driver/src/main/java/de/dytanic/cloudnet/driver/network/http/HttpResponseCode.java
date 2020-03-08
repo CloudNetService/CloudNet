@@ -32,6 +32,7 @@ public final class HttpResponseCode {
             HTTP_ENTITY_TOO_LARGE = 413,
             HTTP_REQ_TOO_LONG = 414,
             HTTP_UNSUPPORTED_TYPE = 415,
+            HTTP_TOO_MANY_REQUESTS = 429,
             HTTP_INTERNAL_ERROR = 500,
             HTTP_NOT_IMPLEMENTED = 501,
             HTTP_BAD_GATEWAY = 502,

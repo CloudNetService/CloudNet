@@ -1,4 +1,8 @@
-package de.dytanic.cloudnet.driver.network.http;
+package de.dytanic.cloudnet.driver.network.http.handler;
+
+import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
+import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
 
 public class RedirectHttpHandler extends MethodHttpHandlerAdapter {
 

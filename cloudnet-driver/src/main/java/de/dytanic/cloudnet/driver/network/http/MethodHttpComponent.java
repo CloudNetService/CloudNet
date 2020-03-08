@@ -1,5 +1,10 @@
 package de.dytanic.cloudnet.driver.network.http;
 
+import de.dytanic.cloudnet.driver.network.http.handler.RateLimitingHttpHandler;
+import de.dytanic.cloudnet.driver.network.http.handler.RedirectHttpHandler;
+
+import java.util.concurrent.TimeUnit;
+
 public interface MethodHttpComponent<T extends MethodHttpComponent<?>> extends IHttpComponent<T>, AutoCloseable {
 
     String GLOBAL_PATH = "/*";
@@ -91,4 +96,9 @@ public interface MethodHttpComponent<T extends MethodHttpComponent<?>> extends I
     default T redirect(String path, String target) {
         return this.registerHandler(path, IHttpHandler.PRIORITY_HIGH, new RedirectHttpHandler(target));
     }
+
+    default T rateLimit(String path, TimeUnit unit, int maxRequestsPerUnit) {
+        return this.before(path, new RateLimitingHttpHandler(maxRequestsPerUnit, unit));
+    }
+
 }
