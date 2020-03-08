@@ -410,10 +410,13 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     private void executeForAllServices(Consumer<ICloudService> consumer) {
+        if (this.cloudServices.isEmpty()) {
+            return;
+        }
         Collection<ICloudService> cloudServices = new ArrayList<>(this.cloudServices.values());
 
         CountDownLatch countDownLatch = new CountDownLatch(cloudServices.size());
-        ExecutorService executorService = Executors.newFixedThreadPool(cloudServices.size() / 2 + 1);
+        ExecutorService executorService = Executors.newFixedThreadPool((cloudServices.size() / 2) + 1);
 
         for (ICloudService cloudService : this.cloudServices.values()) {
             executorService.execute(() -> {
