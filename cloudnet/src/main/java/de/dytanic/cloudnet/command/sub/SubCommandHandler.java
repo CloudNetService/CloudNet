@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.sub;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
@@ -99,7 +100,19 @@ public class SubCommandHandler extends Command implements ITabCompleter {
             return;
         }
 
-        subCommand.execute(subCommand, sender, command, new SubCommandArgumentWrapper(parsedArgs), commandLine, subCommand.parseProperties(args), new HashMap<>());
+        if (subCommand.isAsync()) {
+            CloudNet.getInstance().getTaskScheduler().schedule(() ->
+                    subCommand.execute(
+                            subCommand, sender, command, new SubCommandArgumentWrapper(parsedArgs),
+                            commandLine, subCommand.parseProperties(args), new HashMap<>()
+                    )
+            );
+        } else {
+            subCommand.execute(
+                    subCommand, sender, command, new SubCommandArgumentWrapper(parsedArgs),
+                    commandLine, subCommand.parseProperties(args), new HashMap<>()
+            );
+        }
     }
 
     protected void sendHelp(ICommandSender sender) {
