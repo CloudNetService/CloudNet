@@ -196,9 +196,15 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
         try {
             super.eraseLastLine(); //erase prompt
-            super.getConsole().forceWriteLine("&c" + answerType.getInvalidInputMessage(input));
+
+            String[] lines = answerType.getInvalidInputMessage(input).split(System.lineSeparator());
+            for (String line : lines) {
+                super.getConsole().forceWriteLine("&c" + line);
+            }
+
             Thread.sleep(3000);
-            super.eraseLastLine(); //erase invalid input message
+
+            super.getConsole().writeRaw(this.eraseLines(Ansi.ansi().reset(), lines.length).toString()); //erase invalid input message
 
             super.getConsole().setCommandHistory(answerType.getCompletableAnswers());
         } catch (InterruptedException exception) {

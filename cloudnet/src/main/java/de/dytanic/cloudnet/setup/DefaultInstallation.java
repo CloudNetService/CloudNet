@@ -16,11 +16,6 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.install.ServiceVersion;
-import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
-import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
