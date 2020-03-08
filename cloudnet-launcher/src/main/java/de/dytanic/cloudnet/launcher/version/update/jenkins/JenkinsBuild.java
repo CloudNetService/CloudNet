@@ -19,8 +19,12 @@ public class JenkinsBuild {
     }
 
     public String getGitCommitHash() {
-        if (this.changeSets.size() > 0 && this.changeSets.get(0).items.size() > 0) {
-            return this.changeSets.get(0).items.get(0).commitId;
+        if (this.changeSets.size() > 0) {
+            ChangeSetList changeSetList = this.changeSets.get(0);
+
+            if (changeSetList.items.size() > 0) {
+                return changeSetList.items.get(changeSetList.items.size() - 1).commitId;
+            }
         }
         return null;
     }
