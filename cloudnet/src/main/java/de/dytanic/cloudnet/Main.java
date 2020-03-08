@@ -28,7 +28,6 @@ public final class Main {
         logger.setLevel(LogLevel.FATAL);
 
         initLoggerAndConsole(console, logger);
-        HeaderReader.readAndPrintHeader(console);
 
         CloudNet cloudNet = new CloudNet(Arrays.asList(args), logger, console);
         cloudNet.start();

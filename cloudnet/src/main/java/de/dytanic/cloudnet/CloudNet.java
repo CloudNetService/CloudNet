@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfigurationRegistry;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -78,6 +79,7 @@ import de.dytanic.cloudnet.provider.service.NodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
@@ -194,9 +196,13 @@ public final class CloudNet extends CloudNetDriver {
             Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
+        this.initServiceVersions();
+
         boolean configFileAvailable = this.config.isFileExists();
         this.config.load();
         this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
+
+        HeaderReader.readAndPrintHeader(console);
 
         if (this.config.getMaxMemory() < 2048) {
             CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
@@ -222,8 +228,6 @@ public final class CloudNet extends CloudNetDriver {
 
         this.registerDefaultCommands();
         this.registerDefaultServices();
-
-        this.initServiceVersions();
 
         this.currentNetworkClusterNodeInfoSnapshot = createClusterNodeInfoSnapshot();
         this.lastNetworkClusterNodeInfoSnapshot = currentNetworkClusterNodeInfoSnapshot;

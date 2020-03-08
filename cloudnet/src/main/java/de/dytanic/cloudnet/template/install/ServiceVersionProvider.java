@@ -83,6 +83,14 @@ public class ServiceVersionProvider {
     }
 
 
+    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ServiceTemplate serviceTemplate) {
+        ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, serviceTemplate.getStorage());
+        if (storage == null) {
+            throw new IllegalArgumentException("Storage " + serviceTemplate.getStorage() + " not found");
+        }
+        return this.installServiceVersion(serviceVersionType, serviceVersion, storage, serviceTemplate);
+    }
+
     public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
         if (!serviceVersionType.getInstallerType().canInstall(serviceVersion)) {
             throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + "#" + serviceVersionType.getInstallerType() + " on " + JavaVersion.getRuntimeVersion().getName());
