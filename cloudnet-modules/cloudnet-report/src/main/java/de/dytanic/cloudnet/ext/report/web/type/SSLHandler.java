@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class SSLHandler extends ReportHandler {
     @Override
-    public String load(IHttpContext context) {
+    public Map<String, Object> load() {
         Map<String, Object> replacements = new HashMap<>();
 
         Map<String, ConfigurationOptionSSL> sslConfigs = new HashMap<>();
@@ -26,7 +26,6 @@ public class SSLHandler extends ReportHandler {
             replacements.put(prefix + ".privateKeyPath", value.getPrivateKeyPath());
         });
 
-        String file = super.loadFile("ssl.html");
-        return super.replace(file, replacements);
+        return replacements;
     }
 }

@@ -26,7 +26,7 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
         ch.pipeline()
                 .addLast("http-server-codec", new HttpServerCodec())
-                .addLast("http-object-aggregator", new HttpObjectAggregator(Short.MAX_VALUE))
+                .addLast("http-object-aggregator", new HttpObjectAggregator(Integer.MAX_VALUE))
                 .addLast("http-server-handler", new NettyHttpServerHandler(nettyHttpServer, hostAndPort))
         ;
     }

@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.ext.report.web;
+package de.dytanic.cloudnet.ext.report.web.local;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -18,7 +18,7 @@ public class CloudNetWebReportAssetsHandler implements IHttpHandler {
 
     @Override
     public void handle(String path, IHttpContext context) throws Exception {
-        if (path.contains("..")) {
+        if (!CloudNetReportModule.getInstance().getWebReportProvider().isWebEnabled() || path.contains("..")) {
             return;
         }
 

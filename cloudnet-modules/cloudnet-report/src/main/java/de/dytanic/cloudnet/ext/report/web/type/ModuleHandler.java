@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class ModuleHandler extends ReportHandler {
     @Override
-    public String load(IHttpContext context) {
+    public Map<String, Object> load() {
         String rawModuleFile = super.loadFile("module.html");
         Collection<String> modules = new ArrayList<>();
 
@@ -53,7 +53,6 @@ public class ModuleHandler extends ReportHandler {
         replacements.put("modules.count", CloudNet.getInstance().getModuleProvider().getModules().size());
         replacements.put("modules.list", String.join("\n", modules));
 
-        String file = super.loadFile("modules.html");
-        return super.replace(file, replacements);
+        return replacements;
     }
 }

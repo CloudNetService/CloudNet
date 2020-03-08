@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.ext.report.web;
+package de.dytanic.cloudnet.ext.report.web.local;
 
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
@@ -9,7 +9,7 @@ public class CloudNetWebReportHandler implements IHttpHandler {
 
     @Override
     public void handle(String path, IHttpContext context) throws Exception {
-        if (!CloudNetReportModule.getInstance().isWebEnabled()) {
+        if (!CloudNetReportModule.getInstance().getWebReportProvider().isWebEnabled()) {
             context.response()
                     .statusCode(404)
                     .context()
@@ -21,7 +21,7 @@ public class CloudNetWebReportHandler implements IHttpHandler {
         if (type == null || type.isEmpty()) {
             type = "index.html";
         }
-        String response = ReportHandlers.loadTypeContents(type, context);
+        String response = ReportHandlers.loadTypeContents(type);
 
         if (response == null) {
             context.response()

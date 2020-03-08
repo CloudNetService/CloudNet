@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class TasksHandler extends ReportHandler {
 
     @Override
-    public String load(IHttpContext context) {
+    public Map<String, Object> load() {
         String rawTaskFile = super.loadFile("task.html");
         Collection<String> tasks = new ArrayList<>();
 
@@ -59,10 +59,9 @@ public class TasksHandler extends ReportHandler {
 
         Map<String, Object> replacements = new HashMap<>();
 
-        replacements.put("tasks.count", CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks().size());
+        replacements.put("tasks.count", tasks.size());
         replacements.put("tasks.list", String.join("\n", tasks));
 
-        String file = super.loadFile("tasks.html");
-        return super.replace(file, replacements);
+        return replacements;
     }
 }

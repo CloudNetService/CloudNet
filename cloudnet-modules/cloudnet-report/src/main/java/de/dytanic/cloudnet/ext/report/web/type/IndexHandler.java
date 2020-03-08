@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class IndexHandler extends ReportHandler {
     @Override
-    public String load(IHttpContext context) {
+    public Map<String, Object> load() {
         Map<String, Object> replacements = new HashMap<>();
 
         replacements.put("node.name", CloudNet.getInstance().getConfig().getIdentity().getUniqueId());
@@ -52,8 +52,6 @@ public class IndexHandler extends ReportHandler {
         );
         replacements.put("node.hostAddress", CloudNet.getInstance().getConfig().getHostAddress());
 
-
-        String file = super.loadFile("index.html");
-        return super.replace(file, replacements);
+        return replacements;
     }
 }

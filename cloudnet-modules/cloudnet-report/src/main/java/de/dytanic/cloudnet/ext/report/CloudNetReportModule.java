@@ -16,7 +16,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.module.*;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
-import de.dytanic.cloudnet.driver.network.http.RedirectHttpHandler;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.report.command.CommandPaste;
@@ -24,8 +23,7 @@ import de.dytanic.cloudnet.ext.report.command.CommandReport;
 import de.dytanic.cloudnet.ext.report.command.CommandWebReport;
 import de.dytanic.cloudnet.ext.report.listener.CloudNetReportListener;
 import de.dytanic.cloudnet.ext.report.util.PasteServerType;
-import de.dytanic.cloudnet.ext.report.web.CloudNetWebReportAssetsHandler;
-import de.dytanic.cloudnet.ext.report.web.CloudNetWebReportHandler;
+import de.dytanic.cloudnet.ext.report.web.WebReportProvider;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
@@ -54,7 +52,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     private final IFormatter logFormatter = new DefaultLogFormatter();
 
-    private boolean webEnabled = false;
+    private WebReportProvider webReportProvider;
 
     public static CloudNetReportModule getInstance() {
         return CloudNetReportModule.instance;
@@ -71,6 +69,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         getConfig().getString("recordDestinationDirectory", "records");
         getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
         getConfig().getString("pasteServerUrl", "https://hasteb.in");
+        this.webReportProvider = new WebReportProvider(getConfig().getString("webReportUrl", "https://report.cloudnetservice.eu"));
 
         saveConfig();
     }
@@ -95,10 +94,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void registerHttpHandlers() {
-        getHttpServer().redirect("/report", "/report/index.html");
-        getHttpServer().get("/report/{type}", new CloudNetWebReportHandler());
-        CloudNetWebReportAssetsHandler assetsHandler = new CloudNetWebReportAssetsHandler();
-        getHttpServer().get(assetsHandler.getPath(), assetsHandler);
+        this.webReportProvider.registerHttpHandlers(super.getHttpServer());
     }
 
     public String getPasteURL() {
@@ -112,12 +108,8 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
                 .toArray(String[]::new);
     }
 
-    public boolean isWebEnabled() {
-        return this.webEnabled;
-    }
-
-    public void setWebEnabled(boolean webEnabled) {
-        this.webEnabled = webEnabled;
+    public WebReportProvider getWebReportProvider() {
+        return this.webReportProvider;
     }
 
     public String executePaste(String content) {

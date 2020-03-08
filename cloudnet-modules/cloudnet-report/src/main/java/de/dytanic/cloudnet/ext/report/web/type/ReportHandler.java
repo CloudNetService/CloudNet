@@ -11,7 +11,7 @@ import java.util.Map;
 
 public abstract class ReportHandler {
 
-    public abstract String load(IHttpContext context);
+    public abstract Map<String, Object> load();
 
     protected final String loadFile(String path) {
         try (InputStream inputStream = CloudNetReportModule.class.getClassLoader().getResourceAsStream("web/" + path)) {

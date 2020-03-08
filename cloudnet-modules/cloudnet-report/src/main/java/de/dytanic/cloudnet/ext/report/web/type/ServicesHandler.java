@@ -17,7 +17,7 @@ public class ServicesHandler extends ReportHandler {
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     @Override
-    public String load(IHttpContext context) {
+    public Map<String, Object> load() {
         String rawServiceFile = super.loadFile("service.html");
         Collection<String> services = new ArrayList<>();
 
@@ -75,7 +75,6 @@ public class ServicesHandler extends ReportHandler {
         replacements.put("services.count.local", CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices().size());
         replacements.put("services.list", String.join("\n", services));
 
-        String file = super.loadFile("services.html");
-        return super.replace(file, replacements);
+        return replacements;
     }
 }
