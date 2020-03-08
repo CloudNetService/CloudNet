@@ -25,8 +25,8 @@
                     <li class="nav-item" role="presentation"><a class="nav-link" href="index.html"><span>Dashboard</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="ssl.html"><span>SSL Configs</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="modules.html"><span>Modules</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="services.html"><span>Services</span></a>
-                        <a class="nav-link" href="groups.html"><span>Groups</span></a>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="services.html"><span>Services</span></a>
+                        <a class="nav-link active" href="groups.html"><span>Groups</span></a>
                         <a class="nav-link" href="tasks.html"><span>Tasks</span></a>
                         <a class="nav-link" href="nodelog.html"><span>Node Log</span></a>
                     </li>
@@ -39,9 +39,9 @@
                     <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button></div>
                 </nav>
                 <div class="container-fluid">
-                    <h3 class="text-dark mb-4">Services (Global: ${services.count.global} Local: ${services.count.local})</h3>
+                    <h3 class="text-dark mb-4">Groups (${groups.count})</h3>
                     <div class="row mb-3">
-                        ${services.list}
+                        ${groups.list}
                     </div>
                 </div>
             </div>
