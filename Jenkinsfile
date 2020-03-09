@@ -52,6 +52,12 @@ pipeline {
       }
     }
     stage('Maven Publish') {
+      when {
+        anyOf {
+          branch 'master';
+          branch 'development';
+        }
+      }
       steps {
         echo 'Creating artifacts and uploading to Apache Archiva...';
         sh './gradlew publish';
@@ -66,8 +72,8 @@ pipeline {
     }
     stage('Archive') {
       steps {
-        archiveArtifacts artifacts: '**/build/libs/*.jar'
-        archiveArtifacts artifacts: '**/build/libs/*.cnl'
+        archiveArtifacts artifacts: '**/build/libs/*.jar';
+        archiveArtifacts artifacts: '**/build/libs/*.cnl';
       }
     }
   }
