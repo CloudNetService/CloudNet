@@ -50,6 +50,12 @@ public class ServiceVersionProvider {
         return success;
     }
 
+    public void shutdown() {
+        for (ServiceVersionInstaller value : this.installers.values()) {
+            value.shutdown();
+        }
+    }
+
     public void loadDefaultVersionTypes() {
         this.loadVersionsFromInputStream(this.getClass().getClassLoader().getResourceAsStream("files/versions.json"));
     }

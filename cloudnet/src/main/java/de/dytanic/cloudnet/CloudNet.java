@@ -315,6 +315,8 @@ public final class CloudNet extends CloudNetDriver {
 
         this.logger.info(LanguageManager.getMessage("stop-start-message"));
 
+        this.serviceVersionProvider.shutdown();
+
         this.cloudServiceManager.deleteAllCloudServices();
         this.taskScheduler.shutdown();
 

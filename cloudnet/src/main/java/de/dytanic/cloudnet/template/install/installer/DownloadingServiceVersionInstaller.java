@@ -30,4 +30,7 @@ public class DownloadingServiceVersionInstaller implements ServiceVersionInstall
         }
     }
 
+    @Override
+    public void shutdown() {
+    }
 }
