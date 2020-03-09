@@ -51,12 +51,10 @@ pipeline {
         sh 'rm -r temp/';
       }
     }
-    stage('Maven') {
+    stage('Maven Publish') {
       steps {
-        echo 'Creating artifacts for the maven repo...';
-        sh './gradlew sourceJar';
-        sh './gradlew deploymentJar';
-        sh './gradlew javadocJar';
+        echo 'Creating artifacts and uploading to Apache Archiva...';
+        sh './gradlew publish';
       }
     }
     stage('Javadoc') {
