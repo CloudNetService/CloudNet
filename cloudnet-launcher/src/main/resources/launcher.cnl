@@ -3,12 +3,17 @@
 # You can use the '#' symbol to make a comment
 
 var cloudnet.launcher.select.version default
-var cloudnet.launcher.devmode false
+var cloudnet.launcher.dev-mode false
 var cloudnet.versions.url https://cloudnetservice.eu/cloudnet/versions.json
 var cloudnet.repository https://cloudnetservice.eu/cloudnet/updates/
 var cloudnet.repository.github CloudNetService/CloudNet-v3
 var cloudnet.auto-update true
 var cloudnet.messages.language english
+
+# this makes the launcher download and start snapshot versions of the cloud
+# it's not recommended to enable this in production, snapshot versions aren't fully tested and might contain bugs
+var cloudnet.snapshots.use-snapshots false
+var cloudnet.snapshots.job.url https://ci.cloudnetservice.eu/job/CloudNetService/job/CloudNet-v3/job/development/
 
 var cloudnet.logging.defaultlevel FATAL
 # available default log levels: INFO, IMPORTANT, COMMAND, WARNING, ERROR, FATAL, EXTENDED, DEBUG, ALL
