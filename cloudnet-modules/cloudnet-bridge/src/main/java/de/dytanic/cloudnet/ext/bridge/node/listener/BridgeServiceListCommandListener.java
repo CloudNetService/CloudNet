@@ -11,6 +11,12 @@ public class BridgeServiceListCommandListener {
         event.addParameter(serviceInfoSnapshot -> ServiceInfoSnapshotUtil.isOnline(serviceInfoSnapshot) ?
                 "Players: " + ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot) + "/" + ServiceInfoSnapshotUtil.getMaxPlayers(serviceInfoSnapshot) :
                 null);
+
+        long onlineServices = event.getTargetServiceInfoSnapshots().stream().filter(ServiceInfoSnapshotUtil::isOnline).count();
+        long inGameServices = event.getTargetServiceInfoSnapshots().stream().filter(ServiceInfoSnapshotUtil::isIngameService).count();
+
+        event.addSummaryParameter("Online: " + onlineServices);
+        event.addSummaryParameter("Ingame: " + inGameServices);
     }
 
 }

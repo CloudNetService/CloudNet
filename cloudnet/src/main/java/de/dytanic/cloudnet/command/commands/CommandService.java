@@ -43,10 +43,9 @@ public class CommandService extends SubCommandHandler {
                                             .sorted()
                                             .collect(Collectors.toList());
 
-                                    Collection<Function<ServiceInfoSnapshot, String>> additionalParameters = CloudNet.getInstance().getEventManager().callEvent(new ServiceListCommandEvent(new ArrayList<>()))
-                                            .getAdditionalParameters();
+                                    ServiceListCommandEvent event = CloudNet.getInstance().getEventManager().callEvent(new ServiceListCommandEvent(targetServiceInfoSnapshots));
                                     for (ServiceInfoSnapshot serviceInfoSnapshot : targetServiceInfoSnapshots) {
-                                        String extension = additionalParameters.stream()
+                                        String extension = event.getAdditionalParameters().stream()
                                                 .map(function -> function.apply(serviceInfoSnapshot))
                                                 .filter(Objects::nonNull)
                                                 .collect(Collectors.joining(" | "));
@@ -71,7 +70,11 @@ public class CommandService extends SubCommandHandler {
                                         }
                                     }
 
-                                    sender.sendMessage(String.format("=> Showing %d service(s)", targetServiceInfoSnapshots.size()));
+                                    StringBuilder builder = new StringBuilder(String.format("=> Showing %d service(s)", targetServiceInfoSnapshots.size()));
+                                    for (String parameter : event.getAdditionalSummary()) {
+                                        builder.append("; ").append(parameter);
+                                    }
+                                    sender.sendMessage(builder.toString());
                                 },
                                 subCommand -> subCommand.enableProperties().appendUsage("| id=<text> | task=<text> | group=<text> | --names"),
                                 anyStringIgnoreCase("list", "l")
