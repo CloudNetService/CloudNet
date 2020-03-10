@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class DefaultTaskSetup {
+public class DefaultTaskSetup implements DefaultSetup {
 
     private static final String GLOBAL_TEMPLATE_PREFIX = "Global";
     private static final String GLOBAL_PROXY_GROUP_NAME = "Global-Proxy";
@@ -30,7 +30,8 @@ public class DefaultTaskSetup {
 
     private boolean shouldExecute = false;
 
-    public void execute(ConsoleQuestionListAnimation animation) {
+    @Override
+    public void postExecute(ConsoleQuestionListAnimation animation) {
         if (!this.shouldExecute) {
             return;
         }
@@ -69,6 +70,11 @@ public class DefaultTaskSetup {
         CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(globalProxyGroup);
     }
 
+    @Override
+    public boolean shouldAsk(boolean configFileAvailable) {
+        return !CloudNet.getInstance().getCloudServiceManager().isFileCreated();
+    }
+
     private void install(ServiceEnvironmentType environment, String taskName, String globalGroupName, int maxHeapMemorySize) {
         ServiceTask serviceTask = new ServiceTask(
                 new ArrayList<>(),
@@ -103,7 +109,8 @@ public class DefaultTaskSetup {
         CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(new EmptyGroupConfiguration(taskName));
     }
 
-    public void applyTaskQuestions(ConsoleQuestionListAnimation animation) {
+    @Override
+    public void applyQuestions(ConsoleQuestionListAnimation animation) {
         animation.addEntryCompletionListener((entry, result) -> {
             if (entry.getKey().equals("installProxy") && (boolean) result) {
                 animation.addEntry(new QuestionListEntry<>(

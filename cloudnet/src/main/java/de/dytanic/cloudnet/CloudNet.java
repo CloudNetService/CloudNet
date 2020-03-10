@@ -148,7 +148,7 @@ public final class CloudNet extends CloudNetDriver {
     private NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
     private CloudMessenger messenger = new NodeMessenger(this);
 
-    private DefaultInstallation defaultInstallation = new DefaultInstallation(this);
+    private DefaultInstallation defaultInstallation = new DefaultInstallation();
 
     private ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
 
@@ -260,7 +260,7 @@ public final class CloudNet extends CloudNetDriver {
 
         //setup implementations
         this.defaultInstallation.initDefaultPermissionGroups();
-        this.defaultInstallation.initDefaultTasks();
+        this.defaultInstallation.postExecute();
 
         this.eventManager.callEvent(new CloudNetNodePostInitializationEvent());
 
