@@ -197,10 +197,9 @@ public final class DefaultCommandMap implements ICommandMap {
             command.execute(commandSender, commandName, args, commandLine, Properties.parseLine(args));
             return true;
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Throwable throwable) {
+            throw new CommandExecutionException(commandLine, throwable);
         }
-        return false;
     }
 
     private String[] formatArgs(String[] args) {
