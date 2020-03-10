@@ -116,17 +116,6 @@ public class DefaultTaskSetup implements DefaultSetup {
     @Override
     public void applyQuestions(ConsoleQuestionListAnimation animation) {
         animation.addEntry(new QuestionListEntry<>(
-                "installProxy",
-                LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-proxy"),
-                new QuestionAnswerTypeBoolean()
-        ));
-        animation.addEntry(new QuestionListEntry<>(
-                "installServer",
-                LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-server"),
-                new QuestionAnswerTypeBoolean()
-        ));
-
-        animation.addEntry(new QuestionListEntry<>(
                 "proxyEnvironment",
                 LanguageManager.getMessage("cloudnet-init-setup-tasks-proxy-environment"),
                 new QuestionAnswerTypeEnum<ServiceEnvironmentType>(ServiceEnvironmentType.class) {
@@ -156,6 +145,17 @@ public class DefaultTaskSetup implements DefaultSetup {
                 "serverVersion",
                 LanguageManager.getMessage("cloudnet-init-setup-tasks-server-version"),
                 new QuestionAnswerTypeServiceVersion(() -> (ServiceEnvironmentType) animation.getResult("serverEnvironment"), CloudNet.getInstance().getServiceVersionProvider())
+        ));
+
+        animation.addEntry(new QuestionListEntry<>(
+                "installProxy",
+                LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-proxy"),
+                new QuestionAnswerTypeBoolean()
+        ));
+        animation.addEntry(new QuestionListEntry<>(
+                "installServer",
+                LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-server"),
+                new QuestionAnswerTypeBoolean()
         ));
 
         this.shouldExecute = true;
