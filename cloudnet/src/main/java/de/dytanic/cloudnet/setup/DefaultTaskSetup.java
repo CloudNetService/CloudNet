@@ -47,13 +47,15 @@ public class DefaultTaskSetup implements DefaultSetup {
 
         GroupConfiguration globalServerGroup = new EmptyGroupConfiguration(GLOBAL_SERVER_GROUP_NAME);
         GroupConfiguration globalProxyGroup = new EmptyGroupConfiguration(GLOBAL_PROXY_GROUP_NAME);
+        globalProxyGroup.getTargetEnvironments().add(proxyEnvironment);
+        globalServerGroup.getTargetEnvironments().add(serverEnvironment);
 
         if (installProxy) {
-            this.createDefaultTask(proxyEnvironment, PROXY_TASK_NAME, globalProxyGroup.getName(), 256);
+            this.createDefaultTask(proxyEnvironment, PROXY_TASK_NAME, 256);
         }
 
         if (installServer) {
-            this.createDefaultTask(serverEnvironment, LOBBY_TASK_NAME, globalServerGroup.getName(), 512);
+            this.createDefaultTask(serverEnvironment, LOBBY_TASK_NAME, 512);
         }
 
         if (proxyVersion != null) {
@@ -79,7 +81,7 @@ public class DefaultTaskSetup implements DefaultSetup {
         CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, globalTemplate);
     }
 
-    private void createDefaultTask(ServiceEnvironmentType environment, String taskName, String globalGroupName, int maxHeapMemorySize) {
+    private void createDefaultTask(ServiceEnvironmentType environment, String taskName, int maxHeapMemorySize) {
         ServiceTask serviceTask = new ServiceTask(
                 new ArrayList<>(),
                 new ArrayList<>(Collections.singletonList(new ServiceTemplate(taskName, "default", "local"))),
@@ -90,7 +92,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                 true,
                 false,
                 new ArrayList<>(),
-                new ArrayList<>(Arrays.asList(taskName, globalGroupName)),
+                new ArrayList<>(Collections.singletonList(taskName)),
                 new ArrayList<>(),
                 new ProcessConfiguration(
                         environment,
