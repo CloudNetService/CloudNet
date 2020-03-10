@@ -39,31 +39,28 @@ public class DefaultTaskSetup implements DefaultSetup {
         boolean installProxy = (boolean) animation.getResult("installProxy");
         boolean installServer = (boolean) animation.getResult("installServer");
 
+        ServiceEnvironmentType proxyEnvironment = (ServiceEnvironmentType) animation.getResult("proxyEnvironment");
+        Pair<ServiceVersionType, ServiceVersion> proxyVersion = (Pair<ServiceVersionType, ServiceVersion>) animation.getResult("proxyVersion");
+
+        ServiceEnvironmentType serverEnvironment = (ServiceEnvironmentType) animation.getResult("serverEnvironment");
+        Pair<ServiceVersionType, ServiceVersion> serverVersion = (Pair<ServiceVersionType, ServiceVersion>) animation.getResult("serverVersion");
+
         GroupConfiguration globalServerGroup = new EmptyGroupConfiguration(GLOBAL_SERVER_GROUP_NAME);
         GroupConfiguration globalProxyGroup = new EmptyGroupConfiguration(GLOBAL_PROXY_GROUP_NAME);
 
         if (installProxy) {
-            ServiceEnvironmentType environment = (ServiceEnvironmentType) animation.getResult("proxyEnvironment");
-            Pair<ServiceVersionType, ServiceVersion> versionPair = (Pair<ServiceVersionType, ServiceVersion>) animation.getResult("proxyVersion");
-
-            this.install(environment, PROXY_TASK_NAME, globalProxyGroup.getName(), 256);
-
-            ServiceTemplate globalTemplate = new ServiceTemplate(GLOBAL_TEMPLATE_PREFIX, "proxy", "local");
-            globalProxyGroup.getTemplates().add(globalTemplate);
-
-            CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionPair.getFirst(), versionPair.getSecond(), globalTemplate);
+            this.createDefaultTask(proxyEnvironment, PROXY_TASK_NAME, globalProxyGroup.getName(), 256);
         }
 
         if (installServer) {
-            ServiceEnvironmentType environment = (ServiceEnvironmentType) animation.getResult("serverEnvironment");
-            Pair<ServiceVersionType, ServiceVersion> versionPair = (Pair<ServiceVersionType, ServiceVersion>) animation.getResult("serverVersion");
+            this.createDefaultTask(serverEnvironment, LOBBY_TASK_NAME, globalServerGroup.getName(), 512);
+        }
 
-            this.install(environment, LOBBY_TASK_NAME, globalServerGroup.getName(), 512);
-
-            ServiceTemplate globalTemplate = new ServiceTemplate(GLOBAL_TEMPLATE_PREFIX, "bukkit", "local");
-            globalServerGroup.getTemplates().add(globalTemplate);
-
-            CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionPair.getFirst(), versionPair.getSecond(), globalTemplate);
+        if (proxyVersion != null) {
+            this.installGlobalTemplate(globalProxyGroup, "proxy", proxyVersion.getFirst(), proxyVersion.getSecond());
+        }
+        if (serverVersion != null) {
+            this.installGlobalTemplate(globalServerGroup, "bukkit", serverVersion.getFirst(), serverVersion.getSecond());
         }
 
         CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(globalServerGroup);
@@ -75,7 +72,14 @@ public class DefaultTaskSetup implements DefaultSetup {
         return !CloudNet.getInstance().getCloudServiceManager().isFileCreated();
     }
 
-    private void install(ServiceEnvironmentType environment, String taskName, String globalGroupName, int maxHeapMemorySize) {
+    private void installGlobalTemplate(GroupConfiguration globalGroup, String name, ServiceVersionType versionType, ServiceVersion version) {
+        ServiceTemplate globalTemplate = new ServiceTemplate(GLOBAL_TEMPLATE_PREFIX, name, "local");
+        globalGroup.getTemplates().add(globalTemplate);
+
+        CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, globalTemplate);
+    }
+
+    private void createDefaultTask(ServiceEnvironmentType environment, String taskName, String globalGroupName, int maxHeapMemorySize) {
         ServiceTask serviceTask = new ServiceTask(
                 new ArrayList<>(),
                 new ArrayList<>(Collections.singletonList(new ServiceTemplate(taskName, "default", "local"))),
@@ -111,44 +115,6 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     @Override
     public void applyQuestions(ConsoleQuestionListAnimation animation) {
-        animation.addEntryCompletionListener((entry, result) -> {
-            if (entry.getKey().equals("installProxy") && (boolean) result) {
-                animation.addEntry(new QuestionListEntry<>(
-                        "proxyEnvironment",
-                        LanguageManager.getMessage("cloudnet-init-setup-tasks-proxy-environment"),
-                        new QuestionAnswerTypeEnum<ServiceEnvironmentType>(ServiceEnvironmentType.class) {
-                            @Override
-                            protected ServiceEnvironmentType[] values() {
-                                return Arrays.stream(super.values()).filter(ServiceEnvironmentType::isMinecraftProxy).toArray(ServiceEnvironmentType[]::new);
-                            }
-                        }
-                ));
-                animation.addEntry(new QuestionListEntry<>(
-                        "proxyVersion",
-                        LanguageManager.getMessage("cloudnet-init-setup-tasks-proxy-version"),
-                        new QuestionAnswerTypeServiceVersion(() -> (ServiceEnvironmentType) animation.getResult("proxyEnvironment"), CloudNet.getInstance().getServiceVersionProvider())
-                ));
-            }
-
-            if (entry.getKey().equals("installServer") && (boolean) result) {
-                animation.addEntry(new QuestionListEntry<>(
-                        "serverEnvironment",
-                        LanguageManager.getMessage("cloudnet-init-setup-tasks-server-environment"),
-                        new QuestionAnswerTypeEnum<ServiceEnvironmentType>(ServiceEnvironmentType.class) {
-                            @Override
-                            protected ServiceEnvironmentType[] values() {
-                                return Arrays.stream(super.values()).filter(ServiceEnvironmentType::isMinecraftServer).toArray(ServiceEnvironmentType[]::new);
-                            }
-                        }
-                ));
-                animation.addEntry(new QuestionListEntry<>(
-                        "serverVersion",
-                        LanguageManager.getMessage("cloudnet-init-setup-tasks-server-version"),
-                        new QuestionAnswerTypeServiceVersion(() -> (ServiceEnvironmentType) animation.getResult("serverEnvironment"), CloudNet.getInstance().getServiceVersionProvider())
-                ));
-            }
-        });
-
         animation.addEntry(new QuestionListEntry<>(
                 "installProxy",
                 LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-proxy"),
@@ -158,6 +124,38 @@ public class DefaultTaskSetup implements DefaultSetup {
                 "installServer",
                 LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-server"),
                 new QuestionAnswerTypeBoolean()
+        ));
+
+        animation.addEntry(new QuestionListEntry<>(
+                "proxyEnvironment",
+                LanguageManager.getMessage("cloudnet-init-setup-tasks-proxy-environment"),
+                new QuestionAnswerTypeEnum<ServiceEnvironmentType>(ServiceEnvironmentType.class) {
+                    @Override
+                    protected ServiceEnvironmentType[] values() {
+                        return Arrays.stream(super.values()).filter(ServiceEnvironmentType::isMinecraftProxy).toArray(ServiceEnvironmentType[]::new);
+                    }
+                }
+        ));
+        animation.addEntry(new QuestionListEntry<>(
+                "proxyVersion",
+                LanguageManager.getMessage("cloudnet-init-setup-tasks-proxy-version"),
+                new QuestionAnswerTypeServiceVersion(() -> (ServiceEnvironmentType) animation.getResult("proxyEnvironment"), CloudNet.getInstance().getServiceVersionProvider())
+        ));
+
+        animation.addEntry(new QuestionListEntry<>(
+                "serverEnvironment",
+                LanguageManager.getMessage("cloudnet-init-setup-tasks-server-environment"),
+                new QuestionAnswerTypeEnum<ServiceEnvironmentType>(ServiceEnvironmentType.class) {
+                    @Override
+                    protected ServiceEnvironmentType[] values() {
+                        return Arrays.stream(super.values()).filter(ServiceEnvironmentType::isMinecraftServer).toArray(ServiceEnvironmentType[]::new);
+                    }
+                }
+        ));
+        animation.addEntry(new QuestionListEntry<>(
+                "serverVersion",
+                LanguageManager.getMessage("cloudnet-init-setup-tasks-server-version"),
+                new QuestionAnswerTypeServiceVersion(() -> (ServiceEnvironmentType) animation.getResult("serverEnvironment"), CloudNet.getInstance().getServiceVersionProvider())
         ));
 
         this.shouldExecute = true;
