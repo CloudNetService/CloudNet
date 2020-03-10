@@ -60,7 +60,7 @@ public class DefaultTaskSetup implements DefaultSetup {
             this.installGlobalTemplate(globalProxyGroup, "proxy", proxyVersion.getFirst(), proxyVersion.getSecond());
         }
         if (serverVersion != null) {
-            this.installGlobalTemplate(globalServerGroup, "bukkit", serverVersion.getFirst(), serverVersion.getSecond());
+            this.installGlobalTemplate(globalServerGroup, "server", serverVersion.getFirst(), serverVersion.getSecond());
         }
 
         CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(globalServerGroup);
