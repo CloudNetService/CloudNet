@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.driver.module;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
@@ -156,13 +156,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     @Override
     public IModuleWrapper loadModule() {
-        if (moduleLifeCycle == ModuleLifeCycle.UNLOADED) {
-            moduleProvider.getModuleProviderHandler().handlePreModuleLoad(this);
-            fireTasks(this.moduleTasks.get(ModuleLifeCycle.LOADED));
+        if (moduleLifeCycle == ModuleLifeCycle.UNLOADED && moduleProvider.getModuleProviderHandler().handlePreModuleLoad(this)) {
+            fireTasks(this.moduleTasks.get(this.moduleLifeCycle = ModuleLifeCycle.LOADED));
             moduleProvider.getModuleProviderHandler().handlePostModuleLoad(this);
-
-            this.moduleLifeCycle = ModuleLifeCycle.LOADED;
         }
+
         return this;
     }
 
@@ -170,8 +168,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     public IModuleWrapper startModule() {
         this.loadModule();
 
-        if (moduleLifeCycle == ModuleLifeCycle.LOADED || moduleLifeCycle == ModuleLifeCycle.STOPPED) {
-            moduleProvider.getModuleProviderHandler().handlePreModuleStart(this);
+        if ((moduleLifeCycle == ModuleLifeCycle.LOADED || moduleLifeCycle == ModuleLifeCycle.STOPPED)
+                && moduleProvider.getModuleProviderHandler().handlePreModuleStart(this)) {
             if (this.moduleConfiguration.getDependencies() != null) {
                 for (ModuleDependency moduleDependency : this.moduleConfiguration.getDependencies()) {
                     if (moduleDependency != null && moduleDependency.getGroup() != null && moduleDependency.getName() != null &&
@@ -202,8 +200,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     @Override
     public IModuleWrapper stopModule() {
-        if (moduleLifeCycle == ModuleLifeCycle.STARTED || moduleLifeCycle == ModuleLifeCycle.LOADED) {
-            moduleProvider.getModuleProviderHandler().handlePreModuleStop(this);
+        if ((moduleLifeCycle == ModuleLifeCycle.STARTED || moduleLifeCycle == ModuleLifeCycle.LOADED)
+                && moduleProvider.getModuleProviderHandler().handlePreModuleStop(this)) {
             fireTasks(this.moduleTasks.get(ModuleLifeCycle.STOPPED));
             moduleProvider.getModuleProviderHandler().handlePostModuleStop(this);
             this.moduleLifeCycle = ModuleLifeCycle.STOPPED;

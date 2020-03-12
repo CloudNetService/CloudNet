@@ -2,15 +2,15 @@ package de.dytanic.cloudnet.driver.module;
 
 public interface IModuleProviderHandler {
 
-    void handlePreModuleLoad(IModuleWrapper moduleWrapper);
+    boolean handlePreModuleLoad(IModuleWrapper moduleWrapper);
 
     void handlePostModuleLoad(IModuleWrapper moduleWrapper);
 
-    void handlePreModuleStart(IModuleWrapper moduleWrapper);
+    boolean handlePreModuleStart(IModuleWrapper moduleWrapper);
 
     void handlePostModuleStart(IModuleWrapper moduleWrapper);
 
-    void handlePreModuleStop(IModuleWrapper moduleWrapper);
+    boolean handlePreModuleStop(IModuleWrapper moduleWrapper);
 
     void handlePostModuleStop(IModuleWrapper moduleWrapper);
 

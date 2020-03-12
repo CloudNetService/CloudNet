@@ -1,9 +1,10 @@
 package de.dytanic.cloudnet.event.service;
 
+import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 
-public final class CloudServicePreStartPrepareEvent extends DriverEvent {
+public final class CloudServicePreStartPrepareEvent extends DriverEvent implements ICancelable {
 
     private final ICloudService cloudService;
 
@@ -13,5 +14,17 @@ public final class CloudServicePreStartPrepareEvent extends DriverEvent {
 
     public ICloudService getCloudService() {
         return this.cloudService;
+    }
+
+    private boolean cancelled = false;
+
+    @Override
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean value) {
+        this.cancelled = value;
     }
 }
