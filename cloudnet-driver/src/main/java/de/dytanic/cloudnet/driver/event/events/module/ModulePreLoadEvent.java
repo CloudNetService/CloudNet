@@ -10,15 +10,15 @@ public final class ModulePreLoadEvent extends ModuleEvent implements ICancelable
         super(moduleProvider, module);
     }
 
-    private boolean isCancelled;
+    private boolean cancelled;
 
     @Override
     public boolean isCancelled() {
-        return this.isCancelled;
+        return this.cancelled;
     }
 
     @Override
     public void setCancelled(boolean value) {
-        this.isCancelled = value;
+        this.cancelled = value;
     }
 }
