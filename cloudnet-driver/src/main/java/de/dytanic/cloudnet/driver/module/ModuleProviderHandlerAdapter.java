@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.driver.module;
 public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
 
     @Override
-    public void handlePreModuleLoad(IModuleWrapper moduleWrapper) {
-
+    public boolean handlePreModuleLoad(IModuleWrapper moduleWrapper) {
+        return true;
     }
 
     @Override
@@ -13,8 +13,8 @@ public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
     }
 
     @Override
-    public void handlePreModuleStart(IModuleWrapper moduleWrapper) {
-
+    public boolean handlePreModuleStart(IModuleWrapper moduleWrapper) {
+        return true;
     }
 
     @Override
@@ -23,8 +23,8 @@ public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
     }
 
     @Override
-    public void handlePreModuleStop(IModuleWrapper moduleWrapper) {
-
+    public boolean handlePreModuleStop(IModuleWrapper moduleWrapper) {
+        return true;
     }
 
     @Override
