@@ -14,6 +14,7 @@ import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -215,9 +216,13 @@ public class CommandTemplate extends SubCommandHandler {
                                         targetStorage.delete(targetTemplate);
                                         targetStorage.create(targetTemplate);
 
-                                        byte[] zippedTemplate = sourceStorage.toZipByteArray(sourceTemplate);
+                                        InputStream stream = sourceStorage.asZipInputStream(sourceTemplate);
+                                        if (stream == null) {
+                                            sender.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
+                                            return null;
+                                        }
 
-                                        targetStorage.deploy(zippedTemplate, targetTemplate);
+                                        targetStorage.deploy(stream, targetTemplate);
                                         sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
                                                 .replace("%sourceTemplate%", sourceTemplate.toString())
                                                 .replace("%targetTemplate%", targetTemplate.toString())

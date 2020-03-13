@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -26,7 +27,9 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
      * @param zipInput the target zip compressed byte array within all files are included for the target template
      * @param target   the target serviceTemplate to that should deploy
      * @return true if the deployment was successful
+     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(InputStream, ServiceTemplate)} instead
      */
+    @Deprecated
     boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
 
     /**
@@ -42,6 +45,8 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
         return this.deploy(directory, target, null);
     }
 
+    boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate);
+
     boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target);
 
     boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target);
@@ -54,7 +59,18 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
 
     boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories);
 
+    /**
+     * Zips a template in the current template storage and converts it to a byte array
+     *
+     * @param template the template which should get converted to a byte array
+     * @return The byte array of the zipped template
+     * @deprecated Causes very high heap space (over)load. Use {@link #asZipInputStream(ServiceTemplate)} instead
+     */
+    @Deprecated
     byte[] toZipByteArray(@NotNull ServiceTemplate template);
+
+    @Nullable
+    InputStream asZipInputStream(@NotNull ServiceTemplate template);
 
     boolean delete(@NotNull ServiceTemplate template);
 

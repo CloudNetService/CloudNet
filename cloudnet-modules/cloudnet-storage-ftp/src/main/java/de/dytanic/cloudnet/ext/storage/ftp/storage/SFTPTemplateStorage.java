@@ -10,9 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -52,6 +50,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
         return this.ftpClient.uploadDirectory(new ByteArrayInputStream(zipInput), this.getPath(target));
     }
@@ -61,6 +60,11 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
         Predicate<Path> pathFilter = fileFilter != null ? path -> fileFilter.test(path.toFile()) : null;
 
         return this.ftpClient.uploadDirectory(directory.toPath(), this.getPath(target), pathFilter);
+    }
+
+    @Override
+    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+        return this.ftpClient.uploadDirectory(inputStream, this.getPath(serviceTemplate));
     }
 
     @Override
@@ -125,10 +129,29 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         this.ftpClient.zipDirectory(this.getPath(template), outputStream);
         return outputStream.toByteArray();
+    }
+
+    @Override
+    public @Nullable InputStream asZipInputStream(@NotNull ServiceTemplate template) {
+        Path outputFile = Paths.get(System.getProperty("cloudnet.tempDir.ftpCache", "temp/ftpCache"),
+                template.getName() + "-" + template.getPrefix() + ".zip");
+        if (outputFile.getParent() != null && !outputFile.getParent().toFile().exists()) {
+            outputFile.getParent().toFile().mkdirs();
+        }
+
+        try (OutputStream stream = Files.newOutputStream(outputFile, StandardOpenOption.CREATE)) {
+            this.ftpClient.zipDirectory(this.getPath(template), stream);
+            return Files.newInputStream(outputFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        return null;
     }
 
     @Override

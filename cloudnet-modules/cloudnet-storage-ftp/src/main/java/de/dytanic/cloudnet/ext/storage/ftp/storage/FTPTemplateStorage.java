@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -93,30 +93,12 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
         Preconditions.checkNotNull(zipInput);
         Preconditions.checkNotNull(target);
 
-        if (this.has(target)) {
-            this.delete(target);
-        }
-
-        this.create(target);
-
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipInput);
-             ZipInputStream zipInputStream = new ZipInputStream(byteArrayInputStream, StandardCharsets.UTF_8)) {
-
-            ZipEntry zipEntry;
-            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                this.deployZipEntry(zipInputStream, zipEntry, target.getTemplatePath());
-                zipInputStream.closeEntry();
-            }
-
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-
-        return false;
+        return this.deploy(new ByteArrayInputStream(zipInput), target);
     }
 
     private void deployZipEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
@@ -145,6 +127,32 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             }
 
             return value;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(inputStream);
+        Preconditions.checkNotNull(serviceTemplate);
+
+        if (this.has(serviceTemplate)) {
+            this.delete(serviceTemplate);
+        }
+
+        this.create(serviceTemplate);
+
+        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream, StandardCharsets.UTF_8)) {
+
+            ZipEntry zipEntry;
+            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                this.deployZipEntry(zipInputStream, zipEntry, serviceTemplate.getTemplatePath());
+                zipInputStream.closeEntry();
+            }
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return false;
@@ -293,6 +301,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         if (!this.has(template)) {
             return FileUtils.emptyZipByteArray();
@@ -310,6 +319,29 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
 
         return FileUtils.emptyZipByteArray();
+    }
+
+    @Override
+    public @Nullable InputStream asZipInputStream(@NotNull ServiceTemplate template) {
+        if (!this.has(template)) {
+            return null;
+        }
+
+        Path outputFile = Paths.get(System.getProperty("cloudnet.tempDir.ftpCache", "temp/ftpCache"),
+                template.getName() + "-" + template.getPrefix() + ".zip");
+        if (outputFile.getParent() != null && !outputFile.getParent().toFile().exists()) {
+            outputFile.getParent().toFile().mkdirs();
+        }
+
+        try (OutputStream stream = Files.newOutputStream(outputFile, StandardOpenOption.CREATE);
+             ZipOutputStream zipOutputStream = new ZipOutputStream(stream, StandardCharsets.UTF_8)) {
+            this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
+            return Files.newInputStream(outputFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        return null;
     }
 
     private void toByteArray(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {
