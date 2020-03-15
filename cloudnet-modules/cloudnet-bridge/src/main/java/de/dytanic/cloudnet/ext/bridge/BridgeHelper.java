@@ -157,9 +157,9 @@ public final class BridgeHelper {
     }
 
 
-    public static String filterServiceForPlayer(String currentServer, BiFunction<String, String, List<Map.Entry<String, ServiceInfoSnapshot>>> filteredEntries,
+    public static ServiceInfoSnapshot filterServiceForPlayer(String currentServer, BiFunction<String, String, List<Map.Entry<String, ServiceInfoSnapshot>>> filteredEntries,
                                                 Predicate<String> permissionCheck) {
-        AtomicReference<String> server = new AtomicReference<>();
+        AtomicReference<ServiceInfoSnapshot> server = new AtomicReference<>();
 
         BridgeConfigurationProvider.load().getBungeeFallbackConfigurations().stream()
                 .filter(
@@ -182,14 +182,14 @@ public final class BridgeHelper {
                         filteredEntries.apply(proxyFallback.getTask(), currentServer)
                                 .stream()
                                 .map(Map.Entry::getValue).min(Comparator.comparingInt(ServiceInfoSnapshotUtil::getOnlineCount))
-                                .ifPresent(serviceInfoSnapshot -> server.set(serviceInfoSnapshot.getServiceId().getName()));
+                                .ifPresent(server::set);
                     }
 
                     if (server.get() == null) {
                         filteredEntries.apply(configuration.getDefaultFallbackTask(), currentServer)
                                 .stream()
                                 .map(Map.Entry::getValue).min(Comparator.comparingInt(ServiceInfoSnapshotUtil::getOnlineCount))
-                                .ifPresent(serviceInfoSnapshot -> server.set(serviceInfoSnapshot.getServiceId().getName()));
+                                .ifPresent(server::set);
                     }
                 });
 
