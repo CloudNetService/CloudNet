@@ -318,13 +318,13 @@ public class SFTPClient implements Closeable {
         }
     }
 
-    public boolean uploadDirectory(InputStream zipped, String remotePath) {
+    public boolean uploadDirectory(ZipInputStream zipInputStream, String remotePath) {
         if (remotePath.endsWith("/")) {
             remotePath = remotePath.substring(0, remotePath.length() - 1);
         }
 
         this.createDirectories(remotePath);
-        try (ZipInputStream zipInputStream = new ZipInputStream(zipped, StandardCharsets.UTF_8)) {
+        try {
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 this.uploadFile(zipInputStream, remotePath + "/" + zipEntry.getName());

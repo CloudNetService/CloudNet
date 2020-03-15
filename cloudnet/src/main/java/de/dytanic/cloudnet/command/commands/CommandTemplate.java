@@ -14,12 +14,12 @@ import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.ZipInputStream;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
@@ -216,17 +216,19 @@ public class CommandTemplate extends SubCommandHandler {
                                         targetStorage.delete(targetTemplate);
                                         targetStorage.create(targetTemplate);
 
-                                        InputStream stream = sourceStorage.asZipInputStream(sourceTemplate);
-                                        if (stream == null) {
-                                            sender.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
-                                            return null;
+                                        try (ZipInputStream stream = sourceStorage.asZipInputStream(sourceTemplate)) {
+                                            if (stream == null) {
+                                                sender.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
+                                                return null;
+                                            }
+
+                                            targetStorage.deploy(stream, targetTemplate);
+                                            sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
+                                                    .replace("%sourceTemplate%", sourceTemplate.toString())
+                                                    .replace("%targetTemplate%", targetTemplate.toString())
+                                            );
                                         }
 
-                                        targetStorage.deploy(stream, targetTemplate);
-                                        sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
-                                                .replace("%sourceTemplate%", sourceTemplate.toString())
-                                                .replace("%targetTemplate%", targetTemplate.toString())
-                                        );
                                         return null;
                                     });
                                 },

@@ -8,19 +8,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 
 public final class LocalTemplateStorage implements ITemplateStorage {
-
-    public static final String TEMP_DIRECTORY = System.getProperty("cloudnet.tempDir.localTemplates", "temp/localTemplates");
 
     public static final String LOCAL_TEMPLATE_STORAGE = "local";
 
@@ -29,7 +25,6 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     public LocalTemplateStorage(File storageDirectory) {
         this.storageDirectory = storageDirectory;
         this.storageDirectory.mkdirs();
-        new File(TEMP_DIRECTORY).mkdirs();
     }
 
     @Override
@@ -67,7 +62,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
         Preconditions.checkNotNull(inputStream);
         Preconditions.checkNotNull(serviceTemplate);
 
@@ -181,22 +176,21 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
-    public @Nullable InputStream asZipInputStream(@NotNull ServiceTemplate template) {
-        Path directory = new File(storageDirectory, template.getTemplatePath()).toPath();
-        Path target = Paths.get(TEMP_DIRECTORY, template.getName() + "-" + template.getPrefix() + ".zip");
+    @Nullable
+    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        if (!this.has(template)) {
+            return null;
+        }
 
-        File file = FileUtils.zipToFile(directory, target);
+        Path directory = new File(this.storageDirectory, template.getTemplatePath()).toPath();
+        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+
+        Path file = FileUtils.zipToFile(directory, tempFile);
         if (file == null) {
             return null;
         }
 
-        try {
-            return Files.newInputStream(file.toPath(), StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
-        } catch (final IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return null;
+        return new ZipInputStream(Files.newInputStream(file, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
     }
 
     @Override

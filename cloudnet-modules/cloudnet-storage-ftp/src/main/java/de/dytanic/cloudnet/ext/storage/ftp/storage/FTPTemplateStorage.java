@@ -22,6 +22,7 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -98,7 +99,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         Preconditions.checkNotNull(zipInput);
         Preconditions.checkNotNull(target);
 
-        return this.deploy(new ByteArrayInputStream(zipInput), target);
+        return this.deploy(new ZipInputStream(new ByteArrayInputStream(zipInput), StandardCharsets.UTF_8), target);
     }
 
     private void deployZipEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
@@ -133,8 +134,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
-        Preconditions.checkNotNull(inputStream);
+    public boolean deploy(@NotNull ZipInputStream zipInputStream, @NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(zipInputStream);
         Preconditions.checkNotNull(serviceTemplate);
 
         if (this.has(serviceTemplate)) {
@@ -143,14 +144,14 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
         this.create(serviceTemplate);
 
-        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream, StandardCharsets.UTF_8)) {
-
+        try {
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 this.deployZipEntry(zipInputStream, zipEntry, serviceTemplate.getTemplatePath());
                 zipInputStream.closeEntry();
             }
 
+            return true;
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -322,26 +323,19 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public @Nullable InputStream asZipInputStream(@NotNull ServiceTemplate template) {
+    @Nullable
+    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
         if (!this.has(template)) {
             return null;
         }
 
-        Path outputFile = Paths.get(System.getProperty("cloudnet.tempDir.ftpCache", "temp/ftpCache"),
-                template.getName() + "-" + template.getPrefix() + ".zip");
-        if (outputFile.getParent() != null && !outputFile.getParent().toFile().exists()) {
-            outputFile.getParent().toFile().mkdirs();
-        }
+        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
 
-        try (OutputStream stream = Files.newOutputStream(outputFile, StandardOpenOption.CREATE);
+        try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE);
              ZipOutputStream zipOutputStream = new ZipOutputStream(stream, StandardCharsets.UTF_8)) {
             this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
-            return Files.newInputStream(outputFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
-        } catch (IOException exception) {
-            exception.printStackTrace();
+            return new ZipInputStream(Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
         }
-
-        return null;
     }
 
     private void toByteArray(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {

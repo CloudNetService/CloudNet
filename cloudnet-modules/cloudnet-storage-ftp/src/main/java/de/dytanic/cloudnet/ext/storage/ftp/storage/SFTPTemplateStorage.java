@@ -10,9 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 
 public class SFTPTemplateStorage extends AbstractFTPStorage {
 
@@ -52,7 +54,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     @Override
     @Deprecated
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        return this.ftpClient.uploadDirectory(new ByteArrayInputStream(zipInput), this.getPath(target));
+        return this.ftpClient.uploadDirectory(new ZipInputStream(new ByteArrayInputStream(zipInput), StandardCharsets.UTF_8), this.getPath(target));
     }
 
     @Override
@@ -63,7 +65,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
         return this.ftpClient.uploadDirectory(inputStream, this.getPath(serviceTemplate));
     }
 
@@ -137,21 +139,18 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public @Nullable InputStream asZipInputStream(@NotNull ServiceTemplate template) {
-        Path outputFile = Paths.get(System.getProperty("cloudnet.tempDir.ftpCache", "temp/ftpCache"),
-                template.getName() + "-" + template.getPrefix() + ".zip");
-        if (outputFile.getParent() != null && !outputFile.getParent().toFile().exists()) {
-            outputFile.getParent().toFile().mkdirs();
+    @Nullable
+    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        if (!this.has(template)) {
+            return null;
         }
 
-        try (OutputStream stream = Files.newOutputStream(outputFile, StandardOpenOption.CREATE)) {
+        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+
+        try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE)) {
             this.ftpClient.zipDirectory(this.getPath(template), stream);
-            return Files.newInputStream(outputFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
-        } catch (IOException exception) {
-            exception.printStackTrace();
+            return new ZipInputStream(Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
         }
-
-        return null;
     }
 
     @Override

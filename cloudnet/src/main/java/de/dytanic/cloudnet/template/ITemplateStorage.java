@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 
 /**
  * The template storage manage the management of service specific templates that should copy or deploy on
@@ -45,7 +46,7 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
         return this.deploy(directory, target, null);
     }
 
-    boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate);
+    boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate);
 
     boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target);
 
@@ -70,7 +71,7 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
     byte[] toZipByteArray(@NotNull ServiceTemplate template);
 
     @Nullable
-    InputStream asZipInputStream(@NotNull ServiceTemplate template);
+    ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException;
 
     boolean delete(@NotNull ServiceTemplate template);
 

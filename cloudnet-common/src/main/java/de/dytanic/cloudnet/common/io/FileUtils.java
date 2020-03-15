@@ -265,15 +265,15 @@ public final class FileUtils {
     }
 
     @Nullable
-    public static File zipToFile(Path directory, Path target) {
-        if (directory == null || !directory.toFile().exists()) {
+    public static Path zipToFile(Path directory, Path target) {
+        if (directory == null || !Files.exists(directory)) {
             return null;
         }
 
         delete(target.toFile());
         try {
             zipStream(directory, Files.newOutputStream(target, StandardOpenOption.CREATE));
-            return target.toFile();
+            return target;
         } catch (final IOException exception) {
             exception.printStackTrace();
         }
@@ -325,7 +325,7 @@ public final class FileUtils {
         }
 
         try (InputStream inputStream = Files.newInputStream(zipPath)) {
-            extract0(inputStream, targetDirectory);
+            extract0(new ZipInputStream(inputStream, StandardCharsets.UTF_8), targetDirectory);
         }
 
         return targetDirectory;
@@ -339,22 +339,19 @@ public final class FileUtils {
 
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
                 zipData)) {
-            extract0(byteArrayInputStream, targetDirectory);
+            extract0(new ZipInputStream(byteArrayInputStream, StandardCharsets.UTF_8), targetDirectory);
         }
 
         return targetDirectory;
     }
 
-    public static void extract0(InputStream inputStream, Path targetDirectory)
+    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory)
             throws IOException {
-        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream,
-                StandardCharsets.UTF_8)) {
-            ZipEntry zipEntry;
+        ZipEntry zipEntry;
 
-            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                extract1(zipInputStream, zipEntry, targetDirectory);
-                zipInputStream.closeEntry();
-            }
+        while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            extract1(zipInputStream, zipEntry, targetDirectory);
+            zipInputStream.closeEntry();
         }
     }
 

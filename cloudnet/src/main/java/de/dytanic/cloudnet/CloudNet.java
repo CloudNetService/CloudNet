@@ -172,7 +172,7 @@ public final class CloudNet extends CloudNetDriver {
         this.cloudServiceManager.init();
 
         this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler());
-        this.moduleProvider.setModuleDependencyLoader(new DefaultPersistableModuleDependencyLoader(new File(System.getProperty("cloudnet.launcher.dir", "launcher") + "/libs")));
+        this.moduleProvider.setModuleDependencyLoader(new DefaultPersistableModuleDependencyLoader(Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"), "libs")));
 
         this.driverEnvironment = DriverEnvironment.CLOUDNET;
     }

@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -21,6 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 
 public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
@@ -80,7 +80,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(inputStream, serviceTemplate));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -145,8 +145,8 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public @Nullable InputStream asZipInputStream(@NotNull ServiceTemplate template) {
-        ITask<InputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.asZipInputStream(template));
+    public @Nullable ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) {
+        ITask<ZipInputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.asZipInputStream(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(null);
