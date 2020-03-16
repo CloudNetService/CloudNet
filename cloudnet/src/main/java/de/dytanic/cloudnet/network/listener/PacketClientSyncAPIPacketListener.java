@@ -95,9 +95,9 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 case "create_CloudService_by_serviceConfiguration": {
                     ServiceInfoSnapshot serviceInfoSnapshot = getCloudNet().getCloudServiceFactory()
                             .createCloudService(
-                            (ServiceConfiguration) packet.getHeader().get("serviceConfiguration", new TypeToken<ServiceConfiguration>() {
-                            }.getType())
-                    );
+                                    (ServiceConfiguration) packet.getHeader().get("serviceConfiguration", new TypeToken<ServiceConfiguration>() {
+                                    }.getType())
+                            );
 
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceInfoSnapshot", serviceInfoSnapshot));
                 }

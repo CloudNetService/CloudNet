@@ -6,16 +6,13 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.LabyModCustomChannelMessageListener;
-import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
-import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 public class CloudNetLabyModModule extends NodeCloudNetModule {
 

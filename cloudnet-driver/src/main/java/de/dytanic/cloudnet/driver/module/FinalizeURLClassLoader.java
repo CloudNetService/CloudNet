@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class FinalizeURLClassLoader extends URLClassLoader {
 
     private static final Collection<FinalizeURLClassLoader> CLASS_LOADERS = new CopyOnWriteArrayList<>();
+
     static {
         ClassLoader.registerAsParallelCapable();
     }

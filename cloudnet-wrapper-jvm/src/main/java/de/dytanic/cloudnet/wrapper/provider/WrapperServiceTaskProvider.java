@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -86,6 +86,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_permanent_serviceTasks"), null,
@@ -94,6 +95,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -104,6 +106,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -114,6 +117,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
@@ -122,6 +126,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -130,6 +135,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 

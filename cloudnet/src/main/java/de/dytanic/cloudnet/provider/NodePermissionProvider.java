@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.provider;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
@@ -158,6 +158,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> addUserAsync(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
 
@@ -165,6 +166,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser) {
         return this.cloudNet.scheduleTask(() -> {
             this.updateUser(permissionUser);
@@ -173,6 +175,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> deleteUserAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteUser(name);
@@ -181,6 +184,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteUser(permissionUser);
@@ -189,6 +193,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
@@ -196,6 +201,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> containsUserAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -203,6 +209,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
@@ -210,6 +217,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -217,11 +225,13 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<IPermissionUser>> getUsersAsync() {
         return this.cloudNet.scheduleTask(this::getUsers);
     }
 
     @Override
+    @NotNull
     public ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users) {
         return this.cloudNet.scheduleTask(() -> {
             this.setUsers(users);
@@ -230,6 +240,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
         Preconditions.checkNotNull(group);
 
@@ -237,6 +248,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> addGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         return this.cloudNet.scheduleTask(() -> {
             this.addGroup(permissionGroup);
@@ -245,6 +257,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         return this.cloudNet.scheduleTask(() -> {
             this.updateGroup(permissionGroup);
@@ -253,6 +266,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> deleteGroupAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteGroup(name);
@@ -261,6 +275,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         return this.cloudNet.scheduleTask(() -> {
             this.deleteGroup(permissionGroup);
@@ -269,6 +284,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> containsGroupAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -276,6 +292,7 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -283,11 +300,13 @@ public class NodePermissionProvider implements PermissionProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
         return this.cloudNet.scheduleTask(this::getGroups);
     }
 
     @Override
+    @NotNull
     public ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups) {
         return this.cloudNet.scheduleTask(() -> {
             this.setGroups(groups);

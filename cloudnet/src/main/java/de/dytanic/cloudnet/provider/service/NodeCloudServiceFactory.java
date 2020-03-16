@@ -1,14 +1,15 @@
 package de.dytanic.cloudnet.provider.service;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -128,16 +129,19 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
         return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceTask));
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
         return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceConfiguration));
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
                                                               Collection<ServiceRemoteInclusion> includes,
                                                               Collection<ServiceTemplate> templates,
@@ -154,6 +158,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
             String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
             Collection<ServiceRemoteInclusion> includes,

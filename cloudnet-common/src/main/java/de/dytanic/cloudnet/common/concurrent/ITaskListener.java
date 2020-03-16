@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A listener for all tasks, that should handle the process
  *

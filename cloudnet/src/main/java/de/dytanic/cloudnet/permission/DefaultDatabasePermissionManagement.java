@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.permission;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;

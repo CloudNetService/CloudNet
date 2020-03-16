@@ -134,6 +134,7 @@ public final class CloudNet extends CloudNetDriver {
     private final ConsoleCommandSender consoleCommandSender;
 
 
+    @NotNull
     private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
@@ -514,11 +515,13 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
         return scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
         Preconditions.checkNotNull(serviceName);
 
@@ -526,6 +529,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    @NotNull
     public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine) {
         Preconditions.checkNotNull(uniqueId);
         Preconditions.checkNotNull(commandLine);
@@ -533,6 +537,7 @@ public final class CloudNet extends CloudNetDriver {
         return scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
     }
 
+    @NotNull
     public <T> ITask<T> runTask(Callable<T> runnable) {
         ITask<T> task = new ListenableTask<>(runnable);
 
@@ -540,6 +545,7 @@ public final class CloudNet extends CloudNetDriver {
         return task;
     }
 
+    @NotNull
     public ITask<?> runTask(Runnable runnable) {
         return this.runTask(Executors.callable(runnable));
     }
@@ -563,6 +569,7 @@ public final class CloudNet extends CloudNetDriver {
         this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(groupConfigurations, updateType));
     }
 
+    @NotNull
     public ITask<Void> sendAllAsync(IPacket packet) {
         return scheduleTask(() -> {
             sendAll(packet);
@@ -584,6 +591,7 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
+    @NotNull
     public ITask<Void> sendAllAsync(IPacket... packets) {
         return scheduleTask(() -> {
             sendAll(packets);
@@ -944,6 +952,7 @@ public final class CloudNet extends CloudNetDriver {
         );
     }
 
+    @NotNull
     public <T> ITask<T> scheduleTask(Callable<T> callable) {
         ITask<T> task = new ListenableTask<>(callable);
 

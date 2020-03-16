@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceId;
@@ -18,7 +19,6 @@ import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEve
 import de.dytanic.cloudnet.event.network.NetworkChannelAuthCloudServiceSuccessEvent;
 import de.dytanic.cloudnet.network.ClusterUtils;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.UUID;

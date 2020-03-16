@@ -10,7 +10,10 @@ import net.kyori.text.TextComponent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.optional.qual.MaybePresent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public final class CommandCloudNet implements Command {
 

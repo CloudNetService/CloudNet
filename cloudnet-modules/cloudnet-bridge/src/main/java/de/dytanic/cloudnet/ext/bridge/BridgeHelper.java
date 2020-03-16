@@ -158,7 +158,7 @@ public final class BridgeHelper {
 
 
     public static ServiceInfoSnapshot filterServiceForPlayer(String currentServer, BiFunction<String, String, List<Map.Entry<String, ServiceInfoSnapshot>>> filteredEntries,
-                                                Predicate<String> permissionCheck) {
+                                                             Predicate<String> permissionCheck) {
         AtomicReference<ServiceInfoSnapshot> server = new AtomicReference<>();
 
         BridgeConfigurationProvider.load().getBungeeFallbackConfigurations().stream()

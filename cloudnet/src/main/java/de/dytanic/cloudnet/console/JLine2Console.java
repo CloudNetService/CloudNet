@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.console;
 
-import de.dytanic.cloudnet.command.ITabCompleter;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
@@ -9,6 +9,7 @@ import jline.console.ConsoleReader;
 import jline.console.history.History;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -148,6 +149,7 @@ public final class JLine2Console implements IConsole {
     }
 
     @Override
+    @NotNull
     public ITask<String> readLine() {
         AtomicReference<String> reference = new AtomicReference<>();
         ITask<String> task = new ListenableTask<>(reference::get);

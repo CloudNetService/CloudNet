@@ -141,6 +141,7 @@ public interface IPlayerManager {
      *
      * @return the online count as an int
      */
+    @NotNull
     ITask<Integer> getOnlineCountAsync();
 
     /**
@@ -148,6 +149,7 @@ public interface IPlayerManager {
      *
      * @return the registered player count as an int
      */
+    @NotNull
     ITask<Long> getRegisteredCountAsync();
 
     /**
@@ -156,6 +158,7 @@ public interface IPlayerManager {
      * @param uniqueId the UUID of the player
      * @return the player if he is online or null if not
      */
+    @NotNull
     ITask<? extends ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId);
 
     /**
@@ -164,6 +167,7 @@ public interface IPlayerManager {
      * @param name the name of the player
      * @return the online player if there is at least one player with the given name online or null if there is no player with that name online
      */
+    @NotNull
     default ITask<ICloudPlayer> getFirstOnlinePlayerAsync(@NotNull String name) {
         AtomicReference<ICloudPlayer> result = new AtomicReference<>();
         ITask<ICloudPlayer> task = new ListenableTask<>(result::get);
@@ -181,6 +185,7 @@ public interface IPlayerManager {
      * @deprecated Moved to {@link #getOnlinePlayersAsync(String)}
      */
     @Deprecated
+    @NotNull
     default ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(@NotNull String name) {
         return this.getOnlinePlayersAsync(name);
     }
@@ -191,6 +196,7 @@ public interface IPlayerManager {
      * @param name the name of the player(s)
      * @return a list containing all online players in the cloud with the given name
      */
+    @NotNull
     ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name);
 
     /**
@@ -199,6 +205,7 @@ public interface IPlayerManager {
      * @param environment the environment to get all players from
      * @return a list containing all players that are online on the given environment
      */
+    @NotNull
     ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment);
 
     /**
@@ -206,6 +213,7 @@ public interface IPlayerManager {
      *
      * @return a list containing all players that are online on the network
      */
+    @NotNull
     ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync();
 
     /**
@@ -213,6 +221,7 @@ public interface IPlayerManager {
      *
      * @return a list containing all players that are online on the network
      */
+    @NotNull
     ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId);
 
     /**
@@ -223,6 +232,7 @@ public interface IPlayerManager {
      * @deprecated Moved to {@link #getOfflinePlayersAsync(String)}
      */
     @Deprecated
+    @NotNull
     default ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(@NotNull String name) {
         return this.getOfflinePlayersAsync(name);
     }
@@ -233,6 +243,7 @@ public interface IPlayerManager {
      * @param name the name of the player
      * @return the registered player if there is at least one player with the given name registered or null if there is no player with that name registered
      */
+    @NotNull
     default ITask<ICloudOfflinePlayer> getFirstOfflinePlayerAsync(@NotNull String name) {
         AtomicReference<ICloudOfflinePlayer> result = new AtomicReference<>();
         ITask<ICloudOfflinePlayer> task = new ListenableTask<>(result::get);
@@ -248,6 +259,7 @@ public interface IPlayerManager {
      * @param name the name of the player(s)
      * @return a list containing all players registered in the cloud with the given name
      */
+    @NotNull
     ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name);
 
     /**
@@ -260,6 +272,7 @@ public interface IPlayerManager {
      * @deprecated This shouldn't be used when you have many players in your database, because it can cause major problems in the cloud
      */
     @Deprecated
+    @NotNull
     ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync();
 
     /**

@@ -1,5 +1,8 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.NotNull;
+
+@NotNull
 public interface IScheduledTask<V> extends ITask<V> {
 
     long getTaskId();

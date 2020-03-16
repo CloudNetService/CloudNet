@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * Represents a sub command of any command.
- *
+ * <p>
  * If neither minArgs nor maxArgs is set
  */
 public abstract class SubCommand implements SubCommandExecutor {

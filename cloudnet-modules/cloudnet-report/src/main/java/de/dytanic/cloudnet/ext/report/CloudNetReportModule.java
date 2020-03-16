@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.ILogHandler;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.module.*;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;

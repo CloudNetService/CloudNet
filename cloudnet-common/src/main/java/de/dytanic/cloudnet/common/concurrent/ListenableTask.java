@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
+@NotNull
 public class ListenableTask<V> implements ITask<V> {
 
     private final Callable<V> callable;
@@ -54,6 +55,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
+    @NotNull
     public ITask<V> addListener(ITaskListener<V> listener) {
         if (listener == null) {
             return this;
@@ -67,6 +69,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
+    @NotNull
     public ITask<V> clearListeners() {
         if (this.listeners != null) {
             this.listeners.clear();
