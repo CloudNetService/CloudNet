@@ -182,7 +182,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
 
                             for (ServiceInfoSnapshot cloudService : CloudNet.getInstance().getCloudServiceProvider().getCloudServices(name)) {
-                                CloudNet.getInstance().getCloudServiceProvider(cloudService).stop();
+                                cloudService.provider().stop();
                             }
                         },
                         exactStringIgnoreCase("delete"),

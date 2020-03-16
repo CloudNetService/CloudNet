@@ -656,7 +656,7 @@ public abstract class CloudNetDriver {
     public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
+        serviceInfoSnapshot.provider().setCloudServiceLifeCycle(lifeCycle);
     }
 
     /**
@@ -668,7 +668,7 @@ public abstract class CloudNetDriver {
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
+        serviceInfoSnapshot.provider().restart();
     }
 
     /**
@@ -680,7 +680,7 @@ public abstract class CloudNetDriver {
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
+        serviceInfoSnapshot.provider().kill();
     }
 
     /**
@@ -692,7 +692,7 @@ public abstract class CloudNetDriver {
     public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
+        serviceInfoSnapshot.provider().runCommand(command);
     }
 
     /**

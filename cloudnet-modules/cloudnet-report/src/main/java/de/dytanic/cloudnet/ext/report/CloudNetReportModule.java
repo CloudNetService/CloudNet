@@ -189,7 +189,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     public String createPasteContentService(ServiceInfoSnapshot serviceInfoSnapshot) {
         StringBuilder builder = new StringBuilder();
 
-        for (String line : CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages()) {
+        for (String line : serviceInfoSnapshot.provider().getCachedLogMessages()) {
             builder.append(line).append('\n');
         }
 

@@ -67,7 +67,9 @@ public final class ExampleCreateCloudService {
             ServiceTask serviceTask = DRIVER.getServiceTaskProvider().getServiceTask("Lobby"); //getDef ServiceTask instance
             ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(serviceTask); //Creates a service on cluster and returns the initial snapshot
 
-            DRIVER.getCloudServiceProvider(serviceInfoSnapshot).start(); //Starting service
+            if (serviceInfoSnapshot != null) {
+                serviceInfoSnapshot.provider().start(); //Starting service
+            }
         }
     }
 
@@ -94,7 +96,9 @@ public final class ExampleCreateCloudService {
                 null //automatic defined port or the start port
         );
 
-        DRIVER.getCloudServiceProvider(serviceInfoSnapshot).start();
+        if (serviceInfoSnapshot != null) {
+            serviceInfoSnapshot.provider().start();
+        }
     }
 
     public void createCustomCloudServiceCountsOnOneSpecificNode() {
@@ -124,7 +128,7 @@ public final class ExampleCreateCloudService {
                     JsonDocument.newDocument().append("votes", "10"), //define useful properties to call up later
                     null //automatic defined port or the start port
             )) {
-                DRIVER.getCloudServiceProvider(serviceInfoSnapshot).start(); //start the services
+                serviceInfoSnapshot.provider().start(); //Start the services
             }
         });
     }
@@ -157,7 +161,9 @@ public final class ExampleCreateCloudService {
             );
 
             ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.getCloudServiceFactory().createCloudService(serviceTask);
-            DRIVER.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).start();
+            if (serviceInfoSnapshot != null) {
+                serviceInfoSnapshot.provider().start();
+            }
         });
     }
 }

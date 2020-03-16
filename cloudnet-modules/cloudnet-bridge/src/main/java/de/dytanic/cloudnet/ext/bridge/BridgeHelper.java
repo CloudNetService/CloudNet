@@ -149,7 +149,7 @@ public final class BridgeHelper {
             if (serviceTask != null) {
                 CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
                     if (serviceInfoSnapshot != null) {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                        serviceInfoSnapshot.provider().start();
                     }
                 });
             }
