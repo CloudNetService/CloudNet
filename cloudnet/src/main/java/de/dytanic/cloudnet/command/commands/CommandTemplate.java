@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.util.ColumnTextFormatter;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
@@ -52,18 +53,23 @@ public class CommandTemplate extends SubCommandHandler {
 
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    List<String> messages = new ArrayList<>();
-                                    messages.add(LanguageManager.getMessage("command-template-list-versions"));
+                                    List<String> versions = new ArrayList<>();
 
                                     for (ServiceVersionType versionType : CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().values()) {
+                                        List<String> messages = new ArrayList<>();
+
                                         messages.add("  " + versionType.getName() + ":");
 
                                         for (ServiceVersion version : versionType.getVersions()) {
                                             messages.add("    " + version.getName());
                                         }
+
+                                        versions.add(String.join("\n", messages));
                                     }
 
-                                    sender.sendMessage(messages.toArray(new String[0]));
+                                    sender.sendMessage(LanguageManager.getMessage("command-template-list-versions"));
+
+                                    sender.sendMessage(ColumnTextFormatter.formatInColumns(versions, "\n", 4).split("\n"));
                                 },
                                 exactStringIgnoreCase("versions")
                         )
