@@ -16,12 +16,12 @@ public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswer
 
     @Override
     public boolean isValidInput(String input) {
-        return Arrays.stream(this.enumClass.getEnumConstants()).anyMatch(e -> e.name().equalsIgnoreCase(input));
+        return Arrays.stream(this.values()).anyMatch(e -> e.name().equalsIgnoreCase(input));
     }
 
     @Override
     public E parse(String input) {
-        return Arrays.stream(this.enumClass.getEnumConstants()).filter(e -> e.name().equalsIgnoreCase(input)).findFirst().orElse(null);
+        return Arrays.stream(this.values()).filter(e -> e.name().equalsIgnoreCase(input)).findFirst().orElse(null);
     }
 
     @Override
@@ -31,7 +31,11 @@ public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswer
 
     @Override
     public List<String> getCompletableAnswers() {
-        return Arrays.stream(this.enumClass.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
+        return Arrays.stream(this.values()).map(Enum::name).collect(Collectors.toList());
+    }
+
+    protected E[] values() {
+        return this.enumClass.getEnumConstants();
     }
 
 }

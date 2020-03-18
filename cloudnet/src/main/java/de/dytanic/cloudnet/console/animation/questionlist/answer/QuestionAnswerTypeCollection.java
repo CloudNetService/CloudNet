@@ -10,13 +10,25 @@ import java.util.List;
 public class QuestionAnswerTypeCollection implements QuestionAnswerType<Collection<String>> {
 
     private Collection<String> possibleAnswers;
+    private boolean allowEmpty = true;
 
     public QuestionAnswerTypeCollection(Collection<String> possibleAnswers) {
         this.possibleAnswers = possibleAnswers;
     }
 
+    public QuestionAnswerTypeCollection() {
+    }
+
+    public QuestionAnswerTypeCollection disallowEmpty() {
+        this.allowEmpty = false;
+        return this;
+    }
+
     @Override
     public boolean isValidInput(String input) {
+        if (!this.allowEmpty && input.trim().isEmpty()) {
+            return false;
+        }
         return this.possibleAnswers == null || Arrays.stream(input.split(";")).allMatch(entry -> this.possibleAnswers.contains(entry));
     }
 

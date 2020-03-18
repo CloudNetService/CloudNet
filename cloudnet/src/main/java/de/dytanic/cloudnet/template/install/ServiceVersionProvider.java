@@ -50,6 +50,12 @@ public class ServiceVersionProvider {
         return success;
     }
 
+    public void shutdown() {
+        for (ServiceVersionInstaller value : this.installers.values()) {
+            value.shutdown();
+        }
+    }
+
     public void loadDefaultVersionTypes() {
         this.loadVersionsFromInputStream(this.getClass().getClassLoader().getResourceAsStream("files/versions.json"));
     }
@@ -82,6 +88,14 @@ public class ServiceVersionProvider {
         return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
     }
 
+
+    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ServiceTemplate serviceTemplate) {
+        ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, serviceTemplate.getStorage());
+        if (storage == null) {
+            throw new IllegalArgumentException("Storage " + serviceTemplate.getStorage() + " not found");
+        }
+        return this.installServiceVersion(serviceVersionType, serviceVersion, storage, serviceTemplate);
+    }
 
     public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
         if (!serviceVersionType.getInstallerType().canInstall(serviceVersion)) {

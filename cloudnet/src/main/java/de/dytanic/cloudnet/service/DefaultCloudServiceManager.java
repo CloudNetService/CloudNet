@@ -18,6 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -374,35 +378,60 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void startAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        this.executeForAllServices(cloudService -> {
             try {
                 cloudService.start();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        }
+        });
     }
 
     @Override
     public void stopAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        this.executeForAllServices(cloudService -> {
             try {
                 cloudService.stop();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        }
+        });
     }
 
     @Override
     public void deleteAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        this.executeForAllServices(cloudService -> {
             try {
                 cloudService.delete();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
+        });
+    }
+
+    private void executeForAllServices(Consumer<ICloudService> consumer) {
+        if (this.cloudServices.isEmpty()) {
+            return;
         }
+        Collection<ICloudService> cloudServices = new ArrayList<>(this.cloudServices.values());
+
+        CountDownLatch countDownLatch = new CountDownLatch(cloudServices.size());
+        ExecutorService executorService = Executors.newFixedThreadPool((cloudServices.size() / 2) + 1);
+
+        for (ICloudService cloudService : this.cloudServices.values()) {
+            executorService.execute(() -> {
+                consumer.accept(cloudService);
+                countDownLatch.countDown();
+            });
+        }
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException exception) {
+            exception.printStackTrace();
+        }
+
+        executorService.shutdownNow();
     }
 
     @Nullable

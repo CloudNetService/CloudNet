@@ -1,8 +1,0 @@
-name: CloudNet-Bridge-Test
-version: 1.0
-author: CloudNetService
-
-main: de.dytanic.cloudnet.ext.bridge.test.CloudNetBridgeTestPlugin
-
-commands:
-  cn-test:
