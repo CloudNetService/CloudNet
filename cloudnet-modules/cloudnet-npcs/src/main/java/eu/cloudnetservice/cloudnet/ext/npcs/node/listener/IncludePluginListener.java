@@ -60,7 +60,7 @@ public class IncludePluginListener {
         File file = new File(pluginsFolder, "cloudnet-npcs.jar");
         file.delete();
 
-        if (installPlugin && DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
+        if (installPlugin) {
             try {
                 Files.copy(PROTOCOLLIB_CACHE_PATH, pluginsFolder.toPath().resolve("ProtocolLib.jar"), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException exception) {
@@ -68,11 +68,13 @@ public class IncludePluginListener {
                 return;
             }
 
-            DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
-                    IncludePluginListener.class,
-                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(),
-                    file
-            );
+            if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
+                DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
+                        IncludePluginListener.class,
+                        event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+                        file
+                );
+            }
         }
     }
 
