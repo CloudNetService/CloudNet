@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -28,7 +27,7 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
      * @param zipInput the target zip compressed byte array within all files are included for the target template
      * @param target   the target serviceTemplate to that should deploy
      * @return true if the deployment was successful
-     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(InputStream, ServiceTemplate)} instead
+     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(ZipInputStream, ServiceTemplate)} instead
      */
     @Deprecated
     boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
@@ -36,9 +35,9 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
     /**
      * Deploys the following directory files to the target template storage.
      *
-     * @param directory the
-     * @param target
-     * @return
+     * @param directory the directory to deploy
+     * @param target    the template to deploy to
+     * @return if the deployment was successful
      */
     boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter);
 
