@@ -49,7 +49,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
             if (context.request().pathParameters().containsKey("operation")) {
                 switch (context.request().pathParameters().get("operation").toLowerCase()) {
                     case "start": {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                        serviceInfoSnapshot.provider().start();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -59,7 +59,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "stop": {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).stop();
+                        serviceInfoSnapshot.provider().stop();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -69,7 +69,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "delete": {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).delete();
+                        serviceInfoSnapshot.provider().delete();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -79,7 +79,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "log": {
-                        Queue<String> queue = CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages();
+                        Queue<String> queue = serviceInfoSnapshot.provider().getCachedLogMessages();
 
                         StringBuilder stringBuilder = new StringBuilder();
 
@@ -96,7 +96,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "log_json": {
-                        Queue<String> queue = CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages();
+                        Queue<String> queue = serviceInfoSnapshot.provider().getCachedLogMessages();
 
                         context
                                 .response()

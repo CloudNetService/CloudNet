@@ -22,7 +22,7 @@ public class DefaultConfigSetup implements DefaultSetup {
 
     private List<String> internalIPs;
     private String preferredIP;
-    
+
     private List<String> detectAllIPAddresses() throws SocketException {
         List<String> resultAddresses = new ArrayList<>();
 

@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.http;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.CloudNet;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;

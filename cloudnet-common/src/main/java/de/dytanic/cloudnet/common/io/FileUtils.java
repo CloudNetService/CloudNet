@@ -306,7 +306,7 @@ public final class FileUtils {
                 new SimpleFileVisitor<Path>() {
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         try (InputStream inputStream = Files.newInputStream(file)) {
-                            zipOutputStream.putNextEntry(new ZipEntry(directory.relativize(file).toString()));
+                            zipOutputStream.putNextEntry(new ZipEntry(directory.relativize(file).toString().replace("\\", "/")));
                             copy(inputStream, zipOutputStream);
                             zipOutputStream.closeEntry();
                         } catch (Exception ex) {

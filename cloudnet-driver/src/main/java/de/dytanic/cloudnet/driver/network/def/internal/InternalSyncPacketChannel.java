@@ -54,10 +54,12 @@ public final class InternalSyncPacketChannel {
         }
     }
 
+    @NotNull
     public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body) {
         return sendCallablePacket(channel, header, body, null);
     }
 
+    @NotNull
     public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener) {
         Packet packet = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
         checkCachedValidation();
@@ -92,6 +94,7 @@ public final class InternalSyncPacketChannel {
 
         private final long timeOut = System.currentTimeMillis() + 30000;
         private volatile Pair<JsonDocument, byte[]> response = new Pair<>(new JsonDocument(), new byte[0]);
+        @NotNull
         private volatile ITask<Pair<JsonDocument, byte[]>> task;
     }
 }

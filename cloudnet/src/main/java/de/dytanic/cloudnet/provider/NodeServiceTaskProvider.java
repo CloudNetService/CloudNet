@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.provider;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -58,21 +58,25 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
         return this.cloudNet.scheduleTask(this::getPermanentServiceTasks);
     }
 
     @Override
+    @NotNull
     public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.getServiceTask(name));
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.isServiceTaskPresent(name));
     }
 
     @Override
+    @NotNull
     public ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         return this.cloudNet.scheduleTask(() -> {
             this.addPermanentServiceTask(serviceTask);
@@ -81,6 +85,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.removePermanentServiceTask(name);
@@ -89,6 +94,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         return this.cloudNet.scheduleTask(() -> {
             this.removePermanentServiceTask(serviceTask);

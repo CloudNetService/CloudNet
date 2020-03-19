@@ -29,6 +29,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     private AbstractFTPStorage executingStorage;
 
     private boolean opened = true;
+    @NotNull
     private BlockingQueue<ITask<?>> ftpTaskQueue = new LinkedBlockingQueue<>();
 
     public FTPQueueStorage(AbstractFTPStorage executingStorage) {

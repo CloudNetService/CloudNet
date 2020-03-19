@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.database.mysql;
 
-import com.zaxxer.hikari.HikariDataSource;
 import com.google.common.base.Preconditions;
+import com.zaxxer.hikari.HikariDataSource;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;

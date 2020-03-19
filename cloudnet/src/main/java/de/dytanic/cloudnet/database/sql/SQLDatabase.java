@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.util.*;
@@ -290,56 +291,67 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> insertAsync(String key, JsonDocument document) {
         return this.schedule(() -> insert(key, document));
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> containsAsync(String key) {
         return this.schedule(() -> this.contains(key));
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> deleteAsync(String key) {
         return this.schedule(() -> this.delete(key));
     }
 
     @Override
+    @NotNull
     public ITask<JsonDocument> getAsync(String key) {
         return this.schedule(() -> this.get(key));
     }
 
     @Override
+    @NotNull
     public ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue) {
         return this.schedule(() -> this.get(fieldName, fieldValue));
     }
 
     @Override
+    @NotNull
     public ITask<List<JsonDocument>> getAsync(JsonDocument filters) {
         return this.schedule(() -> this.get(filters));
     }
 
     @Override
+    @NotNull
     public ITask<Collection<String>> keysAsync() {
         return this.schedule(this::keys);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<JsonDocument>> documentsAsync() {
         return this.schedule(this::documents);
     }
 
     @Override
+    @NotNull
     public ITask<Map<String, JsonDocument>> entriesAsync() {
         return this.schedule(this::entries);
     }
 
     @Override
+    @NotNull
     public ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate) {
         return this.schedule(() -> this.filter(predicate));
     }
 
     @Override
+    @NotNull
     public ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
         return this.schedule(() -> {
             this.iterate(consumer);
@@ -348,6 +360,7 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Void> clearAsync() {
         return this.schedule(() -> {
             this.clear();
@@ -366,10 +379,12 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Long> getDocumentsCountAsync() {
         return this.schedule(this::getDocumentsCount);
     }
 
+    @NotNull
     private <T> ITask<T> schedule(Callable<T> callable) {
         return CloudNetDriver.getInstance().getTaskScheduler().schedule(callable);
     }

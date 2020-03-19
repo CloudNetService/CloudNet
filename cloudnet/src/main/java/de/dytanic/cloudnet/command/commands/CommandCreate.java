@@ -142,7 +142,7 @@ public class CommandCreate extends SubCommandHandler {
 
         if (properties.containsKey("start")) {
             for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                serviceInfoSnapshot.provider().start();
             }
         }
     }
