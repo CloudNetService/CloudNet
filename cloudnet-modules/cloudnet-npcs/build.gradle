@@ -14,7 +14,7 @@ dependencies {
     compileOnly project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
     compileOnly project(':cloudnet-modules:cloudnet-bridge')
-    compileOnly group: 'com.github.dmulloy2', name: 'ProtocolLib', version: '4.5.0'
+    compileOnly files('files/ProtocolLib-4.5.0.jar')
     compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: dependencyBukkitVersion
     compile group: 'com.github.realpanamo', name: 'npc-lib', version: '1.7-SNAPSHOT'
 }

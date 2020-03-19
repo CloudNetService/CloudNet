@@ -3,6 +3,7 @@ package eu.cloudnetservice.cloudnet.ext.npcs.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
@@ -14,6 +15,7 @@ import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.CloudNetNPCMessageList
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.NPCTaskSetupListener;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -53,11 +55,15 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
 
     @ModuleTask(event = ModuleLifeCycle.STARTED, order = 126)
     public void registerListeners() {
-        super.registerListeners(
-                new IncludePluginListener(this),
-                new CloudNetNPCMessageListener(this),
-                new NPCTaskSetupListener(this)
-        );
+        try {
+            super.registerListeners(
+                    new IncludePluginListener(this),
+                    new CloudNetNPCMessageListener(this),
+                    new NPCTaskSetupListener(this)
+            );
+        } catch (IOException exception) {
+            CloudNetDriver.getInstance().getLogger().error("Unable to download ProtocolLib!", exception);
+        }
     }
 
     public void addNPC(CloudNPC npc) {
