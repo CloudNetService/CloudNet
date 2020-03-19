@@ -30,7 +30,7 @@ import java.util.zip.ZipOutputStream;
 
 public final class FTPTemplateStorage extends AbstractFTPStorage {
 
-    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true);
+    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
 
     private final FTPClient ftpClient;
 
@@ -58,29 +58,23 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
         try {
             this.ftpClient.setAutodetectUTF8(true);
-
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect")
-                    .replace("%host%", host)
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%ftpType%", this.ftpType.toString())
-            );
             this.ftpClient.connect(host, port);
 
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
-                    .replace("%user%", username)
-                    .replace("%ftpType%", this.ftpType.toString())
-            );
-            this.ftpClient.login(username, password);
+            if (this.ftpClient.login(username, password)) {
+                this.ftpClient.sendNoOp();
+                this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+                this.ftpClient.changeWorkingDirectory(super.baseDirectory);
 
-            this.ftpClient.sendNoOp();
-            this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-            this.ftpClient.changeWorkingDirectory(super.baseDirectory);
-
-            return true;
+                return true;
+            }
         } catch (IOException exception) {
             exception.printStackTrace();
-            return false;
         }
+
+        logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+                .replace("%ftpType%", this.ftpType.toString()));
+
+        return false;
     }
 
     @Override

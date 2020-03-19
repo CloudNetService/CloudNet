@@ -22,46 +22,43 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class SFTPClient implements Closeable {
-    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true);
+
+    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
+
     private static final FTPType FTP_TYPE = FTPType.SFTP;
 
     private Session session;
+
     private ChannelSftp channel;
 
     public boolean connect(String host, int port, String username, String password) {
         ILogger logger = CloudNetDriver.getInstance().getLogger();
 
         try {
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect")
-                    .replace("%host%", host)
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%ftpType%", FTP_TYPE.toString())
-            );
-
             this.session = new JSch().getSession(username, host, port);
+
             this.session.setPassword(password);
             this.session.setConfig("StrictHostKeyChecking", "no");
-            this.session.connect(2500);
 
+            this.session.connect(2500);
         } catch (JSchException exception) {
-            exception.printStackTrace();
+            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+                    .replace("%ftpType%", FTP_TYPE.toString()), exception);
             return false;
         }
 
         try {
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
-                    .replace("%user%", username)
-                    .replace("%ftpType%", FTP_TYPE.toString())
-            );
-
             this.channel = (ChannelSftp) this.session.openChannel("sftp");
+
             if (this.channel == null) {
                 this.close();
                 return false;
             }
+
             this.channel.connect();
         } catch (JSchException exception) {
-            exception.printStackTrace();
+            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+                    .replace("%ftpType%", FTP_TYPE.toString()), exception);
             return false;
         }
 
