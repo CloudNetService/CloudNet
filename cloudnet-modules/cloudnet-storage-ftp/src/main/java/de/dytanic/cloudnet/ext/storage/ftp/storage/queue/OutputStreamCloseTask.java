@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+@NotNull
 public class OutputStreamCloseTask extends OutputStream implements ITask<OutputStream> {
 
     private OutputStream outputStream;
@@ -50,11 +51,13 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     }
 
     @Override
+    @NotNull
     public ITask<OutputStream> addListener(ITaskListener<OutputStream> listener) {
         throw new UnsupportedOperationException();
     }
 
     @Override
+    @NotNull
     public ITask<OutputStream> clearListeners() {
         throw new UnsupportedOperationException();
     }

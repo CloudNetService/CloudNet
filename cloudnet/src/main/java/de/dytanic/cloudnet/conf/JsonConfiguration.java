@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.conf;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;

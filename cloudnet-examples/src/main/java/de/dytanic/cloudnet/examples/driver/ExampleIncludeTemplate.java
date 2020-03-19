@@ -15,10 +15,7 @@ public final class ExampleIncludeTemplate {
 
     public void exampleIncludeTemplates(UUID playerUniqueId, ServiceInfoSnapshot serviceInfoSnapshot) {
         //Add serviceTemplate to existing service
-        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).addServiceTemplate(new ServiceTemplate(
-                "Lobby", "test1",
-                "local"
-        ));
+        serviceInfoSnapshot.provider().addServiceTemplate(new ServiceTemplate("Lobby", "test1", "local"));
 
         //Create service with custom template
         ServiceInfoSnapshot newService = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(
@@ -44,6 +41,8 @@ public final class ExampleIncludeTemplate {
                 null
         );
 
-        CloudNetDriver.getInstance().getCloudServiceProvider(newService).start();
+        if (newService != null) {
+            newService.provider().start();
+        }
     }
 }

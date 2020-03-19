@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.provider.service;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
@@ -44,6 +44,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
         return this.cloudNet.scheduleTask(this::getServiceInfoSnapshot);
     }
@@ -72,6 +73,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceTemplate(serviceTemplate);
@@ -102,6 +104,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceRemoteInclusion(serviceRemoteInclusion);
@@ -132,6 +135,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceDeployment(serviceDeployment);
@@ -160,6 +164,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Queue<String>> getCachedLogMessagesAsync() {
         return this.cloudNet.scheduleTask(this::getCachedLogMessages);
     }
@@ -204,6 +209,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
         return this.cloudNet.scheduleTask(() -> {
             this.setCloudServiceLifeCycle(lifeCycle);
@@ -233,6 +239,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> restartAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.restart();
@@ -262,6 +269,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> killAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.kill();
@@ -291,6 +299,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> runCommandAsync(@NotNull String command) {
         return this.cloudNet.scheduleTask(() -> {
             this.runCommand(command);
@@ -361,6 +370,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> includeWaitingServiceTemplatesAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.includeWaitingServiceTemplates();
@@ -369,6 +379,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> includeWaitingServiceInclusionsAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.includeWaitingServiceInclusions();
@@ -377,6 +388,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> deployResourcesAsync(boolean removeDeployments) {
         return this.cloudNet.scheduleTask(() -> {
             this.deployResources(removeDeployments);

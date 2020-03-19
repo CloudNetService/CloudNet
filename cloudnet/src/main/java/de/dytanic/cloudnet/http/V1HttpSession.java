@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.http;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -10,9 +10,11 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 
 public final class V1HttpSession {
 
+    private static final Pattern BASE64_PATTERN = Pattern.compile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$");
     private static final String COOKIE_NAME = "CloudNet-REST_V1-Session." + new Random().nextInt();
 
     private static final long EXPIRE_TIME = 1000 * 60 * 60 * 24;
@@ -31,6 +33,10 @@ public final class V1HttpSession {
         String[] typeAndCredentials = context.request().header("Authorization").split(" ");
 
         if (typeAndCredentials.length != 2 || !typeAndCredentials[0].equalsIgnoreCase("Basic")) {
+            return false;
+        }
+
+        if (!BASE64_PATTERN.matcher(typeAndCredentials[1]).matches()) {
             return false;
         }
 

@@ -140,7 +140,7 @@ public class ServiceVersionProvider {
         try {
             if (Files.exists(versionCachePath)) {
                 try (OutputStream targetStream = storage.newOutputStream(serviceTemplate, fileName)) {
-                    Files.copy(versionCachePath, targetStream);
+                    Files.copy(versionCachePath, Objects.requireNonNull(targetStream, "OutputStream is null!"));
                 }
             } else {
                 Files.createDirectories(workingDirectory);

@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.template;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;

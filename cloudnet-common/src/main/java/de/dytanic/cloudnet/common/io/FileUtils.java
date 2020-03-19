@@ -268,7 +268,7 @@ public final class FileUtils {
                             throws IOException {
                         try (InputStream inputStream = Files.newInputStream(file)) {
                             zipOutputStream.putNextEntry(
-                                    new ZipEntry(directory.relativize(file).toString()));
+                                    new ZipEntry(directory.relativize(file).toString().replace("\\", "/")));
                             copy(inputStream, zipOutputStream);
                             zipOutputStream.closeEntry();
                         } catch (Exception ex) {

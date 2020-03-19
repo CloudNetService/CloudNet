@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;

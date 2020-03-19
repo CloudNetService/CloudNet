@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
+import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeePlayerFallbackEvent;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -51,11 +52,14 @@ public final class BungeeCloudNetHelper {
     }
 
     public static String filterServiceForProxiedPlayer(ProxiedPlayer proxiedPlayer, String currentServer) {
-        return BridgeHelper.filterServiceForPlayer(
+        ServiceInfoSnapshot fallback = BridgeHelper.filterServiceForPlayer(
                 currentServer,
                 BungeeCloudNetHelper::getFilteredEntries,
                 proxiedPlayer::hasPermission
         );
+        return ProxyServer.getInstance().getPluginManager().callEvent(new BungeePlayerFallbackEvent(proxiedPlayer,
+                fallback, fallback != null ? fallback.getServiceId().getName() : null)
+        ).getFallbackName();
     }
 
     private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {

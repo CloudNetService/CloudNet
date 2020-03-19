@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.ext.bridge.velocity;
 
+import com.google.common.base.Preconditions;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -13,6 +13,7 @@ import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityPlayerFallbackEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -81,11 +83,19 @@ public final class VelocityCloudNetHelper {
     }
 
     public static String filterServiceForPlayer(Player player, String currentServer) {
-        return BridgeHelper.filterServiceForPlayer(
+        ServiceInfoSnapshot fallback = BridgeHelper.filterServiceForPlayer(
                 currentServer,
                 VelocityCloudNetHelper::getFilteredEntries,
                 player::hasPermission
         );
+        try {
+            return proxyServer.getEventManager().fire(new VelocityPlayerFallbackEvent(player,
+                    fallback, fallback != null ? fallback.getServiceId().getName() : null)
+            ).get().getFallbackName();
+        } catch (InterruptedException | ExecutionException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
     public static boolean isServiceEnvironmentTypeProvidedForVelocity(ServiceInfoSnapshot serviceInfoSnapshot) {

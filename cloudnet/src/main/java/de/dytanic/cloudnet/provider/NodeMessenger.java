@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -52,6 +53,13 @@ public class NodeMessenger implements CloudMessenger {
     @Override
     public void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.cloudNet.getCloudServiceProvider().getCloudServices(targetServiceTask.getName())) {
+            this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
+        }
+    }
+
+    @Override
+    public void sendChannelMessage(@NotNull ServiceEnvironmentType targetEnvironment, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
+        for (ServiceInfoSnapshot serviceInfoSnapshot : this.cloudNet.getCloudServiceProvider().getCloudServices(targetEnvironment)) {
             this.sendChannelMessage(serviceInfoSnapshot, channel, message, data);
         }
     }
