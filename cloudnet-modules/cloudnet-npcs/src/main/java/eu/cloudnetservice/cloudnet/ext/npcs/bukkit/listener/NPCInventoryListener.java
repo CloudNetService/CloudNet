@@ -1,7 +1,7 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
 
-import com.github.realpanamo.npc.event.PlayerNPCInteractEvent;
+import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import org.bukkit.entity.Player;

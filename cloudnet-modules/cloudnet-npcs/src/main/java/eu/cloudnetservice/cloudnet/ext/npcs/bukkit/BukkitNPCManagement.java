@@ -3,8 +3,8 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.destroystokyo.paper.profile.ProfileProperty;
-import com.github.realpanamo.npc.NPC;
-import com.github.realpanamo.npc.NPCPool;
+import com.github.juliarn.npc.NPC;
+import com.github.juliarn.npc.NPCPool;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;

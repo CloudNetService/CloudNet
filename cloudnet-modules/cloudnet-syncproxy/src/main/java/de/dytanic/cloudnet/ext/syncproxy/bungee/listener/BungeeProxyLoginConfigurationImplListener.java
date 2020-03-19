@@ -72,7 +72,7 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                         ),
                                 (protocolText == null ? event.getResponse().getVersion().getProtocol() : 1)),
                         new ServerPing.Players(maxPlayers, onlinePlayers, playerInfo),
-                        motd,
+                        new TextComponent(TextComponent.fromLegacyText(motd)),
                         event.getResponse().getFaviconObject()
                 );
 
@@ -110,8 +110,8 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
             if (BungeeCloudNetSyncProxyPlugin.getInstance().getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
                     !loginEventCommandSender.hasPermission("cloudnet.syncproxy.fullljoin")) {
                 event.setCancelled(true);
-                event.setCancelReason(ChatColor.translateAlternateColorCodes('&', SyncProxyConfigurationProvider.load().getMessages()
-                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network")));
+                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', SyncProxyConfigurationProvider.load().getMessages()
+                        .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network"))));
             }
         }
     }

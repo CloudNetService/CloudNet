@@ -41,7 +41,7 @@ public class IncludePluginListener {
         urlConnection.connect();
 
         try (InputStream inputStream = urlConnection.getInputStream()) {
-            Files.copy(inputStream, PROTOCOLLIB_CACHE_PATH);
+            Files.copy(inputStream, PROTOCOLLIB_CACHE_PATH, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 

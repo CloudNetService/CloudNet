@@ -10,6 +10,7 @@ allprojects {
     repositories {
 
         mavenCentral()
+        mavenLocal()
 
         maven {
             name 'spongepowered'
