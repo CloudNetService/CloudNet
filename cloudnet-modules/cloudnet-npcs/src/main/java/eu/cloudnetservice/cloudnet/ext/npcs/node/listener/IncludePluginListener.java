@@ -60,14 +60,14 @@ public class IncludePluginListener {
         File file = new File(pluginsFolder, "cloudnet-npcs.jar");
         file.delete();
 
-        try {
-            Files.copy(PROTOCOLLIB_CACHE_PATH, pluginsFolder.toPath().resolve("ProtocolLib.jar"), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException exception) {
-            CloudNetDriver.getInstance().getLogger().error("Unable to copy ProtocolLib!", exception);
-            return;
-        }
-
         if (installPlugin && DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
+            try {
+                Files.copy(PROTOCOLLIB_CACHE_PATH, pluginsFolder.toPath().resolve("ProtocolLib.jar"), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException exception) {
+                CloudNetDriver.getInstance().getLogger().error("Unable to copy ProtocolLib!", exception);
+                return;
+            }
+
             DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
                     IncludePluginListener.class,
                     event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(),
