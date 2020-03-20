@@ -110,7 +110,7 @@ allprojects {
                 .append("repo maven https://repo1.maven.org/maven2\n")
                 .append("# dependencies\n\n")
 
-        pro.configurations.compile.resolvedConfiguration.resolvedArtifacts.forEach({
+        pro.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.forEach({
 
             if (it.moduleVersion.id.group != project.group) {
 
@@ -158,7 +158,6 @@ subprojects {
     if (project.name == 'cloudnet-modules' || project.name == 'cloudnet-plugins') return
 
     apply plugin: 'java'
-    apply plugin: 'maven'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
@@ -178,28 +177,21 @@ subprojects {
     targetCompatibility = 1.8
 
     dependencies {
-        compile group: 'org.jetbrains', name: 'annotations', version: dependencyAnnotationsVersion
+        implementation group: 'org.jetbrains', name: 'annotations', version: dependencyAnnotationsVersion
         compileOnly group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
-        testCompile group: 'junit', name: 'junit', version: testJunitVersion
+        testImplementation group: 'junit', name: 'junit', version: testJunitVersion
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
     }
 
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
 
     publishing {
         publications {
             mavenJava(MavenPublication) {
+                java {
+                    withSourcesJar()
+                    withJavadocJar()
+                }
                 from components.java
-                artifact sourcesJar
-                artifact javadocJar
             }
         }
         repositories.maven {
@@ -219,7 +211,6 @@ subprojects {
 }
 
 task allJavadoc(type: Javadoc) {
-
     dependsOn ':cloudnet-launcher:jar'
 
     destinationDir = new File(buildDir, 'javadoc')

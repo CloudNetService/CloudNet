@@ -1,10 +1,8 @@
 jar {
-
     archiveFileName.set(cloudnetDriverOutFileName)
 
     from {
-
-        configurations.compile.resolvedConfiguration.resolvedArtifacts.stream().filter({
+        configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.stream().filter({
             it.moduleVersion.id.group == project.group
         }).collect({
             it.file.isDirectory() ? it.file : zipTree(it.file)
@@ -17,10 +15,9 @@ jar {
 }
 
 dependencies {
-
-    compile project(':cloudnet-common')
-    compile group: 'io.netty', name: 'netty-handler', version: dependencyNettyVersion
-    compile group: 'io.netty', name: 'netty-codec-http', version: dependencyNettyVersion
-    compile group: 'io.netty', name: 'netty-transport-native-epoll', version: dependencyNettyVersion, classifier: 'linux-x86_64'
-    compile group: 'io.netty', name: 'netty-transport-native-kqueue', version: dependencyNettyVersion, classifier: 'osx-x86_64'
+    api project(':cloudnet-common')
+    api group: 'io.netty', name: 'netty-handler', version: dependencyNettyVersion
+    api group: 'io.netty', name: 'netty-codec-http', version: dependencyNettyVersion
+    api group: 'io.netty', name: 'netty-transport-native-epoll', version: dependencyNettyVersion, classifier: 'linux-x86_64'
+    api group: 'io.netty', name: 'netty-transport-native-kqueue', version: dependencyNettyVersion, classifier: 'osx-x86_64'
 }

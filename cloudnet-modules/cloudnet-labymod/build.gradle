@@ -1,5 +1,5 @@
 jar {
-    archiveName = cloudnetModuleLabyModFileName
+    archiveFileName.set(cloudnetModuleLabyModFileName)
 }
 
 dependencies {

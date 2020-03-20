@@ -20,7 +20,7 @@ jar {
 }
 
 dependencies {
-    compile project(':cloudnet-driver')
+    api project(':cloudnet-driver')
     compileOnly project(':cloudnet-wrapper-jvm:minecraft-launchwrapper-api')
 }
 
