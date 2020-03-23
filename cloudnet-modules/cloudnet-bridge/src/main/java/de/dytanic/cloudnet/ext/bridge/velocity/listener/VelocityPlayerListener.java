@@ -60,7 +60,7 @@ public final class VelocityPlayerListener {
             );
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
