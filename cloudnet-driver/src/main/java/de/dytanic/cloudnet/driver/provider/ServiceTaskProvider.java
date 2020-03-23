@@ -12,12 +12,12 @@ import java.util.Collection;
  */
 public interface ServiceTaskProvider {
 
-     /**
-      * Gets all tasks that are registered in the cloud
-      *
-      * @return a list containing the task configurations of all tasks
-      */
-     Collection<ServiceTask> getPermanentServiceTasks();
+    /**
+     * Gets all tasks that are registered in the cloud
+     *
+     * @return a list containing the task configurations of all tasks
+     */
+    Collection<ServiceTask> getPermanentServiceTasks();
 
     /**
      * Gets a specific task by its name
@@ -28,13 +28,13 @@ public interface ServiceTaskProvider {
     @Nullable
     ServiceTask getServiceTask(@NotNull String name);
 
-     /**
-      * Checks whether the task with a specific name exists
-      *
-      * @param name the name of the task
-      * @return {@code true} if the task exists or {@code false} otherwise
-      */
-     boolean isServiceTaskPresent(@NotNull String name);
+    /**
+     * Checks whether the task with a specific name exists
+     *
+     * @param name the name of the task
+     * @return {@code true} if the task exists or {@code false} otherwise
+     */
+    boolean isServiceTaskPresent(@NotNull String name);
 
     /**
      * Adds a new task to the cloud
@@ -58,19 +58,21 @@ public interface ServiceTaskProvider {
     void removePermanentServiceTask(@NotNull ServiceTask serviceTask);
 
     /**
-      * Gets all tasks that are registered in the cloud
-      *
-      * @return a list containing the task configurations of all tasks
-      */
-     ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync();
+     * Gets all tasks that are registered in the cloud
+     *
+     * @return a list containing the task configurations of all tasks
+     */
+    @NotNull
+    ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync();
 
-     /**
-      * Gets a specific task by its name
-      *
-      * @param name the name of the task
-      * @return the task or {@code null} if no task with that name exists
-      */
-     ITask<ServiceTask> getServiceTaskAsync(@NotNull String name);
+    /**
+     * Gets a specific task by its name
+     *
+     * @param name the name of the task
+     * @return the task or {@code null} if no task with that name exists
+     */
+    @NotNull
+    ITask<ServiceTask> getServiceTaskAsync(@NotNull String name);
 
     /**
      * Checks whether the task with a specific name exists
@@ -78,6 +80,7 @@ public interface ServiceTaskProvider {
      * @param name the name of the task
      * @return {@code true} if the task exists or {@code false} otherwise
      */
+    @NotNull
     ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name);
 
     /**
@@ -85,6 +88,7 @@ public interface ServiceTaskProvider {
      *
      * @param serviceTask the task to be added
      */
+    @NotNull
     ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask);
 
     /**
@@ -92,6 +96,7 @@ public interface ServiceTaskProvider {
      *
      * @param name the name of the task to be removed
      */
+    @NotNull
     ITask<Void> removePermanentServiceTaskAsync(@NotNull String name);
 
     /**
@@ -99,6 +104,7 @@ public interface ServiceTaskProvider {
      *
      * @param serviceTask the task to be removed (the only thing that matters in this object is the name, the rest is ignored)
      */
+    @NotNull
     ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask);
 
 }

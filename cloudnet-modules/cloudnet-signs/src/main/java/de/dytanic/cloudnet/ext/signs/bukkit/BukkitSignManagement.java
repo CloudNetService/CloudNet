@@ -105,29 +105,31 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     private void changeBlock(Location location, String blockType, int subId) {
         Preconditions.checkNotNull(location);
 
-        if (blockType != null && subId != -1) {
-
+        if (blockType != null) {
             BlockState signBlockState = location.getBlock().getState();
-            MaterialData signMaterialData = signBlockState.getData();
 
-            BlockFace signBlockFace;
+            // trying to use the new block data api
+            BlockFace signBlockFace = this.getSignFacing(signBlockState);
 
-            if (signMaterialData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a wall sign
-                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signMaterialData;
+            // if this fails, trying to use the legacy api
+            if (signBlockFace == null) {
+                MaterialData signMaterialData = signBlockState.getData();
 
-                signBlockFace = sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
-            } else { // trying to get the facing over directionals from the 1.13+ api
-                signBlockFace = this.getSignFacing(signBlockState);
+                if (signMaterialData instanceof org.bukkit.material.Sign) {
+                    org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signMaterialData;
+                    signBlockFace = sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
+                }
             }
 
             if (signBlockFace != null) {
-
                 BlockState backBlockState = location.getBlock().getRelative(signBlockFace.getOppositeFace()).getState();
                 Material backBlockMaterial = Material.getMaterial(blockType.toUpperCase());
 
                 if (backBlockMaterial != null) {
                     backBlockState.setType(backBlockMaterial);
-                    backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    if (subId > -1) {
+                        backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    }
                     backBlockState.update(true);
                 }
 

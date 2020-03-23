@@ -9,6 +9,7 @@ import java.util.concurrent.*;
 
 public class WorkerThread extends Thread implements ExecutorService {
 
+    @NotNull
     protected final BlockingQueue<ITask<?>> tasks = new LinkedBlockingQueue<>();
     protected final long lifeMillis;
     protected volatile boolean available = true;
@@ -46,10 +47,12 @@ public class WorkerThread extends Thread implements ExecutorService {
         this.tasks.clear();
     }
 
+    @NotNull
     public <T> ITask<T> submit(Callable<T> task, ITaskListener<T> listener) {
         return this.submit(task, new ITaskListener[]{listener});
     }
 
+    @NotNull
     public <T> ITask<T> submit(Callable<T> task, ITaskListener<T>[] listeners) {
         if (task == null) {
             return null;
@@ -94,20 +97,20 @@ public class WorkerThread extends Thread implements ExecutorService {
         return true;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public <T> ITask<T> submit(@NotNull Callable<T> task) {
         return this.submit(task, new ITaskListener[0]);
     }
 
-    @NotNull
     @Override
+    @NotNull
     public <T> ITask<T> submit(@NotNull Runnable task, T result) {
         return this.submit(Executors.callable(task, result));
     }
 
-    @NotNull
     @Override
+    @NotNull
     public ITask<?> submit(@NotNull Runnable task) {
         return (ITask<?>) Executors.callable(task);
     }

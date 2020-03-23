@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfigurationRegistry;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -78,6 +79,7 @@ import de.dytanic.cloudnet.provider.service.NodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
@@ -132,6 +134,7 @@ public final class CloudNet extends CloudNetDriver {
     private final ConsoleCommandSender consoleCommandSender;
 
 
+    @NotNull
     private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
@@ -146,7 +149,7 @@ public final class CloudNet extends CloudNetDriver {
     private NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
     private CloudMessenger messenger = new NodeMessenger(this);
 
-    private DefaultInstallation defaultInstallation = new DefaultInstallation(this);
+    private DefaultInstallation defaultInstallation = new DefaultInstallation();
 
     private ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
 
@@ -194,9 +197,13 @@ public final class CloudNet extends CloudNetDriver {
             Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
+        this.initServiceVersions();
+
         boolean configFileAvailable = this.config.isFileExists();
         this.config.load();
         this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
+
+        HeaderReader.readAndPrintHeader(console);
 
         if (this.config.getMaxMemory() < 2048) {
             CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
@@ -222,8 +229,6 @@ public final class CloudNet extends CloudNetDriver {
 
         this.registerDefaultCommands();
         this.registerDefaultServices();
-
-        this.initServiceVersions();
 
         this.currentNetworkClusterNodeInfoSnapshot = createClusterNodeInfoSnapshot();
         this.lastNetworkClusterNodeInfoSnapshot = currentNetworkClusterNodeInfoSnapshot;
@@ -256,7 +261,7 @@ public final class CloudNet extends CloudNetDriver {
 
         //setup implementations
         this.defaultInstallation.initDefaultPermissionGroups();
-        this.defaultInstallation.initDefaultTasks();
+        this.defaultInstallation.postExecute();
 
         this.eventManager.callEvent(new CloudNetNodePostInitializationEvent());
 
@@ -314,6 +319,8 @@ public final class CloudNet extends CloudNetDriver {
         }
 
         this.logger.info(LanguageManager.getMessage("stop-start-message"));
+
+        this.serviceVersionProvider.shutdown();
 
         this.cloudServiceManager.deleteAllCloudServices();
         this.taskScheduler.shutdown();
@@ -508,11 +515,13 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
         return scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
         Preconditions.checkNotNull(serviceName);
 
@@ -520,6 +529,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    @NotNull
     public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine) {
         Preconditions.checkNotNull(uniqueId);
         Preconditions.checkNotNull(commandLine);
@@ -527,6 +537,7 @@ public final class CloudNet extends CloudNetDriver {
         return scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
     }
 
+    @NotNull
     public <T> ITask<T> runTask(Callable<T> runnable) {
         ITask<T> task = new ListenableTask<>(runnable);
 
@@ -534,6 +545,7 @@ public final class CloudNet extends CloudNetDriver {
         return task;
     }
 
+    @NotNull
     public ITask<?> runTask(Runnable runnable) {
         return this.runTask(Executors.callable(runnable));
     }
@@ -557,6 +569,7 @@ public final class CloudNet extends CloudNetDriver {
         this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(groupConfigurations, updateType));
     }
 
+    @NotNull
     public ITask<Void> sendAllAsync(IPacket packet) {
         return scheduleTask(() -> {
             sendAll(packet);
@@ -578,6 +591,7 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
+    @NotNull
     public ITask<Void> sendAllAsync(IPacket... packets) {
         return scheduleTask(() -> {
             sendAll(packets);
@@ -938,6 +952,7 @@ public final class CloudNet extends CloudNetDriver {
         );
     }
 
+    @NotNull
     public <T> ITask<T> scheduleTask(Callable<T> callable) {
         ITask<T> task = new ListenableTask<>(callable);
 

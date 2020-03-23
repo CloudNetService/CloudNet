@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -58,6 +58,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
         if (this.serviceInfoSnapshot != null) {
             return this.wrapper.getTaskScheduler().schedule(() -> this.serviceInfoSnapshot);
@@ -81,6 +82,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
         Preconditions.checkNotNull(serviceTemplate);
 
@@ -102,6 +104,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
         Preconditions.checkNotNull(serviceRemoteInclusion);
 
@@ -123,6 +126,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
         Preconditions.checkNotNull(serviceDeployment);
 
@@ -145,6 +149,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Queue<String>> getCachedLogMessagesAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -163,6 +168,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
         Preconditions.checkNotNull(lifeCycle);
 
@@ -185,6 +191,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> restartAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -204,6 +211,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> killAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -223,6 +231,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> runCommandAsync(@NotNull String command) {
         Preconditions.checkNotNull(command);
 
@@ -263,6 +272,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> includeWaitingServiceTemplatesAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -272,6 +282,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> includeWaitingServiceInclusionsAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()
@@ -281,6 +292,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    @NotNull
     public ITask<Void> deployResourcesAsync(boolean removeDeployments) {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 this.createDocumentWithUniqueIdAndName()

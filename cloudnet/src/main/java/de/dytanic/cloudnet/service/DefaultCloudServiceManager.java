@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.service;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -18,6 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -242,9 +246,17 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public ICloudService runTask(@NotNull ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
+        return this.runTask(serviceTask, this.findTaskId(serviceTask.getName()));
+    }
+
+    @Override
+    public ICloudService runTask(@NotNull ServiceTask serviceTask, int taskId) {
+        Preconditions.checkNotNull(serviceTask);
+
         return this.runTask(
                 serviceTask.getName(),
                 serviceTask.getRuntime(),
+                taskId,
                 serviceTask.isAutoDeleteOnStop(),
                 serviceTask.isStaticServices(),
                 new ArrayList<>(serviceTask.getIncludes()),
@@ -313,19 +325,48 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             JsonDocument properties,
             Integer port
     ) {
+        Preconditions.checkNotNull(name);
 
+        return this.runTask(name, runtime, this.findTaskId(name), autoDeleteOnStop, staticService, includes, templates, deployments, groups, deletedFilesAfterStop, processConfiguration, properties, port);
+    }
+
+    private int findTaskId(String taskName) {
+        int taskId = 1;
+
+        Collection<Integer> taskIdList = this.getReservedTaskIds(taskName);
+
+        while (taskIdList.contains(taskId)) {
+            taskId++;
+        }
+
+        return taskId;
+    }
+
+    @Override
+    public ICloudService runTask(
+            String name,
+            String runtime,
+            int taskId,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties,
+            Integer port
+    ) {
+        Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(includes);
         Preconditions.checkNotNull(templates);
         Preconditions.checkNotNull(deployments);
         Preconditions.checkNotNull(groups);
         Preconditions.checkNotNull(processConfiguration);
 
-        int taskId = 1;
-
-        Collection<Integer> taskIdList = this.getReservedTaskIds(name);
-
-        while (taskIdList.contains(taskId)) {
-            taskId++;
+        if (this.getReservedTaskIds(name).contains(taskId)) {
+            return null;
         }
 
         for (GroupConfiguration groupConfiguration : this.getGroupConfigurations()) {
@@ -374,35 +415,60 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public void startAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        this.executeForAllServices(cloudService -> {
             try {
                 cloudService.start();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        }
+        });
     }
 
     @Override
     public void stopAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        this.executeForAllServices(cloudService -> {
             try {
                 cloudService.stop();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        }
+        });
     }
 
     @Override
     public void deleteAllCloudServices() {
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        this.executeForAllServices(cloudService -> {
             try {
                 cloudService.delete();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
+        });
+    }
+
+    private void executeForAllServices(Consumer<ICloudService> consumer) {
+        if (this.cloudServices.isEmpty()) {
+            return;
         }
+        Collection<ICloudService> cloudServices = new ArrayList<>(this.cloudServices.values());
+
+        CountDownLatch countDownLatch = new CountDownLatch(cloudServices.size());
+        ExecutorService executorService = Executors.newFixedThreadPool((cloudServices.size() / 2) + 1);
+
+        for (ICloudService cloudService : this.cloudServices.values()) {
+            executorService.execute(() -> {
+                consumer.accept(cloudService);
+                countDownLatch.countDown();
+            });
+        }
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException exception) {
+            exception.printStackTrace();
+        }
+
+        executorService.shutdownNow();
     }
 
     @Nullable

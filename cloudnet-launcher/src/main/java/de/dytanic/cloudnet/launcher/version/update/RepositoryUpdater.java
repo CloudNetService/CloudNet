@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.launcher.version.update;
 
+import de.dytanic.cloudnet.launcher.LauncherUtils;
 import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.InputStream;
@@ -30,7 +31,7 @@ public final class RepositoryUpdater implements Updater {
     public boolean init(Path versionDirectory, String githubRepository) {
         this.gitHubRepository = githubRepository;
 
-        try (InputStream inputStream = this.readFromURL(this.url + "repository")) {
+        try (InputStream inputStream = LauncherUtils.readFromURL(this.url + "repository")) {
             Properties properties = new Properties();
             properties.load(inputStream);
 
@@ -60,7 +61,7 @@ public final class RepositoryUpdater implements Updater {
 
             Files.createDirectories(path.getParent());
 
-            try (InputStream inputStream = this.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
+            try (InputStream inputStream = LauncherUtils.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
                 Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
             }
 

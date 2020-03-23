@@ -10,4 +10,6 @@ public interface ServiceVersionInstaller {
 
     void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception;
 
+    void shutdown();
+
 }

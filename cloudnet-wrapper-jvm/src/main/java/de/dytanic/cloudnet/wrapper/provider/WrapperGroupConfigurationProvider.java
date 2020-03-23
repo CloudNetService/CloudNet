@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -92,6 +92,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_groupConfigurations"), null,
@@ -100,6 +101,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    @NotNull
     public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -110,6 +112,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -120,6 +123,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    @NotNull
     public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         Preconditions.checkNotNull(groupConfiguration);
 
@@ -128,6 +132,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    @NotNull
     public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -136,6 +141,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    @NotNull
     public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         Preconditions.checkNotNull(groupConfiguration);
 

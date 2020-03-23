@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.ILogHandler;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.module.*;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
@@ -189,7 +188,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     public String createPasteContentService(ServiceInfoSnapshot serviceInfoSnapshot) {
         StringBuilder builder = new StringBuilder();
 
-        for (String line : CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages()) {
+        for (String line : serviceInfoSnapshot.provider().getCachedLogMessages()) {
             builder.append(line).append('\n');
         }
 

@@ -1,17 +1,15 @@
 package de.dytanic.cloudnet.command.sub;
 
+import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a sub command of any command.
- *
+ * <p>
  * If neither minArgs nor maxArgs is set
  */
 public abstract class SubCommand implements SubCommandExecutor {
@@ -23,6 +21,7 @@ public abstract class SubCommand implements SubCommandExecutor {
     private boolean onlyConsole = false;
     private boolean disableMinArgsIndicator = false;
     private boolean propertiesEnabled = false;
+    private boolean async = false;
 
     private int minArgs = -1;
     private int exactArgs = -1;
@@ -52,6 +51,16 @@ public abstract class SubCommand implements SubCommandExecutor {
      */
     public SubCommand onlyConsole() {
         this.onlyConsole = true;
+        return this;
+    }
+
+    /**
+     * Enables that the {@link #execute(SubCommand, ICommandSender, String, SubCommandArgumentWrapper, String, Properties, Map)} method will be called asynchronously to the console thread
+     *
+     * @return {@code this}
+     */
+    public SubCommand async() {
+        this.async = true;
         return this;
     }
 
@@ -314,6 +323,10 @@ public abstract class SubCommand implements SubCommandExecutor {
 
     public boolean isOnlyConsole() {
         return this.onlyConsole;
+    }
+
+    public boolean isAsync() {
+        return this.async;
     }
 
     public String getPermission() {

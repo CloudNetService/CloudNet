@@ -135,6 +135,7 @@ public interface SpecificCloudServiceProvider {
      * @return the info or {@code null}, if the service doesn't exist
      * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
      */
+    @NotNull
     ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync();
 
     /**
@@ -142,6 +143,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param serviceTemplate the template to be added to the list of templates of this service
      */
+    @NotNull
     ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate);
 
     /**
@@ -149,6 +151,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param serviceRemoteInclusion the inclusion to be added to the list of inclusions of this service
      */
+    @NotNull
     ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion);
 
     /**
@@ -156,6 +159,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param serviceDeployment the deployment to be added to the list of deployments of this service
      */
+    @NotNull
     ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment);
 
     /**
@@ -163,11 +167,13 @@ public interface SpecificCloudServiceProvider {
      *
      * @return a queue with the cached messages of this services console
      */
+    @NotNull
     ITask<Queue<String>> getCachedLogMessagesAsync();
 
     /**
      * Stops this service by executing the "stop" and "end" commands in its console if it is running.
      */
+    @NotNull
     default ITask<Void> stopAsync() {
         return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.STOPPED);
     }
@@ -175,6 +181,7 @@ public interface SpecificCloudServiceProvider {
     /**
      * Starts this service if it is prepared or stopped.
      */
+    @NotNull
     default ITask<Void> startAsync() {
         return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.RUNNING);
     }
@@ -182,6 +189,7 @@ public interface SpecificCloudServiceProvider {
     /**
      * Deletes this service if it is not deleted yet. If this service is running, it will be stopped like {@link #kill()} does.
      */
+    @NotNull
     default ITask<Void> deleteAsync() {
         return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.DELETED);
     }
@@ -191,16 +199,19 @@ public interface SpecificCloudServiceProvider {
      *
      * @param lifeCycle the lifeCycle to be set
      */
+    @NotNull
     ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle);
 
     /**
      * Stops this service like {@link #stop()} and starts it after it like {@link #start()}.
      */
+    @NotNull
     ITask<Void> restartAsync();
 
     /**
      * Tries to stop this service like {@link #stop()} but if the service is still running after 5 seconds, it is destroyed forcibly
      */
+    @NotNull
     ITask<Void> killAsync();
 
     /**
@@ -208,6 +219,7 @@ public interface SpecificCloudServiceProvider {
      *
      * @param command the command to be executed
      */
+    @NotNull
     ITask<Void> runCommandAsync(@NotNull String command);
 
     /**
@@ -216,6 +228,7 @@ public interface SpecificCloudServiceProvider {
      * @see #addServiceTemplate(ServiceTemplate)
      * @see #addServiceTemplateAsync(ServiceTemplate)
      */
+    @NotNull
     ITask<Void> includeWaitingServiceTemplatesAsync();
 
     /**
@@ -224,6 +237,7 @@ public interface SpecificCloudServiceProvider {
      * @see #addServiceRemoteInclusion(ServiceRemoteInclusion)
      * @see #addServiceRemoteInclusionAsync(ServiceRemoteInclusion)
      */
+    @NotNull
     ITask<Void> includeWaitingServiceInclusionsAsync();
 
     /**
@@ -233,6 +247,7 @@ public interface SpecificCloudServiceProvider {
      * @see #addServiceDeployment(ServiceDeployment)
      * @see #addServiceDeploymentAsync(ServiceDeployment)
      */
+    @NotNull
     ITask<Void> deployResourcesAsync(boolean removeDeployments);
 
     /**
@@ -241,6 +256,7 @@ public interface SpecificCloudServiceProvider {
      * @see #addServiceDeployment(ServiceDeployment)
      * @see #addServiceDeploymentAsync(ServiceDeployment)
      */
+    @NotNull
     default ITask<Void> deployResourcesAsync() {
         return this.deployResourcesAsync(true);
     }

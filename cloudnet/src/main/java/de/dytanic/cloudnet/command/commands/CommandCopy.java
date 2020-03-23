@@ -29,7 +29,7 @@ public class CommandCopy extends CommandDefault {
         ServiceInfoSnapshot serviceInfoSnapshot = super.getCloudNet().getCloudServiceByNameOrUniqueId(args[0]);
 
         if (serviceInfoSnapshot != null) {
-            SpecificCloudServiceProvider cloudServiceProvider = super.getCloudNet().getCloudServiceProvider(serviceInfoSnapshot);
+            SpecificCloudServiceProvider cloudServiceProvider = serviceInfoSnapshot.provider();
             ServiceTemplate targetTemplate;
 
             if (properties.containsKey("template")) {

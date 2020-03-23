@@ -26,7 +26,7 @@ online-mode = true
 player-info-forwarding-mode = "LEGACY"
 
 # If you are using modern IP forwarding, configure an unique secret here.
-forwarding-secret = "l1LQPW5Atyrl"
+forwarding-secret = ""
 
 # Announce whether or not your server supports Forge/FML. If you run a modded server, we suggest turning this on.
 announce-forge = false

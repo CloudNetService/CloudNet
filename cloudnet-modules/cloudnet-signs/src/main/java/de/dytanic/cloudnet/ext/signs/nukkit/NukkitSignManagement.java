@@ -101,7 +101,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
     private void changeBlock(BlockEntitySign nukkitSign, String blockType, int subId) {
         Preconditions.checkNotNull(nukkitSign);
 
-        if (blockType != null && subId != -1) {
+        if (blockType != null) {
 
             Block block = nukkitSign.getBlock();
 
@@ -118,7 +118,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
                     return;
                 }
 
-                backBlockLocation.getLevel().setBlock(backBlockLocation, Block.get(itemId, subId), true, true);
+                backBlockLocation.getLevel().setBlock(backBlockLocation, Block.get(itemId, Math.max(0, subId)), true, true);
             }
 
 

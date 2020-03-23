@@ -1,12 +1,13 @@
 package de.dytanic.cloudnet.provider.service;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -115,26 +116,31 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
+    @NotNull
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
         return this.cloudNet.scheduleTask(this::getServicesAsUniqueId);
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
         return this.cloudNet.scheduleTask(() -> this.getCloudServiceByName(name));
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
         return this.cloudNet.scheduleTask(this::getCloudServices);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServicesAsync() {
         return this.cloudNet.scheduleTask(this::getStartedCloudServices);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
         Preconditions.checkNotNull(taskName);
 
@@ -142,11 +148,13 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
         return this.cloudNet.scheduleTask(() -> this.getCloudServices(environment));
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
         Preconditions.checkNotNull(group);
 
@@ -154,11 +162,13 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
+    @NotNull
     public ITask<Integer> getServicesCountAsync() {
         return this.cloudNet.scheduleTask(this::getServicesCount);
     }
 
     @Override
+    @NotNull
     public ITask<Integer> getServicesCountByGroupAsync(String group) {
         Preconditions.checkNotNull(group);
 
@@ -166,6 +176,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
+    @NotNull
     public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
         Preconditions.checkNotNull(taskName);
 
@@ -173,6 +184,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> getCloudServiceAsync(UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 

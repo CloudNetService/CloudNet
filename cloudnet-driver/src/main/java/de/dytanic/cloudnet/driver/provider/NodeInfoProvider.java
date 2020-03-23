@@ -22,22 +22,31 @@ public interface NodeInfoProvider {
 
     String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine);
 
+    @NotNull
     ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
 
+    @NotNull
     ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine);
 
+    @NotNull
     ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine);
 
+    @NotNull
     ITask<String[]> sendCommandLineAsync(@NotNull String commandLine);
 
+    @NotNull
     ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine);
 
+    @NotNull
     ITask<NetworkClusterNode[]> getNodesAsync();
 
+    @NotNull
     ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId);
 
+    @NotNull
     ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync();
 
+    @NotNull
     ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId);
 
     NetworkClusterNode[] getNodes();

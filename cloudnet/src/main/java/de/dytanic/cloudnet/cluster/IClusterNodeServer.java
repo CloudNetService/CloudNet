@@ -46,6 +46,8 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask);
 
+    ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask, int taskId);
+
     ServiceInfoSnapshot createCloudService(@NotNull ServiceConfiguration serviceConfiguration);
 
     ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,

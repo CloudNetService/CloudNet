@@ -175,6 +175,7 @@ public interface PermissionProvider {
      *
      * @param permissionUser the user to be added
      */
+    @NotNull
     ITask<Void> addUserAsync(@NotNull IPermissionUser permissionUser);
 
     /**
@@ -182,6 +183,7 @@ public interface PermissionProvider {
      *
      * @param permissionUser the user to be updated
      */
+    @NotNull
     ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser);
 
     /**
@@ -190,6 +192,7 @@ public interface PermissionProvider {
      *
      * @param name the name of the users to be deleted
      */
+    @NotNull
     ITask<Void> deleteUserAsync(@NotNull String name);
 
     /**
@@ -197,6 +200,7 @@ public interface PermissionProvider {
      *
      * @param permissionUser the user to be deleted
      */
+    @NotNull
     ITask<Void> deleteUserAsync(@NotNull IPermissionUser permissionUser);
 
     /**
@@ -205,6 +209,7 @@ public interface PermissionProvider {
      * @param uniqueId the uniqueId of the user
      * @return {@code true} if there is a user with that uniqueId, {@code false} otherwise
      */
+    @NotNull
     ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId);
 
     /**
@@ -214,6 +219,7 @@ public interface PermissionProvider {
      * @param name the name of the user
      * @return {@code true} if there is a user with that name, {@code false} otherwise
      */
+    @NotNull
     ITask<Boolean> containsUserAsync(@NotNull String name);
 
     /**
@@ -222,6 +228,7 @@ public interface PermissionProvider {
      * @param uniqueId the uniqueId of the user
      * @return the {@link IPermissionUser} from the database or {@code null} if there is no user with that uniqueId stored
      */
+    @NotNull
     ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId);
 
     /**
@@ -232,6 +239,7 @@ public interface PermissionProvider {
      * @param name the name of the users
      * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
      */
+    @NotNull
     ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name);
 
     /**
@@ -243,6 +251,7 @@ public interface PermissionProvider {
      *
      * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
      */
+    @NotNull
     ITask<Collection<IPermissionUser>> getUsersAsync();
 
     /**
@@ -250,6 +259,7 @@ public interface PermissionProvider {
      *
      * @param users the new {@link IPermissionUser}s to be stored in the database
      */
+    @NotNull
     ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users);
 
     /**
@@ -261,6 +271,7 @@ public interface PermissionProvider {
      *
      * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
      */
+    @NotNull
     ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group);
 
     /**
@@ -269,6 +280,7 @@ public interface PermissionProvider {
      *
      * @param permissionGroup the {@link IPermissionGroup} to be added
      */
+    @NotNull
     ITask<Void> addGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
     /**
@@ -277,6 +289,7 @@ public interface PermissionProvider {
      *
      * @param permissionGroup the {@link IPermissionGroup} to be updated
      */
+    @NotNull
     ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
     /**
@@ -284,6 +297,7 @@ public interface PermissionProvider {
      *
      * @param name the case-sensitive name of the group
      */
+    @NotNull
     ITask<Void> deleteGroupAsync(@NotNull String name);
 
     /**
@@ -291,6 +305,7 @@ public interface PermissionProvider {
      *
      * @param permissionGroup the {@link IPermissionGroup} to be deleted
      */
+    @NotNull
     ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
     /**
@@ -299,6 +314,7 @@ public interface PermissionProvider {
      * @param group the case-sensitive name of the group
      * @return {@code true} if the group exists, {@code false} otherwise
      */
+    @NotNull
     ITask<Boolean> containsGroupAsync(@NotNull String group);
 
     /**
@@ -307,6 +323,7 @@ public interface PermissionProvider {
      * @param name the case-sensitive name of the group
      * @return the {@link IPermissionUser} if it exists, {@code null} otherwise
      */
+    @NotNull
     ITask<IPermissionGroup> getGroupAsync(@NotNull String name);
 
     /**
@@ -314,6 +331,7 @@ public interface PermissionProvider {
      *
      * @return a list of {@link IPermissionGroup}s registered in the cloud or an empty list if there is no group registered
      */
+    @NotNull
     ITask<Collection<IPermissionGroup>> getGroupsAsync();
 
     /**
@@ -321,6 +339,7 @@ public interface PermissionProvider {
      *
      * @param groups the new groups
      */
+    @NotNull
     ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups);
 
 }

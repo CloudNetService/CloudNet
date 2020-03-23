@@ -1,8 +1,11 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.INameable;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @EqualsAndHashCode
 public class ServiceTemplate implements INameable {
@@ -67,4 +70,16 @@ public class ServiceTemplate implements INameable {
 
         return new ServiceTemplate(splitPath[0], splitPath[1], storage);
     }
+
+    public static ServiceTemplate[] parseArray(String templates) {
+        Collection<ServiceTemplate> result = new ArrayList<>();
+        for (String template : templates.split(";")) {
+            ServiceTemplate serviceTemplate = parse(template);
+            if (serviceTemplate != null) {
+                result.add(serviceTemplate);
+            }
+        }
+        return result.toArray(new ServiceTemplate[0]);
+    }
+
 }

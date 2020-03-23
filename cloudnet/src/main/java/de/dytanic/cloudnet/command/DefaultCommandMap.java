@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.command;
 
-import de.dytanic.cloudnet.common.Properties;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 
 import java.util.*;
@@ -197,10 +197,9 @@ public final class DefaultCommandMap implements ICommandMap {
             command.execute(commandSender, commandName, args, commandLine, Properties.parseLine(args));
             return true;
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Throwable throwable) {
+            throw new CommandExecutionException(commandLine, throwable);
         }
-        return false;
     }
 
     private String[] formatArgs(String[] args) {

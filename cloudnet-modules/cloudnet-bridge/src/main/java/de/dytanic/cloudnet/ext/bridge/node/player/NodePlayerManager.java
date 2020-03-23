@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.node.player;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -12,11 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.player.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Base64;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -108,46 +104,55 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
+    @NotNull
     public ITask<Integer> getOnlineCountAsync() {
         return this.schedule(this::getOnlineCount);
     }
 
     @Override
+    @NotNull
     public ITask<Long> getRegisteredCountAsync() {
         return this.getDatabase().getDocumentsCountAsync();
     }
 
     @Override
+    @NotNull
     public ITask<ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId) {
         return this.schedule(() -> this.getOnlinePlayer(uniqueId));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name) {
         return this.schedule(() -> this.getOnlinePlayers(name));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment) {
         return this.schedule(() -> this.getOnlinePlayers(environment));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
         return this.schedule(this::getOnlinePlayers);
     }
 
     @Override
+    @NotNull
     public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId) {
         return this.schedule(() -> this.getOfflinePlayer(uniqueId));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name) {
         return this.schedule(() -> this.getOfflinePlayers(name));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
         return this.schedule(this::getRegisteredPlayers);
     }
@@ -304,6 +309,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
 
+    @NotNull
     private <T> ITask<T> schedule(Callable<T> callable) {
         return CloudNet.getInstance().getTaskScheduler().schedule(callable);
     }

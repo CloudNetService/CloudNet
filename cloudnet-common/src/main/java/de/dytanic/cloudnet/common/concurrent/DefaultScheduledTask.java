@@ -34,6 +34,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
+    @NotNull
     public final ITask<V> addListener(ITaskListener<V> listener) {
         if (listener == null) {
             return this;
@@ -109,6 +110,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
+    @NotNull
     public ITask<V> clearListeners() {
         this.listeners.clear();
         return this;

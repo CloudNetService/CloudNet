@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -9,8 +11,10 @@ import java.util.function.Consumer;
 
 public interface ITask<V> extends Future<V>, Callable<V> {
 
+    @NotNull
     ITask<V> addListener(ITaskListener<V> listener);
 
+    @NotNull
     default ITask<V> addListener(ITaskListener<V>... listeners) {
         for (ITaskListener<V> listener : listeners) {
             this.addListener(listener);
@@ -18,6 +22,7 @@ public interface ITask<V> extends Future<V>, Callable<V> {
         return this;
     }
 
+    @NotNull
     default ITask<V> onComplete(BiConsumer<ITask<V>, V> consumer) {
         return this.addListener(new ITaskListener<V>() {
             @Override
@@ -27,10 +32,12 @@ public interface ITask<V> extends Future<V>, Callable<V> {
         });
     }
 
+    @NotNull
     default ITask<V> onComplete(Consumer<V> consumer) {
         return this.onComplete((task, v) -> consumer.accept(v));
     }
 
+    @NotNull
     default ITask<V> onFailure(BiConsumer<ITask<V>, Throwable> consumer) {
         return this.addListener(new ITaskListener<V>() {
             @Override
@@ -40,10 +47,12 @@ public interface ITask<V> extends Future<V>, Callable<V> {
         });
     }
 
+    @NotNull
     default ITask<V> onFailure(Consumer<Throwable> consumer) {
         return this.onFailure((task, th) -> consumer.accept(th));
     }
 
+    @NotNull
     default ITask<V> onCancelled(Consumer<ITask<V>> consumer) {
         return this.addListener(new ITaskListener<V>() {
             @Override
@@ -53,6 +62,7 @@ public interface ITask<V> extends Future<V>, Callable<V> {
         });
     }
 
+    @NotNull
     ITask<V> clearListeners();
 
     Collection<ITaskListener<V>> getListeners();

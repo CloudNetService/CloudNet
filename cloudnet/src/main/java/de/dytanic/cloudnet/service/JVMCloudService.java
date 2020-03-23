@@ -17,6 +17,7 @@ import de.dytanic.cloudnet.event.service.*;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.URL;
@@ -168,31 +169,32 @@ final class JVMCloudService implements ICloudService {
 
     @Override
     public int stop() {
-        try {
-            lifeCycleLock.lock();
-            return this.stop0(false);
-        } finally {
-            lifeCycleLock.unlock();
-
-            invokeAutoDeleteOnStopIfNotRestart();
-        }
+        return this.shutdown(false);
     }
 
     @Override
     public int kill() {
-        try {
-            lifeCycleLock.lock();
-            return this.stop0(true);
-        } finally {
-            lifeCycleLock.unlock();
+        return this.shutdown(true);
+    }
 
-            invokeAutoDeleteOnStopIfNotRestart();
+    private int shutdown(boolean force) {
+        Integer exitCode = 0;
+
+        try {
+            this.lifeCycleLock.lock();
+            return (exitCode = this.stop0(force)) == null ? -1 : exitCode;
+        } finally {
+            this.lifeCycleLock.unlock();
+
+            if (exitCode != null) { // user didn't cancel stop event, exitCode is present
+                this.invokeAutoDeleteOnStopIfNotRestart();
+            }
         }
     }
 
     private void invokeAutoDeleteOnStopIfNotRestart() {
-        if (serviceConfiguration.isAutoDeleteOnStop() && !restartState) {
-            delete();
+        if (this.serviceConfiguration.isAutoDeleteOnStop() && !this.restartState) {
+            this.delete();
         } else {
             this.initAndPrepareService();
         }
@@ -201,10 +203,10 @@ final class JVMCloudService implements ICloudService {
     @Override
     public void delete() {
         try {
-            lifeCycleLock.lock();
+            this.lifeCycleLock.lock();
             this.delete0();
         } finally {
-            lifeCycleLock.unlock();
+            this.lifeCycleLock.unlock();
         }
     }
 
@@ -222,22 +224,25 @@ final class JVMCloudService implements ICloudService {
 
     @Override
     public List<ServiceRemoteInclusion> getIncludes() {
-        return Collections.unmodifiableList(includes);
+        return Collections.unmodifiableList(this.includes);
     }
 
     @Override
     public List<ServiceTemplate> getTemplates() {
-        return Collections.unmodifiableList(templates);
+        return Collections.unmodifiableList(this.templates);
     }
 
     private void initAndPrepareService() {
         if (this.lifeCycle == ServiceLifeCycle.DEFINED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
+            if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePrePrepareEvent(this)).isCancelled()) {
+                return;
+            }
+
             System.out.println(LanguageManager.getMessage("cloud-service-pre-prepared-message")
                     .replace("%task%", this.serviceId.getTaskName())
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%id%", this.serviceId.getUniqueId().toString())
             );
-            CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePrePrepareEvent(this));
 
             new File(this.directory, ".wrapper").mkdirs();
 
@@ -277,9 +282,9 @@ final class JVMCloudService implements ICloudService {
             this.lifeCycle = ServiceLifeCycle.PREPARED;
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostPrepareEvent(this));
 
-            serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
-            cloudServiceManager.getGlobalServiceInfoSnapshots().put(serviceId.getUniqueId(), serviceInfoSnapshot);
-            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+            this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
+            this.cloudServiceManager.getGlobalServiceInfoSnapshots().put(this.serviceId.getUniqueId(), this.serviceInfoSnapshot);
+            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 
             CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-prepared-message")
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
@@ -289,10 +294,9 @@ final class JVMCloudService implements ICloudService {
         }
     }
 
-
     private void start0() throws Exception {
         if (this.lifeCycle == ServiceLifeCycle.PREPARED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
-            if (!hasAccessFromNode()) {
+            if (!hasAccessFromNode() || CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartPrepareEvent(this)).isCancelled()) {
                 return;
             }
 
@@ -301,7 +305,6 @@ final class JVMCloudService implements ICloudService {
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%id%", this.serviceId.getUniqueId().toString())
             );
-            CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartPrepareEvent(this));
 
             this.includeInclusions();
             this.includeTemplates();
@@ -365,7 +368,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     private boolean hasAccessFromNode() {
-        if (cloudServiceManager.getCurrentUsedHeapMemory() + this.configuredMaxHeapMemory >= CloudNet.getInstance().getConfig().getMaxMemory()) {
+        if (this.cloudServiceManager.getCurrentUsedHeapMemory() + this.configuredMaxHeapMemory >= CloudNet.getInstance().getConfig().getMaxMemory()) {
             if (CloudNet.getInstance().getConfig().isRunBlockedServiceStartTryLaterAutomatic()) {
                 CloudNet.getInstance().runTask(() -> {
                     try {
@@ -479,10 +482,7 @@ final class JVMCloudService implements ICloudService {
     private boolean includeInclusions0(ServiceRemoteInclusion inclusion, File destination, byte[] buffer) throws Exception {
         URLConnection connection = new URL(inclusion.getUrl()).openConnection();
 
-        CloudServicePreLoadInclusionEvent cloudServicePreLoadInclusionEvent = new CloudServicePreLoadInclusionEvent(this, inclusion, connection);
-        CloudNetDriver.getInstance().getEventManager().callEvent(cloudServicePreLoadInclusionEvent);
-
-        if (cloudServicePreLoadInclusionEvent.isCancelled()) {
+        if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, connection)).isCancelled()) {
             return false;
         }
 
@@ -870,15 +870,18 @@ final class JVMCloudService implements ICloudService {
         }
     }
 
-    private int stop0(boolean force) {
+    @Nullable
+    private Integer stop0(boolean force) {
         if (this.lifeCycle == ServiceLifeCycle.RUNNING) {
+            if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStopEvent(this)).isCancelled()) {
+                return null;
+            }
 
             System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message")
                     .replace("%task%", this.serviceId.getTaskName())
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%id%", this.serviceId.getUniqueId().toString())
             );
-            CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStopEvent(this));
 
             int exitValue = this.stopProcess(force);
 
@@ -966,8 +969,12 @@ final class JVMCloudService implements ICloudService {
             return;
         }
 
-        if (this.lifeCycle == ServiceLifeCycle.RUNNING) {
-            this.stop0(true);
+        if (this.lifeCycle == ServiceLifeCycle.RUNNING && this.stop0(true) == null) { // User cancelled stop event
+            return;
+        }
+
+        if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreDeleteEvent(this)).isCancelled()) {
+            return;
         }
 
         System.out.println(LanguageManager.getMessage("cloud-service-pre-delete-message")
@@ -975,7 +982,6 @@ final class JVMCloudService implements ICloudService {
                 .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                 .replace("%id%", this.serviceId.getUniqueId().toString())
         );
-        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreDeleteEvent(this));
 
         this.deployResources();
 

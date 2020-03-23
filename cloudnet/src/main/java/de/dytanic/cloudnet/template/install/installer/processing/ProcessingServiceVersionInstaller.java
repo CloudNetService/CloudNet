@@ -21,7 +21,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -33,6 +35,8 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     }.getType();
     private static final String DOWNLOAD_ARTIFACT_NAME = "download.jar";
     private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
+
+    private Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
     @Override
     public void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {
@@ -118,14 +122,24 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                     .directory(workingDir.toFile())
                     .start();
 
+            this.runningBuildProcesses.add(process);
+
             OUTPUT_READER_EXECUTOR.execute(new ProcessingInstallerOutput(process.getInputStream(), System.out));
             OUTPUT_READER_EXECUTOR.execute(new ProcessingInstallerOutput(process.getErrorStream(), System.err));
 
-            return process.waitFor();
+            int exitCode = process.waitFor();
+            this.runningBuildProcesses.remove(process);
+            return exitCode;
         } catch (IOException | InterruptedException exception) {
             exception.printStackTrace();
         }
         return -1;
     }
 
+    @Override
+    public void shutdown() {
+        for (Process runningBuildProcess : this.runningBuildProcesses) {
+            runningBuildProcess.destroyForcibly();
+        }
+    }
 }
