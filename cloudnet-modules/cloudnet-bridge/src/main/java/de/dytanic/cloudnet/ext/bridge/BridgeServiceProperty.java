@@ -31,8 +31,8 @@ public class BridgeServiceProperty {
     public static final ServiceProperty<String> EXTRA = createFromClass("Extra", String.class).forbidModification();
     public static final ServiceProperty<String> STATE = createFromClass("State", String.class).forbidModification();
 
-    public static final ServiceProperty<Collection<PluginInfo>> PLUGINS = createFromType("Plugins", PLUGIN_INFO_COLLECTION_TYPE).forbidModification();
-    public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty.<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(createFromType("Players", DOCUMENT_COLLECTION_TYPE))
+    public static final ServiceProperty<Collection<PluginInfo>> PLUGINS = createFromType("Plugins", PLUGIN_INFO_COLLECTION_TYPE.getType());
+    public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty.<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(createFromType("Players", DOCUMENT_COLLECTION_TYPE.getType()))
             .modifyGet((serviceInfoSnapshot, documents) -> documents.stream().map(ServicePlayer::new).collect(Collectors.toList()));
 
     public static final ServiceProperty<Boolean> IS_ONLINE = createFromClass("Online", Boolean.class);
