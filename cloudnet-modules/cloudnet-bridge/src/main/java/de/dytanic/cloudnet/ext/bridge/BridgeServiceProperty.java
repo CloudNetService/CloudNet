@@ -79,7 +79,7 @@ public class BridgeServiceProperty {
      */
     public static final ServiceProperty<Boolean> IS_EMPTY = DefaultFunctionalServiceProperty.<Boolean>create().get(BridgeServiceProperty::isEmptyService);
     /**
-     * Property to check whether a service is full (online count >= max players) or not.
+     * Property to check whether a service is full (online count &gt;= max players) or not.
      */
     public static final ServiceProperty<Boolean> IS_FULL = DefaultFunctionalServiceProperty.<Boolean>create().get(BridgeServiceProperty::isFullService);
 
