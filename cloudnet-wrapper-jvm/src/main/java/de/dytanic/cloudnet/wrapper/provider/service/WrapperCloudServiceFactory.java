@@ -37,6 +37,18 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Override
+    public @Nullable ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId) {
+        Preconditions.checkNotNull(serviceTask);
+
+        try {
+            return this.createCloudServiceAsync(serviceTask, taskId).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
     @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
@@ -116,6 +128,16 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), null,
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
+    }
+
+    @Override
+    public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId) {
+        Preconditions.checkNotNull(serviceTask);
+
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask).append("taskId", taskId), null,
                 documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
                 }.getType()));
     }

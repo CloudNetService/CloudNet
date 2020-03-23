@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.command.commands;
 
+import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
@@ -8,10 +9,7 @@ import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.service.ServiceDeployment;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.ServiceListCommandEvent;
 
 import java.text.DateFormat;
@@ -83,7 +81,15 @@ public class CommandService extends SubCommandHandler {
                         .prefix(dynamicString(
                                 "name",
                                 LanguageManager.getMessage("command-service-service-not-found"),
-                                input -> !WildcardUtil.filterWildcard(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input).isEmpty(),
+                                input -> {
+                                    if (!WildcardUtil.filterWildcard(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input).isEmpty()) {
+                                        return true;
+                                    }
+                                    String[] splitName = input.split("-");
+                                    return splitName.length == 2 &&
+                                            CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(splitName[0]) &&
+                                            Ints.tryParse(splitName[1]) != null;
+                                },
                                 () -> {
                                     Collection<String> values = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
                                             .map(ServiceInfoSnapshot::getName)
@@ -96,10 +102,26 @@ public class CommandService extends SubCommandHandler {
                                 }
                         ))
                         .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            String name = (String) args.argument("name").get();
                             Collection<ServiceInfoSnapshot> serviceInfoSnapshots = WildcardUtil.filterWildcard(
                                     CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(),
-                                    (String) args.argument("name").get()
+                                    name
                             );
+                            if (serviceInfoSnapshots.isEmpty() && "start".equalsIgnoreCase(String.valueOf(args.argument(1)))) {
+                                String[] splitName = name.split("-");
+                                String taskName = splitName[0];
+                                Integer id = Ints.tryParse(splitName[1]);
+
+                                if (id != null) {
+                                    ServiceTask task = CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTask(taskName);
+                                    if (task != null) {
+                                        ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(task, id);
+                                        if (serviceInfoSnapshot != null) {
+                                            serviceInfoSnapshots.add(serviceInfoSnapshot);
+                                        }
+                                    }
+                                }
+                            }
                             internalProperties.put("services", serviceInfoSnapshots);
                         })
 
