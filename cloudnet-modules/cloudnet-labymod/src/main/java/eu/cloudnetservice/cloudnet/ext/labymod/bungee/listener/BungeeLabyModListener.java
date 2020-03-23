@@ -157,7 +157,7 @@ public class BungeeLabyModListener implements Listener {
 
         byte[] discordRPCData = LabyModUtils.getDiscordRPCGameInfoUpdateMessageContents(target, connectedService);
         if (discordRPCData != null) {
-            BridgePlayerManager.getInstance().proxySendPluginMessage(target, LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
+            BridgePlayerManager.getInstance().getPlayerExecutor(target).sendPluginMessage(LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
         }
 
         player.connect(ProxyServer.getInstance().getServerInfo(target.getConnectedService().getServerName()));

@@ -7,12 +7,13 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.*;
+import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
+import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -275,89 +276,8 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxySendPlayer(cloudPlayer.getUniqueId(), serviceName);
-    }
-
-    @Override
-    public void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(serviceName);
-
-        getCloudNetDriver().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_on_proxy_player_to_server",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("serviceName", serviceName)
-        );
-    }
-
-    @Override
-    public void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String kickMessage) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxyKickPlayer(cloudPlayer.getUniqueId(), kickMessage);
-    }
-
-    @Override
-    public void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String kickMessage) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(kickMessage);
-
-        getCloudNetDriver().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "kick_on_proxy_player_from_network",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("kickMessage", kickMessage)
-        );
-    }
-
-    @Override
-    public void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxySendPlayerMessage(cloudPlayer.getUniqueId(), message);
-    }
-
-    @Override
-    public void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(message);
-
-        getCloudNetDriver().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_message_to_proxy_player",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("message", message)
-        );
-    }
-
-    @Override
-    public void proxySendPluginMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String tag, @NotNull byte[] data) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxySendPluginMessage(cloudPlayer.getUniqueId(), tag, data);
-    }
-
-    @Override
-    public void proxySendPluginMessage(@NotNull UUID uniqueId, @NotNull String tag, @NotNull byte[] data) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(tag);
-        Preconditions.checkNotNull(data);
-
-        getCloudNetDriver().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_plugin_message_to_proxy_player",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("tag", tag)
-                        .append("data", Base64.getEncoder().encodeToString(data))
-        );
+    public @NotNull PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId) {
+        return new DefaultPlayerExecutor(uniqueId);
     }
 
     @Override
