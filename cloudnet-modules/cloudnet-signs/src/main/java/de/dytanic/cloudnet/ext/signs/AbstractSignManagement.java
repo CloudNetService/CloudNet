@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
@@ -348,15 +349,16 @@ public abstract class AbstractSignManagement {
     }
 
     private ServiceInfoState fromServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot, SignConfigurationEntry signConfiguration) {
-        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING || ServiceInfoSnapshotUtil.isIngameService(serviceInfoSnapshot)) {
+        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING ||
+                serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false)) {
             return ServiceInfoState.STOPPED;
         }
 
-        if (ServiceInfoSnapshotUtil.isEmptyService(serviceInfoSnapshot)) {
+        if (serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_EMPTY).orElse(false)) {
             return ServiceInfoState.EMPTY_ONLINE;
         }
 
-        if (ServiceInfoSnapshotUtil.isFullService(serviceInfoSnapshot)) {
+        if (serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_FULL).orElse(false)) {
             if (!signConfiguration.isSwitchToSearchingWhenServiceIsFull()) {
                 return ServiceInfoState.FULL_ONLINE;
             } else {
@@ -364,7 +366,7 @@ public abstract class AbstractSignManagement {
             }
         }
 
-        if (ServiceInfoSnapshotUtil.isStartingService(serviceInfoSnapshot)) {
+        if (serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_STARTING).orElse(false)) {
             return ServiceInfoState.STARTING;
         }
 

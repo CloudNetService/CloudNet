@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.player;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -290,52 +291,96 @@ public interface IPlayerManager {
     void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer);
 
     /**
+     * Creates a new player executor to interact with the given player.
+     *
+     * @param cloudPlayer the player to interact with
+     * @return a new {@link PlayerExecutor}
+     */
+    @NotNull
+    default PlayerExecutor getPlayerExecutor(@NotNull ICloudPlayer cloudPlayer) {
+        return this.getPlayerExecutor(cloudPlayer.getUniqueId());
+    }
+
+    /**
+     * Creates a new player executor to interact with the given player.
+     *
+     * @param uniqueId the uniqueId of the player to interact with
+     * @return a new {@link PlayerExecutor}
+     */
+    @NotNull
+    PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId);
+
+    /**
      * Connects an online player to a specific service.
      *
      * @param cloudPlayer the player to be connected
      * @param serviceName the name of the service the player should be sent to
+     * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
-    void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName);
+    @Deprecated
+    default void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName) {
+        this.getPlayerExecutor(cloudPlayer).connect(serviceName);
+    }
 
     /**
      * Connects an online player to a specific service.
      *
      * @param uniqueId    the uuid of the player to be connected
      * @param serviceName the name of the service the player should be sent to
+     * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
-    void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName);
+    @Deprecated
+    default void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName) {
+        this.getPlayerExecutor(uniqueId).connect(serviceName);
+    }
 
     /**
      * Kicks an online player from the network with a specific reason.
      *
      * @param cloudPlayer the player to be kicked
      * @param message     the reason for the kick which will be displayed in the players client
+     * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
-    void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String message);
+    @Deprecated
+    default void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
+        this.getPlayerExecutor(cloudPlayer).kick(message);
+    }
 
     /**
      * Kicks an online player from the network with a specific reason.
      *
      * @param uniqueId the uuid of the player to be kicked
      * @param message  the reason for the kick which will be displayed in the players client
+     * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
-    void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String message);
+    @Deprecated
+    default void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String message) {
+        this.getPlayerExecutor(uniqueId).kick(message);
+    }
 
     /**
      * Sends a message to a specific online player.
      *
      * @param cloudPlayer the player to send the message to
      * @param message     the message to be sent to the player
+     * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
-    void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message);
+    @Deprecated
+    default void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
+        this.getPlayerExecutor(cloudPlayer).sendChatMessage(message);
+    }
 
     /**
      * Sends a plugin message to a specific online player.
      *
      * @param uniqueId the uuid of the player to send the message to
      * @param message  the message to be sent to the player
+     * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
-    void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message);
+    @Deprecated
+    default void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message) {
+        this.getPlayerExecutor(uniqueId).sendChatMessage(message);
+    }
 
     /**
      * Sends a plugin message to a specific online player.
@@ -343,8 +388,12 @@ public interface IPlayerManager {
      * @param cloudPlayer the player to send the message to
      * @param tag         the tag of the plugin message
      * @param data        the data of the plugin message
+     * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
-    void proxySendPluginMessage(ICloudPlayer cloudPlayer, String tag, byte[] data);
+    @Deprecated
+    default void proxySendPluginMessage(ICloudPlayer cloudPlayer, String tag, byte[] data) {
+        this.getPlayerExecutor(cloudPlayer).sendPluginMessage(tag, data);
+    }
 
     /**
      * Sends a message to a specific online player.
@@ -352,8 +401,12 @@ public interface IPlayerManager {
      * @param uniqueId the uuid of the player to send the message to
      * @param tag      the tag of the plugin message
      * @param data     the data of the plugin message
+     * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
-    void proxySendPluginMessage(UUID uniqueId, String tag, byte[] data);
+    @Deprecated
+    default void proxySendPluginMessage(UUID uniqueId, String tag, byte[] data) {
+        this.getPlayerExecutor(uniqueId).sendPluginMessage(tag, data);
+    }
 
     /**
      * Broadcasts a specific message over the whole network.

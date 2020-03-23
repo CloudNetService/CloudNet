@@ -181,14 +181,14 @@ public final class BridgeHelper {
 
                         filteredEntries.apply(proxyFallback.getTask(), currentServer)
                                 .stream()
-                                .map(Map.Entry::getValue).min(Comparator.comparingInt(ServiceInfoSnapshotUtil::getOnlineCount))
+                                .map(Map.Entry::getValue).min(Comparator.comparingInt(snapshot -> snapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0)))
                                 .ifPresent(server::set);
                     }
 
                     if (server.get() == null) {
                         filteredEntries.apply(configuration.getDefaultFallbackTask(), currentServer)
                                 .stream()
-                                .map(Map.Entry::getValue).min(Comparator.comparingInt(ServiceInfoSnapshotUtil::getOnlineCount))
+                                .map(Map.Entry::getValue).min(Comparator.comparingInt(snapshot -> snapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0)))
                                 .ifPresent(server::set);
                     }
                 });

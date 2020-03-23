@@ -38,7 +38,7 @@ public class NukkitSignInteractionListener implements Listener {
                     Server.getInstance().getPluginManager().callEvent(signInteractEvent);
 
                     if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
-                        BridgePlayerManager.getInstance().proxySendPlayer(event.getPlayer().getUniqueId(), signInteractEvent.getTargetServer());
+                        BridgePlayerManager.getInstance().getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
 
                         event.getPlayer().sendMessage(
                                 SignConfigurationProvider.load().getMessages().get("server-connecting-message")

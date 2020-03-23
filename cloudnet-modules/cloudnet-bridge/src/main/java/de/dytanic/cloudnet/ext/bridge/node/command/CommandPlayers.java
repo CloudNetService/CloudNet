@@ -70,13 +70,13 @@ public final class CommandPlayers extends SubCommandHandler {
                                         }
 
                                         if (properties.containsKey("connect")) {
-                                            NodePlayerManager.getInstance().proxySendPlayer(player, properties.get("connect"));
+                                            NodePlayerManager.getInstance().getPlayerExecutor(player).connect(properties.get("connect"));
                                         }
                                         if (properties.containsKey("message")) {
-                                            NodePlayerManager.getInstance().proxySendPlayerMessage(player, properties.get("message"));
+                                            NodePlayerManager.getInstance().getPlayerExecutor(player).sendChatMessage(properties.get("message"));
                                         }
                                         if (properties.containsKey("kick")) {
-                                            NodePlayerManager.getInstance().proxyKickPlayer(player, properties.get("kick"));
+                                            NodePlayerManager.getInstance().getPlayerExecutor(player).kick(properties.get("kick"));
                                         }
                                         if (properties.containsKey("showName")) {
                                             messages.add(player.getName());
@@ -150,7 +150,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     String reason = (String) args.argument("reason").orElse("no reason given");
                                     for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
-                                        NodePlayerManager.getInstance().proxyKickPlayer(player, reason);
+                                        NodePlayerManager.getInstance().getPlayerExecutor(player).kick(reason);
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player")
                                                 .replace("%name%", player.getName())
                                                 .replace("%uniqueId%", player.getUniqueId().toString())
@@ -165,7 +165,7 @@ public final class CommandPlayers extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
-                                        NodePlayerManager.getInstance().proxySendPlayerMessage(player, (String) args.argument("message").orElseThrow(() -> new IllegalArgumentException("No message given")));
+                                        NodePlayerManager.getInstance().getPlayerExecutor(player).sendChatMessage((String) args.argument("message").orElseThrow(() -> new IllegalArgumentException("No message given")));
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-message")
                                                 .replace("%name%", player.getName())
                                                 .replace("%uniqueId%", player.getUniqueId().toString())
@@ -185,7 +185,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                         return;
                                     }
                                     for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
-                                        NodePlayerManager.getInstance().proxySendPlayer(player, server);
+                                        NodePlayerManager.getInstance().getPlayerExecutor(player).connect(server);
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server")
                                                 .replace("%name%", player.getName())
                                                 .replace("%uniqueId%", player.getUniqueId().toString())
