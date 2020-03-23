@@ -105,10 +105,6 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
         return CloudNetDriver.getInstance().getCloudServiceProvider(this);
     }
 
-    public int getIntProperty(@NotNull ServiceProperty<Integer> property) {
-        return this.getProperty(property).orElse(0);
-    }
-
     @NotNull
     public <T> Optional<T> getProperty(@NotNull ServiceProperty<T> property) {
         return property.get(this);
