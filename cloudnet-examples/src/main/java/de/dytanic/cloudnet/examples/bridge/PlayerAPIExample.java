@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent;
@@ -22,7 +23,7 @@ public final class PlayerAPIExample {
         int counter = 0;
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby")) {
-            counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+            counter += serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0);
         }
 
         return counter;
@@ -35,7 +36,7 @@ public final class PlayerAPIExample {
 
             if (serviceInfoSnapshots != null) {
                 for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby")) {
-                    counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+                    counter += serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0);
                 }
             }
 

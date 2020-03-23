@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.event.EventPriority;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
@@ -44,7 +45,7 @@ public class BungeeLabyModListener implements Listener {
         }
 
         if (LabyModUtils.canSpectate(newServiceInfoSnapshot) &&
-                !ServiceInfoSnapshotUtil.isIngameService(oldServiceInfoSnapshot)) {
+                !oldServiceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false)) {
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.getServer() == null || player.getServer().getInfo() == null) {
                     continue;

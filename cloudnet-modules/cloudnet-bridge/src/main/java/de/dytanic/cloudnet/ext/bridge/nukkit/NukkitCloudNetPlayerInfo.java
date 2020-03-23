@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-final class NukkitCloudNetPlayerInfo {
+public final class NukkitCloudNetPlayerInfo {
 
     protected double health, maxHealth, saturation;
     protected int level, ping;
