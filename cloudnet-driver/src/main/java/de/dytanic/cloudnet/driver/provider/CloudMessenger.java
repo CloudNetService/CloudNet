@@ -44,6 +44,15 @@ public interface CloudMessenger {
      */
     void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
 
+    /**
+     * Sends a channel message to all services of a specific environment in the cluster.
+     * It can be received with the {@link ChannelMessageReceiveEvent}.
+     *
+     * @param targetEnvironment the environment which will receive the message
+     * @param channel           the channel to identify the message, this can be anything and doesn't have to be registered
+     * @param message           the message to identify the message, this can be anything and doesn't have to be registered
+     * @param data              extra data for the message
+     */
     void sendChannelMessage(@NotNull ServiceEnvironmentType targetEnvironment, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
 
 }
