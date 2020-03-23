@@ -74,9 +74,9 @@ public final class PlayerAPIExample {
         {
             ICloudPlayer entry = cloudPlayers.get(0);
 
-            BridgePlayerManager.getInstance().proxyKickPlayer(entry, "Kick message"); //kicks a player from the network
-            BridgePlayerManager.getInstance().proxySendPlayer(entry, "Lobby-3"); //send a player to the target server if the player is login on a proxy
-            BridgePlayerManager.getInstance().proxySendPlayerMessage(entry, "Hello, player!"); //send the player a text message
+            BridgePlayerManager.getInstance().getPlayerExecutor(entry).kick("Kick message"); //kicks a player from the network
+            BridgePlayerManager.getInstance().getPlayerExecutor(entry).connect("Lobby-3"); //send a player to the target server if the player is login on a proxy
+            BridgePlayerManager.getInstance().getPlayerExecutor(entry).sendChatMessage("Hello, player!"); //send the player a text message
         }
     }
 

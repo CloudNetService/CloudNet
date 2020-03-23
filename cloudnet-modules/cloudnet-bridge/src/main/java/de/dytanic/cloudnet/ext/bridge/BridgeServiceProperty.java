@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import static de.dytanic.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromClass;
 import static de.dytanic.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromType;
 
+/**
+ * Properties in ServiceInfos by the bridge module.
+ */
 public class BridgeServiceProperty {
 
     private static final TypeToken<Collection<JsonDocument>> DOCUMENT_COLLECTION_TYPE = new TypeToken<Collection<JsonDocument>>() {
@@ -22,23 +25,62 @@ public class BridgeServiceProperty {
     private static final TypeToken<Collection<PluginInfo>> PLUGIN_INFO_COLLECTION_TYPE = new TypeToken<Collection<PluginInfo>>() {
     };
 
+    /**
+     * Property to get the online count of a service.
+     */
     public static final ServiceProperty<Integer> ONLINE_COUNT = createFromClass("Online-Count", Integer.class).forbidModification();
+    /**
+     * Property to get the max players of a service.
+     */
     public static final ServiceProperty<Integer> MAX_PLAYERS = createFromClass("Max-Players", Integer.class).forbidModification();
 
+    /**
+     * Property to get the Bukkit/Bungee/Nukkit/Velocity version of a service.
+     */
     public static final ServiceProperty<String> VERSION = createFromClass("Version", String.class).forbidModification();
 
+    /**
+     * Property to get the Motd of a service.
+     */
     public static final ServiceProperty<String> MOTD = createFromClass("Motd", String.class).forbidModification();
+    /**
+     * Property to get the Extra of a service.
+     */
     public static final ServiceProperty<String> EXTRA = createFromClass("Extra", String.class).forbidModification();
+    /**
+     * Property to get the State of a service.
+     */
     public static final ServiceProperty<String> STATE = createFromClass("State", String.class).forbidModification();
 
-    public static final ServiceProperty<Collection<PluginInfo>> PLUGINS = createFromType("Plugins", PLUGIN_INFO_COLLECTION_TYPE).forbidModification();
-    public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty.<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(createFromType("Players", DOCUMENT_COLLECTION_TYPE))
+    /**
+     * Property to get all installed plugins on a service.
+     */
+    public static final ServiceProperty<Collection<PluginInfo>> PLUGINS = createFromType("Plugins", PLUGIN_INFO_COLLECTION_TYPE.getType());
+    /**
+     * Property to get all online players on a service.
+     */
+    public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty.<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(createFromType("Players", DOCUMENT_COLLECTION_TYPE.getType()))
             .modifyGet((serviceInfoSnapshot, documents) -> documents.stream().map(ServicePlayer::new).collect(Collectors.toList()));
 
+    /**
+     * Property to check whether a service is online or not.
+     */
     public static final ServiceProperty<Boolean> IS_ONLINE = createFromClass("Online", Boolean.class);
+    /**
+     * Property to check whether a service is in game or not.
+     */
     public static final ServiceProperty<Boolean> IS_IN_GAME = DefaultFunctionalServiceProperty.<Boolean>create().get(BridgeServiceProperty::isInGameService);
+    /**
+     * Property to check whether a service is starting or not.
+     */
     public static final ServiceProperty<Boolean> IS_STARTING = DefaultFunctionalServiceProperty.<Boolean>create().get(BridgeServiceProperty::isStartingService);
+    /**
+     * Property to check whether a service is empty (no players) or not.
+     */
     public static final ServiceProperty<Boolean> IS_EMPTY = DefaultFunctionalServiceProperty.<Boolean>create().get(BridgeServiceProperty::isEmptyService);
+    /**
+     * Property to check whether a service is full (online count &gt;= max players) or not.
+     */
     public static final ServiceProperty<Boolean> IS_FULL = DefaultFunctionalServiceProperty.<Boolean>create().get(BridgeServiceProperty::isFullService);
 
 
