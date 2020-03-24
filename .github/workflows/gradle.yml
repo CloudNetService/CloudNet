@@ -20,7 +20,7 @@ jobs:
           architecture: x64
 
       - name: Test with Gradle
-        run: ./gradlew test
+        run: ./gradlew test -PmavenUser= -PmavenPassword=
 
       - name: Build with Gradle
         run: ./gradlew jar
