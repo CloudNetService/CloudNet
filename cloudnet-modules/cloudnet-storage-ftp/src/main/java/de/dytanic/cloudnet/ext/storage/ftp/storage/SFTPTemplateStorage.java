@@ -72,7 +72,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     @Override
     public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
         for (Path path : paths) {
-            if (!this.ftpClient.uploadFile(path, this.getPath(target) + "/" + path)) {
+            if (!this.ftpClient.uploadFile(path, this.getPath(target) + "/" + path.toString().replace(File.separatorChar, '/'))) {
                 return false;
             }
         }
