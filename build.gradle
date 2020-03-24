@@ -202,8 +202,8 @@ subprojects {
                 }
 
                 credentials {
-                    username = $mavenUser
-                    password = $mavenPassword
+                    username = mavenUser
+                    password = mavenPassword
                 }
             }
         }
