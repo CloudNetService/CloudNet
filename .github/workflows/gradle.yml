@@ -23,7 +23,7 @@ jobs:
         run: ./gradlew test -PmavenUser= -PmavenPassword=
 
       - name: Build with Gradle
-        run: ./gradlew jar
+        run: ./gradlew jar -PmavenUser= -PmavenPassword=
 
       - name: Release ZIP
         run: |
