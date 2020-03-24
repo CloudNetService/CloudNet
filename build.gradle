@@ -196,8 +196,8 @@ subprojects {
         }
         repositories.maven {
             credentials {
-                username "$mavenUser"
-                password "$mavenPassword"
+                username $mavenUser
+                password $mavenPassword
             }
 
             if (project.version.endsWith("SNAPSHOT")) {

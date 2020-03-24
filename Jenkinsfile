@@ -59,8 +59,10 @@ pipeline {
         }
       }
       steps {
-        echo 'Creating artifacts and uploading to Apache Archiva...';
-        sh './gradlew publish';
+        echo 'Publishing artifacts to Apache Archiva...';
+        withCredentials([usernamePassword(credentialsId: 'artifactory', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+          sh './gradlew publish -PmavenUser=$USERNAME -PmavenPassword=$PASSWORD'
+        }
       }
     }
     stage('Javadoc') {
@@ -74,6 +76,13 @@ pipeline {
       steps {
         archiveArtifacts artifacts: '**/build/libs/*.jar';
         archiveArtifacts artifacts: '**/build/libs/*.cnl';
+      }
+    }
+  }
+  post {
+    always {
+      withCredentials([string(credentialsId: 'cloudnet-discord-ci-webhook', variable: 'url')]) {
+        discordSend description: 'New build for CloudNet v3!', footer: 'New build!', link: env.BUILD_URL, successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), title: JOB_NAME, webhookURL: url
       }
     }
   }
