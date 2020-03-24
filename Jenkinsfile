@@ -10,9 +10,7 @@ pipeline {
     stage('Clean') {
       steps {
         sh 'chmod +x ./gradlew';
-        withCredentials([usernamePassword(credentialsId: 'artifactory', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-          sh './gradlew clean -PmavenUser=$USERNAME -PmavenPassword=$PASSWORD';
-        }
+        sh './gradlew clean';
       }
     }
     stage('Test') {
