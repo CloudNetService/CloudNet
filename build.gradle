@@ -183,7 +183,6 @@ subprojects {
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
     }
 
-
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -194,16 +193,18 @@ subprojects {
                 from components.java
             }
         }
-        repositories.maven {
-            credentials {
-                username $mavenUser
-                password $mavenPassword
-            }
+        repositories {
+            maven {
+                if (project.version.endsWith("SNAPSHOT")) {
+                    url 'https://repo.cloudnetservice.eu/repository/snapshots/'
+                } else {
+                    url 'https://repo.cloudnetservice.eu/repository/releases/'
+                }
 
-            if (project.version.endsWith("SNAPSHOT")) {
-                url 'https://repo.cloudnetservice.eu/repository/snapshots/'
-            } else {
-                url 'https://repo.cloudnetservice.eu/repository/releases/'
+                credentials {
+                    username = $mavenUser
+                    password = $mavenPassword
+                }
             }
         }
     }

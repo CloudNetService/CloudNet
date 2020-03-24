@@ -10,7 +10,9 @@ pipeline {
     stage('Clean') {
       steps {
         sh 'chmod +x ./gradlew';
-        sh './gradlew clean';
+        withCredentials([usernamePassword(credentialsId: 'artifactory', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+          sh './gradlew clean -PmavenUser=$USERNAME -PmavenPassword=$PASSWORD';
+        }
       }
     }
     stage('Test') {
@@ -60,9 +62,7 @@ pipeline {
       }
       steps {
         echo 'Publishing artifacts to Apache Archiva...';
-        withCredentials([usernamePassword(credentialsId: 'artifactory', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-          sh './gradlew publish -PmavenUser=$USERNAME -PmavenPassword=$PASSWORD'
-        }
+        sh './gradlew publish';
       }
     }
     stage('Javadoc') {
