@@ -20,6 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 
 public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
@@ -63,6 +64,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
+    @Deprecated
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(zipInput, target));
         this.ftpTaskQueue.add(ftpTask);
@@ -73,6 +75,14 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     @Override
     public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter));
+        this.ftpTaskQueue.add(ftpTask);
+
+        return ftpTask.getDef(false);
+    }
+
+    @Override
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(inputStream, serviceTemplate));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -127,11 +137,20 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
+    @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         ITask<byte[]> ftpTask = new FTPTask<>(() -> this.executingStorage.toZipByteArray(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(new byte[0]);
+    }
+
+    @Override
+    public @Nullable ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) {
+        ITask<ZipInputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.asZipInputStream(template));
+        this.ftpTaskQueue.add(ftpTask);
+
+        return ftpTask.getDef(null);
     }
 
     @Override
