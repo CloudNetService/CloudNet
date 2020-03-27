@@ -166,7 +166,7 @@ public final class BungeeCloudNetSyncProxyPlugin extends Plugin {
             ProxyServer.getInstance().getScheduler().schedule(
                     this,
                     this::scheduleTabList,
-                    1000 / syncProxyTabListConfiguration.getAnimationsPerSecond(),
+                    (long) (1000D / syncProxyTabListConfiguration.getAnimationsPerSecond()),
                     TimeUnit.MILLISECONDS
             );
         } else {

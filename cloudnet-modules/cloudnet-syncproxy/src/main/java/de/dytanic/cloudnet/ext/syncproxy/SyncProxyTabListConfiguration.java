@@ -13,9 +13,9 @@ public class SyncProxyTabListConfiguration {
 
     protected List<SyncProxyTabList> entries;
 
-    protected int animationsPerSecond;
+    protected double animationsPerSecond;
 
-    public SyncProxyTabListConfiguration(String targetGroup, List<SyncProxyTabList> entries, int animationsPerSecond) {
+    public SyncProxyTabListConfiguration(String targetGroup, List<SyncProxyTabList> entries, double animationsPerSecond) {
         this.targetGroup = targetGroup;
         this.entries = entries;
         this.animationsPerSecond = animationsPerSecond;
@@ -40,11 +40,19 @@ public class SyncProxyTabListConfiguration {
         this.entries = entries;
     }
 
-    public int getAnimationsPerSecond() {
+    public double getAnimationsPerSecond() {
         return this.animationsPerSecond;
     }
 
+    /**
+     * Use {@link #setAnimationsPerSecond(double)} instead.
+     */
+    @Deprecated
     public void setAnimationsPerSecond(int animationsPerSecond) {
+        this.animationsPerSecond = animationsPerSecond;
+    }
+
+    public void setAnimationsPerSecond(double animationsPerSecond) {
         this.animationsPerSecond = animationsPerSecond;
     }
 
