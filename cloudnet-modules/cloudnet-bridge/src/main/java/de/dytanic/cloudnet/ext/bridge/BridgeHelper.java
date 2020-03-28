@@ -22,8 +22,18 @@ import java.util.function.Predicate;
 @UnsafeClass
 public final class BridgeHelper {
 
+    private static boolean online = true;
+
     private BridgeHelper() {
         throw new UnsupportedOperationException();
+    }
+
+    public static void setOnline(boolean online) {
+        BridgeHelper.online = online;
+    }
+
+    public static boolean isOnline() {
+        return BridgeHelper.online;
     }
 
     public static void updateServiceInfo() {

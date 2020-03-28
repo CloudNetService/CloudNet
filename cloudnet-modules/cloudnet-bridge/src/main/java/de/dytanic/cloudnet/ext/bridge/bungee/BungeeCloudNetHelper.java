@@ -85,7 +85,7 @@ public final class BungeeCloudNetHelper {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", ProxyServer.getInstance().getVersion())
                 .append("Game-Version", ProxyServer.getInstance().getGameVersion())
                 .append("Online-Count", ProxyServer.getInstance().getOnlineCount())

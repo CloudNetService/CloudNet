@@ -131,7 +131,7 @@ public final class VelocityCloudNetHelper {
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", proxyServer.getVersion().getVersion())
                 .append("Version-Vendor", proxyServer.getVersion().getVendor())
                 .append("Velocity-Name", proxyServer.getVersion().getName())
