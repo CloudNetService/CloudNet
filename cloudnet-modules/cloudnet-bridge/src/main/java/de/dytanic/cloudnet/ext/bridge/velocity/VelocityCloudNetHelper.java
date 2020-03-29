@@ -3,6 +3,8 @@ package de.dytanic.cloudnet.ext.bridge.velocity;
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -13,21 +15,24 @@ import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityPlayerFallbackEvent;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class VelocityCloudNetHelper {
 
-    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = new ConcurrentHashMap<>();
+    /**
+     * @deprecated use {@link BridgeProxyHelper#getCachedServiceInfoSnapshot(String)} or {@link BridgeProxyHelper#cacheServiceInfoSnapshot(ServiceInfoSnapshot)}
+     */
+    @Deprecated
+    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = BridgeProxyHelper.SERVICE_CACHE;
 
     private static ProxyServer proxyServer;
 
@@ -82,20 +87,30 @@ public final class VelocityCloudNetHelper {
         );
     }
 
-    public static String filterServiceForPlayer(Player player, String currentServer) {
-        ServiceInfoSnapshot fallback = BridgeHelper.filterServiceForPlayer(
-                currentServer,
-                VelocityCloudNetHelper::getFilteredEntries,
+    public static Optional<RegisteredServer> getNextFallback(Player player) {
+        return BridgeProxyHelper.getNextFallback(
+                player.getUniqueId(),
+                player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null),
                 player::hasPermission
+        ).flatMap(serviceInfoSnapshot -> proxyServer.getServer(serviceInfoSnapshot.getName()));
+    }
+
+    public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(Player player, String currentServer) {
+        return BridgeProxyHelper.connectToFallback(player.getUniqueId(), currentServer,
+                player::hasPermission,
+                serviceInfoSnapshot -> {
+                    CompletableFuture<Boolean> future = new CompletableFuture<>();
+                    Optional<RegisteredServer> optionalServer = proxyServer.getServer(serviceInfoSnapshot.getName());
+                    if (optionalServer.isPresent()) {
+                        player.createConnectionRequest(optionalServer.get())
+                                .connect()
+                                .thenAccept(result -> future.complete(result.isSuccessful()));
+                    } else {
+                        future.complete(false);
+                    }
+                    return future;
+                }
         );
-        try {
-            return proxyServer.getEventManager().fire(new VelocityPlayerFallbackEvent(player,
-                    fallback, fallback != null ? fallback.getServiceId().getName() : null)
-            ).get().getFallbackName();
-        } catch (InterruptedException | ExecutionException exception) {
-            exception.printStackTrace();
-        }
-        return null;
     }
 
     public static boolean isServiceEnvironmentTypeProvidedForVelocity(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -111,22 +126,7 @@ public final class VelocityCloudNetHelper {
         if (serverInfo == null) {
             return false;
         }
-        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(serverInfo.getName());
-        if (serviceInfoSnapshot == null) {
-            return false;
-        }
-
-        return BridgeHelper.isFallbackService(serviceInfoSnapshot);
-    }
-
-    private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
-        return SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet().stream().filter(stringServiceInfoSnapshotEntry -> {
-            if (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey())) {
-                return false;
-            }
-
-            return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
-        }).collect(Collectors.toList());
+        return BridgeProxyHelper.isFallbackService(serverInfo.getName());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
