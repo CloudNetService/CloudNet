@@ -5,12 +5,11 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
-import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeePlayerFallbackEvent;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -21,14 +20,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public final class BungeeCloudNetHelper {
 
-    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = new ConcurrentHashMap<>();
+    /**
+     * @deprecated use {@link BridgeProxyHelper#getCachedServiceInfoSnapshot(String)} or {@link BridgeProxyHelper#cacheServiceInfoSnapshot(ServiceInfoSnapshot)}
+     */
+    @Deprecated
+    public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = BridgeProxyHelper.SERVICE_CACHE;
 
     private BungeeCloudNetHelper() {
         throw new UnsupportedOperationException();
@@ -43,35 +46,27 @@ public final class BungeeCloudNetHelper {
         if (serverInfo == null) {
             return false;
         }
-        ServiceInfoSnapshot serviceInfoSnapshot = SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(serverInfo.getName());
-        if (serviceInfoSnapshot == null) {
-            return false;
-        }
-
-        return BridgeHelper.isFallbackService(serviceInfoSnapshot);
+        return BridgeProxyHelper.isFallbackService(serverInfo.getName());
     }
 
-    public static String filterServiceForProxiedPlayer(ProxiedPlayer proxiedPlayer, String currentServer) {
-        ServiceInfoSnapshot fallback = BridgeHelper.filterServiceForPlayer(
-                currentServer,
-                BungeeCloudNetHelper::getFilteredEntries,
-                proxiedPlayer::hasPermission
+    public static Optional<ServerInfo> getNextFallback(ProxiedPlayer player) {
+        return BridgeProxyHelper.getNextFallback(
+                player.getUniqueId(),
+                player.getServer() != null ? player.getServer().getInfo().getName() : null,
+                player::hasPermission
+        ).map(serviceInfoSnapshot -> ProxyServer.getInstance().getServerInfo(serviceInfoSnapshot.getName()));
+    }
+
+    public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(ProxiedPlayer player, String currentServer) {
+        return BridgeProxyHelper.connectToFallback(player.getUniqueId(), currentServer,
+                player::hasPermission,
+                serviceInfoSnapshot -> {
+                    CompletableFuture<Boolean> future = new CompletableFuture<>();
+                    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(serviceInfoSnapshot.getName());
+                    player.connect(serverInfo, (result, error) -> future.complete(result && error != null));
+                    return future;
+                }
         );
-        return ProxyServer.getInstance().getPluginManager().callEvent(new BungeePlayerFallbackEvent(proxiedPlayer,
-                fallback, fallback != null ? fallback.getServiceId().getName() : null)
-        ).getFallbackName();
-    }
-
-    private static List<Map.Entry<String, ServiceInfoSnapshot>> getFilteredEntries(String task, String currentServer) {
-        return SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.entrySet().stream().
-                filter(stringServiceInfoSnapshotEntry -> {
-                    if (stringServiceInfoSnapshotEntry.getValue().getLifeCycle() != ServiceLifeCycle.RUNNING
-                            || (currentServer != null && currentServer.equalsIgnoreCase(stringServiceInfoSnapshotEntry.getKey()))) {
-                        return false;
-                    }
-
-                    return task.equals(stringServiceInfoSnapshotEntry.getValue().getServiceId().getTaskName());
-                }).collect(Collectors.toList());
     }
 
     public static boolean isServiceEnvironmentTypeProvidedForBungeeCord(ServiceInfoSnapshot serviceInfoSnapshot) {

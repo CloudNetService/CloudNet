@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandCloudNet;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityCloudNetListener;
@@ -79,7 +80,7 @@ public final class VelocityCloudNetBridgePlugin {
                         serviceInfoSnapshot.getAddress().getPort()
                 )));
 
-                VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
+                BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
                 VelocityCloudNetHelper.addServerToVelocityPrioritySystemConfiguration(serviceInfoSnapshot, name);
             }
         }

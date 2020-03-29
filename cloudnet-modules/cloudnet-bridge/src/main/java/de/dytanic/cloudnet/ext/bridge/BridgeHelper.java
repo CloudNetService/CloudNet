@@ -9,15 +9,13 @@ import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
+import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @UnsafeClass
 public final class BridgeHelper {
@@ -166,60 +164,12 @@ public final class BridgeHelper {
         });
     }
 
-
-    public static ServiceInfoSnapshot filterServiceForPlayer(String currentServer, BiFunction<String, String, List<Map.Entry<String, ServiceInfoSnapshot>>> filteredEntries,
-                                                             Predicate<String> permissionCheck) {
-        AtomicReference<ServiceInfoSnapshot> server = new AtomicReference<>();
-
-        BridgeConfigurationProvider.load().getBungeeFallbackConfigurations().stream()
-                .filter(
-                        proxyFallbackConfiguration ->
-                                proxyFallbackConfiguration.getTargetGroup() != null &&
-                                        Arrays.asList(Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups())
-                                                .contains(proxyFallbackConfiguration.getTargetGroup())
-                )
-                .forEach(configuration -> {
-                    List<ProxyFallback> proxyFallbacks = configuration.getFallbacks();
-                    Collections.sort(proxyFallbacks);
-
-                    for (ProxyFallback proxyFallback : proxyFallbacks) {
-                        if (server.get() != null)
-                            break;
-                        if (proxyFallback.getTask() == null || (proxyFallback.getPermission() != null && !permissionCheck.test(proxyFallback.getPermission()))) {
-                            continue;
-                        }
-
-                        filteredEntries.apply(proxyFallback.getTask(), currentServer)
-                                .stream()
-                                .map(Map.Entry::getValue).min(Comparator.comparingInt(snapshot -> snapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0)))
-                                .ifPresent(server::set);
-                    }
-
-                    if (server.get() == null) {
-                        filteredEntries.apply(configuration.getDefaultFallbackTask(), currentServer)
-                                .stream()
-                                .map(Map.Entry::getValue).min(Comparator.comparingInt(snapshot -> snapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0)))
-                                .ifPresent(server::set);
-                    }
-                });
-
-        return server.get();
-    }
-
+    /**
+     * @deprecated  moved to {@link BridgeProxyHelper}
+     */
+    @Deprecated
     public static boolean isFallbackService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
-            if (bungeeFallbackConfiguration.getTargetGroup() != null &&
-                    Arrays.asList(Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()).contains(bungeeFallbackConfiguration.getTargetGroup()
-                    )) {
-                for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks()) {
-                    if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+        return BridgeProxyHelper.isFallbackService(serviceInfoSnapshot);
     }
 
 }

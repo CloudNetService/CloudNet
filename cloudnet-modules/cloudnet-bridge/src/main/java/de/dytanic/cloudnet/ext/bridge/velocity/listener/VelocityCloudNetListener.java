@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpd
 import de.dytanic.cloudnet.driver.event.events.service.*;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.*;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
@@ -58,7 +59,7 @@ public final class VelocityCloudNetListener {
             }
 
             VelocityCloudNetHelper.removeServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceStopEvent(event.getServiceInfo()));
@@ -67,7 +68,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceInfoUpdateEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceInfoUpdateEvent(event.getServiceInfo()));
@@ -76,7 +77,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceRegisterEvent(event.getServiceInfo()));
@@ -85,7 +86,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceConnectNetworkEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceConnectNetworkEvent(event.getServiceInfo()));
@@ -94,7 +95,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceDisconnectNetworkEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
@@ -103,7 +104,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.remove(event.getServiceInfo().getServiceId().getName());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
