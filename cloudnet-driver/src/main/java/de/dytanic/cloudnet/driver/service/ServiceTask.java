@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -8,7 +9,7 @@ import java.util.Collection;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class ServiceTask extends ServiceConfigurationBase {
+public class ServiceTask extends ServiceConfigurationBase implements INameable {
 
     private String name;
 

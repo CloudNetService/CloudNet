@@ -61,12 +61,12 @@ public class CommandGroups extends CommandServiceConfigurationBase {
 
                         .applyHandler(builder -> handleGeneralAddCommands(
                                 builder,
-                                internalProperties -> (ServiceConfigurationBase) internalProperties.get("group"),
+                                internalProperties -> new ServiceConfigurationBase[]{(ServiceConfigurationBase) internalProperties.get("group")},
                                 serviceConfigurationBase -> CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration((GroupConfiguration) serviceConfigurationBase)
                         ))
                         .applyHandler(builder -> handleGeneralRemoveCommands(
                                 builder,
-                                internalProperties -> (ServiceConfigurationBase) internalProperties.get("group"),
+                                internalProperties -> new ServiceConfigurationBase[]{(ServiceConfigurationBase) internalProperties.get("group")},
                                 serviceConfigurationBase -> CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration((GroupConfiguration) serviceConfigurationBase)
                         ))
 
