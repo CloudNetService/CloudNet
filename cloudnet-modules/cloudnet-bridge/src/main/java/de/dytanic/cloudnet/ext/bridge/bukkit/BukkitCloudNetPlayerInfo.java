@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-final class BukkitCloudNetPlayerInfo {
+public final class BukkitCloudNetPlayerInfo {
 
     protected UUID uniqueId;
 

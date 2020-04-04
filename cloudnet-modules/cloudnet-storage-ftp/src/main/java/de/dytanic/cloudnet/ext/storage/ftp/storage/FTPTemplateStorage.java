@@ -18,10 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -29,7 +30,7 @@ import java.util.zip.ZipOutputStream;
 
 public final class FTPTemplateStorage extends AbstractFTPStorage {
 
-    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true);
+    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
 
     private final FTPClient ftpClient;
 
@@ -57,29 +58,23 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
         try {
             this.ftpClient.setAutodetectUTF8(true);
-
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect")
-                    .replace("%host%", host)
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%ftpType%", this.ftpType.toString())
-            );
             this.ftpClient.connect(host, port);
 
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
-                    .replace("%user%", username)
-                    .replace("%ftpType%", this.ftpType.toString())
-            );
-            this.ftpClient.login(username, password);
+            if (this.ftpClient.login(username, password)) {
+                this.ftpClient.sendNoOp();
+                this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+                this.ftpClient.changeWorkingDirectory(super.baseDirectory);
 
-            this.ftpClient.sendNoOp();
-            this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-            this.ftpClient.changeWorkingDirectory(super.baseDirectory);
-
-            return true;
+                return true;
+            }
         } catch (IOException exception) {
             exception.printStackTrace();
-            return false;
         }
+
+        logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+                .replace("%ftpType%", this.ftpType.toString()));
+
+        return false;
     }
 
     @Override
@@ -93,30 +88,12 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
         Preconditions.checkNotNull(zipInput);
         Preconditions.checkNotNull(target);
 
-        if (this.has(target)) {
-            this.delete(target);
-        }
-
-        this.create(target);
-
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipInput);
-             ZipInputStream zipInputStream = new ZipInputStream(byteArrayInputStream, StandardCharsets.UTF_8)) {
-
-            ZipEntry zipEntry;
-            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                this.deployZipEntry(zipInputStream, zipEntry, target.getTemplatePath());
-                zipInputStream.closeEntry();
-            }
-
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-
-        return false;
+        return this.deploy(new ZipInputStream(new ByteArrayInputStream(zipInput), StandardCharsets.UTF_8), target);
     }
 
     private void deployZipEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
@@ -145,6 +122,32 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             }
 
             return value;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean deploy(@NotNull ZipInputStream zipInputStream, @NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(zipInputStream);
+        Preconditions.checkNotNull(serviceTemplate);
+
+        if (this.has(serviceTemplate)) {
+            this.delete(serviceTemplate);
+        }
+
+        this.create(serviceTemplate);
+
+        try {
+            ZipEntry zipEntry;
+            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                this.deployZipEntry(zipInputStream, zipEntry, serviceTemplate.getTemplatePath());
+                zipInputStream.closeEntry();
+            }
+
+            return true;
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
         return false;
@@ -293,6 +296,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         if (!this.has(template)) {
             return FileUtils.emptyZipByteArray();
@@ -310,6 +314,22 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
 
         return FileUtils.emptyZipByteArray();
+    }
+
+    @Override
+    @Nullable
+    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        if (!this.has(template)) {
+            return null;
+        }
+
+        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+
+        try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE);
+             ZipOutputStream zipOutputStream = new ZipOutputStream(stream, StandardCharsets.UTF_8)) {
+            this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
+            return new ZipInputStream(Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
+        }
     }
 
     private void toByteArray(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {

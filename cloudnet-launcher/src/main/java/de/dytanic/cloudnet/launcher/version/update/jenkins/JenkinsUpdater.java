@@ -1,12 +1,13 @@
 package de.dytanic.cloudnet.launcher.version.update.jenkins;
 
 
-import de.dytanic.cloudnet.launcher.Constants;
+import de.dytanic.cloudnet.launcher.LauncherUtils;
 import de.dytanic.cloudnet.launcher.version.update.Updater;
 import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -34,8 +35,10 @@ public class JenkinsUpdater implements Updater {
     public boolean init(Path versionDirectory, String githubRepository) {
         this.gitHubRepository = githubRepository;
 
-        try (InputStream inputStream = this.readFromURL(this.jenkinsJobUrl + "lastSuccessfulBuild/api/json")) {
-            this.jenkinsBuild = Constants.GSON.fromJson(new InputStreamReader(inputStream), JenkinsBuild.class);
+        try (InputStream inputStream = LauncherUtils.readFromURL(this.jenkinsJobUrl + "lastSuccessfulBuild/api/json");
+             Reader reader = new InputStreamReader(inputStream)) {
+
+            this.jenkinsBuild = LauncherUtils.GSON.fromJson(reader, JenkinsBuild.class);
 
             String[] versionParts = this.readImplementationVersion(
                     this.jenkinsBuild.getArtifacts().stream()
@@ -58,7 +61,7 @@ public class JenkinsUpdater implements Updater {
     }
 
     private String readImplementationVersion(JenkinsBuild.BuildArtifact artifact) throws Exception {
-        try (JarInputStream jarInputStream = new JarInputStream(this.readFromURL(this.getArtifactDownloadURL(artifact)))) {
+        try (JarInputStream jarInputStream = new JarInputStream(LauncherUtils.readFromURL(this.getArtifactDownloadURL(artifact)))) {
             return jarInputStream.getManifest().getMainAttributes().getValue("Implementation-Version");
         }
     }
@@ -81,7 +84,7 @@ public class JenkinsUpdater implements Updater {
                     .findFirst()
                     .orElseThrow(() -> new NullPointerException(String.format("Unable to find file %s on the jenkins!", name)));
 
-            try (InputStream inputStream = this.readFromURL(this.getArtifactDownloadURL(buildArtifact))) {
+            try (InputStream inputStream = LauncherUtils.readFromURL(this.getArtifactDownloadURL(buildArtifact))) {
                 Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
             }
 

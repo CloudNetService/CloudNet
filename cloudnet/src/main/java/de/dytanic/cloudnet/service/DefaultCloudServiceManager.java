@@ -246,9 +246,17 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public ICloudService runTask(@NotNull ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
+        return this.runTask(serviceTask, this.findTaskId(serviceTask.getName()));
+    }
+
+    @Override
+    public ICloudService runTask(@NotNull ServiceTask serviceTask, int taskId) {
+        Preconditions.checkNotNull(serviceTask);
+
         return this.runTask(
                 serviceTask.getName(),
                 serviceTask.getRuntime(),
+                taskId,
                 serviceTask.isAutoDeleteOnStop(),
                 serviceTask.isStaticServices(),
                 new ArrayList<>(serviceTask.getIncludes()),
@@ -317,19 +325,48 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             JsonDocument properties,
             Integer port
     ) {
+        Preconditions.checkNotNull(name);
 
+        return this.runTask(name, runtime, this.findTaskId(name), autoDeleteOnStop, staticService, includes, templates, deployments, groups, deletedFilesAfterStop, processConfiguration, properties, port);
+    }
+
+    private int findTaskId(String taskName) {
+        int taskId = 1;
+
+        Collection<Integer> taskIdList = this.getReservedTaskIds(taskName);
+
+        while (taskIdList.contains(taskId)) {
+            taskId++;
+        }
+
+        return taskId;
+    }
+
+    @Override
+    public ICloudService runTask(
+            String name,
+            String runtime,
+            int taskId,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties,
+            Integer port
+    ) {
+        Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(includes);
         Preconditions.checkNotNull(templates);
         Preconditions.checkNotNull(deployments);
         Preconditions.checkNotNull(groups);
         Preconditions.checkNotNull(processConfiguration);
 
-        int taskId = 1;
-
-        Collection<Integer> taskIdList = this.getReservedTaskIds(name);
-
-        while (taskIdList.contains(taskId)) {
-            taskId++;
+        if (this.getReservedTaskIds(name).contains(taskId)) {
+            return null;
         }
 
         for (GroupConfiguration groupConfiguration : this.getGroupConfigurations()) {

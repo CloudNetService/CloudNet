@@ -43,7 +43,6 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     @Override
     public boolean removePermission(@NotNull String permission) {
-
         Permission exist = this.getPermission(permission);
 
         if (exist != null) {
@@ -55,16 +54,18 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     @Override
     public boolean removePermission(@NotNull String group, @NotNull String permission) {
-
         if (groupPermissions.containsKey(group)) {
-            groupPermissions.get(group).stream().filter(perm -> perm.getName().equalsIgnoreCase(permission)).findFirst().ifPresent(perm -> groupPermissions.get(group).remove(perm));
-
-            if (groupPermissions.get(group).isEmpty()) {
-                groupPermissions.remove(group);
+            Optional<Permission> optionalPermission = groupPermissions.get(group).stream().filter(perm -> perm.getName().equalsIgnoreCase(permission)).findFirst();
+            if (optionalPermission.isPresent()) {
+                groupPermissions.get(group).remove(optionalPermission.get());
+                if (groupPermissions.get(group).isEmpty()) {
+                    groupPermissions.remove(group);
+                }
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public long getCreatedTime() {

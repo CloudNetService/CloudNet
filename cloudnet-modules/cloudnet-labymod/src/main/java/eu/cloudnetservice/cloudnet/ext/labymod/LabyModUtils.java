@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
@@ -97,7 +98,7 @@ public class LabyModUtils {
     public static boolean canSpectate(ServiceInfoSnapshot serviceInfoSnapshot) {
         return getConfiguration().isDiscordSpectateEnabled() &&
                 !isExcluded(getConfiguration().getExcludedSpectateGroups(), serviceInfoSnapshot.getConfiguration().getGroups()) &&
-                ServiceInfoSnapshotUtil.isIngameService(serviceInfoSnapshot);
+                serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false);
     }
 
     public static byte[] getDiscordRPCGameInfoUpdateMessageContents(ICloudPlayer cloudPlayer, ServiceInfoSnapshot serviceInfoSnapshot) {

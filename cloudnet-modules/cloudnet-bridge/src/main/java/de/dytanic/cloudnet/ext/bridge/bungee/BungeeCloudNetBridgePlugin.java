@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.ext.bridge.bungee.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeeCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -53,7 +54,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
                         serviceInfoSnapshot.getAddress().getPort()
                 )));
 
-                BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
+                BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
             }
         }
     }

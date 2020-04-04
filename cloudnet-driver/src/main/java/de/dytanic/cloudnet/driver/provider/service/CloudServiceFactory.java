@@ -8,6 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * This class provides methods to create and prepare services in the network.
+ */
 public interface CloudServiceFactory {
 
     /**
@@ -18,6 +21,16 @@ public interface CloudServiceFactory {
      */
     @Nullable
     ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
+
+    /**
+     * Creates and prepares (= copies the templates) a new cloud service
+     *
+     * @param serviceTask the task the service should be created from
+     * @param taskId      the id of the service
+     * @return the info of the created service or null if the service couldn't be created
+     */
+    @Nullable
+    ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId);
 
     /**
      * Creates and prepares (= copies the templates) a new cloud service
@@ -164,6 +177,16 @@ public interface CloudServiceFactory {
      */
     @NotNull
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask);
+
+    /**
+     * Creates and prepares (= copies the templates) a new cloud service
+     *
+     * @param serviceTask the task the service should be created from
+     * @param taskId      the id of the service
+     * @return the info of the created service or null if the service couldn't be created
+     */
+    @NotNull
+    ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId);
 
     /**
      * Creates and prepares (= copies the templates) a new cloud service

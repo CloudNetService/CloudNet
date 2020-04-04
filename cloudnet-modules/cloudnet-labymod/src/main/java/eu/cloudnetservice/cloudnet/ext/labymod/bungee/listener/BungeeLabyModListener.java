@@ -7,9 +7,9 @@ import de.dytanic.cloudnet.driver.event.EventPriority;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
-import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModChannelUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
@@ -30,7 +30,7 @@ public class BungeeLabyModListener implements Listener {
     public void handle(ServerConnectedEvent event) {
         ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(event.getPlayer().getUniqueId());
         if (cloudPlayer != null && LabyModUtils.getLabyModOptions(cloudPlayer) != null) {
-            ServiceInfoSnapshot serviceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getServer().getInfo().getName());
+            ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getServer().getInfo().getName());
             this.sendLabyModServerUpdate(event.getPlayer(), cloudPlayer, serviceInfoSnapshot);
         }
     }
@@ -38,13 +38,13 @@ public class BungeeLabyModListener implements Listener {
     @EventListener(priority = EventPriority.HIGHEST)
     public void handle(CloudServiceInfoUpdateEvent event) {
         ServiceInfoSnapshot newServiceInfoSnapshot = event.getServiceInfo();
-        ServiceInfoSnapshot oldServiceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(newServiceInfoSnapshot.getServiceId().getName());
+        ServiceInfoSnapshot oldServiceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(newServiceInfoSnapshot.getServiceId().getName());
         if (oldServiceInfoSnapshot == null) {
             return;
         }
 
         if (LabyModUtils.canSpectate(newServiceInfoSnapshot) &&
-                !ServiceInfoSnapshotUtil.isIngameService(oldServiceInfoSnapshot)) {
+                !oldServiceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false)) {
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.getServer() == null || player.getServer().getInfo() == null) {
                     continue;
@@ -96,7 +96,7 @@ public class BungeeLabyModListener implements Listener {
             BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
 
             if (cloudPlayer.getConnectedService() != null) {
-                ServiceInfoSnapshot serviceInfoSnapshot = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(cloudPlayer.getConnectedService().getServerName());
+                ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(cloudPlayer.getConnectedService().getServerName());
                 this.sendLabyModServerUpdate(player, cloudPlayer, serviceInfoSnapshot);
             }
         }
@@ -147,7 +147,7 @@ public class BungeeLabyModListener implements Listener {
     }
 
     private void connectTo(ProxiedPlayer player, ICloudPlayer target) {
-        ServiceInfoSnapshot connectedService = BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(target.getConnectedService().getServerName());
+        ServiceInfoSnapshot connectedService = BridgeProxyHelper.getCachedServiceInfoSnapshot(target.getConnectedService().getServerName());
 
         if (connectedService == null) {
             BridgePlayerManager.getInstance().updateOnlinePlayer(target);
@@ -156,7 +156,7 @@ public class BungeeLabyModListener implements Listener {
 
         byte[] discordRPCData = LabyModUtils.getDiscordRPCGameInfoUpdateMessageContents(target, connectedService);
         if (discordRPCData != null) {
-            BridgePlayerManager.getInstance().proxySendPluginMessage(target, LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
+            BridgePlayerManager.getInstance().getPlayerExecutor(target).sendPluginMessage(LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
         }
 
         player.connect(ProxyServer.getInstance().getServerInfo(target.getConnectedService().getServerName()));

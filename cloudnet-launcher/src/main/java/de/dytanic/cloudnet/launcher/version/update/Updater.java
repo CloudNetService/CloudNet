@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.launcher.version.update;
 
-import de.dytanic.cloudnet.launcher.Constants;
+import de.dytanic.cloudnet.launcher.LauncherUtils;
 import de.dytanic.cloudnet.launcher.module.CloudNetModule;
 import de.dytanic.cloudnet.launcher.version.VersionInfo;
 
@@ -25,7 +25,7 @@ public interface Updater extends VersionInfo {
 
                 successful = true;
 
-                for (String versionFile : Constants.VERSION_FILE_NAMES) {
+                for (String versionFile : LauncherUtils.VERSION_FILE_NAMES) {
                     if (!this.installFile(versionFile, this.getTargetDirectory().resolve(versionFile))) {
                         successful = false;
                     }
@@ -40,7 +40,7 @@ public interface Updater extends VersionInfo {
                         Files.createDirectories(moduleDirectoryPath);
                     }
 
-                    for (CloudNetModule module : Constants.DEFAULT_MODULES) {
+                    for (CloudNetModule module : LauncherUtils.DEFAULT_MODULES) {
                         Path modulePath = moduleDirectoryPath.resolve(module.getFileName());
 
                         // avoiding the installation of manual removed modules
@@ -61,27 +61,6 @@ public interface Updater extends VersionInfo {
         }
 
         return successful;
-    }
-
-    default void deleteUpdateFiles() {
-        try {
-            if (Files.exists(this.getTargetDirectory())) {
-
-                Files.list(this.getTargetDirectory())
-                        .forEach(path -> {
-                            try {
-                                Files.delete(path);
-                            } catch (IOException exception) {
-                                exception.printStackTrace();
-                            }
-                        });
-
-                Files.delete(this.getTargetDirectory());
-
-            }
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
     }
 
 }

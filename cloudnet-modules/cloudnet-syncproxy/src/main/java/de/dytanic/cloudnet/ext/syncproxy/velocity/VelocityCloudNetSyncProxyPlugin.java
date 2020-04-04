@@ -175,7 +175,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
 
             this.proxyServer.getScheduler()
                     .buildTask(this, this::scheduleTabList)
-                    .delay(1000 / syncProxyTabListConfiguration.getAnimationsPerSecond(), TimeUnit.MILLISECONDS)
+                    .delay((long) (1000D / syncProxyTabListConfiguration.getAnimationsPerSecond()), TimeUnit.MILLISECONDS)
                     .schedule();
         } else {
             this.tabListEntryIndex.set(-1);

@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * This class provides access to the tasks of the cloud (tasks folder)
+ */
 public interface ServiceTaskProvider {
 
     /**

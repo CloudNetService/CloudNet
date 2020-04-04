@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-final class VelocityCloudNetPlayerInfo {
+public final class VelocityCloudNetPlayerInfo {
 
     private UUID uniqueId;
 

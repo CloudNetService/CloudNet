@@ -80,14 +80,19 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "send_commandLine": {
-                    String[] messages = getCloudNet().sendCommandLine(packet.getHeader().getString("commandLine"));
+                    String[] messages = getCloudNet().getNodeInfoProvider().sendCommandLine(packet.getHeader().getString("commandLine"));
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("responseMessages", messages));
                 }
                 break;
                 case "create_CloudService_by_serviceTask": {
-                    ServiceInfoSnapshot serviceInfoSnapshot = getCloudNet().getCloudServiceFactory()
-                            .createCloudService((ServiceTask) packet.getHeader().get("serviceTask", new TypeToken<ServiceTask>() {
-                            }.getType()));
+                    ServiceTask serviceTask = packet.getHeader().get("serviceTask", new TypeToken<ServiceTask>() {
+                    }.getType());
+                    ServiceInfoSnapshot serviceInfoSnapshot;
+                    if (packet.getHeader().contains("taskId")) {
+                        serviceInfoSnapshot = getCloudNet().getCloudServiceFactory().createCloudService(serviceTask, packet.getHeader().getInt("taskId"));
+                    } else {
+                        serviceInfoSnapshot = getCloudNet().getCloudServiceFactory().createCloudService(serviceTask);
+                    }
 
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("serviceInfoSnapshot", serviceInfoSnapshot));
                 }

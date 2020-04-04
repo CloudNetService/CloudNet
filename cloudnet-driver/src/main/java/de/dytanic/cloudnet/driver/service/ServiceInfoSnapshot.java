@@ -8,11 +8,14 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -97,8 +100,18 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
         return this.configuration;
     }
 
+    @NotNull
     public SpecificCloudServiceProvider provider() {
         return CloudNetDriver.getInstance().getCloudServiceProvider(this);
+    }
+
+    @NotNull
+    public <T> Optional<T> getProperty(@NotNull ServiceProperty<T> property) {
+        return property.get(this);
+    }
+
+    public <T> void setProperty(@NotNull ServiceProperty<T> property, @Nullable T value) {
+        property.set(this, value);
     }
 
     @Override

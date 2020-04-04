@@ -9,11 +9,14 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.ICloudServiceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
@@ -26,6 +29,23 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
+        return this.executeOnLogicNode(serviceTask,
+                cloudServiceManager -> cloudServiceManager.runTask(serviceTask),
+                clusterNodeServer -> clusterNodeServer.createCloudService(serviceTask)
+        );
+    }
+
+    @Override
+    @Nullable
+    public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId) {
+        return this.executeOnLogicNode(serviceTask,
+                cloudServiceManager -> cloudServiceManager.runTask(serviceTask, taskId),
+                clusterNodeServer -> clusterNodeServer.createCloudService(serviceTask, taskId)
+        );
+    }
+
+    private ServiceInfoSnapshot executeOnLogicNode(ServiceTask serviceTask, Function<ICloudServiceManager, ICloudService> localHandler,
+                                                   Function<IClusterNodeServer, ServiceInfoSnapshot> remoteHandler) {
         Preconditions.checkNotNull(serviceTask);
 
         try {
@@ -35,13 +55,13 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
             }
 
             if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(networkClusterNodeInfoSnapshot.getNode().getUniqueId())) {
-                ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(serviceTask);
+                ICloudService cloudService = localHandler.apply(this.cloudNet.getCloudServiceManager());
                 return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
             } else {
                 IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(networkClusterNodeInfoSnapshot.getNode().getUniqueId());
 
                 if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
-                    return clusterNodeServer.createCloudService(serviceTask);
+                    return remoteHandler.apply(clusterNodeServer);
                 }
             }
         } catch (Exception exception) {
@@ -132,6 +152,11 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
         return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceTask));
+    }
+
+    @Override
+    public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId) {
+        return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceTask, taskId));
     }
 
     @Override

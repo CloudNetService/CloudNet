@@ -9,13 +9,12 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 
 public final class LocalTemplateStorage implements ITemplateStorage {
 
@@ -29,6 +28,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
+    @Deprecated
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
         Preconditions.checkNotNull(target);
 
@@ -53,6 +53,21 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
         try {
             FileUtils.copyFilesToDirectory(directory, new File(this.storageDirectory, target.getTemplatePath()), fileFilter);
+            return true;
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(inputStream);
+        Preconditions.checkNotNull(serviceTemplate);
+
+        try {
+            FileUtils.extract0(inputStream, new File(this.storageDirectory, serviceTemplate.getTemplatePath()).toPath());
             return true;
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -154,9 +169,28 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
+    @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         File directory = new File(storageDirectory, template.getTemplatePath());
         return directory.exists() ? FileUtils.convert(new Path[]{directory.toPath()}) : null;
+    }
+
+    @Override
+    @Nullable
+    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        if (!this.has(template)) {
+            return null;
+        }
+
+        Path directory = new File(this.storageDirectory, template.getTemplatePath()).toPath();
+        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+
+        Path file = FileUtils.zipToFile(directory, tempFile);
+        if (file == null) {
+            return null;
+        }
+
+        return new ZipInputStream(Files.newInputStream(file, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -169,11 +203,11 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     @Override
     public boolean create(@NotNull ServiceTemplate template) {
-        File diretory = new File(this.storageDirectory, template.getTemplatePath());
-        if (diretory.exists()) {
+        File directory = new File(this.storageDirectory, template.getTemplatePath());
+        if (directory.exists()) {
             return false;
         }
-        diretory.mkdirs();
+        directory.mkdirs();
         return true;
     }
 

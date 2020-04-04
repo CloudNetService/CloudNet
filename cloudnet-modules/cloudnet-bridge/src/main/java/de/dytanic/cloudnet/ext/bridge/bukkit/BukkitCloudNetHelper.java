@@ -69,7 +69,7 @@ public final class BukkitCloudNetHelper {
         });
 
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", Bukkit.getVersion())
                 .append("Bukkit-Version", Bukkit.getBukkitVersion())
                 .append("Online-Count", Bukkit.getOnlinePlayers().size())
