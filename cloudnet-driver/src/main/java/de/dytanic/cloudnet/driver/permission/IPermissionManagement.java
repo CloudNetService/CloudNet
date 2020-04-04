@@ -50,10 +50,6 @@ public interface IPermissionManagement {
 
     boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission);
 
-    boolean tryExtendedGroups(@NotNull IPermissionGroup permissionGroup, @NotNull Permission permission);
-
-    boolean tryExtendedGroups(@NotNull IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission);
-
     Collection<Permission> getAllPermissions(@NotNull IPermissible permissible);
 
     Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group);

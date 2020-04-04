@@ -76,6 +76,7 @@ public class DefaultDatabasePermissionManagementTest {
         Assert.assertEquals(1, permissionManagement.getGroups().size());
 
         IPermissionGroup permissionGroup = permissionManagement.getGroup(groupName);
+        Assert.assertNotNull(permissionGroup);
         permissionGroup.addPermission(new Permission(groupPermission, 4));
         permissionManagement.updateGroup(permissionGroup);
         Assert.assertTrue(permissionManagement.hasPermission(permissionUser, groupPermission));
@@ -105,5 +106,49 @@ public class DefaultDatabasePermissionManagementTest {
         permissionManagement.deleteGroup(groupName);
         Assert.assertNull(permissionManagement.getGroup(groupName));
         Assert.assertTrue(permissionUser.checkPassword("1234"));
+
+        this.testRecursiveImplementations(permissionManagement, groupName, userName, permission);
     }
+
+    private void testRecursiveImplementations(IPermissionManagement permissionManagement, String groupName, String userName, String permission) {
+        IPermissionGroup permissionGroup = permissionManagement.addGroup(groupName, 1);
+        Assert.assertNotNull(permissionGroup);
+
+        permissionGroup.getGroups().add(groupName);
+        permissionManagement.updateGroup(permissionGroup);
+
+        IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", 1);
+        Assert.assertNotNull(permissionUser);
+
+        permissionUser.addGroup(groupName);
+        permissionManagement.updateUser(permissionUser);
+
+        Assert.assertTrue(permissionUser.inGroup(groupName));
+
+        StackOverflowError stackOverflowError = null;
+        try {
+            permissionManagement.hasPermission(permissionUser, permission);
+        } catch (StackOverflowError error) {
+            stackOverflowError = error;
+        }
+
+        Assert.assertNotNull(stackOverflowError);
+        Assert.assertEquals(stackOverflowError.getMessage(), "Detected recursive permission group implementation on group " + groupName);
+
+        permissionUser.removeGroup(groupName);
+        permissionManagement.updateUser(permissionUser);
+
+        try {
+            permissionManagement.hasPermission(permissionUser, permission);
+            stackOverflowError = null;
+        } catch (StackOverflowError error) {
+            stackOverflowError = error;
+        }
+        Assert.assertNull(stackOverflowError);
+
+
+        permissionManagement.deleteUser(userName);
+        permissionManagement.deleteGroup(groupName);
+    }
+
 }

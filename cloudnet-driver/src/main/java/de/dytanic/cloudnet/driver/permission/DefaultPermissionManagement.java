@@ -184,14 +184,15 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
                 return false;
             default:
                 for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
-                    if (tryExtendedGroups(permissionGroup, permission)) {
+                    if (permissionGroup != null && this.tryExtendedGroups(permissionGroup.getName(), permissionGroup, permission, 0)) {
                         return true;
                     }
                 }
                 break;
         }
 
-        return tryExtendedGroups(getDefaultPermissionGroup(), permission);
+        IPermissionGroup defaultGroup = this.getDefaultPermissionGroup();
+        return defaultGroup != null && tryExtendedGroups(defaultGroup.getName(), defaultGroup, permission, 0);
     }
 
     default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
@@ -206,20 +207,25 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
                 return false;
             default:
                 for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
-                    if (tryExtendedGroups(permissionGroup, group, permission)) {
+                    if (permissionGroup != null && tryExtendedGroups(permissionGroup.getName(), permissionGroup, group, permission, 0)) {
                         return true;
                     }
                 }
                 break;
         }
 
-        return tryExtendedGroups(getDefaultPermissionGroup(), group, permission);
+        IPermissionGroup defaultGroup = this.getDefaultPermissionGroup();
+        return defaultGroup != null && tryExtendedGroups(defaultGroup.getName(), defaultGroup, group, permission, 0);
     }
 
-    default boolean tryExtendedGroups(@NotNull IPermissionGroup permissionGroup, @NotNull Permission permission) {
+    default boolean tryExtendedGroups(@NotNull String firstGroup, IPermissionGroup permissionGroup, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
             return false;
         }
+        if (layer >= 30) {
+            throw new StackOverflowError("Detected recursive permission group implementation on group " + firstGroup);
+        }
+        layer++;
 
         switch (permissionGroup.hasPermission(permission)) {
             case ALLOWED:
@@ -228,7 +234,7 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
                 return false;
             default:
                 for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
-                    if (tryExtendedGroups(extended, permission)) {
+                    if (this.tryExtendedGroups(firstGroup, extended, permission, layer)) {
                         return true;
                     }
                 }
@@ -238,10 +244,14 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return false;
     }
 
-    default boolean tryExtendedGroups(@NotNull IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission) {
+    default boolean tryExtendedGroups(@NotNull String firstGroup, @NotNull IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
             return false;
         }
+        if (layer >= 30) {
+            throw new IllegalStateException("Detected recursive permission group implementation on group " + firstGroup);
+        }
+        layer++;
 
         switch (permissionGroup.hasPermission(group, permission)) {
             case ALLOWED:
@@ -250,7 +260,7 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
                 return false;
             default:
                 for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
-                    if (tryExtendedGroups(extended, group, permission)) {
+                    if (tryExtendedGroups(firstGroup, extended, group, permission, layer)) {
                         return true;
                     }
                 }
