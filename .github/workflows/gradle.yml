@@ -20,10 +20,10 @@ jobs:
           architecture: x64
 
       - name: Test with Gradle
-        run: ./gradlew test -PmavenUser= -PmavenPassword=
+        run: ./gradlew test
 
       - name: Build with Gradle
-        run: ./gradlew jar -PmavenUser= -PmavenPassword=
+        run: ./gradlew jar
 
       - name: Release ZIP
         run: |

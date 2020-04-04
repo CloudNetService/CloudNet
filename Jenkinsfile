@@ -6,6 +6,13 @@ pipeline {
   options {
     buildDiscarder logRotator(numToKeepStr: '10')
   }
+  node {
+      configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", variable: 'configFile')]) {
+           def gradleProperties = readProperties file: "$configFile"
+           env.MAVEN_USER = gradleProperties["mavenUser"]
+           env.MAVEN_PASSWORD = gradleProperties["mavenPassword"]
+      }
+  }
   stages {
     stage('Clean') {
       steps {

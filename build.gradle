@@ -202,8 +202,8 @@ subprojects {
                 }
 
                 credentials {
-                    username = mavenUser
-                    password = mavenPassword
+                    username = System.getenv("MAVEN_USER")
+                    password = System.getenv("MAVEN_PASSWORD")
                 }
             }
         }
