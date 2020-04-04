@@ -202,8 +202,8 @@ subprojects {
                 }
 
                 credentials {
-                    username = project.property("mavenUser")
-                    password = project.property("mavenPassword")
+                    username = project.hasProperty("mavenUser") ? project.property("mavenUser") : ""
+                    password = project.hasProperty("mavenPassword") ? project.property("mavenPassword") : ""
                 }
             }
         }
