@@ -109,7 +109,7 @@ public interface IServicesRegistry {
      * @param <T>   the interface or abstract type which you want the implementation providing for
      * @return the first service implementation found registered for the provided class
      */
-    default <T> T getService(Class<T> clazz) {
+    default <T> T getFirstService(Class<T> clazz) {
         return this.getServices(clazz).stream().findFirst().orElse(null);
     }
 

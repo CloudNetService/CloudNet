@@ -10,7 +10,7 @@ import org.bukkit.Material;
 public final class ExampleSigns {
 
     // getting the SignManagement via CloudNet's service registry
-    private AbstractSignManagement signManagement = CloudNetDriver.getInstance().getServicesRegistry().getService(AbstractSignManagement.class);
+    private AbstractSignManagement signManagement = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
 
     public void updateSigns() {
         this.signManagement.updateSigns();

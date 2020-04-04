@@ -41,7 +41,7 @@ public final class BukkitSignManagement extends AbstractSignManagement {
      */
     @Deprecated
     public static BukkitSignManagement getInstance() {
-        return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry().getService(AbstractSignManagement.class);
+        return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
     }
 
 

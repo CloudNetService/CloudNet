@@ -118,7 +118,7 @@ public final class BridgeHelper {
     }
 
     public static boolean playerIsOnProxy(UUID uuid, String playerAddress) {
-        ICloudPlayer cloudPlayer = CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class).getOnlinePlayer(uuid);
+        ICloudPlayer cloudPlayer = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class).getOnlinePlayer(uuid);
 
         // checking if the player is on a proxy managed by CloudNet
         if (cloudPlayer != null && cloudPlayer.getLoginService() != null) {

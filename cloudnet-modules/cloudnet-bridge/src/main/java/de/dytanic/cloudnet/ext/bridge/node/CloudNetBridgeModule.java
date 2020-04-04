@@ -92,7 +92,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     public void initNodePlayerManager() {
         super.getCloudNet().getServicesRegistry().registerService(IPlayerManager.class, "NodePlayerManager", this.nodePlayerManager);
 
-        registerListener(new PlayerManagerListener());
+        registerListener(new PlayerManagerListener(this.nodePlayerManager));
     }
 
     @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
@@ -110,7 +110,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
         registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
-                new NodeCustomChannelMessageListener(), new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener());
+                new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener());
     }
 
     @Override

@@ -48,7 +48,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      */
     @Deprecated
     public static AbstractSignManagement getInstance() {
-        return CloudNetDriver.getInstance().getServicesRegistry().getService(AbstractSignManagement.class);
+        return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
     }
 
     protected abstract void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot);

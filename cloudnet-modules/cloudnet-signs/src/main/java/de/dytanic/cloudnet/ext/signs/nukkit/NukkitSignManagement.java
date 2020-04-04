@@ -39,7 +39,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
      */
     @Deprecated
     public static NukkitSignManagement getInstance() {
-        return (NukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry().getService(AbstractSignManagement.class);
+        return (NukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class NukkitSignInteractionListener implements Listener {
                     Server.getInstance().getPluginManager().callEvent(signInteractEvent);
 
                     if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
-                        CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class)
+                        CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
                                 .getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
 
                         event.getPlayer().sendMessage(

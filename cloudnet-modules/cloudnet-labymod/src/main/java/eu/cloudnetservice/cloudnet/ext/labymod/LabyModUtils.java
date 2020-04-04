@@ -140,7 +140,7 @@ public class LabyModUtils {
 
         if (modified) {
             setLabyModOptions(cloudPlayer, options);
-            CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class).updateOnlinePlayer(cloudPlayer);
+            CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class).updateOnlinePlayer(cloudPlayer);
         }
 
         JsonDocument document = JsonDocument.newDocument();

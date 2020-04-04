@@ -27,7 +27,7 @@ import java.util.UUID;
 
 public class BungeeLabyModListener implements Listener {
 
-    private IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class);
+    private IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
 
     @EventHandler
     public void handle(ServerConnectedEvent event) {

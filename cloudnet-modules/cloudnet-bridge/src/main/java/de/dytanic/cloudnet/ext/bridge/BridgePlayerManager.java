@@ -34,7 +34,7 @@ public final class BridgePlayerManager implements IPlayerManager {
      */
     @Deprecated
     public static IPlayerManager getInstance() {
-        return CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class);
+        return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
     }
 
     @Override

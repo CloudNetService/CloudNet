@@ -37,7 +37,7 @@ public final class NodePlayerManager implements IPlayerManager {
      */
     @Deprecated
     public static NodePlayerManager getInstance() {
-        return (NodePlayerManager) CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class);
+        return (NodePlayerManager) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
     }
 
 

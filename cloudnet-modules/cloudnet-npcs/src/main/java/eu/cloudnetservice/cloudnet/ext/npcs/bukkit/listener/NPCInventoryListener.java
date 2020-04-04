@@ -47,7 +47,7 @@ public class NPCInventoryListener implements Listener {
                             Player player = (Player) event.getWhoClicked();
                             String serverName = properties.getServerSlots().get(slot);
 
-                            CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class)
+                            CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
                                     .getPlayerExecutor(player.getUniqueId()).connect(serverName);
                         }
                     });
