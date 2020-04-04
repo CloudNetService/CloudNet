@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public final class PlayerAPIExample {
 
-    // getting the PlayerManager via the ServicesRegistry
+    // getting the PlayerManager via CloudNet's ServicesRegistry
     private IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
 
     //Returns the player online count from a task synchronized

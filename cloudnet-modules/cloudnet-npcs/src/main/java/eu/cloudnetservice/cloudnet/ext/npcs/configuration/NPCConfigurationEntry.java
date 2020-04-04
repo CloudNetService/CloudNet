@@ -71,38 +71,73 @@ public class NPCConfigurationEntry {
         return infoLineDistance;
     }
 
+    public void setInfoLineDistance(double infoLineDistance) {
+        this.infoLineDistance = infoLineDistance;
+    }
+
     public int getInventorySize() {
         return inventorySize;
+    }
+
+    public void setInventorySize(int inventorySize) {
+        this.inventorySize = inventorySize;
     }
 
     public int getStartSlot() {
         return startSlot;
     }
 
+    public void setStartSlot(int startSlot) {
+        this.startSlot = startSlot;
+    }
+
     public int getEndSlot() {
         return endSlot;
+    }
+
+    public void setEndSlot(int endSlot) {
+        this.endSlot = endSlot;
     }
 
     public boolean isShowFullServices() {
         return showFullServices;
     }
 
+    public void setShowFullServices(boolean showFullServices) {
+        this.showFullServices = showFullServices;
+    }
+
     public ItemLayout getOnlineItem() {
         return onlineItem;
+    }
+
+    public void setOnlineItem(ItemLayout onlineItem) {
+        this.onlineItem = onlineItem;
     }
 
     public ItemLayout getEmptyItem() {
         return emptyItem;
     }
 
+    public void setEmptyItem(ItemLayout emptyItem) {
+        this.emptyItem = emptyItem;
+    }
+
     public ItemLayout getFullItem() {
         return fullItem;
+    }
+
+    public void setFullItem(ItemLayout fullItem) {
+        this.fullItem = fullItem;
     }
 
     public Map<Integer, ItemLayout> getInventoryLayout() {
         return inventoryLayout;
     }
 
+    public void setInventoryLayout(Map<Integer, ItemLayout> inventoryLayout) {
+        this.inventoryLayout = inventoryLayout;
+    }
 
     public static class ItemLayout {
 

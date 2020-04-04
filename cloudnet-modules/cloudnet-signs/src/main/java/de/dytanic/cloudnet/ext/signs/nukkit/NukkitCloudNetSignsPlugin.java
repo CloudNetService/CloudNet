@@ -31,19 +31,19 @@ public class NukkitCloudNetSignsPlugin extends PluginBase {
 
     private void initListeners() {
         //Commands
-        super.getServer().getCommandMap().register("CloudNet-Signs", new CommandCloudSign());
+        super.getServer().getCommandMap().register("CloudNet-Signs", new CommandCloudSign(this.signManagement));
 
         //CloudNet listeners
         CloudNetDriver.getInstance().getEventManager().registerListener(this.signManagement);
 
         //Nukkit listeners
-        super.getServer().getPluginManager().registerEvents(new NukkitSignInteractionListener(), this);
+        super.getServer().getPluginManager().registerEvents(new NukkitSignInteractionListener(this.signManagement), this);
 
         //Sign knockback scheduler
         SignConfigurationEntry signConfigurationEntry = this.signManagement.getOwnSignConfigurationEntry();
 
         if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0 && signConfigurationEntry.getKnockbackStrength() > 0) {
-            super.getServer().getScheduler().scheduleDelayedRepeatingTask(this, new NukkitSignKnockbackRunnable(signConfigurationEntry), 20, 5);
+            super.getServer().getScheduler().scheduleDelayedRepeatingTask(this, new NukkitSignKnockbackRunnable(this.signManagement), 20, 5);
         }
     }
 
