@@ -326,6 +326,11 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                     ));
                 }
                 break;
+                case "permission_management_reload": {
+                    boolean success = getCloudNet().getPermissionManagement().reload();
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument(), new byte[]{(byte) (success ? 1 : 0)});
+                }
+                break;
                 case "permission_management_add_user": {
                     getCloudNet().getPermissionProvider().addUser(packet.getHeader().get("permissionUser", PermissionUser.TYPE));
                     sendEmptyResponse(channel, packet.getUniqueId());

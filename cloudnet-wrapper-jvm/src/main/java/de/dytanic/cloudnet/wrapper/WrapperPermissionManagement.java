@@ -251,9 +251,14 @@ public class WrapperPermissionManagement implements DefaultPermissionManagement 
 
     @Override
     public boolean reload() {
-        return false; // todo
+        try {
+            return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_reload"), null,
+                    pair -> pair.getSecond()[0] == 1).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+        }
+        return false;
     }
-
 
     @Override
     @NotNull
