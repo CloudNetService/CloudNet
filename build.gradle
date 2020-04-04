@@ -12,6 +12,15 @@ allprojects {
         mavenCentral()
 
         maven {
+            name 'jitpack.io'
+            url 'https://jitpack.io'
+        }
+
+        maven {
+            url 'https://repo.dmulloy2.net/nexus/repository/public/'
+        }
+
+        maven {
             name 'spongepowered'
             url 'https://repo.spongepowered.org/maven'
         }
@@ -22,12 +31,7 @@ allprojects {
         }
 
         maven {
-            name 'spigotmc-1'
-            url 'https://repo.md-5.net/service/local/repositories/repobo-rel/content/'
-        }
-
-        maven {
-            name 'spigotmc-2'
+            name 'spigotmc-repo'
             url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
         }
 
@@ -54,15 +58,6 @@ allprojects {
         maven {
             name 'papermc'
             url 'https://papermc.io/repo/repository/maven-public/'
-        }
-
-        maven {
-            name 'jitpack.io'
-            url 'https://jitpack.io'
-        }
-
-        maven {
-            url 'https://repo.dmulloy2.net/nexus/repository/public/'
         }
 
     }
