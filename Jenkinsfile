@@ -56,7 +56,6 @@ pipeline {
         anyOf {
           branch 'master';
           branch 'development';
-          branch 'apache-archiva';
         }
       }
       steps {
