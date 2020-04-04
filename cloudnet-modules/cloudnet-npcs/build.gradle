@@ -1,13 +1,9 @@
 jar {
-    archiveName = cloudnetModuleNPCsFileName
+    archiveFileName.set(cloudnetModuleNPCsFileName)
 
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-}
-
-configurations {
-    compile
 }
 
 dependencies {
@@ -16,5 +12,5 @@ dependencies {
     compileOnly project(':cloudnet-modules:cloudnet-bridge')
     compileOnly group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
     compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: dependencyBukkitVersion
-    compile group: 'com.github.juliarn', name: 'npc-lib', version: '1.0-RELEASE'
+    api group: 'com.github.juliarn', name: 'npc-lib', version: '1.0-RELEASE'
 }

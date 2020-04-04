@@ -205,10 +205,10 @@ subprojects {
         }
         repositories {
             maven {
-                if (project.version.endsWith("SNAPSHOT")) {
-                    url 'https://repo.cloudnetservice.eu/repository/snapshots/'
-                } else {
+                if (project.version.endsWith("RELEASE")) {
                     url 'https://repo.cloudnetservice.eu/repository/releases/'
+                } else {
+                    url 'https://repo.cloudnetservice.eu/repository/snapshots/'
                 }
 
                 credentials {
