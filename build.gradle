@@ -32,8 +32,8 @@ allprojects {
         }
 
         maven {
-            name 'md-5'
-            url 'https://repo.md-5.net/content/repositories/repobo-rel/'
+            name 'bungeecord-repo'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
         }
 
         maven {
