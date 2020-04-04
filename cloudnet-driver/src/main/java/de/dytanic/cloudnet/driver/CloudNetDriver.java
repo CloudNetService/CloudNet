@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
@@ -1250,303 +1251,303 @@ public abstract class CloudNetDriver {
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addUser(IPermissionUser)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addUser(IPermissionUser)
      * @deprecated moved to {@link IPermissionManagement#addUser(IPermissionUser)}
      */
     @Deprecated
     public void addUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().addUser(permissionUser);
+        this.getPermissionManagement().addUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#updateUser(IPermissionUser)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#updateUser(IPermissionUser)
      * @deprecated moved to {@link IPermissionManagement#updateUser(IPermissionUser)}
      */
     @Deprecated
     public void updateUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().updateUser(permissionUser);
+        this.getPermissionManagement().updateUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(String)
      * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
     @Deprecated
     public void deleteUser(String name) {
-        this.getPermissionProvider().deleteUser(name);
+        this.getPermissionManagement().deleteUser(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteUser(IPermissionUser)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteUser(IPermissionUser)
      * @deprecated moved to {@link IPermissionManagement#deleteUser(IPermissionUser)}
      */
     @Deprecated
     public void deleteUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().deleteUser(permissionUser);
+        this.getPermissionManagement().deleteUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUser(UUID)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUser(UUID)
      * @deprecated moved to {@link IPermissionManagement#containsUser(UUID)}
      */
     @Deprecated
     public boolean containsUser(UUID uniqueId) {
-        return this.getPermissionProvider().containsUser(uniqueId);
+        return this.getPermissionManagement().containsUser(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUser(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUser(String)
      * @deprecated moved to {@link IPermissionManagement#containsUser(String)}
      */
     @Deprecated
     public boolean containsUser(String name) {
-        return this.getPermissionProvider().containsUser(name);
+        return this.getPermissionManagement().containsUser(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUser(UUID)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUser(UUID)
      * @deprecated moved to {@link IPermissionManagement#getUser(UUID)}
      */
     @Deprecated
     public IPermissionUser getUser(UUID uniqueId) {
-        return this.getPermissionProvider().getUser(uniqueId);
+        return this.getPermissionManagement().getUser(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsers(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsers(String)
      * @deprecated moved to {@link IPermissionManagement#getUsers(String)}
      */
     @Deprecated
     public List<IPermissionUser> getUser(String name) {
-        return this.getPermissionProvider().getUsers(name);
+        return this.getPermissionManagement().getUsers(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsers()
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsers()
      * @deprecated moved to {@link IPermissionManagement#getUsers()}
      */
     @Deprecated
     public Collection<IPermissionUser> getUsers() {
-        return this.getPermissionProvider().getUsers();
+        return this.getPermissionManagement().getUsers();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#setUsers(Collection)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#setUsers(Collection)
      * @deprecated moved to {@link IPermissionManagement#setUsers(Collection)}
      */
     @Deprecated
     public void setUsers(Collection<? extends IPermissionUser> users) {
-        this.getPermissionProvider().setUsers(users);
+        this.getPermissionManagement().setUsers(users);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersByGroup(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersByGroup(String)
      * @deprecated moved to {@link IPermissionManagement#getUsersByGroup(String)}
      */
     @Deprecated
     public Collection<IPermissionUser> getUserByGroup(String group) {
-        return this.getPermissionProvider().getUsersByGroup(group);
+        return this.getPermissionManagement().getUsersByGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addGroup(IPermissionGroup)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addGroup(IPermissionGroup)
      * @deprecated moved to {@link IPermissionManagement#addGroup(IPermissionGroup)}
      */
     @Deprecated
     public void addGroup(IPermissionGroup permissionGroup) {
-        this.getPermissionProvider().addGroup(permissionGroup);
+        this.getPermissionManagement().addGroup(permissionGroup);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#updateGroup(IPermissionGroup)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#updateGroup(IPermissionGroup)
      * @deprecated moved to {@link IPermissionManagement#updateGroup(IPermissionGroup)}
      */
     @Deprecated
     public void updateGroup(IPermissionGroup permissionGroup) {
-        this.getPermissionProvider().updateGroup(permissionGroup);
+        this.getPermissionManagement().updateGroup(permissionGroup);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(String)
      * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
     @Deprecated
     public void deleteGroup(String group) {
-        this.getPermissionProvider().deleteGroup(group);
+        this.getPermissionManagement().deleteGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(IPermissionGroup)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(IPermissionGroup)
      * @deprecated moved to {@link IPermissionManagement#deleteGroup(IPermissionGroup)}
      */
     @Deprecated
     public void deleteGroup(IPermissionGroup group) {
-        this.getPermissionProvider().deleteGroup(group);
+        this.getPermissionManagement().deleteGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsGroup(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsGroup(String)
      * @deprecated moved to {@link IPermissionManagement#containsGroup(String)}
      */
     @Deprecated
     public boolean containsGroup(String group) {
-        return this.getPermissionProvider().containsGroup(group);
+        return this.getPermissionManagement().containsGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroup(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroup(String)
      * @deprecated moved to {@link IPermissionManagement#getGroup(String)}
      */
     @Deprecated
     public IPermissionGroup getGroup(String name) {
-        return this.getPermissionProvider().getGroup(name);
+        return this.getPermissionManagement().getGroup(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroups()
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroups()
      * @deprecated moved to {@link IPermissionManagement#getGroups()}
      */
     @Deprecated
     public Collection<IPermissionGroup> getGroups() {
-        return this.getPermissionProvider().getGroups();
+        return this.getPermissionManagement().getGroups();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#setGroups(Collection)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#setGroups(Collection)
      * @deprecated moved to {@link IPermissionManagement#setGroups(Collection)}
      */
     @Deprecated
     public void setGroups(Collection<? extends IPermissionGroup> groups) {
-        this.getPermissionProvider().setGroups(groups);
+        this.getPermissionManagement().setGroups(groups);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addUserAsync(IPermissionUser)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addUserAsync(IPermissionUser)
      * @deprecated moved to {@link IPermissionManagement#addUserAsync(IPermissionUser)}
      */
     @Deprecated
     @NotNull
     public ITask<Void> addUserAsync(IPermissionUser permissionUser) {
-        return this.getPermissionProvider().addUserAsync(permissionUser);
+        return ((ListenableTask<IPermissionUser>) this.getPermissionManagement().addUserAsync(permissionUser)).map(user -> null);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUserAsync(UUID)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUserAsync(UUID)
      * @deprecated moved to {@link IPermissionManagement#containsUserAsync(UUID)}
      */
     @Deprecated
     @NotNull
     public ITask<Boolean> containsUserAsync(UUID uniqueId) {
-        return this.getPermissionProvider().containsUserAsync(uniqueId);
+        return this.getPermissionManagement().containsUserAsync(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUserAsync(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUserAsync(String)
      * @deprecated moved to {@link IPermissionManagement#containsUserAsync(String)}
      */
     @Deprecated
     @NotNull
     public ITask<Boolean> containsUserAsync(String name) {
-        return this.getPermissionProvider().containsUserAsync(name);
+        return this.getPermissionManagement().containsUserAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUserAsync(UUID)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUserAsync(UUID)
      * @deprecated moved to {@link IPermissionManagement#getUserAsync(UUID)}
      */
     @Deprecated
     @NotNull
     public ITask<IPermissionUser> getUserAsync(UUID uniqueId) {
-        return this.getPermissionProvider().getUserAsync(uniqueId);
+        return this.getPermissionManagement().getUserAsync(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersAsync(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersAsync(String)
      * @deprecated moved to {@link IPermissionManagement#getUsersAsync(String)}
      */
     @Deprecated
     @NotNull
     public ITask<List<IPermissionUser>> getUserAsync(String name) {
-        return this.getPermissionProvider().getUsersAsync(name);
+        return this.getPermissionManagement().getUsersAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersAsync()
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersAsync()
      * @deprecated moved to {@link IPermissionManagement#getUsersAsync()}
      */
     @Deprecated
     @NotNull
     public ITask<Collection<IPermissionUser>> getUsersAsync() {
-        return this.getPermissionProvider().getUsersAsync();
+        return this.getPermissionManagement().getUsersAsync();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersByGroupAsync(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersByGroupAsync(String)
      * @deprecated moved to {@link IPermissionManagement#getUsersByGroupAsync(String)}
      */
     @Deprecated
     @NotNull
     public ITask<Collection<IPermissionUser>> getUserByGroupAsync(String group) {
-        return this.getPermissionProvider().getUsersByGroupAsync(group);
+        return this.getPermissionManagement().getUsersByGroupAsync(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsGroupAsync(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsGroupAsync(String)
      * @deprecated moved to {@link IPermissionManagement#containsGroupAsync(String)}
      */
     @Deprecated
     @NotNull
     public ITask<Boolean> containsGroupAsync(String name) {
-        return this.getPermissionProvider().containsGroupAsync(name);
+        return this.getPermissionManagement().containsGroupAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroupAsync(String)
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroupAsync(String)
      * @deprecated moved to {@link IPermissionManagement#getGroupAsync(String)}
      */
     @Deprecated
     @NotNull
     public ITask<IPermissionGroup> getGroupAsync(String name) {
-        return this.getPermissionProvider().getGroupAsync(name);
+        return this.getPermissionManagement().getGroupAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroupsAsync()
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroupsAsync()
      * @deprecated moved to {@link IPermissionManagement#getGroupsAsync()}
      */
     @Deprecated
     @NotNull
     public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return this.getPermissionProvider().getGroupsAsync();
+        return this.getPermissionManagement().getGroupsAsync();
     }
 
 
