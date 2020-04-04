@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Clean') {
       steps {
-        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", target: 'gradle.properties')])
+        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')])
         sh 'chmod +x ./gradlew';
         sh './gradlew clean';
       }
