@@ -1,5 +1,5 @@
 jar {
-    archiveName = cloudnetModuleRestFileName
+    archiveFileName.set(cloudnetModuleRestFileName)
 }
 
 dependencies {

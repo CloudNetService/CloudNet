@@ -16,18 +16,17 @@ jar {
     dependsOn ':cloudnet-modules:cloudnet-cloudperms:jar'
     dependsOn ':cloudnet-modules:cloudnet-storage-ftp:jar'
     dependsOn ':cloudnet-modules:cloudnet-database-mysql:jar'
-    //dependsOn ':cloudnet-modules:cloudnet-storage-nextcloud:jar'
 
-    archiveName = cloudnetLauncherFile
+    archiveFileName.set(cloudnetLauncherFile)
 
     manifest {
         attributes 'Main-Class': 'de.dytanic.cloudnet.launcher.CloudNetLauncher'
-        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
-        attributes 'Specification-Version': version + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
+        attributes 'Specification-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
     }
 
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
     //jar file
@@ -93,10 +92,7 @@ jar {
     }
 }
 
-configurations {
-    compile
-}
 
 dependencies {
-    compile group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
+    api group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
 }

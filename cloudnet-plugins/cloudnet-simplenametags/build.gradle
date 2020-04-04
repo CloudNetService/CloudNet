@@ -1,5 +1,5 @@
 jar {
-    archiveName = 'cloudnet-simplenametags.jar'
+    archiveFileName.set('cloudnet-simplenametags.jar')
 }
 
 dependencies {

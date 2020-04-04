@@ -51,12 +51,19 @@ pipeline {
         sh 'rm -r temp/';
       }
     }
-    stage('Maven') {
+    stage('Maven Publish') {
+      when {
+        anyOf {
+          branch 'master';
+          branch 'development';
+          branch 'apache-archiva';
+        }
+      }
       steps {
-        echo 'Creating artifacts for the maven repo...';
-        sh './gradlew sourceJar';
-        sh './gradlew deploymentJar';
-        sh './gradlew javadocJar';
+        echo 'Publishing artifacts to Apache Archiva...';
+        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
+          sh './gradlew publish';
+        }
       }
     }
     stage('Javadoc') {
@@ -68,8 +75,15 @@ pipeline {
     }
     stage('Archive') {
       steps {
-        archiveArtifacts artifacts: '**/build/libs/*.jar'
-        archiveArtifacts artifacts: '**/build/libs/*.cnl'
+        archiveArtifacts artifacts: '**/build/libs/*.jar';
+        archiveArtifacts artifacts: '**/build/libs/*.cnl';
+      }
+    }
+  }
+  post {
+    always {
+      withCredentials([string(credentialsId: 'cloudnet-discord-ci-webhook', variable: 'url')]) {
+        discordSend description: 'New build for CloudNet v3!', footer: 'New build!', link: env.BUILD_URL, successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), title: JOB_NAME, webhookURL: url
       }
     }
   }
