@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.*;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
@@ -38,6 +39,9 @@ public abstract class CloudNetDriver {
     private static CloudNetDriver instance;
 
     protected PacketQueryProvider packetQueryProvider;
+
+    protected IPermissionManagement permissionManagement;
+    protected PermissionProvider permissionProvider;
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
 
@@ -79,9 +83,6 @@ public abstract class CloudNetDriver {
 
 
     @NotNull
-    public abstract PermissionProvider getPermissionProvider();
-
-    @NotNull
     public abstract CloudServiceFactory getCloudServiceFactory();
 
     @NotNull
@@ -96,6 +97,28 @@ public abstract class CloudNetDriver {
     @NotNull
     public abstract CloudMessenger getMessenger();
 
+    /**
+     * @deprecated replaced with {@link #getPermissionManagement()}
+     */
+    @NotNull
+    @Deprecated
+    public PermissionProvider getPermissionProvider() {
+        return this.permissionProvider != null ? this.permissionProvider : (this.permissionProvider = new DefaultPermissionProvider(this::getPermissionManagement));
+    }
+
+    @NotNull
+    public IPermissionManagement getPermissionManagement() {
+        Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
+        return this.permissionManagement;
+    }
+
+    public void setPermissionManagement(IPermissionManagement permissionManagement) {
+        if (this.permissionManagement != null && !this.permissionManagement.canBeOverwritten()) {
+            throw new IllegalStateException("Current permission management cannot be overwritten");
+        }
+
+        this.permissionManagement = permissionManagement;
+    }
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -1229,7 +1252,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#addUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#addUser(IPermissionUser)}
+     * @deprecated moved to {@link IPermissionManagement#addUser(IPermissionUser)}
      */
     @Deprecated
     public void addUser(IPermissionUser permissionUser) {
@@ -1239,7 +1262,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#updateUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#updateUser(IPermissionUser)}
+     * @deprecated moved to {@link IPermissionManagement#updateUser(IPermissionUser)}
      */
     @Deprecated
     public void updateUser(IPermissionUser permissionUser) {
@@ -1249,7 +1272,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#deleteGroup(String)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(String)}
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
     @Deprecated
     public void deleteUser(String name) {
@@ -1259,7 +1282,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#deleteUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#deleteUser(IPermissionUser)}
+     * @deprecated moved to {@link IPermissionManagement#deleteUser(IPermissionUser)}
      */
     @Deprecated
     public void deleteUser(IPermissionUser permissionUser) {
@@ -1269,7 +1292,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#containsUser(UUID)
-     * @deprecated moved to {@link PermissionProvider#containsUser(UUID)}
+     * @deprecated moved to {@link IPermissionManagement#containsUser(UUID)}
      */
     @Deprecated
     public boolean containsUser(UUID uniqueId) {
@@ -1279,7 +1302,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#containsUser(String)
-     * @deprecated moved to {@link PermissionProvider#containsUser(String)}
+     * @deprecated moved to {@link IPermissionManagement#containsUser(String)}
      */
     @Deprecated
     public boolean containsUser(String name) {
@@ -1289,7 +1312,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUser(UUID)
-     * @deprecated moved to {@link PermissionProvider#getUser(UUID)}
+     * @deprecated moved to {@link IPermissionManagement#getUser(UUID)}
      */
     @Deprecated
     public IPermissionUser getUser(UUID uniqueId) {
@@ -1299,7 +1322,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUsers(String)
-     * @deprecated moved to {@link PermissionProvider#getUsers(String)}
+     * @deprecated moved to {@link IPermissionManagement#getUsers(String)}
      */
     @Deprecated
     public List<IPermissionUser> getUser(String name) {
@@ -1309,7 +1332,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUsers()
-     * @deprecated moved to {@link PermissionProvider#getUsers()}
+     * @deprecated moved to {@link IPermissionManagement#getUsers()}
      */
     @Deprecated
     public Collection<IPermissionUser> getUsers() {
@@ -1319,7 +1342,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#setUsers(Collection)
-     * @deprecated moved to {@link PermissionProvider#setUsers(Collection)}
+     * @deprecated moved to {@link IPermissionManagement#setUsers(Collection)}
      */
     @Deprecated
     public void setUsers(Collection<? extends IPermissionUser> users) {
@@ -1329,7 +1352,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUsersByGroup(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersByGroup(String)}
+     * @deprecated moved to {@link IPermissionManagement#getUsersByGroup(String)}
      */
     @Deprecated
     public Collection<IPermissionUser> getUserByGroup(String group) {
@@ -1339,7 +1362,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#addGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#addGroup(IPermissionGroup)}
+     * @deprecated moved to {@link IPermissionManagement#addGroup(IPermissionGroup)}
      */
     @Deprecated
     public void addGroup(IPermissionGroup permissionGroup) {
@@ -1349,7 +1372,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#updateGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#updateGroup(IPermissionGroup)}
+     * @deprecated moved to {@link IPermissionManagement#updateGroup(IPermissionGroup)}
      */
     @Deprecated
     public void updateGroup(IPermissionGroup permissionGroup) {
@@ -1359,7 +1382,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#deleteGroup(String)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(String)}
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
     @Deprecated
     public void deleteGroup(String group) {
@@ -1369,7 +1392,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#deleteGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(IPermissionGroup)}
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(IPermissionGroup)}
      */
     @Deprecated
     public void deleteGroup(IPermissionGroup group) {
@@ -1379,7 +1402,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#containsGroup(String)
-     * @deprecated moved to {@link PermissionProvider#containsGroup(String)}
+     * @deprecated moved to {@link IPermissionManagement#containsGroup(String)}
      */
     @Deprecated
     public boolean containsGroup(String group) {
@@ -1389,7 +1412,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getGroup(String)
-     * @deprecated moved to {@link PermissionProvider#getGroup(String)}
+     * @deprecated moved to {@link IPermissionManagement#getGroup(String)}
      */
     @Deprecated
     public IPermissionGroup getGroup(String name) {
@@ -1399,7 +1422,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getGroups()
-     * @deprecated moved to {@link PermissionProvider#getGroups()}
+     * @deprecated moved to {@link IPermissionManagement#getGroups()}
      */
     @Deprecated
     public Collection<IPermissionGroup> getGroups() {
@@ -1409,7 +1432,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#setGroups(Collection)
-     * @deprecated moved to {@link PermissionProvider#setGroups(Collection)}
+     * @deprecated moved to {@link IPermissionManagement#setGroups(Collection)}
      */
     @Deprecated
     public void setGroups(Collection<? extends IPermissionGroup> groups) {
@@ -1419,7 +1442,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#addUserAsync(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#addUserAsync(IPermissionUser)}
+     * @deprecated moved to {@link IPermissionManagement#addUserAsync(IPermissionUser)}
      */
     @Deprecated
     @NotNull
@@ -1430,7 +1453,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#containsUserAsync(UUID)
-     * @deprecated moved to {@link PermissionProvider#containsUserAsync(UUID)}
+     * @deprecated moved to {@link IPermissionManagement#containsUserAsync(UUID)}
      */
     @Deprecated
     @NotNull
@@ -1441,7 +1464,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#containsUserAsync(String)
-     * @deprecated moved to {@link PermissionProvider#containsUserAsync(String)}
+     * @deprecated moved to {@link IPermissionManagement#containsUserAsync(String)}
      */
     @Deprecated
     @NotNull
@@ -1452,7 +1475,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUserAsync(UUID)
-     * @deprecated moved to {@link PermissionProvider#getUserAsync(UUID)}
+     * @deprecated moved to {@link IPermissionManagement#getUserAsync(UUID)}
      */
     @Deprecated
     @NotNull
@@ -1463,7 +1486,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUsersAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersAsync(String)}
+     * @deprecated moved to {@link IPermissionManagement#getUsersAsync(String)}
      */
     @Deprecated
     @NotNull
@@ -1474,7 +1497,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUsersAsync()
-     * @deprecated moved to {@link PermissionProvider#getUsersAsync()}
+     * @deprecated moved to {@link IPermissionManagement#getUsersAsync()}
      */
     @Deprecated
     @NotNull
@@ -1485,7 +1508,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getUsersByGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersByGroupAsync(String)}
+     * @deprecated moved to {@link IPermissionManagement#getUsersByGroupAsync(String)}
      */
     @Deprecated
     @NotNull
@@ -1496,7 +1519,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#containsGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#containsGroupAsync(String)}
+     * @deprecated moved to {@link IPermissionManagement#containsGroupAsync(String)}
      */
     @Deprecated
     @NotNull
@@ -1507,7 +1530,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getGroupAsync(String)}
+     * @deprecated moved to {@link IPermissionManagement#getGroupAsync(String)}
      */
     @Deprecated
     @NotNull
@@ -1518,7 +1541,7 @@ public abstract class CloudNetDriver {
     /**
      * @see #getPermissionProvider()
      * @see PermissionProvider#getGroupsAsync()
-     * @deprecated moved to {@link PermissionProvider#getGroupsAsync()}
+     * @deprecated moved to {@link IPermissionManagement#getGroupsAsync()}
      */
     @Deprecated
     @NotNull

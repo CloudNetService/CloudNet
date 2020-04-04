@@ -1,8 +1,10 @@
-package de.dytanic.cloudnet.driver.permission;
+package de.dytanic.cloudnet.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.permission.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Collection;
@@ -12,7 +14,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public final class DefaultJsonFilePermissionManagement implements ClusterSynchronizedPermissionManagement {
+public abstract class DefaultJsonFilePermissionManagement implements ClusterSynchronizedPermissionManagement,
+        DefaultSynchronizedPermissionManagement, DefaultPermissionManagement {
 
     private final File file;
 
@@ -75,21 +78,21 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public boolean containsUser(UUID uniqueId) {
+    public boolean containsUser(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
         return this.permissionUsers.containsKey(uniqueId);
     }
 
     @Override
-    public boolean containsUser(String name) {
+    public boolean containsUser(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         return this.permissionUsers.values().stream().anyMatch(permissionUser -> permissionUser.getName().equalsIgnoreCase(name));
     }
 
     @Override
-    public IPermissionUser getUser(UUID uniqueId) {
+    public IPermissionUser getUser(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
         IPermissionUser permissionUser = this.permissionUsers.get(uniqueId);
 
@@ -101,7 +104,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public List<IPermissionUser> getUsers(String name) {
+    public List<IPermissionUser> getUsers(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         List<IPermissionUser> permissionUsers = this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.getName().equals(name)).collect(Collectors.toList());
@@ -154,7 +157,7 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public Collection<IPermissionUser> getUsersByGroup(String group) {
+    public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
         Preconditions.checkNotNull(group);
 
         return this.permissionUsers.values().stream().filter(permissionUser -> permissionUser.inGroup(group)).collect(Collectors.toList());
@@ -213,14 +216,14 @@ public final class DefaultJsonFilePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public boolean containsGroup(String name) {
+    public boolean containsGroup(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         return permissionGroups.containsKey(name);
     }
 
     @Override
-    public IPermissionGroup getGroup(String name) {
+    public IPermissionGroup getGroup(@NotNull String name) {
         Preconditions.checkNotNull(name);
         IPermissionGroup permissionGroup = this.permissionGroups.get(name);
 

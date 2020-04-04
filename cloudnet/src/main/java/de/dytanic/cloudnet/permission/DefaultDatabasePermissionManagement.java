@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.permission.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
@@ -13,7 +14,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public final class DefaultDatabasePermissionManagement implements ClusterSynchronizedPermissionManagement {
+public abstract class DefaultDatabasePermissionManagement implements ClusterSynchronizedPermissionManagement,
+        DefaultSynchronizedPermissionManagement, DefaultPermissionManagement {
 
     private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 
@@ -62,21 +64,21 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public boolean containsUser(UUID uniqueId) {
+    public boolean containsUser(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
         return this.getDatabase().contains(uniqueId.toString());
     }
 
     @Override
-    public boolean containsUser(String name) {
+    public boolean containsUser(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         return this.getUsers(name).size() > 0;
     }
 
     @Override
-    public IPermissionUser getUser(UUID uniqueId) {
+    public IPermissionUser getUser(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
         JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
@@ -95,7 +97,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public List<IPermissionUser> getUsers(String name) {
+    public List<IPermissionUser> getUsers(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         return this.getDatabase().get("name", name).stream().map(strings -> {
@@ -137,7 +139,7 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public Collection<IPermissionUser> getUsersByGroup(String group) {
+    public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
         Preconditions.checkNotNull(group);
 
         Collection<IPermissionUser> permissionUsers = new ArrayList<>();
@@ -197,14 +199,14 @@ public final class DefaultDatabasePermissionManagement implements ClusterSynchro
     }
 
     @Override
-    public boolean containsGroup(String name) {
+    public boolean containsGroup(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         return this.permissionGroupsMap.containsKey(name);
     }
 
     @Override
-    public IPermissionGroup getGroup(String name) {
+    public IPermissionGroup getGroup(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         IPermissionGroup permissionGroup = this.permissionGroupsMap.get(name);

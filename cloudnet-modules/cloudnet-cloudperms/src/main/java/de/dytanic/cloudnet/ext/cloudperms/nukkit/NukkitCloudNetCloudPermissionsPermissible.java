@@ -15,24 +15,26 @@ import java.util.stream.Collectors;
 public final class NukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private final Player player;
+    private final CloudPermissionsManagement permissionsManagement;
 
-    public NukkitCloudNetCloudPermissionsPermissible(Player player) {
+    public NukkitCloudNetCloudPermissionsPermissible(Player player, CloudPermissionsManagement permissionsManagement) {
         super(player);
 
         this.player = player;
+        this.permissionsManagement = permissionsManagement;
     }
 
     @Override
     public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
         Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
-        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(player.getUniqueId());
         if (permissionUser == null) {
             return infos;
         }
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
             infos.putAll(
-                    CloudPermissionsManagement.getInstance().getAllPermissions(permissionUser, group)
+                    this.permissionsManagement.getAllPermissions(permissionUser, group)
                             .stream()
                             .map(permission -> new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0))
                             .collect(Collectors.toMap(PermissionAttachmentInfo::getPermission, o -> o))
@@ -63,8 +65,8 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
             return false;
         }
 
-        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
-        return permissionUser != null && CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, inName);
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(player.getUniqueId());
+        return permissionUser != null && this.permissionsManagement.hasPlayerPermission(permissionUser, inName);
     }
 
     public Player getPlayer() {

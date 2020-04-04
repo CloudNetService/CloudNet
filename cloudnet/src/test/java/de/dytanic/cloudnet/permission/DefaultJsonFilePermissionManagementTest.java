@@ -1,9 +1,18 @@
-package de.dytanic.cloudnet.driver.permission;
+package de.dytanic.cloudnet.permission;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultJsonFilePermissionManagementTest {
@@ -13,7 +22,21 @@ public class DefaultJsonFilePermissionManagementTest {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
         File permissionsConfig = new File("build/permissions.json");
 
-        IPermissionManagement permissionManagement = new DefaultJsonFilePermissionManagement(permissionsConfig);
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        IPermissionManagement permissionManagement = new DefaultJsonFilePermissionManagement(permissionsConfig) {
+            @Override
+            public <V> ITask<V> scheduleTask(Callable<V> callable) {
+                ITask<V> task = new ListenableTask<>(callable);
+                executorService.execute(() -> {
+                    try {
+                        task.call();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                });
+                return task;
+            }
+        };
 
         IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", (byte) 5);
         Assert.assertNotNull(permissionUser);

@@ -2,10 +2,10 @@ package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.permission.DefaultJsonFilePermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.network.packet.PacketServerSetGlobalServiceInfoList;
 import de.dytanic.cloudnet.network.packet.PacketServerSetPermissionData;
+import de.dytanic.cloudnet.permission.DefaultJsonFilePermissionManagement;
 
 import java.util.Collection;
 

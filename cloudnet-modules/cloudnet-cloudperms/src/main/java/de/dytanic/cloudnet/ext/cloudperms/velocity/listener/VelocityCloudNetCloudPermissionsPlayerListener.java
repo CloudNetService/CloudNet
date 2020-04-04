@@ -11,9 +11,15 @@ import de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissi
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
+    private CloudPermissionsManagement permissionsManagement;
+
+    public VelocityCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+        this.permissionsManagement = permissionsManagement;
+    }
+
     @Subscribe(order = PostOrder.FIRST)
     public void handle(LoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(event.getPlayer().getUniqueId(), event.getPlayer().getUsername());
+        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getUsername());
     }
 
     @Subscribe
@@ -23,6 +29,6 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe
     public void handle(DisconnectEvent event) {
-        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
 }

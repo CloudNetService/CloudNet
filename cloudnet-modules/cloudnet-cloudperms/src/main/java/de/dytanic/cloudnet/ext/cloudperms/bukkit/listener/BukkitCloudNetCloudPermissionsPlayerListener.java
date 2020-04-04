@@ -12,15 +12,21 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
+    private CloudPermissionsManagement permissionsManagement;
+
+    public BukkitCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+        this.permissionsManagement = permissionsManagement;
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void handle(PlayerLoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(event.getPlayer().getUniqueId(), event.getPlayer().getName(), Bukkit.getOnlineMode());
+        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), Bukkit.getOnlineMode());
 
         BukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
     }
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
 }

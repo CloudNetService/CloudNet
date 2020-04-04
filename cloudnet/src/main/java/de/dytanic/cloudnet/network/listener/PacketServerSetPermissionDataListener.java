@@ -5,11 +5,11 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
-import de.dytanic.cloudnet.driver.permission.ClusterSynchronizedPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.DefaultJsonFilePermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
+import de.dytanic.cloudnet.permission.ClusterSynchronizedPermissionManagement;
+import de.dytanic.cloudnet.permission.DefaultJsonFilePermissionManagement;
 
 import java.util.List;
 

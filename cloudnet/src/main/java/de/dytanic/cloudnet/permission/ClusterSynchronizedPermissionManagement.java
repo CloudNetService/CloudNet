@@ -1,13 +1,17 @@
-package de.dytanic.cloudnet.driver.permission;
+package de.dytanic.cloudnet.permission;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public interface ClusterSynchronizedPermissionManagement extends IPermissionManagement {
+public interface ClusterSynchronizedPermissionManagement extends NodePermissionManagement {
 
-    default IPermissionUser addUser(IPermissionUser permissionUser) {
+    default IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleAddUser(this, permissionUser);
@@ -15,7 +19,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
         return this.addUserWithoutClusterSync(permissionUser);
     }
 
-    default void updateUser(IPermissionUser permissionUser) {
+    default void updateUser(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleUpdateUser(this, permissionUser);
@@ -23,14 +27,14 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
         this.updateUserWithoutClusterSync(permissionUser);
     }
 
-    default void deleteUser(String name) {
+    default void deleteUser(@NotNull String name) {
         Preconditions.checkNotNull(name);
         for (IPermissionUser permissionUser : this.getUsers(name)) {
             this.deleteUser(permissionUser);
         }
     }
 
-    default void deleteUser(IPermissionUser permissionUser) {
+    default void deleteUser(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleDeleteUser(this, permissionUser);
@@ -38,7 +42,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
         this.deleteUserWithoutClusterSync(permissionUser);
     }
 
-    default void setUsers(Collection<? extends IPermissionUser> users) {
+    default void setUsers(@Nullable Collection<? extends IPermissionUser> users) {
         if (users == null) {
             users = Collections.emptyList();
         }
@@ -49,7 +53,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
         this.setUsersWithoutClusterSync(users);
     }
 
-    default IPermissionGroup addGroup(IPermissionGroup permissionGroup) {
+    default IPermissionGroup addGroup(@NotNull IPermissionGroup permissionGroup) {
         Preconditions.checkNotNull(permissionGroup);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleAddGroup(this, permissionGroup);
@@ -58,7 +62,7 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
         return permissionGroup;
     }
 
-    default void updateGroup(IPermissionGroup permissionGroup) {
+    default void updateGroup(@NotNull IPermissionGroup permissionGroup) {
         Preconditions.checkNotNull(permissionGroup);
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleUpdateGroup(this, permissionGroup);
@@ -66,20 +70,20 @@ public interface ClusterSynchronizedPermissionManagement extends IPermissionMana
         this.updateGroupWithoutClusterSync(permissionGroup);
     }
 
-    default void deleteGroup(String group) {
+    default void deleteGroup(@NotNull String group) {
         if (this.containsGroup(group)) {
             this.deleteGroup(this.getGroup(group));
         }
     }
 
-    default void deleteGroup(IPermissionGroup group) {
+    default void deleteGroup(@NotNull IPermissionGroup group) {
         if (getPermissionManagementHandler() != null) {
             getPermissionManagementHandler().handleDeleteGroup(this, group);
         }
         this.deleteGroupWithoutClusterSync(group);
     }
 
-    default void setGroups(Collection<? extends IPermissionGroup> groups) {
+    default void setGroups(@NotNull Collection<? extends IPermissionGroup> groups) {
         if (groups == null) {
             groups = Collections.emptyList();
         }

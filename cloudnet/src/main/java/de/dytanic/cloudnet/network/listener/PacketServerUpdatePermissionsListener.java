@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.network.def.packet.PacketServerUpdatePermissio
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.permission.ClusterSynchronizedPermissionManagement;
 import de.dytanic.cloudnet.service.ICloudService;
 
 import java.lang.reflect.Type;
