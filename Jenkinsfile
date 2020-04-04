@@ -9,7 +9,6 @@ pipeline {
   stages {
     stage('Clean') {
       steps {
-        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')])
         sh 'chmod +x ./gradlew';
         sh './gradlew clean';
       }
@@ -57,11 +56,14 @@ pipeline {
         anyOf {
           branch 'master';
           branch 'development';
+          branch 'apache-archiva';
         }
       }
       steps {
         echo 'Publishing artifacts to Apache Archiva...';
-        sh './gradlew publish';
+        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
+          sh './gradlew publish';
+        }
       }
     }
     stage('Javadoc') {
