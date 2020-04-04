@@ -1,6 +1,7 @@
 pipeline {
   agent any
   tools {
+    gradle 'Gradle6'
     jdk 'Java11'
   }
   options {
@@ -9,19 +10,18 @@ pipeline {
   stages {
     stage('Clean') {
       steps {
-        sh 'chmod +x ./gradlew';
-        sh './gradlew clean';
+        sh 'gradlew clean';
       }
     }
     stage('Test') {
       steps {
-        sh './gradlew test';
+        sh 'gradlew test';
         junit '**/build/test-results/test/*.xml';
       }
     }
     stage('Build') {
       steps {
-        sh './gradlew jar';
+        sh 'gradlew jar';
       }
     }
     stage('Release ZIP') {
@@ -62,14 +62,14 @@ pipeline {
       steps {
         echo 'Publishing artifacts to Apache Archiva...';
         configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
-          sh './gradlew publish';
+          sh 'gradlew publish';
         }
       }
     }
     stage('Javadoc') {
         steps {
           echo 'Creating javadoc...';
-          sh './gradlew allJavadoc';
+          sh 'gradlew allJavadoc';
           zip archive: true, dir: 'build/javadoc', glob: '', zipFile: 'Javadoc.zip';
         }
     }
