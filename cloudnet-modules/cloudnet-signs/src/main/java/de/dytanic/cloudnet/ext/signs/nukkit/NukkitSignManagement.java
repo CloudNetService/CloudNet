@@ -10,10 +10,10 @@ import cn.nukkit.math.BlockFace;
 import cn.nukkit.utils.Faceable;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignLayout;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,7 +88,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
             String[] lines = new String[4];
 
             for (int i = 0; i < lines.length; i++) {
-                String line = super.addDataToLine(sign, signLayout.getLines()[i], serviceInfoSnapshot).replace('&', '§');
+                String line = super.replaceServiceInfo(signLayout.getLines()[i], sign.getTargetGroup(), serviceInfoSnapshot).replace('&', '§');
                 lines[i] = line;
             }
 
@@ -125,14 +125,14 @@ public final class NukkitSignManagement extends AbstractSignManagement {
         }
     }
 
-    public Location toLocation(SignPosition signPosition) {
-        Preconditions.checkNotNull(signPosition);
+    public Location toLocation(WorldPosition worldPosition) {
+        Preconditions.checkNotNull(worldPosition);
 
-        return Server.getInstance().getLevelByName(signPosition.getWorld()) != null ? new Location(
-                signPosition.getX(),
-                signPosition.getY(),
-                signPosition.getZ(),
-                Server.getInstance().getLevelByName(signPosition.getWorld())
+        return Server.getInstance().getLevelByName(worldPosition.getWorld()) != null ? new Location(
+                worldPosition.getX(),
+                worldPosition.getY(),
+                worldPosition.getZ(),
+                Server.getInstance().getLevelByName(worldPosition.getWorld())
         ) : null;
     }
 

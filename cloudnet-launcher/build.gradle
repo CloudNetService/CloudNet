@@ -7,6 +7,7 @@ jar {
     dependsOn ':cloudnet-modules:cloudnet-bridge:jar'
     dependsOn ':cloudnet-modules:cloudnet-labymod:jar'
     dependsOn ':cloudnet-modules:cloudnet-signs:jar'
+    dependsOn ':cloudnet-modules:cloudnet-npcs:jar'
     dependsOn ':cloudnet-modules:cloudnet-syncproxy:jar'
     dependsOn ':cloudnet-modules:cloudnet-smart:jar'
     dependsOn ':cloudnet-modules:cloudnet-cloudflare:jar'
@@ -53,6 +54,10 @@ jar {
 
     from('../cloudnet-modules/cloudnet-signs/build/libs') {
         include cloudnetModuleSignsFileName
+    }
+
+    from('../cloudnet-modules/cloudnet-npcs/build/libs') {
+        include cloudnetModuleNPCsFileName
     }
 
     from('../cloudnet-modules/cloudnet-syncproxy/build/libs') {

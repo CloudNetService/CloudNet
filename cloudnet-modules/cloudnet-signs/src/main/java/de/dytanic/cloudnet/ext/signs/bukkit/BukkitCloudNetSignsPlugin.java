@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.signs.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
-import de.dytanic.cloudnet.ext.signs.CloudNetSignListener;
 import de.dytanic.cloudnet.ext.signs.bukkit.command.CommandCloudSign;
 import de.dytanic.cloudnet.ext.signs.bukkit.listener.BukkitSignInteractionListener;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
@@ -38,7 +37,7 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
         }
 
         //CloudNet listeners
-        CloudNetDriver.getInstance().getEventManager().registerListener(new CloudNetSignListener());
+        CloudNetDriver.getInstance().getEventManager().registerListener(BukkitSignManagement.getInstance());
 
         //Bukkit listeners
         Bukkit.getPluginManager().registerEvents(new BukkitSignInteractionListener(), this);

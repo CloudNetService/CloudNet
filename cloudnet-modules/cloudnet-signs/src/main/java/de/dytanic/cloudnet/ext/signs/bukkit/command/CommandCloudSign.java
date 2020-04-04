@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.command;
 
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
 import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
@@ -99,7 +99,7 @@ public final class CommandCloudSign implements CommandExecutor {
                 Sign sign = new Sign(
                         entry.getTargetGroup(),
                         args[1],
-                        new SignPosition(block.getX(), block.getY(), block.getZ(), 0, 0, entry.getTargetGroup(), block.getWorld().getName()),
+                        new WorldPosition(block.getX(), block.getY(), block.getZ(), 0, 0, block.getWorld().getName()),
                         args.length == 3 ? args[2] : null
                 );
 
