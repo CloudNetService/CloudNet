@@ -39,7 +39,7 @@ public class ExampleNPCs {
                 UUID.randomUUID(),
                 "§bSurvival Games",
                 "§8• §7%online_players% of %max_players% players online §8•",
-                // add profile properties to set a skin for the NPC
+                // adding profile properties to set a skin for the NPC
                 Collections.singleton(new CloudNPC.NPCProfileProperty(
                         "textures",
                         "value",
