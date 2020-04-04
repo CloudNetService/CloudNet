@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.ext.bridge.node.command.CommandReloadBridge;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.bridge.node.listener.*;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
@@ -35,6 +36,8 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     private static CloudNetBridgeModule instance;
 
     private BridgeConfiguration bridgeConfiguration;
+
+    private NodePlayerManager nodePlayerManager = new NodePlayerManager("cloudnet_cloud_players");
 
     public CloudNetBridgeModule() {
         instance = this;
@@ -87,7 +90,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 36, event = ModuleLifeCycle.STARTED)
     public void initNodePlayerManager() {
-        new NodePlayerManager("cloudnet_cloud_players");
+        super.getCloudNet().getServicesRegistry().registerService(IPlayerManager.class, "NodePlayerManager", this.nodePlayerManager);
 
         registerListener(new PlayerManagerListener());
     }
@@ -101,7 +104,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
         registerCommand(new CommandReloadBridge());
-        registerCommand(new CommandPlayers());
+        registerCommand(new CommandPlayers(this.nodePlayerManager));
     }
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)

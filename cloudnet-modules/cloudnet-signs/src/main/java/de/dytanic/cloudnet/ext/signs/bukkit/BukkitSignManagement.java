@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
@@ -23,12 +24,10 @@ import java.util.Iterator;
 
 public final class BukkitSignManagement extends AbstractSignManagement {
 
-    private static BukkitSignManagement instance;
     private final BukkitCloudNetSignsPlugin plugin;
 
     BukkitSignManagement(BukkitCloudNetSignsPlugin plugin) {
         super();
-        instance = this;
 
         this.plugin = plugin;
 
@@ -37,8 +36,12 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         super.updateSigns();
     }
 
+    /**
+     * @deprecated SignManagement should be accessed via the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static BukkitSignManagement getInstance() {
-        return BukkitSignManagement.instance;
+        return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry().getService(AbstractSignManagement.class);
     }
 
 

@@ -30,7 +30,6 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             ENTRY_COMPARATOR = new ServiceInfoSnapshotEntryComparator(),
             ENTRY_COMPARATOR_2 = new ServiceInfoSnapshotEntryComparator2();
 
-    private static AbstractSignManagement instance;
     private final AtomicInteger[] indexes = new AtomicInteger[]{
             new AtomicInteger(-1), //starting
             new AtomicInteger(-1) //search
@@ -38,16 +37,18 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
     protected Set<Sign> signs;
 
     public AbstractSignManagement() {
-        instance = this;
-
         Collection<Sign> signsFromNode = this.getSignsFromNode();
         this.signs = signsFromNode == null ? new HashSet<>() : signsFromNode.stream()
                 .filter(sign -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup()))
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * @deprecated SignManagement should be accessed via the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static AbstractSignManagement getInstance() {
-        return instance;
+        return CloudNetDriver.getInstance().getServicesRegistry().getService(AbstractSignManagement.class);
     }
 
     protected abstract void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot);
@@ -106,7 +107,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
                 if (sign != null) {
-                    AbstractSignManagement.getInstance().addSign(sign);
+                    this.addSign(sign);
                 }
             }
             break;
@@ -114,7 +115,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
                 Sign sign = event.getData().get("sign", Sign.TYPE);
 
                 if (sign != null) {
-                    AbstractSignManagement.getInstance().removeSign(sign);
+                    this.removeSign(sign);
                 }
             }
             break;

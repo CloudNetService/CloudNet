@@ -2,7 +2,8 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
 
 import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
-import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,7 +47,8 @@ public class NPCInventoryListener implements Listener {
                             Player player = (Player) event.getWhoClicked();
                             String serverName = properties.getServerSlots().get(slot);
 
-                            BridgePlayerManager.getInstance().proxySendPlayer(player.getUniqueId(), serverName);
+                            CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class)
+                                    .getPlayerExecutor(player.getUniqueId()).connect(serverName);
                         }
                     });
         }

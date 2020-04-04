@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.listener;
 
-import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
-import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
 import de.dytanic.cloudnet.ext.signs.bukkit.event.BukkitCloudSignInteractEvent;
@@ -17,16 +17,22 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public final class BukkitSignInteractionListener implements Listener {
 
+    private final BukkitSignManagement bukkitSignManagement;
+
+    public BukkitSignInteractionListener(BukkitSignManagement bukkitSignManagement) {
+        this.bukkitSignManagement = bukkitSignManagement;
+    }
+
     @EventHandler
     public void handleInteract(PlayerInteractEvent event) {
-        SignConfigurationEntry entry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry entry = this.bukkitSignManagement.getOwnSignConfigurationEntry();
 
         if (entry != null) {
             if ((event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) &&
                     event.getClickedBlock() != null &&
                     event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : BukkitSignManagement.getInstance().getSigns()) {
-                    Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
+                for (Sign sign : this.bukkitSignManagement.getSigns()) {
+                    Location location = this.bukkitSignManagement.toLocation(sign.getWorldPosition());
 
                     if (location == null || !location.equals(event.getClickedBlock().getLocation())) {
                         continue;
@@ -38,7 +44,8 @@ public final class BukkitSignInteractionListener implements Listener {
                     Bukkit.getPluginManager().callEvent(signInteractEvent);
 
                     if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
-                        BridgePlayerManager.getInstance().getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
+                        CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class)
+                                .getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
 
                         event.getPlayer().sendMessage(
                                 ChatColor.translateAlternateColorCodes('&',

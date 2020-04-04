@@ -5,10 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.player.*;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
@@ -121,7 +118,7 @@ public final class BridgeHelper {
     }
 
     public static boolean playerIsOnProxy(UUID uuid, String playerAddress) {
-        ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(uuid);
+        ICloudPlayer cloudPlayer = CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class).getOnlinePlayer(uuid);
 
         // checking if the player is on a proxy managed by CloudNet
         if (cloudPlayer != null && cloudPlayer.getLoginService() != null) {

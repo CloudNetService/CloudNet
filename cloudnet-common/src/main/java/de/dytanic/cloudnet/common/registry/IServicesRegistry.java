@@ -103,6 +103,17 @@ public interface IServicesRegistry {
     <T> T getService(Class<T> clazz, String name);
 
     /**
+     * Returns the service implementation or null from this registry
+     *
+     * @param clazz the base provider class, from that the service should get
+     * @param <T>   the interface or abstract type which you want the implementation providing for
+     * @return the first service implementation found registered for the provided class
+     */
+    default <T> T getService(Class<T> clazz) {
+        return this.getServices(clazz).stream().findFirst().orElse(null);
+    }
+
+    /**
      * Returns all services implementation
      *
      * @param clazz the base provider class, from that the service should get

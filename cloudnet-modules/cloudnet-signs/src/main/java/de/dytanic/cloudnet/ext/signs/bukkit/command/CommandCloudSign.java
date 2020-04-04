@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.command;
 
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
-import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.bukkit.BukkitSignManagement;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
@@ -20,13 +19,19 @@ import java.util.Arrays;
 
 public final class CommandCloudSign implements CommandExecutor {
 
+    private final BukkitSignManagement bukkitSignManagement;
+
+    public CommandCloudSign(BukkitSignManagement bukkitSignManagement) {
+        this.bukkitSignManagement = bukkitSignManagement;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
             return false;
         }
 
-        SignConfigurationEntry entry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry entry = this.bukkitSignManagement.getOwnSignConfigurationEntry();
 
         if (entry == null) {
             return false;
@@ -45,15 +50,15 @@ public final class CommandCloudSign implements CommandExecutor {
             Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
+                for (Sign sign : this.bukkitSignManagement.getSigns()) {
                     if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 
-                    Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
+                    Location location = this.bukkitSignManagement.toLocation(sign.getWorldPosition());
 
                     if (location != null && location.equals(block.getLocation())) {
-                        AbstractSignManagement.getInstance().sendSignRemoveUpdate(sign);
+                        this.bukkitSignManagement.sendSignRemoveUpdate(sign);
 
                         org.bukkit.block.Sign blockSign = (org.bukkit.block.Sign) block.getState();
                         blockSign.setLine(0, "");
@@ -77,12 +82,12 @@ public final class CommandCloudSign implements CommandExecutor {
             Block block = player.getTargetBlock(null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
+                for (Sign sign : this.bukkitSignManagement.getSigns()) {
                     if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 
-                    Location location = BukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
+                    Location location = this.bukkitSignManagement.toLocation(sign.getWorldPosition());
 
                     if (location != null && location.equals(block.getLocation())) {
                         sender.sendMessage(
@@ -103,7 +108,7 @@ public final class CommandCloudSign implements CommandExecutor {
                         args.length == 3 ? args[2] : null
                 );
 
-                AbstractSignManagement.getInstance().sendSignAddUpdate(sign);
+                this.bukkitSignManagement.sendSignAddUpdate(sign);
                 sender.sendMessage(
                         ChatColor.translateAlternateColorCodes('&',
                                 SignConfigurationProvider.load().getMessages().get("command-cloudsign-create-success")
@@ -112,7 +117,7 @@ public final class CommandCloudSign implements CommandExecutor {
                 );
             }
         } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
-            AbstractSignManagement.getInstance().cleanup();
+            this.bukkitSignManagement.cleanup();
 
             sender.sendMessage(
                     ChatColor.translateAlternateColorCodes('&', SignConfigurationProvider.load().getMessages().get("command-cloudsign-cleanup-success"))

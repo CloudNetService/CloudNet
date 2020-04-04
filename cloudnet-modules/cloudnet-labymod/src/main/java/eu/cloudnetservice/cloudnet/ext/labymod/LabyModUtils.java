@@ -4,11 +4,10 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
@@ -141,7 +140,7 @@ public class LabyModUtils {
 
         if (modified) {
             setLabyModOptions(cloudPlayer, options);
-            BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
+            CloudNetDriver.getInstance().getServicesRegistry().getService(IPlayerManager.class).updateOnlinePlayer(cloudPlayer);
         }
 
         JsonDocument document = JsonDocument.newDocument();

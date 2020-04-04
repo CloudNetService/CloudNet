@@ -11,9 +11,12 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public class NukkitCloudNetSignsPlugin extends PluginBase {
 
+    private NukkitSignManagement signManagement;
+
     @Override
     public void onEnable() {
-        new NukkitSignManagement(this);
+        this.signManagement = new NukkitSignManagement(this);
+        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractSignManagement.class, "NukkitSignManagement", this.signManagement);
 
         this.initListeners();
     }
@@ -22,6 +25,8 @@ public class NukkitCloudNetSignsPlugin extends PluginBase {
     public void onDisable() {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+
+        CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractSignManagement.class, this.signManagement);
     }
 
     private void initListeners() {
@@ -29,13 +34,13 @@ public class NukkitCloudNetSignsPlugin extends PluginBase {
         super.getServer().getCommandMap().register("CloudNet-Signs", new CommandCloudSign());
 
         //CloudNet listeners
-        CloudNetDriver.getInstance().getEventManager().registerListener(NukkitSignManagement.getInstance());
+        CloudNetDriver.getInstance().getEventManager().registerListener(this.signManagement);
 
         //Nukkit listeners
         super.getServer().getPluginManager().registerEvents(new NukkitSignInteractionListener(), this);
 
         //Sign knockback scheduler
-        SignConfigurationEntry signConfigurationEntry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry signConfigurationEntry = this.signManagement.getOwnSignConfigurationEntry();
 
         if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0 && signConfigurationEntry.getKnockbackStrength() > 0) {
             super.getServer().getScheduler().scheduleDelayedRepeatingTask(this, new NukkitSignKnockbackRunnable(signConfigurationEntry), 20, 5);
