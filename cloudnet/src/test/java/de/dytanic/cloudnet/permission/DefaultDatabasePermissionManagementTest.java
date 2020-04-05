@@ -11,6 +11,9 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -110,7 +113,7 @@ public class DefaultDatabasePermissionManagementTest {
         this.testRecursiveImplementations(permissionManagement, groupName, userName, permission);
     }
 
-    private void testRecursiveImplementations(IPermissionManagement permissionManagement, String groupName, String userName, String permission) {
+    private void testRecursiveImplementations(IPermissionManagement permissionManagement, String groupName, String userName, String permission) throws IOException {
         IPermissionGroup permissionGroup = permissionManagement.addGroup(groupName, 1);
         Assert.assertNotNull(permissionGroup);
 
@@ -125,30 +128,24 @@ public class DefaultDatabasePermissionManagementTest {
 
         Assert.assertTrue(permissionUser.inGroup(groupName));
 
-        StackOverflowError stackOverflowError = null;
-        try {
-            permissionManagement.hasPermission(permissionUser, permission);
-        } catch (StackOverflowError error) {
-            stackOverflowError = error;
-        }
+        PrintStream oldErr = System.err;
+        ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(errorStream));
+        permissionManagement.hasPermission(permissionUser, permission);
 
-        Assert.assertNotNull(stackOverflowError);
-        Assert.assertEquals(stackOverflowError.getMessage(), "Detected recursive permission group implementation on group " + groupName);
+        Assert.assertEquals(errorStream.toString(), "Detected recursive permission group implementation on group " + groupName + "\r\n");
+        errorStream.reset();
 
         permissionUser.removeGroup(groupName);
         permissionManagement.updateUser(permissionUser);
 
-        try {
-            permissionManagement.hasPermission(permissionUser, permission);
-            stackOverflowError = null;
-        } catch (StackOverflowError error) {
-            stackOverflowError = error;
-        }
-        Assert.assertNull(stackOverflowError);
-
+        permissionManagement.hasPermission(permissionUser, permission);
+        Assert.assertEquals(errorStream.toString(), "");
 
         permissionManagement.deleteUser(userName);
         permissionManagement.deleteGroup(groupName);
+
+        System.setErr(oldErr);
     }
 
 }

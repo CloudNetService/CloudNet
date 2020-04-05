@@ -30,19 +30,19 @@ public interface IPermissionManagement {
 
     IPermissionGroup getDefaultPermissionGroup();
 
-    boolean testPermissionGroup(@NotNull IPermissionGroup permissionGroup);
+    boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup);
 
-    boolean testPermissionUser(@NotNull IPermissionUser permissionUser);
+    boolean testPermissionUser(@Nullable IPermissionUser permissionUser);
 
-    boolean testPermissible(@NotNull IPermissible permissible);
+    boolean testPermissible(@Nullable IPermissible permissible);
 
     IPermissionUser addUser(@NotNull String name, @NotNull String password, int potency);
 
     IPermissionGroup addGroup(@NotNull String role, int potency);
 
-    Collection<IPermissionGroup> getGroups(@NotNull IPermissionUser permissionUser);
+    Collection<IPermissionGroup> getGroups(@Nullable IPermissionUser permissionUser);
 
-    Collection<IPermissionGroup> getExtendedGroups(@NotNull IPermissionGroup group);
+    Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group);
 
     boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String permission);
 

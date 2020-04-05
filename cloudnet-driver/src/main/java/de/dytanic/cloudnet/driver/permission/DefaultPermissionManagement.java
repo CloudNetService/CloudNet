@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return null;
     }
 
-    default boolean testPermissionGroup(@NotNull IPermissionGroup permissionGroup) {
+    default boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup) {
         if (permissionGroup == null) {
             return false;
         }
@@ -65,7 +66,7 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return testPermissible(permissionGroup);
     }
 
-    default boolean testPermissionUser(@NotNull IPermissionUser permissionUser) {
+    default boolean testPermissionUser(@Nullable IPermissionUser permissionUser) {
         if (permissionUser == null) {
             return false;
         }
@@ -88,7 +89,7 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return result;
     }
 
-    default boolean testPermissible(@NotNull IPermissible permissible) {
+    default boolean testPermissible(@Nullable IPermissible permissible) {
         if (permissible == null) {
             return false;
         }
@@ -140,7 +141,7 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return this.addGroup(new PermissionGroup(role, potency));
     }
 
-    default Collection<IPermissionGroup> getGroups(@NotNull IPermissionUser permissionUser) {
+    default Collection<IPermissionGroup> getGroups(@Nullable IPermissionUser permissionUser) {
         Collection<IPermissionGroup> permissionGroups = new ArrayList<>();
 
         if (permissionUser == null) {
@@ -162,7 +163,7 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return permissionGroups;
     }
 
-    default Collection<IPermissionGroup> getExtendedGroups(@NotNull IPermissionGroup group) {
+    default Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group) {
         return group == null ?
                 Collections.emptyList() :
                 this.getGroups().stream().filter(permissionGroup -> group.getGroups().contains(permissionGroup.getName())).collect(Collectors.toList());
@@ -218,12 +219,13 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return defaultGroup != null && tryExtendedGroups(defaultGroup.getName(), defaultGroup, group, permission, 0);
     }
 
-    default boolean tryExtendedGroups(@NotNull String firstGroup, IPermissionGroup permissionGroup, @NotNull Permission permission, int layer) {
+    default boolean tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
             return false;
         }
         if (layer >= 30) {
-            throw new StackOverflowError("Detected recursive permission group implementation on group " + firstGroup);
+            System.err.println("Detected recursive permission group implementation on group " + firstGroup);
+            return false;
         }
         layer++;
 
@@ -244,12 +246,13 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return false;
     }
 
-    default boolean tryExtendedGroups(@NotNull String firstGroup, @NotNull IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission, int layer) {
+    default boolean tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
             return false;
         }
         if (layer >= 30) {
-            throw new IllegalStateException("Detected recursive permission group implementation on group " + firstGroup);
+            System.err.println("Detected recursive permission group implementation on group " + firstGroup);
+            return false;
         }
         layer++;
 
