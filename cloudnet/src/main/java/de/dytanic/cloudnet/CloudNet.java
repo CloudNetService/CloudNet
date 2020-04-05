@@ -255,7 +255,12 @@ public final class CloudNet extends CloudNetDriver {
             this.databaseProvider.init();
         }
 
-        NodePermissionManagement permissionManagement = this.servicesRegistry.getService(NodePermissionManagement.class, this.configurationRegistry.getString("permission_service", "json_database"));
+        NodePermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(this::getDatabaseProvider) {
+            @Override
+            public <V> ITask<V> scheduleTask(Callable<V> callable) {
+                return CloudNet.this.scheduleTask(callable);
+            }
+        };
         permissionManagement.setPermissionManagementHandler(new DefaultPermissionManagementHandler());
         this.permissionManagement = permissionManagement;
 
@@ -993,7 +998,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void setDefaultRegistryEntries() {
-        this.configurationRegistry.getString("permission_service", "json_database");
         this.configurationRegistry.getString("database_provider", "h2");
 
         this.configurationRegistry.save();
@@ -1002,22 +1006,6 @@ public final class CloudNet extends CloudNetDriver {
     private void registerDefaultServices() {
         this.servicesRegistry.registerService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
                 new LocalTemplateStorage(new File(System.getProperty("cloudnet.storage.local", "local/templates"))));
-
-        this.servicesRegistry.registerService(NodePermissionManagement.class, "json_file",
-                new DefaultJsonFilePermissionManagement(new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"))) {
-                    @Override
-                    public <V> ITask<V> scheduleTask(Callable<V> callable) {
-                        return CloudNet.this.scheduleTask(callable);
-                    }
-                });
-
-        this.servicesRegistry.registerService(NodePermissionManagement.class, "json_database",
-                new DefaultDatabasePermissionManagement(this::getDatabaseProvider) {
-                    @Override
-                    public <V> ITask<V> scheduleTask(Callable<V> callable) {
-                        return CloudNet.this.scheduleTask(callable);
-                    }
-                });
 
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
                 new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
