@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.permission;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
@@ -12,11 +10,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultDatabasePermissionManagementTest {
@@ -24,27 +20,15 @@ public class DefaultDatabasePermissionManagementTest {
     @Test
     public void testFilePermissionManager() throws Exception {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
+
+        new File("build/h2database.mv.db").delete();
+
         AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database", false);
         Assert.assertTrue(databaseProvider.init());
 
         System.setProperty("cloudnet.permissions.json.path", "build/group_permissions.json");
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
-
-        IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(() -> databaseProvider) {
-            @Override
-            public <V> ITask<V> scheduleTask(Callable<V> callable) {
-                ITask<V> task = new ListenableTask<>(callable);
-                executorService.execute(() -> {
-                    try {
-                        task.call();
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                    }
-                });
-                return task;
-            }
-        };
+        IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(() -> databaseProvider);
 
         IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", (byte) 5);
         Assert.assertNotNull(permissionUser);

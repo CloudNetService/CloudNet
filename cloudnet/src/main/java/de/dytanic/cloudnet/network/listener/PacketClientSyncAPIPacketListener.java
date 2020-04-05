@@ -342,13 +342,13 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "permission_management_delete_user_with_name": {
-                    getCloudNet().getPermissionManagement().deleteUser(packet.getHeader().getString("name"));
-                    sendEmptyResponse(channel, packet.getUniqueId());
+                    boolean success = getCloudNet().getPermissionManagement().deleteUser(packet.getHeader().getString("name"));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument(), new byte[]{(byte) (success ? 1 : 0)});
                 }
                 break;
                 case "permission_management_delete_user": {
-                    getCloudNet().getPermissionManagement().deleteUser((PermissionUser) packet.getHeader().get("permissionUser", PermissionUser.TYPE));
-                    sendEmptyResponse(channel, packet.getUniqueId());
+                    boolean success = getCloudNet().getPermissionManagement().deleteUser((PermissionUser) packet.getHeader().get("permissionUser", PermissionUser.TYPE));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument(), new byte[]{(byte) (success ? 1 : 0)});
                 }
                 break;
                 case "permission_management_set_users": {
@@ -418,6 +418,10 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionManagement().getUsers(packet.getHeader().getString("name"))));
                 }
                 break;
+                case "permission_management_get_first_user": {
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUser", getCloudNet().getPermissionManagement().getFirstUser(packet.getHeader().getString("name"))));
+                }
+                break;
                 case "permission_management_get_users": {
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionManagement().getUsers()));
                 }
@@ -436,6 +440,10 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 break;
                 case "permission_management_get_groups": {
                     sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionGroups", getCloudNet().getPermissionManagement().getGroups()));
+                }
+                break;
+                case "permission_management_get_default_group": {
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionGroup", getCloudNet().getPermissionManagement().getDefaultPermissionGroup()));
                 }
                 break;
                 case "get_cloudService_by_name": {

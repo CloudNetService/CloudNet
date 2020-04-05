@@ -1,134 +1,124 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public interface DefaultSynchronizedPermissionManagement extends IPermissionManagement {
 
-    <V> ITask<V> scheduleTask(Callable<V> callable);
-
     @Override
-    default @NotNull ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser) {
-        return this.scheduleTask(() -> this.addUser(permissionUser));
+    default IPermissionUser getFirstUser(String name) {
+        List<IPermissionUser> users = this.getUsers(name);
+        return users.isEmpty() ? null : users.get(0);
     }
 
     @Override
-    default @NotNull ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser) {
-        return this.scheduleTask(() -> {
-            this.updateUser(permissionUser);
-            return null;
-        });
+    default IPermissionGroup getDefaultPermissionGroup() {
+        return this.getDefaultPermissionGroupAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Void> deleteUserAsync(@NotNull String name) {
-        return this.scheduleTask(() -> {
-            this.deleteUser(name);
-            return null;
-        });
+    default IPermissionUser addUser(@NotNull String name, @NotNull String password, int potency) {
+        return this.addUserAsync(name, password, potency).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Void> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
-        return this.scheduleTask(() -> {
-            this.deleteUser(permissionUser);
-            return null;
-        });
+    default IPermissionGroup addGroup(@NotNull String role, int potency) {
+        return this.addGroupAsync(role, potency).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
-        return this.scheduleTask(() -> this.containsUser(uniqueId));
+    default IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
+        return this.addUserAsync(permissionUser).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Boolean> containsUserAsync(@NotNull String name) {
-        return this.scheduleTask(() -> this.containsUser(name));
+    default void updateUser(@NotNull IPermissionUser permissionUser) {
+        this.updateUserAsync(permissionUser).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
-        return this.scheduleTask(() -> this.getUser(uniqueId));
+    default boolean deleteUser(@NotNull String name) {
+        return this.deleteUserAsync(name).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
-    default @NotNull ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
-        return this.scheduleTask(() -> this.getUsers(name));
+    default boolean deleteUser(@NotNull IPermissionUser permissionUser) {
+        return this.deleteUserAsync(permissionUser).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
-    default @NotNull ITask<Collection<IPermissionUser>> getUsersAsync() {
-        return this.scheduleTask(this::getUsers);
+    default boolean containsUser(@NotNull UUID uniqueId) {
+        return this.containsUserAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users) {
-        return this.scheduleTask(() -> {
-            this.setUsers(users);
-            return null;
-        });
+    default boolean containsUser(@NotNull String name) {
+        return this.containsUserAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
-        return this.scheduleTask(() -> this.getUsersByGroup(group));
+    default @Nullable IPermissionUser getUser(@NotNull UUID uniqueId) {
+        return this.getUserAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup) {
-        return this.scheduleTask(() -> this.addGroup(permissionGroup));
+    default List<IPermissionUser> getUsers(@NotNull String name) {
+        return this.getUsersAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup) {
-        return this.scheduleTask(() -> {
-            this.updateGroup(permissionGroup);
-            return null;
-        });
+    default Collection<IPermissionUser> getUsers() {
+        return this.getUsersAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Void> deleteGroupAsync(@NotNull String name) {
-        return this.scheduleTask(() -> {
-            this.deleteGroup(name);
-            return null;
-        });
+    default void setUsers(@Nullable Collection<? extends IPermissionUser> users) {
+        this.setUsersAsync(users).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup) {
-        return this.scheduleTask(() -> {
-            this.deleteGroup(permissionGroup);
-            return null;
-        });
+    default Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
+        return this.getUsersByGroupAsync(group).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Boolean> containsGroupAsync(@NotNull String group) {
-        return this.scheduleTask(() -> this.containsGroup(group));
+    default IPermissionGroup addGroup(@NotNull IPermissionGroup permissionGroup) {
+        return this.addGroupAsync(permissionGroup).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
-        return this.scheduleTask(() -> this.getGroup(name));
+    default void updateGroup(@NotNull IPermissionGroup permissionGroup) {
+        this.updateGroupAsync(permissionGroup).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return this.scheduleTask(this::getGroups);
+    default void deleteGroup(@NotNull String name) {
+        this.deleteGroupAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    default @NotNull ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups) {
-        return this.scheduleTask(() -> {
-            this.setGroups(groups);
-            return null;
-        });
+    default void deleteGroup(@NotNull IPermissionGroup permissionGroup) {
+        this.deleteGroupAsync(permissionGroup).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    default boolean containsGroup(@NotNull String group) {
+        return this.containsGroupAsync(group).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    default @Nullable IPermissionGroup getGroup(@NotNull String name) {
+        return this.getGroupAsync(name).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    default void setGroups(Collection<? extends IPermissionGroup> groups) {
+        this.setGroupsAsync(groups).get(5, TimeUnit.SECONDS, null);
     }
 
 }

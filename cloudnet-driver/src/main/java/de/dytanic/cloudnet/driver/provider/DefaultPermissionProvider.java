@@ -1,7 +1,9 @@
 package de.dytanic.cloudnet.driver.provider;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.concurrent.NullCompletableTask;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
@@ -128,12 +130,22 @@ public class DefaultPermissionProvider implements PermissionProvider {
 
     @Override
     public @NotNull ITask<Void> deleteUserAsync(@NotNull String name) {
-        return this.permissionManagementSupplier.get().deleteUserAsync(name);
+        CompletableTask<Void> task = new NullCompletableTask<>();
+        this.permissionManagementSupplier.get().deleteUserAsync(name)
+                .onComplete(success -> task.call())
+                .onCancelled(booleanITask -> task.call())
+                .onFailure(throwable -> task.call());
+        return task;
     }
 
     @Override
     public @NotNull ITask<Void> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
-        return this.permissionManagementSupplier.get().deleteUserAsync(permissionUser);
+        CompletableTask<Void> task = new NullCompletableTask<>();
+        this.permissionManagementSupplier.get().deleteUserAsync(permissionUser)
+                .onComplete(success -> task.call())
+                .onCancelled(booleanITask -> task.call())
+                .onFailure(throwable -> task.call());
+        return task;
     }
 
     @Override

@@ -16,11 +16,6 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         return true;
     }
 
-    default IPermissionUser getFirstUser(String name) {
-        List<IPermissionUser> users = this.getUsers(name);
-        return users.isEmpty() ? null : users.get(0);
-    }
-
     @Deprecated
     default List<IPermissionUser> getUser(String name) {
         return this.getUsers(name);
@@ -46,16 +41,6 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         }
 
         return permissionGroup != null ? permissionGroup : this.getDefaultPermissionGroup();
-    }
-
-    default IPermissionGroup getDefaultPermissionGroup() {
-        for (IPermissionGroup group : getGroups()) {
-            if (group != null && group.isDefaultGroup()) {
-                return group;
-            }
-        }
-
-        return null;
     }
 
     default boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup) {
@@ -131,14 +116,6 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
         }
 
         return result;
-    }
-
-    default IPermissionUser addUser(@NotNull String name, @NotNull String password, int potency) {
-        return this.addUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
-    }
-
-    default IPermissionGroup addGroup(@NotNull String role, int potency) {
-        return this.addGroup(new PermissionGroup(role, potency));
     }
 
     default Collection<IPermissionGroup> getGroups(@Nullable IPermissionUser permissionUser) {

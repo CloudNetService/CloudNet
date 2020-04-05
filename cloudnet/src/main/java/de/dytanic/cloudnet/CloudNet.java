@@ -71,7 +71,6 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.network.listener.*;
 import de.dytanic.cloudnet.network.packet.*;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
-import de.dytanic.cloudnet.permission.DefaultJsonFilePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
 import de.dytanic.cloudnet.permission.command.DefaultPermissionUserCommandSender;
@@ -255,12 +254,7 @@ public final class CloudNet extends CloudNetDriver {
             this.databaseProvider.init();
         }
 
-        NodePermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(this::getDatabaseProvider) {
-            @Override
-            public <V> ITask<V> scheduleTask(Callable<V> callable) {
-                return CloudNet.this.scheduleTask(callable);
-            }
-        };
+        NodePermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(this::getDatabaseProvider);
         permissionManagement.setPermissionManagementHandler(new DefaultPermissionManagementHandler());
         this.permissionManagement = permissionManagement;
 
@@ -1009,7 +1003,7 @@ public final class CloudNet extends CloudNetDriver {
 
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
                 new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
-                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty(), this.taskScheduler));
+                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty()));
     }
 
     private void runConsole() {

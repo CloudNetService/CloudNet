@@ -75,14 +75,14 @@ public interface IPermissionManagement {
      *
      * @param name the name of the users to be deleted
      */
-    void deleteUser(@NotNull String name);
+    boolean deleteUser(@NotNull String name);
 
     /**
      * Deletes one user with the uniqueId of the given user.
      *
      * @param permissionUser the user to be deleted
      */
-    void deleteUser(@NotNull IPermissionUser permissionUser);
+    boolean deleteUser(@NotNull IPermissionUser permissionUser);
 
     /**
      * Checks if a user with the given uniqueId is stored in the database.
@@ -209,7 +209,10 @@ public interface IPermissionManagement {
      *
      * @param groups the new groups
      */
-    void setGroups(@NotNull Collection<? extends IPermissionGroup> groups);
+    void setGroups(@Nullable Collection<? extends IPermissionGroup> groups);
+
+    @NotNull
+    ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser);
 
     /**
      * Adds a new user to the database.
@@ -218,6 +221,9 @@ public interface IPermissionManagement {
      */
     @NotNull
     ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser);
+
+    @NotNull
+    ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency);
 
     /**
      * Updates an already existing user in the database.
@@ -234,7 +240,7 @@ public interface IPermissionManagement {
      * @param name the name of the users to be deleted
      */
     @NotNull
-    ITask<Void> deleteUserAsync(@NotNull String name);
+    ITask<Boolean> deleteUserAsync(@NotNull String name);
 
     /**
      * Deletes one user with the uniqueId of the given user.
@@ -242,7 +248,7 @@ public interface IPermissionManagement {
      * @param permissionUser the user to be deleted
      */
     @NotNull
-    ITask<Void> deleteUserAsync(@NotNull IPermissionUser permissionUser);
+    ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser);
 
     /**
      * Checks if a user with the given uniqueId is stored in the database.
@@ -283,6 +289,9 @@ public interface IPermissionManagement {
     @NotNull
     ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name);
 
+    @NotNull
+    ITask<IPermissionUser> getFirstUserAsync(String name);
+
     /**
      * Gets a list of all users stored in the database.
      * This can only return null when the connection to the database (or when it is executed in a
@@ -301,7 +310,7 @@ public interface IPermissionManagement {
      * @param users the new {@link IPermissionUser}s to be stored in the database
      */
     @NotNull
-    ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users);
+    ITask<Void> setUsersAsync(@Nullable Collection<? extends IPermissionUser> users);
 
     /**
      * Gets a list of all users stored in the database with the given group.
@@ -323,6 +332,9 @@ public interface IPermissionManagement {
      */
     @NotNull
     ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup);
+
+    @NotNull
+    ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency);
 
     /**
      * Updates a permission group in the list of groups. If a group with that name doesn't exist,
@@ -367,6 +379,8 @@ public interface IPermissionManagement {
     @NotNull
     ITask<IPermissionGroup> getGroupAsync(@NotNull String name);
 
+    ITask<IPermissionGroup> getDefaultPermissionGroupAsync();
+
     /**
      * Gets the list of all groups in the Cloud.
      *
@@ -381,6 +395,6 @@ public interface IPermissionManagement {
      * @param groups the new groups
      */
     @NotNull
-    ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups);
+    ITask<Void> setGroupsAsync(@Nullable Collection<? extends IPermissionGroup> groups);
 
 }

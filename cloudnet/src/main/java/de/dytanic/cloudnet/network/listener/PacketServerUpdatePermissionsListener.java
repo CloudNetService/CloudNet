@@ -30,7 +30,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     IPermissionUser permissionUser = packet.getHeader().get("permissionUser", PermissionUser.TYPE);
                     invoke0(new PermissionAddUserEvent(getPermissionManagement(), permissionUser));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).addUserWithoutClusterSync(permissionUser);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).addUserWithoutClusterSyncAsync(permissionUser);
                     }
                 }
                 break;
@@ -38,7 +38,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     IPermissionGroup permissionGroup = packet.getHeader().get("permissionGroup", PermissionGroup.TYPE);
                     invoke0(new PermissionAddGroupEvent(getPermissionManagement(), permissionGroup));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).addGroupWithoutClusterSync(permissionGroup);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).addGroupWithoutClusterSyncAsync(permissionGroup);
                     }
                 }
                 break;
@@ -46,7 +46,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     Collection<? extends IPermissionUser> permissionUsers = packet.getHeader().get("permissionUsers", PERMISSION_USERS_TYPE);
                     invoke0(new PermissionSetUsersEvent(getPermissionManagement(), permissionUsers));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).setUsersWithoutClusterSync(permissionUsers);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).setUsersWithoutClusterSyncAsync(permissionUsers);
                     }
                 }
                 break;
@@ -54,7 +54,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     Collection<? extends IPermissionGroup> permissionGroups = packet.getHeader().get("permissionGroups", PERMISSION_GROUPS_TYPE);
                     invoke0(new PermissionSetGroupsEvent(getPermissionManagement(), permissionGroups));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).setGroupsWithoutClusterSync(permissionGroups);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).setGroupsWithoutClusterSyncAsync(permissionGroups);
                     }
                 }
                 break;
@@ -62,7 +62,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     IPermissionUser permissionUser = packet.getHeader().get("permissionUser", PermissionUser.TYPE);
                     invoke0(new PermissionUpdateUserEvent(getPermissionManagement(), permissionUser));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).deleteUserWithoutClusterSync(permissionUser);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).deleteUserWithoutClusterSyncAsync(permissionUser);
                     }
                 }
                 break;
@@ -70,7 +70,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     IPermissionUser permissionUser = packet.getHeader().get("permissionUser", PermissionUser.TYPE);
                     invoke0(new PermissionDeleteUserEvent(getPermissionManagement(), permissionUser));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).updateUserWithoutClusterSync(permissionUser);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).updateUserWithoutClusterSyncAsync(permissionUser);
                     }
                 }
                 break;
@@ -78,7 +78,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     IPermissionGroup permissionGroup = packet.getHeader().get("permissionGroup", PermissionGroup.TYPE);
                     invoke0(new PermissionDeleteGroupEvent(getPermissionManagement(), permissionGroup));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).deleteGroupWithoutClusterSync(permissionGroup);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).deleteGroupWithoutClusterSyncAsync(permissionGroup);
                     }
                 }
                 break;
@@ -86,7 +86,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
                     IPermissionGroup permissionGroup = packet.getHeader().get("permissionGroup", PermissionGroup.TYPE);
                     invoke0(new PermissionUpdateGroupEvent(getPermissionManagement(), permissionGroup));
                     if (getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
-                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).updateGroupWithoutClusterSync(permissionGroup);
+                        ((ClusterSynchronizedPermissionManagement) getPermissionManagement()).updateGroupWithoutClusterSyncAsync(permissionGroup);
                     }
                 }
                 break;
