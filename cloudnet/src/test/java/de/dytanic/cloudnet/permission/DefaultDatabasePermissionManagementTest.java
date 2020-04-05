@@ -120,8 +120,7 @@ public class DefaultDatabasePermissionManagementTest {
 
         permissionManagement.hasPermission(permissionUser, permission);
 
-        System.out.println(errorStream.toString());
-        Assert.assertEquals(errorStream.toString(), "Detected recursive permission group implementation on group " + groupName + "\r\n");
+        Assert.assertEquals(errorStream.toString(), "Detected recursive permission group implementation on group " + groupName + System.lineSeparator());
         errorStream.reset();
 
         permissionUser.removeGroup(groupName);
