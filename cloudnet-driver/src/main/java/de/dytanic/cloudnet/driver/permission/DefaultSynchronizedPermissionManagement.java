@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -66,6 +67,7 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
         return this.getUserAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
+    @NotNull
     @Override
     default List<IPermissionUser> getUsers(@NotNull String name) {
         return this.getUsersAsync(name).get(5, TimeUnit.SECONDS, null);
@@ -73,7 +75,7 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
 
     @Override
     default Collection<IPermissionUser> getUsers() {
-        return this.getUsersAsync().get(5, TimeUnit.SECONDS, null);
+        return this.getUsersAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
     }
 
     @Override

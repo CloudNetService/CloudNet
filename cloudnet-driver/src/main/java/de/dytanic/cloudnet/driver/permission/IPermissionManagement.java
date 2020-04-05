@@ -118,6 +118,7 @@ public interface IPermissionManagement {
      * @param name the name of the users
      * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
      */
+    @NotNull
     List<IPermissionUser> getUsers(@NotNull String name);
 
     /**

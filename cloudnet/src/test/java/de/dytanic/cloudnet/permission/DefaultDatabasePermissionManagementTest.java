@@ -22,6 +22,7 @@ public class DefaultDatabasePermissionManagementTest {
         String groupName = "Test", userName = "Tester", permission = "test.permission", groupPermission = "role.permission";
 
         new File("build/h2database.mv.db").delete();
+        new File("build/group_permissions.json").delete();
 
         AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database", false);
         Assert.assertTrue(databaseProvider.init());
@@ -38,6 +39,7 @@ public class DefaultDatabasePermissionManagementTest {
         permissionManagement.updateUser(permissionUser);
         Assert.assertNotNull(permissionManagement.getUser(permissionUser.getUniqueId()));
         Assert.assertNotNull(permissionManagement.getUsers(permissionUser.getName()));
+        Assert.assertFalse(permissionManagement.getUsers(permissionUser.getName()).isEmpty());
 
         permissionUser.addPermission(new Permission(permission, 10));
         permissionManagement.updateUser(permissionUser);
@@ -115,6 +117,7 @@ public class DefaultDatabasePermissionManagementTest {
         PrintStream oldErr = System.err;
         ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
         System.setErr(new PrintStream(errorStream));
+
         permissionManagement.hasPermission(permissionUser, permission);
 
         System.out.println(errorStream.toString());
@@ -125,6 +128,7 @@ public class DefaultDatabasePermissionManagementTest {
         permissionManagement.updateUser(permissionUser);
 
         permissionManagement.hasPermission(permissionUser, permission);
+
         Assert.assertEquals(errorStream.toString(), "");
 
         permissionManagement.deleteUser(userName);
