@@ -65,17 +65,6 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
     }
 
     @NotNull
-    @Deprecated
-    public IPermissionManagementHandler getPermissionManagementHandler() {
-        throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
-    }
-
-    @Deprecated
-    public void setPermissionManagementHandler(@NotNull IPermissionManagementHandler permissionManagementHandler) {
-        throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
-    }
-
-    @NotNull
     @Override
     public IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
         return this.childPermissionManagement.addUser(permissionUser);
