@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class CloudNetSimpleNameTagsListener implements Listener {
+
     private final JavaPlugin plugin;
 
     public CloudNetSimpleNameTagsListener(JavaPlugin plugin) {
