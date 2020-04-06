@@ -1,10 +1,11 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.node.listener;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
-import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule;
@@ -14,6 +15,8 @@ import java.util.UUID;
 public class LabyModCustomChannelMessageListener {
 
     private CloudNetLabyModModule module;
+
+    private IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
 
     public LabyModCustomChannelMessageListener(CloudNetLabyModModule module) {
         this.module = module;
@@ -41,7 +44,7 @@ public class LabyModCustomChannelMessageListener {
     }
 
     private ICloudPlayer getPlayerByJoinSecret(UUID joinSecret) {
-        return NodePlayerManager.getInstance().getOnlinePlayers()
+        return this.playerManager.getOnlinePlayers()
                 .stream()
                 .filter(o -> LabyModUtils.getLabyModOptions(o) != null)
                 .filter(o -> LabyModUtils.getLabyModOptions(o).getJoinSecret() != null)
@@ -51,7 +54,7 @@ public class LabyModCustomChannelMessageListener {
     }
 
     private ICloudPlayer getPlayerBySpectateSecret(UUID spectateSecret) {
-        return NodePlayerManager.getInstance().getOnlinePlayers()
+        return this.playerManager.getOnlinePlayers()
                 .stream()
                 .filter(o -> LabyModUtils.getLabyModOptions(o) != null)
                 .filter(o -> LabyModUtils.getLabyModOptions(o).getSpectateSecret() != null)

@@ -3,14 +3,15 @@ package de.dytanic.cloudnet.database.sql;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
@@ -21,12 +22,16 @@ public abstract class SQLDatabase implements IDatabase {
     protected SQLDatabaseProvider databaseProvider;
     protected String name;
 
-    public SQLDatabase(SQLDatabaseProvider databaseProvider, String name) {
+    protected ExecutorService executorService;
+
+    public SQLDatabase(SQLDatabaseProvider databaseProvider, String name, ExecutorService executorService) {
         Preconditions.checkNotNull(databaseProvider);
         Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(executorService);
 
         this.databaseProvider = databaseProvider;
         this.name = name;
+        this.executorService = executorService;
 
         databaseProvider.executeUpdate("CREATE TABLE IF NOT EXISTS " + name + "(" + TABLE_COLUMN_KEY + " VARCHAR(1024), " + TABLE_COLUMN_VALUE + " TEXT);");
     }
@@ -43,7 +48,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     @Override
     public void close() {
-        this.databaseProvider.cachedDatabaseInstances.remove(name);
+        this.databaseProvider.cachedDatabaseInstances.remove(this.name);
     }
 
     @Override
@@ -54,19 +59,17 @@ public abstract class SQLDatabase implements IDatabase {
         if (this.databaseProvider.getDatabaseHandler() != null) {
             this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
         }
-
-        return this.insert0(key, document);
+        return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
     }
 
     public boolean insert0(String key, JsonDocument document) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(document);
 
-        return !contains(key) ?
-                this.databaseProvider.executeUpdate(
-                        "INSERT INTO " + this.name + "(" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
-                        key, document.toString()
-                ) != -1 : update(key, document);
+        return this.databaseProvider.executeUpdate(
+                "INSERT INTO " + this.name + "(" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
+                key, document.toString()
+        ) != -1;
     }
 
     @Override
@@ -78,7 +81,7 @@ public abstract class SQLDatabase implements IDatabase {
             this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
         }
 
-        return !contains(key) ? insert0(key, document) : update0(key, document);
+        return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
     }
 
     public boolean update0(String key, JsonDocument document) {
@@ -293,7 +296,12 @@ public abstract class SQLDatabase implements IDatabase {
     @Override
     @NotNull
     public ITask<Boolean> insertAsync(String key, JsonDocument document) {
-        return this.schedule(() -> insert(key, document));
+        return this.schedule(() -> this.insert(key, document));
+    }
+
+    @Override
+    public @NotNull ITask<Boolean> updateAsync(String key, JsonDocument document) {
+        return this.schedule(() -> this.update(key, document));
     }
 
     @Override
@@ -386,7 +394,16 @@ public abstract class SQLDatabase implements IDatabase {
 
     @NotNull
     private <T> ITask<T> schedule(Callable<T> callable) {
-        return CloudNetDriver.getInstance().getTaskScheduler().schedule(callable);
+        ITask<T> task = new ListenableTask<>(callable);
+        this.executorService.execute(() -> {
+            try {
+                Thread.sleep(0, 100000);
+                task.call();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+        return task;
     }
 
 }

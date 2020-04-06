@@ -3,6 +3,7 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command.CloudNPCCommand;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener.NPCInventoryListener;
 import org.bukkit.Bukkit;
@@ -17,6 +18,7 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
     public void onEnable() {
         if (this.isCompatibleVersion()) {
             this.npcManagement = new BukkitNPCManagement(this);
+            CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractNPCManagement.class, "BukkitNPCManagement", this.npcManagement);
 
             this.registerListeners();
         }
@@ -58,6 +60,7 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
     public void onDisable() {
         if (this.npcManagement != null) {
             this.npcManagement.shutdown();
+            CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractNPCManagement.class, this.npcManagement);
         }
     }
 

@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
+import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeePlayerFallbackEvent;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
@@ -54,15 +55,23 @@ public final class BungeeCloudNetHelper {
                 player.getUniqueId(),
                 player.getServer() != null ? player.getServer().getInfo().getName() : null,
                 player::hasPermission
-        ).map(serviceInfoSnapshot -> ProxyServer.getInstance().getServerInfo(serviceInfoSnapshot.getName()));
+        ).map(serviceInfoSnapshot -> ProxyServer.getInstance().getPluginManager().callEvent(
+                new BungeePlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName())
+        )).map(BungeePlayerFallbackEvent::getFallbackName).map(fallback -> ProxyServer.getInstance().getServerInfo(fallback));
     }
 
     public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(ProxiedPlayer player, String currentServer) {
         return BridgeProxyHelper.connectToFallback(player.getUniqueId(), currentServer,
                 player::hasPermission,
                 serviceInfoSnapshot -> {
+                    BungeePlayerFallbackEvent event = new BungeePlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName());
+                    ProxyServer.getInstance().getPluginManager().callEvent(event);
+                    if (event.getFallbackName() == null) {
+                        return CompletableFuture.completedFuture(false);
+                    }
+
                     CompletableFuture<Boolean> future = new CompletableFuture<>();
-                    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(serviceInfoSnapshot.getName());
+                    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(event.getFallbackName());
                     player.connect(serverInfo, (result, error) -> future.complete(result && error != null));
                     return future;
                 }

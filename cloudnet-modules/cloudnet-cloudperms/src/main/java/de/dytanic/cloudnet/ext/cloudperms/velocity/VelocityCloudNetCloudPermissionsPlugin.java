@@ -23,7 +23,8 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     private final ProxyServer proxyServer;
 
-    private final PermissionProvider permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider();
+    private CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
+    private PermissionProvider permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider(this.permissionsManagement);
 
     @Inject
     public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer) {
@@ -38,10 +39,9 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
-        CloudPermissionsManagement.getInstance();
         initPlayersPermissionFunction();
 
-        proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener());
+        proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener(this.permissionsManagement));
     }
 
     @Subscribe
@@ -64,7 +64,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
             Field field = player.getClass().getDeclaredField("permissionFunction");
             field.setAccessible(true);
-            field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId()));
+            field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId(), this.permissionsManagement));
 
         } catch (Exception exception) {
             exception.printStackTrace();

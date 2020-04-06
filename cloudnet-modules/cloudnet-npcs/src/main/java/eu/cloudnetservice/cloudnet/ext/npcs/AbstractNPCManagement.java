@@ -1,6 +1,7 @@
 package eu.cloudnetservice.cloudnet.ext.npcs;
 
 
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -16,9 +17,7 @@ import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -88,6 +87,18 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
 
         }
 
+    }
+
+    public abstract void updateNPC(CloudNPC cloudNPC);
+
+    public abstract boolean isWorldLoaded(CloudNPC cloudNPC);
+
+    public List<Pair<ServiceInfoSnapshot, ServiceInfoState>> filterNPCServices(@NotNull CloudNPC cloudNPC) {
+        return super.services.values().stream()
+                .filter(pair -> (pair.getSecond() != ServiceInfoState.STOPPED && pair.getSecond() != ServiceInfoState.STARTING)
+                        && Arrays.asList(pair.getFirst().getConfiguration().getGroups()).contains(cloudNPC.getTargetGroup()))
+                .sorted(Comparator.comparingInt(pair -> pair.getFirst().getServiceId().getTaskServiceId()))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -2,9 +2,11 @@ package de.dytanic.cloudnet.ext.bridge.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
+import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.bukkit.listener.BukkitCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.bukkit.listener.BukkitPlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -17,6 +19,8 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
     @Override
     public synchronized void onEnable() {
+        CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
+
         BukkitCloudNetHelper.setPlugin(this);
         this.initListeners();
 

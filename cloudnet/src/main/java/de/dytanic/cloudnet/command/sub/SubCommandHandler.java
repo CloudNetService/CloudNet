@@ -14,7 +14,11 @@ import java.util.stream.Collectors;
 
 public class SubCommandHandler extends Command implements ITabCompleter {
 
-    private Collection<SubCommand> subCommands;
+    private Collection<SubCommand> subCommands = new ArrayList<>();
+
+    public SubCommandHandler(String... names) {
+        super(names);
+    }
 
     public SubCommandHandler(Collection<SubCommand> subCommands, String... names) {
         super(names);
@@ -129,5 +133,9 @@ public class SubCommandHandler extends Command implements ITabCompleter {
                 .filter(responses -> !responses.isEmpty())
                 .flatMap(Collection::parallelStream)
                 .collect(Collectors.toSet());
+    }
+
+    protected void setSubCommands(Collection<SubCommand> subCommands) {
+        this.subCommands = subCommands;
     }
 }

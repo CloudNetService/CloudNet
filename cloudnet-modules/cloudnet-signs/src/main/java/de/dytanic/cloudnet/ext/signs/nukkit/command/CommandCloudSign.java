@@ -9,7 +9,6 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Location;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
-import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
@@ -21,9 +20,12 @@ import java.util.Arrays;
 
 public class CommandCloudSign extends Command {
 
-    public CommandCloudSign() {
+    private NukkitSignManagement nukkitSignManagement;
+
+    public CommandCloudSign(NukkitSignManagement nukkitSignManagement) {
         super("cloudsign", "Add or Removes signs from the provided Group configuration", "/cloudsign create <targetGroup>", new String[]{"cs"});
         this.setPermission("cloudnet.command.cloudsign");
+        this.nukkitSignManagement = nukkitSignManagement;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class CommandCloudSign extends Command {
             return false;
         }
 
-        SignConfigurationEntry entry = AbstractSignManagement.getInstance().getOwnSignConfigurationEntry();
+        SignConfigurationEntry entry = this.nukkitSignManagement.getOwnSignConfigurationEntry();
 
         if (entry == null) {
             return false;
@@ -56,15 +58,15 @@ public class CommandCloudSign extends Command {
             BlockEntity blockEntity = block.getLevel().getBlockEntity(block.getLocation());
 
             if (blockEntity instanceof BlockEntitySign) {
-                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
+                for (Sign sign : this.nukkitSignManagement.getSigns()) {
                     if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 
-                    Location location = NukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
+                    Location location = this.nukkitSignManagement.toLocation(sign.getWorldPosition());
 
                     if (location != null && location.equals(block.getLocation())) {
-                        AbstractSignManagement.getInstance().sendSignRemoveUpdate(sign);
+                        this.nukkitSignManagement.sendSignRemoveUpdate(sign);
 
                         BlockEntitySign blockSign = (BlockEntitySign) blockEntity;
                         blockSign.setText();
@@ -84,12 +86,12 @@ public class CommandCloudSign extends Command {
             BlockEntity blockEntity = block.getLevel().getBlockEntity(block.getLocation());
 
             if (blockEntity instanceof BlockEntitySign) {
-                for (Sign sign : AbstractSignManagement.getInstance().getSigns()) {
+                for (Sign sign : this.nukkitSignManagement.getSigns()) {
                     if (!Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
                         continue;
                     }
 
-                    Location location = NukkitSignManagement.getInstance().toLocation(sign.getWorldPosition());
+                    Location location = this.nukkitSignManagement.toLocation(sign.getWorldPosition());
 
                     if (location != null && location.equals(block.getLocation())) {
                         sender.sendMessage(
@@ -109,7 +111,7 @@ public class CommandCloudSign extends Command {
                         args.length == 3 ? args[2] : null
                 );
 
-                AbstractSignManagement.getInstance().sendSignAddUpdate(sign);
+                this.nukkitSignManagement.sendSignAddUpdate(sign);
                 sender.sendMessage(
                         SignConfigurationProvider.load().getMessages().get("command-cloudsign-create-success")
                                 .replace("%group%", sign.getTargetGroup())
@@ -117,7 +119,7 @@ public class CommandCloudSign extends Command {
                 );
             }
         } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
-            AbstractSignManagement.getInstance().cleanup();
+            this.nukkitSignManagement.cleanup();
 
             sender.sendMessage(
                     SignConfigurationProvider.load().getMessages().get("command-cloudsign-cleanup-success").replace('&', '§')

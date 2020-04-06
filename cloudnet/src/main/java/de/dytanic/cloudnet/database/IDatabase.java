@@ -48,6 +48,9 @@ public interface IDatabase extends INameable, AutoCloseable {
     ITask<Boolean> insertAsync(String key, JsonDocument document);
 
     @NotNull
+    ITask<Boolean> updateAsync(String key, JsonDocument document);
+
+    @NotNull
     ITask<Boolean> containsAsync(String key);
 
     @NotNull

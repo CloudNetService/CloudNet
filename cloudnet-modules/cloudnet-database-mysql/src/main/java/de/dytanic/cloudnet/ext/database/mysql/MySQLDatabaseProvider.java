@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.zaxxer.hikari.HikariDataSource;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
+import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -15,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
@@ -29,7 +32,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     private List<MySQLConnectionEndpoint> addresses;
 
-    public MySQLDatabaseProvider(JsonDocument config) {
+    public MySQLDatabaseProvider(JsonDocument config, ExecutorService executorService) {
+        super(executorService);
         this.config = config;
     }
 
@@ -62,7 +66,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         this.removedOutdatedEntries();
 
         if (!this.cachedDatabaseInstances.contains(name)) {
-            this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name));
+            this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name, super.executorService));
         }
 
         return cachedDatabaseInstances.getSecond(name);
@@ -122,7 +126,9 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
+        super.close();
+
         this.hikariDataSource.close();
     }
 

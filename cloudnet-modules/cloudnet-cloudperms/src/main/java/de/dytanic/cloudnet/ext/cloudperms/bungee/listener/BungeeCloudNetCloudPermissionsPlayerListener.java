@@ -17,9 +17,15 @@ import java.util.UUID;
 
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
 
+    private CloudPermissionsManagement permissionsManagement;
+
+    public BungeeCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+        this.permissionsManagement = permissionsManagement;
+    }
+
     @EventHandler
     public void handle(LoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(event.getConnection().getUniqueId(), event.getConnection().getName());
+        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName());
     }
 
     @EventHandler
@@ -41,10 +47,10 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
         }
 
         if (uniqueId != null) {
-            IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
+            IPermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
 
             if (permissionUser != null) {
-                event.setHasPermission(CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, event.getPermission()));
+                event.setHasPermission(this.permissionsManagement.hasPlayerPermission(permissionUser, event.getPermission()));
             }
         }
     }
@@ -53,7 +59,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
     public void handle(PlayerDisconnectEvent event) {
         UUID uniqueId = event.getPlayer().getUniqueId();
 
-        CloudPermissionsManagement.getInstance().getCachedPermissionUsers().remove(uniqueId);
+        this.permissionsManagement.getCachedPermissionUsers().remove(uniqueId);
 
     }
 

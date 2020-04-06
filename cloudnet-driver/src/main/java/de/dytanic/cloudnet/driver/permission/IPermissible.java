@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
-import de.dytanic.cloudnet.driver.provider.PermissionProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +17,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      *
      * @param name the new name
      */
@@ -38,7 +36,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      *
      * @param potency the new potency
      */
@@ -49,7 +46,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      *
      * @param permission the permission
      * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission} was null
@@ -62,7 +58,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      *
      * @param group the group where this permission should be effective
      * @param permission the permission
@@ -75,7 +70,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      *
      * @param permission the permission
      * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code permission} doesn't exist
@@ -87,7 +81,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      *
      * @param group the group where this permission is effective
      * @param permission the permission
@@ -139,7 +132,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      * <p>
      * Equivalent to {@code #addPermission(permission, 0)}
      *
@@ -155,7 +147,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      * <p>
      * Equivalent to {@code #addPermission(permission, value ? 1 : -1)}
      *
@@ -172,7 +163,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      * <p>
      * Equivalent to {@code #addPermission(new Permission(permission, potency))}
      *
@@ -189,7 +179,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      * <p>
      * Equivalent to {@code #addPermission(group, permission, 0)}
      *
@@ -206,7 +195,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      * <p>
      * Equivalent to {@code #addPermission(group, permission, 0)}
      *
@@ -224,7 +212,6 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * <p>
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
-     * You can also use the {@link PermissionProvider} to update.
      * <p>
      * Equivalent to {@code #addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() + millis.toMillis(time))))}
      *

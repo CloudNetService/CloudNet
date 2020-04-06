@@ -11,24 +11,9 @@ import java.util.Collection;
 
 public final class PacketServerSetPermissionData extends Packet {
 
-    public PacketServerSetPermissionData(Collection<IPermissionUser> permissionUsers, Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
-        super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument()
-                .append("permissionUsers", permissionUsers)
-                .append("permissionGroups", permissionGroups)
-                .append("updateType", updateType)
-                .append("set_json_database", true), null);
-    }
-
     public PacketServerSetPermissionData(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType, boolean ignored) {
         super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument()
                 .append("permissionGroups", permissionGroups)
-                .append("updateType", updateType)
-                .append("set_json_database", true), null);
-    }
-
-    public PacketServerSetPermissionData(Collection<IPermissionUser> permissionUsers, NetworkUpdateType updateType) {
-        super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument()
-                .append("permissionUsers", permissionUsers)
                 .append("updateType", updateType)
                 .append("set_json_database", true), null);
     }

@@ -106,7 +106,7 @@ public class BridgeProxyHelper {
                                                                            Function<ServiceInfoSnapshot, CompletableFuture<Boolean>> serverConnector) {
         BridgeProxyHelper.startConnecting(uniqueId);
         CompletableFuture<ServiceInfoSnapshot> future = new CompletableFuture<>();
-        Optional<ServiceInfoSnapshot> optionalFallback = BridgeProxyHelper.getNextFallback(uniqueId, currentServer, permissionTester);
+        Optional<ServiceInfoSnapshot> optionalFallback = getNextFallback(uniqueId, currentServer, permissionTester);
         if (optionalFallback.isPresent()) {
             tryFallback(uniqueId, optionalFallback.get(), currentServer, future, permissionTester, serverConnector);
         } else {
