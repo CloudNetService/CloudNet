@@ -1,5 +1,8 @@
 package de.dytanic.cloudnet.driver.service;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 public enum ServiceEnvironmentType {
 
     MINECRAFT_SERVER(
@@ -32,7 +35,8 @@ public enum ServiceEnvironmentType {
                     ServiceEnvironment.BUNGEECORD_DEFAULT
             },
             true, false, false, false,
-            25565
+            25565,
+            new String[]{">"}
     ),
     VELOCITY(
             new ServiceEnvironment[]{ServiceEnvironment.VELOCITY_DEFAULT},
@@ -53,14 +57,20 @@ public enum ServiceEnvironmentType {
     private final boolean minecraftBedrockServer;
 
     private final int defaultStartPort;
+    private final Collection<String> ignoredConsoleLines;
 
     ServiceEnvironmentType(ServiceEnvironment[] environments, boolean minecraftJavaProxy, boolean minecraftBedrockProxy, boolean minecraftJavaServer, boolean minecraftBedrockServer, int defaultStartPort) {
+        this(environments, minecraftJavaProxy, minecraftBedrockProxy, minecraftJavaServer, minecraftBedrockServer, defaultStartPort, new String[0]);
+    }
+
+    ServiceEnvironmentType(ServiceEnvironment[] environments, boolean minecraftJavaProxy, boolean minecraftBedrockProxy, boolean minecraftJavaServer, boolean minecraftBedrockServer, int defaultStartPort, String[] ignoredConsoleLines) {
         this.environments = environments;
         this.minecraftJavaProxy = minecraftJavaProxy;
         this.minecraftBedrockProxy = minecraftBedrockProxy;
         this.minecraftJavaServer = minecraftJavaServer;
         this.minecraftBedrockServer = minecraftBedrockServer;
         this.defaultStartPort = defaultStartPort;
+        this.ignoredConsoleLines = Arrays.asList(ignoredConsoleLines);
     }
 
     public ServiceEnvironment[] getEnvironments() {
@@ -95,4 +105,7 @@ public enum ServiceEnvironmentType {
         return this.defaultStartPort;
     }
 
+    public Collection<String> getIgnoredConsoleLines() {
+        return this.ignoredConsoleLines;
+    }
 }

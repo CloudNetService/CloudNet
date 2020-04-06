@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.service;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServiceConsoleLogReceiveEntryEvent;
 import de.dytanic.cloudnet.network.packet.PacketServerConsoleLogEntryReceive;
@@ -71,6 +72,11 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
     private void addCachedItem(String text, boolean printErrorIntoConsole) {
         if (text == null) {
+            return;
+        }
+        ServiceEnvironmentType environment = this.cloudService.getServiceConfiguration().getProcessConfig().getEnvironment();
+        String trimmedText = text.trim();
+        if (!environment.getIgnoredConsoleLines().isEmpty() && environment.getIgnoredConsoleLines().contains(trimmedText)) {
             return;
         }
 
