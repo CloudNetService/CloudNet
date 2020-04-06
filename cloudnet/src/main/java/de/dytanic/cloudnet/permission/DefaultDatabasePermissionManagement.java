@@ -105,6 +105,10 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
         this.getDatabase().getAsync(uniqueId.toString())
                 .onComplete(document -> {
+                    if (document == null) {
+                        task.complete(null);
+                        return;
+                    }
                     IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.TYPE);
 
                     if (this.testPermissionUser(permissionUser)) {
