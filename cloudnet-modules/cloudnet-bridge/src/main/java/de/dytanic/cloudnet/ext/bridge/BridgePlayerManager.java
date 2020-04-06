@@ -23,16 +23,18 @@ import java.util.function.Function;
 
 public final class BridgePlayerManager implements IPlayerManager {
 
-    private static final IPlayerManager instance = new BridgePlayerManager();
-
     private static final Type
             TYPE_LIST_CLOUD_PLAYERS = new TypeToken<List<CloudPlayer>>() {
     }.getType(),
             TYPE_LIST_CLOUD_OFFLINE_PLAYERS = new TypeToken<List<CloudOfflinePlayer>>() {
             }.getType();
 
+    /**
+     * @deprecated IPlayerManager should be accessed through the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static IPlayerManager getInstance() {
-        return BridgePlayerManager.instance;
+        return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
     }
 
     @Override
@@ -306,8 +308,8 @@ public final class BridgePlayerManager implements IPlayerManager {
         );
     }
 
-
     private CloudNetDriver getCloudNetDriver() {
         return CloudNetDriver.getInstance();
     }
+
 }

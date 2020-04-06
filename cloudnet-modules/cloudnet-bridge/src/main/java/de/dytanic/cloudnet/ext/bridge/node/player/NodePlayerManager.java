@@ -14,14 +14,15 @@ import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public final class NodePlayerManager implements IPlayerManager {
-
-    private static NodePlayerManager instance;
 
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
 
@@ -29,12 +30,14 @@ public final class NodePlayerManager implements IPlayerManager {
 
     public NodePlayerManager(String databaseName) {
         this.databaseName = databaseName;
-
-        instance = this;
     }
 
+    /**
+     * @deprecated IPlayerManager should be accessed through the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static NodePlayerManager getInstance() {
-        return NodePlayerManager.instance;
+        return (NodePlayerManager) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
     }
 
 

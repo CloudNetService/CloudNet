@@ -128,24 +128,17 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         return Optional.of(armorStand);
     }
 
+    @Override
     public void updateNPC(@NotNull CloudNPC cloudNPC) {
         if (!this.npcProperties.containsKey(cloudNPC.getUUID())) {
             this.createNPC(cloudNPC);
             return;
         }
 
-        List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services = this.filterNPCServices(cloudNPC);
+        List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services = super.filterNPCServices(cloudNPC);
 
         this.updateInventory(cloudNPC, services);
         this.updateInfoLine(cloudNPC, services);
-    }
-
-    public List<Pair<ServiceInfoSnapshot, ServiceInfoState>> filterNPCServices(@NotNull CloudNPC cloudNPC) {
-        return super.services.values().stream()
-                .filter(pair -> (pair.getSecond() != ServiceInfoState.STOPPED && pair.getSecond() != ServiceInfoState.STARTING)
-                        && Arrays.asList(pair.getFirst().getConfiguration().getGroups()).contains(cloudNPC.getTargetGroup()))
-                .sorted(Comparator.comparingInt(pair -> pair.getFirst().getServiceId().getTaskServiceId()))
-                .collect(Collectors.toList());
     }
 
     private void updateInventory(CloudNPC cloudNPC, List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services) {
@@ -247,6 +240,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         }
     }
 
+    @Override
     public boolean isWorldLoaded(CloudNPC cloudNPC) {
         return this.toLocation(cloudNPC.getPosition()).getWorld() != null;
     }

@@ -2,13 +2,14 @@ package eu.cloudnetservice.cloudnet.ext.labymod.bungee.listener;
 
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.EventPriority;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModChannelUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
@@ -26,9 +27,11 @@ import java.util.UUID;
 
 public class BungeeLabyModListener implements Listener {
 
+    private IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+
     @EventHandler
     public void handle(ServerConnectedEvent event) {
-        ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(event.getPlayer().getUniqueId());
+        ICloudPlayer cloudPlayer = this.playerManager.getOnlinePlayer(event.getPlayer().getUniqueId());
         if (cloudPlayer != null && LabyModUtils.getLabyModOptions(cloudPlayer) != null) {
             ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getServer().getInfo().getName());
             this.sendLabyModServerUpdate(event.getPlayer(), cloudPlayer, serviceInfoSnapshot);
@@ -53,7 +56,7 @@ public class BungeeLabyModListener implements Listener {
                     continue;
                 }
 
-                ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId());
+                ICloudPlayer cloudPlayer = this.playerManager.getOnlinePlayer(player.getUniqueId());
                 if (cloudPlayer != null && LabyModUtils.getLabyModOptions(cloudPlayer) != null) {
                     this.sendLabyModServerUpdate(player, cloudPlayer, newServiceInfoSnapshot);
                 }
@@ -78,7 +81,7 @@ public class BungeeLabyModListener implements Listener {
         String messageKey = pair.getFirst();
         JsonDocument messageContents = pair.getSecond();
 
-        ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId());
+        ICloudPlayer cloudPlayer = this.playerManager.getOnlinePlayer(player.getUniqueId());
         if (cloudPlayer == null) {
             return;
         }
@@ -93,7 +96,7 @@ public class BungeeLabyModListener implements Listener {
             }
             labyModOptions.setCreationTime(System.currentTimeMillis());
             LabyModUtils.setLabyModOptions(cloudPlayer, labyModOptions);
-            BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
+            this.playerManager.updateOnlinePlayer(cloudPlayer);
 
             if (cloudPlayer.getConnectedService() != null) {
                 ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(cloudPlayer.getConnectedService().getServerName());
@@ -150,13 +153,13 @@ public class BungeeLabyModListener implements Listener {
         ServiceInfoSnapshot connectedService = BridgeProxyHelper.getCachedServiceInfoSnapshot(target.getConnectedService().getServerName());
 
         if (connectedService == null) {
-            BridgePlayerManager.getInstance().updateOnlinePlayer(target);
+            this.playerManager.updateOnlinePlayer(target);
             return;
         }
 
         byte[] discordRPCData = LabyModUtils.getDiscordRPCGameInfoUpdateMessageContents(target, connectedService);
         if (discordRPCData != null) {
-            BridgePlayerManager.getInstance().getPlayerExecutor(target).sendPluginMessage(LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
+            this.playerManager.getPlayerExecutor(target).sendPluginMessage(LabyModConstants.LMC_CHANNEL_NAME, discordRPCData);
         }
 
         player.connect(ProxyServer.getInstance().getServerInfo(target.getConnectedService().getServerName()));
