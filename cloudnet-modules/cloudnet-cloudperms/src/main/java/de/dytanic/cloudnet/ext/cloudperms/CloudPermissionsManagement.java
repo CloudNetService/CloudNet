@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 public class CloudPermissionsManagement implements DefaultPermissionManagement, DefaultSynchronizedPermissionManagement {
 
-    private static CloudPermissionsManagement instance;
     private final Map<String, IPermissionGroup> cachedPermissionGroups = new ConcurrentHashMap<>();
     private final Map<UUID, IPermissionUser> cachedPermissionUsers = new ConcurrentHashMap<>();
 
@@ -28,11 +27,12 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
         CloudNetDriver.getInstance().setPermissionManagement(this);
     }
 
+    /**
+     * @deprecated use {@link CloudNetDriver#getPermissionManagement()} instead.
+     */
     @Deprecated
     public static CloudPermissionsManagement getInstance() {
-        return CloudPermissionsManagement.instance != null
-                ? CloudPermissionsManagement.instance
-                : (CloudPermissionsManagement.instance = new CloudPermissionsPermissionManagement(CloudNetDriver.getInstance().getPermissionManagement()));
+        return (CloudPermissionsManagement) CloudNetDriver.getInstance().getPermissionManagement();
     }
 
     public static CloudPermissionsManagement newInstance() {
