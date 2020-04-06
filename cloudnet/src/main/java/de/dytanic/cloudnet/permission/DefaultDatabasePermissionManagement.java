@@ -432,10 +432,8 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         try {
             return this.databaseProviderCallable.call();
         } catch (Exception exception) {
-            exception.printStackTrace();
+            throw new Error("An error occurred while attempting to get the database provider", exception);
         }
-
-        return null;
     }
 
     public Map<String, IPermissionGroup> getPermissionGroupsMap() {

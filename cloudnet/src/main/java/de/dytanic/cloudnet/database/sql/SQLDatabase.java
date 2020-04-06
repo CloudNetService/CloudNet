@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.database.sql;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.*;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -396,6 +397,7 @@ public abstract class SQLDatabase implements IDatabase {
         ITask<T> task = new ListenableTask<>(callable);
         this.executorService.execute(() -> {
             try {
+                Thread.sleep(0, 100000);
                 task.call();
             } catch (Exception exception) {
                 exception.printStackTrace();

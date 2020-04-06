@@ -46,7 +46,7 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
                 success = success && this.deleteUserAsync(user).getDef(false);
             }
             task.complete(success);
-        });
+        }).onCancelled(listITask -> task.cancel(true)).onFailure(throwable -> task.complete(false));
 
         return task;
     }
