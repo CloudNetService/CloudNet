@@ -46,7 +46,7 @@ public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
     public void registerDatabaseProvider() {
-        getRegistry().registerService(AbstractDatabaseProvider.class, getConfig().getString("database"), new MySQLDatabaseProvider(getConfig()));
+        getRegistry().registerService(AbstractDatabaseProvider.class, getConfig().getString("database"), new MySQLDatabaseProvider(getConfig(), null));
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)

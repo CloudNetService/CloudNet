@@ -10,9 +10,11 @@ import java.util.UUID;
 public final class VelocityCloudNetCloudPermissionsPermissionFunction implements PermissionFunction {
 
     private final UUID uniqueId;
+    private final CloudPermissionsManagement permissionsManagement;
 
-    public VelocityCloudNetCloudPermissionsPermissionFunction(UUID uniqueId) {
+    public VelocityCloudNetCloudPermissionsPermissionFunction(UUID uniqueId, CloudPermissionsManagement permissionsManagement) {
         this.uniqueId = uniqueId;
+        this.permissionsManagement = permissionsManagement;
     }
 
     @Override
@@ -21,8 +23,8 @@ public final class VelocityCloudNetCloudPermissionsPermissionFunction implements
             return Tristate.FALSE;
         }
 
-        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
-        return (permissionUser != null && CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, permission)) ?
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
+        return (permissionUser != null && this.permissionsManagement.hasPlayerPermission(permissionUser, permission)) ?
                 Tristate.TRUE : Tristate.FALSE;
     }
 

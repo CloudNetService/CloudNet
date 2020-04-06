@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
-import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.ext.cloudperms.listener.PermissionsUpdateListener;
@@ -8,37 +9,42 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-public class CloudPermissionsManagement implements IPermissionManagement {
+public class CloudPermissionsManagement implements DefaultPermissionManagement, DefaultSynchronizedPermissionManagement {
 
-    private static CloudPermissionsManagement instance;
     private final Map<String, IPermissionGroup> cachedPermissionGroups = new ConcurrentHashMap<>();
     private final Map<UUID, IPermissionUser> cachedPermissionUsers = new ConcurrentHashMap<>();
 
-    protected CloudPermissionsManagement() {
+    private final IPermissionManagement childPermissionManagement;
+
+    protected CloudPermissionsManagement(IPermissionManagement childPermissionManagement) {
+        this.childPermissionManagement = childPermissionManagement;
         this.init();
+
+        CloudNetDriver.getInstance().setPermissionManagement(this);
     }
 
+    /**
+     * @deprecated use {@link CloudNetDriver#getPermissionManagement()} instead.
+     */
+    @Deprecated
     public static CloudPermissionsManagement getInstance() {
-        return CloudPermissionsManagement.instance != null
-                ? CloudPermissionsManagement.instance
-                : (CloudPermissionsManagement.instance = new CloudPermissionsPermissionManagement());
+        return (CloudPermissionsManagement) CloudNetDriver.getInstance().getPermissionManagement();
+    }
+
+    public static CloudPermissionsManagement newInstance() {
+        return new CloudPermissionsPermissionManagement(Objects.requireNonNull(CloudNetDriver.getInstance().getPermissionManagement()));
     }
 
     private void init() {
-        for (IPermissionGroup permissionGroup : this.getDriver().getPermissionProvider().getGroups()) {
+        for (IPermissionGroup permissionGroup : this.getChildPermissionManagement().getGroups()) {
             this.cachedPermissionGroups.put(permissionGroup.getName(), permissionGroup);
         }
 
-        this.getDriver().getEventManager().registerListener(new PermissionsUpdateListener());
+        this.getDriver().getEventManager().registerListener(new PermissionsUpdateListener(this));
     }
 
     public boolean hasPlayerPermission(IPermissionUser permissionUser, String perm) {
@@ -53,114 +59,136 @@ public class CloudPermissionsManagement implements IPermissionManagement {
         return hasPermission(permissionUser, permission);
     }
 
-
-    @NotNull
     @Override
-    public IPermissionManagementHandler getPermissionManagementHandler() {
-        throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
+    public IPermissionManagement getChildPermissionManagement() {
+        return this.childPermissionManagement;
     }
 
     @Override
-    public void setPermissionManagementHandler(@NotNull IPermissionManagementHandler permissionManagementHandler) {
-        throw new UnsupportedOperationException("PermissionManagementHandler is not available in this implementation");
+    public boolean canBeOverwritten() {
+        return false;
     }
 
-    @NotNull
     @Override
-    public IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
-        try {
-            this.getDriver().getPermissionProvider().addUserAsync(permissionUser).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
+    public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser) {
+        return this.childPermissionManagement.addUserAsync(permissionUser);
+    }
+
+    @Override
+    public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency) {
+        return this.childPermissionManagement.addUserAsync(name, password, potency);
+    }
+
+    @Override
+    public @NotNull ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser) {
+        return this.childPermissionManagement.updateUserAsync(permissionUser);
+    }
+
+    @Override
+    public @NotNull ITask<Boolean> deleteUserAsync(@NotNull String name) {
+        return this.childPermissionManagement.deleteUserAsync(name);
+    }
+
+    @Override
+    public @NotNull ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
+        return this.childPermissionManagement.deleteUserAsync(permissionUser);
+    }
+
+    @Override
+    public @NotNull ITask<Boolean> containsUserAsync(@NotNull String name) {
+        if (this.cachedPermissionUsers.values().stream().anyMatch(permissionUser -> permissionUser.getName().equals(name))) {
+            return CompletedTask.create(true);
         }
-
-        return permissionUser;
+        return this.childPermissionManagement.containsUserAsync(name);
     }
 
     @Override
-    public void updateUser(@NotNull IPermissionUser permissionUser) {
-        this.getDriver().getPermissionProvider().updateUser(permissionUser);
+    public @NotNull ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
+        if (this.cachedPermissionUsers.containsKey(uniqueId)) {
+            return CompletedTask.create(true);
+        }
+        return this.childPermissionManagement.containsUserAsync(uniqueId);
     }
 
     @Override
-    public void deleteUser(@NotNull String name) {
-        this.getDriver().getPermissionProvider().deleteUser(name);
+    public @NotNull ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
+        if (this.cachedPermissionUsers.containsKey(uniqueId)) {
+            return CompletedTask.create(this.cachedPermissionUsers.get(uniqueId));
+        }
+        return this.childPermissionManagement.getUserAsync(uniqueId);
     }
 
     @Override
-    public void deleteUser(@NotNull IPermissionUser permissionUser) {
-        this.getDriver().getPermissionProvider().deleteUser(permissionUser);
+    public @NotNull ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
+        return this.childPermissionManagement.getUsersAsync(name);
     }
 
     @Override
-    public boolean containsUser(@NotNull UUID uniqueId) {
-        return this.cachedPermissionUsers.containsKey(uniqueId) || this.getDriver().getPermissionProvider().containsUser(uniqueId);
+    public @NotNull ITask<IPermissionUser> getFirstUserAsync(String name) {
+        return this.childPermissionManagement.getFirstUserAsync(name);
     }
 
     @Override
-    public boolean containsUser(@NotNull String name) {
-        return this.getDriver().getPermissionProvider().containsUser(name);
-    }
-
-    @Nullable
-    @Override
-    public IPermissionUser getUser(@NotNull UUID uniqueId) {
-        return this.cachedPermissionUsers.containsKey(uniqueId) ? this.cachedPermissionUsers.get(uniqueId) : this.getDriver().getPermissionProvider().getUser(uniqueId);
+    public @NotNull ITask<Collection<IPermissionUser>> getUsersAsync() {
+        return this.childPermissionManagement.getUsersAsync();
     }
 
     @Override
-    public List<IPermissionUser> getUsers(@NotNull String name) {
-        return this.getDriver().getPermissionProvider().getUsers(name);
+    public @NotNull ITask<Void> setUsersAsync(@Nullable Collection<? extends IPermissionUser> users) {
+        return this.childPermissionManagement.setUsersAsync(users);
     }
 
     @Override
-    public Collection<IPermissionUser> getUsers() {
-        return this.getDriver().getPermissionProvider().getUsers();
+    public @NotNull ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
+        return this.childPermissionManagement.getUsersByGroupAsync(group);
     }
 
     @Override
-    public void setUsers(@NotNull Collection<? extends IPermissionUser> users) {
-        this.getDriver().getPermissionProvider().setUsers(users);
+    public @NotNull ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency) {
+        return this.childPermissionManagement.addGroupAsync(role, potency);
     }
 
     @Override
-    public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
-        return this.getDriver().getPermissionProvider().getUsersByGroup(group);
+    public @NotNull ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup) {
+        return this.childPermissionManagement.addGroupAsync(permissionGroup);
     }
 
     @Override
-    public IPermissionGroup addGroup(@NotNull IPermissionGroup permissionGroup) {
-        this.getDriver().getPermissionProvider().addGroup(permissionGroup);
-
-        return permissionGroup;
+    public @NotNull ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup) {
+        return this.childPermissionManagement.updateGroupAsync(permissionGroup);
     }
 
     @Override
-    public void updateGroup(@NotNull IPermissionGroup permissionGroup) {
-        this.getDriver().getPermissionProvider().updateGroup(permissionGroup);
+    public @NotNull ITask<Void> deleteGroupAsync(@NotNull String name) {
+        return this.childPermissionManagement.deleteGroupAsync(name);
     }
 
     @Override
-    public void deleteGroup(@NotNull String group) {
-        this.getDriver().getPermissionProvider().deleteGroup(group);
+    public @NotNull ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup) {
+        return this.childPermissionManagement.deleteGroupAsync(permissionGroup);
     }
 
     @Override
-    public void deleteGroup(@NotNull IPermissionGroup group) {
-        this.getDriver().getPermissionProvider().deleteGroup(group);
+    public @NotNull ITask<Boolean> containsGroupAsync(@NotNull String group) {
+        return CompletedTask.create(this.cachedPermissionGroups.containsKey(group));
     }
 
     @Override
-    public boolean containsGroup(@NotNull String name) {
-        return this.cachedPermissionGroups.containsKey(name);
+    public @NotNull ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
+        return CompletedTask.create(this.cachedPermissionGroups.get(name));
     }
 
-    @Nullable
     @Override
-    public IPermissionGroup getGroup(@NotNull String name) {
-        Preconditions.checkNotNull(name);
+    public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+        return CompletedTask.create(this.cachedPermissionGroups.values().stream()
+                .filter(IPermissionGroup::isDefaultGroup)
+                .findFirst()
+                .orElse(null));
+    }
 
-        return this.cachedPermissionGroups.get(name);
+    @Override
+    public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync() {
+        return CompletedTask.create(this.cachedPermissionGroups.values());
     }
 
     @Override
@@ -169,13 +197,15 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     }
 
     @Override
-    public void setGroups(@NotNull Collection<? extends IPermissionGroup> groups) {
-        this.getDriver().getPermissionProvider().setGroups(groups);
+    public @NotNull ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups) {
+        return this.childPermissionManagement.setGroupsAsync(groups);
     }
 
     @Override
     public boolean reload() {
-        Collection<IPermissionGroup> permissionGroups = this.getDriver().getPermissionProvider().getGroups();
+        this.childPermissionManagement.reload();
+
+        Collection<IPermissionGroup> permissionGroups = this.childPermissionManagement.getGroups();
 
         this.cachedPermissionGroups.clear();
 
@@ -184,6 +214,11 @@ public class CloudPermissionsManagement implements IPermissionManagement {
         }
 
         return true;
+    }
+
+    @Override
+    public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser) {
+        return this.childPermissionManagement.getGroupsAsync(permissionUser);
     }
 
 
@@ -198,5 +233,4 @@ public class CloudPermissionsManagement implements IPermissionManagement {
     public Map<UUID, IPermissionUser> getCachedPermissionUsers() {
         return this.cachedPermissionUsers;
     }
-
 }

@@ -326,54 +326,59 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                     ));
                 }
                 break;
+                case "permission_management_reload": {
+                    boolean success = getCloudNet().getPermissionManagement().reload();
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument(), new byte[]{(byte) (success ? 1 : 0)});
+                }
+                break;
                 case "permission_management_add_user": {
-                    getCloudNet().getPermissionProvider().addUser(packet.getHeader().get("permissionUser", PermissionUser.TYPE));
+                    getCloudNet().getPermissionManagement().addUser(packet.getHeader().get("permissionUser", PermissionUser.TYPE));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "permission_management_update_user": {
-                    getCloudNet().getPermissionProvider().updateUser(packet.getHeader().get("permissionUser", PermissionUser.TYPE));
+                    getCloudNet().getPermissionManagement().updateUser(packet.getHeader().get("permissionUser", PermissionUser.TYPE));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "permission_management_delete_user_with_name": {
-                    getCloudNet().getPermissionProvider().deleteUser(packet.getHeader().getString("name"));
-                    sendEmptyResponse(channel, packet.getUniqueId());
+                    boolean success = getCloudNet().getPermissionManagement().deleteUser(packet.getHeader().getString("name"));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument(), new byte[]{(byte) (success ? 1 : 0)});
                 }
                 break;
                 case "permission_management_delete_user": {
-                    getCloudNet().getPermissionProvider().deleteUser((PermissionUser) packet.getHeader().get("permissionUser", PermissionUser.TYPE));
-                    sendEmptyResponse(channel, packet.getUniqueId());
+                    boolean success = getCloudNet().getPermissionManagement().deleteUser((PermissionUser) packet.getHeader().get("permissionUser", PermissionUser.TYPE));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument(), new byte[]{(byte) (success ? 1 : 0)});
                 }
                 break;
                 case "permission_management_set_users": {
-                    getCloudNet().getPermissionProvider().setUsers(packet.getHeader().get("permissionUsers", new TypeToken<Collection<PermissionUser>>() {
+                    getCloudNet().getPermissionManagement().setUsers(packet.getHeader().get("permissionUsers", new TypeToken<Collection<PermissionUser>>() {
                     }.getType()));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "permission_management_add_group": {
-                    getCloudNet().getPermissionProvider().addGroup(packet.getHeader().get("permissionGroup", PermissionGroup.TYPE));
+                    getCloudNet().getPermissionManagement().addGroup(packet.getHeader().get("permissionGroup", PermissionGroup.TYPE));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "permission_management_update_group": {
-                    getCloudNet().getPermissionProvider().updateGroup(packet.getHeader().get("permissionGroup", PermissionGroup.TYPE));
+                    getCloudNet().getPermissionManagement().updateGroup(packet.getHeader().get("permissionGroup", PermissionGroup.TYPE));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "permission_management_delete_group_with_name": {
-                    getCloudNet().getPermissionProvider().deleteGroup(packet.getHeader().getString("name"));
+                    getCloudNet().getPermissionManagement().deleteGroup(packet.getHeader().getString("name"));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "permission_management_delete_group": {
-                    getCloudNet().getPermissionProvider().deleteGroup((PermissionGroup) packet.getHeader().get("permissionGroup", PermissionGroup.TYPE));
+                    getCloudNet().getPermissionManagement().deleteGroup((PermissionGroup) packet.getHeader().get("permissionGroup", PermissionGroup.TYPE));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
                 break;
                 case "permission_management_set_groups": {
-                    getCloudNet().getPermissionProvider().setGroups(packet.getHeader().get("permissionGroups", new TypeToken<Collection<PermissionGroup>>() {
+                    getCloudNet().getPermissionManagement().setGroups(packet.getHeader().get("permissionGroups", new TypeToken<Collection<PermissionGroup>>() {
                     }.getType()));
                     sendEmptyResponse(channel, packet.getUniqueId());
                 }
@@ -398,39 +403,47 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
                 }
                 break;
                 case "permission_management_contains_user_with_uuid": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("result", getCloudNet().getPermissionProvider().containsUser(packet.getHeader().get("uniqueId", UUID.class))));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("result", getCloudNet().getPermissionManagement().containsUser(packet.getHeader().get("uniqueId", UUID.class))));
                 }
                 break;
                 case "permission_management_contains_user_with_name": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("result", getCloudNet().getPermissionProvider().containsUser(packet.getHeader().getString("name"))));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("result", getCloudNet().getPermissionManagement().containsUser(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "permission_management_get_user_by_uuid": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUser", getCloudNet().getPermissionProvider().getUser(packet.getHeader().get("uniqueId", UUID.class))));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUser", getCloudNet().getPermissionManagement().getUser(packet.getHeader().get("uniqueId", UUID.class))));
                 }
                 break;
                 case "permission_management_get_user_by_name": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionProvider().getUsers(packet.getHeader().getString("name"))));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionManagement().getUsers(packet.getHeader().getString("name"))));
+                }
+                break;
+                case "permission_management_get_first_user": {
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUser", getCloudNet().getPermissionManagement().getFirstUser(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "permission_management_get_users": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionProvider().getUsers()));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionManagement().getUsers()));
                 }
                 break;
                 case "permission_management_get_users_by_group": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionProvider().getUsersByGroup(packet.getHeader().getString("group"))));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionUsers", getCloudNet().getPermissionManagement().getUsersByGroup(packet.getHeader().getString("group"))));
                 }
                 break;
                 case "permission_management_contains_group": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("result", getCloudNet().getPermissionProvider().containsGroup(packet.getHeader().getString("name"))));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("result", getCloudNet().getPermissionManagement().containsGroup(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "permission_management_get_group": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionGroup", getCloudNet().getPermissionProvider().getGroup(packet.getHeader().getString("name"))));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionGroup", getCloudNet().getPermissionManagement().getGroup(packet.getHeader().getString("name"))));
                 }
                 break;
                 case "permission_management_get_groups": {
-                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionGroups", getCloudNet().getPermissionProvider().getGroups()));
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionGroups", getCloudNet().getPermissionManagement().getGroups()));
+                }
+                break;
+                case "permission_management_get_default_group": {
+                    sendResponse(channel, packet.getUniqueId(), new JsonDocument("permissionGroup", getCloudNet().getPermissionManagement().getDefaultPermissionGroup()));
                 }
                 break;
                 case "get_cloudService_by_name": {
