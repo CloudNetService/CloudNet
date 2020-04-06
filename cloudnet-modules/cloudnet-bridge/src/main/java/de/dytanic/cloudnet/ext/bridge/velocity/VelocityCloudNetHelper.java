@@ -16,6 +16,7 @@ import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
+import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityPlayerFallbackEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.Arrays;
@@ -92,7 +93,9 @@ public final class VelocityCloudNetHelper {
                 player.getUniqueId(),
                 player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null),
                 player::hasPermission
-        ).flatMap(serviceInfoSnapshot -> proxyServer.getServer(serviceInfoSnapshot.getName()));
+        ).map(serviceInfoSnapshot -> new VelocityPlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName()))
+                .map(VelocityPlayerFallbackEvent::getFallbackName)
+                .flatMap(proxyServer::getServer);
     }
 
     public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(Player player, String currentServer) {
@@ -100,14 +103,24 @@ public final class VelocityCloudNetHelper {
                 player::hasPermission,
                 serviceInfoSnapshot -> {
                     CompletableFuture<Boolean> future = new CompletableFuture<>();
-                    Optional<RegisteredServer> optionalServer = proxyServer.getServer(serviceInfoSnapshot.getName());
-                    if (optionalServer.isPresent()) {
-                        player.createConnectionRequest(optionalServer.get())
-                                .connect()
-                                .thenAccept(result -> future.complete(result.isSuccessful()));
-                    } else {
-                        future.complete(false);
-                    }
+
+                    proxyServer.getEventManager().fire(new VelocityPlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName()))
+                            .thenAccept(event -> {
+                                if (event.getFallbackName() == null) {
+                                    future.complete(false);
+                                    return;
+                                }
+
+                                Optional<RegisteredServer> optionalServer = proxyServer.getServer(event.getFallbackName());
+                                if (optionalServer.isPresent()) {
+                                    player.createConnectionRequest(optionalServer.get())
+                                            .connect()
+                                            .thenAccept(result -> future.complete(result.isSuccessful()));
+                                } else {
+                                    future.complete(false);
+                                }
+                            });
+
                     return future;
                 }
         );
