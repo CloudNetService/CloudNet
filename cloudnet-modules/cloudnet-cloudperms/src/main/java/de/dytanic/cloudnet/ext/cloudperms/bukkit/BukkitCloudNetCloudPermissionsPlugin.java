@@ -70,13 +70,20 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             }
         }
 
+        int sortIdLength = CloudPermissionsManagement.getInstance().getGroups().stream()
+                .map(IPermissionGroup::getSortId)
+                .map(String::valueOf)
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+
         initScoreboard(player);
 
         Bukkit.getOnlinePlayers().forEach(all -> {
             initScoreboard(all);
 
             if (playerPermissionGroup.get() != null) {
-                addTeamEntry(player, all, playerPermissionGroup.get());
+                addTeamEntry(player, all, playerPermissionGroup.get(), sortIdLength);
             }
 
             IPermissionUser targetPermissionUser = CloudPermissionsManagement.getInstance().getUser(all.getUniqueId());
@@ -91,13 +98,18 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             }
 
             if (targetPermissionGroup != null) {
-                addTeamEntry(all, player, targetPermissionGroup);
+                addTeamEntry(all, player, targetPermissionGroup, sortIdLength);
             }
         });
     }
 
-    private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup) {
-        String teamName = permissionGroup.getSortId() + permissionGroup.getName();
+    private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup, int highestSortIdLength) {
+        int sortIdLength = String.valueOf(permissionGroup.getSortId()).length();
+        String teamName = (
+                highestSortIdLength == sortIdLength ?
+                        permissionGroup.getSortId() :
+                        String.format("%0" + highestSortIdLength + "d", permissionGroup.getSortId())
+        ) + permissionGroup.getName();
 
         if (teamName.length() > 16) {
             teamName = teamName.substring(0, 16);
