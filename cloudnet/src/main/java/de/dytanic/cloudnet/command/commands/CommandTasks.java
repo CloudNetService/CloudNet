@@ -292,7 +292,11 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
     private static void handleTaskAddCommands(SubCommandBuilder builder) {
         builder
-                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) internalProperties.get("tasks")))
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                        forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"),
+                                serviceTask -> CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask)
+                        )
+                )
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
