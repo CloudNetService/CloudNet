@@ -4,9 +4,9 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationWriterAndReader;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 

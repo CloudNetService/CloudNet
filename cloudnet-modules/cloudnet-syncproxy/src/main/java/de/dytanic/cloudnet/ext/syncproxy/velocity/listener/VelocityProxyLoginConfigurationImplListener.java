@@ -4,10 +4,9 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationProvider;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyMotd;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyProxyLoginConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.velocity.VelocityCloudNetSyncProxyPlugin;
+import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
@@ -17,11 +16,18 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+// TODO: Add TabList update on ServerConnect
 public final class VelocityProxyLoginConfigurationImplListener {
+
+    private AbstractSyncProxyManagement syncProxyManagement;
+
+    public VelocityProxyLoginConfigurationImplListener(AbstractSyncProxyManagement syncProxyManagement) {
+        this.syncProxyManagement = syncProxyManagement;
+    }
 
     @Subscribe
     public void handle(ProxyPingEvent event) {
-        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = VelocityCloudNetSyncProxyPlugin.getInstance().getProxyLoginConfiguration();
+        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null) {
             SyncProxyMotd syncProxyMotd = null;
@@ -40,7 +46,7 @@ public final class VelocityProxyLoginConfigurationImplListener {
             }
 
             if (syncProxyMotd != null) {
-                int onlinePlayers = VelocityCloudNetSyncProxyPlugin.getInstance().getSyncProxyOnlineCount();
+                int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
 
                 event.setPing(new ServerPing(
                         syncProxyMotd.getProtocolText() != null ? new ServerPing.Version(1,
@@ -82,7 +88,7 @@ public final class VelocityProxyLoginConfigurationImplListener {
 
     @Subscribe
     public void handle(LoginEvent event) {
-        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = VelocityCloudNetSyncProxyPlugin.getInstance().getProxyLoginConfiguration();
+        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null) {
             if (syncProxyProxyLoginConfiguration.isMaintenance() && syncProxyProxyLoginConfiguration.getWhitelist() != null) {
@@ -92,18 +98,19 @@ public final class VelocityProxyLoginConfigurationImplListener {
                     return;
                 }
 
-                event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of((SyncProxyConfigurationProvider.load().getMessages()
+                event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of((this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
                         .get("player-login-not-whitelisted")).replace("&", "§"))));
                 return;
             }
 
-            if (VelocityCloudNetSyncProxyPlugin.getInstance().getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
+            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
                     !event.getPlayer().hasPermission("cloudnet.syncproxy.fulljoin")) {
                 event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of(
-                        SyncProxyConfigurationProvider.load().getMessages()
+                        this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
                                 .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network").replace("&", "§")
                 )));
             }
         }
     }
+
 }

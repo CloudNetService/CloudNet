@@ -1,7 +1,8 @@
-package de.dytanic.cloudnet.ext.syncproxy;
+package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
