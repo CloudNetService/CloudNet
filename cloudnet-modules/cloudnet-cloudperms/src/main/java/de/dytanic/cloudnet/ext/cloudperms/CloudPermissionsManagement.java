@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class CloudPermissionsManagement implements DefaultPermissionManagement, DefaultSynchronizedPermissionManagement {
 
@@ -20,7 +19,7 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
 
     private final IPermissionManagement childPermissionManagement;
 
-    protected CloudPermissionsManagement(IPermissionManagement childPermissionManagement) {
+    protected CloudPermissionsManagement(@NotNull IPermissionManagement childPermissionManagement) {
         this.childPermissionManagement = childPermissionManagement;
         this.init();
 
@@ -60,7 +59,7 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
     }
 
     @Override
-    public IPermissionManagement getChildPermissionManagement() {
+    public @NotNull IPermissionManagement getChildPermissionManagement() {
         return this.childPermissionManagement;
     }
 
@@ -179,7 +178,7 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
     }
 
     @Override
-    public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+    public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
         return CompletedTask.create(this.cachedPermissionGroups.values().stream()
                 .filter(IPermissionGroup::isDefaultGroup)
                 .findFirst()
@@ -197,7 +196,7 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
     }
 
     @Override
-    public @NotNull ITask<Void> setGroupsAsync(@NotNull Collection<? extends IPermissionGroup> groups) {
+    public @NotNull ITask<Void> setGroupsAsync(@Nullable Collection<? extends IPermissionGroup> groups) {
         return this.childPermissionManagement.setGroupsAsync(groups);
     }
 

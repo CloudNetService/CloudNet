@@ -2,26 +2,25 @@ package de.dytanic.cloudnet.ext.syncproxy.velocity.listener;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
+import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
-import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.velocity.VelocitySyncProxyManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.kyori.text.TextComponent;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-// TODO: Add TabList update on ServerConnect
-public final class VelocityProxyLoginConfigurationImplListener {
+public final class VelocitySyncProxyPlayerListener {
 
-    private AbstractSyncProxyManagement syncProxyManagement;
+    private VelocitySyncProxyManagement syncProxyManagement;
 
-    public VelocityProxyLoginConfigurationImplListener(AbstractSyncProxyManagement syncProxyManagement) {
+    public VelocitySyncProxyPlayerListener(VelocitySyncProxyManagement syncProxyManagement) {
         this.syncProxyManagement = syncProxyManagement;
     }
 
@@ -30,23 +29,15 @@ public final class VelocityProxyLoginConfigurationImplListener {
         SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null) {
-            SyncProxyMotd syncProxyMotd = null;
-            Random random = new Random();
-
-            if (syncProxyProxyLoginConfiguration.isMaintenance()) {
-                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty()) {
-                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMaintenanceMotds().get(random.nextInt(
-                            syncProxyProxyLoginConfiguration.getMaintenanceMotds().size()));
-                }
-            } else {
-                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty()) {
-                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMotds().get(random.nextInt(
-                            syncProxyProxyLoginConfiguration.getMotds().size()));
-                }
-            }
+            SyncProxyMotd syncProxyMotd = this.syncProxyManagement.getRandomMotd();
 
             if (syncProxyMotd != null) {
                 int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
+
+                int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.max(
+                        this.syncProxyManagement.getLoginConfiguration().getMaxPlayers(),
+                        onlinePlayers + syncProxyMotd.getAutoSlotMaxPlayersDistance()
+                ) : this.syncProxyManagement.getLoginConfiguration().getMaxPlayers();
 
                 event.setPing(new ServerPing(
                         syncProxyMotd.getProtocolText() != null ? new ServerPing.Version(1,
@@ -56,14 +47,12 @@ public final class VelocityProxyLoginConfigurationImplListener {
                                         .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
                                         .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
                                         .replace("%online_players%", String.valueOf(onlinePlayers))
-                                        .replace("%max_players%", String.valueOf(syncProxyProxyLoginConfiguration.getMaxPlayers()))
+                                        .replace("%max_players%", String.valueOf(maxPlayers))
                                         .replace("&", "§")) :
                                 event.getPing().getVersion(),
                         new ServerPing.Players(
                                 onlinePlayers,
-                                syncProxyMotd.isAutoSlot() ?
-                                        (syncProxyMotd.getAutoSlotMaxPlayersDistance() + onlinePlayers) :
-                                        syncProxyProxyLoginConfiguration.getMaxPlayers(),
+                                maxPlayers,
                                 syncProxyMotd.getPlayerInfo() != null ?
                                         Arrays.stream(syncProxyMotd.getPlayerInfo())
                                                 .map(s -> new ServerPing.SamplePlayer(
@@ -103,7 +92,7 @@ public final class VelocityProxyLoginConfigurationImplListener {
                 return;
             }
 
-            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
+            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= this.syncProxyManagement.getLoginConfiguration().getMaxPlayers() &&
                     !event.getPlayer().hasPermission("cloudnet.syncproxy.fulljoin")) {
                 event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of(
                         this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
@@ -111,6 +100,11 @@ public final class VelocityProxyLoginConfigurationImplListener {
                 )));
             }
         }
+    }
+
+    @Subscribe
+    public void handleServerConnect(ServerConnectedEvent event) {
+        this.syncProxyManagement.updateTabList(event.getPlayer());
     }
 
 }

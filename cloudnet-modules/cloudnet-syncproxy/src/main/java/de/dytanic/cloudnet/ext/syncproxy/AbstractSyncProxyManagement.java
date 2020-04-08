@@ -5,17 +5,13 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
-import java.util.Arrays;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -23,45 +19,76 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractSyncProxyManagement {
 
-    private final AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
-    private SyncProxyConfiguration syncProxyConfiguration;
-    private SyncProxyProxyLoginConfiguration loginConfiguration;
-    private SyncProxyTabListConfiguration tabListConfiguration;
-    private String tabListHeader;
+    private static final Random RANDOM = new Random();
+    protected final AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
+    protected IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+    protected SyncProxyConfiguration syncProxyConfiguration;
 
-    private String tabListFooter;
+    protected SyncProxyProxyLoginConfiguration loginConfiguration;
+
+    protected SyncProxyTabListConfiguration tabListConfiguration;
+
+    protected String tabListHeader;
+
+    protected String tabListFooter;
+
+    protected Map<UUID, Integer> onlineCountCache = new HashMap<>();
+
 
     public AbstractSyncProxyManagement() {
         this.setSyncProxyConfiguration(this.getConfigurationFromNode());
-        this.scheduleTabList();
     }
+
 
     protected abstract void scheduleNative(Runnable runnable, long millis);
 
     public abstract void updateTabList();
 
-    protected abstract String replaceTabListItem(UUID playerUniqueId, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration, String input);
-
     protected abstract void checkWhitelist();
 
     protected abstract void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot);
 
+    protected void updateServiceOnlineCount(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.onlineCountCache.put(
+                serviceInfoSnapshot.getServiceId().getUniqueId(),
+                serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0)
+        );
+        this.updateTabList();
+    }
+
+    protected void removeServiceOnlineCount(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.onlineCountCache.remove(serviceInfoSnapshot.getServiceId().getUniqueId());
+        this.updateTabList();
+    }
+
     public int getSyncProxyOnlineCount() {
-        return -1;
+        return this.onlineCountCache.values().stream()
+                .mapToInt(count -> count)
+                .sum();
     }
 
-    public int getSyncProxyMaxPlayers() {
-        return -1;
+    public SyncProxyMotd getRandomMotd() {
+        if (this.loginConfiguration.isMaintenance()) {
+            if (this.loginConfiguration.getMaintenanceMotds() != null && !this.loginConfiguration.getMaintenanceMotds().isEmpty()) {
+                return this.loginConfiguration.getMaintenanceMotds().get(RANDOM.nextInt(this.loginConfiguration.getMaintenanceMotds().size()));
+            }
+        } else {
+            if (this.loginConfiguration.getMotds() != null && !this.loginConfiguration.getMotds().isEmpty()) {
+                return this.loginConfiguration.getMotds().get(RANDOM.nextInt(this.loginConfiguration.getMotds().size()));
+            }
+        }
+
+        return null;
     }
 
-    public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot, SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
+    public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
-        Preconditions.checkNotNull(syncProxyProxyLoginConfiguration);
+        Preconditions.checkNotNull(this.loginConfiguration);
 
-        return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(syncProxyProxyLoginConfiguration.getTargetGroup());
+        return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(this.loginConfiguration.getTargetGroup());
     }
 
-    private void scheduleTabList() {
+    protected void scheduleTabList() {
         if (this.tabListConfiguration != null && this.tabListConfiguration.getEntries() != null &&
                 !this.tabListConfiguration.getEntries().isEmpty()) {
             if (this.tabListEntryIndex.get() == -1) {
@@ -118,23 +145,6 @@ public abstract class AbstractSyncProxyManagement {
         );
     }
 
-    @EventListener
-    public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) {
-            return;
-        }
-
-        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
-            SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
-
-            this.setSyncProxyConfiguration(syncProxyConfiguration);
-        }
-    }
-
-    public SyncProxyConfiguration getSyncProxyConfiguration() {
-        return syncProxyConfiguration;
-    }
-
     public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {
         if (syncProxyConfiguration != null) {
             this.syncProxyConfiguration = syncProxyConfiguration;
@@ -151,6 +161,10 @@ public abstract class AbstractSyncProxyManagement {
 
             this.checkWhitelist();
         }
+    }
+
+    public SyncProxyConfiguration getSyncProxyConfiguration() {
+        return syncProxyConfiguration;
     }
 
     public SyncProxyProxyLoginConfiguration getLoginConfiguration() {
