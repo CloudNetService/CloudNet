@@ -42,7 +42,7 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
 
                 int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
 
-                int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.max(
+                int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.min(
                         this.syncProxyManagement.getLoginConfiguration().getMaxPlayers(),
                         onlinePlayers + syncProxyMotd.getAutoSlotMaxPlayersDistance()
                 ) : this.syncProxyManagement.getLoginConfiguration().getMaxPlayers();

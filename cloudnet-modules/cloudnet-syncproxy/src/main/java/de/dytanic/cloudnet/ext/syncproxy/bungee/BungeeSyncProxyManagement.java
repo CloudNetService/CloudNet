@@ -20,6 +20,8 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
 
     public BungeeSyncProxyManagement(Plugin plugin) {
         this.plugin = plugin;
+
+        super.setSyncProxyConfiguration(super.getConfigurationFromNode());
         super.scheduleTabList();
     }
 
@@ -67,9 +69,9 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
 
         if (syncProxyProxyLoginConfiguration != null) {
             for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
-                if (syncProxyProxyLoginConfiguration.isMaintenance() &&
-                        syncProxyProxyLoginConfiguration.getWhitelist() != null &&
-                        !syncProxyProxyLoginConfiguration.getWhitelist().contains(proxiedPlayer.getName())) {
+                if (syncProxyProxyLoginConfiguration.isMaintenance()
+                        && syncProxyProxyLoginConfiguration.getWhitelist() != null
+                        && !syncProxyProxyLoginConfiguration.getWhitelist().contains(proxiedPlayer.getName())) {
                     UUID uniqueId = proxiedPlayer.getUniqueId();
 
                     if (syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) {
@@ -90,6 +92,7 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     public void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         if (super.syncProxyConfiguration != null && super.syncProxyConfiguration.showIngameServicesStartStopMessages()) {
             String message = ChatColor.translateAlternateColorCodes('&', super.syncProxyConfiguration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()));
+
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
                     player.sendMessage(TextComponent.fromLegacyText(message));

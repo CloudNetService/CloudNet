@@ -20,6 +20,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
         this.proxyServer = proxyServer;
         this.plugin = plugin;
 
+        super.setSyncProxyConfiguration(super.getConfigurationFromNode());
         super.scheduleTabList();
     }
 

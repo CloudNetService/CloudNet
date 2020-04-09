@@ -20,8 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractSyncProxyManagement {
 
     private static final Random RANDOM = new Random();
+
     protected final AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
+
     protected IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+
     protected SyncProxyConfiguration syncProxyConfiguration;
 
     protected SyncProxyProxyLoginConfiguration loginConfiguration;
@@ -33,11 +36,6 @@ public abstract class AbstractSyncProxyManagement {
     protected String tabListFooter;
 
     protected Map<UUID, Integer> onlineCountCache = new HashMap<>();
-
-
-    public AbstractSyncProxyManagement() {
-        this.setSyncProxyConfiguration(this.getConfigurationFromNode());
-    }
 
 
     protected abstract void scheduleNative(Runnable runnable, long millis);
@@ -68,17 +66,13 @@ public abstract class AbstractSyncProxyManagement {
     }
 
     public SyncProxyMotd getRandomMotd() {
-        if (this.loginConfiguration.isMaintenance()) {
-            if (this.loginConfiguration.getMaintenanceMotds() != null && !this.loginConfiguration.getMaintenanceMotds().isEmpty()) {
-                return this.loginConfiguration.getMaintenanceMotds().get(RANDOM.nextInt(this.loginConfiguration.getMaintenanceMotds().size()));
-            }
-        } else {
-            if (this.loginConfiguration.getMotds() != null && !this.loginConfiguration.getMotds().isEmpty()) {
-                return this.loginConfiguration.getMotds().get(RANDOM.nextInt(this.loginConfiguration.getMotds().size()));
-            }
+        List<SyncProxyMotd> motds = this.loginConfiguration.isMaintenance() ? this.loginConfiguration.getMaintenanceMotds() : this.loginConfiguration.getMotds();
+
+        if (motds == null || motds.isEmpty()) {
+            return null;
         }
 
-        return null;
+        return motds.get(RANDOM.nextInt(this.loginConfiguration.getMotds().size()));
     }
 
     public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -118,7 +112,7 @@ public abstract class AbstractSyncProxyManagement {
         this.updateTabList();
     }
 
-    private SyncProxyConfiguration getConfigurationFromNode() {
+    protected SyncProxyConfiguration getConfigurationFromNode() {
         ITask<SyncProxyConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY,
                 SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY,
