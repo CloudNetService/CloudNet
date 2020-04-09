@@ -1,44 +1,35 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee.listener;
 
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationProvider;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyMotd;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyProxyLoginConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeCloudNetSyncProxyPlugin;
+import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.bungee.util.LoginPendingConnectionCommandSender;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.util.Random;
 import java.util.UUID;
 
-public final class BungeeProxyLoginConfigurationImplListener implements Listener {
+public final class BungeeSyncProxyPlayerListener implements Listener {
 
-    private static final Random RANDOM = new Random();
+    private final BungeeSyncProxyManagement syncProxyManagement;
+
+    public BungeeSyncProxyPlayerListener(BungeeSyncProxyManagement syncProxyManagement) {
+        this.syncProxyManagement = syncProxyManagement;
+    }
 
     @EventHandler
     public void handle(ProxyPingEvent event) {
-        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = BungeeCloudNetSyncProxyPlugin.getInstance().getProxyLoginConfiguration();
+        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null) {
-            SyncProxyMotd syncProxyMotd = null;
-
-            if (syncProxyProxyLoginConfiguration.isMaintenance()) {
-                if (syncProxyProxyLoginConfiguration.getMaintenanceMotds() != null && !syncProxyProxyLoginConfiguration.getMaintenanceMotds().isEmpty()) {
-                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMaintenanceMotds().get(RANDOM.nextInt(
-                            syncProxyProxyLoginConfiguration.getMaintenanceMotds().size()));
-                }
-            } else {
-                if (syncProxyProxyLoginConfiguration.getMotds() != null && !syncProxyProxyLoginConfiguration.getMotds().isEmpty()) {
-                    syncProxyMotd = syncProxyProxyLoginConfiguration.getMotds().get(RANDOM.nextInt(
-                            syncProxyProxyLoginConfiguration.getMotds().size()));
-                }
-            }
+            SyncProxyMotd syncProxyMotd = this.syncProxyManagement.getRandomMotd();
 
             if (syncProxyMotd != null) {
                 String protocolText = syncProxyMotd.getProtocolText();
@@ -49,11 +40,12 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
                         .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
                         .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId());
 
-                int onlinePlayers = BungeeCloudNetSyncProxyPlugin.getInstance().getSyncProxyOnlineCount();
+                int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
 
-                int maxPlayers = syncProxyMotd.isAutoSlot() ?
-                        (syncProxyMotd.getAutoSlotMaxPlayersDistance() + onlinePlayers) :
-                        syncProxyProxyLoginConfiguration.getMaxPlayers();
+                int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.min(
+                        this.syncProxyManagement.getLoginConfiguration().getMaxPlayers(),
+                        onlinePlayers + syncProxyMotd.getAutoSlotMaxPlayersDistance()
+                ) : this.syncProxyManagement.getLoginConfiguration().getMaxPlayers();
 
                 ServerPing.PlayerInfo[] playerInfo = new ServerPing.PlayerInfo[syncProxyMotd.getPlayerInfo() != null ? syncProxyMotd.getPlayerInfo().length : 0];
                 for (int i = 0; i < playerInfo.length; i++) {
@@ -83,7 +75,7 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
 
     @EventHandler
     public void handle(LoginEvent event) {
-        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = BungeeCloudNetSyncProxyPlugin.getInstance().getProxyLoginConfiguration();
+        SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null) {
             LoginPendingConnectionCommandSender loginEventCommandSender = new LoginPendingConnectionCommandSender(event.getConnection());
@@ -102,18 +94,23 @@ public final class BungeeProxyLoginConfigurationImplListener implements Listener
 
                 event.setCancelled(true);
                 event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
-                        SyncProxyConfigurationProvider.load().getMessages().get("player-login-not-whitelisted"))
+                        this.syncProxyManagement.getSyncProxyConfiguration().getMessages().get("player-login-not-whitelisted"))
                 ));
                 return;
             }
 
-            if (BungeeCloudNetSyncProxyPlugin.getInstance().getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
+            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= this.syncProxyManagement.getLoginConfiguration().getMaxPlayers() &&
                     !loginEventCommandSender.hasPermission("cloudnet.syncproxy.fullljoin")) {
                 event.setCancelled(true);
-                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', SyncProxyConfigurationProvider.load().getMessages()
+                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
                         .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network"))));
             }
         }
+    }
+
+    @EventHandler
+    public void handleServerConnect(ServerConnectEvent event) {
+        this.syncProxyManagement.updateTabList(event.getPlayer());
     }
 
 }

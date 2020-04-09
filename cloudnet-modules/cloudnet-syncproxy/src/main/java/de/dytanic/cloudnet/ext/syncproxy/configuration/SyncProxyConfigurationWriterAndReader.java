@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.ext.syncproxy;
+package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -35,7 +35,7 @@ public final class SyncProxyConfigurationWriterAndReader {
         Preconditions.checkNotNull(file);
 
         JsonDocument document = JsonDocument.newDocument(file);
-        if (document == null || !document.contains("config")) {
+        if (!document.contains("config")) {
             write(new SyncProxyConfiguration(
                     new ArrayList<>(),
                     new ArrayList<>(),

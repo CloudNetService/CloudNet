@@ -25,7 +25,7 @@ public class LoginPendingConnectionCommandSender implements CommandSender {
 
         this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(pendingConnection.getName()));
 
-        for (String group : groups) {
+        for (String group : this.groups) {
             for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group)) {
                 this.setPermission(permission, true);
             }
