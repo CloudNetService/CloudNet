@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.template;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +31,7 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
      * @deprecated Causes very high heap space (over)load. Use {@link #deploy(ZipInputStream, ServiceTemplate)} instead
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
     boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
 
     /**
