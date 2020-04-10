@@ -653,12 +653,20 @@ public final class CloudNet extends CloudNetDriver {
         );
     }
 
+    public boolean canStartServices(ServiceTask serviceTask, String nodeUniqueId) {
+        return serviceTask.getAssociatedNodes() != null && (serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(nodeUniqueId));
+    }
+
+    public boolean canStartServices(ServiceTask serviceTask) {
+        return this.canStartServices(serviceTask, this.getConfig().getIdentity().getUniqueId());
+    }
+
     public Collection<IClusterNodeServer> getValidClusterNodeServers(ServiceTask serviceTask) {
         return clusterNodeServerProvider.getNodeServers().stream().filter(clusterNodeServer -> {
             if (!clusterNodeServer.isConnected()) {
                 return false;
             }
-            return serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(clusterNodeServer.getNodeInfo().getUniqueId());
+            return this.canStartServices(serviceTask, clusterNodeServer.getNodeInfo().getUniqueId());
         }).collect(Collectors.toList());
     }
 
@@ -666,7 +674,7 @@ public final class CloudNet extends CloudNetDriver {
         Preconditions.checkNotNull(serviceTask);
 
         Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(serviceTask).stream().map(IClusterNodeServer::getNodeInfoSnapshot).collect(Collectors.toList());
-        if (serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(this.config.getIdentity().getUniqueId())) {
+        if (this.canStartServices(serviceTask)) {
             nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
         }
         boolean windows = nodes.stream().anyMatch(node -> node.getSystemCpuUsage() == -1); //on windows the systemCpuUsage will be always -1, so we cannot find the node with the lowest cpu usage
@@ -839,8 +847,7 @@ public final class CloudNet extends CloudNetDriver {
                         .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
                         .count();
 
-                if ((serviceTask.getAssociatedNodes().isEmpty() || (serviceTask.getAssociatedNodes().contains(getConfig().getIdentity().getUniqueId()))) &&
-                        serviceTask.getMinServiceCount() > runningTaskServices) {
+                if (this.canStartServices(serviceTask) && serviceTask.getMinServiceCount() > runningTaskServices) {
 
                     // there are still less running services of this task than the specified minServiceCount, so looking for a local service which isn't started yet
                     Optional<ICloudService> nonStartedServiceOptional = this.getCloudServiceManager().getLocalCloudServices(serviceTask.getName())

@@ -43,10 +43,7 @@ public final class CloudNetTickListener {
                 .filter(CloudNetSmartModule.getInstance()::hasSmartServiceTaskConfig)
                 .sorted(Comparator.comparingInt(serviceTask -> CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask).getPriority()))
                 .forEachOrdered(serviceTask -> {
-                    if (serviceTask.canStartServices() &&
-                            serviceTask.getAssociatedNodes() != null &&
-                            (serviceTask.getAssociatedNodes().contains(CloudNet.getInstance().getConfig().getIdentity().getUniqueId()) ||
-                                    serviceTask.getAssociatedNodes().isEmpty())) {
+                    if (serviceTask.canStartServices() && CloudNet.getInstance().canStartServices(serviceTask)) {
 
                         SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceTask);
                         this.autoGeneratePreparedServices(smartTask, serviceTask);
