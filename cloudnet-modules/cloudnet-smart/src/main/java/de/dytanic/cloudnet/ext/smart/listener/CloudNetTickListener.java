@@ -79,7 +79,7 @@ public final class CloudNetTickListener {
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : onlineServiceInfoSnapshots) {
             SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(serviceInfoSnapshot);
-            if (smartTask == null) {
+            if (smartTask == null || !smartTask.isEnabled()) {
                 continue;
             }
             CloudNetServiceSmartProfile cloudServiceProfile = CloudNetSmartModule.getInstance().getProvidedSmartServices().get(serviceInfoSnapshot.getServiceId().getUniqueId());
@@ -95,7 +95,7 @@ public final class CloudNetTickListener {
 
                 int runningServices = (int) runningServiceInfoSnapshots.stream().filter(runningServiceInfoSnapshot -> runningServiceInfoSnapshot.getServiceId().getTaskName().equals(serviceInfoSnapshot.getServiceId().getTaskName())).count();
                 ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(serviceInfoSnapshot.getServiceId().getTaskName());
-                if (runningServices <= serviceTask.getMinServiceCount()) {
+                if (serviceTask == null || runningServices <= serviceTask.getMinServiceCount()) {
                     continue;
                 }
 
@@ -121,15 +121,14 @@ public final class CloudNetTickListener {
                     cloudService.getServiceInfoSnapshot().getProperties().contains("Max-Players")) {
                 SmartServiceTaskConfig smartTask = CloudNetSmartModule.getInstance().getSmartServiceTaskConfig(cloudService.getServiceInfoSnapshot());
 
-                if (this.isIngameService(cloudService.getServiceInfoSnapshot())) {
+                if (smartTask == null || !smartTask.isEnabled() || this.isIngameService(cloudService.getServiceInfoSnapshot())) {
                     continue;
                 }
 
-                if (smartTask != null && smartTask.getPercentOfPlayersForANewServiceByInstance() > 0 && !this.newInstanceDelay.contains(cloudService.getServiceId().getUniqueId()) &&
-                        this.getPercentOf(
-                                cloudService.getServiceInfoSnapshot().getProperties().getInt("Online-Count"),
-                                cloudService.getServiceInfoSnapshot().getProperties().getInt("Max-Players")
-                        ) >= smartTask.getPercentOfPlayersForANewServiceByInstance()) {
+                if (smartTask.getPercentOfPlayersForANewServiceByInstance() > 0 && !this.newInstanceDelay.contains(cloudService.getServiceId().getUniqueId()) && this.getPercentOf(
+                        cloudService.getServiceInfoSnapshot().getProperties().getInt("Online-Count"),
+                        cloudService.getServiceInfoSnapshot().getProperties().getInt("Max-Players")
+                ) >= smartTask.getPercentOfPlayersForANewServiceByInstance()) {
                     ServiceInfoSnapshot serviceInfoSnapshot = CloudNetSmartModule.getInstance().getFreeNonStartedService(cloudService.getServiceId().getTaskName());
 
                     ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTask(cloudService.getServiceId().getTaskName());
