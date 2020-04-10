@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
 public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
@@ -50,7 +51,7 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
 
             Files.createFile(destFile);
             try (InputStream inputStream = urlConnection.getInputStream()) {
-                Files.copy(inputStream, destFile);
+                Files.copy(inputStream, destFile, StandardCopyOption.REPLACE_EXISTING);
             }
         }
 
