@@ -31,7 +31,6 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.management.ManagementFactory;
 import java.util.*;
@@ -130,7 +129,7 @@ public abstract class CloudNetDriver {
      * @param name the name of the service
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    @Nullable
+    @NotNull
     public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
 
     /**
@@ -139,7 +138,7 @@ public abstract class CloudNetDriver {
      * @param uniqueId the uniqueId of the service
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    @Nullable
+    @NotNull
     public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
 
     /**
@@ -148,7 +147,7 @@ public abstract class CloudNetDriver {
      * @param serviceInfoSnapshot the info of the service to create a provider for
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    @Nullable
+    @NotNull
     public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
     /**

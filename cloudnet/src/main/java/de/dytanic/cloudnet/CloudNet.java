@@ -394,17 +394,17 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
+    public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         return new NodeSpecificCloudServiceProvider(this, name);
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
+    public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
         return new NodeSpecificCloudServiceProvider(this, uniqueId);
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         return new NodeSpecificCloudServiceProvider(this, serviceInfoSnapshot);
     }
 
