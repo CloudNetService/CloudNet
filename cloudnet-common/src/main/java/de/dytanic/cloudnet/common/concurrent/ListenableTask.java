@@ -137,7 +137,6 @@ public class ListenableTask<V> implements ITask<V> {
                 this.value = this.callable.call();
             } catch (Throwable throwable) {
                 this.throwable = throwable;
-                this.invokeTaskListener();
             }
         }
 
