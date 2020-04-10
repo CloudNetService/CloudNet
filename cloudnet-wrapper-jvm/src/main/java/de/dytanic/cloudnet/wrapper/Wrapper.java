@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -18,7 +18,10 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
-import de.dytanic.cloudnet.driver.provider.*;
+import de.dytanic.cloudnet.driver.provider.CloudMessenger;
+import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
+import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
+import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -34,7 +37,10 @@ import de.dytanic.cloudnet.wrapper.module.WrapperModuleProviderHandler;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
-import de.dytanic.cloudnet.wrapper.provider.*;
+import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
+import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
+import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
+import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperCloudServiceFactory;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperSpecificCloudServiceProvider;
@@ -84,7 +90,6 @@ public final class Wrapper extends CloudNetDriver {
     private GeneralCloudServiceProvider generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
     private ServiceTaskProvider serviceTaskProvider = new WrapperServiceTaskProvider(this);
     private GroupConfigurationProvider groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
-    private PermissionProvider permissionProvider = new WrapperPermissionProvider(this);
     private NodeInfoProvider nodeInfoProvider = new WrapperNodeInfoProvider(this);
     private CloudMessenger messenger = new WrapperMessenger(this);
 
@@ -130,6 +135,8 @@ public final class Wrapper extends CloudNetDriver {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
         }
         super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
+
+        super.setPermissionManagement(new WrapperPermissionManagement(super.packetQueryProvider));
 
         //- Packet client registry
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
@@ -197,12 +204,6 @@ public final class Wrapper extends CloudNetDriver {
         this.moduleProvider.unloadAll();
         this.eventManager.unregisterAll();
         this.servicesRegistry.unregisterAll();
-    }
-
-    @NotNull
-    @Override
-    public PermissionProvider getPermissionProvider() {
-        return this.permissionProvider;
     }
 
     @NotNull
@@ -327,6 +328,7 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
         return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_local_template_storage_templates"), null,
@@ -341,6 +343,7 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
         Preconditions.checkNotNull(serviceName);
 
@@ -357,6 +360,7 @@ public final class Wrapper extends CloudNetDriver {
      * @see CloudNetDriver
      */
     @Override
+    @NotNull
     public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine) {
         Preconditions.checkNotNull(uniqueId);
         Preconditions.checkNotNull(commandLine);

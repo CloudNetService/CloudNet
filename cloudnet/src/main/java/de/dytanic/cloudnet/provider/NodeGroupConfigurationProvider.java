@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.provider;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -60,21 +60,25 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
+    @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.cloudNet.scheduleTask(this::getGroupConfigurations);
     }
 
     @Override
+    @NotNull
     public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.getGroupConfiguration(name));
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.isGroupConfigurationPresent(name));
     }
 
     @Override
+    @NotNull
     public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         return this.cloudNet.scheduleTask(() -> {
             this.addGroupConfiguration(groupConfiguration);
@@ -83,6 +87,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
+    @NotNull
     public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.removeGroupConfiguration(name);
@@ -91,6 +96,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
+    @NotNull
     public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         return this.cloudNet.scheduleTask(() -> {
             this.removeGroupConfiguration(groupConfiguration);

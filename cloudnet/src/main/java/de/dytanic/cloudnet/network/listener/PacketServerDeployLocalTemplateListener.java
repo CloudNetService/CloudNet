@@ -23,4 +23,5 @@ public final class PacketServerDeployLocalTemplateListener implements IPacketLis
             storage.deploy(packet.getBody(), template);
         }
     }
+
 }

@@ -1,5 +1,5 @@
 jar {
-    archiveName = cloudnetModuleDatabaseMySQLFileName
+    archiveFileName.set(cloudnetModuleDatabaseMySQLFileName)
 }
 
 dependencies {

@@ -40,7 +40,7 @@ public final class NukkitCloudNetHelper {
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", Server.getInstance().getVersion())
                 .append("Codename", Server.getInstance().getCodename())
                 .append("Nukkit-Version", Server.getInstance().getApiVersion())

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-final class BungeeCloudNetPlayerInfo {
+public final class BungeeCloudNetPlayerInfo {
 
     private UUID uniqueId;
 

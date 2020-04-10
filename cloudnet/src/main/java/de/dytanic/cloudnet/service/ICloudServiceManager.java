@@ -87,6 +87,8 @@ public interface ICloudServiceManager {
 
     ICloudService runTask(@NotNull ServiceTask serviceTask);
 
+    ICloudService runTask(@NotNull ServiceTask serviceTask, int taskId);
+
     ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
 
     default ICloudService runTask(
@@ -123,6 +125,22 @@ public interface ICloudServiceManager {
     ICloudService runTask(
             String name,
             String runtime,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties,
+            Integer port
+    );
+
+    ICloudService runTask(
+            String name,
+            String runtime,
+            int taskId,
             boolean autoDeleteOnStop,
             boolean staticService,
             Collection<ServiceRemoteInclusion> includes,

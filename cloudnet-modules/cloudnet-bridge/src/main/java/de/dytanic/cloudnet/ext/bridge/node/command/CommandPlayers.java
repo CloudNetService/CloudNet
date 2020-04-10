@@ -7,9 +7,9 @@ import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,20 +24,20 @@ public final class CommandPlayers extends SubCommandHandler {
     private static final long MAX_ONLINE_PLAYERS_FOR_COMPLETION = 50;
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-    public CommandPlayers() {
+    public CommandPlayers(IPlayerManager playerManager) {
         super(
                 SubCommandBuilder.create()
 
                         .prefix(anyStringIgnoreCase("online", "list"))
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    sender.sendMessage("=> Online: " + NodePlayerManager.getInstance().getOnlineCount());
-                                    if (!properties.containsKey("force") && NodePlayerManager.getInstance().getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
+                                    sender.sendMessage("=> Online: " + playerManager.getOnlineCount());
+                                    if (!properties.containsKey("force") && playerManager.getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
 
-                                    for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlinePlayers()) {
+                                    for (ICloudPlayer cloudPlayer : playerManager.getOnlinePlayers()) {
                                         sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
                                                 (cloudPlayer.getLoginService() != null ?
                                                         cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
@@ -59,7 +59,7 @@ public final class CommandPlayers extends SubCommandHandler {
 
                                     List<String> messages = new ArrayList<>();
 
-                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers()) {
+                                    for (ICloudPlayer player : playerManager.getOnlinePlayers()) {
                                         if (properties.containsKey("name") &&
                                                 !player.getName().toLowerCase().contains(properties.get("name").toLowerCase())) {
                                             continue;
@@ -70,13 +70,13 @@ public final class CommandPlayers extends SubCommandHandler {
                                         }
 
                                         if (properties.containsKey("connect")) {
-                                            NodePlayerManager.getInstance().proxySendPlayer(player, properties.get("connect"));
+                                            playerManager.getPlayerExecutor(player).connect(properties.get("connect"));
                                         }
                                         if (properties.containsKey("message")) {
-                                            NodePlayerManager.getInstance().proxySendPlayerMessage(player, properties.get("message"));
+                                            playerManager.getPlayerExecutor(player).sendChatMessage(properties.get("message"));
                                         }
                                         if (properties.containsKey("kick")) {
-                                            NodePlayerManager.getInstance().proxyKickPlayer(player, properties.get("kick"));
+                                            playerManager.getPlayerExecutor(player).kick(properties.get("kick"));
                                         }
                                         if (properties.containsKey("showName")) {
                                             messages.add(player.getName());
@@ -95,13 +95,13 @@ public final class CommandPlayers extends SubCommandHandler {
 
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    sender.sendMessage("=> Registered: " + NodePlayerManager.getInstance().getRegisteredCount());
-                                    if (!properties.containsKey("force") && NodePlayerManager.getInstance().getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
+                                    sender.sendMessage("=> Registered: " + playerManager.getRegisteredCount());
+                                    if (!properties.containsKey("force") && playerManager.getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
 
-                                    for (ICloudOfflinePlayer cloudPlayer : NodePlayerManager.getInstance().getRegisteredPlayers()) {
+                                    for (ICloudOfflinePlayer cloudPlayer : playerManager.getRegisteredPlayers()) {
                                         sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | Last login: " + DATE_FORMAT.format(new Date(cloudPlayer.getLastLoginTimeMillis())));
                                     }
                                 },
@@ -114,10 +114,10 @@ public final class CommandPlayers extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     String name = (String) args.argument("name").get();
-                                    Collection<? extends ICloudOfflinePlayer> players = NodePlayerManager.getInstance().getOnlinePlayers(name);
+                                    Collection<? extends ICloudOfflinePlayer> players = playerManager.getOnlinePlayers(name);
 
                                     if (players.isEmpty()) {
-                                        players = NodePlayerManager.getInstance().getOfflinePlayers(name);
+                                        players = playerManager.getOfflinePlayers(name);
                                     }
 
                                     for (ICloudOfflinePlayer player : players) {
@@ -127,9 +127,9 @@ public final class CommandPlayers extends SubCommandHandler {
                                 dynamicString(
                                         "name",
                                         LanguageManager.getMessage("module-bridge-command-players-player-not-registered"),
-                                        name -> !NodePlayerManager.getInstance().getOfflinePlayers(name).isEmpty(),
-                                        () -> NodePlayerManager.getInstance().getRegisteredCount() <= MAX_REGISTERED_PLAYERS_FOR_COMPLETION ?
-                                                NodePlayerManager.getInstance().getRegisteredPlayers().stream()
+                                        name -> !playerManager.getOfflinePlayers(name).isEmpty(),
+                                        () -> playerManager.getRegisteredCount() <= MAX_REGISTERED_PLAYERS_FOR_COMPLETION ?
+                                                playerManager.getRegisteredPlayers().stream()
                                                         .map(ICloudOfflinePlayer::getName)
                                                         .collect(Collectors.toList()) :
                                                 null
@@ -139,9 +139,9 @@ public final class CommandPlayers extends SubCommandHandler {
                         .prefix(dynamicString(
                                 "name",
                                 LanguageManager.getMessage("module-bridge-command-players-player-not-online"),
-                                name -> !NodePlayerManager.getInstance().getOnlinePlayers(name).isEmpty(),
-                                () -> NodePlayerManager.getInstance().getRegisteredCount() <= MAX_ONLINE_PLAYERS_FOR_COMPLETION ?
-                                        NodePlayerManager.getInstance().getOnlinePlayers().stream()
+                                name -> !playerManager.getOnlinePlayers(name).isEmpty(),
+                                () -> playerManager.getRegisteredCount() <= MAX_ONLINE_PLAYERS_FOR_COMPLETION ?
+                                        playerManager.getOnlinePlayers().stream()
                                                 .map(ICloudPlayer::getName)
                                                 .collect(Collectors.toList()) : null
                         ))
@@ -149,8 +149,8 @@ public final class CommandPlayers extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     String reason = (String) args.argument("reason").orElse("no reason given");
-                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
-                                        NodePlayerManager.getInstance().proxyKickPlayer(player, reason);
+                                    for (ICloudPlayer player : playerManager.getOnlinePlayers((String) args.argument("name").get())) {
+                                        playerManager.getPlayerExecutor(player).kick(reason);
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player")
                                                 .replace("%name%", player.getName())
                                                 .replace("%uniqueId%", player.getUniqueId().toString())
@@ -164,8 +164,8 @@ public final class CommandPlayers extends SubCommandHandler {
                         )
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
-                                        NodePlayerManager.getInstance().proxySendPlayerMessage(player, (String) args.argument("message").orElseThrow(() -> new IllegalArgumentException("No message given")));
+                                    for (ICloudPlayer player : playerManager.getOnlinePlayers((String) args.argument("name").get())) {
+                                        playerManager.getPlayerExecutor(player).sendChatMessage((String) args.argument("message").orElseThrow(() -> new IllegalArgumentException("No message given")));
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-message")
                                                 .replace("%name%", player.getName())
                                                 .replace("%uniqueId%", player.getUniqueId().toString())
@@ -184,8 +184,8 @@ public final class CommandPlayers extends SubCommandHandler {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server-no-server"));
                                         return;
                                     }
-                                    for (ICloudPlayer player : NodePlayerManager.getInstance().getOnlinePlayers((String) args.argument("name").get())) {
-                                        NodePlayerManager.getInstance().proxySendPlayer(player, server);
+                                    for (ICloudPlayer player : playerManager.getOnlinePlayers((String) args.argument("name").get())) {
+                                        playerManager.getPlayerExecutor(player).connect(server);
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-send-player-server")
                                                 .replace("%name%", player.getName())
                                                 .replace("%uniqueId%", player.getUniqueId().toString())

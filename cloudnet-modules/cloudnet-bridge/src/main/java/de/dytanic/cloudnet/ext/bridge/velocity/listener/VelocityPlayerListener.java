@@ -10,6 +10,7 @@ import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -41,14 +42,11 @@ public final class VelocityPlayerListener {
     @Subscribe
     public void handle(ServerPreConnectEvent event) {
         if (!event.getPlayer().getCurrentServer().isPresent()) {
-            String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), null);
-
-            if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent()) {
-                event.setResult(ServerPreConnectEvent.ServerResult.allowed(VelocityCloudNetHelper.getProxyServer().getServer(server).get()));
-            }
+            VelocityCloudNetHelper.getNextFallback(event.getPlayer())
+                    .ifPresent(registeredServer -> event.setResult(ServerPreConnectEvent.ServerResult.allowed(registeredServer)));
         }
 
-        ServiceInfoSnapshot serviceInfoSnapshot = VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getResult().getServer().get().getServerInfo().getName());
+        ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getResult().getServer().get().getServerInfo().getName());
 
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerConnectRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
@@ -60,7 +58,7 @@ public final class VelocityPlayerListener {
             );
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(150);
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
@@ -69,7 +67,7 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(ServerConnectedEvent event) {
-        ServiceInfoSnapshot serviceInfoSnapshot = VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.get(event.getServer().getServerInfo().getName());
+        ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getServer().getServerInfo().getName());
 
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerSwitch(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
@@ -84,17 +82,9 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(KickedFromServerEvent event) {
-        if (VelocityCloudNetHelper.isFallbackServer(event.getServer().getServerInfo())) {
-            event.getPlayer().disconnect(event.getOriginalReason().orElseGet(() -> TextComponent.of("§cNo reason given")));
-            return;
-        }
-
-        String server = VelocityCloudNetHelper.filterServiceForPlayer(event.getPlayer(), event.getServer().getServerInfo().getName());
+        VelocityCloudNetHelper.getNextFallback(event.getPlayer())
+                .ifPresent(registeredServer -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer)));
         event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
-
-        if (server != null && VelocityCloudNetHelper.getProxyServer().getServer(server).isPresent()) {
-            event.setResult(KickedFromServerEvent.RedirectPlayer.create(VelocityCloudNetHelper.getProxyServer().getServer(server).get()));
-        }
     }
 
     @Subscribe

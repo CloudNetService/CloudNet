@@ -45,11 +45,13 @@ import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.permission.DefaultJsonFilePermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.driver.provider.*;
+import de.dytanic.cloudnet.driver.provider.CloudMessenger;
+import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
+import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
+import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -70,9 +72,13 @@ import de.dytanic.cloudnet.network.listener.*;
 import de.dytanic.cloudnet.network.packet.*;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
+import de.dytanic.cloudnet.permission.NodePermissionManagement;
 import de.dytanic.cloudnet.permission.command.DefaultPermissionUserCommandSender;
 import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
-import de.dytanic.cloudnet.provider.*;
+import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
+import de.dytanic.cloudnet.provider.NodeMessenger;
+import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
+import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeSpecificCloudServiceProvider;
@@ -134,6 +140,7 @@ public final class CloudNet extends CloudNetDriver {
     private final ConsoleCommandSender consoleCommandSender;
 
 
+    @NotNull
     private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
@@ -144,7 +151,6 @@ public final class CloudNet extends CloudNetDriver {
     private GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
     private ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
     private GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
-    private PermissionProvider permissionProvider = new NodePermissionProvider(this);
     private NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
     private CloudMessenger messenger = new NodeMessenger(this);
 
@@ -172,7 +178,7 @@ public final class CloudNet extends CloudNetDriver {
         this.cloudServiceManager.init();
 
         this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler());
-        this.moduleProvider.setModuleDependencyLoader(new DefaultPersistableModuleDependencyLoader(new File(System.getProperty("cloudnet.launcher.dir", "launcher") + "/libs")));
+        this.moduleProvider.setModuleDependencyLoader(new DefaultPersistableModuleDependencyLoader(Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"), "libs")));
 
         this.driverEnvironment = DriverEnvironment.CLOUDNET;
     }
@@ -248,8 +254,9 @@ public final class CloudNet extends CloudNetDriver {
             this.databaseProvider.init();
         }
 
-        this.permissionManagement = this.servicesRegistry.getService(IPermissionManagement.class, this.configurationRegistry.getString("permission_service", "json_database"));
-        this.permissionManagement.setPermissionManagementHandler(new DefaultPermissionManagementHandler());
+        NodePermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(this::getDatabaseProvider);
+        permissionManagement.setPermissionManagementHandler(new DefaultPermissionManagementHandler());
+        this.permissionManagement = permissionManagement;
 
         this.startModules();
         this.eventManager.callEvent(new PermissionServiceSetEvent(this.permissionManagement));
@@ -360,12 +367,6 @@ public final class CloudNet extends CloudNetDriver {
 
     public LogLevel getDefaultLogLevel() {
         return this.defaultLogLevel;
-    }
-
-    @NotNull
-    @Override
-    public PermissionProvider getPermissionProvider() {
-        return this.permissionProvider;
     }
 
     @NotNull
@@ -514,11 +515,13 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
         return scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
         Preconditions.checkNotNull(serviceName);
 
@@ -526,6 +529,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    @NotNull
     public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine) {
         Preconditions.checkNotNull(uniqueId);
         Preconditions.checkNotNull(commandLine);
@@ -533,6 +537,7 @@ public final class CloudNet extends CloudNetDriver {
         return scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
     }
 
+    @NotNull
     public <T> ITask<T> runTask(Callable<T> runnable) {
         ITask<T> task = new ListenableTask<>(runnable);
 
@@ -540,6 +545,7 @@ public final class CloudNet extends CloudNetDriver {
         return task;
     }
 
+    @NotNull
     public ITask<?> runTask(Runnable runnable) {
         return this.runTask(Executors.callable(runnable));
     }
@@ -563,6 +569,7 @@ public final class CloudNet extends CloudNetDriver {
         this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(groupConfigurations, updateType));
     }
 
+    @NotNull
     public ITask<Void> sendAllAsync(IPacket packet) {
         return scheduleTask(() -> {
             sendAll(packet);
@@ -584,6 +591,7 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
+    @NotNull
     public ITask<Void> sendAllAsync(IPacket... packets) {
         return scheduleTask(() -> {
             sendAll(packets);
@@ -944,6 +952,7 @@ public final class CloudNet extends CloudNetDriver {
         );
     }
 
+    @NotNull
     public <T> ITask<T> scheduleTask(Callable<T> callable) {
         ITask<T> task = new ListenableTask<>(callable);
 
@@ -983,7 +992,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void setDefaultRegistryEntries() {
-        this.configurationRegistry.getString("permission_service", "json_database");
         this.configurationRegistry.getString("database_provider", "h2");
 
         this.configurationRegistry.save();
@@ -993,15 +1001,9 @@ public final class CloudNet extends CloudNetDriver {
         this.servicesRegistry.registerService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
                 new LocalTemplateStorage(new File(System.getProperty("cloudnet.storage.local", "local/templates"))));
 
-        this.servicesRegistry.registerService(IPermissionManagement.class, "json_file",
-                new DefaultJsonFilePermissionManagement(new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"))));
-
-        this.servicesRegistry.registerService(IPermissionManagement.class, "json_database",
-                new DefaultDatabasePermissionManagement(this::getDatabaseProvider));
-
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
                 new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
-                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty(), this.taskScheduler));
+                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty()));
     }
 
     private void runConsole() {
@@ -1096,6 +1098,7 @@ public final class CloudNet extends CloudNetDriver {
         return this.httpServer;
     }
 
+    @NotNull
     public IPermissionManagement getPermissionManagement() {
         return this.permissionManagement;
     }

@@ -4,12 +4,12 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -17,12 +17,15 @@ import java.util.function.Consumer;
 
 public final class PlayerAPIExample {
 
+    // getting the PlayerManager via CloudNet's ServicesRegistry
+    private IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+
     //Returns the player online count from a task synchronized
     public int countServiceInfoSnapshotPlayerCount() {
         int counter = 0;
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby")) {
-            counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+            counter += serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0);
         }
 
         return counter;
@@ -35,7 +38,7 @@ public final class PlayerAPIExample {
 
             if (serviceInfoSnapshots != null) {
                 for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices("Lobby")) {
-                    counter += ServiceInfoSnapshotUtil.getOnlineCount(serviceInfoSnapshot);
+                    counter += serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0);
                 }
             }
 
@@ -47,7 +50,7 @@ public final class PlayerAPIExample {
     {
         Preconditions.checkNotNull(player);
 
-        ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId()); //Returns an online cloudPlayers
+        ICloudPlayer cloudPlayer = this.playerManager.getOnlinePlayer(player.getUniqueId()); //Returns an online cloudPlayers
 
         if (cloudPlayer != null) //Checks that the player is online
         {
@@ -56,7 +59,7 @@ public final class PlayerAPIExample {
             cloudPlayer.getXBoxId(); //Bedrock Edition XBoxId
         }
 
-        ICloudOfflinePlayer cloudOfflinePlayer = BridgePlayerManager.getInstance().getOfflinePlayer(player.getUniqueId());
+        ICloudOfflinePlayer cloudOfflinePlayer = this.playerManager.getOfflinePlayer(player.getUniqueId());
         //Returns the cloud offline player with all players data from the database
 
 
@@ -67,29 +70,29 @@ public final class PlayerAPIExample {
         }
 
 
-        List<? extends ICloudPlayer> cloudPlayers = BridgePlayerManager.getInstance().getOnlinePlayers(player.getName());
+        List<? extends ICloudPlayer> cloudPlayers = this.playerManager.getOnlinePlayers(player.getName());
 
         if (cloudPlayers != null && !cloudPlayers.isEmpty()) //If player instances with that name is contain
         {
             ICloudPlayer entry = cloudPlayers.get(0);
 
-            BridgePlayerManager.getInstance().proxyKickPlayer(entry, "Kick message"); //kicks a player from the network
-            BridgePlayerManager.getInstance().proxySendPlayer(entry, "Lobby-3"); //send a player to the target server if the player is login on a proxy
-            BridgePlayerManager.getInstance().proxySendPlayerMessage(entry, "Hello, player!"); //send the player a text message
+            this.playerManager.getPlayerExecutor(entry).kick("Kick message"); //kicks a player from the network
+            this.playerManager.getPlayerExecutor(entry).connect("Lobby-3"); //send a player to the target server if the player is login on a proxy
+            this.playerManager.getPlayerExecutor(entry).sendChatMessage("Hello, player!"); //send the player a text message
         }
     }
 
     //Add additional properties
     public void addPropertiesToPlayer(Player player) //Bukkit org.bukkit.entity.Player
     {
-        ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(player.getUniqueId());
+        ICloudPlayer cloudPlayer = this.playerManager.getOnlinePlayer(player.getUniqueId());
 
         if (cloudPlayer != null) {
             cloudPlayer.getProperties()
                     .append("my custom property", 42)
             ;
 
-            BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
+            this.playerManager.updateOnlinePlayer(cloudPlayer);
         }
     }
 

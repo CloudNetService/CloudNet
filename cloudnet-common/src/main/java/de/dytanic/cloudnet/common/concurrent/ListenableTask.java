@@ -7,7 +7,10 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
+@NotNull
 public class ListenableTask<V> implements ITask<V> {
 
     private final Callable<V> callable;
@@ -54,6 +57,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
+    @NotNull
     public ITask<V> addListener(ITaskListener<V> listener) {
         if (listener == null) {
             return this;
@@ -67,6 +71,7 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
+    @NotNull
     public ITask<V> clearListeners() {
         if (this.listeners != null) {
             this.listeners.clear();
@@ -178,4 +183,22 @@ public class ListenableTask<V> implements ITask<V> {
             }
         }
     }
+
+    public <T> ListenableTask<T> map(Function<V, T> function) {
+        AtomicReference<T> reference = new AtomicReference<>();
+        ListenableTask<T> task = new ListenableTask<>(reference::get);
+
+        this.onComplete(v -> {
+            reference.set(function.apply(v));
+            task.call();
+        });
+        this.onCancelled(viTask -> {
+            task.cancelled = true;
+            task.invokeTaskListener();
+        });
+        this.onFailure(task::invokeFailure);
+
+        return task;
+    }
+
 }

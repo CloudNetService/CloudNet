@@ -9,7 +9,7 @@ public class WorldPosition {
 
     protected double x, y, z, yaw, pitch;
 
-    protected String world;
+    protected String world, group;
 
     public WorldPosition(double x, double y, double z, double yaw, double pitch, String world) {
         this.x = x;
@@ -18,6 +18,11 @@ public class WorldPosition {
         this.yaw = yaw;
         this.pitch = pitch;
         this.world = world;
+    }
+
+    public WorldPosition(double x, double y, double z, double yaw, double pitch, String world, String group) {
+        this(x, y, z, yaw, pitch, world);
+        this.group = group;
     }
 
     public WorldPosition() {
@@ -69,6 +74,14 @@ public class WorldPosition {
 
     public void setWorld(String world) {
         this.world = world;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
 }

@@ -1,6 +1,7 @@
 pipeline {
   agent any
   tools {
+    gradle 'Gradle6'
     jdk 'Java11'
   }
   options {
@@ -9,19 +10,18 @@ pipeline {
   stages {
     stage('Clean') {
       steps {
-        sh 'chmod +x ./gradlew';
-        sh './gradlew clean';
+        sh 'gradle clean';
       }
     }
     stage('Test') {
       steps {
-        sh './gradlew test';
+        sh 'gradle test';
         junit '**/build/test-results/test/*.xml';
       }
     }
     stage('Build') {
       steps {
-        sh './gradlew jar';
+        sh 'gradle jar';
       }
     }
     stage('Release ZIP') {
@@ -51,25 +51,38 @@ pipeline {
         sh 'rm -r temp/';
       }
     }
-    stage('Maven') {
+    stage('Maven Publish') {
+      when {
+        anyOf {
+          branch 'master';
+          branch 'development';
+        }
+      }
       steps {
-        echo 'Creating artifacts for the maven repo...';
-        sh './gradlew sourceJar';
-        sh './gradlew deploymentJar';
-        sh './gradlew javadocJar';
+        echo 'Publishing artifacts to Apache Archiva...';
+        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
+          sh 'gradle publish';
+        }
       }
     }
     stage('Javadoc') {
         steps {
           echo 'Creating javadoc...';
-          sh './gradlew allJavadoc';
+          sh 'gradle allJavadoc';
           zip archive: true, dir: 'build/javadoc', glob: '', zipFile: 'Javadoc.zip';
         }
     }
     stage('Archive') {
       steps {
-        archiveArtifacts artifacts: '**/build/libs/*.jar'
-        archiveArtifacts artifacts: '**/build/libs/*.cnl'
+        archiveArtifacts artifacts: '**/build/libs/*.jar';
+        archiveArtifacts artifacts: '**/build/libs/*.cnl';
+      }
+    }
+  }
+  post {
+    always {
+      withCredentials([string(credentialsId: 'cloudnet-discord-ci-webhook', variable: 'url')]) {
+        discordSend description: 'New build for CloudNet v3!', footer: 'New build!', link: env.BUILD_URL, successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), title: JOB_NAME, webhookURL: url
       }
     }
   }

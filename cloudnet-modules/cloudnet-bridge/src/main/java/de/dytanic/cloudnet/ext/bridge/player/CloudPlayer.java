@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
+import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -114,5 +116,10 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
     @Override
     public JsonDocument getOnlineProperties() {
         return this.onlineProperties;
+    }
+
+    @Override
+    public PlayerExecutor getPlayerExecutor() {
+        return new DefaultPlayerExecutor(this.getUniqueId());
     }
 }

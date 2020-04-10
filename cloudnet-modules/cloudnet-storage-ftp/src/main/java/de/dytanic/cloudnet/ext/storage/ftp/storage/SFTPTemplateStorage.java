@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.zip.ZipInputStream;
 
 public class SFTPTemplateStorage extends AbstractFTPStorage {
 
@@ -52,8 +52,9 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        return this.ftpClient.uploadDirectory(new ByteArrayInputStream(zipInput), this.getPath(target));
+        return this.ftpClient.uploadDirectory(new ZipInputStream(new ByteArrayInputStream(zipInput), StandardCharsets.UTF_8), this.getPath(target));
     }
 
     @Override
@@ -64,9 +65,14 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+        return this.ftpClient.uploadDirectory(inputStream, this.getPath(serviceTemplate));
+    }
+
+    @Override
     public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
         for (Path path : paths) {
-            if (!this.ftpClient.uploadFile(path, this.getPath(target) + "/" + path)) {
+            if (!this.ftpClient.uploadFile(path, this.getPath(target) + "/" + path.toString().replace(File.separatorChar, '/'))) {
                 return false;
             }
         }
@@ -125,10 +131,26 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
+    @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         this.ftpClient.zipDirectory(this.getPath(template), outputStream);
         return outputStream.toByteArray();
+    }
+
+    @Override
+    @Nullable
+    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        if (!this.has(template)) {
+            return null;
+        }
+
+        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+
+        try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE)) {
+            this.ftpClient.zipDirectory(this.getPath(template), stream);
+            return new ZipInputStream(Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
+        }
     }
 
     @Override

@@ -181,20 +181,20 @@ final class JVMCloudService implements ICloudService {
         Integer exitCode = 0;
 
         try {
-            lifeCycleLock.lock();
+            this.lifeCycleLock.lock();
             return (exitCode = this.stop0(force)) == null ? -1 : exitCode;
         } finally {
-            lifeCycleLock.unlock();
+            this.lifeCycleLock.unlock();
 
-            if (exitCode == null) { // user cancelled stop event
-                invokeAutoDeleteOnStopIfNotRestart();
+            if (exitCode != null) { // user didn't cancel stop event, exitCode is present
+                this.invokeAutoDeleteOnStopIfNotRestart();
             }
         }
     }
 
     private void invokeAutoDeleteOnStopIfNotRestart() {
-        if (serviceConfiguration.isAutoDeleteOnStop() && !restartState) {
-            delete();
+        if (this.serviceConfiguration.isAutoDeleteOnStop() && !this.restartState) {
+            this.delete();
         } else {
             this.initAndPrepareService();
         }
@@ -203,10 +203,10 @@ final class JVMCloudService implements ICloudService {
     @Override
     public void delete() {
         try {
-            lifeCycleLock.lock();
+            this.lifeCycleLock.lock();
             this.delete0();
         } finally {
-            lifeCycleLock.unlock();
+            this.lifeCycleLock.unlock();
         }
     }
 
@@ -224,12 +224,12 @@ final class JVMCloudService implements ICloudService {
 
     @Override
     public List<ServiceRemoteInclusion> getIncludes() {
-        return Collections.unmodifiableList(includes);
+        return Collections.unmodifiableList(this.includes);
     }
 
     @Override
     public List<ServiceTemplate> getTemplates() {
-        return Collections.unmodifiableList(templates);
+        return Collections.unmodifiableList(this.templates);
     }
 
     private void initAndPrepareService() {
@@ -282,9 +282,9 @@ final class JVMCloudService implements ICloudService {
             this.lifeCycle = ServiceLifeCycle.PREPARED;
             CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostPrepareEvent(this));
 
-            serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
-            cloudServiceManager.getGlobalServiceInfoSnapshots().put(serviceId.getUniqueId(), serviceInfoSnapshot);
-            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+            this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
+            this.cloudServiceManager.getGlobalServiceInfoSnapshots().put(this.serviceId.getUniqueId(), this.serviceInfoSnapshot);
+            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 
             CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-prepared-message")
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
@@ -368,7 +368,7 @@ final class JVMCloudService implements ICloudService {
     }
 
     private boolean hasAccessFromNode() {
-        if (cloudServiceManager.getCurrentUsedHeapMemory() + this.configuredMaxHeapMemory >= CloudNet.getInstance().getConfig().getMaxMemory()) {
+        if (this.cloudServiceManager.getCurrentUsedHeapMemory() + this.configuredMaxHeapMemory >= CloudNet.getInstance().getConfig().getMaxMemory()) {
             if (CloudNet.getInstance().getConfig().isRunBlockedServiceStartTryLaterAutomatic()) {
                 CloudNet.getInstance().runTask(() -> {
                     try {

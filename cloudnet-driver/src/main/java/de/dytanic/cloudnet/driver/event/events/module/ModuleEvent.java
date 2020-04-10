@@ -2,8 +2,12 @@ package de.dytanic.cloudnet.driver.event.events.module;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
+import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 
+/**
+ * The {@link ModuleEvent}s are being called for every action in the {@link IModuleProviderHandler}.
+ */
 public abstract class ModuleEvent extends DriverEvent {
 
     private IModuleProvider moduleProvider;

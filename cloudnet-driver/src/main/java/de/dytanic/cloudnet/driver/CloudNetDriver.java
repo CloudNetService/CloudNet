@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
@@ -21,6 +22,7 @@ import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.*;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
@@ -38,6 +40,9 @@ public abstract class CloudNetDriver {
     private static CloudNetDriver instance;
 
     protected PacketQueryProvider packetQueryProvider;
+
+    protected IPermissionManagement permissionManagement;
+    protected PermissionProvider permissionProvider;
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
 
@@ -79,9 +84,6 @@ public abstract class CloudNetDriver {
 
 
     @NotNull
-    public abstract PermissionProvider getPermissionProvider();
-
-    @NotNull
     public abstract CloudServiceFactory getCloudServiceFactory();
 
     @NotNull
@@ -96,6 +98,28 @@ public abstract class CloudNetDriver {
     @NotNull
     public abstract CloudMessenger getMessenger();
 
+    /**
+     * @deprecated replaced with {@link #getPermissionManagement()}
+     */
+    @NotNull
+    @Deprecated
+    public PermissionProvider getPermissionProvider() {
+        return this.permissionProvider != null ? this.permissionProvider : (this.permissionProvider = new DefaultPermissionProvider(this::getPermissionManagement));
+    }
+
+    @NotNull
+    public IPermissionManagement getPermissionManagement() {
+        Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
+        return this.permissionManagement;
+    }
+
+    public void setPermissionManagement(IPermissionManagement permissionManagement) {
+        if (this.permissionManagement != null && !this.permissionManagement.canBeOverwritten()) {
+            throw new IllegalStateException("Current permission management cannot be overwritten");
+        }
+
+        this.permissionManagement = permissionManagement;
+    }
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -132,8 +156,10 @@ public abstract class CloudNetDriver {
     @NotNull
     public abstract INetworkClient getNetworkClient();
 
+    @NotNull
     public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
 
+    @NotNull
     public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName);
 
     public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
@@ -145,7 +171,7 @@ public abstract class CloudNetDriver {
     public abstract void setGlobalLogLevel(int logLevel);
 
     /**
-     * @see #getNodeInfoProvider() 
+     * @see #getNodeInfoProvider()
      * @see NodeInfoProvider#sendCommandLine(String)
      * @deprecated moved to {@link NodeInfoProvider#sendCommandLine(String)}
      */
@@ -208,6 +234,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getConsoleCommandsAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
         return this.getNodeInfoProvider().getConsoleCommandsAsync();
     }
@@ -218,6 +245,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getConsoleCommandAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
         return this.getNodeInfoProvider().getConsoleCommandAsync(commandLine);
     }
@@ -228,6 +256,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#sendCommandLineAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<String[]> sendCommandLineAsync(String commandLine) {
         return this.getNodeInfoProvider().sendCommandLineAsync(commandLine);
     }
@@ -238,6 +267,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#sendCommandLineAsync(String, String)}
      */
     @Deprecated
+    @NotNull
     public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
         return this.getNodeInfoProvider().sendCommandLineAsync(nodeUniqueId, commandLine);
     }
@@ -248,6 +278,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodesAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<NetworkClusterNode[]> getNodesAsync() {
         return this.getNodeInfoProvider().getNodesAsync();
     }
@@ -258,6 +289,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
         return this.getNodeInfoProvider().getNodeAsync(uniqueId);
     }
@@ -268,6 +300,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeInfoSnapshotsAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
         return this.getNodeInfoProvider().getNodeInfoSnapshotsAsync();
     }
@@ -278,6 +311,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeInfoSnapshotAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
         return this.getNodeInfoProvider().getNodeInfoSnapshotAsync(uniqueId);
     }
@@ -460,6 +494,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(ServiceTask)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
         return this.getCloudServiceFactory().createCloudServiceAsync(serviceTask);
     }
@@ -470,6 +505,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
         return this.getCloudServiceFactory().createCloudServiceAsync(serviceConfiguration);
     }
@@ -480,6 +516,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                               String runtime,
                                                               boolean autoDeleteOnStop,
@@ -499,6 +536,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                               String runtime,
                                                               boolean autoDeleteOnStop,
@@ -519,6 +557,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                           int amount,
                                                                           String name,
@@ -540,6 +579,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                           int amount,
                                                                           String name,
@@ -656,7 +696,7 @@ public abstract class CloudNetDriver {
     public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
+        serviceInfoSnapshot.provider().setCloudServiceLifeCycle(lifeCycle);
     }
 
     /**
@@ -668,7 +708,7 @@ public abstract class CloudNetDriver {
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
+        serviceInfoSnapshot.provider().restart();
     }
 
     /**
@@ -680,7 +720,7 @@ public abstract class CloudNetDriver {
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
+        serviceInfoSnapshot.provider().kill();
     }
 
     /**
@@ -692,7 +732,7 @@ public abstract class CloudNetDriver {
     public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
+        serviceInfoSnapshot.provider().runCommand(command);
     }
 
     /**
@@ -701,6 +741,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#runCommand(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine) {
         this.getCloudServiceProvider(uniqueId).runCommandAsync(commandLine);
         return this.getCloudServicesAsync(uniqueId);
@@ -712,6 +753,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceTemplateAsync(ServiceTemplate)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate) {
         this.getCloudServiceProvider(uniqueId).addServiceTemplateAsync(serviceTemplate);
         return this.getCloudServicesAsync(uniqueId);
@@ -723,6 +765,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceRemoteInclusionAsync(ServiceRemoteInclusion)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
         this.getCloudServiceProvider(uniqueId).addServiceRemoteInclusionAsync(serviceRemoteInclusion);
         return this.getCloudServicesAsync(uniqueId);
@@ -734,6 +777,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceDeploymentAsync(ServiceDeployment)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(UUID uniqueId, ServiceDeployment serviceDeployment) {
         this.getCloudServiceProvider(uniqueId).addServiceDeploymentAsync(serviceDeployment);
         return this.getCloudServicesAsync(uniqueId);
@@ -745,6 +789,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#getCachedLogMessages()}
      */
     @Deprecated
+    @NotNull
     public ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId) {
         return this.getCloudServiceProvider(uniqueId).getCachedLogMessagesAsync();
     }
@@ -904,6 +949,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesAsUniqueIdAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
         return this.getCloudServiceProvider().getServicesAsUniqueIdAsync();
     }
@@ -914,6 +960,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServiceByName(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
         return this.getCloudServiceProvider().getCloudServiceByNameAsync(name);
     }
@@ -924,6 +971,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
         return this.getCloudServiceProvider().getCloudServicesAsync();
     }
@@ -934,6 +982,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getStartedCloudServicesAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
         return this.getCloudServiceProvider().getStartedCloudServicesAsync();
     }
@@ -944,6 +993,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
         return this.getCloudServiceProvider().getCloudServicesAsync(taskName);
     }
@@ -954,6 +1004,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesByGroupAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
         return this.getCloudServiceProvider().getCloudServicesByGroupAsync(group);
     }
@@ -964,6 +1015,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Integer> getServicesCountAsync() {
         return this.getCloudServiceProvider().getServicesCountAsync();
     }
@@ -974,6 +1026,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByGroupAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Integer> getServicesCountByGroupAsync(String group) {
         return this.getCloudServiceProvider().getServicesCountByGroupAsync(group);
     }
@@ -984,6 +1037,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByTaskAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
         return this.getCloudServiceProvider().getServicesCountByTaskAsync(taskName);
     }
@@ -994,6 +1048,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId) {
         return this.getCloudServiceProvider().getCloudServiceAsync(uniqueId);
     }
@@ -1004,6 +1059,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(ServiceEnvironmentType)}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
         return this.getCloudServiceProvider().getCloudServicesAsync(environment);
     }
@@ -1074,6 +1130,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#getPermanentServiceTasksAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
         return this.getServiceTaskProvider().getPermanentServiceTasksAsync();
     }
@@ -1084,6 +1141,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#getServiceTaskAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<ServiceTask> getServiceTaskAsync(String name) {
         return this.getServiceTaskProvider().getServiceTaskAsync(name);
     }
@@ -1094,6 +1152,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#isServiceTaskPresentAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Boolean> isServiceTaskPresentAsync(String name) {
         return this.getServiceTaskProvider().isServiceTaskPresentAsync(name);
     }
@@ -1164,6 +1223,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#getGroupConfigurationsAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.getGroupConfigurationProvider().getGroupConfigurationsAsync();
     }
@@ -1174,6 +1234,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#getGroupConfigurationAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
         return this.getGroupConfigurationProvider().getGroupConfigurationAsync(name);
     }
@@ -1184,303 +1245,315 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#isGroupConfigurationPresentAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
         return this.getGroupConfigurationProvider().isGroupConfigurationPresentAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#addUser(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addUser(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#addUser(IPermissionUser)}
      */
     @Deprecated
     public void addUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().addUser(permissionUser);
+        this.getPermissionManagement().addUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#updateUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#updateUser(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#updateUser(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#updateUser(IPermissionUser)}
      */
     @Deprecated
     public void updateUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().updateUser(permissionUser);
+        this.getPermissionManagement().updateUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(String)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
     @Deprecated
     public void deleteUser(String name) {
-        this.getPermissionProvider().deleteUser(name);
+        this.getPermissionManagement().deleteUser(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#deleteUser(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteUser(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#deleteUser(IPermissionUser)}
      */
     @Deprecated
     public void deleteUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().deleteUser(permissionUser);
+        this.getPermissionManagement().deleteUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUser(UUID)
-     * @deprecated moved to {@link PermissionProvider#containsUser(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUser(UUID)
+     * @deprecated moved to {@link IPermissionManagement#containsUser(UUID)}
      */
     @Deprecated
     public boolean containsUser(UUID uniqueId) {
-        return this.getPermissionProvider().containsUser(uniqueId);
+        return this.getPermissionManagement().containsUser(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUser(String)
-     * @deprecated moved to {@link PermissionProvider#containsUser(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUser(String)
+     * @deprecated moved to {@link IPermissionManagement#containsUser(String)}
      */
     @Deprecated
     public boolean containsUser(String name) {
-        return this.getPermissionProvider().containsUser(name);
+        return this.getPermissionManagement().containsUser(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUser(UUID)
-     * @deprecated moved to {@link PermissionProvider#getUser(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUser(UUID)
+     * @deprecated moved to {@link IPermissionManagement#getUser(UUID)}
      */
     @Deprecated
     public IPermissionUser getUser(UUID uniqueId) {
-        return this.getPermissionProvider().getUser(uniqueId);
+        return this.getPermissionManagement().getUser(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsers(String)
-     * @deprecated moved to {@link PermissionProvider#getUsers(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsers(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsers(String)}
      */
     @Deprecated
     public List<IPermissionUser> getUser(String name) {
-        return this.getPermissionProvider().getUsers(name);
+        return this.getPermissionManagement().getUsers(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsers()
-     * @deprecated moved to {@link PermissionProvider#getUsers()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsers()
+     * @deprecated moved to {@link IPermissionManagement#getUsers()}
      */
     @Deprecated
     public Collection<IPermissionUser> getUsers() {
-        return this.getPermissionProvider().getUsers();
+        return this.getPermissionManagement().getUsers();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#setUsers(Collection)
-     * @deprecated moved to {@link PermissionProvider#setUsers(Collection)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#setUsers(Collection)
+     * @deprecated moved to {@link IPermissionManagement#setUsers(Collection)}
      */
     @Deprecated
     public void setUsers(Collection<? extends IPermissionUser> users) {
-        this.getPermissionProvider().setUsers(users);
+        this.getPermissionManagement().setUsers(users);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersByGroup(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersByGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersByGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsersByGroup(String)}
      */
     @Deprecated
     public Collection<IPermissionUser> getUserByGroup(String group) {
-        return this.getPermissionProvider().getUsersByGroup(group);
+        return this.getPermissionManagement().getUsersByGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#addGroup(IPermissionGroup)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addGroup(IPermissionGroup)
+     * @deprecated moved to {@link IPermissionManagement#addGroup(IPermissionGroup)}
      */
     @Deprecated
     public void addGroup(IPermissionGroup permissionGroup) {
-        this.getPermissionProvider().addGroup(permissionGroup);
+        this.getPermissionManagement().addGroup(permissionGroup);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#updateGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#updateGroup(IPermissionGroup)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#updateGroup(IPermissionGroup)
+     * @deprecated moved to {@link IPermissionManagement#updateGroup(IPermissionGroup)}
      */
     @Deprecated
     public void updateGroup(IPermissionGroup permissionGroup) {
-        this.getPermissionProvider().updateGroup(permissionGroup);
+        this.getPermissionManagement().updateGroup(permissionGroup);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(String)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
     @Deprecated
     public void deleteGroup(String group) {
-        this.getPermissionProvider().deleteGroup(group);
+        this.getPermissionManagement().deleteGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(IPermissionGroup)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(IPermissionGroup)
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(IPermissionGroup)}
      */
     @Deprecated
     public void deleteGroup(IPermissionGroup group) {
-        this.getPermissionProvider().deleteGroup(group);
+        this.getPermissionManagement().deleteGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsGroup(String)
-     * @deprecated moved to {@link PermissionProvider#containsGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#containsGroup(String)}
      */
     @Deprecated
     public boolean containsGroup(String group) {
-        return this.getPermissionProvider().containsGroup(group);
+        return this.getPermissionManagement().containsGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroup(String)
-     * @deprecated moved to {@link PermissionProvider#getGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#getGroup(String)}
      */
     @Deprecated
     public IPermissionGroup getGroup(String name) {
-        return this.getPermissionProvider().getGroup(name);
+        return this.getPermissionManagement().getGroup(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroups()
-     * @deprecated moved to {@link PermissionProvider#getGroups()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroups()
+     * @deprecated moved to {@link IPermissionManagement#getGroups()}
      */
     @Deprecated
     public Collection<IPermissionGroup> getGroups() {
-        return this.getPermissionProvider().getGroups();
+        return this.getPermissionManagement().getGroups();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#setGroups(Collection)
-     * @deprecated moved to {@link PermissionProvider#setGroups(Collection)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#setGroups(Collection)
+     * @deprecated moved to {@link IPermissionManagement#setGroups(Collection)}
      */
     @Deprecated
     public void setGroups(Collection<? extends IPermissionGroup> groups) {
-        this.getPermissionProvider().setGroups(groups);
+        this.getPermissionManagement().setGroups(groups);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addUserAsync(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#addUserAsync(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addUserAsync(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#addUserAsync(IPermissionUser)}
      */
     @Deprecated
+    @NotNull
     public ITask<Void> addUserAsync(IPermissionUser permissionUser) {
-        return this.getPermissionProvider().addUserAsync(permissionUser);
+        return ((ListenableTask<IPermissionUser>) this.getPermissionManagement().addUserAsync(permissionUser)).map(user -> null);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUserAsync(UUID)
-     * @deprecated moved to {@link PermissionProvider#containsUserAsync(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUserAsync(UUID)
+     * @deprecated moved to {@link IPermissionManagement#containsUserAsync(UUID)}
      */
     @Deprecated
+    @NotNull
     public ITask<Boolean> containsUserAsync(UUID uniqueId) {
-        return this.getPermissionProvider().containsUserAsync(uniqueId);
+        return this.getPermissionManagement().containsUserAsync(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUserAsync(String)
-     * @deprecated moved to {@link PermissionProvider#containsUserAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUserAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#containsUserAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Boolean> containsUserAsync(String name) {
-        return this.getPermissionProvider().containsUserAsync(name);
+        return this.getPermissionManagement().containsUserAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUserAsync(UUID)
-     * @deprecated moved to {@link PermissionProvider#getUserAsync(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUserAsync(UUID)
+     * @deprecated moved to {@link IPermissionManagement#getUserAsync(UUID)}
      */
     @Deprecated
+    @NotNull
     public ITask<IPermissionUser> getUserAsync(UUID uniqueId) {
-        return this.getPermissionProvider().getUserAsync(uniqueId);
+        return this.getPermissionManagement().getUserAsync(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsersAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<List<IPermissionUser>> getUserAsync(String name) {
-        return this.getPermissionProvider().getUsersAsync(name);
+        return this.getPermissionManagement().getUsersAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersAsync()
-     * @deprecated moved to {@link PermissionProvider#getUsersAsync()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersAsync()
+     * @deprecated moved to {@link IPermissionManagement#getUsersAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<IPermissionUser>> getUsersAsync() {
-        return this.getPermissionProvider().getUsersAsync();
+        return this.getPermissionManagement().getUsersAsync();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersByGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersByGroupAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersByGroupAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsersByGroupAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<IPermissionUser>> getUserByGroupAsync(String group) {
-        return this.getPermissionProvider().getUsersByGroupAsync(group);
+        return this.getPermissionManagement().getUsersByGroupAsync(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#containsGroupAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsGroupAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#containsGroupAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<Boolean> containsGroupAsync(String name) {
-        return this.getPermissionProvider().containsGroupAsync(name);
+        return this.getPermissionManagement().containsGroupAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getGroupAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroupAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#getGroupAsync(String)}
      */
     @Deprecated
+    @NotNull
     public ITask<IPermissionGroup> getGroupAsync(String name) {
-        return this.getPermissionProvider().getGroupAsync(name);
+        return this.getPermissionManagement().getGroupAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroupsAsync()
-     * @deprecated moved to {@link PermissionProvider#getGroupsAsync()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroupsAsync()
+     * @deprecated moved to {@link IPermissionManagement#getGroupsAsync()}
      */
     @Deprecated
+    @NotNull
     public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return this.getPermissionProvider().getGroupsAsync();
+        return this.getPermissionManagement().getGroupsAsync();
     }
 
 
     public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine);
 
+    @NotNull
     public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine);
 
     /**
@@ -1489,6 +1562,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)}
      */
     @Deprecated
+    @NotNull
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
         Preconditions.checkNotNull(networkChannel);
         Preconditions.checkNotNull(channel);
@@ -1505,6 +1579,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)}
      */
     @Deprecated
+    @NotNull
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(header, body, function);
     }
@@ -1515,6 +1590,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)}
      */
     @Deprecated
+    @NotNull
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPI(INetworkChannel channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(channel, header, body, function);
     }
@@ -1525,6 +1601,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)}
      */
     @Deprecated
+    @NotNull
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.getPacketQueryProvider().sendCallablePacket(networkChannel, channel, header, body, function);
     }

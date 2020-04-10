@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.module;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.Command;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;

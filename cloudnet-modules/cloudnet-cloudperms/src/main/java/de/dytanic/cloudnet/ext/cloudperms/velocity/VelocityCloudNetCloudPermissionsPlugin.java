@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudperms.velocity;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -8,7 +9,6 @@ import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudNetCloudPermissionsPlayerListener;
@@ -23,7 +23,8 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     private final ProxyServer proxyServer;
 
-    private final PermissionProvider permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider();
+    private CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
+    private PermissionProvider permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider(this.permissionsManagement);
 
     @Inject
     public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer) {
@@ -38,10 +39,9 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
-        CloudPermissionsManagement.getInstance();
         initPlayersPermissionFunction();
 
-        proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener());
+        proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener(this.permissionsManagement));
     }
 
     @Subscribe
@@ -64,7 +64,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
             Field field = player.getClass().getDeclaredField("permissionFunction");
             field.setAccessible(true);
-            field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId()));
+            field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId(), this.permissionsManagement));
 
         } catch (Exception exception) {
             exception.printStackTrace();

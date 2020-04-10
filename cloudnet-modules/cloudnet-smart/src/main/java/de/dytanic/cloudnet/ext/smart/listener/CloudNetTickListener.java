@@ -105,7 +105,7 @@ public final class CloudNetTickListener {
                             .replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName())
                             .replace("%serviceId%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()))
                     );
-                    CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).stop();
+                    serviceInfoSnapshot.provider().stop();
                 }
 
             } else {
@@ -144,7 +144,7 @@ public final class CloudNetTickListener {
                             this.newInstanceDelay.remove(cloudService.getServiceId().getUniqueId());
                         }, smartTask.getForAnewInstanceDelayTimeInSeconds(), TimeUnit.SECONDS);
 
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                        serviceInfoSnapshot.provider().start();
                     }
                 }
             }

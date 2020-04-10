@@ -155,7 +155,7 @@ public final class CommandReport extends Command {
                 writer.println();
 
                 writer.println("Console receivedMessages:");
-                for (String entry : CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages()) {
+                for (String entry : serviceInfoSnapshot.provider().getCachedLogMessages()) {
                     writer.println(entry);
                 }
 

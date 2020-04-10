@@ -117,7 +117,7 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     private void registerListener0(Object listener) {
-        for (Method method : listener.getClass().getDeclaredMethods()) {
+        for (Method method : listener.getClass().getMethods()) {
             CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(String.format(
                     "Registering listener method %s:%s from class loader %s",
                     listener.getClass().getName(),

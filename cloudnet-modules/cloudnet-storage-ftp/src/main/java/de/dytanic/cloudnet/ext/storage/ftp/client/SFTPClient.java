@@ -22,46 +22,43 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class SFTPClient implements Closeable {
-    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true);
+
+    private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
+
     private static final FTPType FTP_TYPE = FTPType.SFTP;
 
     private Session session;
+
     private ChannelSftp channel;
 
     public boolean connect(String host, int port, String username, String password) {
         ILogger logger = CloudNetDriver.getInstance().getLogger();
 
         try {
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect")
-                    .replace("%host%", host)
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%ftpType%", FTP_TYPE.toString())
-            );
-
             this.session = new JSch().getSession(username, host, port);
+
             this.session.setPassword(password);
             this.session.setConfig("StrictHostKeyChecking", "no");
-            this.session.connect(2500);
 
+            this.session.connect(2500);
         } catch (JSchException exception) {
-            exception.printStackTrace();
+            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+                    .replace("%ftpType%", FTP_TYPE.toString()), exception);
             return false;
         }
 
         try {
-            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-login")
-                    .replace("%user%", username)
-                    .replace("%ftpType%", FTP_TYPE.toString())
-            );
-
             this.channel = (ChannelSftp) this.session.openChannel("sftp");
+
             if (this.channel == null) {
                 this.close();
                 return false;
             }
+
             this.channel.connect();
         } catch (JSchException exception) {
-            exception.printStackTrace();
+            logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+                    .replace("%ftpType%", FTP_TYPE.toString()), exception);
             return false;
         }
 
@@ -246,30 +243,30 @@ public class SFTPClient implements Closeable {
     }
 
     public void zipDirectory(String remotePath, OutputStream outputStream) {
-        if (!remotePath.endsWith("/"))
-            remotePath += "/";
+        if (remotePath.endsWith("/"))
+            remotePath = remotePath.substring(0, remotePath.length() - 1);
 
         try {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
-                this.zip(zipOutputStream, remotePath);
+                this.zip(zipOutputStream, remotePath, "");
             }
         } catch (SftpException | IOException exception) {
             exception.printStackTrace();
         }
     }
 
-    private boolean zip(ZipOutputStream zipOutputStream, String remotePath) throws IOException, SftpException {
+    private boolean zip(ZipOutputStream zipOutputStream, String remotePath, String relativePath) throws IOException, SftpException {
         Collection<ChannelSftp.LsEntry> entries = this.listFiles(remotePath);
         if (entries == null)
             return false;
 
         for (ChannelSftp.LsEntry entry : entries) {
             if (!entry.getAttrs().isDir() && !entry.getAttrs().isLink()) {
-                zipOutputStream.putNextEntry(new ZipEntry(entry.getFilename()));
+                zipOutputStream.putNextEntry(new ZipEntry(relativePath + "/" + entry.getFilename()));
                 this.channel.get(remotePath + "/" + entry.getFilename(), zipOutputStream);
                 zipOutputStream.closeEntry();
             } else if (entry.getAttrs().isDir()) {
-                if (!this.zip(zipOutputStream, remotePath + "/" + entry.getFilename())) {
+                if (!this.zip(zipOutputStream, remotePath + "/" + entry.getFilename(), relativePath + "/" + entry.getFilename())) {
                     return false;
                 }
             }
@@ -318,13 +315,13 @@ public class SFTPClient implements Closeable {
         }
     }
 
-    public boolean uploadDirectory(InputStream zipped, String remotePath) {
+    public boolean uploadDirectory(ZipInputStream zipInputStream, String remotePath) {
         if (remotePath.endsWith("/")) {
             remotePath = remotePath.substring(0, remotePath.length() - 1);
         }
 
         this.createDirectories(remotePath);
-        try (ZipInputStream zipInputStream = new ZipInputStream(zipped, StandardCharsets.UTF_8)) {
+        try {
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 this.uploadFile(zipInputStream, remotePath + "/" + zipEntry.getName());

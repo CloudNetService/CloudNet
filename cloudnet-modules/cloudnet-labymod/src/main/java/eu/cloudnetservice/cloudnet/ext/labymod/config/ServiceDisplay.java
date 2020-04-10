@@ -33,7 +33,8 @@ public class ServiceDisplay {
     }
 
     public String getDisplay(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return this.format.replace("%display%", this.displayType.getDisplay(serviceInfoSnapshot));
+        return serviceInfoSnapshot == null || this.format == null ? null :
+                this.format.replace("%display%", this.displayType.getDisplay(serviceInfoSnapshot));
     }
 
     public String getFormat() {

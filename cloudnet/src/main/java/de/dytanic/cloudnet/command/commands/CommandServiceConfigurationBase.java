@@ -27,57 +27,53 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
         super(subCommands, names);
     }
 
-    protected static void handleGeneralAddCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase> configurationBaseFunction,
+    protected static void handleGeneralAddCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase[]> configurationBaseFunction,
                                                    Consumer<ServiceConfigurationBase> updateHandler) {
         builder
                 .prefix(exactStringIgnoreCase("add"))
 
-                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), updateHandler))
 
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             ServiceTemplate template = (ServiceTemplate) args.argument(4);
                             Collection<String> excludes = args.length() > 5 ? (Collection<String>) args.argument(5) : new ArrayList<>();
 
                             configuration.getDeployments().add(new ServiceDeployment(template, excludes));
 
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-add-deployment-success"));
-                        },
+                        }),
                         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("deployment"),
                         template("storage:prefix/name", true),
                         collection("excludedFiles separated by \";\"")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             ServiceTemplate template = (ServiceTemplate) args.argument(4);
 
                             configuration.getTemplates().add(template);
 
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-add-template-success"));
-                        },
+                        }),
                         exactStringIgnoreCase("template"),
                         template("storage:prefix/name", true)
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             String url = (String) args.argument(4);
                             String target = (String) args.argument(5);
 
                             configuration.getIncludes().add(new ServiceRemoteInclusion(url, target));
 
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-add-inclusion-success"));
-                        },
+                        }),
                         exactStringIgnoreCase("inclusion"),
                         url("url"),
                         dynamicString("targetPath")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             String value = (String) args.argument("value").get();
                             if (configuration.getJvmOptions().contains(value)) {
                                 sender.sendMessage(LanguageManager.getMessage("command-service-base-add-jvm-option-already-existing"));
@@ -85,7 +81,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                             }
                             configuration.getJvmOptions().add(value);
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-add-jvm-option-success"));
-                        },
+                        }),
                         subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("jvmOption"),
                         dynamicString("value")
@@ -95,16 +91,15 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                 .removeLastPostHandler();
     }
 
-    protected static void handleGeneralRemoveCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase> configurationBaseFunction,
+    protected static void handleGeneralRemoveCommands(SubCommandBuilder builder, Function<Map<String, Object>, ServiceConfigurationBase[]> configurationBaseFunction,
                                                       Consumer<ServiceConfigurationBase> updateHandler) {
         builder
                 .prefix(anyStringIgnoreCase("remove", "rm"))
 
-                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> updateHandler.accept(configurationBaseFunction.apply(internalProperties)))
+                .postExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), updateHandler))
 
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             ServiceTemplate template = (ServiceTemplate) args.argument(4);
 
                             configuration.getDeployments().removeAll(configuration.getDeployments().stream()
@@ -113,13 +108,12 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                             );
 
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-deployment-success"));
-                        },
+                        }),
                         exactStringIgnoreCase("deployment"),
                         template("storage:prefix/name")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             ServiceTemplate template = (ServiceTemplate) args.argument(4);
 
                             configuration.getTemplates().removeAll(configuration.getTemplates().stream()
@@ -128,13 +122,12 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                             );
 
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-template-success"));
-                        },
+                        }),
                         exactStringIgnoreCase("template"),
                         template("storage:prefix/name")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             String url = (String) args.argument(4);
                             String target = (String) args.argument(5);
 
@@ -145,14 +138,13 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                             );
 
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-inclusion-success"));
-                        },
+                        }),
                         exactStringIgnoreCase("inclusion"),
                         url("url"),
                         dynamicString("targetPath")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             String value = (String) args.argument("value").get();
                             if (!configuration.getJvmOptions().contains(value)) {
                                 sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-jvm-option-not-found"));
@@ -160,7 +152,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                             }
                             configuration.getJvmOptions().add(value);
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-jvm-option-success"));
-                        },
+                        }),
                         subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("jvmOption"),
                         dynamicString("value")
@@ -169,11 +161,10 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                 .removeLastPrefix()
 
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            ServiceConfigurationBase configuration = configurationBaseFunction.apply(internalProperties);
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             configuration.getJvmOptions().clear();
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-clear-jvm-options-success"));
-                        },
+                        }),
                         exactStringIgnoreCase("clear"),
                         exactStringIgnoreCase("jvmOptions")
                 )
@@ -218,6 +209,10 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
 
     protected static void createEmptyGroupConfiguration(String name) {
         CloudNet.getInstance().getCloudServiceManager().addGroupConfiguration(new EmptyGroupConfiguration(name));
+    }
+
+    protected static void forEachConfigurations(ServiceConfigurationBase[] configurations, Consumer<ServiceConfigurationBase> consumer) {
+        Arrays.asList(configurations).forEach(consumer);
     }
 
 }

@@ -2,8 +2,8 @@ package de.dytanic.cloudnet.ext.syncproxy.node;
 
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationWriterAndReader;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
 import de.dytanic.cloudnet.ext.syncproxy.node.command.CommandSyncProxy;
 import de.dytanic.cloudnet.ext.syncproxy.node.http.V1SyncProxyConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.syncproxy.node.listener.IncludePluginListener;

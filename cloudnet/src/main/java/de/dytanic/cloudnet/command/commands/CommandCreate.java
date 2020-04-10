@@ -131,6 +131,9 @@ public class CommandCreate extends SubCommandHandler {
                         .getSubCommands(),
                 "create"
         );
+
+        super.description = LanguageManager.getMessage("command-description-create");
+        super.permission = "cloudnet.command.create";
     }
 
     private static void listAndStartServices(ICommandSender sender, Collection<ServiceInfoSnapshot> serviceInfoSnapshots, Properties properties) {
@@ -142,7 +145,7 @@ public class CommandCreate extends SubCommandHandler {
 
         if (properties.containsKey("start")) {
             for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
-                CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                serviceInfoSnapshot.provider().start();
             }
         }
     }

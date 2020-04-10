@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.node.player;
 
-import de.dytanic.cloudnet.CloudNet;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -9,10 +9,11 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.player.*;
+import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
+import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,20 +24,20 @@ import java.util.stream.Collectors;
 
 public final class NodePlayerManager implements IPlayerManager {
 
-    private static NodePlayerManager instance;
-
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
 
     private final String databaseName;
 
     public NodePlayerManager(String databaseName) {
         this.databaseName = databaseName;
-
-        instance = this;
     }
 
+    /**
+     * @deprecated IPlayerManager should be accessed through the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static NodePlayerManager getInstance() {
-        return NodePlayerManager.instance;
+        return (NodePlayerManager) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
     }
 
 
@@ -108,46 +109,55 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
+    @NotNull
     public ITask<Integer> getOnlineCountAsync() {
         return this.schedule(this::getOnlineCount);
     }
 
     @Override
+    @NotNull
     public ITask<Long> getRegisteredCountAsync() {
         return this.getDatabase().getDocumentsCountAsync();
     }
 
     @Override
+    @NotNull
     public ITask<ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId) {
         return this.schedule(() -> this.getOnlinePlayer(uniqueId));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name) {
         return this.schedule(() -> this.getOnlinePlayers(name));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment) {
         return this.schedule(() -> this.getOnlinePlayers(environment));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
         return this.schedule(this::getOnlinePlayers);
     }
 
     @Override
+    @NotNull
     public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId) {
         return this.schedule(() -> this.getOfflinePlayer(uniqueId));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name) {
         return this.schedule(() -> this.getOfflinePlayers(name));
     }
 
     @Override
+    @NotNull
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
         return this.schedule(this::getRegisteredPlayers);
     }
@@ -192,89 +202,8 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxySendPlayer(cloudPlayer.getUniqueId(), serviceName);
-    }
-
-    @Override
-    public void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(serviceName);
-
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_on_proxy_player_to_server",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("serviceName", serviceName)
-        );
-    }
-
-    @Override
-    public void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxySendPlayerMessage(cloudPlayer.getUniqueId(), message);
-    }
-
-    @Override
-    public void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(message);
-
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_message_to_proxy_player",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("message", message)
-        );
-    }
-
-    @Override
-    public void proxySendPluginMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String tag, @NotNull byte[] data) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxySendPluginMessage(cloudPlayer.getUniqueId(), tag, data);
-    }
-
-    @Override
-    public void proxySendPluginMessage(@NotNull UUID uniqueId, @NotNull String tag, @NotNull byte[] data) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(tag);
-        Preconditions.checkNotNull(data);
-
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_plugin_message_to_proxy_player",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("tag", tag)
-                        .append("data", Base64.getEncoder().encodeToString(data))
-        );
-    }
-
-    @Override
-    public void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String kickMessage) {
-        Preconditions.checkNotNull(cloudPlayer);
-
-        this.proxyKickPlayer(cloudPlayer.getUniqueId(), kickMessage);
-    }
-
-    @Override
-    public void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String kickMessage) {
-        Preconditions.checkNotNull(uniqueId);
-        Preconditions.checkNotNull(kickMessage);
-
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "kick_on_proxy_player_from_network",
-                new JsonDocument()
-                        .append("uniqueId", uniqueId)
-                        .append("kickMessage", kickMessage)
-        );
+    public @NotNull PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId) {
+        return new DefaultPlayerExecutor(uniqueId);
     }
 
     @Override
@@ -304,6 +233,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
 
+    @NotNull
     private <T> ITask<T> schedule(Callable<T> callable) {
         return CloudNet.getInstance().getTaskScheduler().schedule(callable);
     }

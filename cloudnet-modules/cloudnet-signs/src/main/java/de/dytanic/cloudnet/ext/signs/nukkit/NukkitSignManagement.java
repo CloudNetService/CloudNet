@@ -9,11 +9,12 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.utils.Faceable;
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignLayout;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,12 +22,10 @@ import java.util.Iterator;
 
 public final class NukkitSignManagement extends AbstractSignManagement {
 
-    private static NukkitSignManagement instance;
     private final NukkitCloudNetSignsPlugin plugin;
 
     NukkitSignManagement(NukkitCloudNetSignsPlugin plugin) {
         super();
-        instance = this;
 
         this.plugin = plugin;
 
@@ -35,10 +34,13 @@ public final class NukkitSignManagement extends AbstractSignManagement {
         super.updateSigns();
     }
 
+    /**
+     * @deprecated SignManagement should be accessed via the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static NukkitSignManagement getInstance() {
-        return NukkitSignManagement.instance;
+        return (NukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
     }
-
 
     @Override
     protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -88,17 +90,17 @@ public final class NukkitSignManagement extends AbstractSignManagement {
             String[] lines = new String[4];
 
             for (int i = 0; i < lines.length; i++) {
-                String line = super.addDataToLine(sign, signLayout.getLines()[i], serviceInfoSnapshot).replace('&', '§');
+                String line = super.replaceServiceInfo(signLayout.getLines()[i], sign.getTargetGroup(), serviceInfoSnapshot).replace('&', '§');
                 lines[i] = line;
             }
 
             nukkitSign.setText(lines);
 
-            this.changeBlock(nukkitSign, signLayout.getBlockType());
+            this.changeBlock(nukkitSign, signLayout.getBlockType(), signLayout.getSubId());
         }
     }
 
-    private void changeBlock(BlockEntitySign nukkitSign, String blockType) {
+    private void changeBlock(BlockEntitySign nukkitSign, String blockType, int subId) {
         Preconditions.checkNotNull(nukkitSign);
 
         if (blockType != null) {
@@ -118,21 +120,21 @@ public final class NukkitSignManagement extends AbstractSignManagement {
                     return;
                 }
 
-                backBlockLocation.getLevel().setBlock(backBlockLocation, Block.get(itemId, 0), true, true);
+                backBlockLocation.getLevel().setBlock(backBlockLocation, Block.get(itemId, Math.max(0, subId)), true, true);
             }
 
 
         }
     }
 
-    public Location toLocation(SignPosition signPosition) {
-        Preconditions.checkNotNull(signPosition);
+    public Location toLocation(WorldPosition worldPosition) {
+        Preconditions.checkNotNull(worldPosition);
 
-        return Server.getInstance().getLevelByName(signPosition.getWorld()) != null ? new Location(
-                signPosition.getX(),
-                signPosition.getY(),
-                signPosition.getZ(),
-                Server.getInstance().getLevelByName(signPosition.getWorld())
+        return Server.getInstance().getLevelByName(worldPosition.getWorld()) != null ? new Location(
+                worldPosition.getX(),
+                worldPosition.getY(),
+                worldPosition.getZ(),
+                Server.getInstance().getLevelByName(worldPosition.getWorld())
         ) : null;
     }
 

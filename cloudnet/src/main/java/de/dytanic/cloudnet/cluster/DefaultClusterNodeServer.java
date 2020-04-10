@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class DefaultClusterNodeServer implements IClusterNodeServer {
@@ -92,6 +93,15 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask) {
+        return this.createCloudServiceByServiceTask(serviceTask, null);
+    }
+
+    @Override
+    public ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask, int taskId) {
+        return this.createCloudServiceByServiceTask(serviceTask, data -> data.append("taskId", taskId));
+    }
+
+    private ServiceInfoSnapshot createCloudServiceByServiceTask(ServiceTask serviceTask, Consumer<JsonDocument> contentModifier) {
         Preconditions.checkNotNull(serviceTask);
 
         if (this.channel != null) {
@@ -99,7 +109,11 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
                 ServiceTask clone = serviceTask.makeClone();
                 clone.getAssociatedNodes().clear();
                 clone.getAssociatedNodes().add(this.nodeInfo.getUniqueId());
-                JsonDocument data = new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", clone);
+                JsonDocument data = new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask")
+                        .append("serviceTask", clone);
+                if (contentModifier != null) {
+                    contentModifier.accept(data);
+                }
                 return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         data, new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {

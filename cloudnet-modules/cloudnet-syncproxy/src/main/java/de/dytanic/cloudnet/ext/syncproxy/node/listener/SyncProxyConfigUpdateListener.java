@@ -6,9 +6,9 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationWriterAndReader;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 
 public final class SyncProxyConfigUpdateListener {

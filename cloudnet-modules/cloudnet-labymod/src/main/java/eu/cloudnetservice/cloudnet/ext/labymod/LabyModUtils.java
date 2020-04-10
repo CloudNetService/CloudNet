@@ -4,14 +4,15 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
 import eu.cloudnetservice.cloudnet.ext.labymod.player.LabyModPlayerOptions;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,6 +56,7 @@ public class LabyModUtils {
         return cloudPlayer.getOnlineProperties().get("labyModOptions", LabyModPlayerOptions.class);
     }
 
+    @NotNull
     public static ITask<ICloudPlayer> getPlayerByJoinSecret(UUID joinSecret) {
         return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 LabyModConstants.CLOUDNET_CHANNEL_NAME,
@@ -63,6 +65,7 @@ public class LabyModUtils {
                 document -> document.get("player", CloudPlayer.TYPE));
     }
 
+    @NotNull
     public static ITask<ICloudPlayer> getPlayerBySpectateSecret(UUID spectateSecret) {
         return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
                 LabyModConstants.CLOUDNET_CHANNEL_NAME,
@@ -94,7 +97,7 @@ public class LabyModUtils {
     public static boolean canSpectate(ServiceInfoSnapshot serviceInfoSnapshot) {
         return getConfiguration().isDiscordSpectateEnabled() &&
                 !isExcluded(getConfiguration().getExcludedSpectateGroups(), serviceInfoSnapshot.getConfiguration().getGroups()) &&
-                ServiceInfoSnapshotUtil.isIngameService(serviceInfoSnapshot);
+                serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false);
     }
 
     public static byte[] getDiscordRPCGameInfoUpdateMessageContents(ICloudPlayer cloudPlayer, ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -137,7 +140,7 @@ public class LabyModUtils {
 
         if (modified) {
             setLabyModOptions(cloudPlayer, options);
-            BridgePlayerManager.getInstance().updateOnlinePlayer(cloudPlayer);
+            CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class).updateOnlinePlayer(cloudPlayer);
         }
 
         JsonDocument document = JsonDocument.newDocument();

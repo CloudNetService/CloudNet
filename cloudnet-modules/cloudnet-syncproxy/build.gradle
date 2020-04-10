@@ -3,8 +3,9 @@ jar {
 }
 
 dependencies {
-    compile project(':cloudnet')
+    implementation project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
+    compileOnly project(':cloudnet-modules:cloudnet-bridge')
     compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
     compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
 }

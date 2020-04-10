@@ -536,7 +536,7 @@ public class CommandPermissions extends SubCommandHandler {
     private static void displayGroup(ICommandSender sender, IPermissionGroup permissionGroup) {
         sender.sendMessage(
                 "* " + permissionGroup.getName() + " | " + permissionGroup.getPotency(),
-                "Parent groups: " + permissionGroup.getGroups(),
+                "Inherits: " + permissionGroup.getGroups(),
                 "Default: " + permissionGroup.isDefaultGroup() + " | SortId: " + permissionGroup.getSortId(),
                 "Prefix: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getPrefix() : permissionGroup.getPrefix().replace("&", "§")),
                 "Color: " + permissionGroup.getColor().replace("&", "[color]"),

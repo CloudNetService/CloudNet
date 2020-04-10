@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.console.ConsoleLogHandler;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
-import de.dytanic.cloudnet.console.util.HeaderReader;
 
 import java.io.File;
 import java.util.Arrays;
