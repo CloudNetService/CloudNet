@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +19,7 @@ public interface IPermissionManagement {
      * @deprecated use {@link #getUsers(String)} instead
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
     List<IPermissionUser> getUser(String name);
 
     IPermissionUser getFirstUser(String name);

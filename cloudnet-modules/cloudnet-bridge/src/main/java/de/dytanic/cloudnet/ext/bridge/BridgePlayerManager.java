@@ -60,7 +60,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
+    public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
         try {
             return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -71,7 +71,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
+    public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
         try {
             return this.getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -82,7 +82,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers() {
+    public @NotNull List<? extends ICloudPlayer> getOnlinePlayers() {
         try {
             return this.getOnlinePlayersAsync().get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -104,7 +104,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
+    public @NotNull List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
         try {
             return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {

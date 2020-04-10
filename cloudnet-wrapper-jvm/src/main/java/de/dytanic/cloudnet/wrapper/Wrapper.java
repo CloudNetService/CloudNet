@@ -231,17 +231,17 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
+    public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         return new WrapperSpecificCloudServiceProvider(this, name);
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
+    public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
         return new WrapperSpecificCloudServiceProvider(this, uniqueId);
     }
 
     @Override
-    public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         return new WrapperSpecificCloudServiceProvider(this, serviceInfoSnapshot);
     }
 
