@@ -19,7 +19,10 @@ public final class NukkitCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(PlayerLoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), Server.getInstance().getPropertyBoolean("xbox-auth", true));
+        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), message -> {
+            event.setCancelled();
+            event.setKickMessage(message.replace("&", "§"));
+        }, Server.getInstance().getPropertyBoolean("xbox-auth", true));
 
         NukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
     }
