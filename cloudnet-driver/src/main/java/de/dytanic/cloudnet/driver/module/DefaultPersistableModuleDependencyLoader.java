@@ -49,9 +49,8 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
             urlConnection.setUseCaches(false);
             urlConnection.connect();
 
-            Files.createFile(destFile);
             try (InputStream inputStream = urlConnection.getInputStream()) {
-                Files.copy(inputStream, destFile, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(inputStream, destFile);
             }
         }
 
