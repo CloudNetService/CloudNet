@@ -6,7 +6,8 @@ import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.syncproxy.*;
+import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 
 import java.util.Collection;

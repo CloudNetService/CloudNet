@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.ext.syncproxy;
+package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
 import com.google.gson.reflect.TypeToken;
 import lombok.EqualsAndHashCode;
