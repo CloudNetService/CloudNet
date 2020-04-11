@@ -30,13 +30,13 @@ import java.util.stream.Collectors;
 
 public class BukkitNPCManagement extends AbstractNPCManagement {
 
-    private JavaPlugin javaPlugin;
+    private final JavaPlugin javaPlugin;
 
-    private NPCPool npcPool;
+    private final NPCPool npcPool;
 
     private ItemStack[] defaultItems;
 
-    private Map<UUID, BukkitNPCProperties> npcProperties = new HashMap<>();
+    private final Map<UUID, BukkitNPCProperties> npcProperties = new HashMap<>();
 
     private Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts = new HashMap<>();
 
@@ -222,6 +222,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 }).build(this.npcPool);
 
         this.npcProperties.put(cloudNPC.getUUID(), new BukkitNPCProperties(
+                cloudNPC,
                 npc.getEntityId(),
                 Bukkit.createInventory(null, this.defaultItems.length, cloudNPC.getDisplayName()),
                 new HashMap<>()

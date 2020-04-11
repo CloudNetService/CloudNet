@@ -150,7 +150,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                                 sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-jvm-option-not-found"));
                                 throw new CommandInterrupt();
                             }
-                            configuration.getJvmOptions().add(value);
+                            configuration.getJvmOptions().remove(value);
                             sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-jvm-option-success"));
                         }),
                         subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),

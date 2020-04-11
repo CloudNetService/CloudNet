@@ -1,22 +1,30 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 
+import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import org.bukkit.inventory.Inventory;
 
 import java.util.Map;
 
 public class BukkitNPCProperties {
 
-    private int entityId;
+    private final CloudNPC holder;
 
-    private Inventory inventory;
+    private final int entityId;
 
-    private Map<Integer, String> serverSlots;
+    private final Inventory inventory;
 
-    public BukkitNPCProperties(int entityId, Inventory inventory, Map<Integer, String> serverSlots) {
+    private final Map<Integer, String> serverSlots;
+
+    public BukkitNPCProperties(CloudNPC holder, int entityId, Inventory inventory, Map<Integer, String> serverSlots) {
+        this.holder = holder;
         this.entityId = entityId;
         this.inventory = inventory;
         this.serverSlots = serverSlots;
+    }
+
+    public CloudNPC getHolder() {
+        return holder;
     }
 
     public int getEntityId() {

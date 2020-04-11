@@ -12,9 +12,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 public class NPCInventoryListener implements Listener {
 
-    private BukkitNPCManagement npcManagement;
+    private static final Random RANDOM = new Random();
+
+    private final BukkitNPCManagement npcManagement;
+
+    private final IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
 
     public NPCInventoryListener(BukkitNPCManagement npcManagement) {
         this.npcManagement = npcManagement;
@@ -22,12 +30,26 @@ public class NPCInventoryListener implements Listener {
 
     @EventHandler
     public void handleNPCInteract(PlayerNPCInteractEvent event) {
-        if (event.getAction() == PlayerNPCInteractEvent.Action.RIGHT_CLICKED) {
-            this.npcManagement.getNPCProperties().stream()
-                    .filter(properties -> properties.getEntityId() == event.getNPC().getEntityId())
-                    .findFirst()
-                    .ifPresent(properties -> event.getPlayer().openInventory(properties.getInventory()));
-        }
+        Player player = event.getPlayer();
+        int entityId = event.getNPC().getEntityId();
+
+        this.npcManagement.getNPCProperties().stream()
+                .filter(npcProperty -> npcProperty.getEntityId() == entityId)
+                .findFirst()
+                .ifPresent(properties -> {
+                    if (event.getAction() == PlayerNPCInteractEvent.Action.RIGHT_CLICKED) {
+                        player.openInventory(properties.getInventory());
+                    } else {
+                        List<String> services = this.npcManagement.filterNPCServices(properties.getHolder()).stream()
+                                .map(pair -> pair.getFirst().getName())
+                                .collect(Collectors.toList());
+
+                        if (services.size() > 0) {
+                            String randomServiceName = services.get(RANDOM.nextInt(services.size()));
+                            this.playerManager.getPlayerExecutor(player.getUniqueId()).connect(randomServiceName);
+                        }
+                    }
+                });
     }
 
     @EventHandler
@@ -47,8 +69,7 @@ public class NPCInventoryListener implements Listener {
                             Player player = (Player) event.getWhoClicked();
                             String serverName = properties.getServerSlots().get(slot);
 
-                            CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
-                                    .getPlayerExecutor(player.getUniqueId()).connect(serverName);
+                            this.playerManager.getPlayerExecutor(player.getUniqueId()).connect(serverName);
                         }
                     });
         }
