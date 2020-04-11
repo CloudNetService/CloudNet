@@ -29,11 +29,18 @@ pipeline {
         echo 'Creating CloudNet.zip file...';
         sh 'mkdir -p temp';
         sh 'cp -r .template/* temp/';
+
         sh 'mkdir temp/dev';
         sh 'mkdir temp/dev/examples';
         sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples';
-        sh 'mkdir temp/plugins';
-        sh 'cp cloudnet-plugins/**/build/libs/*.jar temp/plugins/';
+
+        sh 'mkdir temp/extras/plugins';
+        sh 'cp cloudnet-plugins/**/build/libs/*.jar temp/extras/plugins/';
+
+        sh 'mkdir temp/extras/modules';
+        sh 'cp cloudnet-modules/cloudnet-labymod/build/libs/*.jar temp/extras/modules/';
+        sh 'cp cloudnet-modules/cloudnet-npcs/build/libs/*.jar temp/extras/modules/';
+
         sh 'cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar';
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip';
         sh 'rm -r temp/';

@@ -17,6 +17,7 @@ public class ListenableTask<V> implements ITask<V> {
     private Collection<ITaskListener<V>> listeners;
     private volatile V value;
     private volatile boolean done, cancelled;
+    private volatile Throwable throwable;
 
     public ListenableTask(Callable<V> callable) {
         this(callable, null);
@@ -66,6 +67,10 @@ public class ListenableTask<V> implements ITask<V> {
         initListenersCollectionIfNotExists();
 
         this.listeners.add(listener);
+
+        if (this.done) {
+            this.invokeTaskListener(listener);
+        }
 
         return this;
     }
@@ -130,8 +135,8 @@ public class ListenableTask<V> implements ITask<V> {
         if (!isCancelled()) {
             try {
                 this.value = this.callable.call();
-            } catch (Throwable ex) {
-                this.invokeFailure(ex);
+            } catch (Throwable throwable) {
+                this.throwable = throwable;
             }
         }
 
@@ -159,28 +164,23 @@ public class ListenableTask<V> implements ITask<V> {
     private void invokeTaskListener() {
         if (this.listeners != null) {
             for (ITaskListener<V> listener : this.listeners) {
-                try {
-                    if (this.cancelled) {
-                        listener.onCancelled(this);
-                    } else {
-                        listener.onComplete(this, this.value);
-                    }
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
+                this.invokeTaskListener(listener);
             }
         }
     }
 
-    private void invokeFailure(Throwable ex) {
-        if (this.listeners != null) {
-            for (ITaskListener<V> listener : this.listeners) {
-                try {
-                    listener.onFailure(this, ex);
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
+    private void invokeTaskListener(ITaskListener<V> listener) {
+        try {
+            if (this.throwable != null) {
+                listener.onFailure(this, this.throwable);
             }
+            if (this.cancelled) {
+                listener.onCancelled(this);
+            } else {
+                listener.onComplete(this, this.value);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -196,7 +196,7 @@ public class ListenableTask<V> implements ITask<V> {
             task.cancelled = true;
             task.invokeTaskListener();
         });
-        this.onFailure(task::invokeFailure);
+        this.onFailure(throwable -> task.throwable = throwable);
 
         return task;
     }

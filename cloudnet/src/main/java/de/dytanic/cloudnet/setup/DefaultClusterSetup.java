@@ -71,6 +71,7 @@ public class DefaultClusterSetup implements DefaultSetup {
             for (String node : nodes) {
                 HostAndPort host = (HostAndPort) animation.getResult("nodeHost-" + node);
                 CloudNet.getInstance().getConfig().getClusterConfig().getNodes().add(new NetworkClusterNode(node, new HostAndPort[]{host}));
+                CloudNet.getInstance().getConfig().getIpWhitelist().add(host.getHost());
             }
             CloudNet.getInstance().getConfig().save();
         }

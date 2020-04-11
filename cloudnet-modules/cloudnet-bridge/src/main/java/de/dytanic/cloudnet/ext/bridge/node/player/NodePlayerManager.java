@@ -63,14 +63,14 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
+    public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         return this.onlineCloudPlayers.values().stream().filter(cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
+    public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
         Preconditions.checkNotNull(environment);
 
         return this.onlineCloudPlayers.values().stream().filter(cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
@@ -78,7 +78,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudPlayer> getOnlinePlayers() {
+    public @NotNull List<? extends ICloudPlayer> getOnlinePlayers() {
         return new ArrayList<>(this.onlineCloudPlayers.values());
     }
 
@@ -92,7 +92,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
+    public @NotNull List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
         return this.getDatabase().get(new JsonDocument("name", name)).stream().map(jsonDocument -> (CloudOfflinePlayer) jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)).collect(Collectors.toList());

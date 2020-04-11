@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,6 +57,7 @@ public interface IPlayerManager {
      * @deprecated Moved to {@link #getOnlinePlayers(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default List<? extends ICloudPlayer> getOnlinePlayer(@NotNull String name) {
         return this.getOnlinePlayers(name);
     }
@@ -66,6 +68,7 @@ public interface IPlayerManager {
      * @param name the name of the player(s)
      * @return a list containing all online players in the cloud with the given name
      */
+    @NotNull
     List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name);
 
     /**
@@ -74,6 +77,7 @@ public interface IPlayerManager {
      * @param environment the environment to get all players from
      * @return a list containing all players that are online on the given environment
      */
+    @NotNull
     List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment);
 
     /**
@@ -81,6 +85,7 @@ public interface IPlayerManager {
      *
      * @return a list containing all players that are online on the network
      */
+    @NotNull
     List<? extends ICloudPlayer> getOnlinePlayers();
 
     /**
@@ -112,6 +117,7 @@ public interface IPlayerManager {
      * @deprecated Moved to {@link #getOfflinePlayers(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default List<? extends ICloudOfflinePlayer> getOfflinePlayer(@NotNull String name) {
         return this.getOfflinePlayers(name);
     }
@@ -122,6 +128,7 @@ public interface IPlayerManager {
      * @param name the name of the player(s)
      * @return a list containing all players registered in the cloud with the given name
      */
+    @NotNull
     List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name);
 
     /**
@@ -134,8 +141,8 @@ public interface IPlayerManager {
      * @deprecated This shouldn't be used when you have many players in your database, because it can cause major problems in the cloud
      */
     @Deprecated
+    @ApiStatus.Experimental
     List<? extends ICloudOfflinePlayer> getRegisteredPlayers();
-
 
     /**
      * Gets the amount of online players on the network
@@ -186,6 +193,7 @@ public interface IPlayerManager {
      * @deprecated Moved to {@link #getOnlinePlayersAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     @NotNull
     default ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(@NotNull String name) {
         return this.getOnlinePlayersAsync(name);
@@ -233,6 +241,7 @@ public interface IPlayerManager {
      * @deprecated Moved to {@link #getOfflinePlayersAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     @NotNull
     default ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(@NotNull String name) {
         return this.getOfflinePlayersAsync(name);
@@ -273,6 +282,7 @@ public interface IPlayerManager {
      * @deprecated This shouldn't be used when you have many players in your database, because it can cause major problems in the cloud
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     @NotNull
     ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync();
 
@@ -318,6 +328,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName) {
         this.getPlayerExecutor(cloudPlayer).connect(serviceName);
     }
@@ -330,6 +341,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName) {
         this.getPlayerExecutor(uniqueId).connect(serviceName);
     }
@@ -342,6 +354,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
         this.getPlayerExecutor(cloudPlayer).kick(message);
     }
@@ -354,6 +367,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String message) {
         this.getPlayerExecutor(uniqueId).kick(message);
     }
@@ -366,6 +380,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
         this.getPlayerExecutor(cloudPlayer).sendChatMessage(message);
     }
@@ -378,6 +393,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message) {
         this.getPlayerExecutor(uniqueId).sendChatMessage(message);
     }
@@ -391,6 +407,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxySendPluginMessage(ICloudPlayer cloudPlayer, String tag, byte[] data) {
         this.getPlayerExecutor(cloudPlayer).sendPluginMessage(tag, data);
     }
@@ -404,6 +421,7 @@ public interface IPlayerManager {
      * @deprecated use {@link #getPlayerExecutor(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default void proxySendPluginMessage(UUID uniqueId, String tag, byte[] data) {
         this.getPlayerExecutor(uniqueId).sendPluginMessage(tag, data);
     }

@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.module;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus;
 
 @ToString
 @EqualsAndHashCode
@@ -45,6 +46,7 @@ public class ModuleConfiguration {
     }
 
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
     public ModuleConfiguration(boolean runtimeModule, String group, String name, String version, String main, String description, String author, String website, ModuleRepository[] repos, ModuleDependency[] dependencies, JsonDocument properties) {
         this(runtimeModule, false, group, name, version, main, description, author, website, repos, dependencies, properties);
     }
