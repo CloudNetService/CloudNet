@@ -55,17 +55,18 @@ public class BridgeServiceProperty {
     /**
      * Property to get all installed plugins on a service.
      */
-    public static final ServiceProperty<Collection<PluginInfo>> PLUGINS = createFromType("Plugins", PLUGIN_INFO_COLLECTION_TYPE.getType());
+    public static final ServiceProperty<Collection<PluginInfo>> PLUGINS = createFromType("Plugins", PLUGIN_INFO_COLLECTION_TYPE.getType(), true);
     /**
      * Property to get all online players on a service.
      */
-    public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty.<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(createFromType("Players", DOCUMENT_COLLECTION_TYPE.getType()))
+    public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty
+            .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(createFromType("Players", DOCUMENT_COLLECTION_TYPE.getType()))
             .modifyGet((serviceInfoSnapshot, documents) -> documents.stream().map(ServicePlayer::new).collect(Collectors.toList()));
 
     /**
      * Property to check whether a service is online or not.
      */
-    public static final ServiceProperty<Boolean> IS_ONLINE = createFromClass("Online", Boolean.class);
+    public static final ServiceProperty<Boolean> IS_ONLINE = createFromClass("Online", Boolean.class).forbidModification();
     /**
      * Property to check whether a service is in game or not.
      */
