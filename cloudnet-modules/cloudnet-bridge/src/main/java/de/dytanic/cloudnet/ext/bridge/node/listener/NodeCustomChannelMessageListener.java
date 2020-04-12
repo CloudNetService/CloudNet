@@ -244,9 +244,9 @@ public final class NodeCustomChannelMessageListener {
 
         if (cloudPlayer != null) {
             if (cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())) {
+                this.nodePlayerManager.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
                 cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
                 this.nodePlayerManager.updateOnlinePlayer0(cloudPlayer);
-                this.nodePlayerManager.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
             }
         }
     }

@@ -73,10 +73,14 @@ public final class BukkitPlayerListener implements Listener {
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        BridgeHelper.sendChannelMessageServerDisconnect(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+        Player player = event.getPlayer();
 
-        Bukkit.getScheduler().runTask(this.plugin, BridgeHelper::updateServiceInfo);
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
+            BridgeHelper.sendChannelMessageServerDisconnect(BukkitCloudNetHelper.createNetworkConnectionInfo(player),
+                    BukkitCloudNetHelper.createNetworkPlayerServerInfo(player, false));
+
+            BridgeHelper.updateServiceInfo();
+        });
     }
 
 }
