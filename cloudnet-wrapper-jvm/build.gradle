@@ -28,6 +28,7 @@ shadowJar {
     archiveFileName.set(cloudnetWrapperFile)
     archiveClassifier.set(null)
     archiveVersion.set(null)
+    relocate 'com.google.common', 'de.dytanic.cloudnet.wrapper.relocate.guava'
     relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.netty'
     relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
 }
