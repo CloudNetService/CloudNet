@@ -99,7 +99,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public ServiceInfoSnapshot getFreeNonStartedService(String taskName) {
-        return CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().values().stream()
+        return CloudNet.getInstance().getCloudServiceProvider().getCloudServices().stream()
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName) &&
                         (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED || serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED))
                 .findFirst()
