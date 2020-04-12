@@ -149,8 +149,14 @@ public final class BungeeCloudNetListener {
                 ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
 
                 if (proxiedPlayer != null) {
+                    String tag = event.getData().getString("tag");
                     byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
-                    proxiedPlayer.sendData(event.getData().getString("tag"), data);
+
+                    if (!ProxyServer.getInstance().getChannels().contains(tag)) {
+                        ProxyServer.getInstance().registerChannel(tag);
+                    }
+
+                    proxiedPlayer.sendData(tag, data);
                 }
             }
             break;

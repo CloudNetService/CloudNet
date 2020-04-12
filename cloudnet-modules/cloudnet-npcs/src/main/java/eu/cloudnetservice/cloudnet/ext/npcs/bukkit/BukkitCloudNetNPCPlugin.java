@@ -5,6 +5,7 @@ import com.comphenix.protocol.utility.MinecraftVersion;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command.CloudNPCCommand;
+import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.labymod.LabyModEmotePlayer;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener.NPCInventoryListener;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -21,6 +22,7 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
             CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractNPCManagement.class, "BukkitNPCManagement", this.npcManagement);
 
             this.registerListeners();
+            new LabyModEmotePlayer(this, this.npcManagement);
         }
     }
 

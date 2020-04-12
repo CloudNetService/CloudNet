@@ -40,6 +40,8 @@ public class NPCConfigurationEntry {
 
     private Map<Integer, ItemLayout> inventoryLayout = new HashMap<>();
 
+    private LabyModEmotes labyModEmotes = new LabyModEmotes();
+
     public NPCConfigurationEntry() {
         for (int i = 1; i < 10; i++) {
             this.inventoryLayout.put(i, new ItemLayout("BLACK_STAINED_GLASS_PANE", " ", new ArrayList<>()));
@@ -50,7 +52,7 @@ public class NPCConfigurationEntry {
         this.targetGroup = targetGroup;
     }
 
-    public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout) {
+    public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes) {
         this.targetGroup = targetGroup;
         this.infoLineDistance = infoLineDistance;
         this.inventorySize = inventorySize;
@@ -61,6 +63,7 @@ public class NPCConfigurationEntry {
         this.emptyItem = emptyItem;
         this.fullItem = fullItem;
         this.inventoryLayout = inventoryLayout;
+        this.labyModEmotes = labyModEmotes;
     }
 
     public String getTargetGroup() {
@@ -139,13 +142,69 @@ public class NPCConfigurationEntry {
         this.inventoryLayout = inventoryLayout;
     }
 
+    public LabyModEmotes getLabyModEmotes() {
+        return labyModEmotes;
+    }
+
+    public void setLabyModEmotes(LabyModEmotes labyModEmotes) {
+        this.labyModEmotes = labyModEmotes;
+    }
+
+    public static class LabyModEmotes {
+
+        // See https://docs.labymod.net/pages/server/emote_api/ for all available emote ids.
+        private int[] emoteIds = new int[]{2, 3, 49};
+
+        private long minEmoteDelayTicks = 20 * 20;
+
+        private long maxEmoteDelayTicks = 30 * 20;
+
+        private boolean playEmotesSynchronous = false;
+
+        public LabyModEmotes() {
+        }
+
+        public int[] getEmoteIds() {
+            return emoteIds;
+        }
+
+        public void setEmoteIds(int[] emoteIds) {
+            this.emoteIds = emoteIds;
+        }
+
+        public long getMinEmoteDelayTicks() {
+            return minEmoteDelayTicks;
+        }
+
+        public void setMinEmoteDelayTicks(long minEmoteDelayTicks) {
+            this.minEmoteDelayTicks = minEmoteDelayTicks;
+        }
+
+        public long getMaxEmoteDelayTicks() {
+            return maxEmoteDelayTicks;
+        }
+
+        public void setMaxEmoteDelayTicks(long maxEmoteDelayTicks) {
+            this.maxEmoteDelayTicks = maxEmoteDelayTicks;
+        }
+
+        public boolean isPlayEmotesSynchronous() {
+            return playEmotesSynchronous;
+        }
+
+        public void setPlayEmotesSynchronous(boolean playEmotesSynchronous) {
+            this.playEmotesSynchronous = playEmotesSynchronous;
+        }
+
+    }
+
     public static class ItemLayout {
 
-        private String material;
+        private final String material;
 
-        private String displayName;
+        private final String displayName;
 
-        private List<String> lore;
+        private final List<String> lore;
 
         public ItemLayout(String material, String displayName, List<String> lore) {
             this.material = material;

@@ -64,11 +64,6 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
     }
 
     @Override
-    public boolean canBeOverwritten() {
-        return false;
-    }
-
-    @Override
     public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser) {
         return this.childPermissionManagement.addUserAsync(permissionUser);
     }

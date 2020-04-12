@@ -150,8 +150,10 @@ public final class VelocityCloudNetListener {
             case "send_plugin_message_to_proxy_player": {
                 Player player = getPlayer(event.getData());
                 if (player != null && event.getData().getString("message") != null) {
+                    String tag = event.getData().getString("tag");
                     byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
-                    player.sendPluginMessage(() -> event.getData().getString("tag"), data);
+
+                    player.sendPluginMessage(() -> tag, data);
                 }
             }
             break;
