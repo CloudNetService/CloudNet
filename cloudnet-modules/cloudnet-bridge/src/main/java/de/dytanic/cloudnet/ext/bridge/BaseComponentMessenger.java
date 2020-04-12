@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ public class BaseComponentMessenger {
                 "send_message_to_proxy_player",
                 new JsonDocument()
                         .append("uniqueId", uniqueId)
-                        .append("messages", messages)
+                        .append("messages", ComponentSerializer.toString(messages))
         );
     }
 
@@ -40,7 +41,7 @@ public class BaseComponentMessenger {
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "broadcast_message",
                 new JsonDocument()
-                        .append("messages", messages)
+                        .append("messages", ComponentSerializer.toString(messages))
         );
     }
 
@@ -51,7 +52,7 @@ public class BaseComponentMessenger {
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "broadcast_message",
                 new JsonDocument()
-                        .append("messages", messages)
+                        .append("messages", ComponentSerializer.toString(messages))
                         .append("permission", permission)
         );
     }
