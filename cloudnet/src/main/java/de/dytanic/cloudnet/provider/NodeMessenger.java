@@ -13,7 +13,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
 public class NodeMessenger implements CloudMessenger {
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeMessenger(CloudNet cloudNet) {
         this.cloudNet = cloudNet;

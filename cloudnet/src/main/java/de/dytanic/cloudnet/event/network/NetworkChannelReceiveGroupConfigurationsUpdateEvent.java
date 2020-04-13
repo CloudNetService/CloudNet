@@ -15,7 +15,7 @@ import java.util.List;
 public final class NetworkChannelReceiveGroupConfigurationsUpdateEvent extends NetworkEvent implements ICancelable {
 
     private List<GroupConfiguration> groupConfigurations;
-    private NetworkUpdateType updateType;
+    private final NetworkUpdateType updateType;
 
     private boolean cancelled;
 

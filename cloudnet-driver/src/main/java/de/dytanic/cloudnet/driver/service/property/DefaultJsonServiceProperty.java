@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
 
-    private String key;
-    private Type type;
-    private Class<T> tClass;
+    private final String key;
+    private final Type type;
+    private final Class<T> tClass;
 
     private boolean allowModifications = true;
 

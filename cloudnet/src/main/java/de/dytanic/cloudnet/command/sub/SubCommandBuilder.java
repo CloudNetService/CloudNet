@@ -10,10 +10,10 @@ import java.util.function.Consumer;
 
 public class SubCommandBuilder {
 
-    private Deque<QuestionAnswerType<?>> prefixes = new LinkedBlockingDeque<>();
-    private Deque<SubCommandExecutor> preCommandExecutors = new LinkedBlockingDeque<>();
-    private Deque<SubCommandExecutor> postCommandExecutors = new LinkedBlockingDeque<>();
-    private Collection<SubCommand> subCommands = new ArrayList<>();
+    private final Deque<QuestionAnswerType<?>> prefixes = new LinkedBlockingDeque<>();
+    private final Deque<SubCommandExecutor> preCommandExecutors = new LinkedBlockingDeque<>();
+    private final Deque<SubCommandExecutor> postCommandExecutors = new LinkedBlockingDeque<>();
+    private final Collection<SubCommand> subCommands = new ArrayList<>();
 
     public static SubCommandBuilder create() {
         return new SubCommandBuilder();

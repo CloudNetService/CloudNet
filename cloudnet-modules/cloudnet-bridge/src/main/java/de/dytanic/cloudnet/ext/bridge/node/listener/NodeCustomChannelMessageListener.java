@@ -16,8 +16,8 @@ import java.io.File;
 
 public final class NodeCustomChannelMessageListener {
 
-    private NodePlayerManager nodePlayerManager;
-    private BridgeConfiguration bridgeConfiguration;
+    private final NodePlayerManager nodePlayerManager;
+    private final BridgeConfiguration bridgeConfiguration;
 
     public NodeCustomChannelMessageListener(NodePlayerManager nodePlayerManager) {
         this.nodePlayerManager = nodePlayerManager;

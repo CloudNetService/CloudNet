@@ -12,9 +12,9 @@ public enum JavaVersion {
     JAVA_13(13, 57D, "Java 13"),
     JAVA_14(14, 58D, "Java 14");
 
-    private int version;
-    private double versionId;
-    private String name;
+    private final int version;
+    private final double versionId;
+    private final String name;
 
     JavaVersion(int version, double versionId, String name) {
         this.version = version;

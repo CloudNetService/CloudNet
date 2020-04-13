@@ -86,12 +86,12 @@ public final class Wrapper extends CloudNetDriver {
      */
     private final List<String> commandLineArguments;
 
-    private CloudServiceFactory cloudServiceFactory = new WrapperCloudServiceFactory(this);
-    private GeneralCloudServiceProvider generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
-    private ServiceTaskProvider serviceTaskProvider = new WrapperServiceTaskProvider(this);
-    private GroupConfigurationProvider groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
-    private NodeInfoProvider nodeInfoProvider = new WrapperNodeInfoProvider(this);
-    private CloudMessenger messenger = new WrapperMessenger(this);
+    private final CloudServiceFactory cloudServiceFactory = new WrapperCloudServiceFactory(this);
+    private final GeneralCloudServiceProvider generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
+    private final ServiceTaskProvider serviceTaskProvider = new WrapperServiceTaskProvider(this);
+    private final GroupConfigurationProvider groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
+    private final NodeInfoProvider nodeInfoProvider = new WrapperNodeInfoProvider(this);
+    private final CloudMessenger messenger = new WrapperMessenger(this);
 
     /**
      * CloudNetDriver.getNetworkClient()

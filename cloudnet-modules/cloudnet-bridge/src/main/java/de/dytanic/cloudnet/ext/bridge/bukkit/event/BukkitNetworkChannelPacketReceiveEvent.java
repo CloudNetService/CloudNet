@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNetEvent {
 
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
 
     private final INetworkChannel channel;
 

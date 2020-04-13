@@ -18,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 
 public class WrapperCloudServiceFactory implements CloudServiceFactory {
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperCloudServiceFactory(Wrapper wrapper) {
         this.wrapper = wrapper;

@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.driver.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ColumnTextFormatter {
 
@@ -65,7 +64,7 @@ public class ColumnTextFormatter {
     }
 
     private static class Row {
-        private List<Column> columns;
+        private final List<Column> columns;
 
         public Row(List<Column> columns) {
             this.columns = columns;
@@ -82,7 +81,7 @@ public class ColumnTextFormatter {
     }
 
     private static class Column {
-        private String[] lines;
+        private final String[] lines;
 
         public Column(String[] lines) {
             this.lines = lines;

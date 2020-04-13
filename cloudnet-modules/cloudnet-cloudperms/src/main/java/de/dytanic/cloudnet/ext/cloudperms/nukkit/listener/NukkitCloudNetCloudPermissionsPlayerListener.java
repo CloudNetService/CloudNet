@@ -11,7 +11,7 @@ import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudNetCloudPermissionsP
 
 public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private CloudPermissionsManagement permissionsManagement;
+    private final CloudPermissionsManagement permissionsManagement;
 
     public NukkitCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;

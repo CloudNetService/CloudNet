@@ -4,8 +4,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class ProcessingInstallerOutput implements Runnable {
-    private InputStream inputStream;
-    private PrintStream outputStream;
+    private final InputStream inputStream;
+    private final PrintStream outputStream;
 
     public ProcessingInstallerOutput(InputStream inputStream, PrintStream outputStream) {
         this.inputStream = inputStream;

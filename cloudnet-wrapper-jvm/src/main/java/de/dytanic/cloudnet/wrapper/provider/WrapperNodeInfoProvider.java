@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperNodeInfoProvider(Wrapper wrapper) {
         this.wrapper = wrapper;

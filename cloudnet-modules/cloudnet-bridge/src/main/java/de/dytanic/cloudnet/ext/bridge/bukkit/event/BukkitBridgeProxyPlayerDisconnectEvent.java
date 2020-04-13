@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class BukkitBridgeProxyPlayerDisconnectEvent extends BukkitBridgeEvent {
 
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
     private final NetworkConnectionInfo networkConnectionInfo;
 
     public BukkitBridgeProxyPlayerDisconnectEvent(NetworkConnectionInfo networkConnectionInfo) {

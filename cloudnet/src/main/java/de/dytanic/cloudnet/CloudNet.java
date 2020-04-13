@@ -147,16 +147,16 @@ public final class CloudNet extends CloudNetDriver {
     private IHttpServer httpServer;
     private IPermissionManagement permissionManagement;
 
-    private CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
-    private GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
-    private ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
-    private GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
-    private NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
-    private CloudMessenger messenger = new NodeMessenger(this);
+    private final CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
+    private final GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
+    private final ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
+    private final GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
+    private final NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
+    private final CloudMessenger messenger = new NodeMessenger(this);
 
-    private DefaultInstallation defaultInstallation = new DefaultInstallation();
+    private final DefaultInstallation defaultInstallation = new DefaultInstallation();
 
-    private ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
+    private final ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
 
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;

@@ -13,7 +13,7 @@ import eu.cloudnetservice.cloudnet.ext.npcs.node.CloudNetNPCModule;
 
 public class NPCTaskSetupListener {
 
-    private CloudNetNPCModule npcModule;
+    private final CloudNetNPCModule npcModule;
 
     public NPCTaskSetupListener(CloudNetNPCModule npcModule) {
         this.npcModule = npcModule;

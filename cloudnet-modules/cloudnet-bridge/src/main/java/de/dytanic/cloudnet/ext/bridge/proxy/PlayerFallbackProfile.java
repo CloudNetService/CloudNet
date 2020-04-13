@@ -8,7 +8,7 @@ import java.util.HashSet;
 public class PlayerFallbackProfile {
 
     private String connectingService;
-    private Collection<String> failedConnections = new HashSet<>();
+    private final Collection<String> failedConnections = new HashSet<>();
 
     public boolean canConnect(ServiceInfoSnapshot serviceInfoSnapshot) {
         return !this.failedConnections.contains(serviceInfoSnapshot.getName());

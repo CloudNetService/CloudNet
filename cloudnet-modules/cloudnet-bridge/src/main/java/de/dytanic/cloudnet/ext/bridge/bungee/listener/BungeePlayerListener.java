@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class BungeePlayerListener implements Listener {
 
-    private BungeeCloudNetBridgePlugin plugin;
+    private final BungeeCloudNetBridgePlugin plugin;
 
     public BungeePlayerListener(BungeeCloudNetBridgePlugin plugin) {
         this.plugin = plugin;

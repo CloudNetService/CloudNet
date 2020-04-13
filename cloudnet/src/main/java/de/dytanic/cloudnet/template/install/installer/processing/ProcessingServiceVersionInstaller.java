@@ -36,7 +36,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     private static final String DOWNLOAD_ARTIFACT_NAME = "download.jar";
     private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
 
-    private Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
+    private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
     @Override
     public void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {

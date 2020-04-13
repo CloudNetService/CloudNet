@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private CloudPermissionsManagement permissionsManagement;
+    private final CloudPermissionsManagement permissionsManagement;
 
     public BungeeCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;

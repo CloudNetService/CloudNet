@@ -14,13 +14,12 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import net.kyori.text.TextComponent;
 
 import java.util.concurrent.TimeUnit;
 
 public final class VelocityPlayerListener {
 
-    private VelocityCloudNetBridgePlugin plugin;
+    private final VelocityCloudNetBridgePlugin plugin;
 
     public VelocityPlayerListener(VelocityCloudNetBridgePlugin plugin) {
         this.plugin = plugin;

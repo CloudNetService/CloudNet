@@ -23,7 +23,7 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
 
     private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
-    private PacketQueryProvider packetQueryProvider;
+    private final PacketQueryProvider packetQueryProvider;
 
     public WrapperPermissionManagement(PacketQueryProvider packetQueryProvider) {
         this.packetQueryProvider = packetQueryProvider;

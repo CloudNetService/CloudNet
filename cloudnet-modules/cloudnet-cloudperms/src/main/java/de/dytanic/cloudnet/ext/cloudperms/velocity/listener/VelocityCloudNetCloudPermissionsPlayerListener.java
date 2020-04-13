@@ -13,7 +13,7 @@ import net.kyori.text.TextComponent;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
-    private CloudPermissionsManagement permissionsManagement;
+    private final CloudPermissionsManagement permissionsManagement;
 
     public VelocityCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;

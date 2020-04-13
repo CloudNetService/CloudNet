@@ -133,7 +133,7 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
     }
 
     @Override
-    public @NotNull ITask<Void> setUsersAsync(@Nullable Collection<? extends IPermissionUser> users) {
+    public @NotNull ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users) {
         return this.childPermissionManagement.setUsersAsync(users);
     }
 

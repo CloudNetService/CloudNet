@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeHostAndPort;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeInt;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeString;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 

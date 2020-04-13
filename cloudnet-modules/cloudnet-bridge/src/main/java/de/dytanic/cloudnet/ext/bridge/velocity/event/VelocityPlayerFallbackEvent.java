@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class VelocityPlayerFallbackEvent extends VelocityCloudNetEvent {
 
-    private Player player;
+    private final Player player;
     private ServiceInfoSnapshot fallback;
     private String fallbackName;
 

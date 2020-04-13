@@ -1,8 +1,8 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.config;
 
 public class LabyModMod {
-    private String hash;
-    private String name;
+    private final String hash;
+    private final String name;
 
     public LabyModMod(String hash, String name) {
         this.hash = hash;

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BukkitBridgeProxyPlayerServerConnectRequestEvent extends BukkitBridgeEvent {
 
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
     private final NetworkConnectionInfo networkConnectionInfo;
     private final NetworkServiceInfo networkServiceInfo;
 

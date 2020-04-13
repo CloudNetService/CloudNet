@@ -5,8 +5,8 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
 
 public class SetupResponseEvent extends SetupEvent {
 
-    private QuestionListEntry<?> responseEntry;
-    private Object response;
+    private final QuestionListEntry<?> responseEntry;
+    private final Object response;
 
     public SetupResponseEvent(ConsoleQuestionListAnimation setup, QuestionListEntry<?> responseEntry, Object response) {
         super(setup);

@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class PlayerFallback implements Comparable<PlayerFallback> {
 
-    private int priority;
-    private ServiceInfoSnapshot targetServiceInfoSnapshot;
+    private final int priority;
+    private final ServiceInfoSnapshot targetServiceInfoSnapshot;
 
     public PlayerFallback(int priority, ServiceInfoSnapshot targetServiceInfoSnapshot) {
         this.priority = priority;

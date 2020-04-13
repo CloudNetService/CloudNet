@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public final class RepositoryUpdater implements Updater {
 
-    private String url;
+    private final String url;
 
     private String repositoryVersion;
 

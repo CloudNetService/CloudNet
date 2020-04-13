@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 
 public class NodeNodeInfoProvider implements NodeInfoProvider {
 
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeNodeInfoProvider(CloudNet cloudNet) {
         this.cloudNet = cloudNet;

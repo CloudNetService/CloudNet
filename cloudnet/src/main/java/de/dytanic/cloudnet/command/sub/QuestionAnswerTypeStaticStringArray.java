@@ -9,8 +9,8 @@ import java.util.Collections;
 
 public class QuestionAnswerTypeStaticStringArray implements QuestionAnswerType<String> {
 
-    private String[] allowedValues;
-    private boolean ignoreCase;
+    private final String[] allowedValues;
+    private final boolean ignoreCase;
 
     public QuestionAnswerTypeStaticStringArray(String[] allowedValues, boolean ignoreCase) {
         Preconditions.checkArgument(allowedValues.length > 0, "At least one value has to be provided");

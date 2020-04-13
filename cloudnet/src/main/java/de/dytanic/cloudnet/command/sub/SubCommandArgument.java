@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.command.sub;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 
 public class SubCommandArgument<T> {
-    private QuestionAnswerType<T> answerType;
-    private T answer;
+    private final QuestionAnswerType<T> answerType;
+    private final T answer;
 
     public SubCommandArgument(QuestionAnswerType<T> answerType, T answer) {
         this.answerType = answerType;

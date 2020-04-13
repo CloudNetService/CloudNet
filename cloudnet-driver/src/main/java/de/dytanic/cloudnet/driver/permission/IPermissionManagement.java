@@ -313,7 +313,7 @@ public interface IPermissionManagement {
      * @param users the new {@link IPermissionUser}s to be stored in the database
      */
     @NotNull
-    ITask<Void> setUsersAsync(@Nullable Collection<? extends IPermissionUser> users);
+    ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users);
 
     /**
      * Gets a list of all users stored in the database with the given group.

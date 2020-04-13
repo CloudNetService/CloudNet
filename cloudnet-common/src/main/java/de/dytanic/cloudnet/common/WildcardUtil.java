@@ -1,9 +1,6 @@
 package de.dytanic.cloudnet.common;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class WildcardUtil {

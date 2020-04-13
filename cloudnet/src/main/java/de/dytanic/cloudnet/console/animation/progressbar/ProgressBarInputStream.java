@@ -10,8 +10,8 @@ import java.net.URLConnection;
 
 public class ProgressBarInputStream extends InputStream {
 
-    private ConsoleProgressBarAnimation progressBarAnimation;
-    private InputStream wrapped;
+    private final ConsoleProgressBarAnimation progressBarAnimation;
+    private final InputStream wrapped;
 
     public ProgressBarInputStream(IConsole console, InputStream wrapped, long length) {
         this(

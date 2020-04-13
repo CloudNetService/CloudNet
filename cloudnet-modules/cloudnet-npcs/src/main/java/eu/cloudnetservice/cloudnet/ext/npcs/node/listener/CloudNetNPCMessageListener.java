@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class CloudNetNPCMessageListener {
 
-    private CloudNetNPCModule npcModule;
+    private final CloudNetNPCModule npcModule;
 
     public CloudNetNPCMessageListener(CloudNetNPCModule npcModule) {
         this.npcModule = npcModule;

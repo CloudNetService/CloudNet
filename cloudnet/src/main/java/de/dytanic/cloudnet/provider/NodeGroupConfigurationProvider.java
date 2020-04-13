@@ -12,7 +12,7 @@ import java.util.Collection;
 
 public class NodeGroupConfigurationProvider implements GroupConfigurationProvider {
 
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeGroupConfigurationProvider(CloudNet cloudNet) {
         this.cloudNet = cloudNet;

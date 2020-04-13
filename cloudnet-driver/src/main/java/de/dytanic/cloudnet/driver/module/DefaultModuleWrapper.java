@@ -24,9 +24,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     private static final String MODULE_CONFIG_PATH = "module.json";
     private final EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks = new EnumMap<>(ModuleLifeCycle.class);
     private ModuleLifeCycle moduleLifeCycle = ModuleLifeCycle.UNLOADED;
-    private URL url;
+    private final URL url;
     private DefaultModule module;
-    private DefaultModuleProvider moduleProvider;
+    private final DefaultModuleProvider moduleProvider;
     private FinalizeURLClassLoader classLoader;
     private ModuleConfiguration moduleConfiguration;
     private JsonDocument moduleConfigurationSource;

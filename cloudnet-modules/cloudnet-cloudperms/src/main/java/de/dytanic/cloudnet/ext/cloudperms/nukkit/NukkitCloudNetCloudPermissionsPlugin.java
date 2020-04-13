@@ -19,7 +19,7 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
         return NukkitCloudNetCloudPermissionsPlugin.instance;
     }
 
-    private CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
+    private final CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
 
     @Override
     public void onLoad() {

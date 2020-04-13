@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class ServicePlayer {
 
-    private JsonDocument data;
+    private final JsonDocument data;
 
     public ServicePlayer(@NotNull JsonDocument data) {
         this.data = data;

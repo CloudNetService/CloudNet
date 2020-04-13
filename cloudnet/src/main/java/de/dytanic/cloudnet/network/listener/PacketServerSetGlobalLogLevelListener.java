@@ -10,7 +10,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
 
-    private boolean redirectToCluster;
+    private final boolean redirectToCluster;
 
     public PacketServerSetGlobalLogLevelListener(boolean redirectToCluster) {
         this.redirectToCluster = redirectToCluster;

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudServiceRegisterEvent extends BukkitCloudNetEvent {
 
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
 
     private final ServiceInfoSnapshot serviceInfoSnapshot;
 

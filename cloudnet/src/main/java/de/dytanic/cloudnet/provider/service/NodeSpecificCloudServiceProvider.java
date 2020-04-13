@@ -14,8 +14,8 @@ import java.util.Queue;
 import java.util.UUID;
 
 public class NodeSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
-    private CloudNet cloudNet;
-    private ServiceInfoSnapshot serviceInfoSnapshot;
+    private final CloudNet cloudNet;
+    private final ServiceInfoSnapshot serviceInfoSnapshot;
 
     public NodeSpecificCloudServiceProvider(CloudNet cloudNet, UUID uniqueId) {
         this(cloudNet, cloudNet.getCloudServiceProvider().getCloudService(uniqueId));

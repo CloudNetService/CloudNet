@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperGeneralCloudServiceProvider(Wrapper wrapper) {
         this.wrapper = wrapper;

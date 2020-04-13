@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class JLine2Completer implements Completer {
 
-    private JLine2Console console;
+    private final JLine2Console console;
 
     public JLine2Completer(JLine2Console console) {
         this.console = console;

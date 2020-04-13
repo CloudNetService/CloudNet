@@ -9,9 +9,9 @@ import java.util.function.Function;
 
 public class ServiceListCommandEvent extends Event {
 
-    private Collection<ServiceInfoSnapshot> targetServiceInfoSnapshots;
-    private Collection<Function<ServiceInfoSnapshot, String>> additionalParameters;
-    private Collection<String> additionalSummary;
+    private final Collection<ServiceInfoSnapshot> targetServiceInfoSnapshots;
+    private final Collection<Function<ServiceInfoSnapshot, String>> additionalParameters;
+    private final Collection<String> additionalSummary;
 
     public ServiceListCommandEvent(Collection<ServiceInfoSnapshot> targetServiceInfoSnapshots, Collection<Function<ServiceInfoSnapshot, String>> additionalParameters, Collection<String> additionalSummary) {
         this.targetServiceInfoSnapshots = targetServiceInfoSnapshots;

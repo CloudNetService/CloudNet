@@ -11,11 +11,11 @@ import java.util.UUID;
 public class LabyModPlayerOptions {
 
     private long creationTime;
-    private String version;
-    private LabyModCCP ccp;
-    private LabyModShadow shadow;
-    private Collection<LabyModAddon> addons;
-    private Collection<LabyModMod> mods;
+    private final String version;
+    private final LabyModCCP ccp;
+    private final LabyModShadow shadow;
+    private final Collection<LabyModAddon> addons;
+    private final Collection<LabyModMod> mods;
     private UUID joinSecret;
     private long lastJoinSecretRedeem = -1;
     private UUID spectateSecret;

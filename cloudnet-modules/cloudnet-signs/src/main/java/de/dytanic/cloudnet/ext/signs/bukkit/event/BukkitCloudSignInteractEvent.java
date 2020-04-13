@@ -15,7 +15,7 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     private boolean cancelled;
 
-    private Sign clickedSign;
+    private final Sign clickedSign;
 
     private String targetServer;
 

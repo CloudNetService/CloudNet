@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public final class VelocitySyncProxyPlayerListener {
 
-    private VelocitySyncProxyManagement syncProxyManagement;
+    private final VelocitySyncProxyManagement syncProxyManagement;
 
     public VelocitySyncProxyPlayerListener(VelocitySyncProxyManagement syncProxyManagement) {
         this.syncProxyManagement = syncProxyManagement;

@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
 
-    private ProxyServer proxyServer;
+    private final ProxyServer proxyServer;
 
-    private Object plugin;
+    private final Object plugin;
 
     public VelocitySyncProxyManagement(ProxyServer proxyServer, Object plugin) {
         this.proxyServer = proxyServer;

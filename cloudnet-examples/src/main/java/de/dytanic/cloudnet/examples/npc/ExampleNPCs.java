@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ExampleNPCs {
 
     // getting the NPCManagement via CloudNet's ServiceRegistry
-    private AbstractNPCManagement npcManagement = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractNPCManagement.class);
+    private final AbstractNPCManagement npcManagement = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractNPCManagement.class);
 
     public void editNPC() {
         this.npcManagement.getCloudNPCS().stream().findFirst().ifPresent(cloudNPC -> {

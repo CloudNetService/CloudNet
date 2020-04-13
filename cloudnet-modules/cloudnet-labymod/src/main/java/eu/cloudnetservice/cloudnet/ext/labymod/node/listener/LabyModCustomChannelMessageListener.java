@@ -14,9 +14,9 @@ import java.util.UUID;
 
 public class LabyModCustomChannelMessageListener {
 
-    private CloudNetLabyModModule module;
+    private final CloudNetLabyModModule module;
 
-    private IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+    private final IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
 
     public LabyModCustomChannelMessageListener(CloudNetLabyModModule module) {
         this.module = module;

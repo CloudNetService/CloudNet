@@ -22,7 +22,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
     private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperGroupConfigurationProvider(Wrapper wrapper) {
         this.wrapper = wrapper;

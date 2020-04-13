@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeGeneralCloudServiceProvider(CloudNet cloudNet) {
         this.cloudNet = cloudNet;

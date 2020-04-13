@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 
 public final class PermissionsUpdateListener {
 
-    private CloudPermissionsManagement permissionsManagement;
+    private final CloudPermissionsManagement permissionsManagement;
 
     public PermissionsUpdateListener(CloudPermissionsManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;

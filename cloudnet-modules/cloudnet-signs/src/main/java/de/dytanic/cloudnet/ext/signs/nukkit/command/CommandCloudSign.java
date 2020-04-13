@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 public class CommandCloudSign extends Command {
 
-    private NukkitSignManagement nukkitSignManagement;
+    private final NukkitSignManagement nukkitSignManagement;
 
     public CommandCloudSign(NukkitSignManagement nukkitSignManagement) {
         super("cloudsign", "Add or Removes signs from the provided Group configuration", "/cloudsign create <targetGroup>", new String[]{"cs"});

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class BungeePlayerFallbackEvent extends BungeeCloudNetEvent {
 
-    private ProxiedPlayer player;
+    private final ProxiedPlayer player;
     private ServiceInfoSnapshot fallback;
     private String fallbackName;
 

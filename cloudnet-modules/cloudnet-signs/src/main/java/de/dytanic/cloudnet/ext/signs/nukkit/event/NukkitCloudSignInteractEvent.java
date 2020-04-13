@@ -13,7 +13,7 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
-    private Sign clickedSign;
+    private final Sign clickedSign;
 
     private String targetServer;
 

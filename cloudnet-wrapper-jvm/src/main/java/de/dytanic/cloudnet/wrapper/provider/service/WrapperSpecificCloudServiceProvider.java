@@ -23,7 +23,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
 
     private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
     private UUID uniqueId;
     private String name;
     private ServiceInfoSnapshot serviceInfoSnapshot;

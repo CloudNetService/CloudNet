@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @NotNull
 public class OutputStreamCloseTask extends OutputStream implements ITask<OutputStream> {
 
-    private OutputStream outputStream;
+    private final OutputStream outputStream;
     private boolean done;
 
     OutputStreamCloseTask(OutputStream outputStream) {

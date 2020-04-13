@@ -94,7 +94,6 @@ public final class InternalSyncPacketChannel {
 
         private final long timeOut = System.currentTimeMillis() + 30000;
         private volatile Pair<JsonDocument, byte[]> response = new Pair<>(new JsonDocument(), new byte[0]);
-        @NotNull
         private volatile ITask<Pair<JsonDocument, byte[]>> task;
     }
 }

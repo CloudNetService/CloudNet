@@ -26,7 +26,7 @@ public abstract class SubCommand implements SubCommandExecutor {
     private int minArgs = -1;
     private int exactArgs = -1;
     private int maxArgs = -1;
-    private QuestionAnswerType<?>[] requiredArguments;
+    private final QuestionAnswerType<?>[] requiredArguments;
 
     public SubCommand(int exactArgs, QuestionAnswerType<?>[] requiredArguments) {
         this.exactArgs = exactArgs;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswerType<E> {
-    private Class<E> enumClass;
+    private final Class<E> enumClass;
 
     public QuestionAnswerTypeEnum(Class<E> enumClass) {
         this.enumClass = enumClass;

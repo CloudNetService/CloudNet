@@ -2,15 +2,15 @@ package de.dytanic.cloudnet.driver.service;
 
 public class ThreadSnapshot {
 
-    private long id;
+    private final long id;
 
-    private String name;
+    private final String name;
 
-    private Thread.State threadState;
+    private final Thread.State threadState;
 
-    private boolean daemon;
+    private final boolean daemon;
 
-    private int priority;
+    private final int priority;
 
     public ThreadSnapshot(long id, String name, Thread.State threadState, boolean daemon, int priority) {
         this.id = id;

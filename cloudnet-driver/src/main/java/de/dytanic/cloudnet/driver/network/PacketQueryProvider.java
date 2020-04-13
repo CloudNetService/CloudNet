@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 public class PacketQueryProvider {
 
-    private INetworkClient defaultNetworkClient;
+    private final INetworkClient defaultNetworkClient;
 
     public PacketQueryProvider(@NotNull INetworkClient defaultNetworkClient) {
         this.defaultNetworkClient = defaultNetworkClient;

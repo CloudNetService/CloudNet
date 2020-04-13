@@ -10,7 +10,7 @@ public enum EventPriority implements Comparator<EventPriority> {
     LOW(16),
     LOWEST(8);
 
-    private int value;
+    private final int value;
 
     EventPriority(int value) {
         this.value = value;

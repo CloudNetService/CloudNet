@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class WrapperMessenger implements CloudMessenger {
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperMessenger(Wrapper wrapper) {
         this.wrapper = wrapper;

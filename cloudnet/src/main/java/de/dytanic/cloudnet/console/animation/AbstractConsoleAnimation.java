@@ -14,7 +14,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     private long startTime;
     private int cursorUp = 1;
     private boolean staticCursor;
-    private Collection<Runnable> finishHandler = new ArrayList<>();
+    private final Collection<Runnable> finishHandler = new ArrayList<>();
 
     public AbstractConsoleAnimation() {
 

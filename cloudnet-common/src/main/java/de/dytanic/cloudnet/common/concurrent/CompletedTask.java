@@ -11,7 +11,7 @@ public class CompletedTask<V> implements ITask<V> {
 
     private static final ITask<Void> VOID_TASK = new CompletedTask<>(null);
 
-    private V value;
+    private final V value;
 
     private CompletedTask(V value) {
         this.value = value;

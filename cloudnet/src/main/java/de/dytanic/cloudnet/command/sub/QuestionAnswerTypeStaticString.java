@@ -7,8 +7,8 @@ import java.util.Collections;
 
 public class QuestionAnswerTypeStaticString implements QuestionAnswerType<String> {
 
-    private String requiredValue;
-    private boolean ignoreCase;
+    private final String requiredValue;
+    private final boolean ignoreCase;
 
     public QuestionAnswerTypeStaticString(String requiredValue, boolean ignoreCase) {
         this.requiredValue = requiredValue;

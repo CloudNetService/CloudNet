@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class DefaultPlayerExecutor implements PlayerExecutor {
 
-    private UUID uniqueId;
+    private final UUID uniqueId;
 
     public DefaultPlayerExecutor(@NotNull UUID uniqueId) {
         this.uniqueId = uniqueId;

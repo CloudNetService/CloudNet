@@ -31,14 +31,14 @@ public final class JLine2Console implements IConsole {
 
     private String screenName = version;
 
-    private Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
+    private final Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
 
     private boolean printingEnabled = true;
 
-    private Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
-    private Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
+    private final Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
+    private final Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public JLine2Console() throws Exception {
         AnsiConsole.systemInstall();

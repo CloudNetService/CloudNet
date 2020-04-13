@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private CloudPermissionsManagement permissionsManagement;
+    private final CloudPermissionsManagement permissionsManagement;
 
     public BukkitCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;

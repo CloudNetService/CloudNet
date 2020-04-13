@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
 
-    private Plugin plugin;
+    private final Plugin plugin;
 
     public BungeeSyncProxyManagement(Plugin plugin) {
         this.plugin = plugin;

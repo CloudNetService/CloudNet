@@ -5,9 +5,9 @@ import java.util.List;
 
 public class JenkinsBuild {
 
-    private List<BuildArtifact> artifacts;
+    private final List<BuildArtifact> artifacts;
 
-    private List<ChangeSetList> changeSets;
+    private final List<ChangeSetList> changeSets;
 
     public JenkinsBuild(List<BuildArtifact> artifacts, List<ChangeSetList> changeSets) {
         this.artifacts = artifacts;
@@ -31,9 +31,9 @@ public class JenkinsBuild {
 
     public static class BuildArtifact {
 
-        private String fileName;
+        private final String fileName;
 
-        private String relativePath;
+        private final String relativePath;
 
         public BuildArtifact(String fileName, String relativePath) {
             this.fileName = fileName;
@@ -52,7 +52,7 @@ public class JenkinsBuild {
 
     private static class ChangeSetList {
 
-        private List<ChangeSetListItem> items;
+        private final List<ChangeSetListItem> items;
 
         public ChangeSetList(List<ChangeSetListItem> items) {
             this.items = items;
@@ -60,7 +60,7 @@ public class JenkinsBuild {
 
         private static class ChangeSetListItem {
 
-            private String commitId;
+            private final String commitId;
 
             public ChangeSetListItem(String commitId) {
                 this.commitId = commitId;

@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class VaultChatImplementation extends Chat {
 
-    private IPermissionManagement permissionManagement;
+    private final IPermissionManagement permissionManagement;
 
     public VaultChatImplementation(Permission permission, IPermissionManagement permissionManagement) {
         super(permission);

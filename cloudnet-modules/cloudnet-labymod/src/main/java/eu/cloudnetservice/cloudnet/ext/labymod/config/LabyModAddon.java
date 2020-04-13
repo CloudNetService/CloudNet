@@ -3,8 +3,8 @@ package eu.cloudnetservice.cloudnet.ext.labymod.config;
 import java.util.UUID;
 
 public class LabyModAddon {
-    private UUID uuid;
-    private String name;
+    private final UUID uuid;
+    private final String name;
 
     public LabyModAddon(UUID uuid, String name) {
         this.uuid = uuid;

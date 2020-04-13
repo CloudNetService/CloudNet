@@ -15,7 +15,7 @@ import java.util.jar.JarInputStream;
 
 public class JenkinsUpdater implements Updater {
 
-    private String jenkinsJobUrl;
+    private final String jenkinsJobUrl;
 
     private JenkinsBuild jenkinsBuild;
 

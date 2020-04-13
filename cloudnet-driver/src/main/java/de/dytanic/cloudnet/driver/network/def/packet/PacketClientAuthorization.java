@@ -21,7 +21,7 @@ public final class PacketClientAuthorization extends Packet {
         NODE_TO_NODE(0),
         WRAPPER_TO_NODE(1);
 
-        private int value;
+        private final int value;
 
         PacketAuthorizationType(int value) {
             this.value = value;

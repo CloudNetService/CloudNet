@@ -24,7 +24,7 @@ public class IncludePluginListener {
 
     private static final Path PROTOCOLLIB_CACHE_PATH = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), "caches", "ProtocolLib.jar");
 
-    private CloudNetNPCModule npcModule;
+    private final CloudNetNPCModule npcModule;
 
     public IncludePluginListener(CloudNetNPCModule npcModule) throws IOException {
         this.npcModule = npcModule;

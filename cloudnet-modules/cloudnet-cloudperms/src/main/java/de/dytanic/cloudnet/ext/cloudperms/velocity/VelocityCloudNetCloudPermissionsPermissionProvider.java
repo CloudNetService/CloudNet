@@ -9,7 +9,7 @@ import org.checkerframework.checker.optional.qual.MaybePresent;
 
 public class VelocityCloudNetCloudPermissionsPermissionProvider implements PermissionProvider {
 
-    private CloudPermissionsManagement permissionsManagement;
+    private final CloudPermissionsManagement permissionsManagement;
 
     public VelocityCloudNetCloudPermissionsPermissionProvider(CloudPermissionsManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;

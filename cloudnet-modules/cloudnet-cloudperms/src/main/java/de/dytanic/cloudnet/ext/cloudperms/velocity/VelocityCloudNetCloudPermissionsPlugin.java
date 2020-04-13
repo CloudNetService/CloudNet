@@ -23,8 +23,8 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     private final ProxyServer proxyServer;
 
-    private CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
-    private PermissionProvider permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider(this.permissionsManagement);
+    private final CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
+    private final PermissionProvider permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider(this.permissionsManagement);
 
     @Inject
     public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer) {

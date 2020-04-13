@@ -28,7 +28,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         return BukkitCloudNetCloudPermissionsPlugin.instance;
     }
 
-    private CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
+    private final CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
 
     @Override
     public void onLoad() {

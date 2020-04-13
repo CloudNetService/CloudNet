@@ -37,7 +37,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
             "infoLine", "targetGroup", "skinOwnerName", "itemInHand", "shouldLookAtPlayer", "shouldImitatePlayer", "displayName"
     );
 
-    private BukkitNPCManagement npcManagement;
+    private final BukkitNPCManagement npcManagement;
 
     public CloudNPCCommand(BukkitNPCManagement npcManagement) {
         this.npcManagement = npcManagement;

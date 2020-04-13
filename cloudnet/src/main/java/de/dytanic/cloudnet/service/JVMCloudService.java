@@ -65,15 +65,15 @@ final class JVMCloudService implements ICloudService {
 
     private volatile ServiceLifeCycle lifeCycle;
 
-    private ICloudServiceManager cloudServiceManager;
+    private final ICloudServiceManager cloudServiceManager;
 
     private ServiceConfiguration serviceConfiguration;
 
-    private ServiceId serviceId;
+    private final ServiceId serviceId;
 
-    private File directory;
+    private final File directory;
 
-    private String connectionKey;
+    private final String connectionKey;
 
     private int configuredMaxHeapMemory;
 

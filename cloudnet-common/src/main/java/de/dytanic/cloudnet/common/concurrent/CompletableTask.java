@@ -8,9 +8,9 @@ import java.util.concurrent.*;
 
 public class CompletableTask<V> implements ITask<V> {
 
-    private Collection<ITaskListener<V>> listeners = new ArrayList<>();
+    private final Collection<ITaskListener<V>> listeners = new ArrayList<>();
 
-    private CompletableFuture<V> future = new CompletableFuture<>();
+    private final CompletableFuture<V> future = new CompletableFuture<>();
 
     @Override
     public @NotNull ITask<V> addListener(ITaskListener<V> listener) {

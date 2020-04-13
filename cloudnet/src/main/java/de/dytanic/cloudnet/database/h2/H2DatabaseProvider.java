@@ -3,8 +3,6 @@ package de.dytanic.cloudnet.database.h2;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
-import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;

@@ -21,7 +21,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
     private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperServiceTaskProvider(Wrapper wrapper) {
         this.wrapper = wrapper;

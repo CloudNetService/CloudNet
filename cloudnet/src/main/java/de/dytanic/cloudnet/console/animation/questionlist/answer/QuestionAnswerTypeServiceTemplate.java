@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<ServiceTemplate> {
 
-    private boolean existingStorage;
+    private final boolean existingStorage;
 
     public QuestionAnswerTypeServiceTemplate(boolean existingStorage) {
         this.existingStorage = existingStorage;

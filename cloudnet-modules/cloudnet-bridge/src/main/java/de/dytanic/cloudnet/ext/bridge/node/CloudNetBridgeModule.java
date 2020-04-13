@@ -37,7 +37,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     private BridgeConfiguration bridgeConfiguration;
 
-    private NodePlayerManager nodePlayerManager = new NodePlayerManager("cloudnet_cloud_players");
+    private final NodePlayerManager nodePlayerManager = new NodePlayerManager("cloudnet_cloud_players");
 
     public CloudNetBridgeModule() {
         instance = this;

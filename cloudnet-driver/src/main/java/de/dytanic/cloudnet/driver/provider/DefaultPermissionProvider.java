@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 public class DefaultPermissionProvider implements PermissionProvider {
 
-    private Supplier<IPermissionManagement> permissionManagementSupplier;
+    private final Supplier<IPermissionManagement> permissionManagementSupplier;
 
     public DefaultPermissionProvider(Supplier<IPermissionManagement> permissionManagementSupplier) {
         this.permissionManagementSupplier = permissionManagementSupplier;

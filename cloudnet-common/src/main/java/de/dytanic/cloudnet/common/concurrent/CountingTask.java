@@ -8,12 +8,10 @@ import java.util.concurrent.*;
 
 public class CountingTask<V> implements ITask<V> {
 
-    private int count = 0;
-
-    private V value;
-
-    private CompletableFuture<V> future = new CompletableFuture<>();
-    private Collection<ITaskListener<V>> listeners = new ArrayList<>();
+    private final V value;
+    private final CompletableFuture<V> future = new CompletableFuture<>();
+    private final Collection<ITaskListener<V>> listeners = new ArrayList<>();
+    private int count;
 
     public CountingTask(V value, int initialCount) {
         this.value = value;

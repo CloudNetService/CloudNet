@@ -15,8 +15,8 @@ import java.util.function.BiConsumer;
 
 public class WrapperDatabase implements IDatabase {
 
-    private String name;
-    private DefaultWrapperDatabaseProvider databaseProvider;
+    private final String name;
+    private final DefaultWrapperDatabaseProvider databaseProvider;
 
     public WrapperDatabase(String name, DefaultWrapperDatabaseProvider databaseProvider) {
         this.name = name;

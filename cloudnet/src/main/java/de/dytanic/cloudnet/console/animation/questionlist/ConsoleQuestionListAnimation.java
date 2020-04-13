@@ -18,20 +18,21 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
-    private Supplier<String> headerSupplier, footerSupplier;
-    private Supplier<Collection<String>> lastCachedMessagesSupplier;
+    private final Supplier<String> headerSupplier;
+    private final Supplier<String> footerSupplier;
+    private final Supplier<Collection<String>> lastCachedMessagesSupplier;
 
-    private String overwritePrompt;
+    private final String overwritePrompt;
 
     private String previousPrompt;
     private boolean previousPrintingEnabled;
     private List<String> previousHistory;
 
-    private Map<String, Object> results = new HashMap<>();
+    private final Map<String, Object> results = new HashMap<>();
 
     private Queue<QuestionListEntry<?>> entries = new LinkedBlockingQueue<>();
 
-    private Collection<BiConsumer<QuestionListEntry<?>, Object>> entryCompletionListeners = new ArrayList<>();
+    private final Collection<BiConsumer<QuestionListEntry<?>, Object>> entryCompletionListeners = new ArrayList<>();
 
     private int currentCursor = 1;
 

@@ -17,7 +17,7 @@ import de.dytanic.cloudnet.ext.signs.nukkit.event.NukkitCloudSignInteractEvent;
 
 public class NukkitSignInteractionListener implements Listener {
 
-    private NukkitSignManagement nukkitSignManagement;
+    private final NukkitSignManagement nukkitSignManagement;
 
     public NukkitSignInteractionListener(NukkitSignManagement nukkitSignManagement) {
         this.nukkitSignManagement = nukkitSignManagement;

@@ -116,7 +116,9 @@ public class CloudNPC {
 
     public static class NPCProfileProperty {
 
-        private String name, value, signature;
+        private final String name;
+        private final String value;
+        private final String signature;
 
         public NPCProfileProperty(String name, String value, String signature) {
             this.name = name;

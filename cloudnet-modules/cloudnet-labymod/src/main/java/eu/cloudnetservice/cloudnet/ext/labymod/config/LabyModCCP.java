@@ -1,8 +1,8 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.config;
 
 public class LabyModCCP {
-    private boolean enabled;
-    private int version;
+    private final boolean enabled;
+    private final int version;
 
     public LabyModCCP(boolean enabled, int version) {
         this.enabled = enabled;

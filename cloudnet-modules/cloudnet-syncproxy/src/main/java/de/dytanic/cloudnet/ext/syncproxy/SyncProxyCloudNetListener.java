@@ -11,7 +11,7 @@ import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 
 public class SyncProxyCloudNetListener {
 
-    private AbstractSyncProxyManagement syncProxyManagement;
+    private final AbstractSyncProxyManagement syncProxyManagement;
 
     public SyncProxyCloudNetListener(AbstractSyncProxyManagement syncProxyManagement) {
         this.syncProxyManagement = syncProxyManagement;

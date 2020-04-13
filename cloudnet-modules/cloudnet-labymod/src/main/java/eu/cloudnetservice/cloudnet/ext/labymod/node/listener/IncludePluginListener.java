@@ -9,7 +9,7 @@ import java.io.File;
 
 public final class IncludePluginListener {
 
-    private CloudNetLabyModModule module;
+    private final CloudNetLabyModModule module;
 
     public IncludePluginListener(CloudNetLabyModModule module) {
         this.module = module;

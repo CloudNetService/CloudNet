@@ -14,7 +14,7 @@ public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
         return BungeeCloudNetCloudPermissionsPlugin.instance;
     }
 
-    private CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
+    private final CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
 
     @Override
     public void onLoad() {

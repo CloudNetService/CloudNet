@@ -15,12 +15,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeCloudServiceFactory(CloudNet cloudNet) {
         this.cloudNet = cloudNet;

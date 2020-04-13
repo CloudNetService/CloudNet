@@ -11,7 +11,7 @@ import java.util.Collection;
 
 public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeServiceTaskProvider(CloudNet cloudNet) {
         this.cloudNet = cloudNet;

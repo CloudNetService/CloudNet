@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class SubCommandArgumentWrapper {
-    private SubCommandArgument<?>[] arguments;
+    private final SubCommandArgument<?>[] arguments;
 
     public SubCommandArgumentWrapper(SubCommandArgument<?>[] arguments) {
         this.arguments = arguments;

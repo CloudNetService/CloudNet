@@ -24,7 +24,7 @@ public final class PlayerManagerListener {
     private static final Type TYPE_CLOUD_PLAYERS_LIST = new TypeToken<List<CloudPlayer>>() {
     }.getType();
 
-    private NodePlayerManager nodePlayerManager;
+    private final NodePlayerManager nodePlayerManager;
 
     public PlayerManagerListener(NodePlayerManager nodePlayerManager) {
         this.nodePlayerManager = nodePlayerManager;

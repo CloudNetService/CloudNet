@@ -10,7 +10,7 @@ import java.util.function.BiFunction;
 
 public class DefaultModifiableServiceProperty<I, T> implements ServiceProperty<T> {
 
-    private ServiceProperty<I> wrapped;
+    private final ServiceProperty<I> wrapped;
     private BiFunction<ServiceInfoSnapshot, I, T> getModifier;
     private BiFunction<ServiceInfoSnapshot, T, I> setModifier;
 

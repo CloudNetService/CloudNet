@@ -45,14 +45,14 @@ public final class CloudNetLauncher {
     private static final Path LAUNCHER_VERSIONS = LAUNCHER_DIR_PATH.resolve("versions");
     private static final Path LAUNCHER_LIBS = LAUNCHER_DIR_PATH.resolve("libs");
 
-    private Map<String, String> variables = new HashMap<>();
-    private Map<String, String> repositories = new HashMap<>();
+    private final Map<String, String> variables = new HashMap<>();
+    private final Map<String, String> repositories = new HashMap<>();
 
     private Collection<String> updaterVersionNames = new HashSet<>();
 
     private VersionInfo selectedVersion;
 
-    private List<Dependency> dependencies = new ArrayList<>();
+    private final List<Dependency> dependencies = new ArrayList<>();
 
     public static void main(String[] args) {
         System.setProperty("file.encoding", "UTF-8");
