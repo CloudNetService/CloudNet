@@ -26,22 +26,17 @@ allprojects {
         }
 
         maven {
-            name 'vault'
-            url 'https://repo.md-5.net/repository/releases'
-        }
-
-        maven {
             name 'spigotmc-repo'
             url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
         }
 
         maven {
-            name 'bungeecord-repo'
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
+            name 'papermc'
+            url 'https://papermc.io/repo/repository/maven-public/'
         }
 
         maven {
-            name 'sonatype'
+            name 'bungeecord-repo'
             url 'https://oss.sonatype.org/content/repositories/snapshots'
         }
 
@@ -56,8 +51,13 @@ allprojects {
         }
 
         maven {
-            name 'papermc'
-            url 'https://papermc.io/repo/repository/maven-public/'
+            name 'sonatype'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+
+        maven {
+            name 'vault'
+            url 'https://repo.md-5.net/repository/releases'
         }
 
     }

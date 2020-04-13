@@ -7,7 +7,8 @@ import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoSnapshotUtil;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
@@ -36,9 +37,9 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
     private ItemStack[] defaultItems;
 
-    private final Map<UUID, BukkitNPCProperties> npcProperties = new HashMap<>();
+    private Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts;
 
-    private Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts = new HashMap<>();
+    private final Map<UUID, BukkitNPCProperties> npcProperties = new HashMap<>();
 
     public BukkitNPCManagement(@NotNull JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
@@ -138,7 +139,12 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services = super.filterNPCServices(cloudNPC);
 
         this.updateInventory(cloudNPC, services);
-        this.updateInfoLine(cloudNPC, services);
+        this.updateInfoLine(cloudNPC, super.services.values().stream()
+                .map(Pair::getFirst)
+                .filter(serviceInfoSnapshot -> Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(cloudNPC.getTargetGroup()))
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING)
+                .collect(Collectors.toList())
+        );
     }
 
     private void updateInventory(CloudNPC cloudNPC, List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services) {
@@ -167,17 +173,17 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         properties.getInventory().setContents(items);
     }
 
-    private void updateInfoLine(CloudNPC cloudNPC, List<Pair<ServiceInfoSnapshot, ServiceInfoState>> services) {
+    private void updateInfoLine(CloudNPC cloudNPC, List<ServiceInfoSnapshot> services) {
         String infoLine = cloudNPC.getInfoLine()
                 .replace("%group%", String.valueOf(cloudNPC.getTargetGroup()))
                 .replace("%online_players%", String.valueOf(
                         services.stream()
-                                .mapToInt(pair -> ServiceInfoSnapshotUtil.getOnlineCount(pair.getFirst()))
+                                .mapToInt(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0))
                                 .sum())
                 )
                 .replace("%max_players%", String.valueOf(
                         services.stream()
-                                .mapToInt(pair -> ServiceInfoSnapshotUtil.getMaxPlayers(pair.getFirst()))
+                                .mapToInt(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.MAX_PLAYERS).orElse(0))
                                 .sum())
                 )
                 .replace("%online_servers%", String.valueOf(services.size()));
