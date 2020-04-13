@@ -75,17 +75,6 @@ public class DefaultConfigSetup implements DefaultSetup {
 
 
         animation.addEntry(new QuestionListEntry<>(
-                "nodeId",
-                LanguageManager.getMessage("cloudnet-init-setup-node-id"),
-                new QuestionAnswerTypeString() {
-                    @Override
-                    public String getRecommendation() {
-                        return "Node-1";
-                    }
-                }
-        ));
-
-        animation.addEntry(new QuestionListEntry<>(
                 "internalHost",
                 LanguageManager.getMessage("cloudnet-init-setup-internal-host"),
                 new QuestionAnswerTypeHostAndPort() {
@@ -156,7 +145,7 @@ public class DefaultConfigSetup implements DefaultSetup {
 
             CloudNet.getInstance().getConfig().setHostAddress(defaultHost.getHost());
             CloudNet.getInstance().getConfig().setIdentity(new NetworkClusterNode(
-                    animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-" + UUID.randomUUID().toString().split("-")[0],
+                    animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-1",
                     new HostAndPort[]{defaultHost}
             ));
 

@@ -4,10 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeCollection;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeHostAndPort;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeUUID;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.*;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 
@@ -21,12 +18,27 @@ public class DefaultClusterSetup implements DefaultSetup {
         animation.addEntry(new QuestionListEntry<>(
                 "installCluster",
                 LanguageManager.getMessage("cloudnet-init-setup-cluster-install"),
-                new QuestionAnswerTypeBoolean()
+                new QuestionAnswerTypeBoolean() {
+                    @Override
+                    public String getRecommendation() {
+                        return super.getFalseString();
+                    }
+                }
         ));
 
         animation.addEntryCompletionListener((entry, result) -> {
             if (entry.getKey().equals("installCluster") && (boolean) result) {
                 animation.addEntriesFirst(
+                        new QuestionListEntry<>(
+                                "nodeId",
+                                LanguageManager.getMessage("cloudnet-init-setup-node-id"),
+                                new QuestionAnswerTypeString() {
+                                    @Override
+                                    public String getRecommendation() {
+                                        return "Node-1";
+                                    }
+                                }
+                        ),
                         new QuestionListEntry<>(
                                 "clusterId",
                                 LanguageManager.getMessage("cloudnet-init-setup-cluster-cluster-id"),
