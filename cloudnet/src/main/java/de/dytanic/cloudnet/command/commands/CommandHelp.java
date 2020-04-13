@@ -21,7 +21,6 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         switch (args.length) {
             case 0:
-                boolean light = false;
                 for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
                     StringBuilder builder = new StringBuilder("Aliases: " + Arrays.toString(commandInfo.getNames()));
                     if (commandInfo.getPermission() != null) {
@@ -30,8 +29,7 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                     if (commandInfo.getDescription() != null) {
                         builder.append(" - ").append(commandInfo.getDescription());
                     }
-                    sender.sendMessage((light ? "&7" : "&8") + builder.toString());
-                    light = !light;
+                    sender.sendMessage(builder.toString());
                 }
                 sender.sendMessage(LanguageManager.getMessage("command-help-info"));
 
