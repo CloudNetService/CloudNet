@@ -152,12 +152,22 @@ public class DefaultTaskSetup implements DefaultSetup {
         animation.addEntry(new QuestionListEntry<>(
                 "installProxy",
                 LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-proxy"),
-                new QuestionAnswerTypeBoolean()
+                new QuestionAnswerTypeBoolean() {
+                    @Override
+                    public String getRecommendation() {
+                        return super.getTrueString();
+                    }
+                }
         ));
         animation.addEntry(new QuestionListEntry<>(
                 "installServer",
                 LanguageManager.getMessage("cloudnet-init-setup-tasks-should-install-server"),
-                new QuestionAnswerTypeBoolean()
+                new QuestionAnswerTypeBoolean() {
+                    @Override
+                    public String getRecommendation() {
+                        return super.getTrueString();
+                    }
+                }
         ));
 
         this.shouldExecute = true;
