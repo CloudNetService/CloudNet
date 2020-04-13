@@ -116,8 +116,8 @@ public abstract class CloudNetDriver {
     }
 
     public void setPermissionManagement(@NotNull IPermissionManagement permissionManagement) {
-        if (this.permissionManagement != null && !this.permissionManagement.canBeOverwritten()) {
-            throw new IllegalStateException("Current permission management cannot be overwritten");
+        if (this.permissionManagement != null && !this.permissionManagement.canBeOverwritten() && !this.permissionManagement.getClass().getName().equals(permissionManagement.getClass().getName())) {
+            throw new IllegalStateException("Current permission management (" + this.permissionManagement.getClass().getName() + ") cannot be overwritten by " + permissionManagement.getClass().getName());
         }
 
         this.permissionManagement = permissionManagement;

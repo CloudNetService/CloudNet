@@ -46,6 +46,11 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
         this.getDriver().getEventManager().registerListener(new PermissionsUpdateListener(this));
     }
 
+    @Override
+    public boolean canBeOverwritten() {
+        return false;
+    }
+
     public boolean hasPlayerPermission(IPermissionUser permissionUser, String perm) {
         Permission permission = new Permission(perm, 0);
 
