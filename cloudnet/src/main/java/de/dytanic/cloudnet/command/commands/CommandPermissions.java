@@ -27,7 +27,7 @@ import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandPermissions extends SubCommandHandler {
 
-    private static final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public CommandPermissions() {
         super(
@@ -523,7 +523,7 @@ public class CommandPermissions extends SubCommandHandler {
 
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             sender.sendMessage("- " + groupInfo.getGroup() + ": " + (groupInfo.getTimeOutMillis() > 0 ?
-                    dateFormat.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
+                    DATE_FORMAT.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
         }
         if (permissionUser.getGroups().isEmpty()) {
             sender.sendMessage("- " + CloudNet.getInstance().getPermissionManagement().getDefaultPermissionGroup().getName() + ": LIFETIME");
@@ -552,7 +552,7 @@ public class CommandPermissions extends SubCommandHandler {
         for (Permission permission : permissible.getPermissions()) {
             sender.sendMessage("- " + permission.getName() + ":" + permission.getPotency() + " | Timeout " +
                     (permission.getTimeOutMillis() > 0 ?
-                            dateFormat.format(permission.getTimeOutMillis()) : "LIFETIME"));
+                            DATE_FORMAT.format(permission.getTimeOutMillis()) : "LIFETIME"));
         }
 
         sender.sendMessage(" ");
@@ -563,7 +563,7 @@ public class CommandPermissions extends SubCommandHandler {
             for (Permission permission : groupPermissions.getValue()) {
                 sender.sendMessage("- " + permission.getName() + ":" + permission.getPotency() + " | Timeout " +
                         (permission.getTimeOutMillis() > 0 ?
-                                dateFormat.format(permission.getTimeOutMillis()) : "LIFETIME"));
+                                DATE_FORMAT.format(permission.getTimeOutMillis()) : "LIFETIME"));
             }
         }
     }

@@ -1,17 +1,19 @@
 package de.dytanic.cloudnet.launcher.version.update.jenkins;
 
 
+import com.google.gson.JsonObject;
+
 import java.util.List;
 
 public class JenkinsBuild {
 
     private final List<BuildArtifact> artifacts;
 
-    private final List<ChangeSetList> changeSets;
+    private final List<JsonObject> actions;
 
-    public JenkinsBuild(List<BuildArtifact> artifacts, List<ChangeSetList> changeSets) {
+    public JenkinsBuild(List<BuildArtifact> artifacts, List<JsonObject> actions) {
         this.artifacts = artifacts;
-        this.changeSets = changeSets;
+        this.actions = actions;
     }
 
     public List<BuildArtifact> getArtifacts() {
@@ -19,14 +21,11 @@ public class JenkinsBuild {
     }
 
     public String getGitCommitHash() {
-        if (this.changeSets.size() > 0) {
-            ChangeSetList changeSetList = this.changeSets.get(0);
-
-            if (changeSetList.items.size() > 0) {
-                return changeSetList.items.get(changeSetList.items.size() - 1).commitId;
-            }
-        }
-        return null;
+        return this.actions.stream()
+                .filter(jsonObject -> jsonObject.has("lastBuiltRevision"))
+                .map(jsonObject -> jsonObject.getAsJsonObject("lastBuiltRevision").get("SHA1").getAsString())
+                .findFirst()
+                .orElse(null);
     }
 
     public static class BuildArtifact {
@@ -46,26 +45,6 @@ public class JenkinsBuild {
 
         public String getRelativePath() {
             return relativePath;
-        }
-
-    }
-
-    private static class ChangeSetList {
-
-        private final List<ChangeSetListItem> items;
-
-        public ChangeSetList(List<ChangeSetListItem> items) {
-            this.items = items;
-        }
-
-        private static class ChangeSetListItem {
-
-            private final String commitId;
-
-            public ChangeSetListItem(String commitId) {
-                this.commitId = commitId;
-            }
-
         }
 
     }

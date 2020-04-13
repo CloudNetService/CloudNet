@@ -62,8 +62,8 @@ public final class CloudNetLauncher {
 
         if (user.equalsIgnoreCase("root") || user.equalsIgnoreCase("administrator")) {
             PRINT.accept("===================================================================");
-            PRINT.accept("You currently use an administrative user for this application");
-            PRINT.accept("It's better and save, if you create an extra user which you start CloudNet");
+            PRINT.accept("You are currently using an administrative user for this application!");
+            PRINT.accept("Please consider switching to an extra user for CloudNet.");
             PRINT.accept("===================================================================");
         }
 
@@ -208,17 +208,17 @@ public final class CloudNetLauncher {
 
     private Map<String, VersionInfo> loadVersions() {
         Map<String, VersionInfo> versionInfo = new HashMap<>();
-        String gitHubRepository = this.variables.getOrDefault(LauncherUtils.CLOUDNET_REPOSITORY_GITHUB, "CloudNetService/CloudNet-v3");
+        String gitHubRepository = this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY_GITHUB);
 
         // handles the installing of the artifacts contained in the launcher itself
         versionInfo.put(LauncherUtils.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(LauncherUtils.FALLBACK_VERSION), gitHubRepository));
 
-        if (this.variables.getOrDefault(LauncherUtils.LAUNCHER_DEV_MODE, "false").equalsIgnoreCase("true")) {
+        if (this.variables.get(LauncherUtils.LAUNCHER_DEV_MODE).equalsIgnoreCase("true")) {
             // dev mode is on, only using the fallback version
             return versionInfo;
         }
 
-        if (this.variables.getOrDefault(LauncherUtils.CLOUDNET_REPOSITORY_AUTO_UPDATE, "true").equalsIgnoreCase("true")) {
+        if (this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
             Updater updater = new RepositoryUpdater(this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY));
 
             if (updater.init(LAUNCHER_VERSIONS, gitHubRepository)) {
@@ -226,9 +226,8 @@ public final class CloudNetLauncher {
             }
         }
 
-        if (this.variables.getOrDefault(LauncherUtils.CLOUDNET_SNAPSHOTS, "false").equalsIgnoreCase("true")) {
-            Updater updater = new JenkinsUpdater(this.variables.getOrDefault(LauncherUtils.CLOUDNET_SNAPSHOTS_JOB_URL,
-                    "https://ci.cloudnetservice.eu/job/CloudNetService/job/CloudNet-v3/job/development/"));
+        if (this.variables.get(LauncherUtils.CLOUDNET_SNAPSHOTS).equalsIgnoreCase("true")) {
+            Updater updater = new JenkinsUpdater(this.variables.get(LauncherUtils.CLOUDNET_SNAPSHOTS_JOB_URL));
 
             if (updater.init(LAUNCHER_VERSIONS, gitHubRepository)) {
                 versionInfo.put(updater.getFullVersion(), updater);

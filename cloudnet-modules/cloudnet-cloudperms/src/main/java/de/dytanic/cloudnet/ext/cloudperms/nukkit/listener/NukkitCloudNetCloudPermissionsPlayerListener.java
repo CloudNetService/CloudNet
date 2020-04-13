@@ -11,10 +11,13 @@ import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudNetCloudPermissionsP
 
 public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
+    private final NukkitCloudNetCloudPermissionsPlugin plugin;
+
     private final CloudPermissionsManagement permissionsManagement;
 
-    public NukkitCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+    public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin, CloudPermissionsManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -24,7 +27,7 @@ public final class NukkitCloudNetCloudPermissionsPlayerListener implements Liste
             event.setKickMessage(message.replace("&", "§"));
         }, Server.getInstance().getPropertyBoolean("xbox-auth", true));
 
-        NukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
+        this.plugin.injectCloudPermissible(event.getPlayer());
     }
 
     @EventHandler

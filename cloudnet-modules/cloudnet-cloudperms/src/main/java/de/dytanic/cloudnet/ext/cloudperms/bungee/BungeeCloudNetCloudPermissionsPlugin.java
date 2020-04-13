@@ -8,22 +8,12 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
 
-    private static BungeeCloudNetCloudPermissionsPlugin instance;
-
-    public static BungeeCloudNetCloudPermissionsPlugin getInstance() {
-        return BungeeCloudNetCloudPermissionsPlugin.instance;
-    }
-
-    private final CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
-
-    @Override
-    public void onLoad() {
-        instance = this;
-    }
-
     @Override
     public void onEnable() {
-        getProxy().getPluginManager().registerListener(this, new BungeeCloudNetCloudPermissionsPlayerListener(this.permissionsManagement));
+        getProxy().getPluginManager().registerListener(
+                this,
+                new BungeeCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement.newInstance())
+        );
     }
 
     @Override
@@ -31,4 +21,5 @@ public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
+
 }

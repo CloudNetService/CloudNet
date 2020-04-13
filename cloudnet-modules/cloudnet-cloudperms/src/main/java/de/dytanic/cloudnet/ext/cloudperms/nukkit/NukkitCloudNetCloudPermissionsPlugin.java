@@ -13,24 +13,17 @@ import java.lang.reflect.Field;
 
 public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
 
-    private static NukkitCloudNetCloudPermissionsPlugin instance;
-
-    public static NukkitCloudNetCloudPermissionsPlugin getInstance() {
-        return NukkitCloudNetCloudPermissionsPlugin.instance;
-    }
-
-    private final CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
-
-    @Override
-    public void onLoad() {
-        instance = this;
-    }
+    private CloudPermissionsManagement permissionsManagement;
 
     @Override
     public void onEnable() {
-        injectPlayersCloudPermissible();
+        this.permissionsManagement = CloudPermissionsManagement.newInstance();
+        this.injectPlayersCloudPermissible();
 
-        getServer().getPluginManager().registerEvents(new NukkitCloudNetCloudPermissionsPlayerListener(this.permissionsManagement), this);
+        super.getServer().getPluginManager().registerEvents(
+                new NukkitCloudNetCloudPermissionsPlayerListener(this, this.permissionsManagement),
+                this
+        );
     }
 
     @Override
@@ -39,11 +32,8 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
-
     private void injectPlayersCloudPermissible() {
-        for (Player player : Server.getInstance().getOnlinePlayers().values()) {
-            injectCloudPermissible(player);
-        }
+        Server.getInstance().getOnlinePlayers().values().forEach(this::injectCloudPermissible);
     }
 
     public void injectCloudPermissible(Player player) {
@@ -58,4 +48,5 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
             exception.printStackTrace();
         }
     }
+
 }

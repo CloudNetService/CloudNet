@@ -6,17 +6,20 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
+import com.velocitypowered.api.permission.PermissionProvider;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
-import de.dytanic.cloudnet.ext.cloudperms.velocity.VelocityCloudNetCloudPermissionsPlugin;
 import net.kyori.text.TextComponent;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     private final CloudPermissionsManagement permissionsManagement;
 
-    public VelocityCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+    private final PermissionProvider permissionProvider;
+
+    public VelocityCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement, PermissionProvider permissionProvider) {
         this.permissionsManagement = permissionsManagement;
+        this.permissionProvider = permissionProvider;
     }
 
     @Subscribe(order = PostOrder.FIRST)
@@ -28,11 +31,12 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe
     public void handle(PermissionsSetupEvent event) {
-        event.setProvider(VelocityCloudNetCloudPermissionsPlugin.getInstance().getPermissionProvider());
+        event.setProvider(this.permissionProvider);
     }
 
     @Subscribe
     public void handle(DisconnectEvent event) {
         this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
     }
+
 }

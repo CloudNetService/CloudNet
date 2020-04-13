@@ -28,7 +28,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         return BukkitCloudNetCloudPermissionsPlugin.instance;
     }
 
-    private final CloudPermissionsManagement permissionsManagement = CloudPermissionsManagement.newInstance();
+    private CloudPermissionsManagement permissionsManagement;
 
     @Override
     public void onLoad() {
@@ -37,6 +37,8 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.permissionsManagement = CloudPermissionsManagement.newInstance();
+
         this.checkForVault();
         this.initPlayersCloudPermissible();
 
