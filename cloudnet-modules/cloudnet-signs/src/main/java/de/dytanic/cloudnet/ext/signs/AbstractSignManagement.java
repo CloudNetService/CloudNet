@@ -41,6 +41,8 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
         this.signs = signsFromNode == null ? new HashSet<>() : signsFromNode.stream()
                 .filter(sign -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup()))
                 .collect(Collectors.toSet());
+
+        super.includeExistingServices();
     }
 
     /**

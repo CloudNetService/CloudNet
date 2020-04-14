@@ -19,8 +19,7 @@ public abstract class ServiceInfoStateWatcher {
 
     protected final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = new ConcurrentHashMap<>();
 
-    public ServiceInfoStateWatcher() {
-        // including the already existing services
+    public void includeExistingServices() {
         CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
                 .filter(this::shouldWatchService)
                 .forEach(serviceInfoSnapshot -> this.putService(serviceInfoSnapshot, this.fromServiceInfoSnapshot(serviceInfoSnapshot), false));

@@ -36,6 +36,8 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
         this.cloudNPCS = npcsFromNode == null ? new HashSet<>() : npcsFromNode.stream()
                 .filter(npc -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(npc.getPosition().getGroup()))
                 .collect(Collectors.toSet());
+
+        super.includeExistingServices();
     }
 
     @Override

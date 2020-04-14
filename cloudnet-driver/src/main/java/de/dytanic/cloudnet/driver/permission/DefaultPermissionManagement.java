@@ -151,10 +151,6 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
     }
 
     default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
-        if (permissionUser == null || permission == null) {
-            return false;
-        }
-
         switch (permissionUser.hasPermission(permission)) {
             case ALLOWED:
                 return true;
@@ -174,10 +170,6 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
     }
 
     default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
-        if (permissionUser == null || group == null || permission == null) {
-            return false;
-        }
-
         switch (permissionUser.hasPermission(group, permission)) {
             case ALLOWED:
                 return true;
