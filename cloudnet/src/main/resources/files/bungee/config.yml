@@ -24,7 +24,7 @@ servers:
     restricted: false
 listeners:
   - query_port: 25577
-    motd: '&bCloudNet &7v&b3 &8[&6ERUPTION&8] &7BungeeCord &cProxy &7instance              &7Support for BungeeCord &e1.8.8 &7- &e1.14.4'
+    motd: '&bCloudNet &7v&b3 &8[&7Hurricane&8] &7BungeeCord &cProxy &7instance'
     tab_list: GLOBAL_PING
     query_enabled: false
     proxy_protocol: false

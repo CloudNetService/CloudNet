@@ -319,7 +319,16 @@ public final class CloudNetLauncher {
         ClassLoader classLoader = new URLClassLoader(dependencyResources.toArray(new URL[0]));
         Method method = classLoader.loadClass(mainClass).getMethod("main", String[].class);
 
-        method.invoke(null, (Object) args);
+        Thread thread = new Thread(() -> {
+            try {
+                method.invoke(null, (Object) args);
+            } catch (IllegalAccessException | InvocationTargetException exception) {
+                exception.printStackTrace();
+            }
+        }, "Application-Thread");
+        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.setContextClassLoader(classLoader);
+        thread.start();
     }
 
 }

@@ -35,7 +35,7 @@ public class GitCommit {
     }
 
     public String getShortenedSha() {
-        return this.sha.substring(0, 7);
+        return this.sha.length() > 6 ? this.sha.substring(0, 7) : UNKNOWN_COMMIT_SHA;
     }
 
     public String getSha() {
