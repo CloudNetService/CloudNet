@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -42,9 +41,8 @@ public final class BungeePlayerListener implements Listener {
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerSwitch(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()),
                     new NetworkServiceInfo(
-                            serviceInfoSnapshot.getServiceId().getEnvironment(),
-                            Wrapper.getInstance().getServiceId(),
-                            Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+                            serviceInfoSnapshot.getServiceId(),
+                            serviceInfoSnapshot.getConfiguration().getGroups()
                     )
             );
         }
@@ -59,9 +57,8 @@ public final class BungeePlayerListener implements Listener {
         if (serviceInfoSnapshot != null) {
             BridgeHelper.sendChannelMessageProxyServerConnectRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(proxiedPlayer.getPendingConnection()),
                     new NetworkServiceInfo(
-                            serviceInfoSnapshot.getServiceId().getEnvironment(),
-                            Wrapper.getInstance().getServiceId(),
-                            Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
+                            serviceInfoSnapshot.getServiceId(),
+                            serviceInfoSnapshot.getConfiguration().getGroups()
                     )
             );
 

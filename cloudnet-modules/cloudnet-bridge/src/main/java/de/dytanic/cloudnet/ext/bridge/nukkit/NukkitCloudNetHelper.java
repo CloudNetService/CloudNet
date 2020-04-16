@@ -5,7 +5,6 @@ import cn.nukkit.Server;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.GameRules;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
@@ -136,7 +135,6 @@ public final class NukkitCloudNetHelper {
                 true,
                 false,
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.NUKKIT,
                         Wrapper.getInstance().getServiceId(),
                         Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
@@ -170,7 +168,6 @@ public final class NukkitCloudNetHelper {
                 worldPosition,
                 new HostAndPort(player.getAddress(), player.getPort()),
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.NUKKIT,
                         Wrapper.getInstance().getServiceId(),
                         Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )

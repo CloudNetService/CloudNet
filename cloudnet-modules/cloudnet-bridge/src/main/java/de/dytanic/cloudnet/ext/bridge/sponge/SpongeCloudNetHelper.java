@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.bridge.sponge;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
@@ -107,7 +106,6 @@ public final class SpongeCloudNetHelper {
                 onlineMode,
                 false,
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
                         Wrapper.getInstance().getServiceId(),
                         Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
@@ -143,7 +141,6 @@ public final class SpongeCloudNetHelper {
                 worldPosition,
                 new HostAndPort(player.getConnection().getAddress()),
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
                         Wrapper.getInstance().getServiceId(),
                         Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )

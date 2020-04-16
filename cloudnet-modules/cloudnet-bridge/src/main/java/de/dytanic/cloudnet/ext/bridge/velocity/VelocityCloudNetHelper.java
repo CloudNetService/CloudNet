@@ -7,7 +7,6 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
@@ -81,7 +80,6 @@ public final class VelocityCloudNetHelper {
                 proxyServer.getConfiguration().isOnlineMode(),
                 true,
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.VELOCITY,
                         Wrapper.getInstance().getServiceId(),
                         Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )

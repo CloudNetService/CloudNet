@@ -126,7 +126,6 @@ public final class BungeeCloudNetHelper {
                 pendingConnection.isOnlineMode(),
                 pendingConnection.isLegacy(),
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.BUNGEECORD,
                         Wrapper.getInstance().getServiceId(),
                         Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )

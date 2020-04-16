@@ -11,13 +11,10 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class NetworkServiceInfo {
 
-    protected ServiceEnvironmentType environment;
-
     protected ServiceId serviceId;
     protected String[] groups;
 
-    public NetworkServiceInfo(ServiceEnvironmentType environment, ServiceId serviceId, String[] groups) {
-        this.environment = environment;
+    public NetworkServiceInfo(ServiceId serviceId, String[] groups) {
         this.serviceId = serviceId;
         this.groups = groups;
     }
@@ -26,11 +23,7 @@ public class NetworkServiceInfo {
     }
 
     public ServiceEnvironmentType getEnvironment() {
-        return this.environment;
-    }
-
-    public void setEnvironment(ServiceEnvironmentType environment) {
-        this.environment = environment;
+        return this.serviceId.getEnvironment();
     }
 
     public UUID getUniqueId() {
