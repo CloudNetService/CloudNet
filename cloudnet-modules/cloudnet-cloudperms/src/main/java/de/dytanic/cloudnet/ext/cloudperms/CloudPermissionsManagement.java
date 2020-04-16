@@ -63,6 +63,19 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
         return hasPermission(permissionUser, permission);
     }
 
+    public PermissionCheckResult getPlayerPermissionResult(IPermissionUser permissionUser, String perm) {
+        Permission permission = new Permission(perm, 0);
+
+        for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
+            PermissionCheckResult result = getPermissionResult(permissionUser, group, permission);
+            if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
+                return result;
+            }
+        }
+
+        return getPermissionResult(permissionUser, permission);
+    }
+
     @Override
     public @NotNull IPermissionManagement getChildPermissionManagement() {
         return this.childPermissionManagement;

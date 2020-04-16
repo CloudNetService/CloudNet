@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.entity.Player;
@@ -74,11 +75,6 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     @Override
     public boolean hasPermission(@NotNull String inName) {
-
-        if (this.getDefaultPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(inName))) {
-            return true;
-        }
-
         try {
             IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
             if (permissionUser == null) {
@@ -92,6 +88,10 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
             ex.printStackTrace();
             return false;
         }
+    }
+
+    private boolean testDefaultPermission(IPermissionUser permissionUser, String name) {
+        return this.permissionsManagement.getPlayerPermissionResult(permissionUser, name) != PermissionCheckResult.FORBIDDEN;
     }
 
     private boolean testParents(String inName, Predicate<Permission> parentAcceptor) {
@@ -128,7 +128,8 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     }
 
     private boolean checkPermission(IPermissionUser permissionUser, String name) {
-        return this.permissionsManagement.hasPlayerPermission(permissionUser, name);
+        return this.getDefaultPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(name) && this.testDefaultPermission(permissionUser, name)) ||
+                this.permissionsManagement.hasPlayerPermission(permissionUser, name);
     }
 
     public Player getPlayer() {

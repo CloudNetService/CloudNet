@@ -146,100 +146,111 @@ public interface DefaultPermissionManagement extends IPermissionManagement {
                 this.getGroups().stream().filter(permissionGroup -> group.getGroups().contains(permissionGroup.getName())).collect(Collectors.toList());
     }
 
-    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String permission) {
-        return this.hasPermission(permissionUser, new Permission(permission));
+    @NotNull
+    default PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String permission) {
+        return this.getPermissionResult(permissionUser, new Permission(permission));
     }
 
-    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
+    @NotNull
+    default PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
         switch (permissionUser.hasPermission(permission)) {
             case ALLOWED:
-                return true;
+                return PermissionCheckResult.ALLOWED;
             case FORBIDDEN:
-                return false;
+                return PermissionCheckResult.FORBIDDEN;
             default:
                 for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
-                    if (permissionGroup != null && this.tryExtendedGroups(permissionGroup.getName(), permissionGroup, permission, 0)) {
-                        return true;
+                    if (permissionGroup != null) {
+                        PermissionCheckResult result = this.tryExtendedGroups(permissionGroup.getName(), permissionGroup, permission, 0);
+                        if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
+                            return result;
+                        }
                     }
                 }
                 break;
         }
 
         IPermissionGroup defaultGroup = this.getDefaultPermissionGroup();
-        return defaultGroup != null && tryExtendedGroups(defaultGroup.getName(), defaultGroup, permission, 0);
+        return defaultGroup != null ? tryExtendedGroups(defaultGroup.getName(), defaultGroup, permission, 0) : PermissionCheckResult.DENIED;
     }
 
-    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
+    @NotNull
+    default PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
         switch (permissionUser.hasPermission(group, permission)) {
             case ALLOWED:
-                return true;
+                return PermissionCheckResult.ALLOWED;
             case FORBIDDEN:
-                return false;
+                return PermissionCheckResult.FORBIDDEN;
             default:
                 for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
-                    if (permissionGroup != null && tryExtendedGroups(permissionGroup.getName(), permissionGroup, group, permission, 0)) {
-                        return true;
+                    if (permissionGroup != null) {
+                        PermissionCheckResult result = tryExtendedGroups(permissionGroup.getName(), permissionGroup, group, permission, 0);
+                        if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
+                            return result;
+                        }
                     }
                 }
                 break;
         }
 
         IPermissionGroup defaultGroup = this.getDefaultPermissionGroup();
-        return defaultGroup != null && tryExtendedGroups(defaultGroup.getName(), defaultGroup, group, permission, 0);
+        return defaultGroup != null ? tryExtendedGroups(defaultGroup.getName(), defaultGroup, group, permission, 0) : PermissionCheckResult.DENIED;
     }
 
-    default boolean tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull Permission permission, int layer) {
+    default PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
-            return false;
+            return PermissionCheckResult.DENIED;
         }
         if (layer >= 30) {
             System.err.println("Detected recursive permission group implementation on group " + firstGroup);
-            return false;
+            return PermissionCheckResult.DENIED;
         }
         layer++;
 
         switch (permissionGroup.hasPermission(permission)) {
             case ALLOWED:
-                return true;
+                return PermissionCheckResult.ALLOWED;
             case FORBIDDEN:
-                return false;
+                return PermissionCheckResult.FORBIDDEN;
             default:
                 for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
-                    if (this.tryExtendedGroups(firstGroup, extended, permission, layer)) {
-                        return true;
+                    PermissionCheckResult result = this.tryExtendedGroups(firstGroup, extended, permission, layer);
+                    if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
+                        return result;
                     }
                 }
                 break;
         }
 
-        return false;
+        return PermissionCheckResult.DENIED;
     }
 
-    default boolean tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission, int layer) {
+    default PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
-            return false;
+            return PermissionCheckResult.DENIED;
         }
         if (layer >= 30) {
             System.err.println("Detected recursive permission group implementation on group " + firstGroup);
-            return false;
+            return PermissionCheckResult.DENIED;
         }
         layer++;
 
         switch (permissionGroup.hasPermission(group, permission)) {
             case ALLOWED:
-                return true;
+                return PermissionCheckResult.ALLOWED;
             case FORBIDDEN:
-                return false;
+                return PermissionCheckResult.FORBIDDEN;
             default:
                 for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
-                    if (tryExtendedGroups(firstGroup, extended, group, permission, layer)) {
-                        return true;
+                    PermissionCheckResult result = tryExtendedGroups(firstGroup, extended, group, permission, layer);
+                    if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
+                        return result;
                     }
                 }
                 break;
         }
 
-        return false;
+        return PermissionCheckResult.DENIED;
     }
 
     default Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {

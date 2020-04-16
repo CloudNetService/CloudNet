@@ -46,11 +46,26 @@ public interface IPermissionManagement {
 
     Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group);
 
-    boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String permission);
+    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String permission) {
+        return this.getPermissionResult(permissionUser, permission).asBoolean();
+    }
 
-    boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull Permission permission);
+    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
+        return this.getPermissionResult(permissionUser, permission).asBoolean();
+    }
 
-    boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission);
+    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
+        return this.getPermissionResult(permissionUser, group, permission).asBoolean();
+    }
+
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String permission);
+
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission);
+
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission);
 
     Collection<Permission> getAllPermissions(@NotNull IPermissible permissible);
 
