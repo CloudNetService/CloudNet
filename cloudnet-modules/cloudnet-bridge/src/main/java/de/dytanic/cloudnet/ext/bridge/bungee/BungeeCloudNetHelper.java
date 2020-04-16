@@ -72,7 +72,7 @@ public final class BungeeCloudNetHelper {
 
                     CompletableFuture<Boolean> future = new CompletableFuture<>();
                     ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(event.getFallbackName());
-                    player.connect(serverInfo, (result, error) -> future.complete(result && error != null));
+                    player.connect(serverInfo, (result, error) -> future.complete(result && error == null));
                     return future;
                 }
         );
