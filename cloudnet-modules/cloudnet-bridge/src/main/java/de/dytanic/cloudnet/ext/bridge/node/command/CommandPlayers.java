@@ -31,26 +31,6 @@ public final class CommandPlayers extends SubCommandHandler {
                         .prefix(anyStringIgnoreCase("online", "list"))
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    sender.sendMessage("=> Online: " + playerManager.getOnlineCount());
-                                    if (!properties.containsKey("force") && playerManager.getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
-                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
-                                        return;
-                                    }
-
-                                    for (ICloudPlayer cloudPlayer : playerManager.getOnlinePlayers()) {
-                                        sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
-                                                (cloudPlayer.getLoginService() != null ?
-                                                        cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
-                                                " | " +
-                                                (cloudPlayer.getConnectedService() != null ?
-                                                        cloudPlayer.getConnectedService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getConnectedService().getServerName() : null)
-                                        );
-                                    }
-                                },
-                                subCommand -> subCommand.enableProperties().appendUsage("| --force")
-                        )
-                        .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     Long limit = properties.containsKey("limit") ? Longs.tryParse(properties.get("limit")) : null;
                                     if (limit == null) {
                                         limit = Long.MAX_VALUE;
@@ -90,6 +70,26 @@ public final class CommandPlayers extends SubCommandHandler {
                                 },
                                 subCommand -> subCommand.enableProperties().appendUsage("| limit=50 | connect=Lobby-1 | \"message=Message to a User\" | \"kick=You got kicked\" | --showName | name=derrop"),
                                 anyStringIgnoreCase("foreach", "for")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    sender.sendMessage("=> Online: " + playerManager.getOnlineCount());
+                                    if (!properties.containsKey("force") && playerManager.getOnlineCount() > MAX_ONLINE_PLAYERS_FOR_COMPLETION) {
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
+                                        return;
+                                    }
+
+                                    for (ICloudPlayer cloudPlayer : playerManager.getOnlinePlayers()) {
+                                        sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
+                                                (cloudPlayer.getLoginService() != null ?
+                                                        cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
+                                                " | " +
+                                                (cloudPlayer.getConnectedService() != null ?
+                                                        cloudPlayer.getConnectedService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getConnectedService().getServerName() : null)
+                                        );
+                                    }
+                                },
+                                subCommand -> subCommand.enableProperties().appendUsage("| --force")
                         )
                         .removeLastPrefix()
 
