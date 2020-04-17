@@ -33,7 +33,7 @@ public class LabyModEmotePlayer {
         long emotePlayDelayTicks = ThreadLocalRandom.current().nextLong(labyModEmotes.getMinEmoteDelayTicks(), labyModEmotes.getMaxEmoteDelayTicks());
 
         if (this.javaPlugin.isEnabled() && labyModEmotes.getEmoteIds().length > 0) {
-            Bukkit.getScheduler().runTaskLater(this.javaPlugin, () -> {
+            Bukkit.getScheduler().runTaskLaterAsynchronously(this.javaPlugin, () -> {
                 int emoteId = labyModEmotes.isPlayEmotesSynchronous() ? this.getRandomEmoteId(labyModEmotes) : -1;
                 JsonArray emoteList = new JsonArray();
 
