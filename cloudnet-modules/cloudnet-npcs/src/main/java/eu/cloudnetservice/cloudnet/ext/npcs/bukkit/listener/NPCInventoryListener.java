@@ -5,6 +5,7 @@ import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
+import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCProperties;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,9 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class NPCInventoryListener implements Listener {
 
@@ -23,6 +22,8 @@ public class NPCInventoryListener implements Listener {
     private final BukkitNPCManagement npcManagement;
 
     private final IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+
+    private final Map<Integer, BukkitNPCProperties> propertiesCache = new HashMap<>();
 
     public NPCInventoryListener(BukkitNPCManagement npcManagement) {
         this.npcManagement = npcManagement;
@@ -33,23 +34,23 @@ public class NPCInventoryListener implements Listener {
         Player player = event.getPlayer();
         int entityId = event.getNPC().getEntityId();
 
-        this.npcManagement.getNPCProperties().stream()
-                .filter(npcProperty -> npcProperty.getEntityId() == entityId)
+        BukkitNPCProperties properties = this.propertiesCache.computeIfAbsent(entityId, key -> this.npcManagement.getNPCProperties().stream()
+                .filter(npcProperty -> npcProperty.getEntityId() == key)
                 .findFirst()
-                .ifPresent(properties -> {
-                    if (event.getAction() == PlayerNPCInteractEvent.Action.RIGHT_CLICKED) {
-                        player.openInventory(properties.getInventory());
-                    } else {
-                        List<String> services = this.npcManagement.filterNPCServices(properties.getHolder()).stream()
-                                .map(pair -> pair.getFirst().getName())
-                                .collect(Collectors.toList());
+                .orElse(null));
 
-                        if (services.size() > 0) {
-                            String randomServiceName = services.get(RANDOM.nextInt(services.size()));
-                            this.playerManager.getPlayerExecutor(player.getUniqueId()).connect(randomServiceName);
-                        }
-                    }
-                });
+        if (properties != null) {
+            if (event.getAction() == PlayerNPCInteractEvent.Action.RIGHT_CLICKED) {
+                player.openInventory(properties.getInventory());
+            } else {
+                List<String> serviceNames = new ArrayList<>(properties.getServerSlots().values());
+
+                if (serviceNames.size() > 0) {
+                    String randomServiceName = serviceNames.get(RANDOM.nextInt(serviceNames.size()));
+                    this.playerManager.getPlayerExecutor(player.getUniqueId()).connect(randomServiceName);
+                }
+            }
+        }
     }
 
     @EventHandler
@@ -57,7 +58,7 @@ public class NPCInventoryListener implements Listener {
         Inventory inventory = event.getClickedInventory();
         ItemStack currentItem = event.getCurrentItem();
 
-        if (inventory != null && currentItem != null && event.getWhoClicked() instanceof Player) {
+        if (inventory != null && currentItem != null && inventory.getHolder() == null && event.getWhoClicked() instanceof Player) {
             this.npcManagement.getNPCProperties().stream()
                     .filter(properties -> properties.getInventory().equals(inventory))
                     .findFirst()
