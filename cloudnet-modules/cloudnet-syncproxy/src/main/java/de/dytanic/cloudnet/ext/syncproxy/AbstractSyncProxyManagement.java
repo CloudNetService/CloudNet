@@ -72,7 +72,7 @@ public abstract class AbstractSyncProxyManagement {
             return null;
         }
 
-        return motds.get(RANDOM.nextInt(this.loginConfiguration.getMotds().size()));
+        return motds.get(RANDOM.nextInt(motds.size()));
     }
 
     public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot) {
