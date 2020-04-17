@@ -10,7 +10,9 @@ pipeline {
   stages {
     stage('Clean') {
       steps {
-        sh 'gradle clean';
+        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
+          sh 'gradle clean';
+        }
       }
     }
     stage('Test') {
@@ -67,9 +69,7 @@ pipeline {
       }
       steps {
         echo 'Publishing artifacts to Apache Archiva...';
-        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
-          sh 'gradle publish';
-        }
+        sh 'gradle publish';
       }
     }
     stage('Javadoc') {
