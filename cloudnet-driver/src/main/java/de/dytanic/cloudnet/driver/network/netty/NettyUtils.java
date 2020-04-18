@@ -34,11 +34,13 @@ public final class NettyUtils {
     }
 
     public static EventLoopGroup newEventLoopGroup() {
+        int threads = Math.min(Runtime.getRuntime().availableProcessors(), 4);
+
         return Epoll.isAvailable() ?
-                new EpollEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory()) :
+                new EpollEventLoopGroup(threads, threadFactory()) :
                 KQueue.isAvailable() ?
-                        new KQueueEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory()) :
-                        new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), threadFactory());
+                        new KQueueEventLoopGroup(threads, threadFactory()) :
+                        new NioEventLoopGroup(threads, threadFactory());
     }
 
     public static Class<? extends SocketChannel> getSocketChannelClass() {
