@@ -33,7 +33,7 @@ public final class SignConfigurationReaderAndWriter {
             SignConfiguration signConfiguration = new SignConfiguration(
                     new ArrayList<>(Collections.singletonList(SignConfigurationEntryType.BUKKIT.createEntry("Lobby"))),
                     new HashMap<>(ImmutableMap.of(
-                            "server-connecting-message", "&7You will be send to &c%server%&7...",
+                            "server-connecting-message", "&7You will be moved to &c%server%&7...",
                             "command-cloudsign-create-success", "&7The target sign with the target group &6%group% &7is successfully created.",
                             "command-cloudsign-remove-success", "&7The target sign will removed! Please wait...",
                             "command-cloudsign-sign-already-exist", "&7The sign is already set. If you want to remove that, use the /cloudsign remove command",
