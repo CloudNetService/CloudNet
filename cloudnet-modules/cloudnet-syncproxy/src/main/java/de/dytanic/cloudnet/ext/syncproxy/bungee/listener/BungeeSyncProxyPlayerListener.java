@@ -1,13 +1,14 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee.listener;
 
 import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeSyncProxyManagement;
-import de.dytanic.cloudnet.ext.syncproxy.bungee.util.LoginPendingConnectionCommandSender;
+import de.dytanic.cloudnet.ext.syncproxy.bungee.util.LoginProxiedPlayer;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -78,17 +79,17 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
         SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
         if (syncProxyProxyLoginConfiguration != null) {
-            LoginPendingConnectionCommandSender loginEventCommandSender = new LoginPendingConnectionCommandSender(event.getConnection());
+            ProxiedPlayer loginProxiedPlayer = new LoginProxiedPlayer(event.getConnection());
 
             if (syncProxyProxyLoginConfiguration.isMaintenance() && syncProxyProxyLoginConfiguration.getWhitelist() != null) {
                 if (syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getConnection().getName())) {
                     return;
                 }
 
-                UUID uniqueId = event.getConnection().getUniqueId();
+                UUID uniqueId = loginProxiedPlayer.getUniqueId();
 
                 if ((uniqueId != null && syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) ||
-                        loginEventCommandSender.hasPermission("cloudnet.syncproxy.maintenance")) {
+                        loginProxiedPlayer.hasPermission("cloudnet.syncproxy.maintenance")) {
                     return;
                 }
 
@@ -100,7 +101,7 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
             }
 
             if (this.syncProxyManagement.getSyncProxyOnlineCount() >= this.syncProxyManagement.getLoginConfiguration().getMaxPlayers() &&
-                    !loginEventCommandSender.hasPermission("cloudnet.syncproxy.fullljoin")) {
+                    !loginProxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
                 event.setCancelled(true);
                 event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
                         .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network"))));
