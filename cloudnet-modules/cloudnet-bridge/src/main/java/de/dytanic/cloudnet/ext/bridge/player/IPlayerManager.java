@@ -110,7 +110,7 @@ public interface IPlayerManager {
     }
 
     /**
-     * Gets a list of all registered players with the given name. (case-insensitive)
+     * Gets a list of all registered players with the given name. (case-sensitive)
      *
      * @param name the name of the player(s)
      * @return a list containing all players registered in the cloud with the given name
@@ -123,7 +123,7 @@ public interface IPlayerManager {
     }
 
     /**
-     * Gets a list of all online players with the given name. (case-insensitive)
+     * Gets a list of all registered players with the given name. (case-sensitive)
      *
      * @param name the name of the player(s)
      * @return a list containing all players registered in the cloud with the given name
