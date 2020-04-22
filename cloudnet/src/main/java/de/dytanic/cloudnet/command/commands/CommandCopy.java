@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.command.ICommandSender;
+import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -8,12 +9,10 @@ import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class CommandCopy extends CommandDefault {
+public class CommandCopy extends CommandDefault implements ITabCompleter {
 
     public CommandCopy() {
         super("copy", "cp");
@@ -64,4 +63,11 @@ public class CommandCopy extends CommandDefault {
         }
     }
 
+    @Override
+    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
+        if (args.length <= 1) {
+            return super.getCloudNet().getCloudServiceProvider().getCloudServices().stream().map(ServiceInfoSnapshot::getName).collect(Collectors.toList());
+        }
+        return super.getCloudNet().getLocalTemplateStorageTemplates().stream().map(ServiceTemplate::getTemplatePath).map(path -> "template=" + path).collect(Collectors.toList());
+    }
 }
