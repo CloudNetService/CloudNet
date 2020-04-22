@@ -65,7 +65,6 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
         UUID uniqueId = event.getPlayer().getUniqueId();
 
         this.permissionsManagement.getCachedPermissionUsers().remove(uniqueId);
-
     }
 
 }
