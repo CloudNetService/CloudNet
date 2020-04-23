@@ -10,7 +10,7 @@ permissions:
     - bungeecord.command.ip
     - bungeecord.command.reload
     - cloudnet.command.cloudnet
-    - cloudnet.syncproxy.fullljoin
+    - cloudnet.syncproxy.fulljoin
     - cloudnet.syncproxy.maintenance
 timeout: 30000
 log_commands: true
