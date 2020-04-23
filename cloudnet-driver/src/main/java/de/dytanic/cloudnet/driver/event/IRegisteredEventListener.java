@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.event;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.lang.reflect.Method;
@@ -23,11 +24,15 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
         if (getEventClass().isAssignableFrom(event.getClass())) {
 
             if (event.isShowDebug()) {
-                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(String.format(
-                        "Calling event %s on listener %s",
-                        event.getClass().getName(),
-                        this.getInstance().getClass().getName()
-                )));
+                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                    if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                        cloudNetDriver.getLogger().debug(String.format(
+                                "Calling event %s on listener %s",
+                                event.getClass().getName(),
+                                this.getInstance().getClass().getName()
+                        ));
+                    }
+                });
             }
 
             try {

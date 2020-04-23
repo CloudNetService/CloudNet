@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -64,16 +65,20 @@ final class NettyNetworkChannel implements INetworkChannel {
 
         if (!event.isCancelled()) {
             if (packet.isShowDebug()) {
-                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(
-                        String.format(
-                                "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
-                                this.getClientAddress().toString(),
-                                packet.getChannel(),
-                                packet.getUniqueId().toString(),
-                                packet.getHeader().toJson(),
-                                packet.getBody() != null ? packet.getBody().length : 0
-                        )
-                ));
+                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                    if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                        cloudNetDriver.getLogger().debug(
+                                String.format(
+                                        "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
+                                        this.getClientAddress().toString(),
+                                        packet.getChannel(),
+                                        packet.getUniqueId().toString(),
+                                        packet.getHeader().toJson(),
+                                        packet.getBody() != null ? packet.getBody().length : 0
+                                )
+                        );
+                    }
+                });
             }
 
             this.channel.writeAndFlush(packet, this.channel.voidPromise());

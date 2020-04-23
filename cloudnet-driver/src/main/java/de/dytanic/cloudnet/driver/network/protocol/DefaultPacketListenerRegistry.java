@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
@@ -106,16 +107,20 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
         Preconditions.checkNotNull(packet);
 
         if (packet.isShowDebug()) {
-            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(
-                    String.format(
-                            "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
-                            channel.getClientAddress().toString(),
-                            packet.getChannel(),
-                            packet.getUniqueId().toString(),
-                            packet.getHeader().toJson(),
-                            packet.getBody() != null ? packet.getBody().length : 0
-                    )
-            ));
+            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                    cloudNetDriver.getLogger().debug(
+                            String.format(
+                                    "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
+                                    channel.getClientAddress().toString(),
+                                    packet.getChannel(),
+                                    packet.getUniqueId().toString(),
+                                    packet.getHeader().toJson(),
+                                    packet.getBody() != null ? packet.getBody().length : 0
+                            )
+                    );
+                }
+            });
         }
 
         if (this.parent != null) {
