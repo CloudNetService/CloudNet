@@ -47,11 +47,15 @@ public class NukkitSignInteractionListener implements Listener {
                         CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
                                 .getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
 
-                        event.getPlayer().sendMessage(
-                                SignConfigurationProvider.load().getMessages().get("server-connecting-message")
-                                        .replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
-                                        .replace('&', '§')
-                        );
+                        String serverConnectMessage = SignConfigurationProvider.load().getMessages().get("server-connecting-message");
+
+                        if (serverConnectMessage != null) {
+                            event.getPlayer().sendMessage(
+                                    serverConnectMessage
+                                            .replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
+                                            .replace('&', '§')
+                            );
+                        }
 
                     }
 
