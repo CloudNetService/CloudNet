@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServiceConsoleLogReceiveEntryEvent;
-import de.dytanic.cloudnet.network.packet.PacketServerConsoleLogEntryReceive;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -87,7 +86,6 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
         cachedLogMessages.offer(text);
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
-        CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(new PacketServerConsoleLogEntryReceive(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
 
         if (this.autoPrintReceivedInput || this.screenEnabled || printErrorIntoConsole) {
             CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO), "[" + cloudService.getServiceId().getName() + "] " + text);
