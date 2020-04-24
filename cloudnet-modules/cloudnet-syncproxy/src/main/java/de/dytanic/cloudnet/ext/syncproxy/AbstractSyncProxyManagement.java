@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.ext.syncproxy;
 
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
@@ -12,9 +10,6 @@ import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractSyncProxyManagement {
@@ -110,33 +105,6 @@ public abstract class AbstractSyncProxyManagement {
         }
 
         this.updateTabList();
-    }
-
-    protected SyncProxyConfiguration getConfigurationFromNode() {
-        ITask<SyncProxyConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY,
-                SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY,
-                new JsonDocument(),
-                documentPair -> documentPair.get("syncProxyConfiguration", SyncProxyConfiguration.TYPE));
-
-        try {
-            return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public void updateSyncProxyConfigurationInNetwork(SyncProxyConfiguration syncProxyConfiguration) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-                SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-                new JsonDocument(
-                        "syncProxyConfiguration",
-                        syncProxyConfiguration
-                )
-        );
     }
 
     public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {

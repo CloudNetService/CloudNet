@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import net.md_5.bungee.api.ChatColor;
@@ -21,7 +22,7 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     public BungeeSyncProxyManagement(Plugin plugin) {
         this.plugin = plugin;
 
-        super.setSyncProxyConfiguration(super.getConfigurationFromNode());
+        super.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
         super.scheduleTabList();
     }
 

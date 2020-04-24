@@ -9,6 +9,7 @@ dependencies {
     compileOnly project(':cloudnet')
     compileOnly project(':cloudnet-wrapper-jvm')
     compileOnly project(':cloudnet-modules').project('cloudnet-bridge')
+    compileOnly project(':cloudnet-modules').project('cloudnet-syncproxy')
     compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
     compileOnly project(':cloudnet-modules').project('cloudnet-signs')
     compileOnly project(':cloudnet-modules').project('cloudnet-npcs')

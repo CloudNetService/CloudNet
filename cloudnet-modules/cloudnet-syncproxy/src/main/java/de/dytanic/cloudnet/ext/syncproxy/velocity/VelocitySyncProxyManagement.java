@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import net.kyori.text.TextComponent;
 
@@ -20,7 +21,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
         this.proxyServer = proxyServer;
         this.plugin = plugin;
 
-        super.setSyncProxyConfiguration(super.getConfigurationFromNode());
+        super.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
         super.scheduleTabList();
     }
 

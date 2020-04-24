@@ -7,6 +7,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyCloudNetListener;
 import de.dytanic.cloudnet.ext.syncproxy.velocity.listener.VelocitySyncProxyPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -24,6 +25,7 @@ public final class VelocityCloudNetSyncProxyPlugin {
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
         VelocitySyncProxyManagement syncProxyManagement = new VelocitySyncProxyManagement(this.proxyServer, this);
+        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractSyncProxyManagement.class, "VelocitySyncProxyManagement", syncProxyManagement);
 
         CloudNetDriver.getInstance().getEventManager().registerListener(new SyncProxyCloudNetListener(syncProxyManagement));
 
@@ -34,6 +36,8 @@ public final class VelocityCloudNetSyncProxyPlugin {
     public void handleProxyShutdown(ProxyShutdownEvent event) {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+
+        CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractSyncProxyManagement.class, "VelocitySyncProxyManagement");
     }
 
 }
