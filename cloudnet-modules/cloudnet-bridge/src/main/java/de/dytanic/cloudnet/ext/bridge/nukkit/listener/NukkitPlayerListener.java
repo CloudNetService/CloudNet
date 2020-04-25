@@ -13,31 +13,30 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
+import de.dytanic.cloudnet.ext.bridge.OnlyProxyProtection;
 import de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-
-import java.util.Arrays;
 
 public final class NukkitPlayerListener implements Listener {
 
     private final BridgeConfiguration bridgeConfiguration;
 
-    private final boolean onlyProxyProtection;
+    private final OnlyProxyProtection onlyProxyProtection;
 
     public NukkitPlayerListener() {
         this.bridgeConfiguration = BridgeConfigurationProvider.load();
-        this.onlyProxyProtection = !Server.getInstance().getPropertyBoolean("xbox-auth")
-                && this.bridgeConfiguration != null
-                && this.bridgeConfiguration.isOnlyProxyProtection()
-                && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null
-                && this.bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
-                .noneMatch(group -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(group));
+        this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
     }
-
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
         Player player = event.getPlayer();
+
+        if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
+            event.setCancelled(true);
+            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
+            return;
+        }
 
         String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
         ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
@@ -45,12 +44,6 @@ public final class NukkitPlayerListener implements Listener {
         if (serviceTask != null && serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
             event.setCancelled(true);
             event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
-            return;
-        }
-
-        if (this.onlyProxyProtection && !BridgeHelper.playerIsOnProxy(player.getUniqueId(), player.getAddress())) {
-            event.setCancelled(true);
-            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
             return;
         }
 

@@ -91,7 +91,7 @@ public abstract class ServiceInfoStateWatcher {
         this.putService(event.getServiceInfo(), ServiceInfoState.STOPPED);
     }
 
-    private ServiceInfoState fromServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+    private ServiceInfoState fromServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING || serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false)) {
             return ServiceInfoState.STOPPED;
         }
