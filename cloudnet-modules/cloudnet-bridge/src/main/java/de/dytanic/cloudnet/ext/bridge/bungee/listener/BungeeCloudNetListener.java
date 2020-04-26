@@ -202,7 +202,7 @@ public final class BungeeCloudNetListener {
 
     @EventListener
     public void handle(BridgeProxyPlayerLoginRequestEvent event) {
-        this.bungeeCall(new BungeeBridgeProxyPlayerLoginSuccessEvent(event.getNetworkConnectionInfo()));
+        this.bungeeCall(new BungeeBridgeProxyPlayerLoginRequestEvent(event.getNetworkConnectionInfo()));
     }
 
     @EventListener
