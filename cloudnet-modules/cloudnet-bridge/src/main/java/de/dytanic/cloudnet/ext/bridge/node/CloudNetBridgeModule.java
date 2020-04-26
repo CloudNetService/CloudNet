@@ -28,9 +28,10 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
         DEFAULT_MESSAGES.put("command-hub-success-connect", "&7You did successfully connect to %server%");
         DEFAULT_MESSAGES.put("command-hub-already-in-hub", "&cYou are already connected");
         DEFAULT_MESSAGES.put("command-hub-no-server-found", "&7Hub server cannot be found");
-        DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "&7You must connect from a original proxy server");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "&7You must connect from an original proxy server");
         DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode");
         DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%");
+        DEFAULT_MESSAGES.put("already-connected", "§cYou are already connected to this network!");
     }
 
     private static CloudNetBridgeModule instance;

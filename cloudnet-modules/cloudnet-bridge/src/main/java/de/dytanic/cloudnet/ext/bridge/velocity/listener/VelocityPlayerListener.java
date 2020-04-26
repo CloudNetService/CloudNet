@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.listener;
 
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
@@ -7,12 +8,14 @@ import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
+import net.kyori.text.TextComponent;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +29,10 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(LoginEvent event) {
-        BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+        JsonDocument response = BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+        if (response != null && response.contains("kickReason")) {
+            event.setResult(ResultedEvent.ComponentResult.denied(TextComponent.of(response.getString("kickReason"))));
+        }
     }
 
     @Subscribe

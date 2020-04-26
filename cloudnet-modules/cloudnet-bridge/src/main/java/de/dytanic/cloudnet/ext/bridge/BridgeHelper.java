@@ -12,7 +12,11 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @UnsafeClass
 public final class BridgeHelper {
@@ -35,12 +39,19 @@ public final class BridgeHelper {
         Wrapper.getInstance().publishServiceInfoUpdate();
     }
 
-    public static void sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-        );
+    public static JsonDocument sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
+        try {
+            return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
+                    CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                    BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+                    BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
+                    new JsonDocument("networkConnectionInfo", networkConnectionInfo),
+                    Function.identity()
+            ).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
     public static void sendChannelMessageProxyLoginSuccess(NetworkConnectionInfo networkConnectionInfo) {
