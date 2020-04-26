@@ -106,7 +106,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     public void handlePacket(INetworkChannel channel, IPacket packet) {
         Preconditions.checkNotNull(packet);
 
-        if (packet.isShowDebug()) {
+        if (packet.isShowDebug() && this.parent == null) {
             CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
                 if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
                     cloudNetDriver.getLogger().debug(
