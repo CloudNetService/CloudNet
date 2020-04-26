@@ -50,9 +50,9 @@ public class OnlyProxyProtection {
                 if (proxyAddress.isLoopbackAddress() || proxyAddress.isAnyLocalAddress()) {
                     CloudNetDriver.getInstance().getLogger().warning(
                             String.format(
-                                    "OnlyProxyJoin won't work because %s is running on a local or loopback address! " +
-                                            "Please set a remote address by changing the 'hostAddress' property in the config.json of the node the proxy is running on.",
-                                    proxySnapshot.getName()
+                                    "[OnlyProxyJoin] This server will reject all connections from proxy %s because it's running on a local or loopback address! " +
+                                            "Please set a remote address by changing the 'hostAddress' property in the config.json of %s.",
+                                    proxySnapshot.getName(), proxySnapshot.getServiceId().getNodeUniqueId()
                             )
                     );
                     return;
