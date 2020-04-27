@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
@@ -20,6 +21,8 @@ public class OnlyProxyProtection {
     public final Map<UUID, String> proxyIpAddress = new HashMap<>();
 
     private final boolean enabled;
+
+    private final ServiceEnvironmentType environmentType = Wrapper.getInstance().getServiceId().getEnvironment();
 
     public OnlyProxyProtection(boolean serverOnlineMode) {
         BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
@@ -43,7 +46,8 @@ public class OnlyProxyProtection {
     }
 
     private void addProxyAddress(ServiceInfoSnapshot proxySnapshot) {
-        if (proxySnapshot.getServiceId().getEnvironment().isMinecraftProxy()) {
+        if (proxySnapshot.getServiceId().getEnvironment().isMinecraftJavaProxy() && this.environmentType.isMinecraftJavaServer()
+                || proxySnapshot.getServiceId().getEnvironment().isMinecraftBedrockProxy() && this.environmentType.isMinecraftBedrockServer()) {
             try {
                 InetAddress proxyAddress = InetAddress.getByName(proxySnapshot.getAddress().getHost());
 

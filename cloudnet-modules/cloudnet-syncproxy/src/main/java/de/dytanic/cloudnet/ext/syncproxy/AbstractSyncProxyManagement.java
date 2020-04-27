@@ -72,7 +72,7 @@ public abstract class AbstractSyncProxyManagement {
 
     public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
-        Preconditions.checkNotNull(this.loginConfiguration);
+        Preconditions.checkNotNull(this.loginConfiguration, "There is no configuration for this proxy group!");
 
         return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(this.loginConfiguration.getTargetGroup());
     }

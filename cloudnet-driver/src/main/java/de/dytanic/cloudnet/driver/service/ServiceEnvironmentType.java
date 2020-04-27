@@ -101,6 +101,14 @@ public enum ServiceEnvironmentType {
         return this.isMinecraftJavaServer() || this.isMinecraftBedrockServer();
     }
 
+    public boolean isMinecraftJava() {
+        return this.isMinecraftJavaServer() || this.isMinecraftJavaProxy();
+    }
+
+    public boolean isMinecraftBedrock() {
+        return this.isMinecraftBedrockServer() || this.isMinecraftBedrockProxy();
+    }
+
     public int getDefaultStartPort() {
         return this.defaultStartPort;
     }
