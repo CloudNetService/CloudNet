@@ -62,7 +62,7 @@ public class OnlyProxyProtection {
                     return;
                 }
 
-                this.proxyIpAddress.put(proxySnapshot.getServiceId().getUniqueId(), proxyAddress.getHostName());
+                this.proxyIpAddress.put(proxySnapshot.getServiceId().getUniqueId(), proxyAddress.getHostAddress());
             } catch (UnknownHostException exception) {
                 exception.printStackTrace();
             }
@@ -79,4 +79,7 @@ public class OnlyProxyProtection {
         this.proxyIpAddress.remove(event.getServiceInfo().getServiceId().getUniqueId());
     }
 
+    public Map<UUID, String> getProxyIpAddress() {
+        return proxyIpAddress;
+    }
 }
