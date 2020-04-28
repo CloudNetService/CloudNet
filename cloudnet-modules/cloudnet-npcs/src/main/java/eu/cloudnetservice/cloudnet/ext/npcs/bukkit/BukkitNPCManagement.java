@@ -107,14 +107,19 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             return Optional.empty();
         }
 
+        double infoLineDistance = super.ownNPCConfigurationEntry.getInfoLineDistance();
+
         ArmorStand armorStand = location.getWorld()
-                .getNearbyEntitiesByType(ArmorStand.class, location, super.ownNPCConfigurationEntry.getInfoLineDistance() + 0.1D)
+                .getNearbyEntitiesByType(ArmorStand.class, location, infoLineDistance + 0.1D)
                 .stream()
                 .findFirst()
                 .orElse(null);
 
         if (armorStand == null) {
-            armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+            armorStand = (ArmorStand) location.getWorld().spawnEntity(
+                    location.add(0, infoLineDistance, 0),
+                    EntityType.ARMOR_STAND
+            );
 
             armorStand.setVisible(false);
             armorStand.setAI(false);
