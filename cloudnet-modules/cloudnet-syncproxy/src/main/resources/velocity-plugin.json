@@ -1,7 +1,7 @@
 {
   "id": "cloudnet_syncproxy_velocity",
   "name": "CloudNet-SyncProxy",
-  "version": "1.1",
+  "version": "2.0",
   "description": "CloudNet extension which serves proxy utils with CloudNet support",
   "url": "https://cloudnetservice.eu",
   "authors": [
