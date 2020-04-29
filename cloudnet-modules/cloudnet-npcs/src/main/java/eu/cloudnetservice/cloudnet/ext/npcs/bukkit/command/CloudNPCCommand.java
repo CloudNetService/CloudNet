@@ -1,16 +1,13 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command;
 
 
-import com.destroystokyo.paper.profile.PlayerProfile;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,8 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static net.md_5.bungee.api.chat.ClickEvent.Action.RUN_COMMAND;
 
 public class CloudNPCCommand implements CommandExecutor, TabCompleter {
 
@@ -56,7 +51,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
                 if (args[0].equalsIgnoreCase("remove")) {
                     this.removeNPC(player);
                 } else if (args[0].equalsIgnoreCase("list")) {
-                    this.listNPCs(sender);
+                    this.listNPCs(player);
                 } else if (args[0].equalsIgnoreCase("cleanup")) {
                     this.cleanupNPCs(sender);
                 } else {
@@ -82,11 +77,12 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
         boolean lookAtPlayer = args[4].equalsIgnoreCase("true") || args[4].equalsIgnoreCase("yes");
         boolean imitatePlayer = args[5].equalsIgnoreCase("true") || args[5].equalsIgnoreCase("yes");
 
-        PlayerProfile skinProfile = Bukkit.createProfile(args[2]);
+        // TODO: replace with ProtocolLib
+        /*PlayerProfile skinProfile = Bukkit.createProfile(args[2]);
         if (!skinProfile.complete()) {
             player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
             return;
-        }
+        }*/
 
         StringBuilder displayNameBuilder = new StringBuilder();
         for (int i = 6; i < args.length; i++) {
@@ -100,7 +96,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
         }
 
         Location location = player.getLocation();
-        CloudNPC cloudNPC = new CloudNPC(
+        /*CloudNPC cloudNPC = new CloudNPC(
                 new UUID(RANDOM.nextLong(), 0),
                 ChatColor.translateAlternateColorCodes('&', displayName),
                 DEFAULT_INFO_LINE,
@@ -122,7 +118,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
                 imitatePlayer
         );
 
-        this.npcManagement.sendNPCAddUpdate(cloudNPC);
+        this.npcManagement.sendNPCAddUpdate(cloudNPC);*/
         player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-success"));
     }
 
@@ -144,7 +140,8 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
                     break;
                 }
                 case "skinownername": {
-                    PlayerProfile skinProfile = Bukkit.createProfile(value.split(" ")[0]);
+                    // TODO: replace with ProtocolLib
+                    /*PlayerProfile skinProfile = Bukkit.createProfile(value.split(" ")[0]);
                     if (!skinProfile.complete()) {
                         player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
                         return;
@@ -152,7 +149,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
 
                     cloudNPC.setProfileProperties(skinProfile.getProperties().stream()
                             .map(property -> new CloudNPC.NPCProfileProperty(property.getName(), property.getValue(), property.getSignature()))
-                            .collect(Collectors.toSet()));
+                            .collect(Collectors.toSet()));*/
                     break;
                 }
                 case "iteminhand": {
@@ -216,7 +213,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
         return optionalCloudNPC;
     }
 
-    private void listNPCs(CommandSender sender) {
+    private void listNPCs(Player player) {
         for (CloudNPC cloudNPC : this.npcManagement.getCloudNPCS()) {
             WorldPosition position = cloudNPC.getPosition();
 
@@ -225,13 +222,13 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
             BaseComponent[] textComponent = new ComponentBuilder(String.format(
                     "§8> %s §8- §7%d, %d, %d §8- §7%s",
                     cloudNPC.getDisplayName(), x, y, z, position.getWorld()
-            )).append(
+            ))/*.append(
                     new ComponentBuilder(" [§7Teleport§f]")
                             .event(new ClickEvent(RUN_COMMAND, String.format("/tp %d %d %d", x, y, z)))
                             .create()
-            ).create();
+            )*/.create();
 
-            sender.sendMessage(textComponent);
+            player.spigot().sendMessage(textComponent);
         }
     }
 

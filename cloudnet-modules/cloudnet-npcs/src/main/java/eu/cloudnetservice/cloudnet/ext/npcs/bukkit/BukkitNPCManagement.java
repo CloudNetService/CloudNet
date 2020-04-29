@@ -1,9 +1,6 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.destroystokyo.paper.profile.ProfileProperty;
-import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -20,7 +17,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -103,15 +99,16 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC) {
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        if (location.getWorld() == null || !location.isChunkLoaded()) {
+        if (location.getWorld() == null || !location.getChunk().isLoaded()) {
             return Optional.empty();
         }
 
         double infoLineDistance = super.ownNPCConfigurationEntry.getInfoLineDistance();
 
-        ArmorStand armorStand = location.getWorld()
-                .getNearbyEntitiesByType(ArmorStand.class, location, infoLineDistance + 0.1D)
+        ArmorStand armorStand = (ArmorStand) location.getWorld()
+                .getNearbyEntities(location, infoLineDistance + 0.1D, infoLineDistance + 0.1D, infoLineDistance + 0.1D)
                 .stream()
+                .filter(entity -> entity instanceof ArmorStand)
                 .findFirst()
                 .orElse(null);
 
@@ -122,11 +119,13 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             );
 
             armorStand.setVisible(false);
-            armorStand.setAI(false);
+            // bruh
+            //armorStand.setAI(false);
             armorStand.setGravity(false);
 
             armorStand.setCanPickupItems(false);
-            armorStand.setDisabledSlots(EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD);
+            // TODO: replace with ArmorStandManipulateEvent
+            //armorStand.setDisabledSlots(EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD);
 
             armorStand.setCustomNameVisible(true);
         }
@@ -201,7 +200,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             return;
         }
 
-        NPC.Builder builder = new NPC.Builder(
+        // TODO: replace with ProtocolLib
+        /*NPC.Builder builder = new NPC.Builder(
                 cloudNPC.getProfileProperties().stream()
                         .map(npcProfileProperty -> new ProfileProperty(
                                 npcProfileProperty.getName(),
@@ -239,7 +239,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 new HashMap<>()
         ));
 
-        this.updateNPC(cloudNPC);
+        this.updateNPC(cloudNPC);*/
     }
 
     private void destroyNPC(CloudNPC cloudNPC) {

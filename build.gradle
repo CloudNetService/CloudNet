@@ -31,11 +31,6 @@ allprojects {
         }
 
         maven {
-            name 'papermc'
-            url 'https://papermc.io/repo/repository/maven-public/'
-        }
-
-        maven {
             name 'bungeecord-repo'
             url 'https://oss.sonatype.org/content/repositories/snapshots'
         }
