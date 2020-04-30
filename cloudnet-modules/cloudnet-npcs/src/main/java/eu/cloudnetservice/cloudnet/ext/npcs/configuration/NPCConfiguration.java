@@ -17,6 +17,7 @@ public class NPCConfiguration {
         DEFAULT_MESSAGES.put("command-create-texture-fetch-fail", "§7Unable to fetch the skin of the provided Minecraft name! Try again later.");
         DEFAULT_MESSAGES.put("command-create-display-name-too-long", "§7The NPC displayName cannot be longer than 16 chars!");
         DEFAULT_MESSAGES.put("command-create-success", "§7Successfully created the server selector NPC.");
+        DEFAULT_MESSAGES.put("command-edit-invalid-action", "§7The provided action isn't valid!");
         DEFAULT_MESSAGES.put("command-edit-success", "§7Successfully edited the NPC.");
         DEFAULT_MESSAGES.put("command-remove-success", "§7Successfully removed the server selector NPC.");
         DEFAULT_MESSAGES.put("command-no-npc-in-range", "§7There is no NPC in the range of 5 blocks!");

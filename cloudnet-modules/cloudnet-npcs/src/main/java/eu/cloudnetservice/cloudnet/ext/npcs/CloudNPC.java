@@ -29,6 +29,13 @@ public class CloudNPC {
 
     private boolean imitatePlayer;
 
+    private NPCAction rightClickAction = NPCAction.OPEN_INVENTORY;
+
+    private NPCAction leftClickAction = NPCAction.DIRECT_CONNECT;
+
+    public CloudNPC() {
+    }
+
     public CloudNPC(UUID uuid, String displayName, String infoLine, Set<NPCProfileProperty> profileProperties, WorldPosition position, String targetGroup, String itemInHand, boolean lookAtPlayer, boolean imitatePlayer) {
         this.uuid = uuid;
         this.displayName = displayName;
@@ -113,6 +120,21 @@ public class CloudNPC {
         this.imitatePlayer = imitatePlayer;
     }
 
+    public NPCAction getRightClickAction() {
+        return rightClickAction;
+    }
+
+    public void setRightClickAction(NPCAction rightClickAction) {
+        this.rightClickAction = rightClickAction;
+    }
+
+    public NPCAction getLeftClickAction() {
+        return leftClickAction;
+    }
+
+    public void setLeftClickAction(NPCAction leftClickAction) {
+        this.leftClickAction = leftClickAction;
+    }
 
     public static class NPCProfileProperty {
 

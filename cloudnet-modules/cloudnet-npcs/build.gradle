@@ -12,5 +12,5 @@ dependencies {
     compileOnly project(':cloudnet-modules:cloudnet-bridge')
     compileOnly group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
     compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: dependencyBukkitVersion
-    api group: 'com.github.juliarn', name: 'npc-lib', version: '1.0-RELEASE'
+    api group: 'com.github.juliarn', name: 'npc-lib', version: '1.1-RELEASE'
 }
