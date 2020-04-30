@@ -79,8 +79,12 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     public void setNPCConfiguration(NPCConfiguration npcConfiguration) {
         super.setNPCConfiguration(npcConfiguration);
 
-        int inventorySize = super.ownNPCConfigurationEntry.getInventorySize();
-        this.defaultItems = new ItemStack[inventorySize % 9 == 0 ? inventorySize : 54];
+        int inventorySize = super.ownNPCConfigurationEntry.getInventorySize() % 9 == 0 ? super.ownNPCConfigurationEntry.getInventorySize() : 54;
+        this.defaultItems = new ItemStack[inventorySize];
+
+        if (super.ownNPCConfigurationEntry.getEndSlot() > inventorySize) {
+            super.ownNPCConfigurationEntry.setEndSlot(inventorySize);
+        }
 
         Map<Integer, NPCConfigurationEntry.ItemLayout> inventoryLayout = super.ownNPCConfigurationEntry.getInventoryLayout();
         for (int index = 0; index < this.defaultItems.length; index++) {
@@ -158,6 +162,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         BukkitNPCProperties properties = this.npcProperties.get(cloudNPC.getUUID());
         properties.getServerSlots().clear();
 
+        serviceLoop:
         for (int index = 0; index < services.size(); index++) {
             Pair<ServiceInfoSnapshot, ServiceInfoState> serviceInfo = services.get(index);
 
@@ -165,11 +170,16 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             ServiceInfoSnapshot infoSnapshot = serviceInfo.getFirst();
 
             ItemStack itemStack = this.toItemStack(itemLayout, cloudNPC.getTargetGroup(), infoSnapshot);
-            int slot = index + super.ownNPCConfigurationEntry.getStartSlot() - 1;
+            int slot = index + Math.max(super.ownNPCConfigurationEntry.getStartSlot(), 1) - 2;
 
-            if (slot < 0 || slot > super.ownNPCConfigurationEntry.getEndSlot() - 1) {
-                break;
+            do {
+                slot++;
+
+                if (slot > super.ownNPCConfigurationEntry.getEndSlot() - 1) {
+                    break serviceLoop;
+                }
             }
+            while (items[slot] != null);
 
             properties.getServerSlots().put(slot, infoSnapshot.getName());
             items[slot] = itemStack;
