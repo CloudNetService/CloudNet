@@ -13,11 +13,6 @@ allprojects {
         mavenCentral()
 
         maven {
-            name 'jitpack.io'
-            url 'https://jitpack.io'
-        }
-
-        maven {
             url 'https://repo.dmulloy2.net/nexus/repository/public/'
         }
 
@@ -59,6 +54,11 @@ allprojects {
         maven {
             name 'vault'
             url 'https://repo.md-5.net/repository/releases'
+        }
+
+        maven {
+            name 'jitpack.io'
+            url 'https://jitpack.io'
         }
 
     }
