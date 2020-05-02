@@ -369,6 +369,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             return null;
         }
 
+        List<ServiceTemplate> allTemplates = new ArrayList<>();
+
         for (GroupConfiguration groupConfiguration : this.getGroupConfigurations()) {
             String groupName = groupConfiguration.getName();
 
@@ -378,7 +380,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
             if (groups.contains(groupName)) {
                 includes.addAll(groupConfiguration.getIncludes());
-                templates.addAll(groupConfiguration.getTemplates());
+                allTemplates.addAll(groupConfiguration.getTemplates());
                 deployments.addAll(groupConfiguration.getDeployments());
 
                 processConfiguration.getJvmOptions().addAll(groupConfiguration.getJvmOptions());
@@ -388,6 +390,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 }
             }
         }
+
+        // adding the task templates after the group templates for them to have a higher priority
+        allTemplates.addAll(templates);
 
         ServiceConfiguration serviceConfiguration = new ServiceConfiguration(
                 new ServiceId(
@@ -402,7 +407,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 staticService,
                 groups.toArray(new String[0]),
                 includes.toArray(new ServiceRemoteInclusion[0]),
-                templates.toArray(new ServiceTemplate[0]),
+                allTemplates.toArray(new ServiceTemplate[0]),
                 deployments.toArray(new ServiceDeployment[0]),
                 deletedFilesAfterStop != null ? deletedFilesAfterStop.toArray(new String[0]) : new String[0],
                 processConfiguration,
