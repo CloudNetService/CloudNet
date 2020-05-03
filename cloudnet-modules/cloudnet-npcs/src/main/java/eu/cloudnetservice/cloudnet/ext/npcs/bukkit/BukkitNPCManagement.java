@@ -2,9 +2,10 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.destroystokyo.paper.profile.ProfileProperty;
+import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
+import com.github.juliarn.npc.modifier.MetadataModifier;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -20,7 +21,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -107,15 +107,16 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC) {
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        if (location.getWorld() == null || !location.isChunkLoaded()) {
+        if (location.getWorld() == null || !location.getChunk().isLoaded()) {
             return Optional.empty();
         }
 
         double infoLineDistance = super.ownNPCConfigurationEntry.getInfoLineDistance();
 
-        ArmorStand armorStand = location.getWorld()
-                .getNearbyEntitiesByType(ArmorStand.class, location, infoLineDistance + 0.1D)
+        ArmorStand armorStand = (ArmorStand) location.getWorld()
+                .getNearbyEntities(location, infoLineDistance + 0.1D, infoLineDistance + 0.1D, infoLineDistance + 0.1D)
                 .stream()
+                .filter(entity -> entity instanceof ArmorStand)
                 .findFirst()
                 .orElse(null);
 
@@ -126,11 +127,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             );
 
             armorStand.setVisible(false);
-            armorStand.setAI(false);
             armorStand.setGravity(false);
-
             armorStand.setCanPickupItems(false);
-            armorStand.setDisabledSlots(EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD);
 
             armorStand.setCustomNameVisible(true);
         }
@@ -213,7 +211,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         NPC.Builder builder = new NPC.Builder(
                 cloudNPC.getProfileProperties().stream()
-                        .map(npcProfileProperty -> new ProfileProperty(
+                        .map(npcProfileProperty -> new WrappedSignedProperty(
                                 npcProfileProperty.getName(),
                                 npcProfileProperty.getValue(),
                                 npcProfileProperty.getSignature())
@@ -232,8 +230,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 .spawnCustomizer((spawnedNPC, player) -> {
                     spawnedNPC.rotation().queueRotate(location.getYaw(), location.getPitch()).send(player);
                     spawnedNPC.metadata()
-                            .queueSkinLayers(true)
-                            .queueSneaking(false)
+                            .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
+                            .queue(MetadataModifier.EntityMetadata.SNEAKING, false)
                             .send(player);
 
                     Material material = Material.getMaterial(cloudNPC.getItemInHand());
@@ -282,7 +280,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         Material material = Material.getMaterial(itemLayout.getMaterial());
 
         if (material != null) {
-            ItemStack itemStack = new ItemStack(material);
+            ItemStack itemStack = itemLayout.getSubId() == -1 ? new ItemStack(material) : new ItemStack(material, 1, (byte) itemLayout.getSubId());
 
             ItemMeta meta = itemStack.getItemMeta();
 

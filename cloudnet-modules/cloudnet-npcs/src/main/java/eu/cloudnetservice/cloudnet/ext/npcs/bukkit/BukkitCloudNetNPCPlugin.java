@@ -1,7 +1,6 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 
-import com.comphenix.protocol.utility.MinecraftVersion;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command.CloudNPCCommand;
@@ -17,31 +16,11 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (this.isCompatibleVersion()) {
-            this.npcManagement = new BukkitNPCManagement(this);
-            CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractNPCManagement.class, "BukkitNPCManagement", this.npcManagement);
+        this.npcManagement = new BukkitNPCManagement(this);
+        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractNPCManagement.class, "BukkitNPCManagement", this.npcManagement);
 
-            this.registerListeners();
-            new LabyModEmotePlayer(this, this.npcManagement);
-        }
-    }
-
-    private boolean isCompatibleVersion() {
-        boolean paper = true;
-        try {
-            Class.forName("com.destroystokyo.paper.profile.PlayerProfile");
-        } catch (ClassNotFoundException exception) {
-            paper = false;
-        }
-
-        if (!paper || !MinecraftVersion.atOrAbove(MinecraftVersion.AQUATIC_UPDATE)) {
-            CloudNetDriver.getInstance().getLogger().error("The NPC Selector extension does only work on Paper 1.13.2+ servers!");
-            Bukkit.getPluginManager().disablePlugin(this);
-
-            return false;
-        }
-
-        return true;
+        this.registerListeners();
+        new LabyModEmotePlayer(this, this.npcManagement);
     }
 
     private void registerListeners() {

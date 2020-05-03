@@ -200,11 +200,16 @@ public class NPCConfigurationEntry {
 
     public static class ItemLayout {
 
-        private final String material;
+        private String material;
 
-        private final String displayName;
+        private int subId = -1;
 
-        private final List<String> lore;
+        private String displayName;
+
+        private List<String> lore;
+
+        public ItemLayout() {
+        }
 
         public ItemLayout(String material, String displayName, List<String> lore) {
             this.material = material;
@@ -216,12 +221,32 @@ public class NPCConfigurationEntry {
             return material;
         }
 
+        public void setMaterial(String material) {
+            this.material = material;
+        }
+
+        public int getSubId() {
+            return subId;
+        }
+
+        public void setSubId(int subId) {
+            this.subId = subId;
+        }
+
         public String getDisplayName() {
             return displayName;
         }
 
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
         public List<String> getLore() {
             return lore;
+        }
+
+        public void setLore(List<String> lore) {
+            this.lore = lore;
         }
 
     }
