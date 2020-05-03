@@ -26,22 +26,29 @@ public class IncludePluginListener {
 
     private final CloudNetNPCModule npcModule;
 
-    public IncludePluginListener(CloudNetNPCModule npcModule) throws IOException {
+    public IncludePluginListener(CloudNetNPCModule npcModule) {
         this.npcModule = npcModule;
         this.downloadProtocolLib();
     }
 
-    private void downloadProtocolLib() throws IOException {
-        URLConnection urlConnection = new URL(PROTOCOLLIB_DOWNLOAD_URL).openConnection();
+    private void downloadProtocolLib() {
+        try {
+            URLConnection urlConnection = new URL(PROTOCOLLIB_DOWNLOAD_URL).openConnection();
 
-        urlConnection.setUseCaches(false);
-        urlConnection.setDoOutput(false);
+            urlConnection.setUseCaches(false);
+            urlConnection.setDoOutput(false);
 
-        urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-        urlConnection.connect();
+            urlConnection.setConnectTimeout(5000);
+            urlConnection.setReadTimeout(5000);
 
-        try (InputStream inputStream = urlConnection.getInputStream()) {
-            Files.copy(inputStream, PROTOCOLLIB_CACHE_PATH, StandardCopyOption.REPLACE_EXISTING);
+            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+            urlConnection.connect();
+
+            try (InputStream inputStream = urlConnection.getInputStream()) {
+                Files.copy(inputStream, PROTOCOLLIB_CACHE_PATH, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException exception) {
+            CloudNetDriver.getInstance().getLogger().error("Unable to download ProtocolLib!", exception);
         }
     }
 
