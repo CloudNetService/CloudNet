@@ -12,5 +12,5 @@ dependencies {
     compileOnly project(':cloudnet-modules:cloudnet-bridge')
     compileOnly group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
     compileOnly group: 'org.spigotmc', name: 'spigot-api', version: '1.8.8-R0.1-SNAPSHOT'
-    api group: 'com.github.juliarn', name: 'npc-lib', version: '1.0-RELEASE'
+    api group: 'com.github.juliarn', name: 'npc-lib', version: '2.0-RELEASE'
 }

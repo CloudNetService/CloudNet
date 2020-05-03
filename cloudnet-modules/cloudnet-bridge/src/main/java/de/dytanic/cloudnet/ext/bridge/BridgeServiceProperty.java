@@ -117,8 +117,7 @@ public class BridgeServiceProperty {
 
     private static boolean matchesInGameString(String text) {
         text = text.toLowerCase();
-        return text.contains("ingame") ||
-                text.contains("running");
+        return text.contains("ingame") || text.contains("running") || text.contains("playing");
     }
 
 }

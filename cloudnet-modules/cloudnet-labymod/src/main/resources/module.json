@@ -10,7 +10,7 @@
     {
       "group": "de.dytanic.cloudnet.modules",
       "name": "CloudNet-Bridge",
-      "version": "1.1"
+      "version": "1.2"
     }
   ]
 }

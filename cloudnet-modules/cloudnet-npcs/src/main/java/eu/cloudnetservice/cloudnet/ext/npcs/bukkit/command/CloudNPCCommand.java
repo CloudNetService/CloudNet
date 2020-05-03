@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
+import eu.cloudnetservice.cloudnet.ext.npcs.NPCAction;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -29,7 +30,8 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
     private static final String DEFAULT_INFO_LINE = "§8• §7%online_players% of %max_players% players online §8•";
 
     private static final List<String> EDIT_COMMAND_PROPERTIES = Arrays.asList(
-            "infoLine", "targetGroup", "skinOwnerName", "itemInHand", "shouldLookAtPlayer", "shouldImitatePlayer", "displayName"
+            "infoLine", "targetGroup", "skinOwnerName", "itemInHand", "shouldLookAtPlayer",
+            "shouldImitatePlayer", "displayName", "rightClickAction", "leftClickAction"
     );
 
     private final BukkitNPCManagement npcManagement;
@@ -179,6 +181,28 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
                     cloudNPC.setDisplayName(value);
                     break;
                 }
+                case "rightclickaction": {
+                    try {
+                        NPCAction action = NPCAction.valueOf(value.toUpperCase());
+                        cloudNPC.setRightClickAction(action);
+                    } catch (Exception exception) {
+                        player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-edit-invalid-action"));
+                        return;
+                    }
+
+                    break;
+                }
+                case "leftclickaction": {
+                    try {
+                        NPCAction action = NPCAction.valueOf(value.toUpperCase());
+                        cloudNPC.setLeftClickAction(action);
+                    } catch (Exception exception) {
+                        player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-edit-invalid-action"));
+                        return;
+                    }
+
+                    break;
+                }
                 default: {
                     this.sendHelp(player);
                     break;
@@ -279,10 +303,14 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
                             .collect(Collectors.toList());
                 } else if (editProperty.equalsIgnoreCase("itemInHand")) {
                     return Arrays.stream(Material.values())
-                            .map(Material::name)
+                            .map(Enum::name)
                             .collect(Collectors.toList());
                 } else if (editProperty.toLowerCase().startsWith("should")) {
                     return Arrays.asList("true", "false");
+                } else if (editProperty.toLowerCase().endsWith("action")) {
+                    return Arrays.stream(NPCAction.values())
+                            .map(Enum::name)
+                            .collect(Collectors.toList());
                 }
 
             }

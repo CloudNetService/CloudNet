@@ -1,9 +1,12 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
 
+import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
+import eu.cloudnetservice.cloudnet.ext.npcs.NPCAction;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCProperties;
 import org.bukkit.entity.Player;
@@ -40,9 +43,13 @@ public class NPCInventoryListener implements Listener {
                 .orElse(null));
 
         if (properties != null) {
-            if (event.getAction() == PlayerNPCInteractEvent.Action.RIGHT_CLICKED) {
+            CloudNPC cloudNPC = properties.getHolder();
+
+            if ((event.getAction() == EnumWrappers.EntityUseAction.INTERACT_AT && cloudNPC.getRightClickAction() == NPCAction.OPEN_INVENTORY)
+                    || (event.getAction() == EnumWrappers.EntityUseAction.ATTACK && cloudNPC.getLeftClickAction() == NPCAction.OPEN_INVENTORY)) {
                 player.openInventory(properties.getInventory());
-            } else {
+            } else if ((event.getAction() == EnumWrappers.EntityUseAction.INTERACT_AT && cloudNPC.getRightClickAction() == NPCAction.DIRECT_CONNECT)
+                    || (event.getAction() == EnumWrappers.EntityUseAction.ATTACK && cloudNPC.getLeftClickAction() == NPCAction.DIRECT_CONNECT)) {
                 List<String> serviceNames = new ArrayList<>(properties.getServerSlots().values());
 
                 if (serviceNames.size() > 0) {
