@@ -1,7 +1,11 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.WrappedSignedProperty;
+import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
+import com.github.juliarn.npc.modifier.MetadataModifier;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -123,13 +127,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             );
 
             armorStand.setVisible(false);
-            // bruh
-            //armorStand.setAI(false);
             armorStand.setGravity(false);
-
             armorStand.setCanPickupItems(false);
-            // TODO: replace with ArmorStandManipulateEvent
-            //armorStand.setDisabledSlots(EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD);
 
             armorStand.setCustomNameVisible(true);
         }
@@ -210,10 +209,9 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             return;
         }
 
-        // TODO: replace with ProtocolLib
-        /*NPC.Builder builder = new NPC.Builder(
+        NPC.Builder builder = new NPC.Builder(
                 cloudNPC.getProfileProperties().stream()
-                        .map(npcProfileProperty -> new ProfileProperty(
+                        .map(npcProfileProperty -> new WrappedSignedProperty(
                                 npcProfileProperty.getName(),
                                 npcProfileProperty.getValue(),
                                 npcProfileProperty.getSignature())
@@ -232,8 +230,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 .spawnCustomizer((spawnedNPC, player) -> {
                     spawnedNPC.rotation().queueRotate(location.getYaw(), location.getPitch()).send(player);
                     spawnedNPC.metadata()
-                            .queueSkinLayers(true)
-                            .queueSneaking(false)
+                            .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
+                            .queue(MetadataModifier.EntityMetadata.SNEAKING, false)
                             .send(player);
 
                     Material material = Material.getMaterial(cloudNPC.getItemInHand());
@@ -249,7 +247,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 new HashMap<>()
         ));
 
-        this.updateNPC(cloudNPC);*/
+        this.updateNPC(cloudNPC);
     }
 
     private void destroyNPC(CloudNPC cloudNPC) {
@@ -282,7 +280,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         Material material = Material.getMaterial(itemLayout.getMaterial());
 
         if (material != null) {
-            ItemStack itemStack = new ItemStack(material);
+            ItemStack itemStack = itemLayout.getSubId() == -1 ? new ItemStack(material) : new ItemStack(material, 1, (byte) itemLayout.getSubId());
 
             ItemMeta meta = itemStack.getItemMeta();
 

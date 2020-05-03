@@ -9,8 +9,8 @@ allprojects {
 
     repositories {
 
-        mavenLocal()
         mavenCentral()
+        mavenLocal()
 
         maven {
             url 'https://repo.dmulloy2.net/nexus/repository/public/'
