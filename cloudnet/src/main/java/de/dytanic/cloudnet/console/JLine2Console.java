@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.console;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
@@ -26,7 +27,7 @@ public final class JLine2Console implements IConsole {
 
     private final String
             user = System.getProperty("user.name"),
-            version = System.getProperty("cloudnet.launcher.select.version");
+            version = CloudNet.class.getPackage().getImplementationVersion();
     private String prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
 
     private String screenName = version;

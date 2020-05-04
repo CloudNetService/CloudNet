@@ -20,7 +20,6 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
         CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractNPCManagement.class, "BukkitNPCManagement", this.npcManagement);
 
         this.registerListeners();
-        new LabyModEmotePlayer(this, this.npcManagement);
     }
 
     private void registerListeners() {
@@ -35,6 +34,7 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
 
         CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);
         Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(this.npcManagement), this);
+        Bukkit.getPluginManager().registerEvents(new LabyModEmotePlayer(this, this.npcManagement), this);
     }
 
     @Override

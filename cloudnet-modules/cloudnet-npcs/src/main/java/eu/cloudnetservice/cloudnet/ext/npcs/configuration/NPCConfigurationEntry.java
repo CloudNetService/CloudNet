@@ -155,6 +155,8 @@ public class NPCConfigurationEntry {
         // See https://docs.labymod.net/pages/server/emote_api/ for all available emote ids.
         private int[] emoteIds = new int[]{2, 3, 49};
 
+        private int[] onJoinEmoteIds = new int[]{4, 20};
+
         private long minEmoteDelayTicks = 20 * 20;
 
         private long maxEmoteDelayTicks = 30 * 20;
@@ -170,6 +172,14 @@ public class NPCConfigurationEntry {
 
         public void setEmoteIds(int[] emoteIds) {
             this.emoteIds = emoteIds;
+        }
+
+        public int[] getOnJoinEmoteIds() {
+            return onJoinEmoteIds;
+        }
+
+        public void setOnJoinEmoteIds(int[] onJoinEmoteIds) {
+            this.onJoinEmoteIds = onJoinEmoteIds;
         }
 
         public long getMinEmoteDelayTicks() {
