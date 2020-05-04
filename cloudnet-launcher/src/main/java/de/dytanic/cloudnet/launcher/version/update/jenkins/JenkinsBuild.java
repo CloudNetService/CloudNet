@@ -1,31 +1,25 @@
 package de.dytanic.cloudnet.launcher.version.update.jenkins;
 
 
-import com.google.gson.JsonObject;
-
 import java.util.List;
 
 public class JenkinsBuild {
 
     private final List<BuildArtifact> artifacts;
 
-    private final List<JsonObject> actions;
+    private final long timestamp;
 
-    public JenkinsBuild(List<BuildArtifact> artifacts, List<JsonObject> actions) {
+    public JenkinsBuild(List<BuildArtifact> artifacts, long timestamp) {
         this.artifacts = artifacts;
-        this.actions = actions;
+        this.timestamp = timestamp;
     }
 
     public List<BuildArtifact> getArtifacts() {
         return artifacts;
     }
 
-    public String getGitCommitHash() {
-        return this.actions.stream()
-                .filter(jsonObject -> jsonObject.has("lastBuiltRevision"))
-                .map(jsonObject -> jsonObject.getAsJsonObject("lastBuiltRevision").get("SHA1").getAsString())
-                .findFirst()
-                .orElse(null);
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public static class BuildArtifact {

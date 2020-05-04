@@ -22,7 +22,7 @@ jar {
     manifest {
         attributes 'Main-Class': 'de.dytanic.cloudnet.launcher.CloudNetLauncher'
         attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
-        attributes 'Specification-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
+        attributes 'Specification-Version': archiveVersion.get() + "-" + System.currentTimeMillis()
     }
 
     from {
@@ -45,10 +45,6 @@ jar {
 
     from('../cloudnet-modules/cloudnet-bridge/build/libs') {
         include cloudnetModuleBridgeFileName
-    }
-
-    from('../cloudnet-modules/cloudnet-labymod/build/libs') {
-        include cloudnetModuleLabyModFileName
     }
 
     from('../cloudnet-modules/cloudnet-signs/build/libs') {

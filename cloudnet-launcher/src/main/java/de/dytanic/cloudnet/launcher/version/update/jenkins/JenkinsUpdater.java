@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.launcher.version.update.jenkins;
 
 import de.dytanic.cloudnet.launcher.LauncherUtils;
 import de.dytanic.cloudnet.launcher.version.update.Updater;
-import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,7 +22,7 @@ public class JenkinsUpdater implements Updater {
 
     private String gitHubRepository;
 
-    private GitCommit latestGitCommit;
+    private long releaseTimestamp;
 
     private Path targetDirectory;
 
@@ -48,7 +47,7 @@ public class JenkinsUpdater implements Updater {
             ).split("-");
 
             this.appVersion = versionParts[0] + "-" + versionParts[1];
-            this.latestGitCommit = this.requestLatestGitCommit(this.jenkinsBuild.getGitCommitHash());
+            this.releaseTimestamp = this.jenkinsBuild.getTimestamp();
 
             this.targetDirectory = versionDirectory.resolve(this.getFullVersion());
 
@@ -113,8 +112,8 @@ public class JenkinsUpdater implements Updater {
     }
 
     @Override
-    public GitCommit getLatestGitCommit() {
-        return this.latestGitCommit;
+    public long getReleaseTimestamp() {
+        return this.releaseTimestamp;
     }
 
     @Override

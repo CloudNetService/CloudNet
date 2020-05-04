@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.launcher.version;
 
 
-import de.dytanic.cloudnet.launcher.version.util.GitCommit;
-
 import java.nio.file.Path;
 
 public class InstalledVersionInfo implements VersionInfo {
@@ -13,7 +11,7 @@ public class InstalledVersionInfo implements VersionInfo {
 
     protected String appVersion;
 
-    protected GitCommit latestGitCommit;
+    protected long releaseTimestamp = -1;
 
     public InstalledVersionInfo(Path targetDirectory, String gitHubRepository) {
         this.targetDirectory = targetDirectory;
@@ -26,8 +24,11 @@ public class InstalledVersionInfo implements VersionInfo {
         if (versionParts.length > 1) {
             this.appVersion = versionParts[0] + "-" + versionParts[1];
 
-            String gitCommitHash = versionParts.length > 2 ? versionParts[2] : null;
-            this.latestGitCommit = this.requestLatestGitCommit(gitCommitHash);
+            try {
+                this.releaseTimestamp = versionParts.length > 2 ? Long.parseLong(versionParts[2]) : -1;
+            } catch (NumberFormatException ignored) {
+                this.releaseTimestamp = -1;
+            }
         }
 
     }
@@ -48,8 +49,8 @@ public class InstalledVersionInfo implements VersionInfo {
     }
 
     @Override
-    public GitCommit getLatestGitCommit() {
-        return this.latestGitCommit;
+    public long getReleaseTimestamp() {
+        return this.releaseTimestamp;
     }
 
     @Override

@@ -14,7 +14,6 @@ import de.dytanic.cloudnet.launcher.version.update.RepositoryUpdater;
 import de.dytanic.cloudnet.launcher.version.update.Updater;
 import de.dytanic.cloudnet.launcher.version.update.jenkins.JenkinsUpdater;
 import de.dytanic.cloudnet.launcher.version.util.Dependency;
-import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +25,6 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -36,8 +33,6 @@ import java.util.stream.Collectors;
 
 public final class CloudNetLauncher {
     private static final Consumer<String> PRINT = System.out::println;
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     private static final Path CONFIG_PATH = Paths.get(System.getProperty("cloudnet.launcher.config", "launcher.cnl"));
     private static final Path LAUNCHER_DIR_PATH = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
@@ -99,7 +94,7 @@ public final class CloudNetLauncher {
             Thread.sleep(TimeUnit.SECONDS.toMillis(3));
 
             this.startApplication(args, dependencyResources);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException | InterruptedException exception) {
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InterruptedException exception) {
             throw new RuntimeException("Failed to start the application!", exception);
         }
     }
@@ -149,27 +144,6 @@ public final class CloudNetLauncher {
         }
 
         this.variables.put(LauncherUtils.CLOUDNET_SELECTED_VERSION, this.selectedVersion.getFullVersion());
-
-        GitCommit latestGitCommit = this.selectedVersion.getLatestGitCommit();
-
-        if (latestGitCommit.isKnown() && latestGitCommit.hasInformation()) {
-            GitCommit.GitCommitAuthor author = latestGitCommit.getAuthor();
-
-            PRINT.accept("");
-
-            PRINT.accept(String.format("Latest commit is %s, authored by %s (%s)", latestGitCommit.getSha(), author.getName(), author.getEmail()));
-            PRINT.accept(String.format("Commit message: \"%s\"", latestGitCommit.getMessage()));
-            PRINT.accept("Commit time: " + DATE_FORMATTER.format(
-                    author.getDate().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-            ));
-
-            PRINT.accept("");
-        } else {
-            PRINT.accept("Unable to fetch the latest git commit, custom or outdated build?");
-        }
-
     }
 
     private VersionInfo selectVersion() {
@@ -183,8 +157,7 @@ public final class CloudNetLauncher {
         Collection<VersionInfo> versionInfoCollection = loadedVersionInfo.values();
 
         VersionInfo newestVersion = versionInfoCollection.stream()
-                .filter(versionInfo -> versionInfo.getLatestGitCommit().hasInformation())
-                .max(Comparator.comparingLong(versionInfo -> versionInfo.getLatestGitCommit().getTime()))
+                .max(Comparator.comparingLong(VersionInfo::getReleaseTimestamp))
                 .orElse(loadedVersionInfo.get(LauncherUtils.FALLBACK_VERSION));
 
         // Looking for installed versions that are outdated and deleting them.
@@ -300,7 +273,7 @@ public final class CloudNetLauncher {
         }
     }
 
-    private void startApplication(String[] args, Collection<URL> dependencyResources) throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void startApplication(String[] args, Collection<URL> dependencyResources) throws IOException, ClassNotFoundException, NoSuchMethodException {
         Path targetPath = this.selectedVersion.getTargetDirectory().resolve("cloudnet.jar");
         Path driverTargetPath = this.selectedVersion.getTargetDirectory().resolve("driver.jar");
 

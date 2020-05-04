@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.launcher.version.update;
 
 import de.dytanic.cloudnet.launcher.LauncherUtils;
-import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,7 +18,7 @@ public final class RepositoryUpdater implements Updater {
 
     private String gitHubRepository;
 
-    private GitCommit latestGitCommit;
+    private long releaseTimestamp;
 
     private Path targetDirectory;
 
@@ -38,7 +37,7 @@ public final class RepositoryUpdater implements Updater {
             if (properties.containsKey("app-version")) {
                 this.repositoryVersion = properties.getProperty("repository-version");
                 this.appVersion = properties.getProperty("app-version");
-                this.latestGitCommit = this.requestLatestGitCommit(properties.getProperty("git-commit"));
+                this.releaseTimestamp = Long.parseLong(properties.getProperty("release-time", "-1"));
 
                 this.targetDirectory = versionDirectory.resolve(this.getFullVersion());
 
@@ -90,8 +89,8 @@ public final class RepositoryUpdater implements Updater {
     }
 
     @Override
-    public GitCommit getLatestGitCommit() {
-        return this.latestGitCommit;
+    public long getReleaseTimestamp() {
+        return this.releaseTimestamp;
     }
 
     @Override
