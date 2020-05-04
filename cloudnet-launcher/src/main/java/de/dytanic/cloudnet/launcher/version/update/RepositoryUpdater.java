@@ -37,7 +37,7 @@ public final class RepositoryUpdater implements Updater {
             if (properties.containsKey("app-version")) {
                 this.repositoryVersion = properties.getProperty("repository-version");
                 this.appVersion = properties.getProperty("app-version");
-                this.releaseTimestamp = Long.parseLong(properties.getProperty("release-time", "-1"));
+                this.releaseTimestamp = Long.parseLong(properties.getProperty("release-timestamp", "-1"));
 
                 this.targetDirectory = versionDirectory.resolve(this.getFullVersion());
 
