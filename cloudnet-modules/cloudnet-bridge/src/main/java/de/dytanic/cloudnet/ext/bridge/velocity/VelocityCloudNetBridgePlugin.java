@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 @Plugin(id = "cloudnet_bridge_velocity")
 public final class VelocityCloudNetBridgePlugin {
@@ -44,15 +45,25 @@ public final class VelocityCloudNetBridgePlugin {
 
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
-        initListeners();
-        registerCommands();
-        initServers();
+        this.initListeners();
+        this.registerCommands();
+        this.initServers();
+        this.runPlayerDisconnectTask();
     }
 
     @Subscribe
     public void handleShutdown(ProxyShutdownEvent event) {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    }
+
+    private void runPlayerDisconnectTask() {
+        this.proxyServer.getScheduler().buildTask(this, () -> {
+            if (VelocityCloudNetHelper.getLastOnlineCount() != -1 &&
+                    this.proxyServer.getPlayerCount() != VelocityCloudNetHelper.getLastOnlineCount()) {
+                Wrapper.getInstance().publishServiceInfoUpdate();
+            }
+        }).repeat(500, TimeUnit.MILLISECONDS).schedule();
     }
 
     private void initListeners() {

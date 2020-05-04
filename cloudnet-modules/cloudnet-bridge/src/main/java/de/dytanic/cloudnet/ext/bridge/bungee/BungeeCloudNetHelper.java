@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 
 public final class BungeeCloudNetHelper {
 
+    private static int lastOnlineCount = -1;
+
     /**
      * @deprecated use {@link BridgeProxyHelper#getCachedServiceInfoSnapshot(String)} or {@link BridgeProxyHelper#cacheServiceInfoSnapshot(ServiceInfoSnapshot)}
      */
@@ -38,6 +40,10 @@ public final class BungeeCloudNetHelper {
         throw new UnsupportedOperationException();
     }
 
+
+    public static int getLastOnlineCount() {
+        return lastOnlineCount;
+    }
 
     public static boolean isOnAFallbackInstance(ProxiedPlayer proxiedPlayer) {
         return proxiedPlayer.getServer() != null && isFallbackServer(proxiedPlayer.getServer().getInfo());
@@ -87,6 +93,8 @@ public final class BungeeCloudNetHelper {
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
+
+        lastOnlineCount = ProxyServer.getInstance().getPlayers().size();
 
         serviceInfoSnapshot.getProperties()
                 .append("Online", BridgeHelper.isOnline())

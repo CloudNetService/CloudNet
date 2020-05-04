@@ -34,10 +34,16 @@ public final class VelocityCloudNetHelper {
     @Deprecated
     public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = BridgeProxyHelper.SERVICE_CACHE;
 
+    private static int lastOnlineCount = -1;
+
     private static ProxyServer proxyServer;
 
     private VelocityCloudNetHelper() {
         throw new UnsupportedOperationException();
+    }
+
+    public static int getLastOnlineCount() {
+        return lastOnlineCount;
     }
 
     public static void addServerToVelocityPrioritySystemConfiguration(ServiceInfoSnapshot serviceInfoSnapshot, String name) {
@@ -141,6 +147,8 @@ public final class VelocityCloudNetHelper {
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
+        lastOnlineCount = proxyServer.getPlayerCount();
+
         serviceInfoSnapshot.getProperties()
                 .append("Online", BridgeHelper.isOnline())
                 .append("Version", proxyServer.getVersion().getVersion())

@@ -18,6 +18,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 public final class BungeeCloudNetBridgePlugin extends Plugin {
 
@@ -28,6 +29,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
         this.initListeners();
         this.registerCommands();
         this.initServers();
+        this.runPlayerDisconnectTask();
 
         this.getProxy().setReconnectHandler(new BungeeCloudNetReconnectHandler());
         for (ListenerInfo listenerInfo : this.getProxy().getConfig().getListeners()) {
@@ -43,6 +45,15 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
+    private void runPlayerDisconnectTask() {
+        super.getProxy().getScheduler().schedule(this, () -> {
+            if (BungeeCloudNetHelper.getLastOnlineCount() != -1 &&
+                    super.getProxy().getPlayers().size() != BungeeCloudNetHelper.getLastOnlineCount()) {
+                Wrapper.getInstance().publishServiceInfoUpdate();
+            }
+        }, 500, 500, TimeUnit.MILLISECONDS);
+    }
+
     private void initServers() {
         for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
             if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(serviceInfoSnapshot)) {
@@ -53,7 +64,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
 
                 String name = serviceInfoSnapshot.getServiceId().getName();
 
-                this.getProxy().getServers().put(name, BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
+                super.getProxy().getServers().put(name, BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
                         serviceInfoSnapshot.getAddress().getHost(),
                         serviceInfoSnapshot.getAddress().getPort()
                 )));
