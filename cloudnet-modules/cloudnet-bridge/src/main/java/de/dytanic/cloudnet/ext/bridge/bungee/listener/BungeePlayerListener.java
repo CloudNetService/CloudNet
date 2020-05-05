@@ -78,20 +78,22 @@ public final class BungeePlayerListener implements Listener {
 
     @EventHandler
     public void handle(ServerKickEvent event) {
-        ServerInfo kickFrom = event.getKickedFrom();
+        if (event.getPlayer().isConnected()) {
+            ServerInfo kickFrom = event.getKickedFrom();
 
-        if (kickFrom == null) {
-            event.getPlayer().disconnect(event.getKickReasonComponent());
-            event.setCancelled(true);
-            return;
+            if (kickFrom == null) {
+                event.getPlayer().disconnect(event.getKickReasonComponent());
+                event.setCancelled(true);
+                return;
+            }
+            BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), kickFrom.getName());
+
+            BungeeCloudNetHelper.getNextFallback(event.getPlayer()).ifPresent(serverInfo -> {
+                event.setCancelled(true);
+                event.setCancelServer(serverInfo);
+                event.getPlayer().sendMessage(event.getKickReasonComponent());
+            });
         }
-        BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), kickFrom.getName());
-
-        BungeeCloudNetHelper.getNextFallback(event.getPlayer()).ifPresent(serverInfo -> {
-            event.setCancelled(true);
-            event.setCancelServer(serverInfo);
-            event.getPlayer().sendMessage(event.getKickReasonComponent());
-        });
     }
 
     @EventHandler
