@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.node.player;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -78,7 +79,7 @@ public final class NodePlayerManager implements IPlayerManager {
     }
 
     @Override
-    public @NotNull List<? extends ICloudPlayer> getOnlinePlayers() {
+    public @NotNull List<CloudPlayer> getOnlinePlayers() {
         return new ArrayList<>(this.onlineCloudPlayers.values());
     }
 
@@ -245,4 +246,97 @@ public final class NodePlayerManager implements IPlayerManager {
     public String getDatabaseName() {
         return this.databaseName;
     }
+
+    public void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
+        CloudPlayer cloudPlayer = this.getOnlinePlayer(networkConnectionInfo.getUniqueId());
+
+        if (cloudPlayer == null) {
+            cloudPlayer = this.getOnlineCloudPlayers().values().stream()
+                    .filter(cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
+                            cloudPlayer1.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (cloudPlayer == null) {
+                ICloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(networkConnectionInfo);
+
+                cloudPlayer = new CloudPlayer(
+                        cloudOfflinePlayer,
+                        networkConnectionInfo.getNetworkService(),
+                        networkConnectionInfo.getNetworkService(),
+                        networkConnectionInfo,
+                        networkPlayerServerInfo
+                );
+
+                cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
+                this.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
+            }
+        }
+
+        if (networkPlayerServerInfo != null) {
+            cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
+            cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
+
+            if (networkPlayerServerInfo.getXBoxId() != null) {
+                cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
+            }
+        }
+
+        cloudPlayer.setName(networkConnectionInfo.getName());
+
+        this.updateOnlinePlayer0(cloudPlayer);
+    }
+
+    public ICloudOfflinePlayer getOrRegisterOfflinePlayer(NetworkConnectionInfo networkConnectionInfo) {
+        ICloudOfflinePlayer cloudOfflinePlayer = this.getOfflinePlayer(networkConnectionInfo.getUniqueId());
+
+        if (cloudOfflinePlayer == null) {
+            cloudOfflinePlayer = new CloudOfflinePlayer(
+                    networkConnectionInfo.getUniqueId(),
+                    networkConnectionInfo.getName(),
+                    null,
+                    System.currentTimeMillis(),
+                    System.currentTimeMillis(),
+                    networkConnectionInfo
+            );
+
+            this.getDatabase().insert(
+                    cloudOfflinePlayer.getUniqueId().toString(),
+                    JsonDocument.newDocument(cloudOfflinePlayer)
+            );
+        }
+
+        return cloudOfflinePlayer;
+    }
+
+    public void logoutPlayer(CloudPlayer cloudPlayer) {
+        this.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
+        cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
+        this.updateOnlinePlayer0(cloudPlayer);
+    }
+
+    private void logoutPlayer(UUID uniqueId, String name, Predicate<CloudPlayer> predicate) {
+        CloudPlayer cloudPlayer = uniqueId != null ?
+                this.getOnlinePlayer(uniqueId) :
+                this.getOnlineCloudPlayers().values().stream()
+                        .filter(cloudPlayer1 -> cloudPlayer1.getName().equals(name))
+                        .findFirst()
+                        .orElse(null);
+
+        if (cloudPlayer != null && (predicate == null || predicate.test(cloudPlayer))) {
+            this.logoutPlayer(cloudPlayer);
+        }
+    }
+
+    public void logoutPlayer(NetworkConnectionInfo networkConnectionInfo) {
+        this.logoutPlayer(networkConnectionInfo.getUniqueId(), networkConnectionInfo.getName(),
+                cloudPlayer -> cloudPlayer != null &&
+                        cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())
+        );
+    }
+
+    public void logoutPlayer(UUID uniqueId, String name) {
+        this.logoutPlayer(uniqueId, name, null);
+    }
+
 }
