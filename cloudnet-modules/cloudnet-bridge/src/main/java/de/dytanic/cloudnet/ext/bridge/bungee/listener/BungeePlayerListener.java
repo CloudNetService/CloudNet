@@ -67,12 +67,6 @@ public final class BungeePlayerListener implements Listener {
                             serviceInfoSnapshot.getConfiguration().getGroups()
                     )
             );
-
-            try {
-                Thread.sleep(150);
-            } catch (InterruptedException exception) {
-                exception.printStackTrace();
-            }
         }
     }
 
