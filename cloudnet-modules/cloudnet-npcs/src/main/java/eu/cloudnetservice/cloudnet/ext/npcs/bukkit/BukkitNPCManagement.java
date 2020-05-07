@@ -211,7 +211,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        NPC npc = new NPC.Builder(new Profile(cloudNPC.getUUID(),
+        NPC npc = new NPC.Builder(new Profile(
+                cloudNPC.getUUID(),
                 cloudNPC.getDisplayName(),
                 cloudNPC.getProfileProperties().stream()
                         .map(npcProfileProperty -> new Profile.Property(

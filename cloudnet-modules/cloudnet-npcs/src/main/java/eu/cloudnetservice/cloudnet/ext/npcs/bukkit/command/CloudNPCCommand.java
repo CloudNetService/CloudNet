@@ -2,7 +2,6 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command;
 
 
 import com.github.juliarn.npc.profile.Profile;
-import com.github.juliarn.npc.profile.ProfileBuilder;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -81,7 +80,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
         boolean lookAtPlayer = args[4].equalsIgnoreCase("true") || args[4].equalsIgnoreCase("yes");
         boolean imitatePlayer = args[5].equalsIgnoreCase("true") || args[5].equalsIgnoreCase("yes");
 
-        Profile skinProfile = new ProfileBuilder(args[2]).build();
+        Profile skinProfile = new Profile(args[2]);
         if (!skinProfile.complete()) {
             player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
             return;
@@ -143,7 +142,7 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
                     break;
                 }
                 case "skinownername": {
-                    Profile skinProfile = new ProfileBuilder(value.split(" ")[0]).build();
+                    Profile skinProfile = new Profile(value.split(" ")[0]);
                     if (!skinProfile.complete()) {
                         player.sendMessage(this.npcManagement.getNPCConfiguration().getMessages().get("command-create-texture-fetch-fail"));
                         return;
