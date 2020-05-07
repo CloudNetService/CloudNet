@@ -6,7 +6,6 @@ import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
 import com.github.juliarn.npc.modifier.MetadataModifier;
 import com.github.juliarn.npc.profile.Profile;
-import com.github.juliarn.npc.profile.ProfileBuilder;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -212,17 +211,16 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        NPC npc = new NPC.Builder(
-                new ProfileBuilder(cloudNPC.getUUID(), cloudNPC.getDisplayName())
-                        .profileProperties(cloudNPC.getProfileProperties().stream()
-                                .map(npcProfileProperty -> new Profile.Property(
-                                        npcProfileProperty.getName(),
-                                        npcProfileProperty.getValue(),
-                                        npcProfileProperty.getSignature())
-                                )
-                                .collect(Collectors.toSet())
-                        ).build()
-        )
+        NPC npc = new NPC.Builder(new Profile(cloudNPC.getUUID(),
+                cloudNPC.getDisplayName(),
+                cloudNPC.getProfileProperties().stream()
+                        .map(npcProfileProperty -> new Profile.Property(
+                                npcProfileProperty.getName(),
+                                npcProfileProperty.getValue(),
+                                npcProfileProperty.getSignature())
+                        )
+                        .collect(Collectors.toSet())
+        ))
                 .location(location)
                 .lookAtPlayer(cloudNPC.isLookAtPlayer())
                 .imitatePlayer(cloudNPC.isImitatePlayer())
