@@ -2,10 +2,11 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
 
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
 import com.github.juliarn.npc.modifier.MetadataModifier;
+import com.github.juliarn.npc.profile.Profile;
+import com.github.juliarn.npc.profile.ProfileBuilder;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -209,21 +210,19 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
             return;
         }
 
-        NPC.Builder builder = new NPC.Builder(
-                cloudNPC.getProfileProperties().stream()
-                        .map(npcProfileProperty -> new WrappedSignedProperty(
-                                npcProfileProperty.getName(),
-                                npcProfileProperty.getValue(),
-                                npcProfileProperty.getSignature())
-                        )
-                        .collect(Collectors.toSet()),
-                cloudNPC.getDisplayName()
-        );
-
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        NPC npc = builder
-                .uuid(cloudNPC.getUUID())
+        NPC npc = new NPC.Builder(
+                new ProfileBuilder(cloudNPC.getUUID(), cloudNPC.getDisplayName())
+                        .profileProperties(cloudNPC.getProfileProperties().stream()
+                                .map(npcProfileProperty -> new Profile.Property(
+                                        npcProfileProperty.getName(),
+                                        npcProfileProperty.getValue(),
+                                        npcProfileProperty.getSignature())
+                                )
+                                .collect(Collectors.toSet())
+                        ).build()
+        )
                 .location(location)
                 .lookAtPlayer(cloudNPC.isLookAtPlayer())
                 .imitatePlayer(cloudNPC.isImitatePlayer())

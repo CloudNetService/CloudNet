@@ -3,7 +3,10 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.NPCAction;
@@ -17,6 +20,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class NPCInventoryListener implements Listener {
 
@@ -45,18 +49,53 @@ public class NPCInventoryListener implements Listener {
         if (properties != null) {
             CloudNPC cloudNPC = properties.getHolder();
 
-            if ((event.getAction() == EnumWrappers.EntityUseAction.INTERACT_AT && cloudNPC.getRightClickAction() == NPCAction.OPEN_INVENTORY)
-                    || (event.getAction() == EnumWrappers.EntityUseAction.ATTACK && cloudNPC.getLeftClickAction() == NPCAction.OPEN_INVENTORY)) {
-                player.openInventory(properties.getInventory());
-            } else if ((event.getAction() == EnumWrappers.EntityUseAction.INTERACT_AT && cloudNPC.getRightClickAction() == NPCAction.DIRECT_CONNECT)
-                    || (event.getAction() == EnumWrappers.EntityUseAction.ATTACK && cloudNPC.getLeftClickAction() == NPCAction.DIRECT_CONNECT)) {
-                List<String> serviceNames = new ArrayList<>(properties.getServerSlots().values());
+            EnumWrappers.EntityUseAction action = event.getAction();
 
-                if (serviceNames.size() > 0) {
-                    String randomServiceName = serviceNames.get(RANDOM.nextInt(serviceNames.size()));
-                    this.playerManager.getPlayerExecutor(player.getUniqueId()).connect(randomServiceName);
+            if (action == EnumWrappers.EntityUseAction.INTERACT_AT || action == EnumWrappers.EntityUseAction.ATTACK) {
+                NPCAction npcAction = action == EnumWrappers.EntityUseAction.INTERACT_AT
+                        ? cloudNPC.getRightClickAction()
+                        : cloudNPC.getLeftClickAction();
+
+                if (npcAction == NPCAction.OPEN_INVENTORY) {
+                    player.openInventory(properties.getInventory());
+                } else if (npcAction.name().startsWith("DIRECT")) {
+                    List<ServiceInfoSnapshot> services = this.npcManagement.filterNPCServices(cloudNPC).stream()
+                            .map(Pair::getFirst)
+                            .collect(Collectors.toList());
+
+                    if (services.size() > 0) {
+                        String targetServiceName = null;
+
+                        switch (npcAction) {
+                            case DIRECT_CONNECT_RANDOM:
+                                targetServiceName = services.get(RANDOM.nextInt(services.size())).getName();
+                                break;
+                            case DIRECT_CONNECT_LOWEST_PLAYERS:
+                                targetServiceName = services.stream()
+                                        .min(Comparator.comparingInt(
+                                                service -> service.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0)
+                                        ))
+                                        .map(ServiceInfoSnapshot::getName)
+                                        .orElse(null);
+                                break;
+                            case DIRECT_CONNECT_HIGHEST_PLAYERS:
+                                targetServiceName = services.stream()
+                                        .max(Comparator.comparingInt(
+                                                service -> service.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0)
+                                        ))
+                                        .map(ServiceInfoSnapshot::getName)
+                                        .orElse(null);
+                                break;
+                        }
+
+                        if (targetServiceName != null) {
+                            this.playerManager.getPlayerExecutor(player.getUniqueId()).connect(targetServiceName);
+                        }
+                    }
                 }
             }
+
+
         }
     }
 

@@ -31,7 +31,7 @@ public class CloudNPC {
 
     private NPCAction rightClickAction = NPCAction.OPEN_INVENTORY;
 
-    private NPCAction leftClickAction = NPCAction.DIRECT_CONNECT;
+    private NPCAction leftClickAction = NPCAction.DIRECT_CONNECT_HIGHEST_PLAYERS;
 
     public CloudNPC() {
     }
@@ -139,7 +139,9 @@ public class CloudNPC {
     public static class NPCProfileProperty {
 
         private final String name;
+
         private final String value;
+
         private final String signature;
 
         public NPCProfileProperty(String name, String value, String signature) {
