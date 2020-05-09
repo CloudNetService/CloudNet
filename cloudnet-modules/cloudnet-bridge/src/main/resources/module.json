@@ -1,6 +1,7 @@
 {
   "group": "de.dytanic.cloudnet.modules",
   "name": "CloudNet-Bridge",
+  "runtimeModule": true,
   "version": "1.2",
   "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
