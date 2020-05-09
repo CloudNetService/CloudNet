@@ -187,19 +187,25 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     }
 
     private void updateInfoLine(CloudNPC cloudNPC, List<ServiceInfoSnapshot> services) {
+        String onlinePlayers = String.valueOf(
+                services.stream()
+                        .mapToInt(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0))
+                        .sum()
+        );
+
+        String maxPlayers = String.valueOf(
+                services.stream()
+                        .mapToInt(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.MAX_PLAYERS).orElse(0))
+                        .sum()
+        );
+
+        String onlineServers = String.valueOf(services.size());
+
         String infoLine = cloudNPC.getInfoLine()
-                .replace("%group%", String.valueOf(cloudNPC.getTargetGroup()))
-                .replace("%online_players%", String.valueOf(
-                        services.stream()
-                                .mapToInt(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0))
-                                .sum())
-                )
-                .replace("%max_players%", String.valueOf(
-                        services.stream()
-                                .mapToInt(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.MAX_PLAYERS).orElse(0))
-                                .sum())
-                )
-                .replace("%online_servers%", String.valueOf(services.size()));
+                .replace("%group%", cloudNPC.getTargetGroup()).replace("%g%", cloudNPC.getTargetGroup())
+                .replace("%online_players%", onlinePlayers).replace("%o_p%", onlinePlayers)
+                .replace("%max_players%", maxPlayers).replace("%m_p%", maxPlayers)
+                .replace("%online_servers%", onlineServers).replace("%o_s%", onlineServers);
 
         this.getInfoLineStand(cloudNPC).ifPresent(infoLineStand -> infoLineStand.setCustomName(infoLine));
     }
@@ -282,12 +288,14 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
             ItemMeta meta = itemStack.getItemMeta();
 
-            meta.setDisplayName(super.replaceServiceInfo(itemLayout.getDisplayName(), group, serviceInfoSnapshot));
-            meta.setLore(itemLayout.getLore().stream()
-                    .map(line -> super.replaceServiceInfo(line, group, serviceInfoSnapshot))
-                    .collect(Collectors.toList()));
+            if (meta != null) {
+                meta.setDisplayName(super.replaceServiceInfo(itemLayout.getDisplayName(), group, serviceInfoSnapshot));
+                meta.setLore(itemLayout.getLore().stream()
+                        .map(line -> super.replaceServiceInfo(line, group, serviceInfoSnapshot))
+                        .collect(Collectors.toList()));
 
-            itemStack.setItemMeta(meta);
+                itemStack.setItemMeta(meta);
+            }
 
             return itemStack;
         }
@@ -299,8 +307,21 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         return this.toItemStack(itemLayout, null, null);
     }
 
-    public Collection<BukkitNPCProperties> getNPCProperties() {
-        return npcProperties.values();
+
+    public NPCPool getNPCPool() {
+        return npcPool;
+    }
+
+    public ItemStack[] getDefaultItems() {
+        return defaultItems;
+    }
+
+    public Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> getItemLayouts() {
+        return itemLayouts;
+    }
+
+    public Map<UUID, BukkitNPCProperties> getNPCProperties() {
+        return npcProperties;
     }
 
 }

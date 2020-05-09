@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.listener;
 
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
+import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -149,11 +151,16 @@ public final class VelocityCloudNetListener {
             break;
             case "send_plugin_message_to_proxy_player": {
                 Player player = getPlayer(event.getData());
-                if (player != null && event.getData().getString("message") != null) {
+
+                if (player != null && event.getData().contains("tag") && event.getData().contains("data")) {
                     String tag = event.getData().getString("tag");
+
+                    ChannelIdentifier channelIdentifier = new LegacyChannelIdentifier(tag);
+                    VelocityCloudNetHelper.getProxyServer().getChannelRegistrar().register(channelIdentifier);
+
                     byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
 
-                    player.sendPluginMessage(() -> tag, data);
+                    player.sendPluginMessage(channelIdentifier, data);
                 }
             }
             break;

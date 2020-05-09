@@ -41,7 +41,7 @@ public class NPCInventoryListener implements Listener {
         Player player = event.getPlayer();
         int entityId = event.getNPC().getEntityId();
 
-        BukkitNPCProperties properties = this.propertiesCache.computeIfAbsent(entityId, key -> this.npcManagement.getNPCProperties().stream()
+        BukkitNPCProperties properties = this.propertiesCache.computeIfAbsent(entityId, key -> this.npcManagement.getNPCProperties().values().stream()
                 .filter(npcProperty -> npcProperty.getEntityId() == key)
                 .findFirst()
                 .orElse(null));
@@ -105,7 +105,7 @@ public class NPCInventoryListener implements Listener {
         ItemStack currentItem = event.getCurrentItem();
 
         if (inventory != null && currentItem != null && inventory.getHolder() == null && event.getWhoClicked() instanceof Player) {
-            this.npcManagement.getNPCProperties().stream()
+            this.npcManagement.getNPCProperties().values().stream()
                     .filter(properties -> properties.getInventory().equals(inventory))
                     .findFirst()
                     .ifPresent(properties -> {

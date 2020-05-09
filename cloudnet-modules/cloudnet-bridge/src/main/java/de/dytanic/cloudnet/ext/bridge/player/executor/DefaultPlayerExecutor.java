@@ -75,4 +75,5 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
                         .append("data", Base64.getEncoder().encodeToString(data))
         );
     }
+
 }
