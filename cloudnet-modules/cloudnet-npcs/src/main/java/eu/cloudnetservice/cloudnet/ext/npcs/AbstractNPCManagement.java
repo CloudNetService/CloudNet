@@ -202,6 +202,11 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
         return npcConfiguration;
     }
 
+    /**
+     * Sets the NPCConfiguration for this wrapper instance
+     *
+     * @param npcConfiguration the NPCConfiguration to set
+     */
     public void setNPCConfiguration(NPCConfiguration npcConfiguration) {
         this.npcConfiguration = npcConfiguration;
         this.ownNPCConfigurationEntry = npcConfiguration.getConfigurations().stream()

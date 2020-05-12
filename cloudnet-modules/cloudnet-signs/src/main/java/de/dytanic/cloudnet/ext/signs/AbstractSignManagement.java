@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
-    private static final Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>>
-            ENTRY_COMPARATOR = new ServiceInfoSnapshotEntryComparator(),
-            ENTRY_COMPARATOR_2 = new ServiceInfoSnapshotEntryComparator2();
+    private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>
+            ENTRY_NAME_COMPARATOR = Comparator.comparing(entry -> entry.getFirst().getName()),
+            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getValue());
 
     private final AtomicInteger[] indexes = new AtomicInteger[]{
             new AtomicInteger(-1), //starting
@@ -124,7 +124,6 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
         }
     }
 
-
     /**
      * Adds a sign to this wrapper instance
      *
@@ -162,50 +161,48 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
         List<Sign> signs = new ArrayList<>(this.signs);
         Collections.sort(signs);
 
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>> cachedFilter = new ArrayList<>();
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>> entries = super.services.entrySet().stream()
-                .filter(item -> item.getValue().getSecond() != ServiceInfoStateWatcher.ServiceInfoState.STOPPED).sorted(ENTRY_COMPARATOR).collect(Collectors.toList());
+        List<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> entries = super.services.values().stream()
+                .filter(pair -> pair.getSecond() != ServiceInfoStateWatcher.ServiceInfoState.STOPPED)
+                .sorted(ENTRY_NAME_COMPARATOR)
+                .collect(Collectors.toList());
 
         for (Sign sign : signs) {
-            this.updateSign(sign, signConfiguration, cachedFilter, entries);
+            this.updateSign(sign, signConfiguration, entries);
         }
     }
 
     private void updateSign(Sign sign,
                             SignConfigurationEntry signConfiguration,
-                            List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>> cachedFilter,
-                            List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>> entries) {
+                            List<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> entries) {
 
-        cachedFilter.addAll(entries.stream().filter(entry -> {
-            boolean access = Arrays.asList(entry.getValue().getFirst().getConfiguration().getGroups()).contains(sign.getTargetGroup());
+        Optional<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> optionalEntry = entries.stream()
+                .filter(entry -> {
+                    boolean access = Arrays.asList(entry.getFirst().getConfiguration().getGroups()).contains(sign.getTargetGroup());
 
-            if (sign.getTemplatePath() != null) {
-                boolean condition = false;
+                    if (sign.getTemplatePath() != null) {
+                        boolean condition = false;
 
-                for (ServiceTemplate template : entry.getValue().getFirst().getConfiguration().getTemplates()) {
-                    if (sign.getTemplatePath().equals(template.getTemplatePath())) {
-                        condition = true;
-                        break;
+                        for (ServiceTemplate template : entry.getFirst().getConfiguration().getTemplates()) {
+                            if (sign.getTemplatePath().equals(template.getTemplatePath())) {
+                                condition = true;
+                                break;
+                            }
+                        }
+
+                        access = condition;
                     }
-                }
 
-                access = condition;
-            }
+                    return access;
+                })
+                .min(ENTRY_STATE_COMPARATOR);
 
-            return access;
-        }).collect(Collectors.toList()));
+        if (optionalEntry.isPresent()) {
+            Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState> entry = optionalEntry.get();
 
-        cachedFilter.sort(ENTRY_COMPARATOR_2);
-
-        if (!cachedFilter.isEmpty()) {
-            Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> entry = cachedFilter.get(0);
-
-            sign.setServiceInfoSnapshot(entry.getValue().getFirst());
-
-            this.applyState(sign, signConfiguration, entry.getValue().getFirst(), entry.getValue().getSecond());
+            sign.setServiceInfoSnapshot(entry.getFirst());
+            this.applyState(sign, signConfiguration, entry.getFirst(), entry.getSecond());
 
             entries.remove(entry);
-
         } else {
             sign.setServiceInfoSnapshot(null);
 
@@ -213,8 +210,6 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
                 this.updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(this.indexes[1].get()), null);
             }
         }
-
-        cachedFilter.clear();
     }
 
     private void applyState(Sign sign, SignConfigurationEntry signConfiguration, ServiceInfoSnapshot serviceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState state) {
@@ -357,6 +352,11 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
         return null;
     }
 
+    /**
+     * Updates the SignConfiguration in the whole cluster
+     *
+     * @param signConfiguration the new SignConfiguration
+     */
     public void updateSignConfiguration(@NotNull SignConfiguration signConfiguration) {
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 SignConstants.SIGN_CHANNEL_NAME,
@@ -367,7 +367,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
     protected void executeStartingTask() {
         SignConfigurationEntry signConfigurationEntry = this.getOwnSignConfigurationEntry();
-        AtomicInteger startingIndex = indexes[0];
+        AtomicInteger startingIndex = this.indexes[0];
 
         if (signConfigurationEntry != null && signConfigurationEntry.getStartingLayouts() != null &&
                 signConfigurationEntry.getStartingLayouts().getSignLayouts().size() > 0) {
@@ -433,22 +433,6 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      */
     public Set<Sign> getSigns() {
         return new HashSet<>(this.signs);
-    }
-
-    private static final class ServiceInfoSnapshotEntryComparator implements Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>> {
-
-        @Override
-        public int compare(Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> o1, Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> o2) {
-            return o1.getValue().getFirst().getServiceId().getName().compareTo(o2.getValue().getFirst().getServiceId().getName());
-        }
-    }
-
-    private static final class ServiceInfoSnapshotEntryComparator2 implements Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>> {
-
-        @Override
-        public int compare(Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> o1, Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> o2) {
-            return o1.getValue().getSecond().getValue() + o2.getValue().getSecond().getValue();
-        }
     }
 
 }
