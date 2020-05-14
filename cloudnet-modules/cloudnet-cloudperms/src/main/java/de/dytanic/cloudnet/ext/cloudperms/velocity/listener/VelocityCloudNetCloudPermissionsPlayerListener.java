@@ -9,7 +9,7 @@ import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
-import net.kyori.text.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
@@ -25,7 +25,7 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
     @Subscribe(order = PostOrder.FIRST)
     public void handle(LoginEvent event) {
         CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getUsername(), message -> {
-            event.setResult(ResultedEvent.ComponentResult.denied(TextComponent.of(message.replace("&", "§"))));
+            event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§"))));
         });
     }
 

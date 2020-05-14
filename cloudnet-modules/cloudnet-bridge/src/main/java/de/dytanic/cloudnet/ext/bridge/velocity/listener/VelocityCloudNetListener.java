@@ -18,6 +18,7 @@ import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.kyori.text.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.net.InetSocketAddress;
 import java.util.Base64;
@@ -137,7 +138,7 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("kickMessage") != null) {
-                    player.disconnect(TextComponent.of((event.getData().getString("kickMessage")).replace("&", "§")));
+                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("kickMessage")).replace("&", "§")));
                 }
             }
             break;
@@ -145,7 +146,7 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("message") != null) {
-                    player.sendMessage(TextComponent.of((event.getData().getString("message")).replace("&", "§")));
+                    player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("message")).replace("&", "§")));
                 }
             }
             break;
@@ -168,7 +169,7 @@ public final class VelocityCloudNetListener {
                 String permission = event.getData().getString("permission");
 
                 if (event.getData().getString("message") != null) {
-                    TextComponent message = TextComponent.of(event.getData().getString("message").replace("&", "§"));
+                    TextComponent message = LegacyComponentSerializer.legacyLinking().deserialize(event.getData().getString("message").replace("&", "§"));
                     for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
                         if (permission == null || player.hasPermission(permission)) {
                             player.sendMessage(message);

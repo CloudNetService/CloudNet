@@ -9,7 +9,7 @@ import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.velocity.VelocitySyncProxyManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import net.kyori.text.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,7 +62,7 @@ public final class VelocitySyncProxyPlayerListener {
                                         :
                                         Collections.EMPTY_LIST
                         ),
-                        TextComponent.of((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
+                        LegacyComponentSerializer.legacyLinking().deserialize((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
                                 .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
                                 .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
                                 .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
@@ -87,14 +87,14 @@ public final class VelocitySyncProxyPlayerListener {
                     return;
                 }
 
-                event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of((this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
+                event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize((this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
                         .get("player-login-not-whitelisted")).replace("&", "§"))));
                 return;
             }
 
             if (this.syncProxyManagement.getSyncProxyOnlineCount() >= this.syncProxyManagement.getLoginConfiguration().getMaxPlayers() &&
                     !event.getPlayer().hasPermission("cloudnet.syncproxy.fulljoin")) {
-                event.setResult(LoginEvent.ComponentResult.denied(TextComponent.of(
+                event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(
                         this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
                                 .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network").replace("&", "§")
                 )));

@@ -7,7 +7,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
-import net.kyori.text.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,8 +41,8 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
 
     public void updateTabList(Player player) {
         player.getTabList().setHeaderAndFooter(
-                TextComponent.of(super.tabListHeader != null ? this.replaceTabListItem(player, super.tabListHeader) : ""),
-                TextComponent.of(super.tabListFooter != null ? this.replaceTabListItem(player, super.tabListFooter) : "")
+                LegacyComponentSerializer.legacyLinking().deserialize(super.tabListHeader != null ? this.replaceTabListItem(player, super.tabListHeader) : ""),
+                LegacyComponentSerializer.legacyLinking().deserialize(super.tabListFooter != null ? this.replaceTabListItem(player, super.tabListFooter) : "")
         );
     }
 
@@ -67,7 +67,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
                         && !super.loginConfiguration.getWhitelist().contains(player.getUsername())
                         && !super.loginConfiguration.getWhitelist().contains(player.getUniqueId().toString())
                         && !player.hasPermission("cloudnet.syncproxy.maintenance")) {
-                    player.disconnect(TextComponent.of(super.syncProxyConfiguration.getMessages().get("player-login-not-whitelisted").replace("&", "§")));
+                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize(super.syncProxyConfiguration.getMessages().get("player-login-not-whitelisted").replace("&", "§")));
                 }
             }
         }
@@ -80,7 +80,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
 
             for (Player player : this.proxyServer.getAllPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
-                    player.sendMessage(TextComponent.of(message));
+                    player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(message));
                 }
             }
         }
