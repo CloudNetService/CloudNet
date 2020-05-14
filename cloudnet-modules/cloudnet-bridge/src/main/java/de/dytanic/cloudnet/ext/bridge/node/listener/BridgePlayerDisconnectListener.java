@@ -20,22 +20,13 @@ public class BridgePlayerDisconnectListener {
 
     @EventListener
     public void handleServiceUpdate(CloudServiceInfoUpdateEvent event) {
-        if (!event.getServiceInfo().getConfiguration().getProcessConfig().getEnvironment().isMinecraftProxy()) {
-            return;
-        }
-
         event.getServiceInfo().getProperty(BridgeServiceProperty.PLAYERS).ifPresent(players -> {
             for (ServiceInfoSnapshot service : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
-                if (!service.getConfiguration().getProcessConfig().getEnvironment().isMinecraftProxy()) {
-                    continue;
-                }
-
                 service.getProperty(BridgeServiceProperty.PLAYERS).ifPresent(players::addAll);
             }
 
             for (CloudPlayer onlinePlayer : this.nodePlayerManager.getOnlinePlayers()) {
-                if (onlinePlayer.getLoginService().getEnvironment().isMinecraftProxy() &&
-                        players.stream().noneMatch(servicePlayer -> servicePlayer.getUniqueId().equals(onlinePlayer.getUniqueId()))) {
+                if (players.stream().noneMatch(servicePlayer -> servicePlayer.getUniqueId().equals(onlinePlayer.getUniqueId()))) {
                     this.nodePlayerManager.logoutPlayer(onlinePlayer);
                 }
             }
