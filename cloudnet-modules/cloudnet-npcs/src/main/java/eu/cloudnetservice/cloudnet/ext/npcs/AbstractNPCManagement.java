@@ -29,6 +29,8 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
 
     protected Set<CloudNPC> cloudNPCS;
 
+    protected Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts = new HashMap<>();
+
     public AbstractNPCManagement() {
         this.setNPCConfiguration(this.getNPCConfigurationFromNode());
 
@@ -213,6 +215,10 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
                 .filter(entry -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(entry.getTargetGroup()))
                 .findFirst()
                 .orElse(new NPCConfigurationEntry());
+
+        this.itemLayouts.put(ServiceInfoState.ONLINE, this.ownNPCConfigurationEntry.getOnlineItem());
+        this.itemLayouts.put(ServiceInfoState.EMPTY_ONLINE, this.ownNPCConfigurationEntry.getEmptyItem());
+        this.itemLayouts.put(ServiceInfoState.FULL_ONLINE, this.ownNPCConfigurationEntry.getFullItem());
     }
 
     public NPCConfigurationEntry getOwnNPCConfigurationEntry() {

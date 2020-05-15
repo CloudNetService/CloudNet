@@ -42,6 +42,8 @@ public class NPCConfigurationEntry {
 
     private LabyModEmotes labyModEmotes = new LabyModEmotes();
 
+    private long npcTabListRemoveTicks = 40L;
+
     public NPCConfigurationEntry() {
         for (int i = 1; i < 10; i++) {
             this.inventoryLayout.put(i, new ItemLayout("BLACK_STAINED_GLASS_PANE", " ", new ArrayList<>()));
@@ -52,7 +54,7 @@ public class NPCConfigurationEntry {
         this.targetGroup = targetGroup;
     }
 
-    public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes) {
+    public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes, long npcTabListRemoveTicks) {
         this.targetGroup = targetGroup;
         this.infoLineDistance = infoLineDistance;
         this.inventorySize = inventorySize;
@@ -64,6 +66,7 @@ public class NPCConfigurationEntry {
         this.fullItem = fullItem;
         this.inventoryLayout = inventoryLayout;
         this.labyModEmotes = labyModEmotes;
+        this.npcTabListRemoveTicks = npcTabListRemoveTicks;
     }
 
     public String getTargetGroup() {
@@ -148,6 +151,14 @@ public class NPCConfigurationEntry {
 
     public void setLabyModEmotes(LabyModEmotes labyModEmotes) {
         this.labyModEmotes = labyModEmotes;
+    }
+
+    public long getNPCTabListRemoveTicks() {
+        return npcTabListRemoveTicks;
+    }
+
+    public void setNPCTabListRemoveTicks(long npcTabListRemoveTicks) {
+        this.npcTabListRemoveTicks = npcTabListRemoveTicks;
     }
 
     public static class LabyModEmotes {

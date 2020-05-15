@@ -37,13 +37,11 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
     private ItemStack[] defaultItems;
 
-    private Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts;
-
     private final Map<UUID, BukkitNPCProperties> npcProperties = new HashMap<>();
 
     public BukkitNPCManagement(@NotNull JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
-        this.npcPool = new NPCPool(javaPlugin);
+        this.npcPool = new NPCPool(javaPlugin, 50, 20, super.ownNPCConfigurationEntry.getNPCTabListRemoveTicks());
 
         super.cloudNPCS.forEach(this::createNPC);
     }
@@ -92,12 +90,6 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                 this.defaultItems[index] = this.toItemStack(inventoryLayout.get(index + 1));
             }
         }
-
-        this.itemLayouts = new HashMap<>();
-
-        this.itemLayouts.put(ServiceInfoState.ONLINE, super.ownNPCConfigurationEntry.getOnlineItem());
-        this.itemLayouts.put(ServiceInfoState.EMPTY_ONLINE, super.ownNPCConfigurationEntry.getEmptyItem());
-        this.itemLayouts.put(ServiceInfoState.FULL_ONLINE, super.ownNPCConfigurationEntry.getFullItem());
     }
 
     public void shutdown() {
