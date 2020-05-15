@@ -15,7 +15,7 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
-import net.kyori.text.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +31,7 @@ public final class VelocityPlayerListener {
     public void handle(LoginEvent event) {
         JsonDocument response = BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
         if (response != null && response.contains("kickReason")) {
-            event.setResult(ResultedEvent.ComponentResult.denied(TextComponent.of(response.getString("kickReason"))));
+            event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(response.getString("kickReason"))));
         }
     }
 
