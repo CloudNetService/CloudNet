@@ -2,8 +2,8 @@ package eu.cloudnetservice.cloudnet.ext.labymod;
 
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 public interface LabyModConstants {
 
@@ -13,6 +13,6 @@ public interface LabyModConstants {
     String GET_PLAYER_SPECTATE_SECRET = "get_player_by_spectate_secret";
     String CLOUDNET_CHANNEL_NAME = "cloudnet_labymod_module";
 
-    Collection<ServiceEnvironmentType> SUPPORTED_ENVIRONMENTS = Collections.singletonList(ServiceEnvironmentType.BUNGEECORD);
+    Collection<ServiceEnvironmentType> SUPPORTED_ENVIRONMENTS = Arrays.asList(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironmentType.VELOCITY);
 
 }

@@ -3,6 +3,12 @@
   "name": "CloudNet-LabyMod",
   "version": "1.0",
   "url": "https://cloudnetservice.eu",
+  "dependencies": [
+    {
+      "id": "cloudnet_bridge_velocity",
+      "optional": false
+    }
+  ],
   "authors": [
     "CloudNetService"
   ],
