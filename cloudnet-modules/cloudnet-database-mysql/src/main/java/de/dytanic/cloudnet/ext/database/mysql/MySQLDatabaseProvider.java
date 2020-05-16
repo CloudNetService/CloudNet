@@ -41,7 +41,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         MySQLConnectionEndpoint endpoint = this.addresses.get(new Random().nextInt(this.addresses.size()));
 
         this.hikariDataSource.setJdbcUrl("jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint.getAddress().getPort() + "/" + endpoint.getDatabase() +
-                (endpoint.isUseSsl() ? "?useSSL=true&trustServerCertificate=true" : "")
+                String.format("?useSSL=%b&trustServerCertificate=%b", endpoint.isUseSsl(), endpoint.isUseSsl())
         );
 
         //base configuration
