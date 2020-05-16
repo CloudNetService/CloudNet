@@ -1,12 +1,7 @@
 package de.dytanic.cloudnet.driver.module;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
@@ -16,41 +11,36 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DefaultModuleWrapper implements IModuleWrapper {
 
     private static final Type MODULE_CONFIGURATION_TYPE = new TypeToken<ModuleConfiguration>() {
     }.getType();
 
-    private static final Map<String, String> defaultRepositories = Maps.of(
-            new Pair<>("maven", "https://repo1.maven.org/maven2/")
-    );
-
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Map<String, String> DEFAULT_REPOSITORIES = Collections.singletonMap("maven", "https://repo1.maven.org/maven2/");
 
     private static final String MODULE_CONFIG_PATH = "module.json";
-    private final EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks = Maps.newEnumMap(ModuleLifeCycle.class);
+    private final EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks = new EnumMap<>(ModuleLifeCycle.class);
     private ModuleLifeCycle moduleLifeCycle = ModuleLifeCycle.UNLOADED;
-    private URL url;
+    private final URL url;
     private DefaultModule module;
-    private DefaultModuleProvider moduleProvider;
+    private final DefaultModuleProvider moduleProvider;
     private FinalizeURLClassLoader classLoader;
     private ModuleConfiguration moduleConfiguration;
     private JsonDocument moduleConfigurationSource;
     private File moduleDirectory = new File("modules");
 
     public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url) throws Exception {
-        Validate.checkNotNull(url);
-        Validate.checkNotNull(moduleProvider);
+        Preconditions.checkNotNull(url);
+        Preconditions.checkNotNull(moduleProvider);
 
         this.url = url;
         this.moduleProvider = moduleProvider;
 
         for (ModuleLifeCycle moduleLifeCycle : ModuleLifeCycle.values()) {
-            moduleTasks.put(moduleLifeCycle, Iterables.newCopyOnWriteArrayList());
+            moduleTasks.put(moduleLifeCycle, new CopyOnWriteArrayList<>());
         }
 
         this.init(url);
@@ -94,9 +84,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             throw new ModuleConfigurationPropertyNotFoundException("main");
         }
 
-        Map<String, String> repositories = Maps.newHashMap(defaultRepositories);
+        Map<String, String> repositories = new HashMap<>(DEFAULT_REPOSITORIES);
 
-        List<URL> urls = Iterables.newArrayList();
+        List<URL> urls = new ArrayList<>();
         urls.add(url);
 
         if (moduleConfiguration.getRepos() != null) {
@@ -166,13 +156,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     @Override
     public IModuleWrapper loadModule() {
-        if (moduleLifeCycle == ModuleLifeCycle.UNLOADED) {
-            moduleProvider.getModuleProviderHandler().handlePreModuleLoad(this);
-            fireTasks(this.moduleTasks.get(ModuleLifeCycle.LOADED));
+        if (moduleLifeCycle == ModuleLifeCycle.UNLOADED && moduleProvider.getModuleProviderHandler().handlePreModuleLoad(this)) {
+            fireTasks(this.moduleTasks.get(this.moduleLifeCycle = ModuleLifeCycle.LOADED));
             moduleProvider.getModuleProviderHandler().handlePostModuleLoad(this);
-
-            this.moduleLifeCycle = ModuleLifeCycle.LOADED;
         }
+
         return this;
     }
 
@@ -180,15 +168,16 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     public IModuleWrapper startModule() {
         this.loadModule();
 
-        if (moduleLifeCycle == ModuleLifeCycle.LOADED || moduleLifeCycle == ModuleLifeCycle.STOPPED) {
-            moduleProvider.getModuleProviderHandler().handlePreModuleStart(this);
+        if ((moduleLifeCycle == ModuleLifeCycle.LOADED || moduleLifeCycle == ModuleLifeCycle.STOPPED)
+                && moduleProvider.getModuleProviderHandler().handlePreModuleStart(this)) {
             if (this.moduleConfiguration.getDependencies() != null) {
                 for (ModuleDependency moduleDependency : this.moduleConfiguration.getDependencies()) {
                     if (moduleDependency != null && moduleDependency.getGroup() != null && moduleDependency.getName() != null &&
                             moduleDependency.getVersion() != null && moduleDependency.getRepo() == null &&
                             moduleDependency.getUrl() == null) {
-                        IModuleWrapper moduleWrapper = Iterables.first(this.getModuleProvider().getModules(), module -> module.getModuleConfiguration().getGroup().equals(moduleDependency.getGroup()) &&
-                                module.getModuleConfiguration().getName().equals(moduleDependency.getName()));
+
+                        IModuleWrapper moduleWrapper = this.getModuleProvider().getModules().stream().filter(module -> module.getModuleConfiguration().getGroup().equals(moduleDependency.getGroup()) &&
+                                module.getModuleConfiguration().getName().equals(moduleDependency.getName())).findFirst().orElse(null);
 
                         if (moduleWrapper != null) {
                             moduleWrapper.startModule();
@@ -211,8 +200,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     @Override
     public IModuleWrapper stopModule() {
-        if (moduleLifeCycle == ModuleLifeCycle.STARTED || moduleLifeCycle == ModuleLifeCycle.LOADED) {
-            moduleProvider.getModuleProviderHandler().handlePreModuleStop(this);
+        if ((moduleLifeCycle == ModuleLifeCycle.STARTED || moduleLifeCycle == ModuleLifeCycle.LOADED)
+                && moduleProvider.getModuleProviderHandler().handlePreModuleStop(this)) {
             fireTasks(this.moduleTasks.get(ModuleLifeCycle.STOPPED));
             moduleProvider.getModuleProviderHandler().handlePostModuleStop(this);
             this.moduleLifeCycle = ModuleLifeCycle.STOPPED;
@@ -257,7 +246,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     @Override
     public Map<String, String> getDefaultRepositories() {
-        return defaultRepositories;
+        return DEFAULT_REPOSITORIES;
     }
 
 

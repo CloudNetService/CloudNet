@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.wrapper.module;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -14,9 +14,13 @@ import de.dytanic.cloudnet.driver.module.ModuleDependency;
 public final class WrapperModuleProviderHandler implements IModuleProviderHandler {
 
     @Override
-    public void handlePreModuleLoad(IModuleWrapper moduleWrapper) {
-        this.callEvent(new ModulePreLoadEvent(this.getModuleProvider(), moduleWrapper));
-        this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-load-module"), this.getModuleProvider(), moduleWrapper));
+    public boolean handlePreModuleLoad(IModuleWrapper moduleWrapper) {
+        boolean cancelled = this.callEvent(new ModulePreLoadEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+        if (!cancelled) {
+            this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-load-module"), this.getModuleProvider(), moduleWrapper));
+        }
+
+        return !cancelled;
     }
 
     @Override
@@ -26,9 +30,13 @@ public final class WrapperModuleProviderHandler implements IModuleProviderHandle
     }
 
     @Override
-    public void handlePreModuleStart(IModuleWrapper moduleWrapper) {
-        this.callEvent(new ModulePreStartEvent(this.getModuleProvider(), moduleWrapper));
-        this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-start-module"), this.getModuleProvider(), moduleWrapper));
+    public boolean handlePreModuleStart(IModuleWrapper moduleWrapper) {
+        boolean cancelled = this.callEvent(new ModulePreStartEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+        if (!cancelled) {
+            this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-start-module"), this.getModuleProvider(), moduleWrapper));
+        }
+
+        return !cancelled;
     }
 
     @Override
@@ -38,9 +46,13 @@ public final class WrapperModuleProviderHandler implements IModuleProviderHandle
     }
 
     @Override
-    public void handlePreModuleStop(IModuleWrapper moduleWrapper) {
-        this.callEvent(new ModulePreStopEvent(this.getModuleProvider(), moduleWrapper));
-        this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-stop-module"), this.getModuleProvider(), moduleWrapper));
+    public boolean handlePreModuleStop(IModuleWrapper moduleWrapper) {
+        boolean cancelled = this.callEvent(new ModulePreStopEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+        if (!cancelled) {
+            this.getLogger().info(replaceAll(LanguageManager.getMessage("cloudnet-pre-stop-module"), this.getModuleProvider(), moduleWrapper));
+        }
+
+        return !cancelled;
     }
 
     @Override
@@ -90,14 +102,14 @@ public final class WrapperModuleProviderHandler implements IModuleProviderHandle
         return CloudNetDriver.getInstance().getModuleProvider();
     }
 
-    private void callEvent(Event event) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(event);
+    private <T extends Event> T callEvent(T event) {
+        return CloudNetDriver.getInstance().getEventManager().callEvent(event);
     }
 
     private String replaceAll(String text, IModuleProvider moduleProvider, IModuleWrapper moduleWrapper) {
-        Validate.checkNotNull(text);
-        Validate.checkNotNull(moduleProvider);
-        Validate.checkNotNull(moduleWrapper);
+        Preconditions.checkNotNull(text);
+        Preconditions.checkNotNull(moduleProvider);
+        Preconditions.checkNotNull(moduleWrapper);
 
         return text.replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
                 .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())

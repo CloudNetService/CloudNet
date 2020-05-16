@@ -1,16 +1,18 @@
 package de.dytanic.cloudnet.provider;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 public class NodeGroupConfigurationProvider implements GroupConfigurationProvider {
 
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeGroupConfigurationProvider(CloudNet cloudNet) {
         this.cloudNet = cloudNet;
@@ -21,58 +23,63 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
         return this.cloudNet.getCloudServiceManager().getGroupConfigurations();
     }
 
+    @Nullable
     @Override
-    public GroupConfiguration getGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
+    public GroupConfiguration getGroupConfiguration(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().getGroupConfiguration(name);
     }
 
     @Override
-    public boolean isGroupConfigurationPresent(String name) {
-        Validate.checkNotNull(name);
+    public boolean isGroupConfigurationPresent(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.cloudNet.getCloudServiceManager().isGroupConfigurationPresent(name);
     }
 
     @Override
-    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
 
         this.cloudNet.getCloudServiceManager().addGroupConfiguration(groupConfiguration);
     }
 
     @Override
-    public void removeGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
+    public void removeGroupConfiguration(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         this.cloudNet.getCloudServiceManager().removeGroupConfiguration(name);
     }
 
     @Override
-    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
 
         this.cloudNet.getCloudServiceManager().removeGroupConfiguration(groupConfiguration);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.cloudNet.scheduleTask(this::getGroupConfigurations);
     }
 
     @Override
-    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
+    @NotNull
+    public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.getGroupConfiguration(name));
     }
 
     @Override
-    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
+    @NotNull
+    public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.isGroupConfigurationPresent(name));
     }
 
     @Override
-    public ITask<Void> addGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
+    @NotNull
+    public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         return this.cloudNet.scheduleTask(() -> {
             this.addGroupConfiguration(groupConfiguration);
             return null;
@@ -80,7 +87,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(String name) {
+    @NotNull
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> {
             this.removeGroupConfiguration(name);
             return null;
@@ -88,7 +96,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
+    @NotNull
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
         return this.cloudNet.scheduleTask(() -> {
             this.removeGroupConfiguration(groupConfiguration);
             return null;

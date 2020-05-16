@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -36,21 +37,25 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> containsDatabaseAsync(String name) {
         return this.executeQuery(name, "contains", response -> response.getSecond()[0] == 1);
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> deleteDatabaseAsync(String name) {
         return this.executeQuery(name, "delete", response -> response.getSecond()[0] == 1);
     }
 
     @Override
+    @NotNull
     public ITask<Collection<String>> getDatabaseNamesAsync() {
         return this.executeQuery("databases", response -> response.getFirst().get("databases", new TypeToken<Collection<String>>() {
         }.getType()));
     }
 
+    @NotNull
     <V> ITask<V> executeQuery(String message, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
         return this.executeQuery(
                 new JsonDocument()
@@ -59,6 +64,7 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
         );
     }
 
+    @NotNull
     <V> ITask<V> executeQuery(String database, String message, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
         return this.executeQuery(
                 new JsonDocument()
@@ -68,6 +74,7 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
         );
     }
 
+    @NotNull
     <V> ITask<V> executeQuery(String database, String message, JsonDocument extras, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
         return this.executeQuery(
                 new JsonDocument()
@@ -78,6 +85,7 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
         );
     }
 
+    @NotNull
     <V> ITask<V> executeQuery(JsonDocument header, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
         return Wrapper.getInstance().getPacketQueryProvider().sendCallablePacket(
                 Wrapper.getInstance().getNetworkClient().getChannels().iterator().next(),

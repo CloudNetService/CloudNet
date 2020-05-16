@@ -1,13 +1,15 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -16,15 +18,16 @@ import java.util.concurrent.TimeoutException;
 
 public class WrapperCloudServiceFactory implements CloudServiceFactory {
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperCloudServiceFactory(Wrapper wrapper) {
         this.wrapper = wrapper;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         try {
             return this.createCloudServiceAsync(serviceTask).get(5, TimeUnit.SECONDS);
@@ -35,8 +38,21 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
+    public @Nullable ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId) {
+        Preconditions.checkNotNull(serviceTask);
+
+        try {
+            return this.createCloudServiceAsync(serviceTask, taskId).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
+    @Nullable
+    @Override
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
+        Preconditions.checkNotNull(serviceConfiguration);
 
         try {
             return this.createCloudServiceAsync(serviceConfiguration).get(5, TimeUnit.SECONDS);
@@ -46,6 +62,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot createCloudService(String name,
                                                   String runtime,
@@ -58,12 +75,12 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                   ProcessConfiguration processConfiguration,
                                                   JsonDocument properties,
                                                   Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         try {
             return this.createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
@@ -73,6 +90,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         return null;
     }
 
+    @Nullable
     @Override
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
                                                               int amount,
@@ -87,13 +105,13 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                               ProcessConfiguration processConfiguration,
                                                               JsonDocument properties,
                                                               Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         try {
             return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
@@ -104,8 +122,9 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+        Preconditions.checkNotNull(serviceTask);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), null,
@@ -114,8 +133,19 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
+    public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId) {
+        Preconditions.checkNotNull(serviceTask);
+
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask).append("taskId", taskId), null,
+                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
+                }.getType()));
+    }
+
+    @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
+        Preconditions.checkNotNull(serviceConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), null,
@@ -124,6 +154,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                               String runtime,
                                                               boolean autoDeleteOnStop,
@@ -135,12 +166,12 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                               ProcessConfiguration processConfiguration,
                                                               JsonDocument properties,
                                                               Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom")
@@ -161,6 +192,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                           int amount,
                                                                           String name,
@@ -174,13 +206,13 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
                                                                           ProcessConfiguration processConfiguration,
                                                                           JsonDocument properties,
                                                                           Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom_selected_node_and_amount")

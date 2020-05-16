@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.common.io;
 
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.URI;
@@ -10,6 +10,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -27,8 +28,7 @@ import java.util.zip.ZipOutputStream;
  */
 public final class FileUtils {
 
-    private static final Map<String, String> zipFileSystemProperties = Maps
-            .newHashMap();
+    private static final Map<String, String> zipFileSystemProperties = new HashMap<>();
 
     static {
         zipFileSystemProperties.put("create", "false");
@@ -76,8 +76,7 @@ public final class FileUtils {
         }
     }
 
-    public static void copy(InputStream inputStream, OutputStream outputStream)
-            throws IOException {
+    public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
         copy(inputStream, outputStream, new byte[8192]);
     }
 
@@ -224,8 +223,15 @@ public final class FileUtils {
         return zipPath;
     }
 
-    public static byte[] convert(Path... directories) //TODO
-    {
+    /**
+     * Converts a bunch of directories to a byte array
+     *
+     * @param directories The directories which should get converted
+     * @return A byte array of a zip file created from the provided directories
+     * @deprecated May cause a heap space (over)load
+     */
+    @Deprecated
+    public static byte[] convert(Path... directories) {
         if (directories == null) {
             return emptyZipByteArray();
         }
@@ -258,18 +264,49 @@ public final class FileUtils {
         return emptyZipByteArray();
     }
 
-    private static void convert0(ZipOutputStream zipOutputStream, Path directory)
-            throws IOException {
+    @Nullable
+    public static Path zipToFile(Path directory, Path target) {
+        if (directory == null || !Files.exists(directory)) {
+            return null;
+        }
+
+        delete(target.toFile());
+        try {
+            zipStream(directory, Files.newOutputStream(target, StandardOpenOption.CREATE));
+            return target;
+        } catch (final IOException exception) {
+            exception.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static void zipStream(Path source, OutputStream buffer) throws IOException {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(buffer, StandardCharsets.UTF_8)) {
+            if (Files.exists(source)) {
+                if (Files.isDirectory(source)) {
+                    convert0(zipOutputStream, source);
+                } else {
+                    zipOutputStream.putNextEntry(new ZipEntry(source.toFile().getName()));
+                    try (InputStream inputStream = Files.newInputStream(source)) {
+                        copy(inputStream, zipOutputStream);
+                    }
+
+                    zipOutputStream.closeEntry();
+                }
+            }
+        }
+    }
+
+    private static void convert0(ZipOutputStream zipOutputStream, Path directory) throws IOException {
         Files.walkFileTree(
                 directory,
                 EnumSet.noneOf(FileVisitOption.class),
                 Integer.MAX_VALUE,
                 new SimpleFileVisitor<Path>() {
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                            throws IOException {
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         try (InputStream inputStream = Files.newInputStream(file)) {
-                            zipOutputStream.putNextEntry(
-                                    new ZipEntry(directory.relativize(file).toString()));
+                            zipOutputStream.putNextEntry(new ZipEntry(directory.relativize(file).toString().replace("\\", "/")));
                             copy(inputStream, zipOutputStream);
                             zipOutputStream.closeEntry();
                         } catch (Exception ex) {
@@ -277,7 +314,8 @@ public final class FileUtils {
                         }
                         return FileVisitResult.CONTINUE;
                     }
-                });
+                }
+        );
     }
 
     public static Path extract(Path zipPath, Path targetDirectory)
@@ -287,7 +325,7 @@ public final class FileUtils {
         }
 
         try (InputStream inputStream = Files.newInputStream(zipPath)) {
-            extract0(inputStream, targetDirectory);
+            extract0(new ZipInputStream(inputStream, StandardCharsets.UTF_8), targetDirectory);
         }
 
         return targetDirectory;
@@ -301,22 +339,19 @@ public final class FileUtils {
 
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
                 zipData)) {
-            extract0(byteArrayInputStream, targetDirectory);
+            extract0(new ZipInputStream(byteArrayInputStream, StandardCharsets.UTF_8), targetDirectory);
         }
 
         return targetDirectory;
     }
 
-    public static void extract0(InputStream inputStream, Path targetDirectory)
+    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory)
             throws IOException {
-        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream,
-                StandardCharsets.UTF_8)) {
-            ZipEntry zipEntry;
+        ZipEntry zipEntry;
 
-            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                extract1(zipInputStream, zipEntry, targetDirectory);
-                zipInputStream.closeEntry();
-            }
+        while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            extract1(zipInputStream, zipEntry, targetDirectory);
+            zipInputStream.closeEntry();
         }
     }
 

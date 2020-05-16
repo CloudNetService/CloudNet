@@ -1,7 +1,5 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import io.netty.channel.*;
 import io.netty.handler.codec.DecoderResult;
@@ -9,9 +7,7 @@ import io.netty.handler.codec.http.HttpRequest;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
@@ -71,8 +67,8 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
             fullPath = fullPath.substring(0, fullPath.length() - 1);
         }
 
-        Map<String, String> pathParameters = Maps.newHashMap();
-        List<NettyHttpServer.HttpHandlerEntry> entries = Iterables.newArrayList(this.nettyHttpServer.registeredHandlers);
+        Map<String, String> pathParameters = new HashMap<>();
+        List<NettyHttpServer.HttpHandlerEntry> entries = new ArrayList<>(this.nettyHttpServer.registeredHandlers);
         String[] pathEntries = fullPath.split("/"), handlerPathEntries;
         Collections.sort(entries);
 

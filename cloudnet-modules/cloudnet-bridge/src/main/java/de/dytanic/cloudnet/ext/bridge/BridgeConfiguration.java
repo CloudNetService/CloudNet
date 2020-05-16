@@ -1,12 +1,12 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -19,7 +19,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     private String prefix;
     private boolean onlyProxyProtection = true;
-    private Collection<String> excludedOnlyProxyWalkableGroups = Iterables.newArrayList(), excludedGroups;
+    private Collection<String> excludedOnlyProxyWalkableGroups = new ArrayList<>(), excludedGroups;
     private Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations;
     private Map<String, String> messages;
     private boolean logPlayerConnections = true;

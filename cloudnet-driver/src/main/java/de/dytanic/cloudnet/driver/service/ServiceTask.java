@@ -1,14 +1,15 @@
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class ServiceTask extends ServiceConfigurationBase {
+public class ServiceTask extends ServiceConfigurationBase implements INameable {
 
     private String name;
 
@@ -71,8 +72,14 @@ public class ServiceTask extends ServiceConfigurationBase {
     public ServiceTask() {
     }
 
+    @Override
+    public Collection<String> getJvmOptions() {
+        return this.processConfiguration.getJvmOptions();
+    }
+
     /**
-     * Forbids this task to start new services for a specific time
+     * Forbids this task to auto start new services for a specific time on the current node.
+     * This method has no effect when executed on a wrapper instances.
      *
      * @param time the time in millis
      */

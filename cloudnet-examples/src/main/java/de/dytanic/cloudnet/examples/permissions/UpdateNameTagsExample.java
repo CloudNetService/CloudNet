@@ -1,23 +1,23 @@
 package de.dytanic.cloudnet.examples.permissions;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.EventPriority;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
 public final class UpdateNameTagsExample {
 
-    private final Collection<UUID> nickedPlayers = Iterables.newArrayList();
+    private final Collection<UUID> nickedPlayers = new ArrayList<>();
 
     @EventHandler
     public void executeBukkitExampleOnPlayerJoinEvent(PlayerJoinEvent event) {
@@ -39,12 +39,12 @@ public final class UpdateNameTagsExample {
     public void nickExample(Player player) {
         BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player, player1 -> {
             if (isNicked(player1)) {
-                return CloudPermissionsManagement.getInstance().getCachedPermissionGroups().get("Default");
+                return CloudNetDriver.getInstance().getPermissionManagement().getGroup("Default");
             }
 
-            IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player1.getUniqueId());
+            IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(player1.getUniqueId());
 
-            return permissionUser == null ? null : CloudPermissionsManagement.getInstance().getHighestPermissionGroup(permissionUser);
+            return permissionUser == null ? null : CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(permissionUser);
         });
     }
 

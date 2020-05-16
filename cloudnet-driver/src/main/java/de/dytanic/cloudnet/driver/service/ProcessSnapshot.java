@@ -9,17 +9,20 @@ import java.util.Collection;
 @EqualsAndHashCode
 public class ProcessSnapshot {
 
-    private long heapUsageMemory, noHeapUsageMemory, maxHeapMemory;
+    private final long heapUsageMemory;
+    private final long noHeapUsageMemory;
+    private final long maxHeapMemory;
 
-    private int currentLoadedClassCount;
+    private final int currentLoadedClassCount;
 
-    private long totalLoadedClassCount, unloadedClassCount;
+    private final long totalLoadedClassCount;
+    private final long unloadedClassCount;
 
-    private Collection<ThreadSnapshot> threads;
+    private final Collection<ThreadSnapshot> threads;
 
-    private double cpuUsage;
+    private final double cpuUsage;
 
-    private int pid;
+    private final int pid;
 
     public ProcessSnapshot(long heapUsageMemory, long noHeapUsageMemory, long maxHeapMemory, int currentLoadedClassCount, long totalLoadedClassCount, long unloadedClassCount, Collection<ThreadSnapshot> threads, double cpuUsage, int pid) {
         this.heapUsageMemory = heapUsageMemory;

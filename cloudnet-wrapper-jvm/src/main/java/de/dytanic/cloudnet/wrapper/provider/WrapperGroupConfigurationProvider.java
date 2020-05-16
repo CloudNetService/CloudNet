@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -9,6 +9,8 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +22,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
     private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperGroupConfigurationProvider(Wrapper wrapper) {
         this.wrapper = wrapper;
@@ -36,9 +38,10 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
         return null;
     }
 
+    @Nullable
     @Override
-    public GroupConfiguration getGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
+    public GroupConfiguration getGroupConfiguration(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         try {
             return this.getGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS);
@@ -49,8 +52,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public boolean isGroupConfigurationPresent(String name) {
-        Validate.checkNotNull(name);
+    public boolean isGroupConfigurationPresent(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         try {
             return this.isGroupConfigurationPresentAsync(name).get(5, TimeUnit.SECONDS);
@@ -61,8 +64,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
 
         try {
             this.addGroupConfigurationAsync(groupConfiguration).get(5, TimeUnit.SECONDS);
@@ -72,8 +75,8 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public void removeGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
+    public void removeGroupConfiguration(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         try {
             this.removeGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS);
@@ -83,12 +86,13 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
         this.removeGroupConfiguration(groupConfiguration.getName());
     }
 
     @Override
+    @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_groupConfigurations"), null,
@@ -97,8 +101,9 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
-        Validate.checkNotNull(name);
+    @NotNull
+    public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_group_configuration").append("name", name), null,
@@ -107,8 +112,9 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
-        Validate.checkNotNull(name);
+    @NotNull
+    public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_group_configuration_present").append("name", name), null,
@@ -117,24 +123,27 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
-    public ITask<Void> addGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    @NotNull
+    public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_group_configuration").append("groupConfiguration", groupConfiguration), null,
                 VOID_FUNCTION);
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(String name) {
-        Validate.checkNotNull(name);
+    @NotNull
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_group_configuration").append("name", name), null,
                 VOID_FUNCTION);
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    @NotNull
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
 
         return this.removeGroupConfigurationAsync(groupConfiguration.getName());
     }

@@ -1,10 +1,14 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.command.ICommandSender;
+import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 
-public final class CommandReload extends CommandDefault {
+import java.util.Arrays;
+import java.util.Collection;
+
+public final class CommandReload extends CommandDefault implements ITabCompleter {
 
     public CommandReload() {
         super("reload", "rl", "rel");
@@ -33,5 +37,13 @@ public final class CommandReload extends CommandDefault {
                 sender.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
             }
         }
+    }
+
+    @Override
+    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
+        if (args.length > 1) {
+            return null;
+        }
+        return Arrays.asList("confirm", "config");
     }
 }

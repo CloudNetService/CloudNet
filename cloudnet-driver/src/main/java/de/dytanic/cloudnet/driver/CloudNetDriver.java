@@ -1,13 +1,15 @@
 package de.dytanic.cloudnet.driver;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
@@ -20,18 +22,18 @@ import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.*;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.management.ManagementFactory;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public abstract class CloudNetDriver {
@@ -39,6 +41,9 @@ public abstract class CloudNetDriver {
     private static CloudNetDriver instance;
 
     protected PacketQueryProvider packetQueryProvider;
+
+    protected IPermissionManagement permissionManagement;
+    protected PermissionProvider permissionProvider;
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
 
@@ -52,7 +57,7 @@ public abstract class CloudNetDriver {
 
     private int pid = -2;
 
-    public CloudNetDriver(ILogger logger) {
+    public CloudNetDriver(@NotNull ILogger logger) {
         this.logger = logger;
     }
 
@@ -60,7 +65,16 @@ public abstract class CloudNetDriver {
         return CloudNetDriver.instance;
     }
 
-    protected static void setInstance(CloudNetDriver instance) {
+    /**
+     * The CloudNetDriver instance won't be null usually, this method is only relevant for tests
+     *
+     * @return optional CloudNetDriver
+     */
+    public static Optional<CloudNetDriver> optionalInstance() {
+        return Optional.ofNullable(CloudNetDriver.instance);
+    }
+
+    protected static void setInstance(@NotNull CloudNetDriver instance) {
         CloudNetDriver.instance = instance;
     }
 
@@ -70,18 +84,44 @@ public abstract class CloudNetDriver {
     public abstract void stop();
 
 
-    public abstract PermissionProvider getPermissionProvider();
-
+    @NotNull
     public abstract CloudServiceFactory getCloudServiceFactory();
 
+    @NotNull
     public abstract ServiceTaskProvider getServiceTaskProvider();
 
+    @NotNull
     public abstract NodeInfoProvider getNodeInfoProvider();
 
+    @NotNull
     public abstract GroupConfigurationProvider getGroupConfigurationProvider();
 
+    @NotNull
     public abstract CloudMessenger getMessenger();
 
+    /**
+     * @deprecated replaced with {@link #getPermissionManagement()}
+     */
+    @NotNull
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    public PermissionProvider getPermissionProvider() {
+        return this.permissionProvider != null ? this.permissionProvider : (this.permissionProvider = new DefaultPermissionProvider(this::getPermissionManagement));
+    }
+
+    @NotNull
+    public IPermissionManagement getPermissionManagement() {
+        Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
+        return this.permissionManagement;
+    }
+
+    public void setPermissionManagement(@NotNull IPermissionManagement permissionManagement) {
+        if (this.permissionManagement != null && !this.permissionManagement.canBeOverwritten() && !this.permissionManagement.getClass().getName().equals(permissionManagement.getClass().getName())) {
+            throw new IllegalStateException("Current permission management (" + this.permissionManagement.getClass().getName() + ") cannot be overwritten by " + permissionManagement.getClass().getName());
+        }
+
+        this.permissionManagement = permissionManagement;
+    }
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -89,7 +129,8 @@ public abstract class CloudNetDriver {
      * @param name the name of the service
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    public abstract SpecificCloudServiceProvider getCloudServiceProvider(String name);
+    @NotNull
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -97,7 +138,8 @@ public abstract class CloudNetDriver {
      * @param uniqueId the uniqueId of the service
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    public abstract SpecificCloudServiceProvider getCloudServiceProvider(UUID uniqueId);
+    @NotNull
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -105,31 +147,41 @@ public abstract class CloudNetDriver {
      * @param serviceInfoSnapshot the info of the service to create a provider for
      * @return the new instance of the {@link SpecificCloudServiceProvider}
      */
-    public abstract SpecificCloudServiceProvider getCloudServiceProvider(ServiceInfoSnapshot serviceInfoSnapshot);
+    @NotNull
+    public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
     /**
      * Returns the general CloudServiceProvider
      *
      * @return the instance of the {@link GeneralCloudServiceProvider}
      */
+    @NotNull
     public abstract GeneralCloudServiceProvider getCloudServiceProvider();
 
+    @NotNull
     public abstract INetworkClient getNetworkClient();
 
+    @NotNull
     public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
 
-    public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(String serviceName);
+    @NotNull
+    public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName);
 
     public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
 
-    public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(String serviceName);
+    public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName);
+
+    public abstract void setGlobalLogLevel(@NotNull LogLevel logLevel);
+
+    public abstract void setGlobalLogLevel(int logLevel);
 
     /**
-     * @see #getNodeInfoProvider() 
+     * @see #getNodeInfoProvider()
      * @see NodeInfoProvider#sendCommandLine(String)
      * @deprecated moved to {@link NodeInfoProvider#sendCommandLine(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public String[] sendCommandLine(String commandLine) {
         return this.getNodeInfoProvider().sendCommandLine(commandLine);
     }
@@ -140,6 +192,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#sendCommandLine(String, String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
         return this.getNodeInfoProvider().sendCommandLine(nodeUniqueId, commandLine);
     }
@@ -168,6 +221,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getConsoleCommands()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<CommandInfo> getConsoleCommands() {
         return this.getNodeInfoProvider().getConsoleCommands();
     }
@@ -178,6 +232,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getConsoleCommand(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public CommandInfo getConsoleCommand(String commandLine) {
         return this.getNodeInfoProvider().getConsoleCommand(commandLine);
     }
@@ -188,6 +243,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getConsoleCommandsAsync()}
      */
     @Deprecated
+    @NotNull
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
         return this.getNodeInfoProvider().getConsoleCommandsAsync();
     }
@@ -198,6 +255,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getConsoleCommandAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
         return this.getNodeInfoProvider().getConsoleCommandAsync(commandLine);
     }
@@ -208,6 +267,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#sendCommandLineAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<String[]> sendCommandLineAsync(String commandLine) {
         return this.getNodeInfoProvider().sendCommandLineAsync(commandLine);
     }
@@ -218,6 +279,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#sendCommandLineAsync(String, String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
         return this.getNodeInfoProvider().sendCommandLineAsync(nodeUniqueId, commandLine);
     }
@@ -228,6 +291,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodesAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<NetworkClusterNode[]> getNodesAsync() {
         return this.getNodeInfoProvider().getNodesAsync();
     }
@@ -238,6 +303,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
         return this.getNodeInfoProvider().getNodeAsync(uniqueId);
     }
@@ -248,6 +315,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeInfoSnapshotsAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
         return this.getNodeInfoProvider().getNodeInfoSnapshotsAsync();
     }
@@ -258,6 +327,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeInfoSnapshotAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
         return this.getNodeInfoProvider().getNodeInfoSnapshotAsync(uniqueId);
     }
@@ -268,6 +339,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodes()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public NetworkClusterNode[] getNodes() {
         return this.getNodeInfoProvider().getNodes();
     }
@@ -278,6 +350,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNode(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public NetworkClusterNode getNode(String uniqueId) {
         return this.getNodeInfoProvider().getNode(uniqueId);
     }
@@ -288,6 +361,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeInfoSnapshots()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
         return this.getNodeInfoProvider().getNodeInfoSnapshots();
     }
@@ -298,6 +372,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link NodeInfoProvider#getNodeInfoSnapshot(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
         return this.getNodeInfoProvider().getNodeInfoSnapshot(uniqueId);
     }
@@ -308,6 +383,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudMessenger#sendChannelMessage(String, String, JsonDocument)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void sendChannelMessage(String channel, String message, JsonDocument data) {
         this.getMessenger().sendChannelMessage(channel, message, data);
     }
@@ -318,6 +394,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudMessenger#sendChannelMessage(ServiceInfoSnapshot, String, String, JsonDocument)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void sendChannelMessage(ServiceInfoSnapshot targetServiceInfoSnapshot, String channel, String message, JsonDocument data) {
         this.getMessenger().sendChannelMessage(targetServiceInfoSnapshot, channel, message, data);
     }
@@ -328,6 +405,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudMessenger#sendChannelMessage(ServiceTask, String, String, JsonDocument)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void sendChannelMessage(ServiceTask targetServiceTask, String channel, String message, JsonDocument data) {
         this.getMessenger().sendChannelMessage(targetServiceTask, channel, message, data);
     }
@@ -338,6 +416,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudService(ServiceTask)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         return this.getCloudServiceFactory().createCloudService(serviceTask);
     }
@@ -348,6 +427,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudService(ServiceConfiguration)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         return this.getCloudServiceFactory().createCloudService(serviceConfiguration);
     }
@@ -358,6 +438,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot createCloudService(String name,
                                                   String runtime,
                                                   boolean autoDeleteOnStop,
@@ -377,6 +458,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot createCloudService(String name,
                                                   String runtime,
                                                   boolean autoDeleteOnStop,
@@ -397,6 +479,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
                                                               int amount,
                                                               String name,
@@ -418,6 +501,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudService(String, int, String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
                                                               int amount,
                                                               String name,
@@ -440,6 +524,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(ServiceTask)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
         return this.getCloudServiceFactory().createCloudServiceAsync(serviceTask);
     }
@@ -450,6 +536,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
         return this.getCloudServiceFactory().createCloudServiceAsync(serviceConfiguration);
     }
@@ -460,6 +548,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                               String runtime,
                                                               boolean autoDeleteOnStop,
@@ -479,6 +569,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                               String runtime,
                                                               boolean autoDeleteOnStop,
@@ -499,6 +591,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                           int amount,
                                                                           String name,
@@ -520,6 +614,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link CloudServiceFactory#createCloudServiceAsync(String, String, boolean, boolean, Collection, Collection, Collection, Collection, ProcessConfiguration, JsonDocument, Integer)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                           int amount,
                                                                           String name,
@@ -542,6 +638,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#runCommand(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine) {
         SpecificCloudServiceProvider cloudServiceProvider = this.getCloudServiceProvider(uniqueId);
         cloudServiceProvider.runCommand(commandLine);
@@ -554,6 +651,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceTemplate(ServiceTemplate)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate) {
         this.getCloudServiceProvider(uniqueId).addServiceTemplate(serviceTemplate);
         return this.getCloudService(uniqueId);
@@ -565,6 +663,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceRemoteInclusion(ServiceRemoteInclusion)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
         this.getCloudServiceProvider(uniqueId).addServiceRemoteInclusion(serviceRemoteInclusion);
         return this.getCloudService(uniqueId);
@@ -576,6 +675,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceDeployment(ServiceDeployment)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment) {
         this.getCloudServiceProvider(uniqueId).addServiceDeployment(serviceDeployment);
         return this.getCloudService(uniqueId);
@@ -587,6 +687,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#getCachedLogMessages()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
         return this.getCloudServiceProvider(uniqueId).getCachedLogMessages();
     }
@@ -597,8 +698,9 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#stop()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void stopCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
     }
@@ -609,8 +711,9 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#start()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void startCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
     }
@@ -621,8 +724,9 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#delete()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void deleteCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
     }
@@ -633,10 +737,11 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#setCloudServiceLifeCycle(ServiceLifeCycle)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).setCloudServiceLifeCycle(lifeCycle);
+        serviceInfoSnapshot.provider().setCloudServiceLifeCycle(lifeCycle);
     }
 
     /**
@@ -645,10 +750,11 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#restart()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).restart();
+        serviceInfoSnapshot.provider().restart();
     }
 
     /**
@@ -657,10 +763,11 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#kill()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).kill();
+        serviceInfoSnapshot.provider().kill();
     }
 
     /**
@@ -669,10 +776,11 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#runCommand(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        this.getCloudServiceProvider(serviceInfoSnapshot.getServiceId().getUniqueId()).runCommand(command);
+        serviceInfoSnapshot.provider().runCommand(command);
     }
 
     /**
@@ -681,6 +789,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#runCommand(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> sendCommandLineToCloudServiceAsync(UUID uniqueId, String commandLine) {
         this.getCloudServiceProvider(uniqueId).runCommandAsync(commandLine);
         return this.getCloudServicesAsync(uniqueId);
@@ -692,6 +802,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceTemplateAsync(ServiceTemplate)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> addServiceTemplateToCloudServiceAsync(UUID uniqueId, ServiceTemplate serviceTemplate) {
         this.getCloudServiceProvider(uniqueId).addServiceTemplateAsync(serviceTemplate);
         return this.getCloudServicesAsync(uniqueId);
@@ -703,6 +815,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceRemoteInclusionAsync(ServiceRemoteInclusion)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> addServiceRemoteInclusionToCloudServiceAsync(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
         this.getCloudServiceProvider(uniqueId).addServiceRemoteInclusionAsync(serviceRemoteInclusion);
         return this.getCloudServicesAsync(uniqueId);
@@ -714,6 +828,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#addServiceDeploymentAsync(ServiceDeployment)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> addServiceDeploymentToCloudServiceAsync(UUID uniqueId, ServiceDeployment serviceDeployment) {
         this.getCloudServiceProvider(uniqueId).addServiceDeploymentAsync(serviceDeployment);
         return this.getCloudServicesAsync(uniqueId);
@@ -725,6 +841,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#getCachedLogMessages()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Queue<String>> getCachedLogMessagesFromServiceAsync(UUID uniqueId) {
         return this.getCloudServiceProvider(uniqueId).getCachedLogMessagesAsync();
     }
@@ -735,6 +853,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void includeWaitingServiceTemplates(UUID uniqueId) {
         this.getCloudServiceProvider(uniqueId).includeWaitingServiceTemplates();
     }
@@ -745,6 +864,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void includeWaitingServiceInclusions(UUID uniqueId) {
         this.getCloudServiceProvider(uniqueId).includeWaitingServiceInclusions();
     }
@@ -755,6 +875,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#deployResources(boolean)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void deployResources(UUID uniqueId, boolean removeDeployments) {
         this.getCloudServiceProvider(uniqueId).deployResources(removeDeployments);
     }
@@ -765,6 +886,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link SpecificCloudServiceProvider#deployResources()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void deployResources(UUID uniqueId) {
         this.deployResources(uniqueId, true);
     }
@@ -775,6 +897,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesAsUniqueId()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<UUID> getServicesAsUniqueId() {
         return this.getCloudServiceProvider().getServicesAsUniqueId();
     }
@@ -785,6 +908,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServiceByName(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot getCloudServiceByName(String name) {
         return this.getCloudServiceProvider().getCloudServiceByName(name);
     }
@@ -795,6 +919,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServices()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceInfoSnapshot> getCloudServices() {
         return this.getCloudServiceProvider().getCloudServices();
     }
@@ -805,6 +930,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getStartedCloudServices()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
         return this.getCloudServiceProvider().getStartedCloudServices();
     }
@@ -815,6 +941,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServices(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceInfoSnapshot> getCloudService(String taskName) {
         return this.getCloudServiceProvider().getCloudServices(taskName);
     }
@@ -824,6 +951,8 @@ public abstract class CloudNetDriver {
      * @see GeneralCloudServiceProvider#getCloudServices(ServiceEnvironmentType)
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServices(ServiceEnvironmentType)}
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
         return this.getCloudServiceProvider().getCloudServices(environment);
     }
@@ -834,6 +963,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesByGroup(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceInfoSnapshot> getCloudServiceByGroup(String group) {
         return this.getCloudServiceProvider().getCloudServicesByGroup(group);
     }
@@ -844,6 +974,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudService(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
         return this.getCloudServiceProvider().getCloudService(uniqueId);
     }
@@ -854,6 +985,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCount()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Integer getServicesCount() {
         return this.getCloudServiceProvider().getServicesCount();
     }
@@ -864,6 +996,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByGroup(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Integer getServicesCountByGroup(String group) {
         return this.getCloudServiceProvider().getServicesCountByGroup(group);
     }
@@ -874,6 +1007,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByTask(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Integer getServicesCountByTask(String taskName) {
         return this.getCloudServiceProvider().getServicesCountByTask(taskName);
     }
@@ -884,6 +1018,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesAsUniqueIdAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
         return this.getCloudServiceProvider().getServicesAsUniqueIdAsync();
     }
@@ -894,6 +1030,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServiceByName(String)}
      */
     @Deprecated
+    @NotNull
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
         return this.getCloudServiceProvider().getCloudServiceByNameAsync(name);
     }
@@ -904,6 +1042,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync()}
      */
     @Deprecated
+    @NotNull
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
         return this.getCloudServiceProvider().getCloudServicesAsync();
     }
@@ -914,6 +1054,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getStartedCloudServicesAsync()}
      */
     @Deprecated
+    @NotNull
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServiceInfoSnapshotsAsync() {
         return this.getCloudServiceProvider().getStartedCloudServicesAsync();
     }
@@ -924,6 +1066,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
         return this.getCloudServiceProvider().getCloudServicesAsync(taskName);
     }
@@ -934,6 +1078,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesByGroupAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
         return this.getCloudServiceProvider().getCloudServicesByGroupAsync(group);
     }
@@ -944,6 +1090,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Integer> getServicesCountAsync() {
         return this.getCloudServiceProvider().getServicesCountAsync();
     }
@@ -954,6 +1102,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByGroupAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Integer> getServicesCountByGroupAsync(String group) {
         return this.getCloudServiceProvider().getServicesCountByGroupAsync(group);
     }
@@ -964,6 +1114,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getServicesCountByTaskAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
         return this.getCloudServiceProvider().getServicesCountByTaskAsync(taskName);
     }
@@ -974,6 +1126,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceInfoSnapshot> getCloudServicesAsync(UUID uniqueId) {
         return this.getCloudServiceProvider().getCloudServiceAsync(uniqueId);
     }
@@ -984,6 +1138,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GeneralCloudServiceProvider#getCloudServicesAsync(ServiceEnvironmentType)}
      */
     @Deprecated
+    @NotNull
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
         return this.getCloudServiceProvider().getCloudServicesAsync(environment);
     }
@@ -994,6 +1150,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#getPermanentServiceTasks()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<ServiceTask> getPermanentServiceTasks() {
         return this.getServiceTaskProvider().getPermanentServiceTasks();
     }
@@ -1004,6 +1161,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#getServiceTask(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public ServiceTask getServiceTask(String name) {
         return this.getServiceTaskProvider().getServiceTask(name);
     }
@@ -1014,6 +1172,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#isServiceTaskPresent(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public boolean isServiceTaskPresent(String name) {
         return this.getServiceTaskProvider().isServiceTaskPresent(name);
     }
@@ -1024,6 +1183,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#addPermanentServiceTask(ServiceTask)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void addPermanentServiceTask(ServiceTask serviceTask) {
         this.getServiceTaskProvider().addPermanentServiceTask(serviceTask);
     }
@@ -1034,6 +1194,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#removePermanentServiceTask(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void removePermanentServiceTask(String name) {
         this.getServiceTaskProvider().removePermanentServiceTask(name);
     }
@@ -1044,6 +1205,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#removePermanentServiceTask(ServiceTask)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void removePermanentServiceTask(ServiceTask serviceTask) {
         this.getServiceTaskProvider().removePermanentServiceTask(serviceTask);
     }
@@ -1054,6 +1216,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#getPermanentServiceTasksAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
         return this.getServiceTaskProvider().getPermanentServiceTasksAsync();
     }
@@ -1064,6 +1228,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#getServiceTaskAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<ServiceTask> getServiceTaskAsync(String name) {
         return this.getServiceTaskProvider().getServiceTaskAsync(name);
     }
@@ -1074,6 +1240,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link ServiceTaskProvider#isServiceTaskPresentAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Boolean> isServiceTaskPresentAsync(String name) {
         return this.getServiceTaskProvider().isServiceTaskPresentAsync(name);
     }
@@ -1084,6 +1252,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#getGroupConfigurations()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<GroupConfiguration> getGroupConfigurations() {
         return this.getGroupConfigurationProvider().getGroupConfigurations();
     }
@@ -1094,6 +1263,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#getGroupConfiguration(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public GroupConfiguration getGroupConfiguration(String name) {
         return this.getGroupConfigurationProvider().getGroupConfiguration(name);
     }
@@ -1104,6 +1274,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#isGroupConfigurationPresent(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public boolean isGroupConfigurationPresent(String name) {
         return this.getGroupConfigurationProvider().isGroupConfigurationPresent(name);
     }
@@ -1114,6 +1285,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#addGroupConfiguration(GroupConfiguration)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
         this.getGroupConfigurationProvider().addGroupConfiguration(groupConfiguration);
     }
@@ -1124,6 +1296,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#removeGroupConfiguration(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void removeGroupConfiguration(String name) {
         this.getGroupConfigurationProvider().removeGroupConfiguration(name);
     }
@@ -1134,6 +1307,7 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#removeGroupConfiguration(GroupConfiguration)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
         this.getGroupConfigurationProvider().removeGroupConfiguration(groupConfiguration);
     }
@@ -1144,6 +1318,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#getGroupConfigurationsAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.getGroupConfigurationProvider().getGroupConfigurationsAsync();
     }
@@ -1154,6 +1330,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#getGroupConfigurationAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
         return this.getGroupConfigurationProvider().getGroupConfigurationAsync(name);
     }
@@ -1164,304 +1342,346 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link GroupConfigurationProvider#isGroupConfigurationPresentAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
         return this.getGroupConfigurationProvider().isGroupConfigurationPresentAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#addUser(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addUser(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#addUser(IPermissionUser)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void addUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().addUser(permissionUser);
+        this.getPermissionManagement().addUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#updateUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#updateUser(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#updateUser(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#updateUser(IPermissionUser)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void updateUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().updateUser(permissionUser);
+        this.getPermissionManagement().updateUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(String)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void deleteUser(String name) {
-        this.getPermissionProvider().deleteUser(name);
+        this.getPermissionManagement().deleteUser(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteUser(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#deleteUser(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteUser(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#deleteUser(IPermissionUser)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void deleteUser(IPermissionUser permissionUser) {
-        this.getPermissionProvider().deleteUser(permissionUser);
+        this.getPermissionManagement().deleteUser(permissionUser);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUser(UUID)
-     * @deprecated moved to {@link PermissionProvider#containsUser(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUser(UUID)
+     * @deprecated moved to {@link IPermissionManagement#containsUser(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public boolean containsUser(UUID uniqueId) {
-        return this.getPermissionProvider().containsUser(uniqueId);
+        return this.getPermissionManagement().containsUser(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUser(String)
-     * @deprecated moved to {@link PermissionProvider#containsUser(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUser(String)
+     * @deprecated moved to {@link IPermissionManagement#containsUser(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public boolean containsUser(String name) {
-        return this.getPermissionProvider().containsUser(name);
+        return this.getPermissionManagement().containsUser(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUser(UUID)
-     * @deprecated moved to {@link PermissionProvider#getUser(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUser(UUID)
+     * @deprecated moved to {@link IPermissionManagement#getUser(UUID)}
      */
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     @Deprecated
     public IPermissionUser getUser(UUID uniqueId) {
-        return this.getPermissionProvider().getUser(uniqueId);
+        return this.getPermissionManagement().getUser(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsers(String)
-     * @deprecated moved to {@link PermissionProvider#getUsers(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsers(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsers(String)}
      */
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     @Deprecated
     public List<IPermissionUser> getUser(String name) {
-        return this.getPermissionProvider().getUsers(name);
+        return this.getPermissionManagement().getUsers(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsers()
-     * @deprecated moved to {@link PermissionProvider#getUsers()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsers()
+     * @deprecated moved to {@link IPermissionManagement#getUsers()}
      */
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     @Deprecated
     public Collection<IPermissionUser> getUsers() {
-        return this.getPermissionProvider().getUsers();
+        return this.getPermissionManagement().getUsers();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#setUsers(Collection)
-     * @deprecated moved to {@link PermissionProvider#setUsers(Collection)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#setUsers(Collection)
+     * @deprecated moved to {@link IPermissionManagement#setUsers(Collection)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void setUsers(Collection<? extends IPermissionUser> users) {
-        this.getPermissionProvider().setUsers(users);
+        this.getPermissionManagement().setUsers(users);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersByGroup(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersByGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersByGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsersByGroup(String)}
      */
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     @Deprecated
     public Collection<IPermissionUser> getUserByGroup(String group) {
-        return this.getPermissionProvider().getUsersByGroup(group);
+        return this.getPermissionManagement().getUsersByGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#addGroup(IPermissionGroup)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addGroup(IPermissionGroup)
+     * @deprecated moved to {@link IPermissionManagement#addGroup(IPermissionGroup)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void addGroup(IPermissionGroup permissionGroup) {
-        this.getPermissionProvider().addGroup(permissionGroup);
+        this.getPermissionManagement().addGroup(permissionGroup);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#updateGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#updateGroup(IPermissionGroup)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#updateGroup(IPermissionGroup)
+     * @deprecated moved to {@link IPermissionManagement#updateGroup(IPermissionGroup)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void updateGroup(IPermissionGroup permissionGroup) {
-        this.getPermissionProvider().updateGroup(permissionGroup);
+        this.getPermissionManagement().updateGroup(permissionGroup);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(String)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(String)}
      */
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     @Deprecated
     public void deleteGroup(String group) {
-        this.getPermissionProvider().deleteGroup(group);
+        this.getPermissionManagement().deleteGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#deleteGroup(IPermissionGroup)
-     * @deprecated moved to {@link PermissionProvider#deleteGroup(IPermissionGroup)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#deleteGroup(IPermissionGroup)
+     * @deprecated moved to {@link IPermissionManagement#deleteGroup(IPermissionGroup)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void deleteGroup(IPermissionGroup group) {
-        this.getPermissionProvider().deleteGroup(group);
+        this.getPermissionManagement().deleteGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsGroup(String)
-     * @deprecated moved to {@link PermissionProvider#containsGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#containsGroup(String)}
      */
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     @Deprecated
     public boolean containsGroup(String group) {
-        return this.getPermissionProvider().containsGroup(group);
+        return this.getPermissionManagement().containsGroup(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroup(String)
-     * @deprecated moved to {@link PermissionProvider#getGroup(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroup(String)
+     * @deprecated moved to {@link IPermissionManagement#getGroup(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public IPermissionGroup getGroup(String name) {
-        return this.getPermissionProvider().getGroup(name);
+        return this.getPermissionManagement().getGroup(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroups()
-     * @deprecated moved to {@link PermissionProvider#getGroups()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroups()
+     * @deprecated moved to {@link IPermissionManagement#getGroups()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public Collection<IPermissionGroup> getGroups() {
-        return this.getPermissionProvider().getGroups();
+        return this.getPermissionManagement().getGroups();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#setGroups(Collection)
-     * @deprecated moved to {@link PermissionProvider#setGroups(Collection)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#setGroups(Collection)
+     * @deprecated moved to {@link IPermissionManagement#setGroups(Collection)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public void setGroups(Collection<? extends IPermissionGroup> groups) {
-        this.getPermissionProvider().setGroups(groups);
+        this.getPermissionManagement().setGroups(groups);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#addUserAsync(IPermissionUser)
-     * @deprecated moved to {@link PermissionProvider#addUserAsync(IPermissionUser)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#addUserAsync(IPermissionUser)
+     * @deprecated moved to {@link IPermissionManagement#addUserAsync(IPermissionUser)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Void> addUserAsync(IPermissionUser permissionUser) {
-        return this.getPermissionProvider().addUserAsync(permissionUser);
+        return ((ListenableTask<IPermissionUser>) this.getPermissionManagement().addUserAsync(permissionUser)).map(user -> null);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUserAsync(UUID)
-     * @deprecated moved to {@link PermissionProvider#containsUserAsync(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUserAsync(UUID)
+     * @deprecated moved to {@link IPermissionManagement#containsUserAsync(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Boolean> containsUserAsync(UUID uniqueId) {
-        return this.getPermissionProvider().containsUserAsync(uniqueId);
+        return this.getPermissionManagement().containsUserAsync(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsUserAsync(String)
-     * @deprecated moved to {@link PermissionProvider#containsUserAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsUserAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#containsUserAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Boolean> containsUserAsync(String name) {
-        return this.getPermissionProvider().containsUserAsync(name);
+        return this.getPermissionManagement().containsUserAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUserAsync(UUID)
-     * @deprecated moved to {@link PermissionProvider#getUserAsync(UUID)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUserAsync(UUID)
+     * @deprecated moved to {@link IPermissionManagement#getUserAsync(UUID)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<IPermissionUser> getUserAsync(UUID uniqueId) {
-        return this.getPermissionProvider().getUserAsync(uniqueId);
+        return this.getPermissionManagement().getUserAsync(uniqueId);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsersAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<List<IPermissionUser>> getUserAsync(String name) {
-        return this.getPermissionProvider().getUsersAsync(name);
+        return this.getPermissionManagement().getUsersAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersAsync()
-     * @deprecated moved to {@link PermissionProvider#getUsersAsync()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersAsync()
+     * @deprecated moved to {@link IPermissionManagement#getUsersAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<IPermissionUser>> getUsersAsync() {
-        return this.getPermissionProvider().getUsersAsync();
+        return this.getPermissionManagement().getUsersAsync();
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getUsersByGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getUsersByGroupAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getUsersByGroupAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#getUsersByGroupAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<IPermissionUser>> getUserByGroupAsync(String group) {
-        return this.getPermissionProvider().getUsersByGroupAsync(group);
+        return this.getPermissionManagement().getUsersByGroupAsync(group);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#containsGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#containsGroupAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#containsGroupAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#containsGroupAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Boolean> containsGroupAsync(String name) {
-        return this.getPermissionProvider().containsGroupAsync(name);
+        return this.getPermissionManagement().containsGroupAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroupAsync(String)
-     * @deprecated moved to {@link PermissionProvider#getGroupAsync(String)}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroupAsync(String)
+     * @deprecated moved to {@link IPermissionManagement#getGroupAsync(String)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<IPermissionGroup> getGroupAsync(String name) {
-        return this.getPermissionProvider().getGroupAsync(name);
+        return this.getPermissionManagement().getGroupAsync(name);
     }
 
     /**
-     * @see #getPermissionProvider()
-     * @see PermissionProvider#getGroupsAsync()
-     * @deprecated moved to {@link PermissionProvider#getGroupsAsync()}
+     * @see #getPermissionManagement()
+     * @see IPermissionManagement#getGroupsAsync()
+     * @deprecated moved to {@link IPermissionManagement#getGroupsAsync()}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return this.getPermissionProvider().getGroupsAsync();
+        return this.getPermissionManagement().getGroupsAsync();
     }
 
 
-    public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(UUID uniqueId, String commandLine);
+    public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine);
 
-    public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(UUID uniqueId, String commandLine);
+    @NotNull
+    public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId, @NotNull String commandLine);
 
     /**
      * @see #getPacketQueryProvider()
@@ -1469,12 +1689,14 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacket(INetworkChannel, String, String, JsonDocument, Function)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, String id, JsonDocument data, Function<JsonDocument, R> function) {
-        Validate.checkNotNull(networkChannel);
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(id);
-        Validate.checkNotNull(data);
-        Validate.checkNotNull(function);
+        Preconditions.checkNotNull(networkChannel);
+        Preconditions.checkNotNull(channel);
+        Preconditions.checkNotNull(id);
+        Preconditions.checkNotNull(data);
+        Preconditions.checkNotNull(function);
 
         return this.getPacketQueryProvider().sendCallablePacket(networkChannel, channel, id, data, function);
     }
@@ -1485,6 +1707,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument, byte[], Function)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(header, body, function);
     }
@@ -1495,6 +1719,8 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacketWithAsDriverSyncAPI(INetworkChannel, JsonDocument, byte[], Function)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPI(INetworkChannel channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(channel, header, body, function);
     }
@@ -1505,35 +1731,45 @@ public abstract class CloudNetDriver {
      * @deprecated moved to {@link PacketQueryProvider#sendCallablePacket(INetworkChannel, String, JsonDocument, byte[], Function)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
+    @NotNull
     public <R> ITask<R> sendCallablePacket(INetworkChannel networkChannel, String channel, JsonDocument header, byte[] body, Function<Pair<JsonDocument, byte[]>, R> function) {
         return this.getPacketQueryProvider().sendCallablePacket(networkChannel, channel, header, body, function);
     }
 
+    @NotNull
     public PacketQueryProvider getPacketQueryProvider() {
         return packetQueryProvider;
     }
 
+    @NotNull
     public IServicesRegistry getServicesRegistry() {
         return this.servicesRegistry;
     }
 
+    @NotNull
     public IEventManager getEventManager() {
         return this.eventManager;
     }
 
+    @NotNull
     public IModuleProvider getModuleProvider() {
         return this.moduleProvider;
     }
 
+    @NotNull
     public ITaskScheduler getTaskScheduler() {
         return this.taskScheduler;
     }
 
+    @NotNull
     public ILogger getLogger() {
         return this.logger;
     }
 
+    @NotNull
     public DriverEnvironment getDriverEnvironment() {
         return this.driverEnvironment;
     }
+
 }

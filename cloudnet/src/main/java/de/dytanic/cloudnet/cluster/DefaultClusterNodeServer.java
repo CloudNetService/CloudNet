@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.cluster;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -14,6 +14,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterChannelMessage;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Queue;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class DefaultClusterNodeServer implements IClusterNodeServer {
@@ -39,16 +41,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void sendClusterChannelMessage(String channel, String message, JsonDocument header, byte[] body) {
+    public void sendClusterChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument header, byte[] body) {
         saveSendPacket(new PacketServerClusterChannelMessage(channel, message, header, body));
     }
 
     @Override
-    public void sendCustomChannelMessage(String channel, String message, JsonDocument data) {
-        Validate.checkNotNull(channel);
-        Validate.checkNotNull(message);
-        Validate.checkNotNull(data);
-
+    public void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         saveSendPacket(new PacketClientServerChannelMessage(channel, message, data));
     }
 
@@ -58,9 +56,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void saveSendPacket(IPacket packet) {
-        Validate.checkNotNull(packet);
-
+    public void saveSendPacket(@NotNull IPacket packet) {
         if (this.channel != null) {
             this.channel.sendPacket(packet);
         }
@@ -68,14 +64,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public boolean isAcceptableConnection(INetworkChannel channel, String nodeId) {
-        return channel != null && this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
+    public boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
+        return this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
     }
 
     @Override
-    public String[] sendCommandLine(String commandLine) {
-        Validate.checkNotNull(commandLine);
-
+    public String[] sendCommandLine(@NotNull String commandLine) {
         if (this.channel != null) {
             try {
                 return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(channel,
@@ -93,20 +87,33 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] zipResource) {
+    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource) {
         this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 
     @Override
-    public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+    public ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask) {
+        return this.createCloudServiceByServiceTask(serviceTask, null);
+    }
+
+    @Override
+    public ServiceInfoSnapshot createCloudService(@NotNull ServiceTask serviceTask, int taskId) {
+        return this.createCloudServiceByServiceTask(serviceTask, data -> data.append("taskId", taskId));
+    }
+
+    private ServiceInfoSnapshot createCloudServiceByServiceTask(ServiceTask serviceTask, Consumer<JsonDocument> contentModifier) {
+        Preconditions.checkNotNull(serviceTask);
 
         if (this.channel != null) {
             try {
                 ServiceTask clone = serviceTask.makeClone();
                 clone.getAssociatedNodes().clear();
                 clone.getAssociatedNodes().add(this.nodeInfo.getUniqueId());
-                JsonDocument data = new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", clone);
+                JsonDocument data = new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask")
+                        .append("serviceTask", clone);
+                if (contentModifier != null) {
+                    contentModifier.accept(data);
+                }
                 return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         data, new byte[0],
                         (Function<Pair<JsonDocument, byte[]>, ServiceInfoSnapshot>) documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
@@ -120,8 +127,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
+    public ServiceInfoSnapshot createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
+        Preconditions.checkNotNull(serviceConfiguration);
 
         if (this.channel != null) {
             try {
@@ -146,12 +153,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             JsonDocument properties, Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         if (this.channel != null) {
             try {
@@ -188,13 +195,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
             Collection<String> groups,
             ProcessConfiguration processConfiguration,
             JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
+        Preconditions.checkNotNull(nodeUniqueId);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(includes);
+        Preconditions.checkNotNull(templates);
+        Preconditions.checkNotNull(deployments);
+        Preconditions.checkNotNull(groups);
+        Preconditions.checkNotNull(processConfiguration);
 
         if (this.channel != null) {
             try {
@@ -225,9 +232,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot sendCommandLineToCloudService(UUID uniqueId, String commandLine) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(commandLine);
+    public ServiceInfoSnapshot sendCommandLineToCloudService(@NotNull UUID uniqueId, @NotNull String commandLine) {
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(commandLine);
 
         if (this.channel != null) {
             try {
@@ -246,9 +253,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot addServiceTemplateToCloudService(UUID uniqueId, ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceTemplate);
+    public ServiceInfoSnapshot addServiceTemplateToCloudService(@NotNull UUID uniqueId, @NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(serviceTemplate);
 
         if (this.channel != null) {
             try {
@@ -267,9 +274,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(UUID uniqueId, ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceRemoteInclusion);
+    public ServiceInfoSnapshot addServiceRemoteInclusionToCloudService(@NotNull UUID uniqueId, @NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(serviceRemoteInclusion);
 
         if (this.channel != null) {
             try {
@@ -288,9 +295,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public ServiceInfoSnapshot addServiceDeploymentToCloudService(UUID uniqueId, ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(uniqueId);
-        Validate.checkNotNull(serviceDeployment);
+    public ServiceInfoSnapshot addServiceDeploymentToCloudService(@NotNull UUID uniqueId, @NotNull ServiceDeployment serviceDeployment) {
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(serviceDeployment);
 
         if (this.channel != null) {
             try {
@@ -310,8 +317,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public Queue<String> getCachedLogMessagesFromService(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public Queue<String> getCachedLogMessagesFromService(@NotNull UUID uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {
@@ -330,9 +337,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void setCloudServiceLifeCycle(ServiceInfoSnapshot serviceInfoSnapshot, ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(lifeCycle);
+    public void setCloudServiceLifeCycle(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull ServiceLifeCycle lifeCycle) {
+        Preconditions.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(lifeCycle);
 
         if (this.channel != null) {
             try {
@@ -348,8 +355,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void restartCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+    public void restartCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         if (this.channel != null) {
             try {
@@ -365,8 +372,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void killCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+    public void killCloudService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         if (this.channel != null) {
             try {
@@ -382,9 +389,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void runCommand(ServiceInfoSnapshot serviceInfoSnapshot, String command) {
-        Validate.checkNotNull(serviceInfoSnapshot);
-        Validate.checkNotNull(command);
+    public void runCommand(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @NotNull String command) {
+        Preconditions.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(command);
 
         if (this.channel != null) {
             try {
@@ -401,8 +408,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void includeWaitingServiceInclusions(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public void includeWaitingServiceInclusions(@NotNull UUID uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {
@@ -418,8 +425,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void includeWaitingServiceTemplates(UUID uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public void includeWaitingServiceTemplates(@NotNull UUID uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {
@@ -435,8 +442,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void deployResources(UUID uniqueId, boolean removeDeployments) {
-        Validate.checkNotNull(uniqueId);
+    public void deployResources(@NotNull UUID uniqueId, boolean removeDeployments) {
+        Preconditions.checkNotNull(uniqueId);
 
         if (this.channel != null) {
             try {
@@ -461,6 +468,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         this.channel = null;
     }
 
+    @NotNull
     public DefaultClusterNodeServerProvider getProvider() {
         return this.provider;
     }
@@ -469,15 +477,16 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         return this.nodeInfoSnapshot;
     }
 
-    public void setNodeInfoSnapshot(NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+    public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
         this.nodeInfoSnapshot = nodeInfoSnapshot;
     }
 
+    @NotNull
     public NetworkClusterNode getNodeInfo() {
         return this.nodeInfo;
     }
 
-    public void setNodeInfo(NetworkClusterNode nodeInfo) {
+    public void setNodeInfo(@NotNull NetworkClusterNode nodeInfo) {
         this.nodeInfo = nodeInfo;
     }
 
@@ -485,7 +494,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         return this.channel;
     }
 
-    public void setChannel(INetworkChannel channel) {
+    public void setChannel(@NotNull INetworkChannel channel) {
         this.channel = channel;
     }
 }

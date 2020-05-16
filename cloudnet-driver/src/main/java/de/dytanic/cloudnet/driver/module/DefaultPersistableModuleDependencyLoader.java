@@ -1,21 +1,24 @@
 package de.dytanic.cloudnet.driver.module;
 
-import de.dytanic.cloudnet.common.io.FileUtils;
-
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
 
-    protected File baseDirectory;
+    protected Path baseDirectory;
 
-    public DefaultPersistableModuleDependencyLoader(File baseDirectory) {
+    public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
         this.baseDirectory = baseDirectory;
-        this.baseDirectory.mkdirs();
+        try {
+            Files.createDirectories(baseDirectory);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
@@ -32,11 +35,11 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
     }
 
     private URL loadModuleDependency0(ModuleDependency moduleDependency, String url) throws Exception {
-        File destFile = new File(this.baseDirectory, moduleDependency.getGroup().replace(".", "/") + "/" + moduleDependency.getName() +
+        Path destFile = this.baseDirectory.resolve(moduleDependency.getGroup().replace(".", "/") + "/" + moduleDependency.getName() +
                 "/" + moduleDependency.getVersion() + "/" + moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");
 
-        if (!destFile.exists()) {
-            destFile.getParentFile().mkdirs();
+        if (!Files.exists(destFile)) {
+            Files.createDirectories(destFile.getParent());
 
             URLConnection urlConnection = new URL(url).openConnection();
 
@@ -45,17 +48,15 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
             urlConnection.setUseCaches(false);
             urlConnection.connect();
 
-            destFile.createNewFile();
-            try (InputStream inputStream = urlConnection.getInputStream();
-                 FileOutputStream fileOutputStream = new FileOutputStream(destFile)) {
-                FileUtils.copy(inputStream, fileOutputStream);
+            try (InputStream inputStream = urlConnection.getInputStream()) {
+                Files.copy(inputStream, destFile);
             }
         }
 
-        return destFile.toURI().toURL();
+        return destFile.toUri().toURL();
     }
 
-    public File getBaseDirectory() {
+    public Path getBaseDirectory() {
         return this.baseDirectory;
     }
 }

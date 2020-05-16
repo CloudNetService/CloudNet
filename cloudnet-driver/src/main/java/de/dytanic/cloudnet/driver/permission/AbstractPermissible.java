@@ -1,12 +1,9 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
@@ -19,47 +16,33 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     public AbstractPermissible() {
         this.createdTime = System.currentTimeMillis();
-        this.permissions = Iterables.newArrayList();
-        this.groupPermissions = Maps.newHashMap();
+        this.permissions = new ArrayList<>();
+        this.groupPermissions = new HashMap<>();
     }
 
-    @Override
-    public boolean addPermission(Permission permission) {
-        if (permission == null || permission.getName() == null) {
-            return false;
-        }
-
-        Permission exist = this.getPermission(permission.getName());
-
-        if (exist != null) {
-            this.permissions.remove(exist);
-        }
-
-        this.permissions.add(permission);
-
-        return true;
-    }
-
-    @Override
-    public boolean addPermission(String group, Permission permission) {
-        if (group == null || permission == null) {
-            return false;
-        }
-
-        if (!groupPermissions.containsKey(group)) {
-            groupPermissions.put(group, Iterables.newArrayList());
-        }
-
-        groupPermissions.get(group).add(permission);
-        return true;
-    }
-
-    @Override
-    public boolean removePermission(String permission) {
+    private boolean addPermission(Collection<Permission> permissions, Permission permission) {
         if (permission == null) {
             return false;
         }
 
+        permissions.removeIf(existingPermission -> existingPermission.getName().equalsIgnoreCase(permission.getName()));
+        permissions.add(permission);
+
+        return true;
+    }
+
+    @Override
+    public boolean addPermission(@NotNull Permission permission) {
+        return this.addPermission(this.permissions, permission);
+    }
+
+    @Override
+    public boolean addPermission(@NotNull String group, @NotNull Permission permission) {
+        return this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new ArrayList<>()), permission);
+    }
+
+    @Override
+    public boolean removePermission(@NotNull String permission) {
         Permission exist = this.getPermission(permission);
 
         if (exist != null) {
@@ -70,24 +53,19 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     }
 
     @Override
-    public boolean removePermission(String group, String permission) {
-        if (group == null || permission == null) {
-            return false;
-        }
-
+    public boolean removePermission(@NotNull String group, @NotNull String permission) {
         if (groupPermissions.containsKey(group)) {
-            Permission p = Iterables.first(groupPermissions.get(group), perm -> perm.getName().equalsIgnoreCase(permission));
-
-            if (p != null) {
-                groupPermissions.get(group).remove(p);
-            }
-
-            if (groupPermissions.get(group).isEmpty()) {
-                groupPermissions.remove(group);
+            Optional<Permission> optionalPermission = groupPermissions.get(group).stream().filter(perm -> perm.getName().equalsIgnoreCase(permission)).findFirst();
+            if (optionalPermission.isPresent()) {
+                groupPermissions.get(group).remove(optionalPermission.get());
+                if (groupPermissions.get(group).isEmpty()) {
+                    groupPermissions.remove(group);
+                }
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public long getCreatedTime() {
@@ -98,7 +76,7 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
         return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 

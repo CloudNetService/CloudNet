@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.console.animation.questionlist;
 
 public class QuestionListEntry<T> {
-    private String key;
-    private String question;
-    private QuestionAnswerType<T> answerType;
+    private final String key;
+    private final String question;
+    private final QuestionAnswerType<T> answerType;
 
     public QuestionListEntry(String key, String question, QuestionAnswerType<T> answerType) {
         this.key = key;

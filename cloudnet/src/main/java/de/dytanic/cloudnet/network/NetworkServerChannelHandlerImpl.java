@@ -32,10 +32,10 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
             return;
         }
 
-        System.out.println(LanguageManager.getMessage("server-network-channel-init")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-init")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-        );
+        ));
     }
 
     @Override
@@ -51,12 +51,13 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
     public void handleChannelClose(INetworkChannel channel) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-        System.out.println(LanguageManager.getMessage("server-network-channel-close")
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-close")
                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-        );
+        ));
 
-        ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(iCloudService -> iCloudService.getNetworkChannel() != null && iCloudService.getNetworkChannel().equals(channel));
+        ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(iCloudService ->
+                iCloudService.getNetworkChannel() != null && iCloudService.getNetworkChannel().equals(channel));
 
         if (cloudService != null) {
             closeAsCloudService(cloudService, channel);

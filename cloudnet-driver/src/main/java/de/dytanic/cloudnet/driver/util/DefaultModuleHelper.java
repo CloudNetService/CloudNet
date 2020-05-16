@@ -1,12 +1,15 @@
 package de.dytanic.cloudnet.driver.util;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.unsafe.ResourceResolver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,8 +27,8 @@ public final class DefaultModuleHelper {
     }
 
     public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
-        Validate.checkNotNull(clazz);
-        Validate.checkNotNull(target);
+        Preconditions.checkNotNull(clazz);
+        Preconditions.checkNotNull(target);
 
         try {
             target.getParentFile().mkdirs();
@@ -57,32 +60,30 @@ public final class DefaultModuleHelper {
                 Files.delete(pluginPath);
             }
 
-            try (OutputStream outputStream = Files.newOutputStream(pluginPath)) {
-                switch (type) {
-                    case VELOCITY:
-                        break;
-                    case BUNGEECORD:
-                        try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bungee.yml")) {
-                            if (inputStream != null) {
-                                FileUtils.copy(inputStream, outputStream);
-                            }
+            switch (type) {
+                case VELOCITY:
+                    break;
+                case BUNGEECORD:
+                    try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bungee.yml")) {
+                        if (inputStream != null) {
+                            Files.copy(inputStream, pluginPath);
                         }
-                        break;
-                    case NUKKIT:
-                        try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.nukkit.yml")) {
-                            if (inputStream != null) {
-                                FileUtils.copy(inputStream, outputStream);
-                            }
+                    }
+                    break;
+                case NUKKIT:
+                    try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.nukkit.yml")) {
+                        if (inputStream != null) {
+                            Files.copy(inputStream, pluginPath);
                         }
-                        break;
-                    default:
-                        try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bukkit.yml")) {
-                            if (inputStream != null) {
-                                FileUtils.copy(inputStream, outputStream);
-                            }
+                    }
+                    break;
+                default:
+                    try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bukkit.yml")) {
+                        if (inputStream != null) {
+                            Files.copy(inputStream, pluginPath);
                         }
-                        break;
-                }
+                    }
+                    break;
             }
             return null;
         });

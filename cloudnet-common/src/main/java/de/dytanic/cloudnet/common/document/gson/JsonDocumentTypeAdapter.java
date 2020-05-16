@@ -28,4 +28,5 @@ public class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
             return null;
         }
     }
+
 }

@@ -1,10 +1,8 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
 
-import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.Sign;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
-import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -14,23 +12,23 @@ import java.util.Set;
 
 public class BukkitSignKnockbackRunnable implements Runnable {
 
-    private final Map<SignPosition, Location> signLocations = new HashMap<>();
+    private final Map<WorldPosition, Location> signLocations = new HashMap<>();
 
-    private final SignConfigurationEntry ownConfigurationEntry;
+    private final BukkitSignManagement bukkitSignManagement;
 
-    BukkitSignKnockbackRunnable(SignConfigurationEntry ownConfigurationEntry) {
-        this.ownConfigurationEntry = ownConfigurationEntry;
+    BukkitSignKnockbackRunnable(BukkitSignManagement bukkitSignManagement) {
+        this.bukkitSignManagement = bukkitSignManagement;
     }
 
     @Override
     public void run() {
-        Set<Sign> signs = AbstractSignManagement.getInstance().getSigns();
+        Set<Sign> signs = this.bukkitSignManagement.getSigns();
 
         for (Sign sign : signs) {
-            Location signLocation = signLocations.computeIfAbsent(sign.getWorldPosition(), signPosition -> BukkitSignManagement.getInstance().toLocation(signPosition));
+            Location signLocation = this.signLocations.computeIfAbsent(sign.getWorldPosition(), this.bukkitSignManagement::toLocation);
 
             if (signLocation != null && signLocation.getWorld() != null) {
-                double knockbackDistance = this.ownConfigurationEntry.getKnockbackDistance();
+                double knockbackDistance = this.bukkitSignManagement.getOwnSignConfigurationEntry().getKnockbackDistance();
 
                 signLocation.getWorld()
                         .getNearbyEntities(signLocation, knockbackDistance, knockbackDistance, knockbackDistance)
@@ -40,7 +38,7 @@ public class BukkitSignKnockbackRunnable implements Runnable {
                             // pushing the player back with the specified strength
                             player.setVelocity(player.getLocation().toVector().subtract(signLocation.toVector())
                                     .normalize()
-                                    .multiply(this.ownConfigurationEntry.getKnockbackStrength())
+                                    .multiply(this.bukkitSignManagement.getOwnSignConfigurationEntry().getKnockbackStrength())
                                     .setY(0.2));
                         });
             }

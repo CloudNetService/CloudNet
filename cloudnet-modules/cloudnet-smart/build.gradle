@@ -1,12 +1,13 @@
 jar {
-    archiveName = cloudnetModuleSmartFileName
+    archiveFileName.set(cloudnetModuleSmartFileName)
 
     manifest {
-        attributes 'Implementation-Version': version + "-" + getCurrentCommitHash()
+        attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
         attributes 'Implementation-Title': cloudNetCodeName
     }
 }
 
 dependencies {
     compileOnly project(':cloudnet')
+    compileOnly project(':cloudnet-modules:cloudnet-bridge')
 }

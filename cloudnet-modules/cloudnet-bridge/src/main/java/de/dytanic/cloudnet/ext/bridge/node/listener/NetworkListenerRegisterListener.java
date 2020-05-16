@@ -15,11 +15,11 @@ public final class NetworkListenerRegisterListener {
 
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-        event.getNode().sendCustomChannelMessage(
+        /*event.getNode().sendCustomChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER,
                 new JsonDocument("bridgeConfiguration", CloudNetBridgeModule.getInstance().getBridgeConfiguration())
-        );
+        );*/
     }
 
     @EventListener

@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -21,14 +20,16 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class NettyNetworkClient implements INetworkClient {
 
-    protected final Collection<INetworkChannel> channels = Iterables.newConcurrentLinkedQueue();
+    protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
@@ -43,6 +44,8 @@ public final class NettyNetworkClient implements INetworkClient {
     protected final SSLConfiguration sslConfiguration;
 
     protected SslContext sslContext;
+
+    protected long connectedTime;
 
     public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler) {
         this(networkChannelHandler, null, null);
@@ -95,9 +98,9 @@ public final class NettyNetworkClient implements INetworkClient {
 
 
     @Override
-    public boolean connect(HostAndPort hostAndPort) {
-        Validate.checkNotNull(hostAndPort);
-        Validate.checkNotNull(hostAndPort.getHost());
+    public boolean connect(@NotNull HostAndPort hostAndPort) {
+        Preconditions.checkNotNull(hostAndPort);
+        Preconditions.checkNotNull(hostAndPort.getHost());
 
         try {
             new Bootstrap()
@@ -107,7 +110,7 @@ public final class NettyNetworkClient implements INetworkClient {
                     .option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2500)
                     .channel(NettyUtils.getSocketChannelClass())
-                    .handler(new NettyNetworkClientInitializer(this, hostAndPort))
+                    .handler(new NettyNetworkClientInitializer(this, hostAndPort, () -> this.connectedTime = System.currentTimeMillis()))
                     .connect(hostAndPort.getHost(), hostAndPort.getPort())
                     .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
                     .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
@@ -148,8 +151,13 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
-        Validate.checkNotNull(packet);
+    public long getConnectedTime() {
+        return this.connectedTime;
+    }
+
+    @Override
+    public void sendPacket(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
@@ -157,8 +165,8 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
-        Validate.checkNotNull(packets);
+    public void sendPacket(@NotNull IPacket... packets) {
+        Preconditions.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);

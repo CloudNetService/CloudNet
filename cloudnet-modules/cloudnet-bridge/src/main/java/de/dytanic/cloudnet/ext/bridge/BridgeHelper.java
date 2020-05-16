@@ -1,42 +1,57 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import de.dytanic.cloudnet.common.annotation.UnsafeClass;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 @UnsafeClass
 public final class BridgeHelper {
 
+    private static boolean online = true;
+
     private BridgeHelper() {
         throw new UnsupportedOperationException();
+    }
+
+    public static void setOnline(boolean online) {
+        BridgeHelper.online = online;
+    }
+
+    public static boolean isOnline() {
+        return BridgeHelper.online;
     }
 
     public static void updateServiceInfo() {
         Wrapper.getInstance().publishServiceInfoUpdate();
     }
 
-    public static void sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-        );
+    public static JsonDocument sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
+        try {
+            return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
+                    CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                    BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+                    BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
+                    new JsonDocument("networkConnectionInfo", networkConnectionInfo),
+                    Function.identity()
+            ).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
     public static void sendChannelMessageProxyLoginSuccess(NetworkConnectionInfo networkConnectionInfo) {
@@ -113,33 +128,6 @@ public final class BridgeHelper {
         return new NetworkConnectionInfo(uniqueId, name, version, userAddress, listener, onlineMode, legacy, networkServiceInfo);
     }
 
-    public static boolean playerIsOnProxy(UUID uuid, String playerAddress) {
-        ICloudPlayer cloudPlayer = BridgePlayerManager.getInstance().getOnlinePlayer(uuid);
-
-        // checking if the player is on a proxy managed by CloudNet
-        if (cloudPlayer != null && cloudPlayer.getLoginService() != null) {
-            ServiceInfoSnapshot proxyService = Wrapper.getInstance().getCloudServiceProvider().getCloudService(cloudPlayer.getLoginService().getUniqueId());
-            if (proxyService != null) {
-                try {
-                    InetAddress proxyAddress = InetAddress.getByName(proxyService.getAddress().getHost());
-
-                    if (proxyAddress.isLoopbackAddress() || proxyAddress.isAnyLocalAddress()) {
-                        Wrapper.getInstance().getLogger().warning("OnlyProxyProtection was disabled because it's not clear on which host your proxy is running. "
-                                + "Please set a remote address by changing the 'hostAddress' property in the config.json of the node the proxy is running on.");
-                        return true;
-                    }
-
-                    return playerAddress.equals(proxyAddress.getHostAddress());
-
-                } catch (UnknownHostException exception) {
-                    exception.printStackTrace();
-                }
-            }
-        }
-
-        return false;
-    }
-
     public static void changeToIngame(Consumer<String> stateChanger) {
         stateChanger.accept("INGAME");
         BridgeHelper.updateServiceInfo();
@@ -150,68 +138,19 @@ public final class BridgeHelper {
             if (serviceTask != null) {
                 CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
                     if (serviceInfoSnapshot != null) {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                        serviceInfoSnapshot.provider().start();
                     }
                 });
             }
         });
     }
 
-
-    public static String filterServiceForPlayer(String currentServer, BiFunction<String, String, List<Map.Entry<String, ServiceInfoSnapshot>>> filteredEntries,
-                                                Predicate<String> permissionCheck) {
-        AtomicReference<String> server = new AtomicReference<>();
-
-        BridgeConfigurationProvider.load().getBungeeFallbackConfigurations().stream()
-                .filter(
-                        proxyFallbackConfiguration ->
-                                proxyFallbackConfiguration.getTargetGroup() != null &&
-                                        Arrays.asList(Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups())
-                                                .contains(proxyFallbackConfiguration.getTargetGroup())
-                )
-                .forEach(configuration -> {
-                    List<ProxyFallback> proxyFallbacks = configuration.getFallbacks();
-                    Collections.sort(proxyFallbacks);
-
-                    for (ProxyFallback proxyFallback : proxyFallbacks) {
-                        if (server.get() != null)
-                            break;
-                        if (proxyFallback.getTask() == null || (proxyFallback.getPermission() != null && !permissionCheck.test(proxyFallback.getPermission()))) {
-                            continue;
-                        }
-
-                        filteredEntries.apply(proxyFallback.getTask(), currentServer)
-                                .stream()
-                                .map(Map.Entry::getValue).min(Comparator.comparingInt(ServiceInfoSnapshotUtil::getOnlineCount))
-                                .ifPresent(serviceInfoSnapshot -> server.set(serviceInfoSnapshot.getServiceId().getName()));
-                    }
-
-                    if (server.get() == null) {
-                        filteredEntries.apply(configuration.getDefaultFallbackTask(), currentServer)
-                                .stream()
-                                .map(Map.Entry::getValue).min(Comparator.comparingInt(ServiceInfoSnapshotUtil::getOnlineCount))
-                                .ifPresent(serviceInfoSnapshot -> server.set(serviceInfoSnapshot.getServiceId().getName()));
-                    }
-                });
-
-        return server.get();
-    }
-
+    /**
+     * @deprecated  moved to {@link BridgeProxyHelper}
+     */
+    @Deprecated
     public static boolean isFallbackService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        for (ProxyFallbackConfiguration bungeeFallbackConfiguration : BridgeConfigurationProvider.load().getBungeeFallbackConfigurations()) {
-            if (bungeeFallbackConfiguration.getTargetGroup() != null && Iterables.contains(
-                    bungeeFallbackConfiguration.getTargetGroup(),
-                    Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-            )) {
-                for (ProxyFallback bungeeFallback : bungeeFallbackConfiguration.getFallbacks()) {
-                    if (bungeeFallback.getTask() != null && serviceInfoSnapshot.getServiceId().getTaskName().equals(bungeeFallback.getTask())) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+        return BridgeProxyHelper.isFallbackService(serviceInfoSnapshot);
     }
 
 }

@@ -13,7 +13,7 @@ permissions:
     - bungeecord.command.ip
     - bungeecord.command.reload
     - cloudnet.command.cloudnet
-    - cloudnet.syncproxy.fullljoin
+    - cloudnet.syncproxy.fulljoin
     - cloudnet.syncproxy.maintenance
 timeout: 30000
 log_commands: true
@@ -29,7 +29,7 @@ servers:
     restricted: false
 listeners:
   - query_port: 19132
-    motd: '&bCloudNet &7v&b3 &8[&6ERUPTION&8] &7Waterdog &cProxy &7instance'
+    motd: '&bCloudNet &7v&b3 &8[&7Hurricane&8] &7Waterdog &cProxy &7instance'
     tab_list: GLOBAL_PING
     query_enabled: false
     proxy_protocol: false

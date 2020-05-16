@@ -18,8 +18,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair<ServiceVersionType, ServiceVersion>> {
-    private Supplier<ServiceEnvironmentType> environmentTypeSupplier;
-    private ServiceVersionProvider serviceVersionProvider;
+    private final Supplier<ServiceEnvironmentType> environmentTypeSupplier;
+    private final ServiceVersionProvider serviceVersionProvider;
 
     public QuestionAnswerTypeServiceVersion(Supplier<ServiceEnvironmentType> environmentTypeSupplier, ServiceVersionProvider serviceVersionProvider) {
         this.environmentTypeSupplier = environmentTypeSupplier;

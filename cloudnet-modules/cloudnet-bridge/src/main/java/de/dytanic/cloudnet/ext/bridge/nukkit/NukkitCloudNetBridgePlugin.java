@@ -5,15 +5,18 @@ import cn.nukkit.event.HandlerList;
 import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
+import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.nukkit.listener.NukkitCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.nukkit.listener.NukkitPlayerListener;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public final class NukkitCloudNetBridgePlugin extends PluginBase {
 
     @Override
     public synchronized void onEnable() {
+        CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
         this.initListeners();
 
         Wrapper.getInstance().getTaskScheduler().schedule(BridgeHelper::updateServiceInfo); //However, calling this method in the scheduler fixes a NullPointerException in NukkitCloudNetHelper.initProperties(ServiceInfoSnapshot)

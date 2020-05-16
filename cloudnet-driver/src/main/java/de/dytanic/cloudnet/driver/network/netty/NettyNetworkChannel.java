@@ -1,6 +1,9 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
@@ -8,6 +11,7 @@ import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,8 +48,8 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public void sendPacket(IPacket packet) {
-        Validate.checkNotNull(packet);
+    public void sendPacket(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
 
         if (this.channel.eventLoop().inEventLoop()) {
             sendPacket0(packet);
@@ -55,12 +59,35 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     private void sendPacket0(IPacket packet) {
-        this.channel.writeAndFlush(packet, this.channel.voidPromise());
+        NetworkChannelPacketSendEvent event = new NetworkChannelPacketSendEvent(this, packet);
+
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getEventManager().callEvent(event));
+
+        if (!event.isCancelled()) {
+            if (packet.isShowDebug()) {
+                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                    if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                        cloudNetDriver.getLogger().debug(
+                                String.format(
+                                        "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
+                                        this.getClientAddress().toString(),
+                                        packet.getChannel(),
+                                        packet.getUniqueId().toString(),
+                                        packet.getHeader().toJson(),
+                                        packet.getBody() != null ? packet.getBody().length : 0
+                                )
+                        );
+                    }
+                });
+            }
+
+            this.channel.writeAndFlush(packet, this.channel.voidPromise());
+        }
     }
 
     @Override
-    public void sendPacket(IPacket... packets) {
-        Validate.checkNotNull(packets);
+    public void sendPacket(@NotNull IPacket... packets) {
+        Preconditions.checkNotNull(packets);
 
         for (IPacket packet : packets) {
             this.sendPacket(packet);

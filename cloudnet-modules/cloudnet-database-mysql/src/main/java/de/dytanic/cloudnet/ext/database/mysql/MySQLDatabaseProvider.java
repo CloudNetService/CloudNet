@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.ext.database.mysql;
 
+import com.google.common.base.Preconditions;
 import com.zaxxer.hikari.HikariDataSource;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
@@ -15,10 +14,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
@@ -33,7 +30,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     private List<MySQLConnectionEndpoint> addresses;
 
-    public MySQLDatabaseProvider(JsonDocument config) {
+    public MySQLDatabaseProvider(JsonDocument config, ExecutorService executorService) {
+        super(executorService);
         this.config = config;
     }
 
@@ -43,7 +41,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         MySQLConnectionEndpoint endpoint = this.addresses.get(new Random().nextInt(this.addresses.size()));
 
         this.hikariDataSource.setJdbcUrl("jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint.getAddress().getPort() + "/" + endpoint.getDatabase() +
-                (endpoint.isUseSsl() ? "?useSSL=true&trustServerCertificate=true" : "")
+                String.format("?useSSL=%b&trustServerCertificate=%b", endpoint.isUseSsl(), endpoint.isUseSsl())
         );
 
         //base configuration
@@ -61,12 +59,12 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public IDatabase getDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
         if (!this.cachedDatabaseInstances.contains(name)) {
-            this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name));
+            this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name, super.executorService));
         }
 
         return cachedDatabaseInstances.getSecond(name);
@@ -74,7 +72,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean containsDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
@@ -89,7 +87,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean deleteDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.cachedDatabaseInstances.remove(name);
 
@@ -110,7 +108,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         return this.executeQuery(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
                 resultSet -> {
-                    Collection<String> collection = Iterables.newArrayList();
+                    Collection<String> collection = new ArrayList<>();
                     while (resultSet.next()) {
                         collection.add(resultSet.getString("table_name"));
                     }
@@ -126,7 +124,9 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
+        super.close();
+
         this.hikariDataSource.close();
     }
 
@@ -160,8 +160,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     }
 
     public int executeUpdate(String query, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(objects);
 
         try (Connection connection = this.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -180,9 +180,9 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     }
 
     public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(callback);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(callback);
+        Preconditions.checkNotNull(objects);
 
         try (Connection connection = this.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {

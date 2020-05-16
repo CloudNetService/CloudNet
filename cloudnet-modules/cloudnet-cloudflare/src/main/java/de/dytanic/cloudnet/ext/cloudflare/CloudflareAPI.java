@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
@@ -20,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class CloudflareAPI implements AutoCloseable {
 
@@ -36,7 +36,7 @@ public final class CloudflareAPI implements AutoCloseable {
     */
     private final IDatabase database;
 
-    private final Map<String, Pair<String, JsonDocument>> createdRecords = Maps.newConcurrentHashMap();
+    private final Map<String, Pair<String, JsonDocument>> createdRecords = new ConcurrentHashMap<>();
 
     protected CloudflareAPI(IDatabase database) {
         instance = this;
@@ -52,10 +52,10 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     public Pair<Integer, JsonDocument> createRecord(String serviceName, String email, String apiKey, String zoneId, DNSRecord dnsRecord) {
-        Validate.checkNotNull(email);
-        Validate.checkNotNull(apiKey);
-        Validate.checkNotNull(zoneId);
-        Validate.checkNotNull(dnsRecord);
+        Preconditions.checkNotNull(email);
+        Preconditions.checkNotNull(apiKey);
+        Preconditions.checkNotNull(zoneId);
+        Preconditions.checkNotNull(dnsRecord);
 
         try {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records").openConnection();
@@ -70,11 +70,11 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     public Pair<Integer, JsonDocument> updateRecord(String serviceName, String email, String apiKey, String zoneId, String recordId, DNSRecord dnsRecord) {
-        Validate.checkNotNull(email);
-        Validate.checkNotNull(apiKey);
-        Validate.checkNotNull(zoneId);
-        Validate.checkNotNull(recordId);
-        Validate.checkNotNull(dnsRecord);
+        Preconditions.checkNotNull(email);
+        Preconditions.checkNotNull(apiKey);
+        Preconditions.checkNotNull(zoneId);
+        Preconditions.checkNotNull(recordId);
+        Preconditions.checkNotNull(dnsRecord);
 
         try {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records/" + recordId).openConnection();
@@ -108,10 +108,10 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     public Pair<Integer, JsonDocument> deleteRecord(String email, String apiKey, String zoneId, String recordId) {
-        Validate.checkNotNull(email);
-        Validate.checkNotNull(apiKey);
-        Validate.checkNotNull(zoneId);
-        Validate.checkNotNull(recordId);
+        Preconditions.checkNotNull(email);
+        Preconditions.checkNotNull(apiKey);
+        Preconditions.checkNotNull(zoneId);
+        Preconditions.checkNotNull(recordId);
 
         try {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records/" + recordId).openConnection();
@@ -184,8 +184,8 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     private void initRequestProperties(HttpURLConnection httpURLConnection, String email, String apiKey) {
-        Validate.checkNotNull(email);
-        Validate.checkNotNull(apiKey);
+        Preconditions.checkNotNull(email);
+        Preconditions.checkNotNull(apiKey);
 
         httpURLConnection.setUseCaches(false);
         //

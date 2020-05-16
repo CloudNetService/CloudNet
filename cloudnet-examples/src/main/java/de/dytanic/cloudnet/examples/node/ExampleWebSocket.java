@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.examples.node;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Value;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.driver.event.Event;
@@ -12,10 +10,13 @@ import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 
 import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ExampleWebSocket {
 
-    private final Collection<IWebSocketChannel> channels = Iterables.newCopyOnWriteArrayList();
+    private final Collection<IWebSocketChannel> channels = new CopyOnWriteArrayList<>();
 
     @EventListener
     public void handlePostEventsToWebSocketChannels(Event event) {
@@ -46,10 +47,10 @@ public class ExampleWebSocket {
                 }
 
                 @Override
-                public void handleClose(IWebSocketChannel channel, Value<Integer> statusCode, Value<String> reasonText) //handle the closing output
+                public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) //handle the closing output
                 {
                     if (!channels.contains(channel)) {
-                        statusCode.setValue(500);
+                        statusCode.set(500);
                     }
 
                     channels.remove(channel);

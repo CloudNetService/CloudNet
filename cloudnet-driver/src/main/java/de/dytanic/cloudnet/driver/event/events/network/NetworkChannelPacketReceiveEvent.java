@@ -25,4 +25,5 @@ public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements IC
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }
+
 }

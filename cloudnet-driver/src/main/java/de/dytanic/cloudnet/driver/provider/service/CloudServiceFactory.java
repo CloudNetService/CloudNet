@@ -3,9 +3,14 @@ package de.dytanic.cloudnet.driver.provider.service;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * This class provides methods to create and prepare services in the network.
+ */
 public interface CloudServiceFactory {
 
     /**
@@ -14,7 +19,18 @@ public interface CloudServiceFactory {
      * @param serviceTask the task the service should be created from
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
+
+    /**
+     * Creates and prepares (= copies the templates) a new cloud service
+     *
+     * @param serviceTask the task the service should be created from
+     * @param taskId      the id of the service
+     * @return the info of the created service or null if the service couldn't be created
+     */
+    @Nullable
+    ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId);
 
     /**
      * Creates and prepares (= copies the templates) a new cloud service
@@ -22,6 +38,7 @@ public interface CloudServiceFactory {
      * @param serviceConfiguration the configuration for the new service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
 
     /**
@@ -39,6 +56,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     default ServiceInfoSnapshot createCloudService(String name,
                                                    String runtime,
                                                    boolean autoDeleteOnStop,
@@ -68,6 +86,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     ServiceInfoSnapshot createCloudService(
             String name,
             String runtime,
@@ -99,6 +118,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     default Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
                                                                int amount,
                                                                String name,
@@ -132,6 +152,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
      */
+    @Nullable
     Collection<ServiceInfoSnapshot> createCloudService(
             String nodeUniqueId,
             int amount,
@@ -154,7 +175,18 @@ public interface CloudServiceFactory {
      * @param serviceTask the task the service should be created from
      * @return the info of the created service or null if the service couldn't be created
      */
+    @NotNull
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask);
+
+    /**
+     * Creates and prepares (= copies the templates) a new cloud service
+     *
+     * @param serviceTask the task the service should be created from
+     * @param taskId      the id of the service
+     * @return the info of the created service or null if the service couldn't be created
+     */
+    @NotNull
+    ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId);
 
     /**
      * Creates and prepares (= copies the templates) a new cloud service
@@ -162,6 +194,7 @@ public interface CloudServiceFactory {
      * @param serviceConfiguration the configuration for the new service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @NotNull
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration);
 
     /**
@@ -179,6 +212,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @NotNull
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                        String runtime,
                                                        boolean autoDeleteOnStop,
@@ -207,6 +241,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
      */
+    @NotNull
     ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                    int amount,
                                                                    String name,
@@ -236,6 +271,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
      */
+    @NotNull
     default ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                                String runtime,
                                                                boolean autoDeleteOnStop,
@@ -266,6 +302,7 @@ public interface CloudServiceFactory {
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
      */
+    @NotNull
     default ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                            int amount,
                                                                            String name,
@@ -280,5 +317,5 @@ public interface CloudServiceFactory {
                                                                            Integer port) {
         return createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
-    
+
 }

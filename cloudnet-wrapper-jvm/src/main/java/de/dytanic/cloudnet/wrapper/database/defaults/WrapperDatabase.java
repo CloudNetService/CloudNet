@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -14,8 +15,8 @@ import java.util.function.BiConsumer;
 
 public class WrapperDatabase implements IDatabase {
 
-    private String name;
-    private DefaultWrapperDatabaseProvider databaseProvider;
+    private final String name;
+    private final DefaultWrapperDatabaseProvider databaseProvider;
 
     public WrapperDatabase(String name, DefaultWrapperDatabaseProvider databaseProvider) {
         this.name = name;
@@ -89,6 +90,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> insertAsync(String key, JsonDocument document) {
         return this.databaseProvider.executeQuery(this.name, "insert",
                 new JsonDocument()
@@ -99,6 +101,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> containsAsync(String key) {
         return this.databaseProvider.executeQuery(this.name, "contains",
                 new JsonDocument()
@@ -108,6 +111,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> updateAsync(String key, JsonDocument document) {
         return this.databaseProvider.executeQuery(this.name, "update",
                 new JsonDocument()
@@ -118,6 +122,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> deleteAsync(String key) {
         return this.databaseProvider.executeQuery(this.name, "delete",
                 new JsonDocument()
@@ -127,6 +132,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<JsonDocument> getAsync(String key) {
         return this.databaseProvider.executeQuery(this.name, "get",
                 new JsonDocument()
@@ -136,6 +142,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue) {
         return this.databaseProvider.executeQuery(this.name, "get",
                 new JsonDocument()
@@ -147,6 +154,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<List<JsonDocument>> getAsync(JsonDocument filters) {
         return this.databaseProvider.executeQuery(this.name, "get",
                 new JsonDocument()
@@ -157,6 +165,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<String>> keysAsync() {
         return this.databaseProvider.executeQuery(this.name, "keys",
                 response -> response.getFirst().get("keys", new TypeToken<Collection<String>>() {
@@ -166,6 +175,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<JsonDocument>> documentsAsync() {
         return this.databaseProvider.executeQuery(this.name, "documents",
                 response -> response.getFirst().get("documents", new TypeToken<Collection<JsonDocument>>() {
@@ -175,6 +185,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Map<String, JsonDocument>> entriesAsync() {
         return this.databaseProvider.executeQuery(this.name, "entries",
                 response -> response.getFirst().get("entries", new TypeToken<Map<String, JsonDocument>>() {
@@ -184,6 +195,7 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
         ITask<Void> task = new ListenableTask<>(() -> null);
         this.entriesAsync().onComplete(response -> {
@@ -198,11 +210,13 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    @NotNull
     public ITask<Void> clearAsync() {
         return this.databaseProvider.executeQuery(this.name, "clear", response -> null);
     }
 
     @Override
+    @NotNull
     public ITask<Long> getDocumentsCountAsync() {
         return this.databaseProvider.executeQuery(this.name, "documentsCount", response -> response.getFirst().getLong("documentsCount"));
     }

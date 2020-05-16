@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -10,6 +10,8 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -18,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperNodeInfoProvider(Wrapper wrapper) {
         this.wrapper = wrapper;
@@ -34,8 +36,9 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
         return null;
     }
 
+    @Nullable
     @Override
-    public CommandInfo getConsoleCommand(String commandLine) {
+    public CommandInfo getConsoleCommand(@NotNull String commandLine) {
         try {
             return this.getConsoleCommandAsync(commandLine).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -45,7 +48,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public Collection<String> getConsoleTabCompleteResults(String commandLine) {
+    public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
         try {
             return this.getConsoleTabCompleteResultsAsync(commandLine).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -55,8 +58,8 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public String[] sendCommandLine(String commandLine) {
-        Validate.checkNotNull(commandLine);
+    public String[] sendCommandLine(@NotNull String commandLine) {
+        Preconditions.checkNotNull(commandLine);
 
         try {
             return this.sendCommandLineAsync(commandLine).get(5, TimeUnit.SECONDS);
@@ -67,8 +70,8 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public String[] sendCommandLine(String nodeUniqueId, String commandLine) {
-        Validate.checkNotNull(nodeUniqueId, commandLine);
+    public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+        Preconditions.checkNotNull(nodeUniqueId, commandLine);
 
         try {
             return this.sendCommandLineAsync(nodeUniqueId, commandLine).get(5, TimeUnit.SECONDS);
@@ -88,9 +91,10 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
         return null;
     }
 
+    @Nullable
     @Override
-    public NetworkClusterNode getNode(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public NetworkClusterNode getNode(@NotNull String uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         try {
             return this.getNodeAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -110,9 +114,10 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
         return null;
     }
 
+    @Nullable
     @Override
-    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         try {
             return this.getNodeInfoSnapshotAsync(uniqueId).get(5, TimeUnit.SECONDS);
@@ -123,6 +128,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "console_commands"),
@@ -133,7 +139,8 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<CommandInfo> getConsoleCommandAsync(String commandLine) {
+    @NotNull
+    public ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "console_commands")
                         .append("commandLine", commandLine),
@@ -143,8 +150,9 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(String commandLine) {
-        Validate.checkNotNull(commandLine);
+    @NotNull
+    public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
+        Preconditions.checkNotNull(commandLine);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "tab_complete").append("commandLine", commandLine), null,
@@ -153,8 +161,9 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<String[]> sendCommandLineAsync(String commandLine) {
-        Validate.checkNotNull(commandLine);
+    @NotNull
+    public ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
+        Preconditions.checkNotNull(commandLine);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine").append("commandLine", commandLine), null,
@@ -163,7 +172,8 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<String[]> sendCommandLineAsync(String nodeUniqueId, String commandLine) {
+    @NotNull
+    public ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine_on_node")
                         .append("nodeUniqueId", nodeUniqueId)
@@ -173,6 +183,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
+    @NotNull
     public ITask<NetworkClusterNode[]> getNodesAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_nodes"), null,
@@ -181,8 +192,9 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<NetworkClusterNode> getNodeAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    @NotNull
+    public ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_by_uniqueId").append("uniqueId", uniqueId), null,
@@ -191,6 +203,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
+    @NotNull
     public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_info_snapshots"), null,
@@ -199,8 +212,9 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     }
 
     @Override
-    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(String uniqueId) {
-        Validate.checkNotNull(uniqueId);
+    @NotNull
+    public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
+        Preconditions.checkNotNull(uniqueId);
 
         return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_node_info_snapshot_by_uniqueId").append("uniqueId", uniqueId), null,

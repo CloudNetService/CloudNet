@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.driver.event;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.lang.reflect.Method;
 
@@ -17,9 +19,22 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
     Class<? extends Event> getEventClass();
 
     default <T extends Event> T fireEvent(T event) {
-        Validate.checkNotNull(event);
+        Preconditions.checkNotNull(event);
 
         if (getEventClass().isAssignableFrom(event.getClass())) {
+
+            if (event.isShowDebug()) {
+                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                    if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                        cloudNetDriver.getLogger().debug(String.format(
+                                "Calling event %s on listener %s",
+                                event.getClass().getName(),
+                                this.getInstance().getClass().getName()
+                        ));
+                    }
+                });
+            }
+
             try {
                 getHandlerMethod().setAccessible(true);
                 getHandlerMethod().invoke(getInstance(), event);

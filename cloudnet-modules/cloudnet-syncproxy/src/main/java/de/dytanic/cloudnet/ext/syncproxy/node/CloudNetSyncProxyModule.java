@@ -2,12 +2,13 @@ package de.dytanic.cloudnet.ext.syncproxy.node;
 
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConfigurationWriterAndReader;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
 import de.dytanic.cloudnet.ext.syncproxy.node.command.CommandSyncProxy;
 import de.dytanic.cloudnet.ext.syncproxy.node.http.V1SyncProxyConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.syncproxy.node.listener.IncludePluginListener;
 import de.dytanic.cloudnet.ext.syncproxy.node.listener.SyncProxyConfigUpdateListener;
+import de.dytanic.cloudnet.ext.syncproxy.node.listener.SyncProxyDefaultConfigurationListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
@@ -36,7 +37,7 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new IncludePluginListener(), new SyncProxyConfigUpdateListener());
+        registerListeners(new IncludePluginListener(), new SyncProxyConfigUpdateListener(), new SyncProxyDefaultConfigurationListener());
     }
 
     @ModuleTask(order = 60, event = ModuleLifeCycle.STARTED)

@@ -1,19 +1,21 @@
 package de.dytanic.cloudnet.provider.service;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
 import java.util.UUID;
 
 public class NodeSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
-    private CloudNet cloudNet;
-    private ServiceInfoSnapshot serviceInfoSnapshot;
+    private final CloudNet cloudNet;
+    private final ServiceInfoSnapshot serviceInfoSnapshot;
 
     public NodeSpecificCloudServiceProvider(CloudNet cloudNet, UUID uniqueId) {
         this(cloudNet, cloudNet.getCloudServiceProvider().getCloudService(uniqueId));
@@ -28,6 +30,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
+    @Nullable
     @Override
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
         return this.serviceInfoSnapshot;
@@ -41,18 +44,19 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
         return this.cloudNet.scheduleTask(this::getServiceInfoSnapshot);
     }
 
     @Override
-    public void addServiceTemplate(ServiceTemplate serviceTemplate) {
-        Validate.checkNotNull(serviceTemplate);
+    public void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate) {
+        Preconditions.checkNotNull(serviceTemplate);
 
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
-            cloudService.getWaitingTemplates().offer(serviceTemplate);
+            cloudService.offerTemplate(serviceTemplate);
             return;
         }
 
@@ -69,7 +73,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> addServiceTemplateAsync(ServiceTemplate serviceTemplate) {
+    @NotNull
+    public ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceTemplate(serviceTemplate);
             return null;
@@ -77,13 +82,13 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void addServiceRemoteInclusion(ServiceRemoteInclusion serviceRemoteInclusion) {
-        Validate.checkNotNull(serviceRemoteInclusion);
+    public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
+        Preconditions.checkNotNull(serviceRemoteInclusion);
 
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
-            cloudService.getWaitingIncludes().offer(serviceRemoteInclusion);
+            cloudService.offerInclusion(serviceRemoteInclusion);
             return;
         }
 
@@ -99,7 +104,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> addServiceRemoteInclusionAsync(ServiceRemoteInclusion serviceRemoteInclusion) {
+    @NotNull
+    public ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceRemoteInclusion(serviceRemoteInclusion);
             return null;
@@ -107,13 +113,13 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void addServiceDeployment(ServiceDeployment serviceDeployment) {
-        Validate.checkNotNull(serviceDeployment);
+    public void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment) {
+        Preconditions.checkNotNull(serviceDeployment);
 
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
-            cloudService.getDeployments().add(serviceDeployment);
+            cloudService.addDeployment(serviceDeployment);
             return;
         }
 
@@ -129,7 +135,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> addServiceDeploymentAsync(ServiceDeployment serviceDeployment) {
+    @NotNull
+    public ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
         return this.cloudNet.scheduleTask(() -> {
             this.addServiceDeployment(serviceDeployment);
             return null;
@@ -157,13 +164,14 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Queue<String>> getCachedLogMessagesAsync() {
         return this.cloudNet.scheduleTask(this::getCachedLogMessages);
     }
 
     @Override
-    public void setCloudServiceLifeCycle(ServiceLifeCycle lifeCycle) {
-        Validate.checkNotNull(lifeCycle);
+    public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
+        Preconditions.checkNotNull(lifeCycle);
 
         ICloudService cloudService = this.getCloudService();
         if (cloudService != null) {
@@ -201,7 +209,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> setCloudServiceLifeCycleAsync(ServiceLifeCycle lifeCycle) {
+    @NotNull
+    public ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
         return this.cloudNet.scheduleTask(() -> {
             this.setCloudServiceLifeCycle(lifeCycle);
             return null;
@@ -230,6 +239,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> restartAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.restart();
@@ -259,6 +269,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> killAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.kill();
@@ -267,7 +278,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public void runCommand(String command) {
+    public void runCommand(@NotNull String command) {
         ICloudService cloudService = this.getCloudService();
 
         if (cloudService != null) {
@@ -288,7 +299,8 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
-    public ITask<Void> runCommandAsync(String command) {
+    @NotNull
+    public ITask<Void> runCommandAsync(@NotNull String command) {
         return this.cloudNet.scheduleTask(() -> {
             this.runCommand(command);
             return null;
@@ -358,6 +370,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> includeWaitingServiceTemplatesAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.includeWaitingServiceTemplates();
@@ -366,6 +379,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> includeWaitingServiceInclusionsAsync() {
         return this.cloudNet.scheduleTask(() -> {
             this.includeWaitingServiceInclusions();
@@ -374,6 +388,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    @NotNull
     public ITask<Void> deployResourcesAsync(boolean removeDeployments) {
         return this.cloudNet.scheduleTask(() -> {
             this.deployResources(removeDeployments);

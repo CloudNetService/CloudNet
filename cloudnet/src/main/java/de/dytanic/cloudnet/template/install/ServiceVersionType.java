@@ -6,10 +6,10 @@ import java.util.Collection;
 import java.util.Optional;
 
 public class ServiceVersionType {
-    private String name;
-    private ServiceEnvironment targetEnvironment;
-    private InstallerType installerType;
-    private Collection<ServiceVersion> versions;
+    private final String name;
+    private final ServiceEnvironment targetEnvironment;
+    private final InstallerType installerType;
+    private final Collection<ServiceVersion> versions;
 
     public ServiceVersionType(String name, ServiceEnvironment targetEnvironment, InstallerType installerType, Collection<ServiceVersion> versions) {
         this.name = name;
@@ -44,7 +44,7 @@ public class ServiceVersionType {
         DOWNLOAD(false),
         BUILD(true);
 
-        private boolean requiresSpecificJavaVersionToExecute;
+        private final boolean requiresSpecificJavaVersionToExecute;
 
         InstallerType(boolean requiresSpecificJavaVersionToExecute) {
             this.requiresSpecificJavaVersionToExecute = requiresSpecificJavaVersionToExecute;

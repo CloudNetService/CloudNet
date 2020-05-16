@@ -7,7 +7,7 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 
 public abstract class AbstractFTPStorage implements ITemplateStorage {
 
-    private String name;
+    private final String name;
     protected FTPCredentials credentials;
     protected FTPType ftpType;
     protected String baseDirectory;

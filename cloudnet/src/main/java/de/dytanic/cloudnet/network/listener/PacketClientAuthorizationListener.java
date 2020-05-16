@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceId;
@@ -49,7 +50,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetPermissionDataListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerDeployLocalTemplateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerConsoleLogEntryReceiveListener());
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL, new PacketServerClusterChannelMessageListener());
 
@@ -59,8 +59,11 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
 
+                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(false));
+
 
                                 channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
+                                channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));
 
                                 clusterNodeServer.setChannel(channel);
                                 CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(clusterNodeServer, channel));
@@ -99,9 +102,10 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                             //-
 
                             channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
+                            channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));
 
                             cloudService.setNetworkChannel(channel);
-                            cloudService.getServiceInfoSnapshot().setConnected(true);
+                            cloudService.getServiceInfoSnapshot().setConnectedTime(System.currentTimeMillis());
 
                             CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthCloudServiceSuccessEvent(cloudService, channel));
 

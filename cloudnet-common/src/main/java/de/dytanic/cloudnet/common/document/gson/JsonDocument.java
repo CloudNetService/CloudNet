@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
 import de.dytanic.cloudnet.common.document.IReadable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -18,7 +19,7 @@ import java.util.*;
  * It includes simple append and remove operations, file reading and writing to
  * create simple configuration files
  */
-public class JsonDocument implements IDocument<JsonDocument> {
+public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
     public static Gson GSON = new GsonBuilder()
             .serializeNulls()
@@ -292,7 +293,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
         }
 
         Object entry;
-        Enumeration enumeration = properties.keys();
+        Enumeration<?> enumeration = properties.keys();
 
         while (enumeration.hasMoreElements() && (entry = enumeration.nextElement()) != null) {
             append(entry.toString(), properties.getProperty(entry.toString()));
@@ -880,9 +881,14 @@ public class JsonDocument implements IDocument<JsonDocument> {
         return toJson();
     }
 
+    @NotNull
     @Override
     public Iterator<String> iterator() {
         return this.jsonObject.keySet().iterator();
     }
 
+    @Override
+    public JsonDocument clone() {
+        return new JsonDocument(this.jsonObject.deepCopy());
+    }
 }

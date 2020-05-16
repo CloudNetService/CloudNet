@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -36,6 +37,16 @@ public final class PacketServerChannelMessageListener implements IPacketListener
                 if (serviceTask != null) {
                     CloudNet.getInstance().getMessenger().sendChannelMessage(
                             serviceTask,
+                            packet.getHeader().getString("channel"),
+                            packet.getHeader().getString("message"),
+                            packet.getHeader().getDocument("data")
+                    );
+                }
+            } else if (packet.getHeader().contains("environment")) { //this is only sent by the services
+                ServiceEnvironmentType environment = packet.getHeader().get("environment", ServiceEnvironmentType.class);
+                if (environment != null) {
+                    CloudNet.getInstance().getMessenger().sendChannelMessage(
+                            environment,
                             packet.getHeader().getString("channel"),
                             packet.getHeader().getString("message"),
                             packet.getHeader().getDocument("data")

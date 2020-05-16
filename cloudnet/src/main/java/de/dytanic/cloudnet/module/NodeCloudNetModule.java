@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.module;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.Command;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -19,8 +19,8 @@ public abstract class NodeCloudNetModule extends DriverModule {
     }
 
     public final <T extends ITemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage) {
-        Validate.checkNotNull(serviceName);
-        Validate.checkNotNull(templateStorage);
+        Preconditions.checkNotNull(serviceName);
+        Preconditions.checkNotNull(templateStorage);
 
         getRegistry().registerService(ITemplateStorage.class, serviceName, templateStorage);
 
@@ -28,8 +28,8 @@ public abstract class NodeCloudNetModule extends DriverModule {
     }
 
     public final <T extends AbstractDatabaseProvider> T registerDatabaseProvider(String serviceName, T databaseProvider) {
-        Validate.checkNotNull(serviceName);
-        Validate.checkNotNull(databaseProvider);
+        Preconditions.checkNotNull(serviceName);
+        Preconditions.checkNotNull(databaseProvider);
 
         getRegistry().registerService(AbstractDatabaseProvider.class, serviceName, databaseProvider);
 
@@ -37,8 +37,8 @@ public abstract class NodeCloudNetModule extends DriverModule {
     }
 
     public final IHttpServer registerHttpHandler(String path, IHttpHandler... httpHandlers) {
-        Validate.checkNotNull(path);
-        Validate.checkNotNull(httpHandlers);
+        Preconditions.checkNotNull(path);
+        Preconditions.checkNotNull(httpHandlers);
 
         return getHttpServer().registerHandler(path, httpHandlers);
     }

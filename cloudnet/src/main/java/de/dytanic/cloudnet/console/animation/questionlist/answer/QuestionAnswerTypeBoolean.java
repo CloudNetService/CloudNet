@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class QuestionAnswerTypeBoolean implements QuestionAnswerType<Boolean> {
-    private String trueString;
-    private String falseString;
+    private final String trueString;
+    private final String falseString;
 
     public QuestionAnswerTypeBoolean(String trueString, String falseString) {
         this.trueString = trueString != null ? trueString : "yes";

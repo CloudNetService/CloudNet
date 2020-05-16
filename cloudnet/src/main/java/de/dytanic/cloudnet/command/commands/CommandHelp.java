@@ -4,9 +4,10 @@ import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -20,10 +21,17 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         switch (args.length) {
             case 0:
-
                 for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
-                    sender.sendMessage("Aliases: " + Arrays.toString(commandInfo.getNames()) + " - " + commandInfo.getDescription());
+                    StringBuilder builder = new StringBuilder("Aliases: " + Arrays.toString(commandInfo.getNames()));
+                    if (commandInfo.getPermission() != null) {
+                        builder.append(" | Permission: ").append(commandInfo.getPermission());
+                    }
+                    if (commandInfo.getDescription() != null) {
+                        builder.append(" - ").append(commandInfo.getDescription());
+                    }
+                    sender.sendMessage(builder.toString());
                 }
+                sender.sendMessage(LanguageManager.getMessage("command-help-info"));
 
                 break;
             case 1:
@@ -32,12 +40,16 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                     Command commandInfo = getCloudNet().getCommandMap().getCommand(args[0].toLowerCase());
 
                     if (commandInfo != null) {
-                        sender.sendMessage(
-                                " ",
-                                "Aliases: " + Arrays.toString(commandInfo.getNames()),
-                                "Description: " + commandInfo.getDescription(),
-                                "Usage: " + commandInfo.getUsage()
-                        );
+                        sender.sendMessage(" ", "Aliases: " + Arrays.toString(commandInfo.getNames()));
+                        if (commandInfo.getDescription() != null) {
+                            sender.sendMessage("Description: " + commandInfo.getDescription());
+                        }
+                        if (commandInfo.getUsage() != null) {
+                            String[] usage = ("Usage: " + commandInfo.getUsage()).split("\n");
+                            for (String line : usage) {
+                                sender.sendMessage(line);
+                            }
+                        }
                     }
                 }
                 break;
@@ -47,7 +59,7 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
 
     @Override
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        Collection<String> x = Iterables.newArrayList();
+        Collection<String> x = new ArrayList<>();
 
         for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
             x.addAll(Arrays.asList(commandInfo.getNames()));

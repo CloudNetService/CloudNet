@@ -1,20 +1,20 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServiceConsoleLogReceiveEntryEvent;
-import de.dytanic.cloudnet.network.packet.PacketServerConsoleLogEntryReceive;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCache {
 
-    private final Queue<String> cachedLogMessages = Iterables.newConcurrentLinkedQueue();
+    private final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
 
     private final byte[] buffer = new byte[1024];
 
@@ -73,6 +73,11 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
         if (text == null) {
             return;
         }
+        ServiceEnvironmentType environment = this.cloudService.getServiceConfiguration().getProcessConfig().getEnvironment();
+        String trimmedText = text.trim();
+        if (!environment.getIgnoredConsoleLines().isEmpty() && environment.getIgnoredConsoleLines().contains(trimmedText)) {
+            return;
+        }
 
         while (cachedLogMessages.size() >= CloudNet.getInstance().getConfig().getMaxServiceConsoleLogCacheSize()) {
             cachedLogMessages.poll();
@@ -81,7 +86,6 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
         cachedLogMessages.offer(text);
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
-        CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(new PacketServerConsoleLogEntryReceive(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
 
         if (this.autoPrintReceivedInput || this.screenEnabled || printErrorIntoConsole) {
             CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO), "[" + cloudService.getServiceId().getName() + "] " + text);

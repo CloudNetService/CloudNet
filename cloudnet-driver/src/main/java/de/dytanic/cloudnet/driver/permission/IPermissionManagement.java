@@ -1,325 +1,418 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 public interface IPermissionManagement {
 
-    IPermissionManagementHandler getPermissionManagementHandler();
+    IPermissionManagement getChildPermissionManagement();
 
-    void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler);
-
-    IPermissionUser addUser(IPermissionUser permissionUser);
-
-    void updateUser(IPermissionUser permissionUser);
-
-    void deleteUser(String name);
-
-    void deleteUser(IPermissionUser permissionUser);
-
-    boolean containsUser(UUID uniqueId);
-
-    boolean containsUser(String name);
-
-    IPermissionUser getUser(UUID uniqueId);
+    boolean canBeOverwritten();
 
     /**
      * @deprecated use {@link #getUsers(String)} instead
      */
     @Deprecated
-    default List<IPermissionUser> getUser(String name) {
-        return this.getUsers(name);
-    }
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
+    List<IPermissionUser> getUser(String name);
 
-    List<IPermissionUser> getUsers(String name);
+    IPermissionUser getFirstUser(String name);
 
-
-    Collection<IPermissionUser> getUsers();
-
-    void setUsers(Collection<? extends IPermissionUser> users);
-
-    /**
-     * @deprecated use {@link #getUsersByGroup(String)} instead
-     */
-    @Deprecated
-    default Collection<IPermissionUser> getUserByGroup(String group) {
-        return this.getUsersByGroup(group);
-    }
-
-    Collection<IPermissionUser> getUsersByGroup(String group);
-
-    IPermissionGroup addGroup(IPermissionGroup permissionGroup);
-
-    void updateGroup(IPermissionGroup permissionGroup);
-
-    void deleteGroup(String group);
-
-    void deleteGroup(IPermissionGroup group);
-
-    boolean containsGroup(String name);
-
-    IPermissionGroup getGroup(String name);
-
-    Collection<IPermissionGroup> getGroups();
-
-    void setGroups(Collection<? extends IPermissionGroup> groups);
 
     boolean reload();
 
 
-    default IPermissionGroup getHighestPermissionGroup(IPermissionUser permissionUser) {
-        IPermissionGroup permissionGroup = null;
+    IPermissionGroup getHighestPermissionGroup(@NotNull IPermissionUser permissionUser);
 
-        for (IPermissionGroup group : getGroups(permissionUser)) {
-            if (permissionGroup == null) {
-                permissionGroup = group;
-                continue;
-            }
+    IPermissionGroup getDefaultPermissionGroup();
 
-            if (permissionGroup.getPotency() <= group.getPotency()) {
-                permissionGroup = group;
-            }
-        }
+    boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup);
 
-        return permissionGroup != null ? permissionGroup : this.getDefaultPermissionGroup();
+    boolean testPermissionUser(@Nullable IPermissionUser permissionUser);
+
+    boolean testPermissible(@Nullable IPermissible permissible);
+
+    IPermissionUser addUser(@NotNull String name, @NotNull String password, int potency);
+
+    IPermissionGroup addGroup(@NotNull String role, int potency);
+
+    Collection<IPermissionGroup> getGroups(@Nullable IPermissionUser permissionUser);
+
+    Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group);
+
+    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String permission) {
+        return this.getPermissionResult(permissionUser, permission).asBoolean();
     }
 
-    default IPermissionGroup getDefaultPermissionGroup() {
-        for (IPermissionGroup group : getGroups()) {
-            if (group != null && group.isDefaultGroup()) {
-                return group;
-            }
-        }
-
-        return null;
+    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
+        return this.getPermissionResult(permissionUser, permission).asBoolean();
     }
 
-    default boolean testPermissionGroup(IPermissionGroup permissionGroup) {
-        if (permissionGroup == null) {
-            return false;
-        }
-
-        return testPermissible(permissionGroup);
+    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
+        return this.getPermissionResult(permissionUser, group, permission).asBoolean();
     }
 
-    default boolean testPermissionUser(IPermissionUser permissionUser) {
-        if (permissionUser == null) {
-            return false;
-        }
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String permission);
 
-        boolean result = testPermissible(permissionUser);
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission);
 
-        List<PermissionUserGroupInfo> groupsToRemove = Iterables.newArrayList();
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission);
 
-        for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
-            if (groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis()) {
-                groupsToRemove.add(groupInfo);
-                result = true;
-            }
-        }
+    Collection<Permission> getAllPermissions(@NotNull IPermissible permissible);
 
-        for (PermissionUserGroupInfo groupInfo : groupsToRemove) {
-            permissionUser.getGroups().remove(groupInfo);
-        }
+    Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group);
 
-        return result;
-    }
+    /**
+     * Adds a new user to the database.
+     *
+     * @param permissionUser the user to be added
+     * @return the new user
+     */
+    IPermissionUser addUser(@NotNull IPermissionUser permissionUser);
 
-    default boolean testPermissible(IPermissible permissible) {
-        if (permissible == null) {
-            return false;
-        }
+    /**
+     * Updates an already existing user in the database.
+     *
+     * @param permissionUser the user to be updated
+     */
+    void updateUser(@NotNull IPermissionUser permissionUser);
 
-        boolean result = false;
+    /**
+     * Deletes all users in the database matching the given name.
+     * This method is case-sensitive.
+     *
+     * @param name the name of the users to be deleted
+     */
+    boolean deleteUser(@NotNull String name);
 
-        Collection<String> haveToRemove = Iterables.newArrayList();
+    /**
+     * Deletes one user with the uniqueId of the given user.
+     *
+     * @param permissionUser the user to be deleted
+     */
+    boolean deleteUser(@NotNull IPermissionUser permissionUser);
 
-        for (Permission permission : permissible.getPermissions()) {
-            if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis()) {
-                haveToRemove.add(permission.getName());
-            }
-        }
+    /**
+     * Checks if a user with the given uniqueId is stored in the database.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @return {@code true} if there is a user with that uniqueId, {@code false} otherwise
+     */
+    boolean containsUser(@NotNull UUID uniqueId);
 
-        if (!haveToRemove.isEmpty()) {
-            result = true;
+    /**
+     * Checks if at least one user with the given name is stored in the database.
+     * This method is case-sensitive.
+     *
+     * @param name the name of the user
+     * @return {@code true} if there is a user with that name, {@code false} otherwise
+     */
+    boolean containsUser(@NotNull String name);
 
-            for (String permission : haveToRemove) {
-                permissible.removePermission(permission);
-            }
-            haveToRemove.clear();
-        }
+    /**
+     * Gets a user with the given uniqueId out of the database.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @return the {@link IPermissionUser} from the database or {@code null} if there is no user with that uniqueId stored
+     */
+    @Nullable
+    IPermissionUser getUser(@NotNull UUID uniqueId);
 
-        for (Map.Entry<String, Collection<Permission>> entry : permissible.getGroupPermissions().entrySet()) {
-            for (Permission permission : entry.getValue()) {
-                if (permission.getTimeOutMillis() > 0 && permission.getTimeOutMillis() < System.currentTimeMillis()) {
-                    haveToRemove.add(permission.getName());
-                }
-            }
+    /**
+     * Gets a list of all users with the given name out of the database.
+     * This can only return null when the connection to the database (or when it is executed in a
+     * Wrapper instance the connection to the cloud) times out.
+     *
+     * @param name the name of the users
+     * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
+     */
+    @NotNull
+    List<IPermissionUser> getUsers(@NotNull String name);
 
-            if (!haveToRemove.isEmpty()) {
-                result = true;
+    /**
+     * Gets a list of all users stored in the database.
+     * This can only return null when the connection to the database (or when it is executed in a
+     * Wrapper instance the connection to the cloud) times out.
+     * <p>
+     * This method shouldn't be used when there are many users stored in the database, because that takes a lot of memory.
+     *
+     * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
+     */
+    Collection<IPermissionUser> getUsers();
 
-                for (String permission : haveToRemove) {
-                    permissible.removePermission(entry.getKey(), permission);
-                }
-                haveToRemove.clear();
-            }
-        }
+    /**
+     * Clears all users stored in the database and inserts the given list.
+     *
+     * @param users the new {@link IPermissionUser}s to be stored in the database
+     */
+    void setUsers(@Nullable Collection<? extends IPermissionUser> users);
 
-        return result;
-    }
+    /**
+     * Gets a list of all users stored in the database with the given group.
+     * This can only return null when the connection to the database (or when it is executed in a
+     * Wrapper instance the connection to the cloud) times out.
+     * <p>
+     * This method shouldn't be used when there are many users with that group stored in the database, because that takes a lot of memory.
+     *
+     * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
+     */
+    Collection<IPermissionUser> getUsersByGroup(@NotNull String group);
 
-    default IPermissionUser addUser(String name, String password, int potency) {
-        return this.addUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
-    }
+    /**
+     * Adds a new permission group to the list of groups. If a group with that name already exists,
+     * it will be deleted and created again.
+     *
+     * @param permissionGroup the {@link IPermissionGroup} to be added
+     * @return the new group
+     */
+    IPermissionGroup addGroup(@NotNull IPermissionGroup permissionGroup);
 
-    default IPermissionGroup addGroup(String role, int potency) {
-        return this.addGroup(new PermissionGroup(role, potency));
-    }
+    /**
+     * Updates a permission group in the list of groups. If a group with that name doesn't exist,
+     * it will be created.
+     *
+     * @param permissionGroup the {@link IPermissionGroup} to be updated
+     */
+    void updateGroup(@NotNull IPermissionGroup permissionGroup);
 
-    default Collection<IPermissionGroup> getGroups(IPermissionUser permissionUser) {
-        Collection<IPermissionGroup> permissionGroups = Iterables.newArrayList();
+    /**
+     * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+     *
+     * @param name the case-sensitive name of the group
+     */
+    void deleteGroup(@NotNull String name);
 
-        if (permissionUser == null) {
-            return permissionGroups;
-        }
+    /**
+     * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+     *
+     * @param permissionGroup the {@link IPermissionGroup} to be deleted
+     */
+    void deleteGroup(@NotNull IPermissionGroup permissionGroup);
 
-        for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
-            IPermissionGroup permissionGroup = getGroup(groupInfo.getGroup());
+    /**
+     * Checks if a specific group exists.
+     *
+     * @param group the case-sensitive name of the group
+     * @return {@code true} if the group exists, {@code false} otherwise
+     */
+    boolean containsGroup(@NotNull String group);
 
-            if (permissionGroup != null) {
-                permissionGroups.add(permissionGroup);
-            }
-        }
+    /**
+     * Gets a specific group by its name.
+     *
+     * @param name the case-sensitive name of the group
+     * @return the {@link IPermissionUser} if it exists, {@code null} otherwise
+     */
+    @Nullable
+    IPermissionGroup getGroup(@NotNull String name);
 
-        if (permissionGroups.isEmpty()) {
-            permissionGroups.add(this.getDefaultPermissionGroup());
-        }
+    /**
+     * Gets the list of all groups in the Cloud.
+     *
+     * @return a list of {@link IPermissionGroup}s registered in the cloud or an empty list if there is no group registered
+     */
+    Collection<IPermissionGroup> getGroups();
 
-        return permissionGroups;
-    }
+    /**
+     * Clears all groups in the Cloud and sets given groups.
+     *
+     * @param groups the new groups
+     */
+    void setGroups(@Nullable Collection<? extends IPermissionGroup> groups);
 
-    default Collection<IPermissionGroup> getExtendedGroups(IPermissionGroup group) {
-        return group == null ? Collections.EMPTY_LIST : Iterables.filter(this.getGroups(), permissionGroup -> group.getGroups().contains(permissionGroup.getName()));
-    }
+    @NotNull
+    ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser);
 
-    default boolean hasPermission(IPermissionUser permissionUser, String permission) {
-        return this.hasPermission(permissionUser, new Permission(permission));
-    }
+    /**
+     * Adds a new user to the database.
+     *
+     * @param permissionUser the user to be added
+     */
+    @NotNull
+    ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser);
 
-    default boolean hasPermission(IPermissionUser permissionUser, Permission permission) {
-        if (permissionUser == null || permission == null || permission.getName() == null) {
-            return false;
-        }
+    @NotNull
+    ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency);
 
-        switch (permissionUser.hasPermission(permission)) {
-            case ALLOWED:
-                return true;
-            case FORBIDDEN:
-                return false;
-            default:
-                for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
-                    if (tryExtendedGroups(permissionGroup, permission)) {
-                        return true;
-                    }
-                }
-                break;
-        }
+    /**
+     * Updates an already existing user in the database.
+     *
+     * @param permissionUser the user to be updated
+     */
+    @NotNull
+    ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser);
 
-        return tryExtendedGroups(getDefaultPermissionGroup(), permission);
-    }
+    /**
+     * Deletes all users in the database matching the given name.
+     * This method is case-sensitive.
+     *
+     * @param name the name of the users to be deleted
+     */
+    @NotNull
+    ITask<Boolean> deleteUserAsync(@NotNull String name);
 
-    default boolean hasPermission(IPermissionUser permissionUser, String group, Permission permission) {
-        if (permissionUser == null || group == null || permission == null || permission.getName() == null) {
-            return false;
-        }
+    /**
+     * Deletes one user with the uniqueId of the given user.
+     *
+     * @param permissionUser the user to be deleted
+     */
+    @NotNull
+    ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser);
 
-        switch (permissionUser.hasPermission(group, permission)) {
-            case ALLOWED:
-                return true;
-            case FORBIDDEN:
-                return false;
-            default:
-                for (IPermissionGroup permissionGroup : getGroups(permissionUser)) {
-                    if (tryExtendedGroups(permissionGroup, group, permission)) {
-                        return true;
-                    }
-                }
-                break;
-        }
+    /**
+     * Checks if a user with the given uniqueId is stored in the database.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @return {@code true} if there is a user with that uniqueId, {@code false} otherwise
+     */
+    @NotNull
+    ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId);
 
-        return tryExtendedGroups(getDefaultPermissionGroup(), group, permission);
-    }
+    /**
+     * Checks if at least one user with the given name is stored in the database.
+     * This method is case-sensitive.
+     *
+     * @param name the name of the user
+     * @return {@code true} if there is a user with that name, {@code false} otherwise
+     */
+    @NotNull
+    ITask<Boolean> containsUserAsync(@NotNull String name);
 
-    default boolean tryExtendedGroups(IPermissionGroup permissionGroup, Permission permission) {
-        if (permissionGroup == null) {
-            return false;
-        }
+    /**
+     * Gets a user with the given uniqueId out of the database.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @return the {@link IPermissionUser} from the database or {@code null} if there is no user with that uniqueId stored
+     */
+    @NotNull
+    ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId);
 
-        switch (permissionGroup.hasPermission(permission)) {
-            case ALLOWED:
-                return true;
-            case FORBIDDEN:
-                return false;
-            default:
-                for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
-                    if (tryExtendedGroups(extended, permission)) {
-                        return true;
-                    }
-                }
-                break;
-        }
+    /**
+     * Gets a list of all users with the given name out of the database.
+     * This can only return null when the connection to the database (or when it is executed in a
+     * Wrapper instance the connection to the cloud) times out.
+     *
+     * @param name the name of the users
+     * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
+     */
+    @NotNull
+    ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name);
 
-        return false;
-    }
+    @NotNull
+    ITask<IPermissionUser> getFirstUserAsync(String name);
 
-    default boolean tryExtendedGroups(IPermissionGroup permissionGroup, String group, Permission permission) {
-        if (permissionGroup == null) {
-            return false;
-        }
+    /**
+     * Gets a list of all users stored in the database.
+     * This can only return null when the connection to the database (or when it is executed in a
+     * Wrapper instance the connection to the cloud) times out.
+     * <p>
+     * This method shouldn't be used when there are many users stored in the database, because that takes a lot of memory.
+     *
+     * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
+     */
+    @NotNull
+    ITask<Collection<IPermissionUser>> getUsersAsync();
 
-        switch (permissionGroup.hasPermission(group, permission)) {
-            case ALLOWED:
-                return true;
-            case FORBIDDEN:
-                return false;
-            default:
-                for (IPermissionGroup extended : getExtendedGroups(permissionGroup)) {
-                    if (tryExtendedGroups(extended, group, permission)) {
-                        return true;
-                    }
-                }
-                break;
-        }
+    /**
+     * Clears all users stored in the database and inserts the given list.
+     *
+     * @param users the new {@link IPermissionUser}s to be stored in the database
+     */
+    @NotNull
+    ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users);
 
-        return false;
-    }
+    /**
+     * Gets a list of all users stored in the database with the given group.
+     * This can only return null when the connection to the database (or when it is executed in a
+     * Wrapper instance the connection to the cloud) times out.
+     * <p>
+     * This method shouldn't be used when there are many users with that group stored in the database, because that takes a lot of memory.
+     *
+     * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
+     */
+    @NotNull
+    ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group);
 
-    default Collection<Permission> getAllPermissions(IPermissible permissible) {
-        return this.getAllPermissions(permissible, null);
-    }
+    /**
+     * Adds a new permission group to the list of groups. If a group with that name already exists,
+     * it will be deleted and created again.
+     *
+     * @param permissionGroup the {@link IPermissionGroup} to be added
+     */
+    @NotNull
+    ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
-    default Collection<Permission> getAllPermissions(IPermissible permissible, String group) {
-        if (permissible == null) {
-            return Collections.emptyList();
-        }
+    @NotNull
+    ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency);
 
-        Collection<Permission> permissions = new ArrayList<>(permissible.getPermissions());
-        if (group != null && permissible.getGroupPermissions().containsKey(group)) {
-            permissions.addAll(permissible.getGroupPermissions().get(group));
-        }
-        if (permissible instanceof IPermissionGroup) {
-            for (IPermissionGroup extendedGroup : this.getExtendedGroups((IPermissionGroup) permissible)) {
-                permissions.addAll(this.getAllPermissions(extendedGroup, group));
-            }
-        }
-        if (permissible instanceof IPermissionUser) {
-            for (IPermissionGroup permissionGroup : this.getGroups((IPermissionUser) permissible)) {
-                permissions.addAll(this.getAllPermissions(permissionGroup, group));
-            }
-        }
-        return permissions;
-    }
+    /**
+     * Updates a permission group in the list of groups. If a group with that name doesn't exist,
+     * it will be created.
+     *
+     * @param permissionGroup the {@link IPermissionGroup} to be updated
+     */
+    @NotNull
+    ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup);
+
+    /**
+     * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+     *
+     * @param name the case-sensitive name of the group
+     */
+    @NotNull
+    ITask<Void> deleteGroupAsync(@NotNull String name);
+
+    /**
+     * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+     *
+     * @param permissionGroup the {@link IPermissionGroup} to be deleted
+     */
+    @NotNull
+    ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup);
+
+    /**
+     * Checks if a specific group exists.
+     *
+     * @param group the case-sensitive name of the group
+     * @return {@code true} if the group exists, {@code false} otherwise
+     */
+    @NotNull
+    ITask<Boolean> containsGroupAsync(@NotNull String group);
+
+    /**
+     * Gets a specific group by its name.
+     *
+     * @param name the case-sensitive name of the group
+     * @return the {@link IPermissionUser} if it exists, {@code null} otherwise
+     */
+    @NotNull
+    ITask<IPermissionGroup> getGroupAsync(@NotNull String name);
+
+    ITask<IPermissionGroup> getDefaultPermissionGroupAsync();
+
+    /**
+     * Gets the list of all groups in the Cloud.
+     *
+     * @return a list of {@link IPermissionGroup}s registered in the cloud or an empty list if there is no group registered
+     */
+    @NotNull
+    ITask<Collection<IPermissionGroup>> getGroupsAsync();
+
+    /**
+     * Clears all groups in the Cloud and sets given groups.
+     *
+     * @param groups the new groups
+     */
+    @NotNull
+    ITask<Void> setGroupsAsync(@Nullable Collection<? extends IPermissionGroup> groups);
 
 }

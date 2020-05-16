@@ -7,12 +7,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
+
+    private String name;
     private IConsole console;
     private int updateInterval = 25;
     private long startTime;
     private int cursorUp = 1;
     private boolean staticCursor;
-    private Collection<Runnable> finishHandler = new ArrayList<>();
+    private final Collection<Runnable> finishHandler = new ArrayList<>();
+
+    public AbstractConsoleAnimation() {
+
+    }
+
+    public AbstractConsoleAnimation(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
 
     public long getTimeElapsed() {
         return System.currentTimeMillis() - this.startTime;

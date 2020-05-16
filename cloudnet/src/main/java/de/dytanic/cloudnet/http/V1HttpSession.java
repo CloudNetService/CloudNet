@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.http;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -10,14 +9,17 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 
 public final class V1HttpSession {
 
+    private static final Pattern BASE64_PATTERN = Pattern.compile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$");
     private static final String COOKIE_NAME = "CloudNet-REST_V1-Session." + new Random().nextInt();
 
     private static final long EXPIRE_TIME = 1000 * 60 * 60 * 24;
 
-    private final Collection<SessionEntry> entries = Iterables.newCopyOnWriteArrayList();
+    private final Collection<SessionEntry> entries = new CopyOnWriteArrayList<>();
 
     public boolean auth(IHttpContext context) throws Exception {
         if (isAuthorized(context)) {
@@ -34,13 +36,17 @@ public final class V1HttpSession {
             return false;
         }
 
+        if (!BASE64_PATTERN.matcher(typeAndCredentials[1]).matches()) {
+            return false;
+        }
+
         String[] credentials = new String(Base64.getDecoder().decode(typeAndCredentials[1]), StandardCharsets.UTF_8).split(":");
         if (credentials.length != 2) {
             return false;
         }
 
         List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
-        IPermissionUser permissionUser = Iterables.first(permissionUsers, iPermissionUser -> iPermissionUser.checkPassword(credentials[1]));
+        IPermissionUser permissionUser = permissionUsers.stream().filter(iPermissionUser -> iPermissionUser.checkPassword(credentials[1])).findFirst().orElse(null);
 
         if (permissionUser == null) {
             return false;
@@ -68,7 +74,7 @@ public final class V1HttpSession {
         return true;
     }
 
-    public boolean isAuthorized(IHttpContext context) throws Exception {
+    public boolean isAuthorized(IHttpContext context) {
         if (!context.hasCookie(COOKIE_NAME)) {
             return false;
         }
@@ -105,7 +111,7 @@ public final class V1HttpSession {
     }
 
     public void logout(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
         if (sessionEntry != null) {
@@ -116,7 +122,7 @@ public final class V1HttpSession {
     }
 
     public IPermissionUser getUser(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
         SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
 

@@ -1,9 +1,10 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,13 +12,14 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+@NotNull
 public class OutputStreamCloseTask extends OutputStream implements ITask<OutputStream> {
 
-    private OutputStream outputStream;
+    private final OutputStream outputStream;
     private boolean done;
 
     OutputStreamCloseTask(OutputStream outputStream) {
-        Validate.checkNotNull(outputStream, "OutputStream is null!");
+        Preconditions.checkNotNull(outputStream, "OutputStream is null!");
 
         this.outputStream = outputStream;
     }
@@ -28,12 +30,12 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     }
 
     @Override
-    public void write(byte[] b) throws IOException {
+    public void write(@NotNull byte[] b) throws IOException {
         this.outputStream.write(b);
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(@NotNull byte[] b, int off, int len) throws IOException {
         this.outputStream.write(b, off, len);
     }
 
@@ -49,11 +51,13 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     }
 
     @Override
+    @NotNull
     public ITask<OutputStream> addListener(ITaskListener<OutputStream> listener) {
         throw new UnsupportedOperationException();
     }
 
     @Override
+    @NotNull
     public ITask<OutputStream> clearListeners() {
         throw new UnsupportedOperationException();
     }
@@ -124,7 +128,7 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     }
 
     @Override
-    public OutputStream get(long timeout, TimeUnit unit) {
+    public OutputStream get(long timeout, @NotNull TimeUnit unit) {
         return this.get();
     }
 

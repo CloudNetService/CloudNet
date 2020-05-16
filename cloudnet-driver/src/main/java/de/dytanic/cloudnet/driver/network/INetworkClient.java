@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.network;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * The network client represents a client based connector to one or more remote servers.
  */
@@ -11,5 +13,11 @@ public interface INetworkClient extends INetworkComponent, AutoCloseable {
      * @param hostAndPort the address, that should the client connect to
      * @return true if the connection was success or false if the connection was unsuccessful or refused
      */
-    boolean connect(HostAndPort hostAndPort);
+    boolean connect(@NotNull HostAndPort hostAndPort);
+
+    /**
+     * Gets the time when this client was connected to the server in milliseconds
+     */
+    long getConnectedTime();
+
 }

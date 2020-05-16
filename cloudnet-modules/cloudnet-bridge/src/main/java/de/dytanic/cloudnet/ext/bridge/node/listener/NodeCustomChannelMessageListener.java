@@ -1,25 +1,80 @@
 package de.dytanic.cloudnet.ext.bridge.node.listener;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
+import de.dytanic.cloudnet.ext.bridge.node.event.NodeLocalBridgePlayerProxyLoginRequestEvent;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
-import de.dytanic.cloudnet.ext.bridge.player.*;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 
 import java.io.File;
 
 public final class NodeCustomChannelMessageListener {
-    private BridgeConfiguration bridgeConfiguration;
 
-    public NodeCustomChannelMessageListener() {
-        bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
+    private final NodePlayerManager nodePlayerManager;
+    private final BridgeConfiguration bridgeConfiguration;
+
+    public NodeCustomChannelMessageListener(NodePlayerManager nodePlayerManager) {
+        this.nodePlayerManager = nodePlayerManager;
+        this.bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
+    }
+
+    @EventListener
+    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
+        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) {
+            return;
+        }
+
+        if (BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST.equals(event.getId())) {
+            NetworkConnectionInfo networkConnectionInfo = event.getHeader().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
+            event.setCallbackPacket(this.processLoginRequest(new NodeLocalBridgePlayerProxyLoginRequestEvent(networkConnectionInfo, null)));
+
+            this.callProxyLoginRequest(networkConnectionInfo);
+
+            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
+                    BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+                    BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
+                    new JsonDocument("networkConnectionInfo", networkConnectionInfo)
+            );
+        }
+    }
+
+    private JsonDocument processLoginRequest(NodeLocalBridgePlayerProxyLoginRequestEvent requestEvent) {
+        CloudNetDriver.getInstance().getEventManager().callEvent(requestEvent);
+
+        if (this.nodePlayerManager.getOnlinePlayer(requestEvent.getConnectionInfo().getUniqueId()) != null) {
+            requestEvent.setCancelled(true);
+            requestEvent.setKickReason(this.bridgeConfiguration.getMessages().get("already-connected"));
+        }
+
+        if (requestEvent.isCancelled()) {
+            if (requestEvent.getKickReason() == null) {
+                requestEvent.setKickReason("§cNo kick reason given");
+            }
+            return JsonDocument.newDocument("kickReason", requestEvent.getKickReason());
+        }
+        return JsonDocument.newDocument();
+    }
+
+    private void callProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeProxyPlayerLoginRequestEvent(networkConnectionInfo));
+
+        if (this.bridgeConfiguration.isLogPlayerConnections()) {
+            System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-login-request")
+                    .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
+                    .replace("%name%", networkConnectionInfo.getName())
+                    .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName())
+            );
+        }
     }
 
     @EventListener
@@ -45,15 +100,7 @@ public final class NodeCustomChannelMessageListener {
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST: {
                 NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
-                CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeProxyPlayerLoginRequestEvent(networkConnectionInfo));
-
-                if (bridgeConfiguration.isLogPlayerConnections()) {
-                    System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-login-request")
-                            .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
-                            .replace("%name%", networkConnectionInfo.getName())
-                            .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName())
-                    );
-                }
+                this.callProxyLoginRequest(networkConnectionInfo);
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_SUCCESS: {
@@ -68,8 +115,7 @@ public final class NodeCustomChannelMessageListener {
                     );
                 }
 
-                //Player
-                loginPlayer(networkConnectionInfo, null);
+                this.nodePlayerManager.loginPlayer(networkConnectionInfo, null);
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_CONNECT_REQUEST: {
@@ -116,7 +162,7 @@ public final class NodeCustomChannelMessageListener {
                 }
 
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeProxyPlayerDisconnectEvent(networkConnectionInfo));
-                logoutPlayer(networkConnectionInfo);
+                this.nodePlayerManager.logoutPlayer(networkConnectionInfo);
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST: {
@@ -147,7 +193,7 @@ public final class NodeCustomChannelMessageListener {
                 }
 
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeServerPlayerLoginSuccessEvent(networkConnectionInfo, networkPlayerServerInfo));
-                loginPlayer(networkConnectionInfo, networkPlayerServerInfo);
+                this.nodePlayerManager.loginPlayer(networkConnectionInfo, networkPlayerServerInfo);
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT: {
@@ -163,83 +209,11 @@ public final class NodeCustomChannelMessageListener {
                 }
 
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeServerPlayerDisconnectEvent(networkConnectionInfo, networkPlayerServerInfo));
-                logoutPlayer(networkConnectionInfo);
+                this.nodePlayerManager.logoutPlayer(networkConnectionInfo);
             }
             break;
         }
     }
 
 
-    private void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        CloudPlayer cloudPlayer = NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId());
-
-        if (cloudPlayer == null) {
-            cloudPlayer = Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
-                    cloudPlayer1.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()));
-
-            if (cloudPlayer == null) {
-                ICloudOfflinePlayer cloudOfflinePlayer = getOrRegisterOfflinePlayer(networkConnectionInfo);
-
-                cloudPlayer = new CloudPlayer(
-                        cloudOfflinePlayer,
-                        networkConnectionInfo.getNetworkService(),
-                        networkConnectionInfo.getNetworkService(),
-                        networkConnectionInfo,
-                        networkPlayerServerInfo
-                );
-
-                cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
-                NodePlayerManager.getInstance().getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
-            }
-        }
-
-        if (networkPlayerServerInfo != null) {
-            cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
-            cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
-
-            if (networkPlayerServerInfo.getXBoxId() != null) {
-                cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
-            }
-        }
-
-        cloudPlayer.setName(networkConnectionInfo.getName());
-
-        NodePlayerManager.getInstance().updateOnlinePlayer0(cloudPlayer);
-    }
-
-    private ICloudOfflinePlayer getOrRegisterOfflinePlayer(NetworkConnectionInfo networkConnectionInfo) {
-        ICloudOfflinePlayer cloudOfflinePlayer = NodePlayerManager.getInstance().getOfflinePlayer(networkConnectionInfo.getUniqueId());
-
-        if (cloudOfflinePlayer == null) {
-            cloudOfflinePlayer = new CloudOfflinePlayer(
-                    networkConnectionInfo.getUniqueId(),
-                    networkConnectionInfo.getName(),
-                    null,
-                    System.currentTimeMillis(),
-                    System.currentTimeMillis(),
-                    networkConnectionInfo
-            );
-
-            NodePlayerManager.getInstance().getDatabase().insert(
-                    cloudOfflinePlayer.getUniqueId().toString(),
-                    JsonDocument.newDocument(cloudOfflinePlayer)
-            );
-        }
-
-        return cloudOfflinePlayer;
-    }
-
-    private void logoutPlayer(NetworkConnectionInfo networkConnectionInfo) {
-        CloudPlayer cloudPlayer = networkConnectionInfo.getUniqueId() != null ?
-                NodePlayerManager.getInstance().getOnlinePlayer(networkConnectionInfo.getUniqueId()) :
-                Iterables.first(NodePlayerManager.getInstance().getOnlineCloudPlayers().values(), cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()));
-
-        if (cloudPlayer != null) {
-            if (cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())) {
-                cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
-                NodePlayerManager.getInstance().updateOnlinePlayer0(cloudPlayer);
-                NodePlayerManager.getInstance().getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
-            }
-        }
-    }
 }

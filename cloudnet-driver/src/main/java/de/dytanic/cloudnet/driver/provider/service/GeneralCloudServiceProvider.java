@@ -3,10 +3,15 @@ package de.dytanic.cloudnet.driver.provider.service;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * This class provides methods to get information to the services in the cluster.
+ */
 public interface GeneralCloudServiceProvider {
 
     /**
@@ -33,7 +38,7 @@ public interface GeneralCloudServiceProvider {
     /**
      * Gets a list with the infos of all services in the cloud that are from the given task
      *
-     * @param taskName the name of the task every service in the list should have
+     * @param taskName the case-insensitive name of the task every service in the list should have
      * @return a list containing the infos of every service with the given task in the whole cloud
      */
     Collection<ServiceInfoSnapshot> getCloudServices(String taskName);
@@ -50,7 +55,7 @@ public interface GeneralCloudServiceProvider {
     /**
      * Gets a list with the infos of all services in the cloud that have the given group
      *
-     * @param group the name of the task every service in the list should have
+     * @param group the case-insensitive name of the task every service in the list should have
      * @return a list containing the infos of every service with the given group in the whole cloud
      */
     Collection<ServiceInfoSnapshot> getCloudServicesByGroup(String group);
@@ -84,6 +89,7 @@ public interface GeneralCloudServiceProvider {
      * @param name the name of the service
      * @return the info of the service or {@code null} if the service doesn't exist
      */
+    @Nullable
     ServiceInfoSnapshot getCloudServiceByName(String name);
 
     /**
@@ -92,8 +98,8 @@ public interface GeneralCloudServiceProvider {
      * @param uniqueId the uniqueId of the service
      * @return the info of the service or {@code null} if the service doesn't exist
      */
+    @Nullable
     ServiceInfoSnapshot getCloudService(UUID uniqueId);
-
 
 
     /**
@@ -101,6 +107,7 @@ public interface GeneralCloudServiceProvider {
      *
      * @return a list containing the uniqueIds of every service in the whole cloud
      */
+    @NotNull
     ITask<Collection<UUID>> getServicesAsUniqueIdAsync();
 
     /**
@@ -108,6 +115,7 @@ public interface GeneralCloudServiceProvider {
      *
      * @return a list containing the infos of every service in the whole cloud
      */
+    @NotNull
     ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync();
 
     /**
@@ -115,6 +123,7 @@ public interface GeneralCloudServiceProvider {
      *
      * @return a list containing the infos of every started service in the whole cloud
      */
+    @NotNull
     ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServicesAsync();
 
     /**
@@ -123,6 +132,7 @@ public interface GeneralCloudServiceProvider {
      * @param taskName the name of the task every service in the list should have
      * @return a list containing the infos of every service with the given task in the whole cloud
      */
+    @NotNull
     ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName);
 
     /**
@@ -131,6 +141,7 @@ public interface GeneralCloudServiceProvider {
      * @param environment the environment every service in the list should have
      * @return a list containing the infos of every service with the given environment in the whole cloud
      */
+    @NotNull
     ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment);
 
     /**
@@ -139,6 +150,7 @@ public interface GeneralCloudServiceProvider {
      * @param group the name of the task every service in the list should have
      * @return a list containing the infos of every service with the given group in the whole cloud
      */
+    @NotNull
     ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group);
 
     /**
@@ -146,6 +158,7 @@ public interface GeneralCloudServiceProvider {
      *
      * @return an integer for the amount of services in the whole cloud
      */
+    @NotNull
     ITask<Integer> getServicesCountAsync();
 
     /**
@@ -154,6 +167,7 @@ public interface GeneralCloudServiceProvider {
      * @param group the group every service counting should have
      * @return an integer for the amount of services in the whole cloud
      */
+    @NotNull
     ITask<Integer> getServicesCountByGroupAsync(String group);
 
     /**
@@ -162,6 +176,7 @@ public interface GeneralCloudServiceProvider {
      * @param taskName the task every service counting should have
      * @return an integer for the amount of services in the whole cloud
      */
+    @NotNull
     ITask<Integer> getServicesCountByTaskAsync(String taskName);
 
     /**
@@ -170,6 +185,7 @@ public interface GeneralCloudServiceProvider {
      * @param name the name of the service
      * @return the info of the service or {@code null} if the service doesn't exist
      */
+    @NotNull
     ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name);
 
     /**
@@ -178,6 +194,7 @@ public interface GeneralCloudServiceProvider {
      * @param uniqueId the uniqueId of the service
      * @return the info of the service or {@code null} if the service doesn't exist
      */
+    @NotNull
     ITask<ServiceInfoSnapshot> getCloudServiceAsync(UUID uniqueId);
 
 }

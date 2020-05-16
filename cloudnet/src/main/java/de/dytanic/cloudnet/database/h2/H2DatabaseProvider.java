@@ -1,11 +1,8 @@
 package de.dytanic.cloudnet.database.h2;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.NetorHashMap;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
-import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
@@ -14,8 +11,10 @@ import org.h2.Driver;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
@@ -26,8 +25,6 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
 
     protected final NetorHashMap<String, Long, H2Database> cachedDatabaseInstances = new NetorHashMap<>();
-    protected final ITaskScheduler taskScheduler;
-    protected final boolean autoShutdownTaskScheduler;
     protected final File h2dbFile;
     protected final boolean runsInCluster;
     protected Connection connection;
@@ -36,15 +33,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
         this(h2File, runsInCluster, null);
     }
 
-    public H2DatabaseProvider(String h2File, boolean runsInCluster, ITaskScheduler taskScheduler) {
-        if (taskScheduler != null) {
-            this.taskScheduler = taskScheduler;
-            this.autoShutdownTaskScheduler = false;
-        } else {
-            this.taskScheduler = new DefaultTaskScheduler(1);
-            this.autoShutdownTaskScheduler = true;
-        }
-
+    public H2DatabaseProvider(String h2File, boolean runsInCluster, ExecutorService executorService) {
+        super(executorService);
         this.h2dbFile = new File(h2File);
         this.runsInCluster = runsInCluster;
     }
@@ -69,12 +59,12 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public H2Database getDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
         if (!this.cachedDatabaseInstances.contains(name)) {
-            this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new H2Database(this, name));
+            this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new H2Database(this, name, super.executorService));
         }
 
         return this.cachedDatabaseInstances.getSecond(name);
@@ -82,7 +72,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean containsDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.removedOutdatedEntries();
 
@@ -97,7 +87,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public boolean deleteDatabase(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
 
         this.cachedDatabaseInstances.remove(name);
 
@@ -115,7 +105,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
         return this.executeQuery(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
                 resultSet -> {
-                    Collection<String> collection = Iterables.newArrayList();
+                    Collection<String> collection = new ArrayList<>();
                     while (resultSet.next()) {
                         collection.add(resultSet.getString("table_name"));
                     }
@@ -132,9 +122,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public void close() throws Exception {
-        if (this.autoShutdownTaskScheduler) {
-            this.taskScheduler.shutdown();
-        }
+        super.close();
 
         if (this.connection != null) {
             this.connection.close();
@@ -155,8 +143,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
 
     public int executeUpdate(String query, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(objects);
 
         try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
             int i = 1;
@@ -174,9 +162,9 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
 
     public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
-        Validate.checkNotNull(query);
-        Validate.checkNotNull(callback);
-        Validate.checkNotNull(objects);
+        Preconditions.checkNotNull(query);
+        Preconditions.checkNotNull(callback);
+        Preconditions.checkNotNull(objects);
 
         try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
             int i = 1;

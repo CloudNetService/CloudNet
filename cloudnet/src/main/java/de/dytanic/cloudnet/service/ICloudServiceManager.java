@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -9,8 +11,10 @@ import java.util.function.Predicate;
 
 public interface ICloudServiceManager {
 
+    @NotNull
     File getTempDirectory();
 
+    @NotNull
     File getPersistenceServicesDirectory();
 
     Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
@@ -24,65 +28,68 @@ public interface ICloudServiceManager {
 
     List<ServiceTask> getServiceTasks();
 
-    void setServiceTasks(Collection<ServiceTask> tasks);
+    void setServiceTasks(@NotNull Collection<ServiceTask> tasks);
 
-    void setServiceTasksWithoutClusterSync(Collection<ServiceTask> tasks);
+    void setServiceTasksWithoutClusterSync(@NotNull Collection<ServiceTask> tasks);
 
-    default void updatePermanentServiceTask(ServiceTask task) {
+    default void updatePermanentServiceTask(@NotNull ServiceTask task) {
         this.addPermanentServiceTask(task);
     }
 
-    boolean addPermanentServiceTask(ServiceTask task);
+    boolean addPermanentServiceTask(@NotNull ServiceTask task);
 
-    void removePermanentServiceTask(ServiceTask task);
+    void removePermanentServiceTask(@NotNull ServiceTask task);
 
-    void removePermanentServiceTask(String name);
+    void removePermanentServiceTask(@NotNull String name);
 
-    boolean addPermanentServiceTaskWithoutClusterSync(ServiceTask task);
+    boolean addPermanentServiceTaskWithoutClusterSync(@NotNull ServiceTask task);
 
-    void removePermanentServiceTaskWithoutClusterSync(ServiceTask task);
+    void removePermanentServiceTaskWithoutClusterSync(@NotNull ServiceTask task);
 
-    void removePermanentServiceTaskWithoutClusterSync(String name);
+    void removePermanentServiceTaskWithoutClusterSync(@NotNull String name);
 
     void removeAllPermanentServiceTasks();
 
-    ServiceTask getServiceTask(String name);
+    @Nullable
+    ServiceTask getServiceTask(@NotNull String name);
 
-    boolean isTaskPresent(String name);
+    boolean isTaskPresent(@NotNull String name);
 
     //-
 
-    default void updateGroupConfiguration(GroupConfiguration groupConfiguration) {
+    default void updateGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
         this.addGroupConfiguration(groupConfiguration);
     }
 
     List<GroupConfiguration> getGroupConfigurations();
 
-    void setGroupConfigurations(Collection<GroupConfiguration> groupConfigurations);
+    void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations);
 
-    void setGroupConfigurationsWithoutClusterSync(Collection<GroupConfiguration> groupConfigurations);
+    void setGroupConfigurationsWithoutClusterSync(@NotNull Collection<GroupConfiguration> groupConfigurations);
 
-    GroupConfiguration getGroupConfiguration(String name);
+    GroupConfiguration getGroupConfiguration(@NotNull String name);
 
-    void addGroupConfiguration(GroupConfiguration groupConfiguration);
+    void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration);
 
-    void removeGroupConfiguration(GroupConfiguration groupConfiguration);
+    void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration);
 
-    void addGroupConfigurationWithoutClusterSync(GroupConfiguration groupConfiguration);
+    void addGroupConfigurationWithoutClusterSync(@NotNull GroupConfiguration groupConfiguration);
 
-    void removeGroupConfigurationWithoutClusterSync(GroupConfiguration groupConfiguration);
+    void removeGroupConfigurationWithoutClusterSync(@NotNull GroupConfiguration groupConfiguration);
 
-    void removeGroupConfiguration(String name);
+    void removeGroupConfiguration(@NotNull String name);
 
-    void removeGroupConfigurationWithoutClusterSync(String name);
+    void removeGroupConfigurationWithoutClusterSync(@NotNull String name);
 
-    boolean isGroupConfigurationPresent(String group);
+    boolean isGroupConfigurationPresent(@NotNull String group);
 
     //-
 
-    ICloudService runTask(ServiceTask serviceTask);
+    ICloudService runTask(@NotNull ServiceTask serviceTask);
 
-    ICloudService runTask(ServiceConfiguration serviceConfiguration);
+    ICloudService runTask(@NotNull ServiceTask serviceTask, int taskId);
+
+    ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
 
     default ICloudService runTask(
             String name,
@@ -130,6 +137,22 @@ public interface ICloudServiceManager {
             Integer port
     );
 
+    ICloudService runTask(
+            String name,
+            String runtime,
+            int taskId,
+            boolean autoDeleteOnStop,
+            boolean staticService,
+            Collection<ServiceRemoteInclusion> includes,
+            Collection<ServiceTemplate> templates,
+            Collection<ServiceDeployment> deployments,
+            Collection<String> groups,
+            Collection<String> deletedFilesAfterStop,
+            ProcessConfiguration processConfiguration,
+            JsonDocument properties,
+            Integer port
+    );
+
     default ICloudService runTask(
             String name,
             String runtime,
@@ -154,9 +177,11 @@ public interface ICloudServiceManager {
 
     //-
 
-    ICloudService getCloudService(UUID uniqueId);
+    @Nullable
+    ICloudService getCloudService(@NotNull UUID uniqueId);
 
-    ICloudService getCloudService(Predicate<ICloudService> predicate);
+    @Nullable
+    ICloudService getCloudService(@NotNull Predicate<ICloudService> predicate);
 
     /**
      * @deprecated moved to {@link #getLocalCloudServices(String)}
@@ -182,25 +207,27 @@ public interface ICloudServiceManager {
         return this.getLocalCloudServices();
     }
 
-    Collection<ICloudService> getLocalCloudServices(String taskName);
+    Collection<ICloudService> getLocalCloudServices(@NotNull String taskName);
 
-    Collection<ICloudService> getLocalCloudServices(Predicate<ICloudService> predicate);
+    Collection<ICloudService> getLocalCloudServices(@NotNull Predicate<ICloudService> predicate);
 
     Collection<ICloudService> getLocalCloudServices();
 
-    ServiceInfoSnapshot getServiceInfoSnapshot(UUID uniqueId);
+    @Nullable
+    ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull UUID uniqueId);
 
-    ServiceInfoSnapshot getServiceInfoSnapshot(Predicate<ServiceInfoSnapshot> predicate);
+    @Nullable
+    ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull Predicate<ServiceInfoSnapshot> predicate);
 
-    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(String taskName);
+    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull String taskName);
 
-    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(ServiceEnvironmentType environment);
+    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull ServiceEnvironmentType environment);
 
-    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(Predicate<ServiceInfoSnapshot> predicate);
+    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull Predicate<ServiceInfoSnapshot> predicate);
 
     Collection<ServiceInfoSnapshot> getServiceInfoSnapshots();
 
-    Collection<Integer> getReservedTaskIds(String task);
+    Collection<Integer> getReservedTaskIds(@NotNull String task);
 
     //-
 
@@ -209,5 +236,7 @@ public interface ICloudServiceManager {
     int getCurrentUsedHeapMemory();
 
     int getCurrentReservedMemory();
+
+    boolean isFileCreated();
 
 }

@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.listener;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -11,6 +10,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.*;
 import de.dytanic.cloudnet.ext.bridge.event.*;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -22,6 +22,7 @@ import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.net.InetSocketAddress;
+import java.util.Base64;
 import java.util.UUID;
 
 public final class BungeeCloudNetListener {
@@ -63,7 +64,7 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceInfoUpdateEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.bungeeCall(new BungeeCloudServiceInfoUpdateEvent(event.getServiceInfo()));
@@ -72,7 +73,7 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.bungeeCall(new BungeeCloudServiceRegisterEvent(event.getServiceInfo()));
@@ -81,7 +82,7 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceConnectNetworkEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.bungeeCall(new BungeeCloudServiceConnectNetworkEvent(event.getServiceInfo()));
@@ -90,7 +91,7 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceDisconnectNetworkEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.bungeeCall(new BungeeCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
@@ -99,7 +100,7 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            BungeeCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.remove(event.getServiceInfo().getServiceId().getName());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.bungeeCall(new BungeeCloudServiceUnregisterEvent(event.getServiceInfo()));
@@ -144,6 +145,21 @@ public final class BungeeCloudNetListener {
                 }
             }
             break;
+            case "send_plugin_message_to_proxy_player": {
+                ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
+
+                if (proxiedPlayer != null && event.getData().contains("tag") && event.getData().contains("data")) {
+                    String tag = event.getData().getString("tag");
+                    byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
+
+                    if (!ProxyServer.getInstance().getChannels().contains(tag)) {
+                        ProxyServer.getInstance().registerChannel(tag);
+                    }
+
+                    proxiedPlayer.sendData(tag, data);
+                }
+            }
+            break;
 
             case "broadcast_message": {
                 String permission = event.getData().getString("permission");
@@ -162,8 +178,11 @@ public final class BungeeCloudNetListener {
     }
 
     public ProxiedPlayer getPlayer(JsonDocument data) {
-        return Iterables.first(ProxyServer.getInstance().getPlayers(), proxiedPlayer ->
-                data.contains("uniqueId") && proxiedPlayer.getUniqueId().equals(data.get("uniqueId", UUID.class)));
+        return ProxyServer.getInstance().getPlayers().stream()
+                .filter(proxiedPlayer ->
+                        data.contains("uniqueId") && proxiedPlayer.getUniqueId().equals(data.get("uniqueId", UUID.class)))
+                .findFirst()
+                .orElse(null);
     }
 
     @EventListener
@@ -183,7 +202,7 @@ public final class BungeeCloudNetListener {
 
     @EventListener
     public void handle(BridgeProxyPlayerLoginRequestEvent event) {
-        this.bungeeCall(new BungeeBridgeProxyPlayerLoginSuccessEvent(event.getNetworkConnectionInfo()));
+        this.bungeeCall(new BungeeBridgeProxyPlayerLoginRequestEvent(event.getNetworkConnectionInfo()));
     }
 
     @EventListener

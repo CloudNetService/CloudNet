@@ -1,10 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
@@ -20,9 +17,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class BukkitCloudNetHelper {
 
@@ -46,9 +42,9 @@ public final class BukkitCloudNetHelper {
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        Collection<BukkitCloudNetPlayerInfo> players = Iterables.newArrayList();
+        Collection<BukkitCloudNetPlayerInfo> players = new ArrayList<>();
         Bukkit.getOnlinePlayers().forEach(player -> {
             Location location = player.getLocation();
 
@@ -72,7 +68,7 @@ public final class BukkitCloudNetHelper {
         });
 
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", Bukkit.getVersion())
                 .append("Bukkit-Version", Bukkit.getBukkitVersion())
                 .append("Online-Count", Bukkit.getOnlinePlayers().size())
@@ -84,11 +80,11 @@ public final class BukkitCloudNetHelper {
                 .append("Incoming-Channels", Bukkit.getMessenger().getIncomingChannels())
                 .append("Online-Mode", Bukkit.getOnlineMode())
                 .append("Whitelist-Enabled", Bukkit.hasWhitelist())
-                .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(), OfflinePlayer::getName))
+                .append("Whitelist", Bukkit.getWhitelistedPlayers().stream().map(OfflinePlayer::getName).collect(Collectors.toList()))
                 .append("Allow-Nether", Bukkit.getAllowNether())
                 .append("Allow-End", Bukkit.getAllowEnd())
                 .append("Players", players)
-                .append("Plugins", Iterables.map(Arrays.asList(Bukkit.getPluginManager().getPlugins()), plugin -> {
+                .append("Plugins", Arrays.stream(Bukkit.getPluginManager().getPlugins()).map(plugin -> {
                     PluginInfo pluginInfo = new PluginInfo(plugin.getName(), plugin.getDescription().getVersion());
 
                     pluginInfo.getProperties()
@@ -104,16 +100,16 @@ public final class BukkitCloudNetHelper {
                     ;
 
                     return pluginInfo;
-                }))
-                .append("Worlds", Iterables.map(Bukkit.getWorlds(), world -> {
-                    Map<String, String> gameRules = Maps.newHashMap();
+                }).collect(Collectors.toList()))
+                .append("Worlds", Bukkit.getWorlds().stream().map(world -> {
+                    Map<String, String> gameRules = new HashMap<>();
 
                     for (String entry : world.getGameRules()) {
                         gameRules.put(entry, world.getGameRuleValue(entry));
                     }
 
                     return new WorldInfo(world.getUID(), world.getName(), world.getDifficulty().name(), gameRules);
-                }))
+                }).collect(Collectors.toList()))
         ;
     }
 
@@ -127,9 +123,8 @@ public final class BukkitCloudNetHelper {
                 Bukkit.getServer().getOnlineMode(),
                 false,
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }
@@ -162,9 +157,8 @@ public final class BukkitCloudNetHelper {
                 worldPosition,
                 new HostAndPort(player.getAddress()),
                 new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
+                        Wrapper.getInstance().getServiceId(),
+                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
     }

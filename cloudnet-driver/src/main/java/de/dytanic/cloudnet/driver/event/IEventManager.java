@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.event;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 
 public interface IEventManager {
 
@@ -26,7 +26,7 @@ public interface IEventManager {
     }
 
     default IEventManager registerListeners(Object... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         for (Object listener : listeners) {
             this.registerListener(listener);

@@ -4,11 +4,11 @@ import java.lang.reflect.Method;
 
 public final class DefaultModuleTaskEntry implements IModuleTaskEntry {
 
-    private IModuleWrapper moduleWrapper;
+    private final IModuleWrapper moduleWrapper;
 
-    private ModuleTask taskInfo;
+    private final ModuleTask taskInfo;
 
-    private Method handler;
+    private final Method handler;
 
     public DefaultModuleTaskEntry(IModuleWrapper moduleWrapper, ModuleTask taskInfo, Method handler) {
         this.moduleWrapper = moduleWrapper;

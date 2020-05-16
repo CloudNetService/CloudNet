@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -33,6 +34,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
+    @NotNull
     public final ITask<V> addListener(ITaskListener<V> listener) {
         if (listener == null) {
             return this;
@@ -108,6 +110,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
+    @NotNull
     public ITask<V> clearListeners() {
         this.listeners.clear();
         return this;
@@ -120,7 +123,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public synchronized V get(long time, TimeUnit timeUnit, V def) {
-        Validate.checkNotNull(timeUnit);
+        Preconditions.checkNotNull(timeUnit);
 
         try {
             return get(time, timeUnit);
@@ -185,7 +188,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     @Override
-    public synchronized V get(long timeout, TimeUnit unit) throws InterruptedException {
+    public synchronized V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
         wait = true;
         if (!isDone()) {
             this.wait(unit.toMillis(timeout));

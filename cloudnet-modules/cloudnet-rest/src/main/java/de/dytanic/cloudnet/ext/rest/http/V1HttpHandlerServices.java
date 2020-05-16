@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -8,6 +7,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 public final class V1HttpHandlerServices extends V1HttpHandler {
 
@@ -23,10 +23,15 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
     @Override
     public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("uuid")) {
-            ServiceInfoSnapshot serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid")));
+            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                    .filter(serviceInfoSnapshot12 -> serviceInfoSnapshot12.getServiceId().getUniqueId().toString().contains(context.request().pathParameters().get("uuid")))
+                    .findFirst()
+                    .orElse(null);
 
             if (serviceInfoSnapshot == null) {
-                serviceInfoSnapshot = Iterables.first(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().contains(context.request().pathParameters().get("uuid")));
+                serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                        .filter(serviceInfoSnapshot1 -> serviceInfoSnapshot1.getServiceId().getName().contains(context.request().pathParameters().get("uuid")))
+                        .findFirst().orElse(null);
             }
 
             if (serviceInfoSnapshot == null) {
@@ -44,7 +49,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
             if (context.request().pathParameters().containsKey("operation")) {
                 switch (context.request().pathParameters().get("operation").toLowerCase()) {
                     case "start": {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).start();
+                        serviceInfoSnapshot.provider().start();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -54,7 +59,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "stop": {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).stop();
+                        serviceInfoSnapshot.provider().stop();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -64,7 +69,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "delete": {
-                        CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).delete();
+                        serviceInfoSnapshot.provider().delete();
                         context
                                 .response()
                                 .statusCode(HttpResponseCode.HTTP_OK)
@@ -74,7 +79,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "log": {
-                        Queue<String> queue = CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages();
+                        Queue<String> queue = serviceInfoSnapshot.provider().getCachedLogMessages();
 
                         StringBuilder stringBuilder = new StringBuilder();
 
@@ -91,7 +96,7 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                     }
                     break;
                     case "log_json": {
-                        Queue<String> queue = CloudNetDriver.getInstance().getCloudServiceProvider(serviceInfoSnapshot).getCachedLogMessages();
+                        Queue<String> queue = serviceInfoSnapshot.provider().getCachedLogMessages();
 
                         context
                                 .response()
@@ -121,20 +126,21 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
         context
                 .response()
                 .header("Content-Type", "application/json")
-                .body(GSON.toJson(Iterables.filter(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), serviceInfoSnapshot -> {
-                    if (context.request().queryParameters().containsKey("name") &&
-                            !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName())) {
-                        return false;
-                    }
+                .body(GSON.toJson(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                        .filter(serviceInfoSnapshot -> {
+                            if (context.request().queryParameters().containsKey("name") &&
+                                    !context.request().queryParameters().get("name").contains(serviceInfoSnapshot.getServiceId().getName())) {
+                                return false;
+                            }
 
-                    if (context.request().queryParameters().containsKey("task") &&
-                            !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName())) {
-                        return false;
-                    }
+                            if (context.request().queryParameters().containsKey("task") &&
+                                    !context.request().queryParameters().get("task").contains(serviceInfoSnapshot.getServiceId().getTaskName())) {
+                                return false;
+                            }
 
-                    return !context.request().queryParameters().containsKey("node") ||
-                            context.request().queryParameters().get("node").contains(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-                })))
+                            return !context.request().queryParameters().containsKey("node") ||
+                                    context.request().queryParameters().get("node").contains(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
+                        }).collect(Collectors.toList())))
                 .statusCode(200)
                 .context()
                 .closeAfter(true)

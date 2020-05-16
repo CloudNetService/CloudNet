@@ -1,10 +1,7 @@
 package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -23,15 +20,7 @@ public final class PacketClientServiceInfoUpdateListener implements IPacketListe
             ICloudService cloudService = cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
 
             if (cloudService != null) {
-                cloudService.setServiceInfoSnapshot(serviceInfoSnapshot);
-                cloudServiceManager.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
-
-                CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-
-                CloudNet.getInstance().getNetworkClient()
-                        .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
-                CloudNet.getInstance().getNetworkServer()
-                        .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
+                cloudService.updateServiceInfoSnapshot(serviceInfoSnapshot);
             }
         }
     }

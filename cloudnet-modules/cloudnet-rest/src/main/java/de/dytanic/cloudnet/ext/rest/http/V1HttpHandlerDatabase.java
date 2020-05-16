@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -8,6 +7,7 @@ import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
             ;
 
         } else {
-            Map<String, String> queryFilters = Maps.newHashMap();
+            Map<String, String> queryFilters = new HashMap<>();
 
             for (Map.Entry<String, List<String>> queryEntry : context.request().queryParameters().entrySet()) {
                 queryFilters.put(queryEntry.getKey(), queryEntry.getValue().get(0));

@@ -1,9 +1,10 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.listener;
 
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
+import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -12,12 +13,15 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpd
 import de.dytanic.cloudnet.driver.event.events.service.*;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.*;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import net.kyori.text.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.net.InetSocketAddress;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,7 +62,7 @@ public final class VelocityCloudNetListener {
             }
 
             VelocityCloudNetHelper.removeServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceStopEvent(event.getServiceInfo()));
@@ -67,7 +71,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceInfoUpdateEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceInfoUpdateEvent(event.getServiceInfo()));
@@ -76,7 +80,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceRegisterEvent(event.getServiceInfo()));
@@ -85,7 +89,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceConnectNetworkEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceConnectNetworkEvent(event.getServiceInfo()));
@@ -94,7 +98,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceDisconnectNetworkEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
@@ -103,7 +107,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.remove(event.getServiceInfo().getServiceId().getName());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
@@ -134,7 +138,7 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("kickMessage") != null) {
-                    player.disconnect(TextComponent.of((event.getData().getString("kickMessage")).replace("&", "§")));
+                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("kickMessage")).replace("&", "§")));
                 }
             }
             break;
@@ -142,7 +146,22 @@ public final class VelocityCloudNetListener {
                 Player player = getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("message") != null) {
-                    player.sendMessage(TextComponent.of((event.getData().getString("message")).replace("&", "§")));
+                    player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("message")).replace("&", "§")));
+                }
+            }
+            break;
+            case "send_plugin_message_to_proxy_player": {
+                Player player = getPlayer(event.getData());
+
+                if (player != null && event.getData().contains("tag") && event.getData().contains("data")) {
+                    String tag = event.getData().getString("tag");
+
+                    ChannelIdentifier channelIdentifier = new LegacyChannelIdentifier(tag);
+                    VelocityCloudNetHelper.getProxyServer().getChannelRegistrar().register(channelIdentifier);
+
+                    byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
+
+                    player.sendPluginMessage(channelIdentifier, data);
                 }
             }
             break;
@@ -150,7 +169,7 @@ public final class VelocityCloudNetListener {
                 String permission = event.getData().getString("permission");
 
                 if (event.getData().getString("message") != null) {
-                    TextComponent message = TextComponent.of(event.getData().getString("message").replace("&", "§"));
+                    TextComponent message = LegacyComponentSerializer.legacyLinking().deserialize(event.getData().getString("message").replace("&", "§"));
                     for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
                         if (permission == null || player.hasPermission(permission)) {
                             player.sendMessage(message);
@@ -163,8 +182,11 @@ public final class VelocityCloudNetListener {
     }
 
     private Player getPlayer(JsonDocument data) {
-        return Iterables.first(VelocityCloudNetHelper.getProxyServer().getAllPlayers(), player -> data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class)) ||
-                data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")));
+        return VelocityCloudNetHelper.getProxyServer().getAllPlayers().stream()
+                .filter(player -> data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class))
+                        || data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")))
+                .findFirst()
+                .orElse(null);
     }
 
     @EventListener

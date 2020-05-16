@@ -10,7 +10,10 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandCloudNet;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityCloudNetListener;
@@ -18,6 +21,7 @@ import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 @Plugin(id = "cloudnet_bridge_velocity")
 public final class VelocityCloudNetBridgePlugin {
@@ -28,6 +32,7 @@ public final class VelocityCloudNetBridgePlugin {
 
     @Inject
     public VelocityCloudNetBridgePlugin(ProxyServer proxyServer) {
+        CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
         instance = this;
 
         this.proxyServer = proxyServer;
@@ -40,15 +45,25 @@ public final class VelocityCloudNetBridgePlugin {
 
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
-        initListeners();
-        registerCommands();
-        initServers();
+        this.initListeners();
+        this.registerCommands();
+        this.initServers();
+        this.runPlayerDisconnectTask();
     }
 
     @Subscribe
     public void handleShutdown(ProxyShutdownEvent event) {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    }
+
+    private void runPlayerDisconnectTask() {
+        this.proxyServer.getScheduler().buildTask(this, () -> {
+            if (VelocityCloudNetHelper.getLastOnlineCount() != -1 &&
+                    this.proxyServer.getPlayerCount() != VelocityCloudNetHelper.getLastOnlineCount()) {
+                Wrapper.getInstance().publishServiceInfoUpdate();
+            }
+        }).repeat(500, TimeUnit.MILLISECONDS).schedule();
     }
 
     private void initListeners() {
@@ -79,7 +94,7 @@ public final class VelocityCloudNetBridgePlugin {
                         serviceInfoSnapshot.getAddress().getPort()
                 )));
 
-                VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(name, serviceInfoSnapshot);
+                BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
                 VelocityCloudNetHelper.addServerToVelocityPrioritySystemConfiguration(serviceInfoSnapshot, name);
             }
         }

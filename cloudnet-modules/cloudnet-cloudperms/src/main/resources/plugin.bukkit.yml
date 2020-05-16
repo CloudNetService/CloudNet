@@ -1,5 +1,6 @@
 name: CloudNet-CloudPerms
-version: 1.1
+version: "1.2"
+api-version: "1.13"
 author: CloudNetService
 description: Bukkit extension which implement the permission management system from CloudNet into Bukkit for players
 

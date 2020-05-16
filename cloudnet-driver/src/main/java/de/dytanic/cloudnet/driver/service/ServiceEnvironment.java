@@ -9,8 +9,6 @@ public enum ServiceEnvironment {
     MINECRAFT_SERVER_SPIGOT("spigot"),
     MINECRAFT_SERVER_PAPER_SPIGOT("paper"),
     MINECRAFT_SERVER_FORGE("forge"),
-    MINECRAFT_SERVER_MODPACK("modpack"),
-    MINECRAFT_SERVER_SPONGE("sponge"),
     MINECRAFT_SERVER_SPONGE_VANILLA("spongevanilla"),
     MINECRAFT_SERVER_AKARIN("akarin"),
     MINECRAFT_SERVER_TACO("taco"),
@@ -25,12 +23,8 @@ public enum ServiceEnvironment {
     WATERDOG_DEFAULT("waterdog"),
     //Nukkit
     NUKKIT_DEFAULT("nukkit"),
-    //GoMint
-    GO_MINT_DEFAULT("gomint"),
     //Velocity
-    VELOCITY_DEFAULT("velocity"),
-    //ProxProx
-    PROX_PROX_DEFAULT("proxprox");
+    VELOCITY_DEFAULT("velocity");
 
     private final String name;
 

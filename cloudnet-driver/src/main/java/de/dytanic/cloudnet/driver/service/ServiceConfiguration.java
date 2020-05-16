@@ -18,10 +18,12 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
     private String[] groups;
 
     private ServiceRemoteInclusion[] includes;
-
     private ServiceTemplate[] templates;
-
     private ServiceDeployment[] deployments;
+
+    private ServiceRemoteInclusion[] initIncludes;
+    private ServiceTemplate[] initTemplates;
+    private ServiceDeployment[] initDeployments;
 
     private String[] deletedFilesAfterStop;
 
@@ -47,9 +49,9 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
         this.autoDeleteOnStop = autoDeleteOnStop;
         this.staticService = staticService;
         this.groups = groups;
-        this.includes = includes;
-        this.templates = templates;
-        this.deployments = deployments;
+        this.includes = this.initIncludes = includes;
+        this.templates = this.initTemplates = templates;
+        this.deployments = this.initDeployments = deployments;
         this.deletedFilesAfterStop = deletedFilesAfterStop;
         this.processConfig = processConfig;
         this.properties = properties;
@@ -142,5 +144,29 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public void setInitDeployments(ServiceDeployment[] initDeployments) {
+        this.initDeployments = initDeployments;
+    }
+
+    public void setInitIncludes(ServiceRemoteInclusion[] initIncludes) {
+        this.initIncludes = initIncludes;
+    }
+
+    public void setInitTemplates(ServiceTemplate[] initTemplates) {
+        this.initTemplates = initTemplates;
+    }
+
+    public ServiceDeployment[] getInitDeployments() {
+        return this.initDeployments;
+    }
+
+    public ServiceRemoteInclusion[] getInitIncludes() {
+        return this.initIncludes;
+    }
+
+    public ServiceTemplate[] getInitTemplates() {
+        return this.initTemplates;
     }
 }

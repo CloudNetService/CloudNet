@@ -12,4 +12,5 @@ public final class PacketServerSetGlobalServiceInfoList extends Packet {
     public PacketServerSetGlobalServiceInfoList(Collection<ServiceInfoSnapshot> serviceInfoSnapshots) {
         super(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new JsonDocument("serviceInfoList", serviceInfoSnapshots).append("set", true), new byte[]{0});
     }
+
 }

@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.ext.smart;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -18,7 +16,7 @@ import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
@@ -28,7 +26,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     private static CloudNetSmartModule instance;
 
-    private final Map<UUID, CloudNetServiceSmartProfile> providedSmartServices = Maps.newConcurrentHashMap();
+    private final Map<UUID, CloudNetServiceSmartProfile> providedSmartServices = new ConcurrentHashMap<>();
 
     public CloudNetSmartModule() {
         instance = this;
@@ -57,13 +55,15 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
         for (ServiceTask task : this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks()) {
             SmartServiceTaskConfig config = task.getProperties().get(SMART_CONFIG_ENTRY, SmartServiceTaskConfig.class);
-            task.getProperties().append(
-                    SMART_CONFIG_ENTRY,
-                    oldSmartTasks.containsKey(task.getName()) ?
-                            oldSmartTasks.get(task.getName()) :
-                            config != null ? config : new SmartServiceTaskConfig()
-            );
-            this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(task);
+            if (config == null) {
+                task.getProperties().append(
+                        SMART_CONFIG_ENTRY,
+                        oldSmartTasks.containsKey(task.getName()) ?
+                                oldSmartTasks.get(task.getName()) :
+                                new SmartServiceTaskConfig()
+                );
+                this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(task);
+            }
         }
     }
 
@@ -99,24 +99,24 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     }
 
     public ServiceInfoSnapshot getFreeNonStartedService(String taskName) {
-        return Iterables.first(CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().values(), serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName) &&
-                (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED || serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED));
+        return CloudNet.getInstance().getCloudServiceProvider().getCloudServices().stream()
+                .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName) &&
+                        (serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.PREPARED || serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.DEFINED))
+                .findFirst()
+                .orElse(null);
     }
 
     public void updateAsSmartService(ServiceConfiguration configuration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
-        configuration.setTemplates(this.applyTemplateInstaller(serviceTask, smartTask.getTemplateInstaller()));
+        configuration.setTemplates(this.applyTemplateInstaller(configuration, new ArrayList<>(serviceTask.getTemplates()), smartTask.getTemplateInstaller()));
+        configuration.setInitTemplates(configuration.getTemplates());
         configuration.getProcessConfig().setMaxHeapMemorySize(
                 this.applyDynamicMemory(serviceTask.getProcessConfiguration().getMaxHeapMemorySize(), configuration, serviceTask, smartTask)
         );
     }
 
-    private ServiceTemplate[] applyTemplateInstaller(ServiceTask serviceTask, TemplateInstaller templateInstaller) {
-        List<ServiceTemplate> taskTemplates = new ArrayList<>(serviceTask.getTemplates());
-
-        List<ServiceTemplate> outTemplates = super.getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream()
-                .filter(groupConfiguration -> serviceTask.getGroups().contains(groupConfiguration.getName()))
-                .flatMap(groupConfiguration -> groupConfiguration.getTemplates().stream())
-                .collect(Collectors.toList());
+    private ServiceTemplate[] applyTemplateInstaller(ServiceConfiguration configuration, List<ServiceTemplate> taskTemplates, TemplateInstaller templateInstaller) {
+        List<ServiceTemplate> outTemplates = new ArrayList<>(Arrays.asList(configuration.getTemplates()));
+        outTemplates.removeAll(taskTemplates);
 
         switch (templateInstaller) {
             case INSTALL_ALL: {
@@ -140,6 +140,22 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                     ServiceTemplate item = taskTemplates.get(RANDOM.nextInt(taskTemplates.size()));
                     outTemplates.add(item);
                 }
+                break;
+            }
+            case INSTALL_BALANCED: {
+                if (!taskTemplates.isEmpty()) {
+                    Collection<ServiceInfoSnapshot> services = super.getCloudNet().getCloudServiceProvider().getCloudServices(configuration.getServiceId().getTaskName());
+                    taskTemplates.stream()
+                            .min(Comparator.comparingLong(serviceTemplate ->
+                                    services.stream()
+                                            .map(serviceInfoSnapshot -> serviceInfoSnapshot.getConfiguration().getInitTemplates())
+                                            .flatMap(Arrays::stream)
+                                            .filter(serviceTemplate::equals)
+                                            .count()
+                            ))
+                            .ifPresent(outTemplates::add);
+                }
+
                 break;
             }
         }

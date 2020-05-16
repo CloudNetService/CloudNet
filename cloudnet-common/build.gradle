@@ -3,7 +3,8 @@ jar {
 }
 
 dependencies {
-    compile group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
+    api group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
+    api group: 'com.google.guava', name: 'guava', version: dependencyGuavaVersion
 
-    testCompile group: 'junit', name: 'junit', version: testJunitVersion
+    testImplementation group: 'junit', name: 'junit', version: testJunitVersion
 }
