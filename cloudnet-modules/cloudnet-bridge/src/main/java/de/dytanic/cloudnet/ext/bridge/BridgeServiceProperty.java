@@ -102,7 +102,7 @@ public class BridgeServiceProperty {
     }
 
     private static boolean isStartingService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING && !serviceInfoSnapshot.getProperty(IS_ONLINE).isPresent();
+        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING && !serviceInfoSnapshot.getProperty(IS_ONLINE).orElse(false);
     }
 
     private static boolean isInGameService(ServiceInfoSnapshot serviceInfoSnapshot) {
