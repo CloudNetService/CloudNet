@@ -2,12 +2,16 @@
 <!-- IF YOU'RE NOT FOLLOWING CLOUDNET'S CODESTYLE GUIDELINES, THEN THIS PULL REQUEST IS LIKELY TO BE REJECTED -->
 <!-- IF YOU'RE NOT PROVIDING ANY INFORMATION, THEN THIS PULL REQUEST IS LIKELY TO BE REJECTED -->
 
+This pull request includes:  
 - [ ] breaking changes
 - [ ] no breaking changes
 
-### changes made to the repository
-<!-- a brief description of the changes done in this pull request -->
+### Changes made to the repository:
+<!-- A brief description of the changes done in this pull request. -->
+
+### Documentation of test results:
+<!-- Add test results before and after applying your changes. -->
 
 
-### related issues/discussions
-<!-- put here any issues or discussions related to this pull request -->  
+### Related issues/discussions:
+<!-- Add any related issues here by mentioning them (e.g. Fixes #1). -->  
