@@ -35,7 +35,7 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
             if (syncProxyMotd != null) {
                 String protocolText = syncProxyMotd.getProtocolText();
 
-                String motd = ChatColor.translateAlternateColorCodes('&', syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
+                String motd = ChatColor.translateAlternateColorCodes('&', syncProxyMotd.getFirstLine() + (syncProxyMotd.getSecondLine().isEmpty() ? "" : "\n" + syncProxyMotd.getSecondLine()))
                         .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
                         .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
                         .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
