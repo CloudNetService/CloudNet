@@ -12,6 +12,7 @@ import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,7 +26,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
         this.permissionsManagement = permissionsManagement;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void handle(LoginEvent event) {
         CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName(), message -> {
             event.setCancelled(true);

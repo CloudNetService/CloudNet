@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -119,11 +120,15 @@ public class ListenableTask<V> implements ITask<V> {
     }
 
     @Override
-    public V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
+    public V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, TimeoutException {
         synchronized (this) {
-            if (!isDone()) {
+            if (!this.isDone()) {
                 this.wait(unit.toMillis(timeout));
             }
+        }
+
+        if (!this.isDone()) {
+            throw new TimeoutException("Task has not been called within the given time!");
         }
 
         return value;
