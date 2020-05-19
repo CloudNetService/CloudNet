@@ -51,11 +51,11 @@ public class NPCConfiguration {
     }
 
     public Collection<NPCConfigurationEntry> getConfigurations() {
-        return configurations;
+        return this.configurations;
     }
 
     public Map<String, String> getMessages() {
-        return messages;
+        return this.messages;
     }
 
 }

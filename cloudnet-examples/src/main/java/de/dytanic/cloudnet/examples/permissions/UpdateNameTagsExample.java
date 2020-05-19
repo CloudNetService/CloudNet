@@ -49,6 +49,6 @@ public final class UpdateNameTagsExample {
     }
 
     public boolean isNicked(Player player) {
-        return nickedPlayers.contains(player.getUniqueId());
+        return this.nickedPlayers.contains(player.getUniqueId());
     }
 }

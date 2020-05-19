@@ -72,7 +72,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     public String[] sendCommandLine(@NotNull String commandLine) {
         if (this.channel != null) {
             try {
-                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(channel,
+                return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPI(this.channel,
                         new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandLine")
                                 .append("commandLine", commandLine)
                         , new byte[0],

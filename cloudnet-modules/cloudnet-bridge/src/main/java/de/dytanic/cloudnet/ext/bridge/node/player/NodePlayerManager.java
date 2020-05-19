@@ -43,7 +43,7 @@ public final class NodePlayerManager implements IPlayerManager {
 
 
     public IDatabase getDatabase() {
-        return CloudNet.getInstance().getDatabaseProvider().getDatabase(databaseName);
+        return CloudNet.getInstance().getDatabaseProvider().getDatabase(this.databaseName);
     }
 
 
@@ -60,7 +60,7 @@ public final class NodePlayerManager implements IPlayerManager {
     @Nullable
     @Override
     public CloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
-        return onlineCloudPlayers.get(uniqueId);
+        return this.onlineCloudPlayers.get(uniqueId);
     }
 
     @Override

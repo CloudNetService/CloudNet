@@ -54,12 +54,12 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     @Override
     public boolean removePermission(@NotNull String group, @NotNull String permission) {
-        if (groupPermissions.containsKey(group)) {
-            Optional<Permission> optionalPermission = groupPermissions.get(group).stream().filter(perm -> perm.getName().equalsIgnoreCase(permission)).findFirst();
+        if (this.groupPermissions.containsKey(group)) {
+            Optional<Permission> optionalPermission = this.groupPermissions.get(group).stream().filter(perm -> perm.getName().equalsIgnoreCase(permission)).findFirst();
             if (optionalPermission.isPresent()) {
-                groupPermissions.get(group).remove(optionalPermission.get());
-                if (groupPermissions.get(group).isEmpty()) {
-                    groupPermissions.remove(group);
+                this.groupPermissions.get(group).remove(optionalPermission.get());
+                if (this.groupPermissions.get(group).isEmpty()) {
+                    this.groupPermissions.remove(group);
                 }
                 return true;
             }

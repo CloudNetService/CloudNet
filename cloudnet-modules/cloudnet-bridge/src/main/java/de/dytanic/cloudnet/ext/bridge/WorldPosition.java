@@ -77,7 +77,7 @@ public class WorldPosition {
     }
 
     public String getGroup() {
-        return group;
+        return this.group;
     }
 
     public void setGroup(String group) {

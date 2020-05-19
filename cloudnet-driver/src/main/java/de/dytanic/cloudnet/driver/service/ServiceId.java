@@ -28,7 +28,7 @@ public final class ServiceId implements INameable {
     }
 
     public String getName() {
-        return taskName + "-" + taskServiceId;
+        return this.taskName + "-" + this.taskServiceId;
     }
 
     public UUID getUniqueId() {

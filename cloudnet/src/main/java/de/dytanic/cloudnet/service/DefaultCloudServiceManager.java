@@ -43,7 +43,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     public List<ServiceTask> getServiceTasks() {
-        return config.getTasks();
+        return this.config.getTasks();
     }
 
     @Override

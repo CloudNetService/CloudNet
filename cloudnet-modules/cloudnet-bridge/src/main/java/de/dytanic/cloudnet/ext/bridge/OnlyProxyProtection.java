@@ -80,6 +80,6 @@ public class OnlyProxyProtection {
     }
 
     public Map<UUID, String> getProxyIpAddress() {
-        return proxyIpAddress;
+        return this.proxyIpAddress;
     }
 }

@@ -44,7 +44,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public boolean isSslEnabled() {
-        return sslContext != null;
+        return this.sslContext != null;
     }
 
     @Override
@@ -57,10 +57,10 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         Preconditions.checkNotNull(hostAndPort);
         Preconditions.checkNotNull(hostAndPort.getHost());
 
-        if (!channelFutures.containsKey(hostAndPort.getPort())) {
+        if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
                 this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-                        .group(bossGroup, workerGroup)
+                        .group(this.bossGroup, this.workerGroup)
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.IP_TOS, 24)
                         .childOption(ChannelOption.AUTO_READ, true)

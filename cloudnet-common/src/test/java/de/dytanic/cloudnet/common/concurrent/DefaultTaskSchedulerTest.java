@@ -69,7 +69,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         @Override
         public Integer call() throws Exception {
-            return ++counter;
+            return ++this.counter;
         }
     }
 }

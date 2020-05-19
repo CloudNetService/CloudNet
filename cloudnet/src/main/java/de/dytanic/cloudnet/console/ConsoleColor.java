@@ -46,7 +46,7 @@ public enum ConsoleColor {
 
     @Override
     public String toString() {
-        return ansiCode;
+        return this.ansiCode;
     }
 
     public String getName() {

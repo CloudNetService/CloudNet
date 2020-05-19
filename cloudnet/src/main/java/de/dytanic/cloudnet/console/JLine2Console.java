@@ -30,7 +30,7 @@ public final class JLine2Console implements IConsole {
             version = CloudNet.class.getPackage().getImplementationVersion();
     private String prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
 
-    private String screenName = version;
+    private String screenName = this.version;
 
     private final Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
 

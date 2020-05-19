@@ -201,7 +201,7 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
     }
 
     public NPCConfiguration getNPCConfiguration() {
-        return npcConfiguration;
+        return this.npcConfiguration;
     }
 
     /**
@@ -222,7 +222,7 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
     }
 
     public NPCConfigurationEntry getOwnNPCConfigurationEntry() {
-        return ownNPCConfigurationEntry;
+        return this.ownNPCConfigurationEntry;
     }
 
 

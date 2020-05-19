@@ -29,7 +29,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(object);
 
-        entries.append(key, object);
+        this.entries.append(key, object);
         this.save();
 
         return this;
@@ -40,7 +40,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(string);
 
-        entries.append(key, string);
+        this.entries.append(key, string);
         this.save();
 
         return this;
@@ -51,7 +51,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(number);
 
-        entries.append(key, number);
+        this.entries.append(key, number);
         this.save();
 
         return this;
@@ -62,7 +62,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(bool);
 
-        entries.append(key, bool);
+        this.entries.append(key, bool);
         this.save();
 
         return this;
@@ -73,7 +73,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(bytes);
 
-        entries.append(key, bytes);
+        this.entries.append(key, bytes);
         this.save();
 
         return this;
@@ -83,7 +83,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     public IConfigurationRegistry remove(String key) {
         Preconditions.checkNotNull(key);
 
-        entries.remove(key);
+        this.entries.remove(key);
         this.save();
 
         return this;
@@ -93,7 +93,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
     public boolean contains(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.contains(key);
+        return this.entries.contains(key);
     }
 
     @Override
@@ -101,7 +101,7 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(clazz);
 
-        return entries.get(key, clazz);
+        return this.entries.get(key, clazz);
     }
 
     @Override
@@ -109,14 +109,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(type);
 
-        return entries.get(key, type);
+        return this.entries.get(key, type);
     }
 
     @Override
     public String getString(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.getString(key);
+        return this.entries.getString(key);
     }
 
     @Override
@@ -124,14 +124,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(def);
 
-        return entries.getString(key, def);
+        return this.entries.getString(key, def);
     }
 
     @Override
     public Integer getInt(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.getInt(key);
+        return this.entries.getInt(key);
     }
 
     @Override
@@ -139,14 +139,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(def);
 
-        return entries.getInt(key, def);
+        return this.entries.getInt(key, def);
     }
 
     @Override
     public Double getDouble(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.getDouble(key);
+        return this.entries.getDouble(key);
     }
 
     @Override
@@ -154,14 +154,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(def);
 
-        return entries.getDouble(key, def);
+        return this.entries.getDouble(key, def);
     }
 
     @Override
     public Short getShort(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.getShort(key);
+        return this.entries.getShort(key);
     }
 
     @Override
@@ -169,14 +169,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(def);
 
-        return entries.getShort(key, def);
+        return this.entries.getShort(key, def);
     }
 
     @Override
     public Long getLong(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.getLong(key);
+        return this.entries.getLong(key);
     }
 
     @Override
@@ -184,14 +184,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(def);
 
-        return entries.getLong(key, def);
+        return this.entries.getLong(key, def);
     }
 
     @Override
     public Boolean getBoolean(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.getBoolean(key);
+        return this.entries.getBoolean(key);
     }
 
     @Override
@@ -199,14 +199,14 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(def);
 
-        return entries.getBoolean(key, def);
+        return this.entries.getBoolean(key, def);
     }
 
     @Override
     public byte[] getBytes(String key) {
         Preconditions.checkNotNull(key);
 
-        return entries.getBinary(key);
+        return this.entries.getBinary(key);
     }
 
     @Override
@@ -214,29 +214,29 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(bytes);
 
-        return entries.getBinary(key, bytes);
+        return this.entries.getBinary(key, bytes);
     }
 
     @Override
     public IConfigurationRegistry save() {
         new JsonDocument()
-                .append("registryVersion", registryVersion)
-                .append("entries", entries)
-                .write(path);
+                .append("registryVersion", this.registryVersion)
+                .append("entries", this.entries)
+                .write(this.path);
 
         return this;
     }
 
     @Override
     public IConfigurationRegistry load() {
-        if (!Files.exists(path)) {
-            path.toFile().getParentFile().mkdirs();
+        if (!Files.exists(this.path)) {
+            this.path.toFile().getParentFile().mkdirs();
             this.save();
         }
 
         JsonDocument loaded = JsonDocument.newDocument(this.path);
         if (loaded.contains("registryVersion") && loaded.contains("entries")) {
-            if (lowestSupportedVersion <= loaded.getInt("registryVersion")) {
+            if (this.lowestSupportedVersion <= loaded.getInt("registryVersion")) {
                 this.entries = loaded.getDocument("entries");
             }
         }

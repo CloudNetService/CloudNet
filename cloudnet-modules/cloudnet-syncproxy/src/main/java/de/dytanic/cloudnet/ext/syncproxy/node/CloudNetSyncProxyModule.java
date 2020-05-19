@@ -31,8 +31,8 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void createConfigurationOrUpdate() {
-        configurationFile = new File(getModuleWrapper().getDataFolder(), "config.json");
-        syncProxyConfiguration = SyncProxyConfigurationWriterAndReader.read(configurationFile);
+        this.configurationFile = new File(getModuleWrapper().getDataFolder(), "config.json");
+        this.syncProxyConfiguration = SyncProxyConfigurationWriterAndReader.read(this.configurationFile);
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)

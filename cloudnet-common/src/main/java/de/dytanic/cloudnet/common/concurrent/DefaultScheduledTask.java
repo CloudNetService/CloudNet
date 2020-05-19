@@ -49,20 +49,20 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public long getTaskId() {
-        return taskId;
+        return this.taskId;
     }
 
     @Override
     public Collection<ITaskListener<V>> getListeners() {
-        return listeners;
+        return this.listeners;
     }
 
     public V getValue() {
-        return value;
+        return this.value;
     }
 
     public boolean isWait() {
-        return wait;
+        return this.wait;
     }
 
     public void setWait(boolean wait) {
@@ -71,7 +71,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public boolean isDone() {
-        return done;
+        return this.done;
     }
 
     public void setDone(boolean done) {
@@ -80,7 +80,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public boolean isCancelled() {
-        return cancelled;
+        return this.cancelled;
     }
 
     public void setCancelled(boolean cancelled) {
@@ -88,25 +88,25 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     }
 
     public long getDelay() {
-        return delay;
+        return this.delay;
     }
 
     public long getRepeat() {
-        return repeat;
+        return this.repeat;
     }
 
     public long getRepeats() {
-        return repeats;
+        return this.repeats;
     }
 
     @Override
     public long getDelayedTimeStamp() {
-        return delayedTimeStamp;
+        return this.delayedTimeStamp;
     }
 
     @Override
     public Callable<V> getCallable() {
-        return callable;
+        return this.callable;
     }
 
     @Override
@@ -134,7 +134,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public V call() {
-        if (callable == null || done) {
+        if (this.callable == null || this.done) {
             return this.value;
         }
 
@@ -146,12 +146,12 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
             }
         }
 
-        if (repeats > 0) {
-            repeats--;
+        if (this.repeats > 0) {
+            this.repeats--;
         }
 
-        if ((repeats > 0 || repeats == -1) && !cancelled) {
-            this.delayedTimeStamp = System.currentTimeMillis() + repeat;
+        if ((this.repeats > 0 || this.repeats == -1) && !this.cancelled) {
+            this.delayedTimeStamp = System.currentTimeMillis() + this.repeat;
         } else {
             this.done = true;
             this.invokeTaskListener();
@@ -170,8 +170,8 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         if (mayInterruptIfRunning) {
-            callable = null;
-            repeats = 0;
+            this.callable = null;
+            this.repeats = 0;
         }
 
         return mayInterruptIfRunning;
@@ -179,22 +179,22 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public synchronized V get() throws InterruptedException {
-        wait = true;
+        this.wait = true;
         while (!isDone()) {
             this.wait();
         }
 
-        return value;
+        return this.value;
     }
 
     @Override
     public synchronized V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
-        wait = true;
+        this.wait = true;
         if (!isDone()) {
             this.wait(unit.toMillis(timeout));
         }
 
-        return value;
+        return this.value;
     }
 
 
@@ -234,7 +234,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public boolean isRepeatable() {
-        return repeats > 0 || repeats == -1;
+        return this.repeats > 0 || this.repeats == -1;
     }
 
     @Override

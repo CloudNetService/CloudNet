@@ -41,8 +41,8 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void createConfigurationOrUpdate() {
-        configurationFile = new File(getModuleWrapper().getDataFolder(), "config.json");
-        signConfiguration = SignConfigurationReaderAndWriter.read(configurationFile);
+        this.configurationFile = new File(getModuleWrapper().getDataFolder(), "config.json");
+        this.signConfiguration = SignConfigurationReaderAndWriter.read(this.configurationFile);
     }
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)

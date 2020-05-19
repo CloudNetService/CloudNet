@@ -30,7 +30,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "send_on_proxy_player_to_server",
                 new JsonDocument()
-                        .append("uniqueId", uniqueId)
+                        .append("uniqueId", this.uniqueId)
                         .append("serviceName", serviceName)
         );
     }
@@ -43,7 +43,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "kick_on_proxy_player_from_network",
                 new JsonDocument()
-                        .append("uniqueId", uniqueId)
+                        .append("uniqueId", this.uniqueId)
                         .append("kickMessage", message)
         );
     }
@@ -56,7 +56,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "send_message_to_proxy_player",
                 new JsonDocument()
-                        .append("uniqueId", uniqueId)
+                        .append("uniqueId", this.uniqueId)
                         .append("message", message)
         );
     }
@@ -70,7 +70,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
                 BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "send_plugin_message_to_proxy_player",
                 new JsonDocument()
-                        .append("uniqueId", uniqueId)
+                        .append("uniqueId", this.uniqueId)
                         .append("tag", tag)
                         .append("data", Base64.getEncoder().encodeToString(data))
         );

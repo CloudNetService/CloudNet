@@ -50,7 +50,7 @@ public class HostAndPort {
 
     @Override
     public String toString() {
-        return host + ":" + port;
+        return this.host + ":" + this.port;
     }
 
     public String getHost() {

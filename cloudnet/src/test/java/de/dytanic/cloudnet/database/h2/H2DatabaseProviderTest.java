@@ -67,10 +67,10 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
         Assert.assertTrue(database.delete("10"));
         Assert.assertEquals(99, database.documents().size());
 
-        Assert.assertTrue(value && geh && resultString.equals("foobar"));
+        Assert.assertTrue(this.value && this.geh && this.resultString.equals("foobar"));
 
         database.clear();
-        Assert.assertTrue(cleared);
+        Assert.assertTrue(this.cleared);
 
         databaseProvider.close();
     }
@@ -87,11 +87,11 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
     @Override
     public void handleDelete(IDatabase database, String key) {
-        geh = true;
+        this.geh = true;
     }
 
     @Override
     public void handleClear(IDatabase database) {
-        cleared = true;
+        this.cleared = true;
     }
 }

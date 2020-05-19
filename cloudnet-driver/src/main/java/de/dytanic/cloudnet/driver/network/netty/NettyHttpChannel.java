@@ -18,17 +18,17 @@ final class NettyHttpChannel implements IHttpChannel {
 
     @Override
     public HostAndPort serverAddress() {
-        return serverAddress;
+        return this.serverAddress;
     }
 
     @Override
     public HostAndPort clientAddress() {
-        return clientAddress;
+        return this.clientAddress;
     }
 
     @Override
     public void close() {
-        channel.close();
+        this.channel.close();
     }
 
     public Channel getChannel() {

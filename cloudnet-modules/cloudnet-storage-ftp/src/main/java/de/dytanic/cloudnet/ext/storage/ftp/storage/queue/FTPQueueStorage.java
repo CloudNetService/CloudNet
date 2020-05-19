@@ -269,11 +269,11 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     public AbstractFTPStorage getExecutingStorage() {
-        return executingStorage;
+        return this.executingStorage;
     }
 
     public boolean isOpened() {
-        return opened;
+        return this.opened;
     }
 
     @Override

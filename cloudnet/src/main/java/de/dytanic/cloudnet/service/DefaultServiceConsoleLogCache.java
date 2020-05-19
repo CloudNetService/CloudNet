@@ -36,20 +36,20 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
 
     @Override
     public synchronized IServiceConsoleLogCache update() {
-        if (cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING && cloudService.isAlive() && cloudService.getProcess() != null) {
-            readStream(cloudService.getProcess().getInputStream(), false);
-            readStream(cloudService.getProcess().getErrorStream(), CloudNet.getInstance().getConfig().isPrintErrorStreamLinesFromServices());
+        if (this.cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING && this.cloudService.isAlive() && this.cloudService.getProcess() != null) {
+            readStream(this.cloudService.getProcess().getInputStream(), false);
+            readStream(this.cloudService.getProcess().getErrorStream(), CloudNet.getInstance().getConfig().isPrintErrorStreamLinesFromServices());
         }
         return this;
     }
 
     private synchronized void readStream(InputStream inputStream, boolean printErrorIntoConsole) {
         try {
-            while (inputStream.available() > 0 && (len = inputStream.read(buffer, 0, buffer.length)) != -1) {
-                stringBuffer.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
+            while (inputStream.available() > 0 && (this.len = inputStream.read(this.buffer, 0, this.buffer.length)) != -1) {
+                this.stringBuffer.append(new String(this.buffer, 0, this.len, StandardCharsets.UTF_8));
             }
 
-            String stringText = stringBuffer.toString();
+            String stringText = this.stringBuffer.toString();
             if (!stringText.contains("\n") && !stringText.contains("\r")) {
                 return;
             }
@@ -62,10 +62,10 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
                 }
             }
 
-            stringBuffer.setLength(0);
+            this.stringBuffer.setLength(0);
 
         } catch (Exception ignored) {
-            stringBuffer.setLength(0);
+            this.stringBuffer.setLength(0);
         }
     }
 
@@ -79,16 +79,16 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
             return;
         }
 
-        while (cachedLogMessages.size() >= CloudNet.getInstance().getConfig().getMaxServiceConsoleLogCacheSize()) {
-            cachedLogMessages.poll();
+        while (this.cachedLogMessages.size() >= CloudNet.getInstance().getConfig().getMaxServiceConsoleLogCacheSize()) {
+            this.cachedLogMessages.poll();
         }
 
-        cachedLogMessages.offer(text);
+        this.cachedLogMessages.offer(text);
 
-        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(this.cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
 
         if (this.autoPrintReceivedInput || this.screenEnabled || printErrorIntoConsole) {
-            CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO), "[" + cloudService.getServiceId().getName() + "] " + text);
+            CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO), "[" + this.cloudService.getServiceId().getName() + "] " + text);
         }
     }
 

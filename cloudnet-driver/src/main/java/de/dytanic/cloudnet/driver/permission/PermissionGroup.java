@@ -75,7 +75,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     }
 
     public String getColor() {
-        return color;
+        return this.color;
     }
 
     public void setColor(@NotNull String color) {

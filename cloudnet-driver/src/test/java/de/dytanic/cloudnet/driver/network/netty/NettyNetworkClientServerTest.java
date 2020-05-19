@@ -32,8 +32,8 @@ public class NettyNetworkClientServerTest {
         Assert.assertTrue(networkClient.connect(address));
 
         Thread.sleep(50);
-        Assert.assertTrue(connectedClient);
-        Assert.assertTrue(connectedServer);
+        Assert.assertTrue(this.connectedClient);
+        Assert.assertTrue(this.connectedServer);
 
         Assert.assertEquals(1, networkClient.getChannels().size());
         Assert.assertEquals(1, networkServer.getChannels().size());
@@ -43,11 +43,11 @@ public class NettyNetworkClientServerTest {
 
         Thread.sleep(500);
 
-        Assert.assertNotNull(cliPacketClientReceive);
-        Assert.assertNotNull(cliPacketServerReceive);
+        Assert.assertNotNull(this.cliPacketClientReceive);
+        Assert.assertNotNull(this.cliPacketServerReceive);
 
-        Assert.assertEquals("TestValue", cliPacketClientReceive);
-        Assert.assertEquals("TestValue", cliPacketServerReceive);
+        Assert.assertEquals("TestValue", this.cliPacketClientReceive);
+        Assert.assertEquals("TestValue", this.cliPacketServerReceive);
 
         networkClient.close();
         networkServer.close();
@@ -60,12 +60,12 @@ public class NettyNetworkClientServerTest {
 
         @Override
         public void handleChannelInitialize(INetworkChannel channel) {
-            connectedClient = true;
+            NettyNetworkClientServerTest.this.connectedClient = true;
         }
 
         @Override
         public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-            cliPacketServerReceive = new String(packet.getBody());
+            NettyNetworkClientServerTest.this.cliPacketServerReceive = new String(packet.getBody());
 
             return true;
         }
@@ -80,7 +80,7 @@ public class NettyNetworkClientServerTest {
 
         @Override
         public void handleChannelInitialize(INetworkChannel channel) {
-            connectedServer = true;
+            NettyNetworkClientServerTest.this.connectedServer = true;
         }
 
         @Override
@@ -98,7 +98,7 @@ public class NettyNetworkClientServerTest {
 
         @Override
         public void handle(INetworkChannel channel, IPacket packet) {
-            cliPacketClientReceive = new String(packet.getBody());
+            NettyNetworkClientServerTest.this.cliPacketClientReceive = new String(packet.getBody());
         }
     }
 

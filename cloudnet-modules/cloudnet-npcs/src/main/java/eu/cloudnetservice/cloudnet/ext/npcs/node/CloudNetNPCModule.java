@@ -89,7 +89,7 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     }
 
     public NPCConfiguration getNPCConfiguration() {
-        return npcConfiguration;
+        return this.npcConfiguration;
     }
 
     public void setNPCConfiguration(NPCConfiguration npcConfiguration) {
@@ -97,7 +97,7 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     }
 
     public Set<CloudNPC> getCachedNPCs() {
-        return cachedNPCs;
+        return this.cachedNPCs;
     }
 
     public void setCachedNPCs(Set<CloudNPC> cachedNPCs) {

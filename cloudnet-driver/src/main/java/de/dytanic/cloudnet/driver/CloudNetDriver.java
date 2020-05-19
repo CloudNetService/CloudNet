@@ -1739,7 +1739,7 @@ public abstract class CloudNetDriver {
 
     @NotNull
     public PacketQueryProvider getPacketQueryProvider() {
-        return packetQueryProvider;
+        return this.packetQueryProvider;
     }
 
     @NotNull

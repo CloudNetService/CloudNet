@@ -48,7 +48,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public String uri() {
-        return httpRequest.uri();
+        return this.httpRequest.uri();
     }
 
     @Override
@@ -138,21 +138,21 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public byte[] body() {
-        if (httpRequest instanceof FullHttpRequest) {
-            if (body == null) {
+        if (this.httpRequest instanceof FullHttpRequest) {
+            if (this.body == null) {
                 FullHttpRequest httpRequest = (FullHttpRequest) this.httpRequest;
 
                 int length = httpRequest.content().readableBytes();
 
                 if (httpRequest.content().hasArray()) {
-                    body = httpRequest.content().array();
+                    this.body = httpRequest.content().array();
                 } else {
-                    body = new byte[length];
-                    httpRequest.content().getBytes(httpRequest.content().readerIndex(), body);
+                    this.body = new byte[length];
+                    httpRequest.content().getBytes(httpRequest.content().readerIndex(), this.body);
                 }
             }
 
-            return body;
+            return this.body;
         }
 
         return new byte[0];

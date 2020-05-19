@@ -57,19 +57,19 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
     public Deque<IScheduledTask<?>> getTaskEntries() {
-        return taskEntries;
+        return this.taskEntries;
     }
 
     public ThreadGroup getThreadGroup() {
-        return threadGroup;
+        return this.threadGroup;
     }
 
     public AtomicLong getTHREAD_COUNT() {
-        return THREAD_COUNT;
+        return this.THREAD_COUNT;
     }
 
     public int getMaxThreadSize() {
-        return maxThreadSize;
+        return this.maxThreadSize;
     }
 
     public void setMaxThreadSize(int maxThreadSize) {
@@ -77,7 +77,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
     public long getThreadLifeMillis() {
-        return threadLifeMillis;
+        return this.threadLifeMillis;
     }
 
     public void setThreadLifeMillis(long threadLifeMillis) {
@@ -85,7 +85,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     }
 
     public long getThreadPauseDelayMillis() {
-        return threadPauseDelayMillis;
+        return this.threadPauseDelayMillis;
     }
 
     public void setThreadPauseDelayMillis(long threadPauseDelayMillis) {
@@ -194,12 +194,12 @@ public class DefaultTaskScheduler implements ITaskScheduler {
             try {
                 worker.stop();
             } catch (ThreadDeath th) {
-                workers.remove(worker);
+                this.workers.remove(worker);
             }
         }
 
-        taskEntries.clear();
-        workers.clear();
+        this.taskEntries.clear();
+        this.workers.clear();
     }
 
     @Override
@@ -224,19 +224,19 @@ public class DefaultTaskScheduler implements ITaskScheduler {
                 worker.interrupt();
                 worker.stop();
             } catch (ThreadDeath th) {
-                workers.remove(worker);
+                this.workers.remove(worker);
             }
         }
 
-        taskEntries.clear();
-        workers.clear();
+        this.taskEntries.clear();
+        this.workers.clear();
         return this;
     }
 
     private void checkEnoughThreads() {
         IWorkableThread workableThread = hasFreeWorker();
 
-        if (workableThread == null && this.getCurrentWorkerCount() < maxThreadSize) {
+        if (workableThread == null && this.getCurrentWorkerCount() < this.maxThreadSize) {
             this.createWorker();
         }
     }
@@ -252,7 +252,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
         @Override
         public Void call() {
-            runnable.run();
+            this.runnable.run();
             return null;
         }
     }
@@ -264,9 +264,9 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         protected long lifeMillis = System.currentTimeMillis();
 
         public Worker() {
-            super(threadGroup, threadGroup.getName() + "#" + THREAD_COUNT.incrementAndGet());
+            super(DefaultTaskScheduler.this.threadGroup, DefaultTaskScheduler.this.threadGroup.getName() + "#" + DefaultTaskScheduler.this.THREAD_COUNT.incrementAndGet());
 
-            workers.add(this);
+            DefaultTaskScheduler.this.workers.add(this);
 
             setPriority(Thread.MIN_PRIORITY);
             setDaemon(true);
@@ -275,29 +275,29 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
         @Override
         public void run() {
-            while (!isInterrupted() && (lifeMillis + threadLifeMillis) > System.currentTimeMillis()) {
+            while (!isInterrupted() && (this.lifeMillis + DefaultTaskScheduler.this.threadLifeMillis) > System.currentTimeMillis()) {
                 this.run0();
-                this.sleep0(threadPauseDelayMillis);
+                this.sleep0(DefaultTaskScheduler.this.threadPauseDelayMillis);
             }
 
-            workers.remove(this);
+            DefaultTaskScheduler.this.workers.remove(this);
         }
 
         private synchronized void run0() {
-            while (!taskEntries.isEmpty() && !isInterrupted()) {
-                scheduledTask = taskEntries.poll();
+            while (!DefaultTaskScheduler.this.taskEntries.isEmpty() && !isInterrupted()) {
+                this.scheduledTask = DefaultTaskScheduler.this.taskEntries.poll();
 
-                if (scheduledTask == null) {
+                if (this.scheduledTask == null) {
                     continue;
                 }
 
-                lifeMillis = System.currentTimeMillis();
+                this.lifeMillis = System.currentTimeMillis();
 
-                long difference = scheduledTask.getDelayedTimeStamp() - System.currentTimeMillis();
+                long difference = this.scheduledTask.getDelayedTimeStamp() - System.currentTimeMillis();
 
-                if (difference > threadPauseDelayMillis) {
-                    sleep0(threadPauseDelayMillis - 1);
-                    offerEntry(scheduledTask);
+                if (difference > DefaultTaskScheduler.this.threadPauseDelayMillis) {
+                    sleep0(DefaultTaskScheduler.this.threadPauseDelayMillis - 1);
+                    offerEntry(this.scheduledTask);
                     continue;
 
                 } else if (difference > 0) {
@@ -305,20 +305,20 @@ public class DefaultTaskScheduler implements ITaskScheduler {
                 }
 
                 try {
-                    scheduledTask.call();
+                    this.scheduledTask.call();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 }
 
                 if (checkScheduledTask()) {
-                    scheduledTask = null;
+                    this.scheduledTask = null;
                 }
             }
         }
 
         private boolean checkScheduledTask() {
-            if (scheduledTask.isRepeatable()) {
-                this.offerEntry(scheduledTask);
+            if (this.scheduledTask.isRepeatable()) {
+                this.offerEntry(this.scheduledTask);
                 return false;
             }
 
@@ -334,7 +334,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         }
 
         private void offerEntry(IScheduledTask<?> scheduledTask) {
-            taskEntries.offer(scheduledTask);
+            DefaultTaskScheduler.this.taskEntries.offer(scheduledTask);
             this.scheduledTask = null;
         }
 

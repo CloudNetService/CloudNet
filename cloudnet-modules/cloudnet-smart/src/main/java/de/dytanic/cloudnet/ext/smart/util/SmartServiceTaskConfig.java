@@ -55,11 +55,11 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
 
     @Override
     public int compareTo(SmartServiceTaskConfig o) {
-        return priority + o.priority;
+        return this.priority + o.priority;
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return this.enabled;
     }
 
     public void setEnabled(boolean enabled) {
@@ -155,7 +155,7 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
     }
 
     public int getMaxServiceCount() {
-        return maxServiceCount;
+        return this.maxServiceCount;
     }
 
     public void setMaxServiceCount(int maxServiceCount) {

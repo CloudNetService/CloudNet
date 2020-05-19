@@ -138,7 +138,7 @@ final class JVMCloudService implements ICloudService {
     @Override
     public void start() throws Exception {
         try {
-            lifeCycleLock.lock();
+            this.lifeCycleLock.lock();
 
             if (!CloudNet.getInstance().getConfig().isParallelServiceStartSequence()) {
                 try {
@@ -153,18 +153,18 @@ final class JVMCloudService implements ICloudService {
             }
 
         } finally {
-            lifeCycleLock.unlock();
+            this.lifeCycleLock.unlock();
         }
     }
 
     @Override
     public void restart() throws Exception {
-        restartState = true;
+        this.restartState = true;
 
         this.stop();
         this.start();
 
-        restartState = false;
+        this.restartState = false;
     }
 
     @Override
@@ -721,9 +721,9 @@ final class JVMCloudService implements ICloudService {
     private void rewriteBungeeConfig(File config) throws Exception {
         this.rewriteServiceConfigurationFile(config, line -> {
             if (line.startsWith("    host: ")) {
-                line = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
+                line = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.serviceConfiguration.getPort();
             } else if (line.startsWith("  host: ")) {
-                line = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort();
+                line = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.serviceConfiguration.getPort();
             }
 
             return line;
@@ -755,7 +755,7 @@ final class JVMCloudService implements ICloudService {
                 this.rewriteServiceConfigurationFile(file, line -> {
                     if (reference.get() && line.startsWith("bind =")) {
                         reference.set(false);
-                        return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + serviceConfiguration.getPort() + "\"";
+                        return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.serviceConfiguration.getPort() + "\"";
                     }
 
                     return line;
@@ -829,7 +829,7 @@ final class JVMCloudService implements ICloudService {
                     }
 
                     if (line.startsWith("    port: ")) {
-                        line = "    port: " + serviceConfiguration.getPort();
+                        line = "    port: " + this.serviceConfiguration.getPort();
                     }
 
                     return line;
@@ -934,8 +934,8 @@ final class JVMCloudService implements ICloudService {
                     outputStream.write("end\n".getBytes());
                     outputStream.flush();
 
-                    if (process.waitFor(5, TimeUnit.SECONDS)) {
-                        return process.exitValue();
+                    if (this.process.waitFor(5, TimeUnit.SECONDS)) {
+                        return this.process.exitValue();
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();

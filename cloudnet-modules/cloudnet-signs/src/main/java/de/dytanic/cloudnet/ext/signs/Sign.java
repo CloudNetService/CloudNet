@@ -35,7 +35,7 @@ public class Sign implements Comparable<Sign> {
 
     @Override
     public int compareTo(Sign toCompare) {
-        return Long.compare(signId, toCompare.getSignId());
+        return Long.compare(this.signId, toCompare.getSignId());
     }
 
     public long getSignId() {

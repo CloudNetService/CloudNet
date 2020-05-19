@@ -24,8 +24,8 @@ public class DefaultPacketRegistryTest {
 
         registry.handlePacket(null, new Packet(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()));
 
-        Assert.assertEquals(65, property);
-        Assert.assertEquals("TestValue", testValue);
+        Assert.assertEquals(65, this.property);
+        Assert.assertEquals("TestValue", this.testValue);
 
         registry.removeListeners(channelId);
 
@@ -41,8 +41,8 @@ public class DefaultPacketRegistryTest {
 
         @Override
         public void handle(INetworkChannel channel, IPacket packet) {
-            testValue = new String(packet.getBody());
-            property = packet.getHeader().getInt("testProperty");
+            DefaultPacketRegistryTest.this.testValue = new String(packet.getBody());
+            DefaultPacketRegistryTest.this.property = packet.getHeader().getInt("testProperty");
         }
     }
 }

@@ -23,7 +23,7 @@ public final class VelocityCloudNetCloudPermissionsPermissionFunction implements
             return Tristate.FALSE;
         }
 
-        IPermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(this.uniqueId);
         return (permissionUser != null && this.permissionsManagement.hasPlayerPermission(permissionUser, permission)) ?
                 Tristate.TRUE : Tristate.FALSE;
     }

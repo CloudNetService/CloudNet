@@ -32,11 +32,11 @@ public class LogOutputStream extends ByteArrayOutputStream {
     }
 
     public ILogger getLogger() {
-        return logger;
+        return this.logger;
     }
 
     public LogLevel getLogLevel() {
-        return logLevel;
+        return this.logLevel;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class LogOutputStream extends ByteArrayOutputStream {
         this.reset();
 
         if (input != null && !input.isEmpty() && !input.equals(System.lineSeparator())) {
-            logger.log(logLevel, input);
+            this.logger.log(this.logLevel, input);
         }
     }
 }

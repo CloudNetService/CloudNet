@@ -126,27 +126,27 @@ public abstract class AbstractSyncProxyManagement {
     }
 
     public SyncProxyConfiguration getSyncProxyConfiguration() {
-        return syncProxyConfiguration;
+        return this.syncProxyConfiguration;
     }
 
     public SyncProxyProxyLoginConfiguration getLoginConfiguration() {
-        return loginConfiguration;
+        return this.loginConfiguration;
     }
 
     public SyncProxyTabListConfiguration getTabListConfiguration() {
-        return tabListConfiguration;
+        return this.tabListConfiguration;
     }
 
     public AtomicInteger getTabListEntryIndex() {
-        return tabListEntryIndex;
+        return this.tabListEntryIndex;
     }
 
     public String getTabListHeader() {
-        return tabListHeader;
+        return this.tabListHeader;
     }
 
     public String getTabListFooter() {
-        return tabListFooter;
+        return this.tabListFooter;
     }
 
 }

@@ -18,7 +18,7 @@ public final class DefaultCommandMapTest {
 
             @Override
             public void sendMessage(String message) {
-                b = message;
+                DefaultCommandMapTest.this.b = message;
             }
 
             @Override
@@ -40,9 +40,9 @@ public final class DefaultCommandMapTest {
         final Command command = new Command() {
 
             {
-                names = new String[]{"test asdf"};
-                description = "description";
-                prefix = "test 123";
+                this.names = new String[]{"test asdf"};
+                this.description = "description";
+                this.prefix = "test 123";
             }
 
             @Override
@@ -70,7 +70,7 @@ public final class DefaultCommandMapTest {
 
         Assert.assertNotNull(this.name);
         Assert.assertEquals("Dytanic", this.name);
-        Assert.assertEquals("Hello, world!", b);
+        Assert.assertEquals("Hello, world!", this.b);
     }
 
 }

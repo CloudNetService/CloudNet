@@ -25,7 +25,7 @@ public final class ColouredLogFormatter implements IFormatter {
                         .append(ConsoleColor.DARK_GRAY)
                         .append("[")
                         .append(ConsoleColor.WHITE)
-                        .append(dateFormat.format(logEntry.getTimeStamp()))
+                        .append(this.dateFormat.format(logEntry.getTimeStamp()))
                         .append(ConsoleColor.DARK_GRAY)
                         .append("] ")
                         .append(logEntry.getLogLevel().isColorized() ? ConsoleColor.RED : ConsoleColor.GRAY)

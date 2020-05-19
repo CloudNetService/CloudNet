@@ -21,7 +21,7 @@ public abstract class AbstractLogHandler implements ILogHandler {
     }
 
     public IFormatter getFormatter() {
-        return formatter;
+        return this.formatter;
     }
 
     /**

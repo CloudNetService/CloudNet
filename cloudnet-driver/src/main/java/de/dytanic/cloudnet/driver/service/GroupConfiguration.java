@@ -30,11 +30,11 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     }
 
     public Collection<String> getJvmOptions() {
-        return jvmOptions;
+        return this.jvmOptions;
     }
 
     public Collection<ServiceEnvironmentType> getTargetEnvironments() {
-        return targetEnvironments;
+        return this.targetEnvironments;
     }
 
     public String getName() {

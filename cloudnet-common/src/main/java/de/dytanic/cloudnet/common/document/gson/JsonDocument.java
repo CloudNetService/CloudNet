@@ -193,12 +193,12 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
     @Override
     public <T> T toInstanceOf(Class<T> clazz) {
-        return GSON.fromJson(jsonObject, clazz);
+        return GSON.fromJson(this.jsonObject, clazz);
     }
 
     @Override
     public <T> T toInstanceOf(Type type) {
-        return GSON.fromJson(jsonObject, type);
+        return GSON.fromJson(this.jsonObject, type);
     }
 
     @Override
@@ -861,7 +861,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
      */
     @Deprecated
     public JsonObject toJsonObject() {
-        return jsonObject;
+        return this.jsonObject;
     }
 
     public String toPrettyJson() {

@@ -40,7 +40,7 @@ public class WorkerThread extends Thread implements ExecutorService {
     }
 
     public boolean isAvailable() {
-        return available;
+        return this.available;
     }
 
     public void clearAllTasks() {

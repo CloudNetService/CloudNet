@@ -71,7 +71,7 @@ final class DefaultCloudServiceManagerConfiguration {
                     JsonDocument document = JsonDocument.newDocument(path);
                     ServiceTask task = document.toInstanceOf(ServiceTask.class);
                     if (task != null && task.getName() != null) {
-                        tasks.add(task);
+                        DefaultCloudServiceManagerConfiguration.this.tasks.add(task);
                         Files.write(path, new JsonDocument(task).toPrettyJson().getBytes(StandardCharsets.UTF_8));
                         System.out.println(LanguageManager.getMessage("cloudnet-load-task-success").replace("%path%", path.toString()).replace("%name%", task.getName()));
                     } else {
@@ -117,7 +117,7 @@ final class DefaultCloudServiceManagerConfiguration {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String name = file.getFileName().toString();
-                    if (tasks.stream().noneMatch(serviceTask -> (serviceTask.getName() + ".json").equalsIgnoreCase(name))) {
+                    if (DefaultCloudServiceManagerConfiguration.this.tasks.stream().noneMatch(serviceTask -> (serviceTask.getName() + ".json").equalsIgnoreCase(name))) {
                         Files.delete(file);
                     }
                     return FileVisitResult.CONTINUE;

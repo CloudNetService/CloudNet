@@ -29,12 +29,12 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     @NotNull
     public Sign getClickedSign() {
-        return clickedSign;
+        return this.clickedSign;
     }
 
     @Nullable
     public String getTargetServer() {
-        return targetServer;
+        return this.targetServer;
     }
 
     public void setTargetServer(String targetServer) {

@@ -89,7 +89,7 @@ public final class VelocityCloudNetBridgePlugin {
                 }
 
                 String name = serviceInfoSnapshot.getServiceId().getName();
-                proxyServer.registerServer(new ServerInfo(name, new InetSocketAddress(
+                this.proxyServer.registerServer(new ServerInfo(name, new InetSocketAddress(
                         serviceInfoSnapshot.getAddress().getHost(),
                         serviceInfoSnapshot.getAddress().getPort()
                 )));

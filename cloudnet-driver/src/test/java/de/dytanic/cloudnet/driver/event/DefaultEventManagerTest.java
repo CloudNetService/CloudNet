@@ -24,7 +24,7 @@ public final class DefaultEventManagerTest {
 
         Assert.assertNotNull(eventManager.unregisterListener(ListenerTest.class));
         Assert.assertNotNull(eventManager.callEvent("set", testEvent));
-        Assert.assertEquals(46, publisherCounter.get());
+        Assert.assertEquals(46, this.publisherCounter.get());
 
         Assert.assertEquals("Test_value1234", testEvent.value);
 
@@ -77,7 +77,7 @@ public final class DefaultEventManagerTest {
             Assert.assertEquals("Test_value1234", testEvent.value);
 
             testEvent.value = "test_result";
-            publisherCounter.incrementAndGet();
+            DefaultEventManagerTest.this.publisherCounter.incrementAndGet();
         }
 
         @EventListener(channel = "test_channel")

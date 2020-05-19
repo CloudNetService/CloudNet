@@ -148,7 +148,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     }
 
     public Collection<String> getDeletedFilesAfterStop() {
-        return deletedFilesAfterStop;
+        return this.deletedFilesAfterStop;
     }
 
     public void setDeletedFilesAfterStop(Collection<String> deletedFilesAfterStop) {

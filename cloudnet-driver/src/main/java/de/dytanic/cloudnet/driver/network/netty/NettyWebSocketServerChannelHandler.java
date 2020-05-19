@@ -33,16 +33,16 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
         }
 
         if (webSocketFrame instanceof CloseWebSocketFrame) {
-            webSocketServerChannel.close(200, "client connection closed");
+            this.webSocketServerChannel.close(200, "client connection closed");
         }
     }
 
     private void invoke0(WebSocketFrameType type, WebSocketFrame webSocketFrame) {
         byte[] bytes = readContentFromWebSocketFrame(webSocketFrame);
 
-        for (IWebSocketListener listener : webSocketServerChannel.getListeners()) {
+        for (IWebSocketListener listener : this.webSocketServerChannel.getListeners()) {
             try {
-                listener.handle(webSocketServerChannel, type, bytes);
+                listener.handle(this.webSocketServerChannel, type, bytes);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }

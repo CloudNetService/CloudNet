@@ -67,7 +67,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
             this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name, super.executorService));
         }
 
-        return cachedDatabaseInstances.getSecond(name);
+        return this.cachedDatabaseInstances.getSecond(name);
     }
 
     @Override
@@ -120,7 +120,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public String getName() {
-        return config.getString("database");
+        return this.config.getString("database");
     }
 
     @Override

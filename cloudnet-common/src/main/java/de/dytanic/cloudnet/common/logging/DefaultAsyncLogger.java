@@ -21,7 +21,7 @@ public class DefaultAsyncLogger implements ILogger {
         public void run() {
             while (!isInterrupted()) {
                 try {
-                    LogHandlerRunnable logHandlerRunnable = entries.take();
+                    LogHandlerRunnable logHandlerRunnable = DefaultAsyncLogger.this.entries.take();
                     logHandlerRunnable.call();
 
                 } catch (Throwable e) {
@@ -29,21 +29,21 @@ public class DefaultAsyncLogger implements ILogger {
                 }
             }
 
-            while (!entries.isEmpty()) {
-                entries.poll().call();
+            while (!DefaultAsyncLogger.this.entries.isEmpty()) {
+                DefaultAsyncLogger.this.entries.poll().call();
             }
         }
     };
     protected int level = -1;
 
     public DefaultAsyncLogger() {
-        logThread.setPriority(Thread.MIN_PRIORITY);
-        logThread.start();
+        this.logThread.setPriority(Thread.MIN_PRIORITY);
+        this.logThread.start();
     }
 
     @Override
     public int getLevel() {
-        return level;
+        return this.level;
     }
 
     @Override
@@ -156,9 +156,9 @@ public class DefaultAsyncLogger implements ILogger {
 
 
     private void handleLogEntry(LogEntry logEntry) {
-        if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level)) {
+        if (logEntry != null && (this.level == -1 || logEntry.getLogLevel().getLevel() <= this.level)) {
             if (logEntry.getLogLevel().isAsync()) {
-                entries.offer(new LogHandlerRunnable(logEntry));
+                this.entries.offer(new LogHandlerRunnable(logEntry));
             } else {
                 new LogHandlerRunnable(logEntry).call();
             }
@@ -176,9 +176,9 @@ public class DefaultAsyncLogger implements ILogger {
         @Override
         public Void call() {
 
-            for (ILogHandler iLogHandler : handlers) {
+            for (ILogHandler iLogHandler : DefaultAsyncLogger.this.handlers) {
                 try {
-                    iLogHandler.handle(logEntry);
+                    iLogHandler.handle(this.logEntry);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }

@@ -27,7 +27,7 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
     @Override
     public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
         Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
-        IPermissionUser permissionUser = this.permissionsManagement.getUser(player.getUniqueId());
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
         if (permissionUser == null) {
             return infos;
         }
@@ -65,7 +65,7 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
             return false;
         }
 
-        IPermissionUser permissionUser = this.permissionsManagement.getUser(player.getUniqueId());
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
         return permissionUser != null && this.permissionsManagement.hasPlayerPermission(permissionUser, inName);
     }
 

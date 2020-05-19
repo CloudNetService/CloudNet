@@ -146,7 +146,7 @@ public final class CloudflareAPI implements AutoCloseable {
 
 
     private void read() {
-        JsonDocument document = database.get(CLOUDFLARE_STORE_DOCUMENT);
+        JsonDocument document = this.database.get(CLOUDFLARE_STORE_DOCUMENT);
 
         if (document == null) {
             document = new JsonDocument("cache", Collections.EMPTY_MAP);
@@ -158,7 +158,7 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     private void write() {
-        JsonDocument document = database.get(CLOUDFLARE_STORE_DOCUMENT);
+        JsonDocument document = this.database.get(CLOUDFLARE_STORE_DOCUMENT);
 
         if (document == null) {
             document = new JsonDocument();
@@ -167,7 +167,7 @@ public final class CloudflareAPI implements AutoCloseable {
         document.append("cache", this.createdRecords);
 
         //new Document("cache", this.createdRecords).write(this.file);
-        database.update(CLOUDFLARE_STORE_DOCUMENT, document);
+        this.database.update(CLOUDFLARE_STORE_DOCUMENT, document);
     }
 
     private void update(String serviceName, int statusCode, String email, String apiKey, String zoneId, JsonDocument document) {

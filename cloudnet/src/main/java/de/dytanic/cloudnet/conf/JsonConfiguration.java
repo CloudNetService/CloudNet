@@ -78,7 +78,7 @@ public final class JsonConfiguration implements IConfiguration {
             exception.printStackTrace();
         }
 
-        String address = defaultHostAddress;
+        String address = this.defaultHostAddress;
 
         if (address == null) {
             try {
@@ -155,8 +155,8 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void save() {
-        if (document == null) {
-            document = new JsonDocument();
+        if (this.document == null) {
+            this.document = new JsonDocument();
         }
 
         this.document

@@ -23,7 +23,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public File getModuleDirectory() {
-        return moduleDirectory;
+        return this.moduleDirectory;
     }
 
     @Override
@@ -33,7 +33,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     @Override
     public Collection<IModuleWrapper> getModules() {
-        return Collections.unmodifiableCollection(moduleWrappers);
+        return Collections.unmodifiableCollection(this.moduleWrappers);
     }
 
     @Override

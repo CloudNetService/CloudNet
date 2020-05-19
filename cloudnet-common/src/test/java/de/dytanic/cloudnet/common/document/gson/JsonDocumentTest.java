@@ -62,7 +62,7 @@ public class JsonDocumentTest {
         }
 
         public String getData() {
-            return data;
+            return this.data;
         }
     }
 

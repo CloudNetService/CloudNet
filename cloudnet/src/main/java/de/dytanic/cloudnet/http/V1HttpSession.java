@@ -70,7 +70,7 @@ public final class V1HttpSession {
                 .statusCode(200)
         ;
 
-        entries.add(sessionEntry);
+        this.entries.add(sessionEntry);
         return true;
     }
 

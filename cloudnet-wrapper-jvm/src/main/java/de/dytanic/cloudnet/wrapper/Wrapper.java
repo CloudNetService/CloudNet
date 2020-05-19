@@ -130,7 +130,7 @@ public final class Wrapper extends CloudNetDriver {
                     this.config.getSslConfig().contains("privateKeyPath") ?
                             new File(".wrapper/privateKey") :
                             null
-            ), taskScheduler);
+            ), this.taskScheduler);
         } else {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
         }
@@ -378,7 +378,7 @@ public final class Wrapper extends CloudNetDriver {
      * @return the ServiceId instance which was set in the config by the node
      */
     public ServiceId getServiceId() {
-        return config.getServiceConfiguration().getServiceId();
+        return this.config.getServiceConfiguration().getServiceId();
     }
 
     /**
@@ -387,7 +387,7 @@ public final class Wrapper extends CloudNetDriver {
      * @return the first instance which was set in the config by the node
      */
     public ServiceConfiguration getServiceConfiguration() {
-        return config.getServiceConfiguration();
+        return this.config.getServiceConfiguration();
     }
 
     /**
@@ -434,7 +434,7 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     public synchronized void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
+        if (this.currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
             this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
             this.lastServiceInfoSnapShot = this.currentServiceInfoSnapshot;
@@ -452,9 +452,9 @@ public final class Wrapper extends CloudNetDriver {
      * @param classLoader the ClassLoader from which the IPacketListener implementations derive.
      */
     public void unregisterPacketListenersByClassLoader(@NotNull ClassLoader classLoader) {
-        networkClient.getPacketRegistry().removeListeners(classLoader);
+        this.networkClient.getPacketRegistry().removeListeners(classLoader);
 
-        for (INetworkChannel channel : networkClient.getChannels()) {
+        for (INetworkChannel channel : this.networkClient.getChannels()) {
             channel.getPacketRegistry().removeListeners(classLoader);
         }
     }
@@ -506,7 +506,7 @@ public final class Wrapper extends CloudNetDriver {
 
         Thread applicationThread = new Thread(() -> {
             try {
-                logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
+                this.logger.info("Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig().getEnvironment() + "\n");
                 method.invoke(null, new Object[]{arguments.toArray(new String[0])});
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -515,7 +515,7 @@ public final class Wrapper extends CloudNetDriver {
         applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
         applicationThread.start();
 
-        eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
+        this.eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
         return true;
     }
 
@@ -556,7 +556,7 @@ public final class Wrapper extends CloudNetDriver {
 
     @NotNull
     public IDatabaseProvider getDatabaseProvider() {
-        return databaseProvider;
+        return this.databaseProvider;
     }
 
     public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {

@@ -48,7 +48,7 @@ public abstract class Command implements ICommandExecutor {
     }
 
     public CommandInfo getInfo() {
-        return new CommandInfo(this.names, permission, description, usage);
+        return new CommandInfo(this.names, this.permission, this.description, this.usage);
     }
 
     public final boolean isValid() {

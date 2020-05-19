@@ -36,26 +36,26 @@ public class ListenableTask<V> implements ITask<V> {
 
     @Override
     public Callable<V> getCallable() {
-        return callable;
+        return this.callable;
     }
 
     @Override
     public Collection<ITaskListener<V>> getListeners() {
-        return listeners;
+        return this.listeners;
     }
 
     public V getValue() {
-        return value;
+        return this.value;
     }
 
     @Override
     public boolean isDone() {
-        return done;
+        return this.done;
     }
 
     @Override
     public boolean isCancelled() {
-        return cancelled;
+        return this.cancelled;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class ListenableTask<V> implements ITask<V> {
             }
         }
 
-        return value;
+        return this.value;
     }
 
     @Override
@@ -131,7 +131,7 @@ public class ListenableTask<V> implements ITask<V> {
             throw new TimeoutException("Task has not been called within the given time!");
         }
 
-        return value;
+        return this.value;
     }
 
 

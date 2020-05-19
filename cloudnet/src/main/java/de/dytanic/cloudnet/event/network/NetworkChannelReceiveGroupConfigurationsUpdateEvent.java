@@ -26,7 +26,7 @@ public final class NetworkChannelReceiveGroupConfigurationsUpdateEvent extends N
     }
 
     public NetworkUpdateType getUpdateType() {
-        return updateType;
+        return this.updateType;
     }
 
     public List<GroupConfiguration> getGroupConfigurations() {

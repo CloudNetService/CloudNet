@@ -17,7 +17,7 @@ public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
 
     @Override
     public <E> IJsonDocPropertyable removeProperty(JsonDocProperty<E> docProperty) {
-        properties.removeProperty(docProperty);
+        this.properties.removeProperty(docProperty);
         return this;
     }
 

@@ -251,7 +251,7 @@ public class SignConfigurationEntry {
     }
 
     public double getKnockbackDistance() {
-        return knockbackDistance;
+        return this.knockbackDistance;
     }
 
     public void setKnockbackDistance(double knockbackDistance) {
@@ -259,7 +259,7 @@ public class SignConfigurationEntry {
     }
 
     public double getKnockbackStrength() {
-        return knockbackStrength;
+        return this.knockbackStrength;
     }
 
     public void setKnockbackStrength(double knockbackStrength) {

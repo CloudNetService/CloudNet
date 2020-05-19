@@ -19,7 +19,7 @@ public class VelocityPlayerFallbackEvent extends VelocityCloudNetEvent {
 
     @NotNull
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
 
     @Nullable

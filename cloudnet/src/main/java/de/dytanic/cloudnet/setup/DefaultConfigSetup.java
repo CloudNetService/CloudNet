@@ -51,10 +51,10 @@ public class DefaultConfigSetup implements DefaultSetup {
     @Override
     public void applyQuestions(ConsoleQuestionListAnimation animation) throws Exception {
         this.internalIPs = this.detectAllIPAddresses();
-        internalIPs.add("127.0.0.1");
-        internalIPs.add("127.0.1.1");
+        this.internalIPs.add("127.0.0.1");
+        this.internalIPs.add("127.0.1.1");
 
-        this.preferredIP = this.detectPreferredIP(internalIPs);
+        this.preferredIP = this.detectPreferredIP(this.internalIPs);
 
         animation.addEntry(new QuestionListEntry<>(
                 "eula",
@@ -79,12 +79,12 @@ public class DefaultConfigSetup implements DefaultSetup {
                 new QuestionAnswerTypeHostAndPort() {
                     @Override
                     public String getRecommendation() {
-                        return preferredIP + ":1410";
+                        return DefaultConfigSetup.this.preferredIP + ":1410";
                     }
 
                     @Override
                     public List<String> getCompletableAnswers() {
-                        return internalIPs.stream()
+                        return DefaultConfigSetup.this.internalIPs.stream()
                                 .map(internalIP -> internalIP + ":1410")
                                 .collect(Collectors.toList());
                     }
@@ -97,12 +97,12 @@ public class DefaultConfigSetup implements DefaultSetup {
                 new QuestionAnswerTypeHostAndPort() {
                     @Override
                     public String getRecommendation() {
-                        return preferredIP + ":2812";
+                        return DefaultConfigSetup.this.preferredIP + ":2812";
                     }
 
                     @Override
                     public List<String> getCompletableAnswers() {
-                        return internalIPs.stream()
+                        return DefaultConfigSetup.this.internalIPs.stream()
                                 .map(internalIP -> internalIP + ":2812")
                                 .collect(Collectors.toList());
                     }
@@ -148,8 +148,8 @@ public class DefaultConfigSetup implements DefaultSetup {
                     new HostAndPort[]{defaultHost}
             ));
 
-            CloudNet.getInstance().getConfig().getIpWhitelist().addAll(internalIPs);
-            if (!internalIPs.contains(defaultHost.getHost())) {
+            CloudNet.getInstance().getConfig().getIpWhitelist().addAll(this.internalIPs);
+            if (!this.internalIPs.contains(defaultHost.getHost())) {
                 CloudNet.getInstance().getConfig().getIpWhitelist().add(defaultHost.getHost());
             }
         }

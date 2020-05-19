@@ -93,7 +93,7 @@ public class SyncProxyConfiguration {
     }
 
     public boolean showIngameServicesStartStopMessages() {
-        return ingameServiceStartStopMessages;
+        return this.ingameServiceStartStopMessages;
     }
 
 }

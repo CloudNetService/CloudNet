@@ -24,19 +24,19 @@ public class BukkitNPCProperties {
     }
 
     public CloudNPC getHolder() {
-        return holder;
+        return this.holder;
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public Inventory getInventory() {
-        return inventory;
+        return this.inventory;
     }
 
     public Map<Integer, String> getServerSlots() {
-        return serverSlots;
+        return this.serverSlots;
     }
 
 }

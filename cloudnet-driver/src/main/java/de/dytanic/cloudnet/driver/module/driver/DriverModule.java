@@ -15,20 +15,20 @@ public class DriverModule extends DefaultModule {
     protected JsonDocument config;
 
     public final JsonDocument getConfig() {
-        if (config == null) {
-            config = reloadConfig0();
+        if (this.config == null) {
+            this.config = reloadConfig0();
         }
 
-        return config;
+        return this.config;
     }
 
     public JsonDocument reloadConfig() {
-        return config = reloadConfig0();
+        return this.config = reloadConfig0();
     }
 
     public final DriverModule saveConfig() {
-        if (config != null) {
-            config.write(new File(getModuleWrapper().getDataFolder(), "config.json"));
+        if (this.config != null) {
+            this.config.write(new File(getModuleWrapper().getDataFolder(), "config.json"));
         }
 
         return this;
