@@ -35,10 +35,10 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             return;
         }
 
-        ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+        ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
         if (TemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
-            File file = getFileByPath(path, serviceTemplate);
+            File file = this.getFileByPath(path, serviceTemplate);
 
             if (!file.exists()) {
                 this.send404Response(context, "file '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
@@ -52,7 +52,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                     Collection<JsonDocument> documents = new ArrayList<>(files.length);
 
                     for (File item : files) {
-                        documents.add(getFileEntry(item));
+                        documents.add(this.getFileEntry(item));
                     }
 
                     context
@@ -93,10 +93,10 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             return;
         }
 
-        ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+        ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
         if (TemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
-            File file = getFileByPath(path, serviceTemplate);
+            File file = this.getFileByPath(path, serviceTemplate);
 
             if (!file.exists()) {
                 file.getParentFile().mkdirs();
@@ -108,7 +108,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                 }
             }
 
-            getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
 
             context
                     .response()
@@ -132,10 +132,10 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             return;
         }
 
-        ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+        ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
         if (TemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
-            File file = getFileByPath(path, serviceTemplate);
+            File file = this.getFileByPath(path, serviceTemplate);
 
             if (!file.exists()) {
                 this.send404Response(context, "file or directory '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
@@ -143,7 +143,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             }
 
             FileUtils.delete(file);
-            getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
 
             context
                     .response()

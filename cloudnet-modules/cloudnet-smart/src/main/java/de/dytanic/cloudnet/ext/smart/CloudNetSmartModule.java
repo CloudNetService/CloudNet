@@ -39,8 +39,8 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void initTaskConfigs() {
         Map<String, SmartServiceTaskConfig> oldSmartTasks = new HashMap<>();
-        if (getModuleWrapper().getDataFolder().exists() && getConfig().contains("smartTasks")) {
-            Collection<JsonDocument> smartTasks = getConfig().get("smartTasks", new TypeToken<Collection<JsonDocument>>() {
+        if (this.getModuleWrapper().getDataFolder().exists() && this.getConfig().contains("smartTasks")) {
+            Collection<JsonDocument> smartTasks = this.getConfig().get("smartTasks", new TypeToken<Collection<JsonDocument>>() {
             }.getType());
             for (JsonDocument smartTaskJson : smartTasks) {
                 SmartServiceTaskConfig smartTask = smartTaskJson.toInstanceOf(SmartServiceTaskConfig.class);
@@ -50,7 +50,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                         smartTask
                 );
             }
-            FileUtils.delete(getModuleWrapper().getDataFolder());
+            FileUtils.delete(this.getModuleWrapper().getDataFolder());
         }
 
         for (ServiceTask task : this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks()) {
@@ -69,7 +69,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new CloudNetTickListener(), new CloudServiceListener(), new TaskDefaultSmartConfigListener());
+        this.registerListeners(new CloudNetTickListener(), new CloudServiceListener(), new TaskDefaultSmartConfigListener());
     }
 
     public SmartServiceTaskConfig getSmartServiceTaskConfig(ServiceTask task) {
@@ -89,12 +89,12 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = CloudNet.getInstance().getNodeInfoProvider().getNodeInfoSnapshot(nodeId);
 
         if (networkClusterNodeInfoSnapshot != null && !networkClusterNodeInfoSnapshot.getNode()
-                .getUniqueId().equalsIgnoreCase(getCloudNetConfig().getIdentity().getUniqueId())) {
+                .getUniqueId().equalsIgnoreCase(this.getCloudNetConfig().getIdentity().getUniqueId())) {
             int memory = (networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100;
             return networkClusterNodeInfoSnapshot.getMaxMemory() > 0 ? memory / networkClusterNodeInfoSnapshot.getMaxMemory() : memory;
         } else {
-            int memory = (getCloudNet().getConfig().getMaxMemory() - getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100;
-            return getCloudNet().getConfig().getMaxMemory() > 0 ? memory / getCloudNet().getConfig().getMaxMemory() : memory;
+            int memory = (this.getCloudNet().getConfig().getMaxMemory() - this.getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100;
+            return this.getCloudNet().getConfig().getMaxMemory() > 0 ? memory / this.getCloudNet().getConfig().getMaxMemory() : memory;
         }
     }
 
@@ -165,7 +165,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
     private int applyDynamicMemory(int maxMemory, ServiceConfiguration serviceConfiguration, ServiceTask serviceTask, SmartServiceTaskConfig smartTask) {
         if (smartTask.isDynamicMemoryAllocation()) {
-            int percent = getPercentOfFreeMemory(serviceConfiguration.getServiceId().getNodeUniqueId(), serviceTask);
+            int percent = this.getPercentOfFreeMemory(serviceConfiguration.getServiceId().getNodeUniqueId(), serviceTask);
 
             if (percent > 50) {
                 maxMemory = maxMemory - ((percent * smartTask.getDynamicMemoryAllocationRange()) / 100);

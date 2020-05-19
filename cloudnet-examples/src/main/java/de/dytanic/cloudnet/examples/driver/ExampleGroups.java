@@ -8,9 +8,9 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 public final class ExampleGroups {
 
     public void test() {
-        addGroupConfiguration();
-        updateGroupConfiguration();
-        removeGroupConfiguration();
+        this.addGroupConfiguration();
+        this.updateGroupConfiguration();
+        this.removeGroupConfiguration();
     }
 
     public void addGroupConfiguration() {

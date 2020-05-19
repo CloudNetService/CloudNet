@@ -16,8 +16,8 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
     @Override
     public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleAddUser(this, permissionUser);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleAddUser(this, permissionUser);
         }
         return this.addUserWithoutClusterSyncAsync(permissionUser);
     }
@@ -25,8 +25,8 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
     @Override
     public @NotNull ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleUpdateUser(this, permissionUser);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleUpdateUser(this, permissionUser);
         }
         return this.updateUserWithoutClusterSyncAsync(permissionUser);
     }
@@ -51,8 +51,8 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
     @Override
     public @NotNull ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleDeleteUser(this, permissionUser);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleDeleteUser(this, permissionUser);
         }
         return this.deleteUserWithoutClusterSyncAsync(permissionUser);
     }
@@ -62,8 +62,8 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
         if (users == null) {
             users = Collections.emptyList();
         }
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleSetUsers(this, users);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleSetUsers(this, users);
         }
 
         return this.setUsersWithoutClusterSyncAsync(users);
@@ -75,10 +75,10 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
 
         this.testPermissionGroup(permissionGroup);
 
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleAddGroup(this, permissionGroup);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleAddGroup(this, permissionGroup);
         }
-        return addGroupWithoutClusterSyncAsync(permissionGroup);
+        return this.addGroupWithoutClusterSyncAsync(permissionGroup);
     }
 
     @Override
@@ -87,16 +87,16 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
 
         this.testPermissionGroup(permissionGroup);
 
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleUpdateGroup(this, permissionGroup);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleUpdateGroup(this, permissionGroup);
         }
         return this.updateGroupWithoutClusterSyncAsync(permissionGroup);
     }
 
     @Override
     public @NotNull ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup) {
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleDeleteGroup(this, permissionGroup);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleDeleteGroup(this, permissionGroup);
         }
 
         return this.deleteGroupWithoutClusterSyncAsync(permissionGroup);
@@ -120,20 +120,20 @@ public abstract class ClusterSynchronizedPermissionManagement implements NodePer
         if (groups == null) {
             groups = Collections.emptyList();
         }
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleSetGroups(this, groups);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleSetGroups(this, groups);
         }
-        return setGroupsWithoutClusterSyncAsync(groups);
+        return this.setGroupsWithoutClusterSyncAsync(groups);
     }
 
     public void setGroups(Collection<? extends IPermissionGroup> groups) {
         if (groups == null) {
             groups = Collections.emptyList();
         }
-        if (getPermissionManagementHandler() != null) {
-            getPermissionManagementHandler().handleSetGroups(this, groups);
+        if (this.getPermissionManagementHandler() != null) {
+            this.getPermissionManagementHandler().handleSetGroups(this, groups);
         }
-        setGroupsWithoutClusterSyncAsync(groups);
+        this.setGroupsWithoutClusterSyncAsync(groups);
     }
 
     public abstract ITask<IPermissionUser> addUserWithoutClusterSyncAsync(IPermissionUser permissionUser);

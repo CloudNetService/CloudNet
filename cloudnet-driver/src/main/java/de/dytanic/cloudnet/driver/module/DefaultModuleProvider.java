@@ -80,7 +80,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public IModuleWrapper loadModule(File file) {
         Preconditions.checkNotNull(file);
 
-        return loadModule(file.toPath());
+        return this.loadModule(file.toPath());
     }
 
     @Override
@@ -88,7 +88,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(path);
 
         try {
-            return loadModule(path.toUri().toURL());
+            return this.loadModule(path.toUri().toURL());
         } catch (MalformedURLException exception) {
             exception.printStackTrace();
         }
@@ -101,7 +101,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(urls);
 
         for (URL url : urls) {
-            loadModule(url);
+            this.loadModule(url);
         }
 
         return this;
@@ -112,7 +112,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(files);
 
         for (File file : files) {
-            loadModule(file);
+            this.loadModule(file);
         }
 
         return this;
@@ -123,7 +123,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(paths);
 
         for (Path path : paths) {
-            loadModule(path);
+            this.loadModule(path);
         }
 
         return this;

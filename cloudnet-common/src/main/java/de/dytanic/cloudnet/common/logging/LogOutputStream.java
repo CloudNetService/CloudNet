@@ -41,7 +41,7 @@ public class LogOutputStream extends ByteArrayOutputStream {
 
     @Override
     public void flush() throws IOException {
-        String input = toString(StandardCharsets.UTF_8.name());
+        String input = this.toString(StandardCharsets.UTF_8.name());
         this.reset();
 
         if (input != null && !input.isEmpty() && !input.equals(System.lineSeparator())) {

@@ -94,7 +94,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         } else {
             try {
                 this.cloudNet.runTask((Callable<Void>) () -> {
-                    sendCommandLine0(collection, commandLine);
+                    this.sendCommandLine0(collection, commandLine);
                     return null;
                 }).get();
             } catch (InterruptedException | ExecutionException exception) {

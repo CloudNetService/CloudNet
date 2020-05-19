@@ -19,7 +19,7 @@ public class DefaultAsyncLogger implements ILogger {
 
         @Override
         public void run() {
-            while (!isInterrupted()) {
+            while (!this.isInterrupted()) {
                 try {
                     LogHandlerRunnable logHandlerRunnable = DefaultAsyncLogger.this.entries.take();
                     logHandlerRunnable.call();
@@ -53,7 +53,7 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public ILogger log(LogEntry logEntry) {
-        handleLogEntry(logEntry);
+        this.handleLogEntry(logEntry);
 
         return this;
     }
@@ -61,7 +61,7 @@ public class DefaultAsyncLogger implements ILogger {
     @Override
     public ILogger log(LogEntry... logEntries) {
         for (LogEntry logEntry : logEntries) {
-            handleLogEntry(logEntry);
+            this.handleLogEntry(logEntry);
         }
 
         return this;
@@ -83,7 +83,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger addLogHandlers(ILogHandler... logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            addLogHandler(logHandler);
+            this.addLogHandler(logHandler);
         }
         return this;
     }
@@ -92,7 +92,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            addLogHandler(logHandler);
+            this.addLogHandler(logHandler);
         }
         return this;
     }
@@ -108,7 +108,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            removeLogHandler(logHandler);
+            this.removeLogHandler(logHandler);
         }
         return this;
     }
@@ -117,7 +117,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            removeLogHandler(logHandler);
+            this.removeLogHandler(logHandler);
         }
         return this;
     }

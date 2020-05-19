@@ -49,7 +49,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         this.pattern = pattern;
         this.maxBytes = maxBytes;
 
-        this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+        this.entry = this.initPrintWriter(this.selectLogFile(this.printWriter, this.writternBytes, this.pattern));
     }
 
     /**
@@ -70,20 +70,20 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     @Override
     public void handle(LogEntry logEntry) {
-        if (getFormatter() == null) {
-            setFormatter(new DefaultLogFormatter());
+        if (this.getFormatter() == null) {
+            this.setFormatter(new DefaultLogFormatter());
         }
 
         if (this.entry == null || this.entry.length() > this.maxBytes) {
-            this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+            this.entry = this.initPrintWriter(this.selectLogFile(this.printWriter, this.writternBytes, this.pattern));
         }
 
-        String formatted = getFormatter().format(logEntry);
+        String formatted = this.getFormatter().format(logEntry);
         byte[] formattedBytes = formatted.getBytes(StandardCharsets.UTF_8);
         this.writternBytes = this.writternBytes + formattedBytes.length;
 
         if (this.writternBytes > this.maxBytes) {
-            this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+            this.entry = this.initPrintWriter(this.selectLogFile(this.printWriter, this.writternBytes, this.pattern));
         }
 
         this.printWriter.write(formatted);
@@ -91,13 +91,13 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
         if (this.errorWriter != null && logEntry.getLogLevel().getLevel() >= 126 && logEntry.getLogLevel().getLevel() <= 127) {
             if (this.errorFile == null || this.errorFile.length() > this.maxBytes) {
-                this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
             }
 
             this.writtenErrorBytes += formattedBytes.length;
 
             if (this.writtenErrorBytes > this.maxBytes) {
-                this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
             }
 
             this.errorWriter.write(formatted);

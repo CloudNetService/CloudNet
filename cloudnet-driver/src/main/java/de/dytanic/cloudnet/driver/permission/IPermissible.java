@@ -252,17 +252,17 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
 
         for (Permission permissionEntry : permissions) {
 
-            if (permissionEntry.getName().equals("*") && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
+            if (permissionEntry.getName().equals("*") && (permissionEntry.getPotency() >= permission.getPotency() || this.getPotency() >= permission.getPotency())) {
                 return PermissionCheckResult.ALLOWED;
             }
 
             if (permissionEntry.getName().endsWith("*") && permission.getName().contains(permissionEntry.getName().replace("*", ""))
-                    && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
+                    && (permissionEntry.getPotency() >= permission.getPotency() || this.getPotency() >= permission.getPotency())) {
                 return PermissionCheckResult.ALLOWED;
             }
 
             if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) &&
-                    (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
+                    (permissionEntry.getPotency() >= permission.getPotency() || this.getPotency() >= permission.getPotency())) {
                 return PermissionCheckResult.ALLOWED;
             }
         }
@@ -278,7 +278,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull String group, @NotNull Permission permission) {
-        return getGroupPermissions().containsKey(group) ? hasPermission(getGroupPermissions().get(group), permission) : PermissionCheckResult.DENIED;
+        return this.getGroupPermissions().containsKey(group) ? this.hasPermission(this.getGroupPermissions().get(group), permission) : PermissionCheckResult.DENIED;
     }
 
     /**
@@ -288,7 +288,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull Permission permission) {
-        return hasPermission(getPermissions(), permission);
+        return this.hasPermission(this.getPermissions(), permission);
     }
 
     /**
@@ -300,11 +300,11 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull String permission) {
-        return hasPermission(new Permission(permission, 0));
+        return this.hasPermission(new Permission(permission, 0));
     }
 
     @Override
     default int compareTo(IPermissible o) {
-        return getPotency() + o.getPotency();
+        return this.getPotency() + o.getPotency();
     }
 }

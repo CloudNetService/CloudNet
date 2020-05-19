@@ -12,7 +12,7 @@ public final class PacketClientCallablePacketReceiveListener implements IPacketL
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains(PacketConstants.SYNC_PACKET_ID_PROPERTY) && packet.getHeader().contains(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY)) {
-            CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> handle0(channel, packet));
+            CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> this.handle0(channel, packet));
         }
     }
 

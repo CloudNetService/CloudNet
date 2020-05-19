@@ -12,7 +12,7 @@ public final class NettyPacketLengthSerializer extends MessageToByteEncoder<Byte
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) {
-        int readableBytes = in.readableBytes(), lengthByteSpace = getVarIntSize(readableBytes);
+        int readableBytes = in.readableBytes(), lengthByteSpace = this.getVarIntSize(readableBytes);
 
         if (lengthByteSpace > 5) {
             throw new IllegalArgumentException();

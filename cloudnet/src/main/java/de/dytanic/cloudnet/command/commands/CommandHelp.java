@@ -21,7 +21,7 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         switch (args.length) {
             case 0:
-                for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
+                for (CommandInfo commandInfo : this.getCloudNet().getCommandMap().getCommandInfos()) {
                     StringBuilder builder = new StringBuilder("Aliases: " + Arrays.toString(commandInfo.getNames()));
                     if (commandInfo.getPermission() != null) {
                         builder.append(" | Permission: ").append(commandInfo.getPermission());
@@ -36,8 +36,8 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                 break;
             case 1:
 
-                if (getCloudNet().getCommandMap().getCommandNames().contains(args[0].toLowerCase())) {
-                    Command commandInfo = getCloudNet().getCommandMap().getCommand(args[0].toLowerCase());
+                if (this.getCloudNet().getCommandMap().getCommandNames().contains(args[0].toLowerCase())) {
+                    Command commandInfo = this.getCloudNet().getCommandMap().getCommand(args[0].toLowerCase());
 
                     if (commandInfo != null) {
                         sender.sendMessage(" ", "Aliases: " + Arrays.toString(commandInfo.getNames()));
@@ -61,7 +61,7 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
     public Collection<String> complete(String commandLine, String[] args, Properties properties) {
         Collection<String> x = new ArrayList<>();
 
-        for (CommandInfo commandInfo : getCloudNet().getCommandMap().getCommandInfos()) {
+        for (CommandInfo commandInfo : this.getCloudNet().getCommandMap().getCommandInfos()) {
             x.addAll(Arrays.asList(commandInfo.getNames()));
         }
 

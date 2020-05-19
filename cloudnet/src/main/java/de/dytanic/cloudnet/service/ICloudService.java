@@ -89,7 +89,7 @@ public interface ICloudService {
     void deployResources(boolean removeDeployments);
 
     default void deployResources() {
-        deployResources(true);
+        this.deployResources(true);
     }
 
     void offerTemplate(@NotNull ServiceTemplate template);

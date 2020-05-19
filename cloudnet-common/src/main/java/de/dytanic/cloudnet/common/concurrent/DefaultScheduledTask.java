@@ -40,7 +40,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
             return this;
         }
 
-        initListenersCollectionIfNotExists();
+        this.initListenersCollectionIfNotExists();
 
         this.listeners.add(listener);
 
@@ -118,7 +118,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     @Override
     public synchronized V getDef(V def) {
-        return get(5, TimeUnit.SECONDS, def);
+        return this.get(5, TimeUnit.SECONDS, def);
     }
 
     @Override
@@ -126,7 +126,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
         Preconditions.checkNotNull(timeUnit);
 
         try {
-            return get(time, timeUnit);
+            return this.get(time, timeUnit);
         } catch (Throwable throwable) {
             return def;
         }
@@ -138,7 +138,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
             return this.value;
         }
 
-        if (!isCancelled()) {
+        if (!this.isCancelled()) {
             try {
                 this.value = this.callable.call();
             } catch (Throwable throwable) {
@@ -180,7 +180,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     @Override
     public synchronized V get() throws InterruptedException {
         this.wait = true;
-        while (!isDone()) {
+        while (!this.isDone()) {
             this.wait();
         }
 
@@ -190,7 +190,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
     @Override
     public synchronized V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
         this.wait = true;
-        if (!isDone()) {
+        if (!this.isDone()) {
             this.wait(unit.toMillis(timeout));
         }
 

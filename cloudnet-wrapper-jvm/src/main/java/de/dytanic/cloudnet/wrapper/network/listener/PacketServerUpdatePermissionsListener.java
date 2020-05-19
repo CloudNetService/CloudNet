@@ -25,28 +25,28 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
         if (packet.getHeader().contains("permissions_event") && packet.getHeader().contains("updateType")) {
             switch (packet.getHeader().get("updateType", PacketServerUpdatePermissions.UpdateType.class)) {
                 case ADD_USER:
-                    invoke0(new PermissionAddUserEvent(null, packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
+                    this.invoke0(new PermissionAddUserEvent(null, packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
                     break;
                 case ADD_GROUP:
-                    invoke0(new PermissionAddGroupEvent(null, packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
+                    this.invoke0(new PermissionAddGroupEvent(null, packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
                     break;
                 case SET_USERS:
-                    invoke0(new PermissionSetUsersEvent(null, packet.getHeader().get("permissionUsers", PERMISSION_USERS_TYPE)));
+                    this.invoke0(new PermissionSetUsersEvent(null, packet.getHeader().get("permissionUsers", PERMISSION_USERS_TYPE)));
                     break;
                 case SET_GROUPS:
-                    invoke0(new PermissionSetGroupsEvent(null, packet.getHeader().get("permissionGroups", PERMISSION_GROUPS_TYPE)));
+                    this.invoke0(new PermissionSetGroupsEvent(null, packet.getHeader().get("permissionGroups", PERMISSION_GROUPS_TYPE)));
                     break;
                 case DELETE_USER:
-                    invoke0(new PermissionDeleteUserEvent(null, packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
+                    this.invoke0(new PermissionDeleteUserEvent(null, packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
                     break;
                 case UPDATE_USER:
-                    invoke0(new PermissionUpdateUserEvent(null, packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
+                    this.invoke0(new PermissionUpdateUserEvent(null, packet.getHeader().get("permissionUser", PermissionUser.TYPE)));
                     break;
                 case DELETE_GROUP:
-                    invoke0(new PermissionDeleteGroupEvent(null, packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
+                    this.invoke0(new PermissionDeleteGroupEvent(null, packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
                     break;
                 case UPDATE_GROUP:
-                    invoke0(new PermissionUpdateGroupEvent(null, packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
+                    this.invoke0(new PermissionUpdateGroupEvent(null, packet.getHeader().get("permissionGroup", PermissionGroup.TYPE)));
                     break;
             }
         }

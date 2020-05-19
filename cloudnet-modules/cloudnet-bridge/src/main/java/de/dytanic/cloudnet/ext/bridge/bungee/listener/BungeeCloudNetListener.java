@@ -116,7 +116,7 @@ public final class BungeeCloudNetListener {
 
         switch (event.getMessage().toLowerCase()) {
             case "send_on_proxy_player_to_server": {
-                ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
+                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("serviceName") != null) {
                     ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(event.getData().getString("serviceName"));
@@ -128,7 +128,7 @@ public final class BungeeCloudNetListener {
             }
             break;
             case "kick_on_proxy_player_from_network": {
-                ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
+                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().getString("kickMessage") != null) {
                     proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage"))));
@@ -136,7 +136,7 @@ public final class BungeeCloudNetListener {
             }
             break;
             case "send_message_to_proxy_player": {
-                ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
+                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
 
                 if (proxiedPlayer != null) {
                     BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
@@ -146,7 +146,7 @@ public final class BungeeCloudNetListener {
             }
             break;
             case "send_plugin_message_to_proxy_player": {
-                ProxiedPlayer proxiedPlayer = getPlayer(event.getData());
+                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
 
                 if (proxiedPlayer != null && event.getData().contains("tag") && event.getData().contains("data")) {
                     String tag = event.getData().getString("tag");

@@ -37,7 +37,7 @@ public class PacketQueryProvider {
 
     @NotNull
     public <R> ITask<R> sendCallablePacket(@NotNull INetworkChannel networkChannel, String channel, @NotNull JsonDocument header, byte[] body, @NotNull Function<Pair<JsonDocument, byte[]>, R> function) {
-        return sendCallablePacket0(networkChannel, channel, header, body, function);
+        return this.sendCallablePacket0(networkChannel, channel, header, body, function);
     }
 
     @NotNull

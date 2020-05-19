@@ -19,7 +19,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
     @Override
     public void handleChannelInitialize(INetworkChannel channel) {
         //Whitelist check
-        if (!inWhitelist(channel)) {
+        if (!this.inWhitelist(channel)) {
             try {
                 channel.close();
             } catch (Exception exception) {
@@ -60,7 +60,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
                 iCloudService.getNetworkChannel() != null && iCloudService.getNetworkChannel().equals(channel));
 
         if (cloudService != null) {
-            closeAsCloudService(cloudService, channel);
+            this.closeAsCloudService(cloudService, channel);
             return;
         }
 

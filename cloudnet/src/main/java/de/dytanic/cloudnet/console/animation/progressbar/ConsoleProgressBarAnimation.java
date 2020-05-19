@@ -112,7 +112,7 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
     }
 
     protected String format(String input, double percent) {
-        long millis = System.currentTimeMillis() - getStartTime();
+        long millis = System.currentTimeMillis() - this.getStartTime();
         long time = millis / 1000;
         return input == null ? "" : input
                 .replace("%value%", this.formatCurrentValue(this.currentValue))

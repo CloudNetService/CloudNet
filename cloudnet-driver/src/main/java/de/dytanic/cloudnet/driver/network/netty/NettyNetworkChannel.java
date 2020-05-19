@@ -52,9 +52,9 @@ final class NettyNetworkChannel implements INetworkChannel {
         Preconditions.checkNotNull(packet);
 
         if (this.channel.eventLoop().inEventLoop()) {
-            sendPacket0(packet);
+            this.sendPacket0(packet);
         } else {
-            this.channel.eventLoop().execute(() -> sendPacket0(packet));
+            this.channel.eventLoop().execute(() -> this.sendPacket0(packet));
         }
     }
 

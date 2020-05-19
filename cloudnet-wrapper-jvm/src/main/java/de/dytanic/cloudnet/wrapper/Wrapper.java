@@ -330,7 +330,7 @@ public final class Wrapper extends CloudNetDriver {
     @Override
     @NotNull
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_local_template_storage_templates"), null,
                 documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
                 }.getType()));
@@ -347,7 +347,7 @@ public final class Wrapper extends CloudNetDriver {
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
         Preconditions.checkNotNull(serviceName);
 
-        return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_template_storage_templates").append("serviceName", serviceName), null,
                 documentPair -> documentPair.getFirst().get("templates", new TypeToken<Collection<ServiceTemplate>>() {
                 }.getType()));
@@ -365,7 +365,7 @@ public final class Wrapper extends CloudNetDriver {
         Preconditions.checkNotNull(uniqueId);
         Preconditions.checkNotNull(commandLine);
 
-        return getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+        return this.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "send_commandline_as_permission_user").append("uniqueId", uniqueId).append("commandLine", commandLine), null,
                 documentPair -> documentPair.getFirst().get("executionResponse", new TypeToken<Pair<Boolean, String[]>>() {
                 }.getType()));

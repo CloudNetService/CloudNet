@@ -246,7 +246,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
                 for (ChannelSftp.LsEntry nameEntry : prefixEntries) {
                     String name = nameEntry.getFilename();
 
-                    templates.add(new ServiceTemplate(prefix, name, getName()));
+                    templates.add(new ServiceTemplate(prefix, name, this.getName()));
                 }
             }
         }

@@ -42,12 +42,12 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
 
     @Override
     public void sendClusterChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument header, byte[] body) {
-        saveSendPacket(new PacketServerClusterChannelMessage(channel, message, header, body));
+        this.saveSendPacket(new PacketServerClusterChannelMessage(channel, message, header, body));
     }
 
     @Override
     public void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        saveSendPacket(new PacketClientServerChannelMessage(channel, message, data));
+        this.saveSendPacket(new PacketClientServerChannelMessage(channel, message, data));
     }
 
     @Override

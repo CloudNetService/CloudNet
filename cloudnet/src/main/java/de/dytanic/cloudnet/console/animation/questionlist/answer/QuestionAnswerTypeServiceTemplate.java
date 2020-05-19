@@ -20,7 +20,7 @@ public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<Ser
 
     @Override
     public boolean isValidInput(String input) {
-        ServiceTemplate template = parse(input);
+        ServiceTemplate template = this.parse(input);
         return template != null && (!this.existingStorage || CloudNet.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, template.getStorage()));
     }
 

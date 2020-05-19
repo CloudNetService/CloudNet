@@ -157,7 +157,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     @Override
     public IModuleWrapper loadModule() {
         if (this.moduleLifeCycle == ModuleLifeCycle.UNLOADED && this.moduleProvider.getModuleProviderHandler().handlePreModuleLoad(this)) {
-            fireTasks(this.moduleTasks.get(this.moduleLifeCycle = ModuleLifeCycle.LOADED));
+            this.fireTasks(this.moduleTasks.get(this.moduleLifeCycle = ModuleLifeCycle.LOADED));
             this.moduleProvider.getModuleProviderHandler().handlePostModuleLoad(this);
         }
 
@@ -190,7 +190,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                 }
             }
 
-            fireTasks(this.moduleTasks.get(ModuleLifeCycle.STARTED));
+            this.fireTasks(this.moduleTasks.get(ModuleLifeCycle.STARTED));
             this.moduleProvider.getModuleProviderHandler().handlePostModuleStart(this);
             this.moduleLifeCycle = ModuleLifeCycle.STARTED;
         }
@@ -202,7 +202,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     public IModuleWrapper stopModule() {
         if ((this.moduleLifeCycle == ModuleLifeCycle.STARTED || this.moduleLifeCycle == ModuleLifeCycle.LOADED)
                 && this.moduleProvider.getModuleProviderHandler().handlePreModuleStop(this)) {
-            fireTasks(this.moduleTasks.get(ModuleLifeCycle.STOPPED));
+            this.fireTasks(this.moduleTasks.get(ModuleLifeCycle.STOPPED));
             this.moduleProvider.getModuleProviderHandler().handlePostModuleStop(this);
             this.moduleLifeCycle = ModuleLifeCycle.STOPPED;
         }
@@ -213,11 +213,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     @Override
     public IModuleWrapper unloadModule() {
         if (this.moduleLifeCycle != ModuleLifeCycle.UNLOADED) {
-            stopModule();
+            this.stopModule();
         }
 
         this.moduleProvider.getModuleProviderHandler().handlePreModuleUnload(this);
-        fireTasks(this.moduleTasks.get(ModuleLifeCycle.UNLOADED));
+        this.fireTasks(this.moduleTasks.get(ModuleLifeCycle.UNLOADED));
 
         this.moduleLifeCycle = ModuleLifeCycle.UNUSEABLE;
         this.moduleProvider.moduleWrappers.remove(this);

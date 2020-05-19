@@ -37,8 +37,8 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
     @Override
     public synchronized IServiceConsoleLogCache update() {
         if (this.cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING && this.cloudService.isAlive() && this.cloudService.getProcess() != null) {
-            readStream(this.cloudService.getProcess().getInputStream(), false);
-            readStream(this.cloudService.getProcess().getErrorStream(), CloudNet.getInstance().getConfig().isPrintErrorStreamLinesFromServices());
+            this.readStream(this.cloudService.getProcess().getInputStream(), false);
+            this.readStream(this.cloudService.getProcess().getErrorStream(), CloudNet.getInstance().getConfig().isPrintErrorStreamLinesFromServices());
         }
         return this;
     }

@@ -22,7 +22,7 @@ public final class PacketServerSetH2DatabaseDataListener implements IPacketListe
         if (CloudNet.getInstance().getDatabaseProvider() instanceof H2DatabaseProvider && packet.getHeader().contains("set_h2db")) {
             Map<String, Map<String, JsonDocument>> documents = packet.getHeader().get("documents", TYPE);
 
-            H2DatabaseProvider databaseProvider = getH2DatabaseProvider();
+            H2DatabaseProvider databaseProvider = this.getH2DatabaseProvider();
 
             for (String name : databaseProvider.getDatabaseNames()) {
                 if (!documents.containsKey(name)) {

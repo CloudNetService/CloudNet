@@ -33,11 +33,11 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
             switch (packet.getHeader().get("authorization", PacketClientAuthorization.PacketAuthorizationType.class)) {
                 case NODE_TO_NODE:
                     if (credentials.contains("clusterId") && credentials.contains("clusterNode") &&
-                            getCloudNet().getConfig().getClusterConfig().getClusterId().equals(credentials.get("clusterId", UUID.class))) {
+                            this.getCloudNet().getConfig().getClusterConfig().getClusterId().equals(credentials.get("clusterId", UUID.class))) {
                         NetworkClusterNode clusterNode = credentials.get("clusterNode", new TypeToken<NetworkClusterNode>() {
                         }.getType());
 
-                        for (IClusterNodeServer clusterNodeServer : getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
+                        for (IClusterNodeServer clusterNodeServer : this.getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
                             if (clusterNodeServer.isAcceptableConnection(channel, clusterNode.getUniqueId())) {
                                 //- packet channel registry
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageListener());
@@ -68,7 +68,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 clusterNodeServer.setChannel(channel);
                                 CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(clusterNodeServer, channel));
 
-                                getCloudNet().getLogger().info(
+                                this.getCloudNet().getLogger().info(
                                         LanguageManager.getMessage("cluster-server-networking-connected")
                                                 .replace("%id%", clusterNode.getUniqueId())
                                                 .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
@@ -86,7 +86,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                         String connectionKey = credentials.getString("connectionKey");
                         ServiceId serviceId = credentials.get("serviceId", ServiceId.class);
 
-                        ICloudService cloudService = getCloudNet().getCloudServiceManager().getCloudService(serviceId.getUniqueId());
+                        ICloudService cloudService = this.getCloudNet().getCloudServiceManager().getCloudService(serviceId.getUniqueId());
 
                         if (connectionKey != null && cloudService != null && cloudService.getConnectionKey().equals(connectionKey) &&
                                 cloudService.getServiceId().getTaskServiceId() == serviceId.getTaskServiceId() &&
@@ -109,7 +109,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
                             CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkChannelAuthCloudServiceSuccessEvent(cloudService, channel));
 
-                            getCloudNet().getLogger().info(LanguageManager.getMessage("cloud-service-networking-connected")
+                            this.getCloudNet().getLogger().info(LanguageManager.getMessage("cloud-service-networking-connected")
                                     .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
                                     .replace("%task%", cloudService.getServiceId().getTaskName())
                                     .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))
@@ -117,9 +117,9 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                     .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                             );
 
-                            getCloudNet().getNetworkClient().sendPacket(
+                            this.getCloudNet().getNetworkClient().sendPacket(
                                     new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
-                            getCloudNet().getNetworkServer().sendPacket(
+                            this.getCloudNet().getNetworkServer().sendPacket(
                                     new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
                             return;
                         }

@@ -65,7 +65,7 @@ public class ListenableTask<V> implements ITask<V> {
             return this;
         }
 
-        initListenersCollectionIfNotExists();
+        this.initListenersCollectionIfNotExists();
 
         this.listeners.add(listener);
 
@@ -88,7 +88,7 @@ public class ListenableTask<V> implements ITask<V> {
 
     @Override
     public V getDef(V def) {
-        return get(5, TimeUnit.SECONDS, def);
+        return this.get(5, TimeUnit.SECONDS, def);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ListenableTask<V> implements ITask<V> {
         Preconditions.checkNotNull(timeUnit);
 
         try {
-            return get(time, timeUnit);
+            return this.get(time, timeUnit);
         } catch (Throwable ignored) {
             return def;
         }
@@ -111,7 +111,7 @@ public class ListenableTask<V> implements ITask<V> {
     @Override
     public V get() throws InterruptedException {
         synchronized (this) {
-            if (!isDone()) {
+            if (!this.isDone()) {
                 this.wait();
             }
         }
@@ -137,7 +137,7 @@ public class ListenableTask<V> implements ITask<V> {
 
     @Override
     public V call() {
-        if (!isCancelled()) {
+        if (!this.isCancelled()) {
             try {
                 this.value = this.callable.call();
             } catch (Throwable throwable) {

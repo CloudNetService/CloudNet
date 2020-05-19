@@ -60,17 +60,17 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     @Override
     public boolean isPermissionSet(@NotNull String name) {
-        return hasPermission(name);
+        return this.hasPermission(name);
     }
 
     @Override
     public boolean isPermissionSet(Permission perm) {
-        return isPermissionSet(perm.getName());
+        return this.isPermissionSet(perm.getName());
     }
 
     @Override
     public boolean hasPermission(Permission perm) {
-        return hasPermission(perm.getName());
+        return this.hasPermission(perm.getName());
     }
 
     @Override

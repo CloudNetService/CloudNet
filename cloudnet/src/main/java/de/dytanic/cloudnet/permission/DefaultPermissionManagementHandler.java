@@ -18,54 +18,54 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
     @Override
     public void handleAddUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionAddUserEvent(permissionManagement, permissionUser));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.ADD_USER, permissionUser));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.ADD_USER, permissionUser));
     }
 
     @Override
     public void handleUpdateUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionUpdateUserEvent(permissionManagement, permissionUser));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.UPDATE_USER, permissionUser));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.UPDATE_USER, permissionUser));
     }
 
     @Override
     public void handleDeleteUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionDeleteUserEvent(permissionManagement, permissionUser));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.DELETE_USER, permissionUser));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.DELETE_USER, permissionUser));
     }
 
     @Override
     public void handleSetUsers(IPermissionManagement permissionManagement, Collection<? extends IPermissionUser> users) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionSetUsersEvent(permissionManagement, users));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_USERS, users));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_USERS, users));
     }
 
     @Override
     public void handleAddGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionAddGroupEvent(permissionManagement, permissionGroup));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.ADD_GROUP, permissionGroup));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.ADD_GROUP, permissionGroup));
     }
 
     @Override
     public void handleUpdateGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionUpdateGroupEvent(permissionManagement, permissionGroup));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.UPDATE_GROUP, permissionGroup));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.UPDATE_GROUP, permissionGroup));
     }
 
     @Override
     public void handleDeleteGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionDeleteGroupEvent(permissionManagement, permissionGroup));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.DELETE_GROUP, permissionGroup));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.DELETE_GROUP, permissionGroup));
     }
 
     @Override
     public void handleSetGroups(IPermissionManagement permissionManagement, Collection<? extends IPermissionGroup> groups) {
         CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionSetGroupsEvent(permissionManagement, groups));
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_GROUPS, groups));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_GROUPS, groups));
     }
 
     @Override
     public void handleReloaded(IPermissionManagement permissionManagement) {
-        sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_GROUPS, permissionManagement.getGroups()));
+        this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.SET_GROUPS, permissionManagement.getGroups()));
     }
 
     private void sendAll(IPacket packet) {

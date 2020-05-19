@@ -28,36 +28,36 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
 
             switch (publisherType) {
                 case UPDATE:
-                    invokeEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-                    getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                    this.invokeEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
+                    this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
                     break;
                 case REGISTER:
-                    invokeEvent(new CloudServiceRegisterEvent(serviceInfoSnapshot));
-                    getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                    this.invokeEvent(new CloudServiceRegisterEvent(serviceInfoSnapshot));
+                    this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
                     break;
                 case CONNECTED:
-                    invokeEvent(new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
-                    getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                    this.invokeEvent(new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
+                    this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
                     break;
                 case DISCONNECTED:
-                    invokeEvent(new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
-                    getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                    this.invokeEvent(new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
+                    this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
                     break;
                 case UNREGISTER:
-                    invokeEvent(new CloudServiceUnregisterEvent(serviceInfoSnapshot));
-                    getGlobalServiceInfoSnapshots().remove(serviceInfoSnapshot.getServiceId().getUniqueId());
+                    this.invokeEvent(new CloudServiceUnregisterEvent(serviceInfoSnapshot));
+                    this.getGlobalServiceInfoSnapshots().remove(serviceInfoSnapshot.getServiceId().getUniqueId());
                     break;
                 case STARTED:
-                    invokeEvent(new CloudServiceStartEvent(serviceInfoSnapshot));
-                    getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                    this.invokeEvent(new CloudServiceStartEvent(serviceInfoSnapshot));
+                    this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
                     break;
                 case STOPPED:
-                    invokeEvent(new CloudServiceStopEvent(serviceInfoSnapshot));
-                    getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                    this.invokeEvent(new CloudServiceStopEvent(serviceInfoSnapshot));
+                    this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
                     break;
             }
 
-            sendUpdateToAllServices(serviceInfoSnapshot, publisherType);
+            this.sendUpdateToAllServices(serviceInfoSnapshot, publisherType);
         }
     }
 

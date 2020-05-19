@@ -35,12 +35,12 @@ public final class CloudNetReportListener {
                         .replace("%file%", subDir.getAbsolutePath())
                 );
 
-                copyLogFiles(subDir, event.getCloudService());
-                writeFileList(subDir, event.getCloudService());
-                writeWaitingIncludesAndDeployments(subDir, event.getCloudService());
-                writeServiceConfiguration(subDir, event.getCloudService());
-                writeCachedConsoleLog(subDir, event.getCloudService());
-                writeServiceInfoSnapshot(subDir, event.getCloudService());
+                this.copyLogFiles(subDir, event.getCloudService());
+                this.writeFileList(subDir, event.getCloudService());
+                this.writeWaitingIncludesAndDeployments(subDir, event.getCloudService());
+                this.writeServiceConfiguration(subDir, event.getCloudService());
+                this.writeCachedConsoleLog(subDir, event.getCloudService());
+                this.writeServiceInfoSnapshot(subDir, event.getCloudService());
 
                 System.out.println(LanguageManager.getMessage("module-report-create-record-success")
                         .replace("%service%", event.getCloudService().getServiceId().getName())

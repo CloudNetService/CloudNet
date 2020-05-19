@@ -91,7 +91,7 @@ public final class CloudflareAPI implements AutoCloseable {
     private Pair<Integer, JsonDocument> getJsonResponse(HttpURLConnection httpURLConnection, String email, String apiKey, DNSRecord dnsRecord, String serviceName, String zoneId) throws IOException {
         httpURLConnection.setDoOutput(true);
 
-        initRequestProperties(httpURLConnection, email, apiKey);
+        this.initRequestProperties(httpURLConnection, email, apiKey);
         httpURLConnection.connect();
 
         try (DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream())) {
@@ -100,7 +100,7 @@ public final class CloudflareAPI implements AutoCloseable {
         }
 
         int statusCode = httpURLConnection.getResponseCode();
-        JsonDocument document = JsonDocument.newDocument(readResponse(httpURLConnection));
+        JsonDocument document = JsonDocument.newDocument(this.readResponse(httpURLConnection));
         httpURLConnection.disconnect();
 
         this.update(serviceName, statusCode, email, apiKey, zoneId, document);
@@ -117,11 +117,11 @@ public final class CloudflareAPI implements AutoCloseable {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records/" + recordId).openConnection();
             httpURLConnection.setRequestMethod("DELETE");
 
-            initRequestProperties(httpURLConnection, email, apiKey);
+            this.initRequestProperties(httpURLConnection, email, apiKey);
             httpURLConnection.connect();
 
             int statusCode = httpURLConnection.getResponseCode();
-            JsonDocument document = JsonDocument.newDocument(readResponse(httpURLConnection));
+            JsonDocument document = JsonDocument.newDocument(this.readResponse(httpURLConnection));
             httpURLConnection.disconnect();
 
             if (statusCode < 400 && document.getDocument("result") != null && document.getDocument("result").contains("id")) {

@@ -153,7 +153,7 @@ public class WorkerThread extends Thread implements ExecutorService {
 
     @Override
     public final void run() {
-        while (!isInterrupted()) {
+        while (!this.isInterrupted()) {
             try {
                 this.available = true;
 

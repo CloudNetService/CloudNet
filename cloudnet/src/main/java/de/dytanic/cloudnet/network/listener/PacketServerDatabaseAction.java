@@ -147,7 +147,7 @@ public class PacketServerDatabaseAction implements IPacketListener {
     }
 
     private void sendResponse(INetworkChannel channel, UUID uniqueId, JsonDocument header) {
-        sendResponse(channel, uniqueId, header, null);
+        this.sendResponse(channel, uniqueId, header, null);
     }
 
     private void sendResponse(INetworkChannel channel, UUID uniqueId, JsonDocument header, byte[] body) {
@@ -155,7 +155,7 @@ public class PacketServerDatabaseAction implements IPacketListener {
     }
 
     private void sendEmptyResponse(INetworkChannel channel, UUID uniqueId) {
-        sendResponse(channel, uniqueId, new JsonDocument(), null);
+        this.sendResponse(channel, uniqueId, new JsonDocument(), null);
     }
 
 }

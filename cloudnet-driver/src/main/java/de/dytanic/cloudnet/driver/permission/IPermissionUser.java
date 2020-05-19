@@ -24,11 +24,11 @@ public interface IPermissionUser extends IPermissible {
 
 
     default IPermissionUser addGroup(@NotNull String group) {
-        return addGroup(group, 0L);
+        return this.addGroup(group, 0L);
     }
 
     default IPermissionUser addGroup(@NotNull String group, long time, TimeUnit timeUnit) {
-        return addGroup(group, (System.currentTimeMillis() + timeUnit.toMillis(time)));
+        return this.addGroup(group, (System.currentTimeMillis() + timeUnit.toMillis(time)));
     }
 
     default IPermissionUser addGroup(@NotNull String group, long timeOutMillis) {

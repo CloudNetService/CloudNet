@@ -73,7 +73,7 @@ public interface IClusterNodeServer extends AutoCloseable {
                                                    Collection<ServiceDeployment> deployments,
                                                    Collection<String> groups,
                                                    ProcessConfiguration processConfiguration, Integer port) {
-        return createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+        return this.createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     default Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
@@ -82,7 +82,7 @@ public interface IClusterNodeServer extends AutoCloseable {
                                                                Collection<ServiceDeployment> deployments,
                                                                Collection<String> groups,
                                                                ProcessConfiguration processConfiguration, Integer port) {
-        return createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+        return this.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     ServiceInfoSnapshot sendCommandLineToCloudService(@NotNull UUID uniqueId, @NotNull String commandLine);
@@ -110,6 +110,6 @@ public interface IClusterNodeServer extends AutoCloseable {
     void deployResources(@NotNull UUID uniqueId, boolean removeDeployments);
 
     default void deployResources(@NotNull UUID uniqueId) {
-        deployResources(uniqueId, true);
+        this.deployResources(uniqueId, true);
     }
 }

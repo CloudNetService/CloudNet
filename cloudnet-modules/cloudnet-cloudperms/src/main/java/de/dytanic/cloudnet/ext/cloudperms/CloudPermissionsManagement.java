@@ -55,25 +55,25 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
         Permission permission = new Permission(perm, 0);
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
-            if (hasPermission(permissionUser, group, permission)) {
+            if (this.hasPermission(permissionUser, group, permission)) {
                 return true;
             }
         }
 
-        return hasPermission(permissionUser, permission);
+        return this.hasPermission(permissionUser, permission);
     }
 
     public PermissionCheckResult getPlayerPermissionResult(IPermissionUser permissionUser, String perm) {
         Permission permission = new Permission(perm, 0);
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
-            PermissionCheckResult result = getPermissionResult(permissionUser, group, permission);
+            PermissionCheckResult result = this.getPermissionResult(permissionUser, group, permission);
             if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
                 return result;
             }
         }
 
-        return getPermissionResult(permissionUser, permission);
+        return this.getPermissionResult(permissionUser, permission);
     }
 
     @Override

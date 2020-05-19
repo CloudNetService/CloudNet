@@ -46,11 +46,11 @@ public final class ExampleCallbackSyncAPI {
 
     public void workingWithGetNodeCount() {
         //Async operation
-        getNodeCountAsync().onComplete(integer -> System.out.println("Current Node count with async callback: " + integer));
+        this.getNodeCountAsync().onComplete(integer -> System.out.println("Current Node count with async callback: " + integer));
 
         //Sync Operation
         try {
-            int count = getNodeCountAsync().get();
+            int count = this.getNodeCountAsync().get();
             System.out.println("Current Node count: " + count);
         } catch (InterruptedException | ExecutionException exception) {
             exception.printStackTrace();

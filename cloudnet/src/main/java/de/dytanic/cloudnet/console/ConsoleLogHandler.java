@@ -13,7 +13,7 @@ public final class ConsoleLogHandler extends AbstractLogHandler {
 
     @Override
     public void handle(LogEntry logEntry) {
-        this.console.writeLine(getFormatter().format(logEntry));
+        this.console.writeLine(this.getFormatter().format(logEntry));
     }
 
     @Override

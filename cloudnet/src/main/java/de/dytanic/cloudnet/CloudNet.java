@@ -235,7 +235,7 @@ public final class CloudNet extends CloudNetDriver {
         this.registerDefaultCommands();
         this.registerDefaultServices();
 
-        this.currentNetworkClusterNodeInfoSnapshot = createClusterNodeInfoSnapshot();
+        this.currentNetworkClusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
         this.lastNetworkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
 
         this.loadModules();
@@ -244,7 +244,7 @@ public final class CloudNet extends CloudNetDriver {
                 this.configurationRegistry.getString("database_provider", "h2"));
 
         if (this.databaseProvider == null) {
-            stop();
+            this.stop();
         }
 
         this.databaseProvider.setDatabaseHandler(new DefaultDatabaseHandler());
@@ -517,7 +517,7 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     @NotNull
     public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
+        return this.scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
     }
 
     @Override
@@ -525,7 +525,7 @@ public final class CloudNet extends CloudNetDriver {
     public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
         Preconditions.checkNotNull(serviceName);
 
-        return scheduleTask(() -> CloudNet.this.getTemplateStorageTemplates(serviceName));
+        return this.scheduleTask(() -> CloudNet.this.getTemplateStorageTemplates(serviceName));
     }
 
     @Override
@@ -534,7 +534,7 @@ public final class CloudNet extends CloudNetDriver {
         Preconditions.checkNotNull(uniqueId);
         Preconditions.checkNotNull(commandLine);
 
-        return scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
+        return this.scheduleTask(() -> CloudNet.this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
     }
 
     @NotNull
@@ -571,8 +571,8 @@ public final class CloudNet extends CloudNetDriver {
 
     @NotNull
     public ITask<Void> sendAllAsync(IPacket packet) {
-        return scheduleTask(() -> {
-            sendAll(packet);
+        return this.scheduleTask(() -> {
+            this.sendAll(packet);
             return null;
         });
     }
@@ -580,11 +580,11 @@ public final class CloudNet extends CloudNetDriver {
     public void sendAll(IPacket packet) {
         Preconditions.checkNotNull(packet);
 
-        for (IClusterNodeServer clusterNodeServer : getClusterNodeServerProvider().getNodeServers()) {
+        for (IClusterNodeServer clusterNodeServer : this.getClusterNodeServerProvider().getNodeServers()) {
             clusterNodeServer.saveSendPacket(packet);
         }
 
-        for (ICloudService cloudService : getCloudServiceManager().getCloudServices().values()) {
+        for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
                 cloudService.getNetworkChannel().sendPacket(packet);
             }
@@ -593,8 +593,8 @@ public final class CloudNet extends CloudNetDriver {
 
     @NotNull
     public ITask<Void> sendAllAsync(IPacket... packets) {
-        return scheduleTask(() -> {
-            sendAll(packets);
+        return this.scheduleTask(() -> {
+            this.sendAll(packets);
             return null;
         });
     }
@@ -602,7 +602,7 @@ public final class CloudNet extends CloudNetDriver {
     public void sendAll(IPacket... packets) {
         Preconditions.checkNotNull(packets);
 
-        for (IClusterNodeServer clusterNodeServer : getClusterNodeServerProvider().getNodeServers()) {
+        for (IClusterNodeServer clusterNodeServer : this.getClusterNodeServerProvider().getNodeServers()) {
             for (IPacket packet : packets) {
                 if (packet != null) {
                     clusterNodeServer.saveSendPacket(packet);
@@ -610,7 +610,7 @@ public final class CloudNet extends CloudNetDriver {
             }
         }
 
-        for (ICloudService cloudService : getCloudServiceManager().getCloudServices().values()) {
+        for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
                 cloudService.getNetworkChannel().sendPacket(packets);
             }
@@ -734,7 +734,7 @@ public final class CloudNet extends CloudNetDriver {
     public void publishH2DatabaseDataToCluster(INetworkChannel channel) {
         if (channel != null) {
             if (this.databaseProvider instanceof H2DatabaseProvider) {
-                Map<String, Map<String, JsonDocument>> map = allocateDatabaseData();
+                Map<String, Map<String, JsonDocument>> map = this.allocateDatabaseData();
 
                 channel.sendPacket(new PacketServerSetH2DatabaseData(map, NetworkUpdateType.ADD));
 
@@ -968,8 +968,8 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void enableModules() {
-        loadModules();
-        startModules();
+        this.loadModules();
+        this.startModules();
     }
 
     private void loadModules() {
@@ -1022,21 +1022,21 @@ public final class CloudNet extends CloudNetDriver {
                     return;
                 }
 
-                CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, getConsoleCommandSender());
-                getEventManager().callEvent(commandPreProcessEvent);
+                CommandPreProcessEvent commandPreProcessEvent = new CommandPreProcessEvent(input, this.getConsoleCommandSender());
+                this.getEventManager().callEvent(commandPreProcessEvent);
 
                 if (commandPreProcessEvent.isCancelled()) {
                     return;
                 }
 
-                if (!getCommandMap().dispatchCommand(getConsoleCommandSender(), input)) {
-                    getEventManager().callEvent(new CommandNotFoundEvent(input));
+                if (!this.getCommandMap().dispatchCommand(this.getConsoleCommandSender(), input)) {
+                    this.getEventManager().callEvent(new CommandNotFoundEvent(input));
                     this.logger.warning(LanguageManager.getMessage("command-not-found"));
 
                     return;
                 }
 
-                getEventManager().callEvent(new CommandPostProcessEvent(input, getConsoleCommandSender()));
+                this.getEventManager().callEvent(new CommandPostProcessEvent(input, this.getConsoleCommandSender()));
 
             } catch (Throwable ex) {
                 ex.printStackTrace();

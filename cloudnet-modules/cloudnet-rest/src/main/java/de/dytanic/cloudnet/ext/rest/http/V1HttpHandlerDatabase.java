@@ -18,7 +18,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     private AbstractDatabaseProvider getDatabaseProvider() {
-        return getCloudNet().getDatabaseProvider();
+        return this.getCloudNet().getDatabaseProvider();
     }
 
     @Override
@@ -28,7 +28,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
 
     @Override
     public void handleGet(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+        IDatabase database = this.getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()
@@ -64,7 +64,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
 
     @Override
     public void handlePost(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+        IDatabase database = this.getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()
@@ -97,7 +97,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
 
     @Override
     public void handleDelete(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+        IDatabase database = this.getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()

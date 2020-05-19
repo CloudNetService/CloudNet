@@ -48,7 +48,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
                     .header("Content-Type", "application/json")
                     .body(GSON.toJson(CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
                             .filter(groupConfiguration -> !context.request().queryParameters().containsKey("name") ||
-                                    containsStringElementInCollection(context.request().queryParameters().get("name"), groupConfiguration.getName()))
+                                    this.containsStringElementInCollection(context.request().queryParameters().get("name"), groupConfiguration.getName()))
                             .collect(Collectors.toList())))
                     .context()
                     .closeAfter(true)
@@ -62,7 +62,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
         GroupConfiguration groupConfiguration = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
 
         if (groupConfiguration.getName() == null) {
-            send400Response(context, "groupConfiguration name not found");
+            this.send400Response(context, "groupConfiguration name not found");
             return;
         }
 
@@ -90,7 +90,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
     @Override
     public void handleDelete(String path, IHttpContext context) {
         if (!context.request().pathParameters().containsKey("name")) {
-            send400Response(context, "name parameter not found");
+            this.send400Response(context, "name parameter not found");
             return;
         }
 

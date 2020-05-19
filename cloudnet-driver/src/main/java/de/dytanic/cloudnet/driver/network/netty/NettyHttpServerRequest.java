@@ -160,7 +160,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public String bodyAsString() {
-        return new String(body(), StandardCharsets.UTF_8);
+        return new String(this.body(), StandardCharsets.UTF_8);
     }
 
     @Override

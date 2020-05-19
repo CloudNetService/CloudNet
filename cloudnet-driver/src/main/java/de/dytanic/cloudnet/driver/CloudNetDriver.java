@@ -702,7 +702,7 @@ public abstract class CloudNetDriver {
     public void stopCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
+        this.setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.STOPPED);
     }
 
     /**
@@ -715,7 +715,7 @@ public abstract class CloudNetDriver {
     public void startCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
+        this.setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.RUNNING);
     }
 
     /**
@@ -728,7 +728,7 @@ public abstract class CloudNetDriver {
     public void deleteCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
+        this.setCloudServiceLifeCycle(serviceInfoSnapshot, ServiceLifeCycle.DELETED);
     }
 
     /**

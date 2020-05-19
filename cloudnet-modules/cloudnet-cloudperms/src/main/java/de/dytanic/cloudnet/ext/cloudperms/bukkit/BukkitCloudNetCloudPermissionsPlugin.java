@@ -42,7 +42,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         this.checkForVault();
         this.initPlayersCloudPermissible();
 
-        getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(this.permissionsManagement), this);
+        this.getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(this.permissionsManagement), this);
     }
 
     @Override
@@ -52,11 +52,11 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     public void updateNameTags(Player player) {
-        updateNameTags(player, null);
+        this.updateNameTags(player, null);
     }
 
     public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction) {
-        updateNameTags(player, playerIPermissionGroupFunction, null);
+        this.updateNameTags(player, playerIPermissionGroupFunction, null);
     }
 
     public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction,
@@ -81,13 +81,13 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 .max()
                 .orElse(0);
 
-        initScoreboard(player);
+        this.initScoreboard(player);
 
         Bukkit.getOnlinePlayers().forEach(all -> {
-            initScoreboard(all);
+            this.initScoreboard(all);
 
             if (playerPermissionGroup.get() != null) {
-                addTeamEntry(player, all, playerPermissionGroup.get(), sortIdLength);
+                this.addTeamEntry(player, all, playerPermissionGroup.get(), sortIdLength);
             }
 
             IPermissionUser targetPermissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(all.getUniqueId());
@@ -102,7 +102,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
             }
 
             if (targetPermissionGroup != null) {
-                addTeamEntry(all, player, targetPermissionGroup, sortIdLength);
+                this.addTeamEntry(all, player, targetPermissionGroup, sortIdLength);
             }
         });
     }
@@ -167,7 +167,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
         try {
             Field field;
-            Class<?> clazz = reflectCraftClazz(".entity.CraftHumanEntity");
+            Class<?> clazz = this.reflectCraftClazz(".entity.CraftHumanEntity");
 
             if (clazz != null) {
                 field = clazz.getDeclaredField("perm");
@@ -175,7 +175,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 field = Class.forName("net.glowstone.entity.GlowHumanEntity").getDeclaredField("permissions");
             }
 
-            injectCloudPermissible0(player, field);
+            this.injectCloudPermissible0(player, field);
         } catch (Exception exception) {
             exception.printStackTrace();
         }

@@ -393,7 +393,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     @Override
     public boolean reload() {
-        loadGroups();
+        this.loadGroups();
 
         if (this.permissionManagementHandler != null) {
             this.permissionManagementHandler.handleReloaded(this);

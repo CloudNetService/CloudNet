@@ -58,29 +58,29 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void initConfig() {
-        getConfig().getBoolean("savingRecords", true);
-        getConfig().getString("recordDestinationDirectory", "records");
-        getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
-        getConfig().getString("pasteServerUrl", "https://hasteb.in");
+        this.getConfig().getBoolean("savingRecords", true);
+        this.getConfig().getString("recordDestinationDirectory", "records");
+        this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
+        this.getConfig().getString("pasteServerUrl", "https://hasteb.in");
 
-        saveConfig();
+        this.saveConfig();
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
     public void initSavingRecordsDirectory() {
-        this.savingRecordsDirectory = new File(getModuleWrapper().getDataFolder(), getConfig().getString("recordDestinationDirectory"));
+        this.savingRecordsDirectory = new File(this.getModuleWrapper().getDataFolder(), this.getConfig().getString("recordDestinationDirectory"));
         this.savingRecordsDirectory.mkdirs();
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void registerListeners() {
-        registerListener(new CloudNetReportListener());
+        this.registerListener(new CloudNetReportListener());
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        registerCommand(new CommandReport());
-        registerCommand(new CommandPaste());
+        this.registerCommand(new CommandReport());
+        this.registerCommand(new CommandPaste());
     }
 
     public String getPasteURL() {
@@ -106,7 +106,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             httpURLConnection.setDoInput(true);
             httpURLConnection.connect();
 
-            if (getConfig().get("pasteServerType", PasteServerType.class) == PasteServerType.HASTE) {
+            if (this.getConfig().get("pasteServerType", PasteServerType.class) == PasteServerType.HASTE) {
                 try (OutputStream outputStream = httpURLConnection.getOutputStream()) {
                     outputStream.write(contentBytes);
                 }

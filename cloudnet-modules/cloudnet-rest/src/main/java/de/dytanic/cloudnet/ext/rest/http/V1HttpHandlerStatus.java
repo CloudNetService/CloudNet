@@ -21,7 +21,7 @@ public final class V1HttpHandlerStatus extends V1HttpHandler {
 
     @Override
     public void handleGet(String path, IHttpContext context) {
-        IConfiguration configuration = getCloudNet().getConfig();
+        IConfiguration configuration = this.getCloudNet().getConfig();
 
         context
                 .response()
@@ -31,9 +31,9 @@ public final class V1HttpHandlerStatus extends V1HttpHandler {
                                 .append("Version", V1HttpHandlerStatus.class.getPackage().getImplementationVersion())
                                 .append("Version-Title", V1HttpHandlerStatus.class.getPackage().getImplementationTitle())
                                 .append("Identity", configuration.getIdentity())
-                                .append("currentNetworkClusterNodeInfoSnapshot", getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot())
-                                .append("lastNetworkClusterNodeInfoSnapshot", getCloudNet().getLastNetworkClusterNodeInfoSnapshot())
-                                .append("providedServicesCount", getCloudNet().getCloudServiceManager().getCloudServices().size())
+                                .append("currentNetworkClusterNodeInfoSnapshot", this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot())
+                                .append("lastNetworkClusterNodeInfoSnapshot", this.getCloudNet().getLastNetworkClusterNodeInfoSnapshot())
+                                .append("providedServicesCount", this.getCloudNet().getCloudServiceManager().getCloudServices().size())
                                 .append("modules", super.getCloudNet().getModuleProvider().getModules().stream()
                                         .map(moduleWrapper -> moduleWrapper.getModuleConfiguration().getGroup() + ":" +
                                                 moduleWrapper.getModuleConfiguration().getName() + ":" +

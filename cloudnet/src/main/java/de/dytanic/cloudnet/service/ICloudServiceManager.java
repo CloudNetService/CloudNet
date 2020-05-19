@@ -119,7 +119,7 @@ public interface ICloudServiceManager {
             ProcessConfiguration processConfiguration,
             Integer port
     ) {
-        return runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+        return this.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     ICloudService runTask(
@@ -166,7 +166,7 @@ public interface ICloudServiceManager {
             ProcessConfiguration processConfiguration,
             Integer port
     ) {
-        return runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, deletedFilesAfterStop, processConfiguration, JsonDocument.newDocument(), port);
+        return this.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, deletedFilesAfterStop, processConfiguration, JsonDocument.newDocument(), port);
     }
 
     void startAllCloudServices();

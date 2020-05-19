@@ -121,7 +121,7 @@ final class NettyHttpServerResponse implements IHttpResponse {
 
     @Override
     public String bodyAsString() {
-        return new String(body(), StandardCharsets.UTF_8);
+        return new String(this.body(), StandardCharsets.UTF_8);
     }
 
     @Override

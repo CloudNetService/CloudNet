@@ -123,7 +123,7 @@ public final class VelocityCloudNetListener {
 
         switch (event.getMessage().toLowerCase()) {
             case "send_on_proxy_player_to_server": {
-                Player player = getPlayer(event.getData());
+                Player player = this.getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("serviceName") != null) {
                     Optional<RegisteredServer> serverInfo = VelocityCloudNetHelper.getProxyServer().getServer(event.getData().getString("serviceName"));
@@ -135,7 +135,7 @@ public final class VelocityCloudNetListener {
             }
             break;
             case "kick_on_proxy_player_from_network": {
-                Player player = getPlayer(event.getData());
+                Player player = this.getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("kickMessage") != null) {
                     player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("kickMessage")).replace("&", "§")));
@@ -143,7 +143,7 @@ public final class VelocityCloudNetListener {
             }
             break;
             case "send_message_to_proxy_player": {
-                Player player = getPlayer(event.getData());
+                Player player = this.getPlayer(event.getData());
 
                 if (player != null && event.getData().getString("message") != null) {
                     player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("message")).replace("&", "§")));
@@ -151,7 +151,7 @@ public final class VelocityCloudNetListener {
             }
             break;
             case "send_plugin_message_to_proxy_player": {
-                Player player = getPlayer(event.getData());
+                Player player = this.getPlayer(event.getData());
 
                 if (player != null && event.getData().contains("tag") && event.getData().contains("data")) {
                     String tag = event.getData().getString("tag");

@@ -80,7 +80,7 @@ final class NettyHttpServerContext implements IHttpContext {
             this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel, webSocketServerHandshaker);
             this.nettyChannel.pipeline().addLast("websocket-server-channel-handler", new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
 
-            closeAfter(false);
+            this.closeAfter(false);
         }
 
         return this.webSocketServerChannel;
@@ -166,7 +166,7 @@ final class NettyHttpServerContext implements IHttpContext {
     public IHttpContext addCookie(HttpCookie httpCookie) {
         Preconditions.checkNotNull(httpCookie);
 
-        HttpCookie cookie = cookie(httpCookie.getName());
+        HttpCookie cookie = this.cookie(httpCookie.getName());
 
         if (cookie != null) {
             this.removeCookie(cookie.getName());
@@ -181,7 +181,7 @@ final class NettyHttpServerContext implements IHttpContext {
     public IHttpContext removeCookie(String name) {
         Preconditions.checkNotNull(name);
 
-        HttpCookie cookie = cookie(name);
+        HttpCookie cookie = this.cookie(name);
         if (cookie != null) {
             cookie.setMaxAge(-1);
         }
