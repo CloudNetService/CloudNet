@@ -44,6 +44,15 @@ public enum ConsoleColor {
         return text;
     }
 
+    public static ConsoleColor getByChar(char index) {
+        for (ConsoleColor color : values()) {
+            if (color.index == index) {
+                return color;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return this.ansiCode;
