@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.def.internal;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
@@ -10,6 +9,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @see de.dytanic.cloudnet.driver.CloudNetDriver
  */
-@UnsafeClass
+@ApiStatus.Internal
 public final class InternalSyncPacketChannel {
 
     private final static Map<UUID, SynchronizedCallback> WAITING_PACKETS = new ConcurrentHashMap<>();
