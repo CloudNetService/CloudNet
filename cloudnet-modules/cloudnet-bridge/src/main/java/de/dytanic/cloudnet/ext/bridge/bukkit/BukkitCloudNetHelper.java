@@ -16,23 +16,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public final class BukkitCloudNetHelper extends BridgeServerHelper {
 
-    private static JavaPlugin plugin;
+    private BukkitCloudNetHelper() {
+        throw new UnsupportedOperationException();
+    }
 
-    static {
+    public static void init() {
         BridgeServerHelper.setMotd(Bukkit.getMotd());
         BridgeServerHelper.setState("LOBBY");
         BridgeServerHelper.setMaxPlayers(Bukkit.getMaxPlayers());
-    }
-
-    private BukkitCloudNetHelper() {
-        throw new UnsupportedOperationException();
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -154,14 +151,6 @@ public final class BukkitCloudNetHelper extends BridgeServerHelper {
                         Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
                 )
         );
-    }
-
-    public static JavaPlugin getPlugin() {
-        return BukkitCloudNetHelper.plugin;
-    }
-
-    public static void setPlugin(JavaPlugin plugin) {
-        BukkitCloudNetHelper.plugin = plugin;
     }
 
 }

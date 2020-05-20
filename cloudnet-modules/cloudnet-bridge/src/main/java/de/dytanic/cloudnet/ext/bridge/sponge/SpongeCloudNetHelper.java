@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 
 public final class SpongeCloudNetHelper extends BridgeServerHelper {
 
-    static {
+    private SpongeCloudNetHelper() {
+        throw new UnsupportedOperationException();
+    }
+
+    public static void init() {
         BridgeServerHelper.setMotd(Sponge.getServer().getMotd().toPlain());
         BridgeServerHelper.setState("LOBBY");
         BridgeServerHelper.setMaxPlayers(Sponge.getServer().getMaxPlayers());
-    }
-
-    private SpongeCloudNetHelper() {
-        throw new UnsupportedOperationException();
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {

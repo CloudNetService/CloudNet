@@ -11,8 +11,15 @@ import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.plugin.Plugin;
 
 public final class BukkitCloudNetListener {
+
+    private final Plugin plugin;
+
+    public BukkitCloudNetListener(Plugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventListener
     public void handle(ServiceInfoSnapshotConfigureEvent event) {
@@ -116,6 +123,6 @@ public final class BukkitCloudNetListener {
     }
 
     private void bukkitCall(Event event) {
-        Bukkit.getScheduler().runTask(BukkitCloudNetHelper.getPlugin(), () -> Bukkit.getPluginManager().callEvent(event));
+        Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.getPluginManager().callEvent(event));
     }
 }

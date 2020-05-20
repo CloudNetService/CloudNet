@@ -20,9 +20,10 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
     @Override
     public synchronized void onEnable() {
+        BukkitCloudNetHelper.init();
+
         CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
 
-        BukkitCloudNetHelper.setPlugin(this);
         this.initListeners();
 
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "cloudnet:main");
@@ -43,7 +44,7 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new BukkitPlayerListener(this), this);
 
         //CloudNet
-        CloudNetDriver.getInstance().getEventManager().registerListener(new BukkitCloudNetListener());
+        CloudNetDriver.getInstance().getEventManager().registerListener(new BukkitCloudNetListener(this));
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 
@@ -65,9 +66,12 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
                     hasToUpdate = true;
 
                     BridgeServerHelper.setMotd(serverListPingEvent.getMotd());
-                    if (serverListPingEvent.getMotd().toLowerCase().contains("running") ||
-                            serverListPingEvent.getMotd().toLowerCase().contains("ingame") ||
-                            serverListPingEvent.getMotd().toLowerCase().contains("playing")) {
+
+                    String lowerMotd = serverListPingEvent.getMotd().toLowerCase();
+
+                    if (lowerMotd.contains("running") ||
+                            lowerMotd.contains("ingame") ||
+                            lowerMotd.contains("playing")) {
                         value = true;
                     }
                 }

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public final class NukkitCloudNetHelper extends BridgeServerHelper {
 
-    static {
+    public static void init() {
         BridgeServerHelper.setMotd(Server.getInstance().getMotd());
         BridgeServerHelper.setState("LOBBY");
         BridgeServerHelper.setMaxPlayers(Server.getInstance().getMaxPlayers());

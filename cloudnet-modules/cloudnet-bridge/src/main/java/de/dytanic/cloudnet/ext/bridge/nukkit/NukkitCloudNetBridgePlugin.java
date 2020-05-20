@@ -16,6 +16,8 @@ public final class NukkitCloudNetBridgePlugin extends PluginBase {
 
     @Override
     public synchronized void onEnable() {
+        NukkitCloudNetHelper.init();
+
         CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
         this.initListeners();
 

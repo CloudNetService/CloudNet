@@ -25,6 +25,9 @@ public final class SpongeCloudNetBridgePlugin {
 
     @Listener
     public synchronized void handle(GameStartedServerEvent event) {
+
+        SpongeCloudNetHelper.init();
+
         CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
 
         Sponge.getChannelRegistrar().createChannel(this, "bungeecord:main");
