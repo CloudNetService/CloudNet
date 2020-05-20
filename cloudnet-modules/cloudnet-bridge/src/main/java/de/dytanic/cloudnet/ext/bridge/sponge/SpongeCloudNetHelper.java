@@ -10,7 +10,9 @@ import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
@@ -21,21 +23,25 @@ import org.spongepowered.api.world.World;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@ApiStatus.Internal
 public final class SpongeCloudNetHelper {
 
-    private static volatile String
-            apiMotd = Sponge.getServer().getMotd().toPlain(),
-            extra = "",
-            state = "LOBBY";
-    private static volatile int maxPlayers = Sponge.getServer().getMaxPlayers();
+    static {
+        BridgeServerHelper.setMotd(Sponge.getServer().getMotd().toPlain());
+        BridgeServerHelper.setState("LOBBY");
+        BridgeServerHelper.setMaxPlayers(Sponge.getServer().getMaxPlayers());
+    }
 
     private SpongeCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
 
-
+    /**
+     * @deprecated use {@link BridgeServerHelper#changeToIngame(boolean)} instead
+     */
+    @Deprecated
     public static void changeToIngame() {
-        BridgeHelper.changeToIngame(s -> SpongeCloudNetHelper.state = s);
+        BridgeServerHelper.changeToIngame(true);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -46,10 +52,10 @@ public final class SpongeCloudNetHelper {
                 .append("Version", Sponge.getPlatform().getMinecraftVersion())
                 .append("Sponge-Version", Sponge.getPlatform().getContainer(Platform.Component.API).getVersion())
                 .append("Online-Count", Sponge.getServer().getOnlinePlayers().size())
-                .append("Max-Players", maxPlayers)
-                .append("Motd", apiMotd)
-                .append("Extra", extra)
-                .append("State", state)
+                .append("Max-Players", BridgeServerHelper.getMaxPlayers())
+                .append("Motd", BridgeServerHelper.getMotd())
+                .append("Extra", BridgeServerHelper.getExtra())
+                .append("State", BridgeServerHelper.getState())
                 .append("Outgoing-Channels", Sponge.getChannelRegistrar().getRegisteredChannels(Platform.Type.SERVER))
                 .append("Incoming-Channels", Sponge.getChannelRegistrar().getRegisteredChannels(Platform.Type.CLIENT))
                 .append("Online-Mode", Sponge.getServer().getOnlineMode())
@@ -147,35 +153,67 @@ public final class SpongeCloudNetHelper {
         );
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getMotd()} instead
+     */
+    @Deprecated
     public static String getApiMotd() {
-        return SpongeCloudNetHelper.apiMotd;
+        return BridgeServerHelper.getMotd();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setMotd(String)} instead
+     */
+    @Deprecated
     public static void setApiMotd(String apiMotd) {
-        SpongeCloudNetHelper.apiMotd = apiMotd;
+        BridgeServerHelper.setMotd(apiMotd);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getExtra()} instead
+     */
+    @Deprecated
     public static String getExtra() {
-        return SpongeCloudNetHelper.extra;
+        return BridgeServerHelper.getExtra();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setExtra(String)} instead
+     */
+    @Deprecated
     public static void setExtra(String extra) {
-        SpongeCloudNetHelper.extra = extra;
+        BridgeServerHelper.setExtra(extra);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getState()} instead
+     */
+    @Deprecated
     public static String getState() {
-        return SpongeCloudNetHelper.state;
+        return BridgeServerHelper.getState();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setState(String)} instead
+     */
+    @Deprecated
     public static void setState(String state) {
-        SpongeCloudNetHelper.state = state;
+        BridgeServerHelper.setState(state);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getMaxPlayers()} instead
+     */
+    @Deprecated
     public static int getMaxPlayers() {
-        return SpongeCloudNetHelper.maxPlayers;
+        return BridgeServerHelper.getMaxPlayers();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setMaxPlayers(int)} instead
+     */
+    @Deprecated
     public static void setMaxPlayers(int maxPlayers) {
-        SpongeCloudNetHelper.maxPlayers = maxPlayers;
+        BridgeServerHelper.setMaxPlayers(maxPlayers);
     }
 }

@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge;
 
-import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -15,10 +14,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-@UnsafeClass
 public final class BridgeHelper {
 
     private static boolean online = true;
@@ -126,23 +123,6 @@ public final class BridgeHelper {
             NetworkServiceInfo networkServiceInfo
     ) {
         return new NetworkConnectionInfo(uniqueId, name, version, userAddress, listener, onlineMode, legacy, networkServiceInfo);
-    }
-
-    public static void changeToIngame(Consumer<String> stateChanger) {
-        stateChanger.accept("INGAME");
-        BridgeHelper.updateServiceInfo();
-
-        String task = Wrapper.getInstance().getServiceId().getTaskName();
-
-        CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTaskAsync(task).onComplete(serviceTask -> {
-            if (serviceTask != null) {
-                CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(serviceTask).onComplete(serviceInfoSnapshot -> {
-                    if (serviceInfoSnapshot != null) {
-                        serviceInfoSnapshot.provider().start();
-                    }
-                });
-            }
-        });
     }
 
     /**

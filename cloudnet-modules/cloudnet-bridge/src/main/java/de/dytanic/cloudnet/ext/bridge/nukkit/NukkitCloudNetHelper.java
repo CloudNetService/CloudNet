@@ -13,28 +13,33 @@ import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@ApiStatus.Internal
 public final class NukkitCloudNetHelper {
 
-    private static volatile String
-            apiMotd = Server.getInstance().getMotd(),
-            extra = "",
-            state = "LOBBY";
-
-    private static volatile int maxPlayers = Server.getInstance().getMaxPlayers();
-
+    static {
+        BridgeServerHelper.setMotd(Server.getInstance().getMotd());
+        BridgeServerHelper.setState("LOBBY");
+        BridgeServerHelper.setMaxPlayers(Server.getInstance().getMaxPlayers());
+    }
 
     private NukkitCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#changeToIngame(boolean)} instead
+     */
+    @Deprecated
     public static void changeToIngame() {
-        BridgeHelper.changeToIngame(s -> NukkitCloudNetHelper.state = s);
+        BridgeServerHelper.changeToIngame(true);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -44,10 +49,10 @@ public final class NukkitCloudNetHelper {
                 .append("Codename", Server.getInstance().getCodename())
                 .append("Nukkit-Version", Server.getInstance().getApiVersion())
                 .append("Online-Count", Server.getInstance().getOnlinePlayers().size())
-                .append("Max-Players", maxPlayers)
-                .append("Motd", apiMotd)
-                .append("Extra", extra)
-                .append("State", state)
+                .append("Max-Players", BridgeServerHelper.getMaxPlayers())
+                .append("Motd", BridgeServerHelper.getMotd())
+                .append("Extra", BridgeServerHelper.getExtra())
+                .append("State", BridgeServerHelper.getState())
                 .append("Allow-Nether", Server.getInstance().isNetherAllowed())
                 .append("Allow-Flight", Server.getInstance().getAllowFlight())
                 .append("Players", Server.getInstance().getOnlinePlayers().values().stream().map(player -> new NukkitCloudNetPlayerInfo(
@@ -108,8 +113,7 @@ public final class NukkitCloudNetHelper {
                     }
 
                     return new WorldInfo(null, level.getName(), getDifficultyToString(Server.getInstance().getDifficulty()), gameRules);
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static String getDifficultyToString(int value) {
@@ -174,35 +178,67 @@ public final class NukkitCloudNetHelper {
         );
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getMotd()} instead
+     */
+    @Deprecated
     public static String getApiMotd() {
-        return NukkitCloudNetHelper.apiMotd;
+        return BridgeServerHelper.getMotd();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setMotd(String)} instead
+     */
+    @Deprecated
     public static void setApiMotd(String apiMotd) {
-        NukkitCloudNetHelper.apiMotd = apiMotd;
+        BridgeServerHelper.setMotd(apiMotd);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getExtra()} instead
+     */
+    @Deprecated
     public static String getExtra() {
-        return NukkitCloudNetHelper.extra;
+        return BridgeServerHelper.getExtra();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setExtra(String)} instead
+     */
+    @Deprecated
     public static void setExtra(String extra) {
-        NukkitCloudNetHelper.extra = extra;
+        BridgeServerHelper.setExtra(extra);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getState()} instead
+     */
+    @Deprecated
     public static String getState() {
-        return NukkitCloudNetHelper.state;
+        return BridgeServerHelper.getState();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setState(String)} instead
+     */
+    @Deprecated
     public static void setState(String state) {
-        NukkitCloudNetHelper.state = state;
+        BridgeServerHelper.setState(state);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getMaxPlayers()} instead
+     */
+    @Deprecated
     public static int getMaxPlayers() {
-        return NukkitCloudNetHelper.maxPlayers;
+        return BridgeServerHelper.getMaxPlayers();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setMaxPlayers(int)} instead
+     */
+    @Deprecated
     public static void setMaxPlayers(int maxPlayers) {
-        NukkitCloudNetHelper.maxPlayers = maxPlayers;
+        BridgeServerHelper.setMaxPlayers(maxPlayers);
     }
 }

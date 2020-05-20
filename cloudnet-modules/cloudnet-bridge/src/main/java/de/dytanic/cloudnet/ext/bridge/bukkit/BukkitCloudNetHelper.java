@@ -10,35 +10,39 @@ import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@ApiStatus.Internal
 public final class BukkitCloudNetHelper {
-
-    private static volatile String
-            apiMotd = Bukkit.getMotd(),
-            extra = "",
-            state = "LOBBY";
-
-    private static volatile int
-            maxPlayers = Bukkit.getMaxPlayers();
 
     private static JavaPlugin plugin;
 
+    static {
+        BridgeServerHelper.setMotd(Bukkit.getMotd());
+        BridgeServerHelper.setState("LOBBY");
+        BridgeServerHelper.setMaxPlayers(Bukkit.getMaxPlayers());
+    }
 
     private BukkitCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#changeToIngame(boolean)} instead
+     */
+    @Deprecated
     public static void changeToIngame() {
-        BridgeHelper.changeToIngame(s -> BukkitCloudNetHelper.state = s);
+        BridgeServerHelper.changeToIngame(true);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -72,10 +76,10 @@ public final class BukkitCloudNetHelper {
                 .append("Version", Bukkit.getVersion())
                 .append("Bukkit-Version", Bukkit.getBukkitVersion())
                 .append("Online-Count", Bukkit.getOnlinePlayers().size())
-                .append("Max-Players", maxPlayers)
-                .append("Motd", apiMotd)
-                .append("Extra", extra)
-                .append("State", state)
+                .append("Max-Players", BridgeServerHelper.getMaxPlayers())
+                .append("Motd", BridgeServerHelper.getMotd())
+                .append("Extra", BridgeServerHelper.getExtra())
+                .append("State", BridgeServerHelper.getState())
                 .append("Outgoing-Channels", Bukkit.getMessenger().getOutgoingChannels())
                 .append("Incoming-Channels", Bukkit.getMessenger().getIncomingChannels())
                 .append("Online-Mode", Bukkit.getOnlineMode())
@@ -109,8 +113,7 @@ public final class BukkitCloudNetHelper {
                     }
 
                     return new WorldInfo(world.getUID(), world.getName(), world.getDifficulty().name(), gameRules);
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
@@ -164,36 +167,68 @@ public final class BukkitCloudNetHelper {
     }
 
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getMotd()} instead
+     */
+    @Deprecated
     public static String getApiMotd() {
-        return BukkitCloudNetHelper.apiMotd;
+        return BridgeServerHelper.getMotd();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setMotd(String)} instead
+     */
+    @Deprecated
     public static void setApiMotd(String apiMotd) {
-        BukkitCloudNetHelper.apiMotd = apiMotd;
+        BridgeServerHelper.setMotd(apiMotd);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getExtra()} instead
+     */
+    @Deprecated
     public static String getExtra() {
-        return BukkitCloudNetHelper.extra;
+        return BridgeServerHelper.getExtra();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setExtra(String)} instead
+     */
+    @Deprecated
     public static void setExtra(String extra) {
-        BukkitCloudNetHelper.extra = extra;
+        BridgeServerHelper.setExtra(extra);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getState()} instead
+     */
+    @Deprecated
     public static String getState() {
-        return BukkitCloudNetHelper.state;
+        return BridgeServerHelper.getState();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setState(String)} instead
+     */
+    @Deprecated
     public static void setState(String state) {
-        BukkitCloudNetHelper.state = state;
+        BridgeServerHelper.setState(state);
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#getMaxPlayers()} instead
+     */
+    @Deprecated
     public static int getMaxPlayers() {
-        return BukkitCloudNetHelper.maxPlayers;
+        return BridgeServerHelper.getMaxPlayers();
     }
 
+    /**
+     * @deprecated use {@link BridgeServerHelper#setMaxPlayers(int)} instead
+     */
+    @Deprecated
     public static void setMaxPlayers(int maxPlayers) {
-        BukkitCloudNetHelper.maxPlayers = maxPlayers;
+        BridgeServerHelper.setMaxPlayers(maxPlayers);
     }
 
     public static JavaPlugin getPlugin() {

@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.ext.bridge.bukkit.listener.BukkitCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.bukkit.listener.BukkitPlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -49,9 +50,9 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
     private void runFireServerListPingEvent() {
         ServerListPingEvent serverListPingEvent = new ServerListPingEvent(
                 new InetSocketAddress("127.0.0.1", 53345).getAddress(),
-                BukkitCloudNetHelper.getApiMotd(),
+                BridgeServerHelper.getMotd(),
                 Bukkit.getOnlinePlayers().size(),
-                BukkitCloudNetHelper.getMaxPlayers()
+                BridgeServerHelper.getMaxPlayers()
         );
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
@@ -60,10 +61,10 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
             try {
                 Bukkit.getPluginManager().callEvent(serverListPingEvent);
 
-                if (!serverListPingEvent.getMotd().equalsIgnoreCase(BukkitCloudNetHelper.getApiMotd())) {
+                if (!serverListPingEvent.getMotd().equalsIgnoreCase(BridgeServerHelper.getMotd())) {
                     hasToUpdate = true;
 
-                    BukkitCloudNetHelper.setApiMotd(serverListPingEvent.getMotd());
+                    BridgeServerHelper.setMotd(serverListPingEvent.getMotd());
                     if (serverListPingEvent.getMotd().toLowerCase().contains("running") ||
                             serverListPingEvent.getMotd().toLowerCase().contains("ingame") ||
                             serverListPingEvent.getMotd().toLowerCase().contains("playing")) {
@@ -71,13 +72,13 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
                     }
                 }
 
-                if (serverListPingEvent.getMaxPlayers() != BukkitCloudNetHelper.getMaxPlayers()) {
+                if (serverListPingEvent.getMaxPlayers() != BridgeServerHelper.getMaxPlayers()) {
                     hasToUpdate = true;
-                    BukkitCloudNetHelper.setMaxPlayers(serverListPingEvent.getMaxPlayers());
+                    BridgeServerHelper.setMaxPlayers(serverListPingEvent.getMaxPlayers());
                 }
 
                 if (value) {
-                    BukkitCloudNetHelper.changeToIngame();
+                    BridgeServerHelper.changeToIngame(true);
                     return;
                 }
 
