@@ -21,15 +21,39 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         switch (args.length) {
             case 0:
-                for (CommandInfo commandInfo : this.getCloudNet().getCommandMap().getCommandInfos()) {
-                    StringBuilder builder = new StringBuilder("Aliases: " + Arrays.toString(commandInfo.getNames()));
-                    if (commandInfo.getPermission() != null) {
-                        builder.append(" | Permission: ").append(commandInfo.getPermission());
+                CommandInfo[] infos = this.getCloudNet().getCommandMap().getCommandInfos().toArray(new CommandInfo[0]);
+                StringBuilder[] entries = new StringBuilder[infos.length];
+
+                for (int i = 0; i < entries.length; i++) {
+                    entries[i] = new StringBuilder();
+                }
+
+                for (int i = 0; i < infos.length; i++) {
+                    entries[i].append("Aliases: ").append(Arrays.toString(infos[i].getNames()));
+                }
+
+                int maxLength = Arrays.stream(entries).mapToInt(StringBuilder::length).max().orElse(0);
+
+                this.fill(maxLength, entries);
+
+                for (int i = 0; i < infos.length; i++) {
+                    if (infos[i].getPermission() != null) {
+                        entries[i].append(" | Permission: ").append(infos[i].getPermission());
                     }
-                    if (commandInfo.getDescription() != null) {
-                        builder.append(" - ").append(commandInfo.getDescription());
+                }
+
+                maxLength = Arrays.stream(entries).mapToInt(StringBuilder::length).max().orElse(0);
+
+                this.fill(maxLength, entries);
+
+                for (int i = 0; i < infos.length; i++) {
+                    if (infos[i].getDescription() != null) {
+                        entries[i].append(" - ").append(infos[i].getDescription());
                     }
-                    sender.sendMessage(builder.toString());
+                }
+
+                for (StringBuilder entry : entries) {
+                    sender.sendMessage(entry.toString());
                 }
                 sender.sendMessage(LanguageManager.getMessage("command-help-info"));
 
@@ -55,6 +79,15 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                 break;
         }
 
+    }
+
+    private void fill(int maxLength, StringBuilder[] entries) {
+        for (StringBuilder entry : entries) {
+            int missing = maxLength - entry.length();
+            for (int j = 0; j < missing; j++) {
+                entry.append(' ');
+            }
+        }
     }
 
     @Override
