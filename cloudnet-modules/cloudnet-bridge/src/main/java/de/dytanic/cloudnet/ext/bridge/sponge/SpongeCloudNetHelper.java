@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
@@ -23,8 +22,7 @@ import org.spongepowered.api.world.World;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ApiStatus.Internal
-public final class SpongeCloudNetHelper {
+public final class SpongeCloudNetHelper extends BridgeServerHelper {
 
     static {
         BridgeServerHelper.setMotd(Sponge.getServer().getMotd().toPlain());
@@ -34,14 +32,6 @@ public final class SpongeCloudNetHelper {
 
     private SpongeCloudNetHelper() {
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#changeToIngame(boolean)} instead
-     */
-    @Deprecated
-    public static void changeToIngame() {
-        BridgeServerHelper.changeToIngame(true);
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -153,67 +143,4 @@ public final class SpongeCloudNetHelper {
         );
     }
 
-    /**
-     * @deprecated use {@link BridgeServerHelper#getMotd()} instead
-     */
-    @Deprecated
-    public static String getApiMotd() {
-        return BridgeServerHelper.getMotd();
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#setMotd(String)} instead
-     */
-    @Deprecated
-    public static void setApiMotd(String apiMotd) {
-        BridgeServerHelper.setMotd(apiMotd);
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#getExtra()} instead
-     */
-    @Deprecated
-    public static String getExtra() {
-        return BridgeServerHelper.getExtra();
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#setExtra(String)} instead
-     */
-    @Deprecated
-    public static void setExtra(String extra) {
-        BridgeServerHelper.setExtra(extra);
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#getState()} instead
-     */
-    @Deprecated
-    public static String getState() {
-        return BridgeServerHelper.getState();
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#setState(String)} instead
-     */
-    @Deprecated
-    public static void setState(String state) {
-        BridgeServerHelper.setState(state);
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#getMaxPlayers()} instead
-     */
-    @Deprecated
-    public static int getMaxPlayers() {
-        return BridgeServerHelper.getMaxPlayers();
-    }
-
-    /**
-     * @deprecated use {@link BridgeServerHelper#setMaxPlayers(int)} instead
-     */
-    @Deprecated
-    public static void setMaxPlayers(int maxPlayers) {
-        BridgeServerHelper.setMaxPlayers(maxPlayers);
-    }
 }

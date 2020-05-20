@@ -7,9 +7,28 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 public class BridgeServerHelper {
 
     private static volatile String motd;
+
     private static volatile String extra;
+
     private static volatile String state;
+
     private static volatile int maxPlayers;
+
+    /**
+     * @deprecated use {@link BridgeServerHelper#getMotd()} instead
+     */
+    @Deprecated
+    public static String getApiMotd() {
+        return BridgeServerHelper.getMotd();
+    }
+
+    /**
+     * @deprecated use {@link BridgeServerHelper#setMotd(String)} instead
+     */
+    @Deprecated
+    public static void setApiMotd(String apiMotd) {
+        BridgeServerHelper.setMotd(apiMotd);
+    }
 
     public static String getMotd() {
         return motd;
@@ -45,6 +64,10 @@ public class BridgeServerHelper {
 
     public static void updateServiceInfo() {
         BridgeHelper.updateServiceInfo();
+    }
+
+    public static void changeToIngame() {
+        changeToIngame(true);
     }
 
     public static void changeToIngame(boolean autoStartService) {
