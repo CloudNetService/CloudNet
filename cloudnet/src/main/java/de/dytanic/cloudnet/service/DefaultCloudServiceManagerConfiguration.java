@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.service;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -74,6 +75,9 @@ final class DefaultCloudServiceManagerConfiguration {
                         DefaultCloudServiceManagerConfiguration.this.tasks.add(task);
                         Files.write(path, new JsonDocument(task).toPrettyJson().getBytes(StandardCharsets.UTF_8));
                         System.out.println(LanguageManager.getMessage("cloudnet-load-task-success").replace("%path%", path.toString()).replace("%name%", task.getName()));
+                        if (task.isMaintenance()) {
+                            CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-load-task-maintenance-warning").replace("%task%", task.getName()));
+                        }
                     } else {
                         System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed").replace("%path%", path.toString()));
                     }
