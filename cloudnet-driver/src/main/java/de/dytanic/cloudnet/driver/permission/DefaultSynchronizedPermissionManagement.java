@@ -54,12 +54,12 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
 
     @Override
     default boolean containsUser(@NotNull UUID uniqueId) {
-        return this.containsUserAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
+        return this.containsUserAsync(uniqueId).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
     default boolean containsUser(@NotNull String name) {
-        return this.containsUserAsync(name).get(5, TimeUnit.SECONDS, null);
+        return this.containsUserAsync(name).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
@@ -110,7 +110,7 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
 
     @Override
     default boolean containsGroup(@NotNull String group) {
-        return this.containsGroupAsync(group).get(5, TimeUnit.SECONDS, null);
+        return this.containsGroupAsync(group).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
