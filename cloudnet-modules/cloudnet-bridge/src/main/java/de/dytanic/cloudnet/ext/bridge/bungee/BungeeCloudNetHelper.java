@@ -56,10 +56,10 @@ public final class BungeeCloudNetHelper {
         return BridgeProxyHelper.isFallbackService(serverInfo.getName());
     }
 
-    public static Optional<ServerInfo> getNextFallback(ProxiedPlayer player) {
+    public static Optional<ServerInfo> getNextFallback(ProxiedPlayer player, ServerInfo currentServer) {
         return BridgeProxyHelper.getNextFallback(
                 player.getUniqueId(),
-                player.getServer() != null ? player.getServer().getInfo().getName() : null,
+                currentServer != null ? currentServer.getName() : null,
                 player::hasPermission
         ).map(serviceInfoSnapshot -> ProxyServer.getInstance().getPluginManager().callEvent(
                 new BungeePlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName())
