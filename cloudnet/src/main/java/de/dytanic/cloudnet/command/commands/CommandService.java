@@ -239,6 +239,7 @@ public class CommandService extends SubCommandHandler {
                 " ",
                 "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
                 "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),
+                "* Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId(),
                 "* Port: " + serviceInfoSnapshot.getConfiguration().getPort()
         ));
         if (serviceInfoSnapshot.isConnected()) {
