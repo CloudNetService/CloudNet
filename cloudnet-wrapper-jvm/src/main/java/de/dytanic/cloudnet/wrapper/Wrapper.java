@@ -180,6 +180,8 @@ public final class Wrapper extends CloudNetDriver {
 
         this.networkClient.getPacketRegistry().removeListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
+        this.permissionManagement.init();
+
         if (!listener.isResult()) {
             throw new IllegalStateException("authorization response is: denied");
         }

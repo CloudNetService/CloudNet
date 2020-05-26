@@ -30,7 +30,10 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     public DefaultDatabasePermissionManagement(Callable<AbstractDatabaseProvider> databaseProviderCallable) {
         this.databaseProviderCallable = databaseProviderCallable;
+    }
 
+    @Override
+    public void init() {
         this.file.getParentFile().mkdirs();
         this.loadGroups();
     }

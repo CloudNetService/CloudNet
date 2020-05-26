@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
@@ -28,7 +29,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         return BukkitCloudNetCloudPermissionsPlugin.instance;
     }
 
-    private CloudPermissionsManagement permissionsManagement;
+    private CachedPermissionManagement permissionsManagement;
 
     @Override
     public void onLoad() {
@@ -63,18 +64,18 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                                Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction) {
         Preconditions.checkNotNull(player);
 
-        IPermissionUser playerPermissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(player.getUniqueId());
+        IPermissionUser playerPermissionUser = this.permissionsManagement.getUser(player.getUniqueId());
         AtomicReference<IPermissionGroup> playerPermissionGroup = new AtomicReference<>(playerIPermissionGroupFunction != null ? playerIPermissionGroupFunction.apply(player) : null);
 
         if (playerPermissionUser != null && playerPermissionGroup.get() == null) {
-            playerPermissionGroup.set(CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(playerPermissionUser));
+            playerPermissionGroup.set(this.permissionsManagement.getHighestPermissionGroup(playerPermissionUser));
 
             if (playerPermissionGroup.get() == null) {
-                playerPermissionGroup.set(CloudNetDriver.getInstance().getPermissionManagement().getDefaultPermissionGroup());
+                playerPermissionGroup.set(this.permissionsManagement.getDefaultPermissionGroup());
             }
         }
 
-        int sortIdLength = CloudPermissionsManagement.getInstance().getGroups().stream()
+        int sortIdLength = this.permissionsManagement.getGroups().stream()
                 .map(IPermissionGroup::getSortId)
                 .map(String::valueOf)
                 .mapToInt(String::length)
@@ -90,14 +91,14 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 this.addTeamEntry(player, all, playerPermissionGroup.get(), sortIdLength);
             }
 
-            IPermissionUser targetPermissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(all.getUniqueId());
+            IPermissionUser targetPermissionUser = this.permissionsManagement.getUser(all.getUniqueId());
             IPermissionGroup targetPermissionGroup = allOtherPlayerPermissionGroupFunction != null ? allOtherPlayerPermissionGroupFunction.apply(all) : null;
 
             if (targetPermissionUser != null && targetPermissionGroup == null) {
-                targetPermissionGroup = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(targetPermissionUser);
+                targetPermissionGroup = this.permissionsManagement.getHighestPermissionGroup(targetPermissionUser);
 
                 if (targetPermissionGroup == null) {
-                    targetPermissionGroup = CloudNetDriver.getInstance().getPermissionManagement().getDefaultPermissionGroup();
+                    targetPermissionGroup = this.permissionsManagement.getDefaultPermissionGroup();
                 }
             }
 
@@ -143,7 +144,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                     ChatColor chatColor = ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", ""));
                     if (chatColor != null) {
                         permissionGroup.setColor(color);
-                        CloudNetDriver.getInstance().getPermissionManagement().updateGroup(permissionGroup);
+                        this.permissionsManagement.updateGroup(permissionGroup);
                         method.invoke(team, chatColor);
                     }
                 }
