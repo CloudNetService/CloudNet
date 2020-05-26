@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPermissionManagement
-        implements DefaultSynchronizedPermissionManagement, DefaultPermissionManagement {
+        implements DefaultSynchronizedPermissionManagement {
 
     private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 

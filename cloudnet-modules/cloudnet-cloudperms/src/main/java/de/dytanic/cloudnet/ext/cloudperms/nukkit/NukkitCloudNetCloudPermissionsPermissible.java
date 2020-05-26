@@ -66,7 +66,7 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
         }
 
         IPermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
-        return permissionUser != null && this.permissionsManagement.hasPlayerPermission(permissionUser, inName);
+        return permissionUser != null && this.permissionsManagement.hasPermission(permissionUser, inName);
     }
 
     public Player getPlayer() {

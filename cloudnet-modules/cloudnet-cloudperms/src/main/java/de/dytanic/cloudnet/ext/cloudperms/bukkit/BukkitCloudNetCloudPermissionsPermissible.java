@@ -91,7 +91,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     }
 
     private boolean testDefaultPermission(IPermissionUser permissionUser, String name) {
-        return this.permissionsManagement.getPlayerPermissionResult(permissionUser, name) != PermissionCheckResult.FORBIDDEN;
+        return this.permissionsManagement.getPermissionResult(permissionUser, name) != PermissionCheckResult.FORBIDDEN;
     }
 
     private boolean testParents(String inName, Predicate<Permission> parentAcceptor) {
@@ -129,7 +129,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     private boolean checkPermission(IPermissionUser permissionUser, String name) {
         return this.getDefaultPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(name) && this.testDefaultPermission(permissionUser, name)) ||
-                this.permissionsManagement.hasPlayerPermission(permissionUser, name);
+                this.permissionsManagement.hasPermission(permissionUser, name);
     }
 
     public Player getPlayer() {

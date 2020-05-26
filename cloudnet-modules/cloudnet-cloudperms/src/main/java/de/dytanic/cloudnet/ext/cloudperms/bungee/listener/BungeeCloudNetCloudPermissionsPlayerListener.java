@@ -56,7 +56,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
             IPermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
 
             if (permissionUser != null) {
-                event.setHasPermission(this.permissionsManagement.hasPlayerPermission(permissionUser, event.getPermission()));
+                event.setHasPermission(this.permissionsManagement.hasPermission(permissionUser, event.getPermission()));
             }
         }
     }

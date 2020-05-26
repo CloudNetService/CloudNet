@@ -6,13 +6,14 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.ext.cloudperms.listener.PermissionsUpdateListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CloudPermissionsManagement implements DefaultPermissionManagement, DefaultSynchronizedPermissionManagement {
+public class CloudPermissionsManagement extends DefaultPermissionManagement implements DefaultSynchronizedPermissionManagement {
 
     private final Map<String, IPermissionGroup> cachedPermissionGroups = new ConcurrentHashMap<>();
     private final Map<UUID, IPermissionUser> cachedPermissionUsers = new ConcurrentHashMap<>();
@@ -51,29 +52,22 @@ public class CloudPermissionsManagement implements DefaultPermissionManagement, 
         return false;
     }
 
+    /**
+     * @deprecated The wrapper itself checks the permissions for every group now
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public boolean hasPlayerPermission(IPermissionUser permissionUser, String perm) {
-        Permission permission = new Permission(perm, 0);
-
-        for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
-            if (this.hasPermission(permissionUser, group, permission)) {
-                return true;
-            }
-        }
-
-        return this.hasPermission(permissionUser, permission);
+        return this.hasPermission(permissionUser, perm);
     }
 
+    /**
+     * @deprecated The wrapper itself checks the permissions for every group now
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
     public PermissionCheckResult getPlayerPermissionResult(IPermissionUser permissionUser, String perm) {
-        Permission permission = new Permission(perm, 0);
-
-        for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
-            PermissionCheckResult result = this.getPermissionResult(permissionUser, group, permission);
-            if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
-                return result;
-            }
-        }
-
-        return this.getPermissionResult(permissionUser, permission);
+        return this.getPermissionResult(permissionUser, perm);
     }
 
     @Override

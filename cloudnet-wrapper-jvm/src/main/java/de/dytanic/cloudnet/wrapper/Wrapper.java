@@ -136,7 +136,7 @@ public final class Wrapper extends CloudNetDriver {
         }
         super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
 
-        super.setPermissionManagement(new WrapperPermissionManagement(super.packetQueryProvider));
+        super.setPermissionManagement(new WrapperPermissionManagement(super.packetQueryProvider, this));
 
         //- Packet client registry
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());

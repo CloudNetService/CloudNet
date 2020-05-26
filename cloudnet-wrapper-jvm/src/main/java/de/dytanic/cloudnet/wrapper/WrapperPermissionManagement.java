@@ -19,14 +19,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-public class WrapperPermissionManagement implements DefaultSynchronizedPermissionManagement, DefaultPermissionManagement, IPermissionManagement {
+public class WrapperPermissionManagement extends DefaultPermissionManagement implements DefaultSynchronizedPermissionManagement, IPermissionManagement {
 
     private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
     private final PacketQueryProvider packetQueryProvider;
+    private final Wrapper wrapper;
 
-    public WrapperPermissionManagement(PacketQueryProvider packetQueryProvider) {
+    public WrapperPermissionManagement(PacketQueryProvider packetQueryProvider, Wrapper wrapper) {
         this.packetQueryProvider = packetQueryProvider;
+        this.wrapper = wrapper;
     }
 
     @Override
@@ -256,6 +258,18 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     public ITask<Void> setGroupsAsync(Collection<? extends IPermissionGroup> groups) {
         return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_set_groups").append("permissionGroups", groups), null,
                 VOID_FUNCTION);
+    }
+
+    @Override
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
+        for (String group : this.wrapper.getCurrentServiceInfoSnapshot().getConfiguration().getGroups()) {
+            PermissionCheckResult result = this.getPermissionResult(permissionUser, group, permission);
+            if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
+                return result;
+            }
+        }
+
+        return super.getPermissionResult(permissionUser, permission);
     }
 
     @Override
