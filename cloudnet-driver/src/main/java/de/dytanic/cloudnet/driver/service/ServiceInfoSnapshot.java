@@ -8,6 +8,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -19,7 +21,7 @@ import java.util.Optional;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot> {
+public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot>, SerializableObject {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
     }.getType();
@@ -125,5 +127,31 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
                 .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
                 .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
                 .result();
+    }
+
+    @Override
+    public void write(ProtocolBuffer buffer) {
+        buffer.writeLong(this.creationTime);
+        buffer.writeObject(this.serviceId);
+        buffer.writeObject(this.address);
+        buffer.writeLong(this.connectedTime);
+        buffer.writeEnumConstant(this.lifeCycle);
+        buffer.writeObject(this.processSnapshot);
+        buffer.writeObject(this.configuration);
+
+        buffer.writeString(super.properties.toJson());
+    }
+
+    @Override
+    public void read(ProtocolBuffer buffer) {
+        this.creationTime = buffer.readLong();
+        this.serviceId = buffer.readObject(ServiceId.class);
+        this.address = buffer.readObject(HostAndPort.class);
+        this.connectedTime = buffer.readLong();
+        this.lifeCycle = buffer.readEnumConstant(ServiceLifeCycle.class);
+        this.processSnapshot = buffer.readObject(ProcessSnapshot.class);
+        this.configuration = buffer.readObject(ServiceConfiguration.class);
+
+        super.properties = JsonDocument.newDocument(buffer.readString());
     }
 }

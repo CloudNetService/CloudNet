@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -9,15 +11,15 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-public final class ServiceId implements INameable {
+public final class ServiceId implements INameable, SerializableObject {
 
-    private final UUID uniqueId;
+    private UUID uniqueId;
 
-    private final String nodeUniqueId, taskName;
+    private String nodeUniqueId, taskName;
 
-    private final int taskServiceId;
+    private int taskServiceId;
 
-    private final ServiceEnvironmentType environment;
+    private ServiceEnvironmentType environment;
 
     public ServiceId(@NotNull UUID uniqueId, @NotNull String nodeUniqueId, String taskName, int taskServiceId, ServiceEnvironmentType environment) {
         this.uniqueId = uniqueId;
@@ -25,6 +27,9 @@ public final class ServiceId implements INameable {
         this.taskName = taskName;
         this.taskServiceId = taskServiceId;
         this.environment = environment;
+    }
+
+    public ServiceId() {
     }
 
     public String getName() {
@@ -51,4 +56,21 @@ public final class ServiceId implements INameable {
         return this.environment;
     }
 
+    @Override
+    public void write(ProtocolBuffer buffer) {
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeString(this.nodeUniqueId);
+        buffer.writeString(this.taskName);
+        buffer.writeVarInt(this.taskServiceId);
+        buffer.writeEnumConstant(this.environment);
+    }
+
+    @Override
+    public void read(ProtocolBuffer buffer) {
+        this.uniqueId = buffer.readUUID();
+        this.nodeUniqueId = buffer.readString();
+        this.taskName = buffer.readString();
+        this.taskServiceId = buffer.readVarInt();
+        this.environment = buffer.readEnumConstant(ServiceEnvironmentType.class);
+    }
 }

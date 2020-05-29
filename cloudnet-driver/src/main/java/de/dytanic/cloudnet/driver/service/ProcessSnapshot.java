@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -7,22 +9,22 @@ import java.util.Collection;
 
 @ToString
 @EqualsAndHashCode
-public class ProcessSnapshot {
+public class ProcessSnapshot implements SerializableObject {
 
-    private final long heapUsageMemory;
-    private final long noHeapUsageMemory;
-    private final long maxHeapMemory;
+    private long heapUsageMemory;
+    private long noHeapUsageMemory;
+    private long maxHeapMemory;
 
-    private final int currentLoadedClassCount;
+    private int currentLoadedClassCount;
 
-    private final long totalLoadedClassCount;
-    private final long unloadedClassCount;
+    private long totalLoadedClassCount;
+    private long unloadedClassCount;
 
-    private final Collection<ThreadSnapshot> threads;
+    private Collection<ThreadSnapshot> threads;
 
-    private final double cpuUsage;
+    private double cpuUsage;
 
-    private final int pid;
+    private int pid;
 
     public ProcessSnapshot(long heapUsageMemory, long noHeapUsageMemory, long maxHeapMemory, int currentLoadedClassCount, long totalLoadedClassCount, long unloadedClassCount, Collection<ThreadSnapshot> threads, double cpuUsage, int pid) {
         this.heapUsageMemory = heapUsageMemory;
@@ -72,4 +74,29 @@ public class ProcessSnapshot {
         return this.pid;
     }
 
+    @Override
+    public void write(ProtocolBuffer buffer) {
+        buffer.writeLong(this.heapUsageMemory);
+        buffer.writeLong(this.noHeapUsageMemory);
+        buffer.writeLong(this.maxHeapMemory);
+        buffer.writeInt(this.currentLoadedClassCount);
+        buffer.writeLong(this.totalLoadedClassCount);
+        buffer.writeLong(this.unloadedClassCount);
+        buffer.writeObjectCollection(this.threads);
+        buffer.writeDouble(this.cpuUsage);
+        buffer.writeInt(this.pid);
+    }
+
+    @Override
+    public void read(ProtocolBuffer buffer) {
+        this.heapUsageMemory = buffer.readLong();
+        this.noHeapUsageMemory = buffer.readLong();
+        this.maxHeapMemory = buffer.readLong();
+        this.currentLoadedClassCount = buffer.readInt();
+        this.totalLoadedClassCount = buffer.readLong();
+        this.unloadedClassCount = buffer.readLong();
+        this.threads = buffer.readObjectCollection(ThreadSnapshot.class);
+        this.cpuUsage = buffer.readDouble();
+        this.pid = buffer.readInt();
+    }
 }

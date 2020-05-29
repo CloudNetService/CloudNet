@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -7,7 +9,7 @@ import java.util.Collection;
 
 @ToString
 @EqualsAndHashCode
-public final class ProcessConfiguration {
+public final class ProcessConfiguration implements SerializableObject {
 
     protected ServiceEnvironmentType environment;
 
@@ -45,4 +47,17 @@ public final class ProcessConfiguration {
         this.jvmOptions = jvmOptions;
     }
 
+    @Override
+    public void write(ProtocolBuffer buffer) {
+        buffer.writeEnumConstant(this.environment);
+        buffer.writeInt(this.maxHeapMemorySize);
+        buffer.writeStringCollection(this.jvmOptions);
+    }
+
+    @Override
+    public void read(ProtocolBuffer buffer) {
+        this.environment = buffer.readEnumConstant(ServiceEnvironmentType.class);
+        this.maxHeapMemorySize = buffer.readInt();
+        this.jvmOptions = buffer.readStringCollection();
+    }
 }
