@@ -208,6 +208,11 @@ public final class Wrapper extends CloudNetDriver {
         this.servicesRegistry.unregisterAll();
     }
 
+    @Override
+    public @NotNull String getComponentName() {
+        return this.getServiceId().getName();
+    }
+
     @NotNull
     @Override
     public CloudServiceFactory getCloudServiceFactory() {

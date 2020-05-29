@@ -366,6 +366,11 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
+    @Override
+    public @NotNull String getComponentName() {
+        return this.config.getIdentity().getUniqueId();
+    }
+
     public LogLevel getDefaultLogLevel() {
         return this.defaultLogLevel;
     }
