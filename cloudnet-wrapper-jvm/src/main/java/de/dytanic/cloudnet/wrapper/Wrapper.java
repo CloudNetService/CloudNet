@@ -44,6 +44,7 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperCloudServiceFactory;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperSpecificCloudServiceProvider;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -145,6 +146,8 @@ public final class Wrapper extends CloudNetDriver {
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
 
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener());
+
+        this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientWrapperSyncListener());
         //-
 
         this.moduleProvider.setModuleDirectory(new File(".wrapper/modules"));
@@ -430,6 +433,20 @@ public final class Wrapper extends CloudNetDriver {
         );
     }
 
+    @ApiStatus.Internal
+    public ServiceInfoSnapshot configureServiceInfoSnapshot() {
+        ServiceInfoSnapshot serviceInfoSnapshot = this.createServiceInfoSnapshot();
+        this.configureServiceInfoSnapshot(serviceInfoSnapshot);
+        return serviceInfoSnapshot;
+    }
+
+    private void configureServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
+
+        this.lastServiceInfoSnapShot = this.currentServiceInfoSnapshot;
+        this.currentServiceInfoSnapshot = serviceInfoSnapshot;
+    }
+
     /**
      * This method should be used to send the current ServiceInfoSnapshot and all subscribers on the network and to update their information.
      * It calls the ServiceInfoSnapshotConfigureEvent before send the update to the node.
@@ -442,10 +459,7 @@ public final class Wrapper extends CloudNetDriver {
 
     public synchronized void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         if (this.currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
-            this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
-
-            this.lastServiceInfoSnapShot = this.currentServiceInfoSnapshot;
-            this.currentServiceInfoSnapshot = serviceInfoSnapshot;
+            this.configureServiceInfoSnapshot(serviceInfoSnapshot);
         }
 
         this.networkClient.sendPacket(new PacketClientServiceInfoUpdate(serviceInfoSnapshot));
