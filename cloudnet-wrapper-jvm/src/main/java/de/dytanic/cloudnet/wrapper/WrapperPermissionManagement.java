@@ -4,9 +4,9 @@ import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.CountingTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.permission.*;
@@ -14,30 +14,58 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-public class WrapperPermissionManagement implements DefaultSynchronizedPermissionManagement, DefaultPermissionManagement, IPermissionManagement {
+public class WrapperPermissionManagement extends DefaultPermissionManagement implements DefaultSynchronizedPermissionManagement, IPermissionManagement, CachedPermissionManagement {
 
     private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
 
     private final PacketQueryProvider packetQueryProvider;
+    private final Wrapper wrapper;
 
-    public WrapperPermissionManagement(PacketQueryProvider packetQueryProvider) {
+    private final Map<UUID, IPermissionUser> cachedPermissionUsers = new ConcurrentHashMap<>();
+    private final Map<String, IPermissionGroup> cachedPermissionGroups = new ConcurrentHashMap<>();
+
+    public WrapperPermissionManagement(PacketQueryProvider packetQueryProvider, Wrapper wrapper) {
         this.packetQueryProvider = packetQueryProvider;
+        this.wrapper = wrapper;
+    }
+
+    @Override
+    public void init() {
+        for (IPermissionGroup group : this.loadGroupsAsync().getDef(null)) {
+            this.cachedPermissionGroups.put(group.getName(), group);
+        }
+
+        CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionCacheListener(this));
     }
 
     @Override
     public boolean reload() {
+        boolean success = false;
+
         try {
-            return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_reload"), null,
+            success = this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_reload"), null,
                     pair -> pair.getSecond()[0] == 1).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
             exception.printStackTrace();
         }
-        return false;
+
+        if (success) {
+            Collection<IPermissionGroup> permissionGroups = this.loadGroupsAsync().getDef(null);
+
+            this.cachedPermissionGroups.clear();
+
+            for (IPermissionGroup group : permissionGroups) {
+                this.cachedPermissionGroups.put(group.getName(), group);
+            }
+        }
+
+        return success;
     }
 
     @Override
@@ -45,29 +73,13 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
         if (permissionUser == null) {
             return CompletedTask.create(Collections.emptyList());
         }
+        return CompletedTask.create(this.getGroups(permissionUser));
 
-        Collection<IPermissionGroup> groups = new ArrayList<>();
-        CountingTask<Collection<IPermissionGroup>> task = new CountingTask<>(groups, 0);
-
-        permissionUser.getGroups().stream()
-                .map(PermissionUserGroupInfo::getGroup)
-                .map(this::getGroupAsync)
-                .forEach(groupTask -> {
-                    task.incrementCount();
-                    groupTask.onComplete(group -> {
-                        groups.add(group);
-                        task.countDown();
-                    })
-                            .onCancelled(iPermissionGroupITask -> task.countDown())
-                            .onFailure(throwable -> task.countDown());
-                });
-
-        return task;
     }
 
     @Override
     public Collection<IPermissionGroup> getGroups() {
-        return this.getGroupsAsync().get(5, TimeUnit.SECONDS, null);
+        return this.cachedPermissionGroups.values();
     }
 
     @Override
@@ -110,6 +122,10 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     public ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
+        if (this.cachedPermissionUsers.containsKey(uniqueId)) {
+            return CompletedTask.create(true);
+        }
+
         return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_user_with_uuid").append("uniqueId", uniqueId), null,
                 documentPair -> documentPair.getFirst().getBoolean("result"));
@@ -120,6 +136,10 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     public ITask<Boolean> containsUserAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
+        if (this.cachedPermissionUsers.values().stream().anyMatch(permissionUser -> permissionUser.getName().equals(name))) {
+            return CompletedTask.create(true);
+        }
+
         return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_user_with_name").append("name", name), null,
                 documentPair -> documentPair.getFirst().getBoolean("result"));
@@ -129,6 +149,10 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     @NotNull
     public ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
+
+        if (this.cachedPermissionUsers.containsKey(uniqueId)) {
+            return CompletedTask.create(this.cachedPermissionUsers.get(uniqueId));
+        }
 
         return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_user_by_uuid").append("uniqueId", uniqueId), null,
@@ -220,9 +244,7 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     public ITask<Boolean> containsGroupAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_contains_group").append("name", name), null,
-                documentPair -> documentPair.getFirst().getBoolean("result"));
+        return CompletedTask.create(this.cachedPermissionGroups.containsKey(name));
     }
 
     @Override
@@ -230,21 +252,28 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     public ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_group").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("permissionGroup", PermissionGroup.TYPE));
+        return CompletedTask.create(this.cachedPermissionGroups.get(name));
     }
 
     @Override
     public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
-        return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_default_group"), null,
-                documentPair -> documentPair.getFirst().get("permissionGroup", PermissionGroup.TYPE));
+        return CompletedTask.create(this.getDefaultPermissionGroup());
     }
 
     @Override
-    @NotNull
-    public ITask<Collection<IPermissionGroup>> getGroupsAsync() {
+    public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync() {
+        return CompletedTask.create(this.cachedPermissionGroups.values());
+    }
+
+    @Override
+    public IPermissionGroup getDefaultPermissionGroup() {
+        return this.cachedPermissionGroups.values().stream()
+                .filter(IPermissionGroup::isDefaultGroup)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private ITask<Collection<IPermissionGroup>> loadGroupsAsync() {
         return this.packetQueryProvider.sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "permission_management_get_groups"), null,
                 documentPair -> new ArrayList<>(documentPair.getFirst().get("permissionGroups", new TypeToken<List<PermissionGroup>>() {
@@ -259,6 +288,18 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     }
 
     @Override
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
+        for (String group : this.wrapper.getCurrentServiceInfoSnapshot().getConfiguration().getGroups()) {
+            PermissionCheckResult result = this.getPermissionResult(permissionUser, group, permission);
+            if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
+                return result;
+            }
+        }
+
+        return super.getPermissionResult(permissionUser, permission);
+    }
+
+    @Override
     public IPermissionManagement getChildPermissionManagement() {
         return null;
     }
@@ -266,5 +307,13 @@ public class WrapperPermissionManagement implements DefaultSynchronizedPermissio
     @Override
     public boolean canBeOverwritten() {
         return true;
+    }
+
+    public Map<UUID, IPermissionUser> getCachedPermissionUsers() {
+        return this.cachedPermissionUsers;
+    }
+
+    public Map<String, IPermissionGroup> getCachedPermissionGroups() {
+        return this.cachedPermissionGroups;
     }
 }

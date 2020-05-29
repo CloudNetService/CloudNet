@@ -136,7 +136,7 @@ public final class Wrapper extends CloudNetDriver {
         }
         super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
 
-        super.setPermissionManagement(new WrapperPermissionManagement(super.packetQueryProvider));
+        super.setPermissionManagement(new WrapperPermissionManagement(super.packetQueryProvider, this));
 
         //- Packet client registry
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
@@ -179,6 +179,8 @@ public final class Wrapper extends CloudNetDriver {
         }
 
         this.networkClient.getPacketRegistry().removeListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+
+        this.permissionManagement.init();
 
         if (!listener.isResult()) {
             throw new IllegalStateException("authorization response is: denied");

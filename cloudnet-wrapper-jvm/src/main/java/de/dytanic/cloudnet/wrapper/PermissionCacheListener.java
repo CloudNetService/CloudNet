@@ -1,16 +1,17 @@
-package de.dytanic.cloudnet.ext.cloudperms.listener;
+package de.dytanic.cloudnet.wrapper;
 
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.permission.*;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
+import org.jetbrains.annotations.ApiStatus;
 
-public final class PermissionsUpdateListener {
+@ApiStatus.Internal
+public final class PermissionCacheListener {
 
-    private final CloudPermissionsManagement permissionsManagement;
+    private final WrapperPermissionManagement permissionsManagement;
 
-    public PermissionsUpdateListener(CloudPermissionsManagement permissionsManagement) {
+    public PermissionCacheListener(WrapperPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 /*

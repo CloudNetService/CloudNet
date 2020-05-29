@@ -24,6 +24,7 @@ public interface IPermissionManagement {
 
     IPermissionUser getFirstUser(String name);
 
+    void init();
 
     boolean reload();
 

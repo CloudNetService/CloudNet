@@ -255,6 +255,7 @@ public final class CloudNet extends CloudNetDriver {
         }
 
         NodePermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(this::getDatabaseProvider);
+        permissionManagement.init();
         permissionManagement.setPermissionManagementHandler(new DefaultPermissionManagementHandler());
         this.permissionManagement = permissionManagement;
 

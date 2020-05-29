@@ -7,17 +7,17 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
-    private final CloudPermissionsManagement permissionsManagement;
+    private final CachedPermissionManagement permissionsManagement;
 
     private final PermissionProvider permissionProvider;
 
-    public VelocityCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement, PermissionProvider permissionProvider) {
+    public VelocityCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement, PermissionProvider permissionProvider) {
         this.permissionsManagement = permissionsManagement;
         this.permissionProvider = permissionProvider;
     }
