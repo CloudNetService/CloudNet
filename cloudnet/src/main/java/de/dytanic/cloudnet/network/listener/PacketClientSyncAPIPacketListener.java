@@ -27,6 +27,11 @@ public final class PacketClientSyncAPIPacketListener implements IPacketListener 
         if (packet.getHeader().contains(PacketConstants.SYNC_PACKET_ID_PROPERTY) && packet.getHeader().contains(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY) &&
                 packet.getHeader().getString(PacketConstants.SYNC_PACKET_CHANNEL_PROPERTY).equals("cloudnet_driver_sync_api")) {
             switch (packet.getHeader().getString(PacketConstants.SYNC_PACKET_ID_PROPERTY)) {
+                case "force_update_service": {
+                    ServiceInfoSnapshot serviceInfoSnapshot = this.getCloudServiceProvider(packet.getHeader()).forceUpdateServiceInfo();
+                    this.sendResponse(channel, packet.getUniqueId(), JsonDocument.newDocument(serviceInfoSnapshot));
+                    break;
+                }
                 case "set_service_life_cycle":
                     this.getCloudServiceProvider(packet.getHeader()).setCloudServiceLifeCycle(packet.getHeader().get("lifeCycle", ServiceLifeCycle.class));
                     this.sendEmptyResponse(channel, packet.getUniqueId());

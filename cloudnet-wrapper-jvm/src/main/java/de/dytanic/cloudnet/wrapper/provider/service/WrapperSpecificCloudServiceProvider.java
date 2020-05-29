@@ -58,6 +58,11 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
+    public @Nullable ServiceInfoSnapshot forceUpdateServiceInfo() {
+        return this.forceUpdateServiceInfoAsync().get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
     @NotNull
     public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
         if (this.serviceInfoSnapshot != null) {
@@ -70,6 +75,15 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
             return this.wrapper.getCloudServiceProvider().getCloudServiceByNameAsync(this.name);
         }
         throw new IllegalArgumentException("Cannot get ServiceInfoSnapshot without uniqueId or name");
+    }
+
+    @Override
+    public @NotNull ITask<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
+        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
+                this.createDocumentWithUniqueIdAndName().append(PacketConstants.SYNC_PACKET_ID_PROPERTY, "force_update_service"),
+                null,
+                documentPair -> documentPair.getFirst().toInstanceOf(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
