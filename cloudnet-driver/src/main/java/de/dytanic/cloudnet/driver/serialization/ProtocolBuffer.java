@@ -21,6 +21,7 @@ public abstract class ProtocolBuffer extends ByteBuf {
         return new DefaultProtocolBuffer(buf);
     }
 
+
     @NotNull
     public abstract String readString();
 

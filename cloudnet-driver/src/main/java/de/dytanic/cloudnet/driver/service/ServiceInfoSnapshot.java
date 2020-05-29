@@ -28,8 +28,6 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     protected long creationTime;
 
-    protected ServiceId serviceId;
-
     protected HostAndPort address;
 
     protected long connectedTime;
@@ -40,13 +38,12 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     protected ServiceConfiguration configuration;
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
-        this(creationTime, serviceId, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
+    public ServiceInfoSnapshot(long creationTime, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+        this(creationTime, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
     }
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
+    public ServiceInfoSnapshot(long creationTime, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
         this.creationTime = creationTime;
-        this.serviceId = serviceId;
         this.address = address;
         this.connectedTime = connectedTime;
         this.lifeCycle = lifeCycle;
@@ -63,7 +60,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     }
 
     public ServiceId getServiceId() {
-        return this.serviceId;
+        return this.configuration.getServiceId();
     }
 
     public HostAndPort getAddress() {
@@ -118,7 +115,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     @Override
     public String getName() {
-        return this.serviceId.getName();
+        return this.getServiceId().getName();
     }
 
     @Override
@@ -132,7 +129,6 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     @Override
     public void write(ProtocolBuffer buffer) {
         buffer.writeLong(this.creationTime);
-        buffer.writeObject(this.serviceId);
         buffer.writeObject(this.address);
         buffer.writeLong(this.connectedTime);
         buffer.writeEnumConstant(this.lifeCycle);
@@ -145,7 +141,6 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     @Override
     public void read(ProtocolBuffer buffer) {
         this.creationTime = buffer.readLong();
-        this.serviceId = buffer.readObject(ServiceId.class);
         this.address = buffer.readObject(HostAndPort.class);
         this.connectedTime = buffer.readLong();
         this.lifeCycle = buffer.readEnumConstant(ServiceLifeCycle.class);
