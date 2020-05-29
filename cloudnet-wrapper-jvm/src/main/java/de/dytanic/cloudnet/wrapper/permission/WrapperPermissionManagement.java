@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.wrapper;
+package de.dytanic.cloudnet.wrapper.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
