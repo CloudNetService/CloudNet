@@ -26,11 +26,8 @@ final class NettyPacketDecoder extends ByteToMessageDecoder {
             int channel = in.readVarInt();
             UUID uniqueId = in.readUUID();
             JsonDocument header = JsonDocument.newDocument(in.readString());
-            ProtocolBuffer body = ProtocolBuffer.create();
-            int bodyLength = in.readVarInt();
-            if (bodyLength != 0) {
-                in.readBytes(body, bodyLength);
-            }
+            ProtocolBuffer body = ProtocolBuffer.wrap(in.readArray());
+            body.resetReaderIndex();
 
             Packet packet = new Packet(channel, uniqueId, header, body);
             out.add(packet);

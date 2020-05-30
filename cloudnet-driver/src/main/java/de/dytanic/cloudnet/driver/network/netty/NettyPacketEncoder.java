@@ -38,11 +38,6 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
         data.writeString(packet.getHeader() != null ? packet.getHeader().toJson() : "{}");
 
-        if (packet.getBody() == null) {
-            data.writeVarInt(0);
-        } else {
-            data.writeVarInt(packet.getBody().readableBytes());
-            data.writeBytes(packet.getBody());
-        }
+        data.writeArray(packet.getBodyAsArray());
     }
 }
