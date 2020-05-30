@@ -10,13 +10,11 @@ public final class PacketServerClusterChannelMessage extends Packet {
     public PacketServerClusterChannelMessage(String channel, String message, JsonDocument header, byte[] body) {
         super(
                 PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL,
-                JsonDocument.EMPTY,
                 ProtocolBuffer.create()
                         .writeString(channel)
                         .writeString(message)
                         .writeString(header.toJson())
                         .writeArray(body)
-                        .toArray()
         );
     }
 }

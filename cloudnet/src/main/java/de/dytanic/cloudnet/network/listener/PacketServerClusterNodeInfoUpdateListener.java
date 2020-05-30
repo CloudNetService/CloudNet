@@ -16,19 +16,17 @@ public final class PacketServerClusterNodeInfoUpdateListener implements IPacketL
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        if (packet.getHeader().contains("clusterNodeInfoSnapshot")) {
-            NetworkClusterNodeInfoSnapshot snapshot = packet.getHeader().get("clusterNodeInfoSnapshot", NetworkClusterNodeInfoSnapshot.TYPE);
-            IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(snapshot.getNode().getUniqueId());
+        NetworkClusterNodeInfoSnapshot snapshot = packet.getBody().readObject(NetworkClusterNodeInfoSnapshot.class);
+        IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(snapshot.getNode().getUniqueId());
 
-            if (clusterNodeServer != null) {
-                clusterNodeServer.setNodeInfoSnapshot(snapshot);
-                CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkClusterNodeInfoUpdateEvent(channel, snapshot));
+        if (clusterNodeServer != null) {
+            clusterNodeServer.setNodeInfoSnapshot(snapshot);
+            CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkClusterNodeInfoUpdateEvent(channel, snapshot));
 
-                Packet packet1 = new PacketServerClusterNodeInfoUpdate(snapshot);
-                for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-                    if (cloudService.getNetworkChannel() != null) {
-                        cloudService.getNetworkChannel().sendPacket(packet1);
-                    }
+            Packet packet1 = new PacketServerClusterNodeInfoUpdate(snapshot);
+            for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+                if (cloudService.getNetworkChannel() != null) {
+                    cloudService.getNetworkChannel().sendPacket(packet1);
                 }
             }
         }
