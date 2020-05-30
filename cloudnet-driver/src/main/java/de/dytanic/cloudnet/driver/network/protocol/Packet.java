@@ -88,4 +88,15 @@ public class Packet implements IPacket {
         return this.body;
     }
 
+    @Override
+    public byte[] getBodyAsArray() {
+        if (this.body == null) {
+            return EMPTY_PACKET_BYTE_ARRAY;
+        }
+        this.body.markReaderIndex();
+        byte[] bytes = this.body.toArray();
+        this.body.resetReaderIndex();
+        return bytes;
+    }
+
 }

@@ -52,16 +52,15 @@ public interface IPacket {
 
     /**
      * Returns the packet body, for transport for extra data, like files or zip archives or something else
-     * <p>
-     * The max length of the body can only be (Integer.MAX_VALUE - 1)
      *
-     * @return the body as byte array in bytes
+     * @return the body as a ProtocolBuffer
      */
     ProtocolBuffer getBody();
 
-    default byte[] getBodyAsArray() {
-        return this.getBody() != null ? this.getBody().toArray() : new byte[0];
-    }
+    /**
+     * @return the body as a byte array
+     */
+    byte[] getBodyAsArray();
 
     /**
      * @return if there should be debug messages for this type of packet
