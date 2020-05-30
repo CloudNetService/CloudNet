@@ -5,7 +5,11 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public class NetworkClusterNode extends BasicJsonDocPropertyable implements SerializableObject {
 
     private String uniqueId;
@@ -15,6 +19,9 @@ public class NetworkClusterNode extends BasicJsonDocPropertyable implements Seri
     public NetworkClusterNode(String uniqueId, HostAndPort[] listeners) {
         this.uniqueId = uniqueId;
         this.listeners = listeners;
+    }
+
+    public NetworkClusterNode() {
     }
 
     public String getUniqueId() {

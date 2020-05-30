@@ -3,6 +3,8 @@ package de.dytanic.cloudnet.driver.permission;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +18,8 @@ import java.util.UUID;
  * The default implementation of the IPermissionUser class. This class should use if you want to
  * add new PermissionUsers into the IPermissionManagement implementation
  */
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public class PermissionUser extends AbstractPermissible implements IPermissionUser {
 
     /**

@@ -13,7 +13,7 @@ public class ServiceInfoSnapshotSerializerTest {
 
     @Test
     public void serializeServiceInfoSnapshot() {
-        ServiceInfoSnapshot serviceInfoSnapshot = new ServiceInfoSnapshot(
+        ServiceInfoSnapshot original = new ServiceInfoSnapshot(
                 12345L,
                 new HostAndPort("127.0.0.1", 25565),
                 54321L,
@@ -50,11 +50,11 @@ public class ServiceInfoSnapshotSerializerTest {
         );
 
         ProtocolBuffer buffer = ProtocolBuffer.create();
-        buffer.writeObject(serviceInfoSnapshot);
+        buffer.writeObject(original);
 
         ServiceInfoSnapshot deserialized = buffer.readObject(ServiceInfoSnapshot.class);
 
-        Assert.assertEquals(serviceInfoSnapshot, deserialized);
+        Assert.assertEquals(original, deserialized);
     }
 
 }

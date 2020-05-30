@@ -21,6 +21,9 @@ public class PermissionUserGroupInfo extends BasicJsonDocPropertyable implements
         this.timeOutMillis = timeOutMillis;
     }
 
+    public PermissionUserGroupInfo() {
+    }
+
     @NotNull
     public String getGroup() {
         return this.group;

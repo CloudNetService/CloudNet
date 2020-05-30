@@ -3,10 +3,14 @@ package de.dytanic.cloudnet.driver.permission;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
     protected long createdTime;
