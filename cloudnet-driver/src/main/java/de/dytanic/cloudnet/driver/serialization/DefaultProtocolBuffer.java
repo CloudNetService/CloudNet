@@ -62,7 +62,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     @Override
     public @NotNull byte[] toArray() {
         byte[] bytes = new byte[this.readableBytes()];
-        this.readBytes(bytes);
+        this.getBytes(this.readerIndex(), bytes);
         return bytes;
     }
 

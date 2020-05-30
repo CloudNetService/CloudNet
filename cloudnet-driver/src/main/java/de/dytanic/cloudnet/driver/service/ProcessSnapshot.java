@@ -38,6 +38,9 @@ public class ProcessSnapshot implements SerializableObject {
         this.pid = pid;
     }
 
+    public ProcessSnapshot() {
+    }
+
     public long getHeapUsageMemory() {
         return this.heapUsageMemory;
     }

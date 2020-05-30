@@ -4,7 +4,11 @@ import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable implements SerializableObject {
 
     private String url;
@@ -14,6 +18,9 @@ public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable imple
     public ServiceRemoteInclusion(String url, String destination) {
         this.url = url;
         this.destination = destination;
+    }
+
+    public ServiceRemoteInclusion() {
     }
 
     public String getUrl() {

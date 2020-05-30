@@ -2,7 +2,11 @@ package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class ThreadSnapshot implements SerializableObject {
 
     private long id;
@@ -21,6 +25,9 @@ public class ThreadSnapshot implements SerializableObject {
         this.threadState = threadState;
         this.daemon = daemon;
         this.priority = priority;
+    }
+
+    public ThreadSnapshot() {
     }
 
     public long getId() {

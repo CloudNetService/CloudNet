@@ -23,6 +23,9 @@ public final class ProcessConfiguration implements SerializableObject {
         this.jvmOptions = jvmOptions;
     }
 
+    public ProcessConfiguration() {
+    }
+
     public ServiceEnvironmentType getEnvironment() {
         return this.environment;
     }

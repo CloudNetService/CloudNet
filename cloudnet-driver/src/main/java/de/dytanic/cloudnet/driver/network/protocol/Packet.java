@@ -90,13 +90,7 @@ public class Packet implements IPacket {
 
     @Override
     public byte[] getBodyAsArray() {
-        if (this.body == null) {
-            return EMPTY_PACKET_BYTE_ARRAY;
-        }
-        this.body.markReaderIndex();
-        byte[] bytes = this.body.toArray();
-        this.body.resetReaderIndex();
-        return bytes;
+        return this.body == null ? EMPTY_PACKET_BYTE_ARRAY : this.body.toArray();
     }
 
 }

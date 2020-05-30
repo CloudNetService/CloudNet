@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.driver.service.*;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 

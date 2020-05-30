@@ -1,5 +1,10 @@
 package de.dytanic.cloudnet.common.document.gson;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@ToString
+@EqualsAndHashCode
 public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
 
     protected JsonDocument properties = new JsonDocument();

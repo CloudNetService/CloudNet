@@ -201,7 +201,7 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable impleme
 
     @Override
     public void read(ProtocolBuffer buffer) {
-        buffer.writeObject(this.serviceId);
+        this.serviceId = buffer.readObject(ServiceId.class);
         this.runtime = buffer.readString();
         this.autoDeleteOnStop = buffer.readBoolean();
         this.staticService = buffer.readBoolean();
