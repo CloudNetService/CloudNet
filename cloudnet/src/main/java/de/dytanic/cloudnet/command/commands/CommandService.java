@@ -126,9 +126,15 @@ public class CommandService extends SubCommandHandler {
                         })
 
 
-                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> display(sender, serviceInfoSnapshot, false)))
+                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> {
+                            ServiceInfoSnapshot currentServiceInfoSnapshot = serviceInfoSnapshot.provider().forceUpdateServiceInfo();
+                            display(sender, currentServiceInfoSnapshot == null ? serviceInfoSnapshot : currentServiceInfoSnapshot, false);
+                        }))
                         .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> display(sender, serviceInfoSnapshot, true)),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachService(internalProperties, serviceInfoSnapshot -> {
+                                    ServiceInfoSnapshot currentServiceInfoSnapshot = serviceInfoSnapshot.provider().forceUpdateServiceInfo();
+                                    display(sender, currentServiceInfoSnapshot == null ? serviceInfoSnapshot : currentServiceInfoSnapshot, true);
+                                }),
                                 anyStringIgnoreCase("info", "i")
                         )
 
