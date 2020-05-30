@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,11 +49,10 @@ public class PacketQueryProvider {
 
         ITask<R> listenableTask = new ListenableTask<>(reference::get);
 
-        InternalSyncPacketChannel.sendCallablePacket(networkChannel, header, body, new ITaskListener<Pair<JsonDocument, byte[]>>() {
-
+        InternalSyncPacketChannel.sendCallablePacket(networkChannel, header, body, new ITaskListener<IPacket>() {
             @Override
-            public void onComplete(ITask<Pair<JsonDocument, byte[]>> task, Pair<JsonDocument, byte[]> result) {
-                reference.set(function.apply(result));
+            public void onComplete(ITask<IPacket> task, IPacket packet) {
+                reference.set(function.apply(new Pair<>(packet.getHeader(), packet.getBodyAsArray())));
                 try {
                     listenableTask.call();
                 } catch (Exception exception) {
@@ -61,7 +61,7 @@ public class PacketQueryProvider {
             }
 
             @Override
-            public void onFailure(ITask<Pair<JsonDocument, byte[]>> task, Throwable th) {
+            public void onFailure(ITask<IPacket> task, Throwable th) {
                 th.printStackTrace();
             }
         });

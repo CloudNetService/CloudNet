@@ -51,6 +51,6 @@ public final class NetworkChannelReceiveCallablePacketEvent extends NetworkEvent
     }
 
     public void setCallbackPacket(JsonDocument header) {
-        this.callbackPacket = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, this.uniqueId, header, null);
+        this.callbackPacket = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, this.uniqueId, header);
     }
 }

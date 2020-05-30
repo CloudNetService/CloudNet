@@ -8,7 +8,9 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +41,7 @@ public final class InternalSyncPacketChannel {
         if (WAITING_PACKETS.containsKey(packet.getUniqueId())) {
             try {
                 SynchronizedCallback syncEntry = WAITING_PACKETS.get(packet.getUniqueId());
-                syncEntry.response = new Pair<>(packet.getHeader(), packet.getBody());
+                syncEntry.response = packet;
                 syncEntry.task.call();
             } catch (Throwable e) {
                 e.printStackTrace();
@@ -55,12 +57,12 @@ public final class InternalSyncPacketChannel {
     }
 
     @NotNull
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body) {
+    public static ITask<IPacket> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body) {
         return sendCallablePacket(channel, header, body, null);
     }
 
     @NotNull
-    public static ITask<Pair<JsonDocument, byte[]>> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body, ITaskListener<Pair<JsonDocument, byte[]>> listener) {
+    public static ITask<IPacket> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body, ITaskListener<IPacket> listener) {
         Packet packet = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
         checkCachedValidation();
 
@@ -81,7 +83,7 @@ public final class InternalSyncPacketChannel {
                 WAITING_PACKETS.remove(entry.getKey());
 
                 try {
-                    entry.getValue().response = new Pair<>(new JsonDocument(), new byte[0]);
+                    entry.getValue().response = Packet.EMPTY;
                     entry.getValue().task.call();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
@@ -93,7 +95,7 @@ public final class InternalSyncPacketChannel {
     private static class SynchronizedCallback {
 
         private final long timeOut = System.currentTimeMillis() + 30000;
-        private volatile Pair<JsonDocument, byte[]> response = new Pair<>(new JsonDocument(), new byte[0]);
-        private volatile ITask<Pair<JsonDocument, byte[]>> task;
+        private IPacket response;
+        private volatile ITask<IPacket> task;
     }
 }

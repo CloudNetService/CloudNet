@@ -30,6 +30,9 @@ public class ServiceTemplate implements INameable, SerializableObject {
         this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
     }
 
+    public ServiceTemplate() {
+    }
+
     public boolean shouldAlwaysCopyToStaticServices() {
         return this.alwaysCopyToStaticServices;
     }

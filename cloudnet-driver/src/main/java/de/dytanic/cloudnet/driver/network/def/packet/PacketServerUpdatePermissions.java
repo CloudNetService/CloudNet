@@ -15,7 +15,7 @@ public class PacketServerUpdatePermissions extends Packet {
                         .append("permissions_event", true)
                         .append("updateType", updateType)
                         .append("permissionUser", permissionUser)
-                , null);
+        );
     }
 
     public PacketServerUpdatePermissions(UpdateType updateType, IPermissionGroup permissionGroup) {
@@ -23,7 +23,7 @@ public class PacketServerUpdatePermissions extends Packet {
                         .append("permissions_event", true)
                         .append("updateType", updateType)
                         .append("permissionGroup", permissionGroup)
-                , null);
+        );
     }
 
     public PacketServerUpdatePermissions(UpdateType updateType, Collection<? extends IPermissionGroup> permissionGroups) {
@@ -31,7 +31,7 @@ public class PacketServerUpdatePermissions extends Packet {
                         .append("permissions_event", true)
                         .append("updateType", updateType)
                         .append("permissionGroups", permissionGroups)
-                , null);
+        );
     }
 
     public PacketServerUpdatePermissions(UpdateType updateType, Iterable<? extends IPermissionUser> permissionUsers) {
@@ -39,7 +39,7 @@ public class PacketServerUpdatePermissions extends Packet {
                         .append("permissions_event", true)
                         .append("updateType", updateType)
                         .append("permissionUsers", permissionUsers)
-                , null);
+        );
     }
 
     public enum UpdateType {

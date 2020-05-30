@@ -12,16 +12,17 @@ public final class PacketServerDeployLocalTemplateListener implements IPacketLis
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        if (packet.getHeader().contains("command") && packet.getHeader().getString("command").equalsIgnoreCase("deploy_template") &&
-                packet.getHeader().contains("serviceTemplate")) {
-            ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
-            ServiceTemplate template = packet.getHeader().get("serviceTemplate", ServiceTemplate.class);
-            if (packet.getHeader().getBoolean("preClear")) {
-                storage.delete(template);
-            }
-            storage.deploy(packet.getBody(), template);
+        ServiceTemplate template = packet.getBody().readObject(ServiceTemplate.class);
+        boolean preClear = packet.getBody().readBoolean();
+
+        if (preClear) {
+            storage.delete(template);
         }
+
+        byte[] data = packet.getBody().readArray();
+        storage.deploy(data, template);
     }
 
 }

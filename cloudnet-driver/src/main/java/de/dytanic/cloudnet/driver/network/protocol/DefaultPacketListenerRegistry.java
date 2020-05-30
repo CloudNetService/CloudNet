@@ -116,7 +116,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
                                     packet.getChannel(),
                                     packet.getUniqueId().toString(),
                                     packet.getHeader().toJson(),
-                                    packet.getBody() != null ? packet.getBody().length : 0
+                                    packet.getBody() != null ? packet.getBody().readableBytes() : 0
                             )
                     );
                 }

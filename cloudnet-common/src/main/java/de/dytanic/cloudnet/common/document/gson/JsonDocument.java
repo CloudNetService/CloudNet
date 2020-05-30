@@ -28,6 +28,8 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
             .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
             .create();
 
+    public static final JsonDocument EMPTY = newDocument();
+
     protected final JsonObject jsonObject;
 
     /**

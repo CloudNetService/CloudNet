@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -23,26 +24,45 @@ public class Packet implements IPacket {
      */
     public static final byte[] EMPTY_PACKET_BYTE_ARRAY = new byte[]{0};
 
+    public static final Packet EMPTY = new Packet(-1, JsonDocument.EMPTY, EMPTY_PACKET_BYTE_ARRAY);
+
     protected int channel;
 
     protected UUID uniqueId;
 
     protected JsonDocument header;
 
-    protected byte[] body;
+    protected ProtocolBuffer body;
 
     public Packet(int channel, @NotNull JsonDocument header) {
-        this(channel, header, null);
+        this(channel, header, (ProtocolBuffer) null);
     }
 
     public Packet(int channel, @NotNull JsonDocument header, byte[] body) {
-        this.channel = channel;
-        this.header = header;
-        this.body = body;
-        this.uniqueId = UUID.randomUUID();
+        this(channel, UUID.randomUUID(), header, body);
     }
 
     public Packet(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, byte[] body) {
+        this.channel = channel;
+        this.uniqueId = uniqueId;
+        this.header = header;
+        this.body = body == null ? null : ProtocolBuffer.wrap(body);
+    }
+
+
+    public Packet(int channel, ProtocolBuffer body) {
+        this(channel, JsonDocument.EMPTY, body);
+    }
+
+    public Packet(int channel, @NotNull JsonDocument header, ProtocolBuffer body) {
+        this(channel, UUID.randomUUID(), header, body);
+    }
+
+    public Packet(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header) {
+        this(channel, uniqueId, header, (ProtocolBuffer) null);
+    }
+
+    public Packet(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
         this.channel = channel;
         this.uniqueId = uniqueId;
         this.header = header;
@@ -64,7 +84,7 @@ public class Packet implements IPacket {
         return this.header;
     }
 
-    public byte[] getBody() {
+    public ProtocolBuffer getBody() {
         return this.body;
     }
 

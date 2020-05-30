@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -9,7 +11,7 @@ import java.util.Collection;
 
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class GroupConfiguration extends ServiceConfigurationBase implements INameable {
+public class GroupConfiguration extends ServiceConfigurationBase implements INameable, SerializableObject {
 
     protected String name;
     protected Collection<String> jvmOptions = new ArrayList<>();
@@ -41,4 +43,26 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
         return this.name;
     }
 
+    @Override
+    public void write(ProtocolBuffer buffer) {
+        super.write(buffer);
+        buffer.writeString(this.name);
+        buffer.writeStringCollection(this.jvmOptions);
+        buffer.writeVarInt(this.targetEnvironments.size());
+        for (ServiceEnvironmentType environment : this.targetEnvironments) {
+            buffer.writeEnumConstant(environment);
+        }
+    }
+
+    @Override
+    public void read(ProtocolBuffer buffer) {
+        super.read(buffer);
+        this.name = buffer.readString();
+        this.jvmOptions = buffer.readStringCollection();
+        int size = buffer.readVarInt();
+        this.targetEnvironments = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            this.targetEnvironments.add(buffer.readEnumConstant(ServiceEnvironmentType.class));
+        }
+    }
 }

@@ -734,7 +734,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void publishPermissionGroupUpdates(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
-        this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(permissionGroups, updateType, true));
+        this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(permissionGroups, updateType));
     }
 
     public void publishH2DatabaseDataToCluster(INetworkChannel channel) {

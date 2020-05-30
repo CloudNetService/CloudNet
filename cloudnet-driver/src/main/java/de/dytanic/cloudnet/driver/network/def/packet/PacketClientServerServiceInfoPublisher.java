@@ -12,8 +12,6 @@ public final class PacketClientServerServiceInfoPublisher extends Packet {
                 new JsonDocument()
                         .append("serviceInfoSnapshot", serviceInfoSnapshot)
                         .append("type", publisherType)
-                ,
-                null
         );
     }
 

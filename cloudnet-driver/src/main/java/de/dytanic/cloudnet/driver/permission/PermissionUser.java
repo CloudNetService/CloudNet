@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,9 +24,9 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
     public static final Type TYPE = new TypeToken<PermissionUser>() {
     }.getType();
 
-    protected final UUID uniqueId;
+    protected UUID uniqueId;
 
-    protected final Collection<PermissionUserGroupInfo> groups;
+    protected Collection<PermissionUserGroupInfo> groups;
 
     private String hashedPassword;
 
@@ -35,6 +36,9 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
         this.hashedPassword = password == null ? null : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
         this.potency = potency;
         this.groups = new ArrayList<>();
+    }
+
+    public PermissionUser() {
     }
 
     public void changePassword(String password) {
@@ -56,5 +60,28 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
 
     public String getHashedPassword() {
         return this.hashedPassword;
+    }
+
+    @Override
+    public void write(ProtocolBuffer buffer) {
+        super.write(buffer);
+
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeObjectCollection(this.groups);
+
+        buffer.writeBoolean(this.hashedPassword != null);
+        if (this.hashedPassword != null) {
+            buffer.writeString(this.hashedPassword);
+        }
+    }
+
+    @Override
+    public void read(ProtocolBuffer buffer) {
+        super.read(buffer);
+
+        this.uniqueId = buffer.readUUID();
+        this.groups = buffer.readObjectCollection(PermissionUserGroupInfo.class);
+
+        this.hashedPassword = buffer.readBoolean() ? buffer.readString() : null;
     }
 }

@@ -41,7 +41,7 @@ public class DefaultPacketRegistryTest {
 
         @Override
         public void handle(INetworkChannel channel, IPacket packet) {
-            DefaultPacketRegistryTest.this.testValue = new String(packet.getBody());
+            DefaultPacketRegistryTest.this.testValue = new String(packet.getBodyAsArray());
             DefaultPacketRegistryTest.this.property = packet.getHeader().getInt("testProperty");
         }
     }

@@ -10,19 +10,19 @@ import java.util.UUID;
 public final class PacketClientServerChannelMessage extends Packet {
 
     public PacketClientServerChannelMessage(String channel, String message, JsonDocument data) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data), null);
+        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data));
     }
 
     public PacketClientServerChannelMessage(UUID targetServiceId, String channel, String message, JsonDocument data) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data).append("uniqueId", targetServiceId), null);
+        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data).append("uniqueId", targetServiceId));
     }
 
     public PacketClientServerChannelMessage(String taskName, String channel, String message, JsonDocument data) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data).append("task", taskName), null);
+        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data).append("task", taskName));
     }
 
     public PacketClientServerChannelMessage(ServiceEnvironmentType environment, String channel, String message, JsonDocument data) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data).append("environment", environment), null);
+        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument("channel", channel).append("message", message).append("data", data).append("environment", environment));
     }
 
 }

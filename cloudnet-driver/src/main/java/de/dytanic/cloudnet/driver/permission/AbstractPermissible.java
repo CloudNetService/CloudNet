@@ -1,13 +1,15 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
-    protected final long createdTime;
+    protected long createdTime;
     protected String name;
     protected int potency;
     protected List<Permission> permissions;
@@ -98,5 +100,37 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     public Map<String, Collection<Permission>> getGroupPermissions() {
         return this.groupPermissions;
+    }
+
+    @Override
+    public void write(ProtocolBuffer buffer) {
+        buffer.writeLong(this.createdTime);
+        buffer.writeString(this.name);
+        buffer.writeInt(this.potency);
+        buffer.writeObjectCollection(this.permissions);
+
+        buffer.writeVarInt(this.groupPermissions.size());
+        this.groupPermissions.forEach((group, permissions) -> {
+            buffer.writeString(group);
+            buffer.writeObjectCollection(permissions);
+        });
+
+        buffer.writeString(super.properties.toJson());
+    }
+
+    @Override
+    public void read(ProtocolBuffer buffer) {
+        this.createdTime = buffer.readLong();
+        this.name = buffer.readString();
+        this.potency = buffer.readInt();
+        this.permissions = new ArrayList<>(buffer.readObjectCollection(Permission.class));
+
+        int size = buffer.readVarInt();
+        this.groupPermissions = new HashMap<>(size);
+        for (int i = 0; i < size; i++) {
+            this.groupPermissions.put(buffer.readString(), buffer.readObjectCollection(Permission.class));
+        }
+
+        super.properties = JsonDocument.newDocument(buffer.readString());
     }
 }

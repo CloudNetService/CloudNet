@@ -32,8 +32,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeString(@NotNull String stringToWrite) {
+    public ProtocolBuffer writeString(@NotNull String stringToWrite) {
         this.writeArray(stringToWrite.getBytes(StandardCharsets.UTF_8));
+        return this;
     }
 
     @Override
@@ -42,9 +43,10 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeArray(@NotNull byte[] bytes) {
+    public ProtocolBuffer writeArray(@NotNull byte[] bytes) {
         this.writeVarInt(bytes.length);
         this.writeBytes(bytes);
+        return this;
     }
 
     @Override
@@ -65,11 +67,12 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeStringCollection(@NotNull Collection<String> list) {
+    public ProtocolBuffer writeStringCollection(@NotNull Collection<String> list) {
         this.writeVarInt(list.size());
         for (String s : list) {
             this.writeString(s);
         }
+        return this;
     }
 
     @Override
@@ -103,7 +106,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeVarInt(int value) {
+    public ProtocolBuffer writeVarInt(int value) {
         do {
             byte temp = (byte) (value & 0b01111111);
             value >>>= 7;
@@ -113,6 +116,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
 
             this.writeByte(temp);
         } while (value != 0);
+        return this;
     }
 
     @Override
@@ -134,7 +138,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeVarLong(long value) {
+    public ProtocolBuffer writeVarLong(long value) {
         do {
             byte temp = (byte) (value & 0b01111111);
             value >>>= 7;
@@ -144,6 +148,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
 
             this.writeByte(temp);
         } while (value != 0);
+        return this;
     }
 
     @Override
@@ -152,9 +157,10 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeUUID(@NotNull UUID uuid) {
+    public ProtocolBuffer writeUUID(@NotNull UUID uuid) {
         this.writeLong(uuid.getMostSignificantBits());
         this.writeLong(uuid.getLeastSignificantBits());
+        return this;
     }
 
     @Override
@@ -174,8 +180,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeObject(@NotNull SerializableObject object) {
+    public ProtocolBuffer writeObject(@NotNull SerializableObject object) {
         object.write(this);
+        return this;
     }
 
     @Override
@@ -196,11 +203,12 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public void writeObjectCollection(@NotNull Collection<? extends SerializableObject> objects) {
+    public ProtocolBuffer writeObjectCollection(@NotNull Collection<? extends SerializableObject> objects) {
         this.writeVarInt(objects.size());
         for (SerializableObject object : objects) {
             this.writeObject(object);
         }
+        return this;
     }
 
     @Override
@@ -221,11 +229,12 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public <T extends SerializableObject> void writeObjectArray(@NotNull T[] objects) {
+    public <T extends SerializableObject> ProtocolBuffer writeObjectArray(@NotNull T[] objects) {
         this.writeVarInt(objects.length);
         for (T object : objects) {
             this.writeObject(object);
         }
+        return this;
     }
 
     @Override
@@ -234,8 +243,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public <E extends Enum<E>> void writeEnumConstant(E enumConstant) {
+    public <E extends Enum<E>> ProtocolBuffer writeEnumConstant(E enumConstant) {
         this.writeVarInt(enumConstant.ordinal());
+        return this;
     }
 
     @Override
@@ -866,18 +876,21 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public ByteBuf writeBoolean(boolean value) {
-        return wrapped.writeBoolean(value);
+    public ProtocolBuffer writeBoolean(boolean value) {
+        wrapped.writeBoolean(value);
+        return this;
     }
 
     @Override
-    public ByteBuf writeByte(int value) {
-        return wrapped.writeByte(value);
+    public ProtocolBuffer writeByte(int value) {
+        wrapped.writeByte(value);
+        return this;
     }
 
     @Override
-    public ByteBuf writeShort(int value) {
-        return wrapped.writeShort(value);
+    public ProtocolBuffer writeShort(int value) {
+        wrapped.writeShort(value);
+        return this;
     }
 
     @Override
@@ -896,8 +909,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public ByteBuf writeInt(int value) {
-        return wrapped.writeInt(value);
+    public ProtocolBuffer writeInt(int value) {
+        wrapped.writeInt(value);
+        return this;
     }
 
     @Override
@@ -906,8 +920,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public ByteBuf writeLong(long value) {
-        return wrapped.writeLong(value);
+    public ProtocolBuffer writeLong(long value) {
+        wrapped.writeLong(value);
+        return this;
     }
 
     @Override
@@ -921,8 +936,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public ByteBuf writeFloat(float value) {
-        return wrapped.writeFloat(value);
+    public ProtocolBuffer writeFloat(float value) {
+        wrapped.writeFloat(value);
+        return this;
     }
 
     @Override
@@ -931,8 +947,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public ByteBuf writeDouble(double value) {
-        return wrapped.writeDouble(value);
+    public ProtocolBuffer writeDouble(double value) {
+        wrapped.writeDouble(value);
+        return this;
     }
 
     @Override

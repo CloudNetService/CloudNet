@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 import java.util.UUID;
 
@@ -56,7 +57,11 @@ public interface IPacket {
      *
      * @return the body as byte array in bytes
      */
-    byte[] getBody();
+    ProtocolBuffer getBody();
+
+    default byte[] getBodyAsArray() {
+        return this.getBody() != null ? this.getBody().toArray() : new byte[0];
+    }
 
     /**
      * @return if there should be debug messages for this type of packet
