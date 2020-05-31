@@ -9,7 +9,7 @@ public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        CloudNetDriver.getInstance().getLogger().setLevel(packet.getHeader().getInt("level"));
+        CloudNetDriver.getInstance().getLogger().setLevel(packet.getBody().readInt());
     }
 
 }

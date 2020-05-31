@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -18,6 +19,11 @@ public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
+        int level = packet.getBody().readInt();
+        packet = new PacketServerSetGlobalLogLevel(level);
+
+        CloudNetDriver.getInstance().getLogger().setLevel(level);
+
         for (ICloudService localCloudService : CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices()) {
             if (localCloudService.getNetworkChannel() != null) {
                 localCloudService.getNetworkChannel().sendPacket(packet);
@@ -30,8 +36,6 @@ public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
                 }
             }
         }
-
-        CloudNetDriver.getInstance().getLogger().setLevel(packet.getHeader().getInt("level"));
     }
 
 }
