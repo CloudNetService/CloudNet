@@ -1,45 +1,34 @@
 package de.dytanic.cloudnet.driver.network.def.packet;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 
 import java.util.Collection;
 
 public class PacketServerUpdatePermissions extends Packet {
 
     public PacketServerUpdatePermissions(UpdateType updateType, IPermissionUser permissionUser) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                        .append("permissions_event", true)
-                        .append("updateType", updateType)
-                        .append("permissionUser", permissionUser)
-        );
+        super(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, ProtocolBuffer.create().writeEnumConstant(updateType).writeObject(permissionUser));
     }
 
     public PacketServerUpdatePermissions(UpdateType updateType, IPermissionGroup permissionGroup) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                        .append("permissions_event", true)
-                        .append("updateType", updateType)
-                        .append("permissionGroup", permissionGroup)
-        );
+        super(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, ProtocolBuffer.create().writeEnumConstant(updateType).writeObject(permissionGroup));
     }
 
-    public PacketServerUpdatePermissions(UpdateType updateType, Collection<? extends IPermissionGroup> permissionGroups) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                        .append("permissions_event", true)
-                        .append("updateType", updateType)
-                        .append("permissionGroups", permissionGroups)
-        );
+    private PacketServerUpdatePermissions(UpdateType updateType, Collection<? extends SerializableObject> content) {
+        super(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, ProtocolBuffer.create().writeEnumConstant(updateType).writeObjectCollection(content));
     }
 
-    public PacketServerUpdatePermissions(UpdateType updateType, Iterable<? extends IPermissionUser> permissionUsers) {
-        super(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new JsonDocument()
-                        .append("permissions_event", true)
-                        .append("updateType", updateType)
-                        .append("permissionUsers", permissionUsers)
-        );
+    public static PacketServerUpdatePermissions setGroups(Collection<? extends IPermissionGroup> permissionGroups) {
+        return new PacketServerUpdatePermissions(UpdateType.SET_GROUPS, permissionGroups);
+    }
+
+    public static PacketServerUpdatePermissions setUsers(Collection<? extends IPermissionUser> permissionUsers) {
+        return new PacketServerUpdatePermissions(UpdateType.SET_USERS, permissionUsers);
     }
 
     public enum UpdateType {

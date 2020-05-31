@@ -13,33 +13,31 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        if (packet.getHeader().contains("serviceInfoSnapshot") && packet.getHeader().contains("type")) {
-            ServiceInfoSnapshot serviceInfoSnapshot = packet.getHeader().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE);
-            PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getHeader().get("type", PacketClientServerServiceInfoPublisher.PublisherType.class);
+        ServiceInfoSnapshot serviceInfoSnapshot = packet.getBody().readObject(ServiceInfoSnapshot.class);
+        PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getBody().readEnumConstant(PacketClientServerServiceInfoPublisher.PublisherType.class);
 
-            switch (publisherType) {
-                case UPDATE:
-                    this.invoke0(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-                    break;
-                case REGISTER:
-                    this.invoke0(new CloudServiceRegisterEvent(serviceInfoSnapshot));
-                    break;
-                case CONNECTED:
-                    this.invoke0(new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
-                    break;
-                case UNREGISTER:
-                    this.invoke0(new CloudServiceUnregisterEvent(serviceInfoSnapshot));
-                    break;
-                case DISCONNECTED:
-                    this.invoke0(new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
-                    break;
-                case STARTED:
-                    this.invoke0(new CloudServiceStartEvent(serviceInfoSnapshot));
-                    break;
-                case STOPPED:
-                    this.invoke0(new CloudServiceStopEvent(serviceInfoSnapshot));
-                    break;
-            }
+        switch (publisherType) {
+            case UPDATE:
+                this.invoke0(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
+                break;
+            case REGISTER:
+                this.invoke0(new CloudServiceRegisterEvent(serviceInfoSnapshot));
+                break;
+            case CONNECTED:
+                this.invoke0(new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
+                break;
+            case UNREGISTER:
+                this.invoke0(new CloudServiceUnregisterEvent(serviceInfoSnapshot));
+                break;
+            case DISCONNECTED:
+                this.invoke0(new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
+                break;
+            case STARTED:
+                this.invoke0(new CloudServiceStartEvent(serviceInfoSnapshot));
+                break;
+            case STOPPED:
+                this.invoke0(new CloudServiceStopEvent(serviceInfoSnapshot));
+                break;
         }
     }
 
