@@ -255,6 +255,7 @@ public final class CloudNet extends CloudNetDriver {
         }
 
         NodePermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(this::getDatabaseProvider);
+        permissionManagement.init();
         permissionManagement.setPermissionManagementHandler(new DefaultPermissionManagementHandler());
         this.permissionManagement = permissionManagement;
 
@@ -363,6 +364,11 @@ public final class CloudNet extends CloudNetDriver {
         if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
             System.exit(0);
         }
+    }
+
+    @Override
+    public @NotNull String getComponentName() {
+        return this.config.getIdentity().getUniqueId();
     }
 
     public LogLevel getDefaultLogLevel() {

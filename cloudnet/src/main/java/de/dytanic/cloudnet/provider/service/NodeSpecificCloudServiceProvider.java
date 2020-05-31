@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class NodeSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
     private final CloudNet cloudNet;
@@ -30,23 +31,38 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
+    private ICloudService getCloudService() {
+        this.checkServiceExists();
+        return this.cloudNet.getCloudServiceManager().getCloudService(this.serviceInfoSnapshot.getServiceId().getUniqueId());
+    }
+
+    private void checkServiceExists() {
+        if (this.serviceInfoSnapshot == null) {
+            throw new IllegalArgumentException("Cannot get CloudService of null");
+        }
+    }
+
     @Nullable
     @Override
     public ServiceInfoSnapshot getServiceInfoSnapshot() {
         return this.serviceInfoSnapshot;
     }
 
-    private ICloudService getCloudService() {
-        if (this.serviceInfoSnapshot != null) {
-            return this.cloudNet.getCloudServiceManager().getCloudService(this.serviceInfoSnapshot.getServiceId().getUniqueId());
-        }
-        throw new IllegalArgumentException("Cannot get CloudService of null");
+    @Override
+    public ServiceInfoSnapshot forceUpdateServiceInfo() {
+        this.checkServiceExists();
+        return this.forceUpdateServiceInfoAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     @NotNull
     public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
         return this.cloudNet.scheduleTask(this::getServiceInfoSnapshot);
+    }
+
+    @Override
+    public @NotNull ITask<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
+        return this.getCloudService().forceUpdateServiceInfoSnapshotAsync();
     }
 
     @Override

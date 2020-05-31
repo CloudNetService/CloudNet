@@ -1,6 +1,9 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -58,6 +61,23 @@ public interface ICloudService {
 
     @NotNull
     ServiceInfoSnapshot getLastServiceInfoSnapshot();
+
+    default ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync() {
+        if (this.getNetworkChannel() == null) {
+            return CompletedTask.create(null);
+        }
+
+        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
+                this.getNetworkChannel(),
+                "internal_wrapper_channel", "update_service_info",
+                JsonDocument.newDocument(),
+                document -> document.toInstanceOf(ServiceInfoSnapshot.class)
+        ).onComplete(serviceInfoSnapshot -> {
+            if (serviceInfoSnapshot != null) {
+                this.updateServiceInfoSnapshot(serviceInfoSnapshot);
+            }
+        });
+    }
 
     @Nullable
     Process getProcess();

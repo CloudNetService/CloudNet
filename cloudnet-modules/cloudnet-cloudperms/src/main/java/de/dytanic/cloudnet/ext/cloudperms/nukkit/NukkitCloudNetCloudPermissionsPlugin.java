@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -13,7 +14,7 @@ import java.lang.reflect.Field;
 
 public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
 
-    private CloudPermissionsManagement permissionsManagement;
+    private CachedPermissionManagement permissionsManagement;
 
     @Override
     public void onEnable() {

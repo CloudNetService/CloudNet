@@ -397,8 +397,8 @@ public class CommandPermissions extends SubCommandHandler {
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             IPermissionGroup group = ((IPermissionGroup) internalProperties.get("group"));
                             String name = (String) args.argument("name").get();
-
                             group.getGroups().add(name);
+
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-group-successful")
                                     .replace("%name%", group.getName())
                                     .replace("%group%", name)
@@ -442,19 +442,18 @@ public class CommandPermissions extends SubCommandHandler {
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             IPermissionGroup group = (IPermissionGroup) internalProperties.get("group");
-                            String parentGroup = (String) args.argument("group").get();
-                            group.getGroups().remove(parentGroup);
+                            String name = (String) args.argument("name").get();
+                            group.getGroups().remove(name);
 
                             CloudNet.getInstance().getPermissionManagement().updateGroup(group);
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-group-successful")
-                                    .replace("%name%", parentGroup)
+                                    .replace("%name%", name)
                                     .replace("%group%", group.getName())
                             );
                         },
                         anyStringIgnoreCase("remove", "rm"),
                         anyStringIgnoreCase("group", "g"),
-                        dynamicString("group")
-
+                        dynamicString("name")
                 )
 
                 .removeLastPrefix()

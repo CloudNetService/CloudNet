@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.listener;
 
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,9 +13,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final CloudPermissionsManagement permissionsManagement;
+    private final CachedPermissionManagement permissionsManagement;
 
-    public BukkitCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+    public BukkitCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 

@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
 
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -20,9 +20,9 @@ import java.util.UUID;
 
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final CloudPermissionsManagement permissionsManagement;
+    private final CachedPermissionManagement permissionsManagement;
 
-    public BungeeCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+    public BungeeCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
@@ -56,7 +56,7 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
             IPermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
 
             if (permissionUser != null) {
-                event.setHasPermission(this.permissionsManagement.hasPlayerPermission(permissionUser, event.getPermission()));
+                event.setHasPermission(this.permissionsManagement.hasPermission(permissionUser, event.getPermission()));
             }
         }
     }

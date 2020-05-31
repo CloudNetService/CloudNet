@@ -365,7 +365,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 )
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
-                            serviceTask.getGroups().add((String) args.argument(4));
+                            serviceTask.getGroups().remove(args.argument(4));
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-remove-group-success"));
                         }),
                         exactStringIgnoreCase("group"),

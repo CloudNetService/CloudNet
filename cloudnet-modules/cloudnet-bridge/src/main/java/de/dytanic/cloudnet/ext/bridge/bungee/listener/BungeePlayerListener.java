@@ -82,7 +82,7 @@ public final class BungeePlayerListener implements Listener {
             }
             BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), kickFrom.getName());
 
-            BungeeCloudNetHelper.getNextFallback(event.getPlayer()).ifPresent(serverInfo -> {
+            BungeeCloudNetHelper.getNextFallback(event.getPlayer(), kickFrom).ifPresent(serverInfo -> {
                 event.setCancelled(true);
                 event.setCancelServer(serverInfo);
                 event.getPlayer().sendMessage(event.getKickReasonComponent());
