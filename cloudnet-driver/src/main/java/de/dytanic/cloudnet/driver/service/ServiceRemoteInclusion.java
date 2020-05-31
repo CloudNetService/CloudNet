@@ -1,15 +1,14 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable implements SerializableObject {
+public final class ServiceRemoteInclusion extends SerializableJsonDocPropertyable implements SerializableObject {
 
     private String url;
 
@@ -36,7 +35,7 @@ public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable imple
         buffer.writeString(this.url);
         buffer.writeString(this.destination);
 
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -44,6 +43,6 @@ public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable imple
         this.url = buffer.readString();
         this.destination = buffer.readString();
 
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

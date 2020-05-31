@@ -1,16 +1,14 @@
 package de.dytanic.cloudnet.driver.network.cluster;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
-import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNodeExtensionSnapshot extends BasicJsonDocPropertyable implements SerializableObject {
+public class NetworkClusterNodeExtensionSnapshot extends SerializableJsonDocPropertyable implements SerializableObject {
 
     protected String group, name, version, author, website, description;
 
@@ -83,7 +81,7 @@ public class NetworkClusterNodeExtensionSnapshot extends BasicJsonDocPropertyabl
         buffer.writeString(this.website);
         buffer.writeString(this.description);
 
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -95,6 +93,6 @@ public class NetworkClusterNodeExtensionSnapshot extends BasicJsonDocPropertyabl
         this.website = buffer.readString();
         this.description = buffer.readString();
 
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

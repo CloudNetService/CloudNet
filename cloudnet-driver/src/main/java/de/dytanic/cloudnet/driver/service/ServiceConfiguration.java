@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public final class ServiceConfiguration extends BasicJsonDocPropertyable implements SerializableObject {
+public final class ServiceConfiguration extends SerializableJsonDocPropertyable implements SerializableObject {
 
     private ServiceId serviceId;
 
@@ -196,7 +196,7 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable impleme
         buffer.writeObject(this.processConfig);
         buffer.writeInt(this.port);
 
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -218,6 +218,6 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable impleme
         this.processConfig = buffer.readObject(ProcessConfiguration.class);
         this.port = buffer.readInt();
 
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

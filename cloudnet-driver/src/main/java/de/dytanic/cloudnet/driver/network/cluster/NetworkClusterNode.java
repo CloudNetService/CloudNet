@@ -1,16 +1,15 @@
 package de.dytanic.cloudnet.driver.network.cluster;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNode extends BasicJsonDocPropertyable implements SerializableObject {
+public class NetworkClusterNode extends SerializableJsonDocPropertyable implements SerializableObject {
 
     private String uniqueId;
 
@@ -37,7 +36,7 @@ public class NetworkClusterNode extends BasicJsonDocPropertyable implements Seri
         buffer.writeString(this.uniqueId);
         buffer.writeObjectArray(this.listeners);
 
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -45,6 +44,6 @@ public class NetworkClusterNode extends BasicJsonDocPropertyable implements Seri
         this.uniqueId = buffer.readString();
         this.listeners = buffer.readObjectArray(HostAndPort.class);
 
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

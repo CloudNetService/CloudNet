@@ -3,13 +3,13 @@ package de.dytanic.cloudnet.driver.service;
 import com.google.common.collect.ComparisonChain;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot>, SerializableObject {
+public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot>, SerializableObject {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
     }.getType();
@@ -135,7 +135,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
         buffer.writeObject(this.processSnapshot);
         buffer.writeObject(this.configuration);
 
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -147,6 +147,6 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
         this.processSnapshot = buffer.readObject(ProcessSnapshot.class);
         this.configuration = buffer.readObject(ServiceConfiguration.class);
 
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

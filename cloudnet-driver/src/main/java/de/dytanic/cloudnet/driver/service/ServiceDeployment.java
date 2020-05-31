@@ -1,9 +1,8 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,7 +10,7 @@ import java.util.Collection;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public final class ServiceDeployment extends BasicJsonDocPropertyable implements SerializableObject {
+public final class ServiceDeployment extends SerializableJsonDocPropertyable implements SerializableObject {
 
     private ServiceTemplate template;
 
@@ -38,7 +37,7 @@ public final class ServiceDeployment extends BasicJsonDocPropertyable implements
         buffer.writeObject(this.template);
         buffer.writeStringCollection(this.excludes);
 
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -46,6 +45,6 @@ public final class ServiceDeployment extends BasicJsonDocPropertyable implements
         this.template = buffer.readObject(ServiceTemplate.class);
         this.excludes = buffer.readStringCollection();
 
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

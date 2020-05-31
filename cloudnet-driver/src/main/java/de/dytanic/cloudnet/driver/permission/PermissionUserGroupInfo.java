@@ -1,16 +1,15 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PermissionUserGroupInfo extends BasicJsonDocPropertyable implements SerializableObject {
+public class PermissionUserGroupInfo extends SerializableJsonDocPropertyable implements SerializableObject {
 
     protected String group;
 
@@ -45,13 +44,13 @@ public class PermissionUserGroupInfo extends BasicJsonDocPropertyable implements
     public void write(ProtocolBuffer buffer) {
         buffer.writeString(this.group);
         buffer.writeLong(this.timeOutMillis);
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
     public void read(ProtocolBuffer buffer) {
         this.group = buffer.readString();
         this.timeOutMillis = buffer.readLong();
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

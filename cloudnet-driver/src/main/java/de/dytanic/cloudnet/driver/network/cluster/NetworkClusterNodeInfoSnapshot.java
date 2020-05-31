@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.driver.network.cluster;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -14,7 +14,7 @@ import java.util.Collection;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable implements SerializableObject {
+public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertyable implements SerializableObject {
 
     public static final Type TYPE = new TypeToken<NetworkClusterNodeInfoSnapshot>() {
     }.getType();
@@ -139,7 +139,7 @@ public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable imp
         buffer.writeObjectCollection(this.extensions);
         buffer.writeDouble(this.systemCpuUsage);
 
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -155,6 +155,6 @@ public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable imp
         this.extensions = buffer.readObjectCollection(NetworkClusterNodeExtensionSnapshot.class);
         this.systemCpuUsage = buffer.readDouble();
 
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }

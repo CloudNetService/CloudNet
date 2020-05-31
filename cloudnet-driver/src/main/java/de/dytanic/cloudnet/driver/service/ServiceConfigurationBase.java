@@ -1,9 +1,8 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,7 +10,7 @@ import java.util.Collection;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable implements SerializableObject {
+public abstract class ServiceConfigurationBase extends SerializableJsonDocPropertyable implements SerializableObject {
 
     protected Collection<ServiceRemoteInclusion> includes;
 
@@ -59,7 +58,7 @@ public abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable 
         buffer.writeObjectCollection(this.includes);
         buffer.writeObjectCollection(this.templates);
         buffer.writeObjectCollection(this.deployments);
-        buffer.writeString(super.properties.toJson());
+        super.write(buffer);
     }
 
     @Override
@@ -67,6 +66,6 @@ public abstract class ServiceConfigurationBase extends BasicJsonDocPropertyable 
         this.includes = buffer.readObjectCollection(ServiceRemoteInclusion.class);
         this.templates = buffer.readObjectCollection(ServiceTemplate.class);
         this.deployments = buffer.readObjectCollection(ServiceDeployment.class);
-        super.properties = JsonDocument.newDocument(buffer.readString());
+        super.read(buffer);
     }
 }
