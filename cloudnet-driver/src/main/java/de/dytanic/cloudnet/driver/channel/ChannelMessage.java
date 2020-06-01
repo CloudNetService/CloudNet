@@ -100,9 +100,12 @@ public class ChannelMessage implements SerializableObject {
     }
 
 
-
     public static Builder builder() {
-        return new Builder();
+        return builder(ChannelMessageSender.self());
+    }
+
+    public static Builder builder(ChannelMessageSender sender) {
+        return new Builder(sender);
     }
 
     public static Builder buildResponseFor(@NotNull ChannelMessage input) {
@@ -113,8 +116,8 @@ public class ChannelMessage implements SerializableObject {
 
         private final ChannelMessage channelMessage;
 
-        private Builder() {
-            this.channelMessage = new ChannelMessage(ChannelMessageSender.self());
+        private Builder(ChannelMessageSender sender) {
+            this.channelMessage = new ChannelMessage(sender);
         }
 
         public Builder channel(@NotNull String channel) {

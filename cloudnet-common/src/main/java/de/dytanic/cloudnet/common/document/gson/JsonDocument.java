@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
 import de.dytanic.cloudnet.common.document.IReadable;
+import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -19,6 +20,7 @@ import java.util.*;
  * It includes simple append and remove operations, file reading and writing to
  * create simple configuration files
  */
+@EqualsAndHashCode
 public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
     public static Gson GSON = new GsonBuilder()

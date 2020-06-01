@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -17,6 +19,8 @@ import java.util.UUID;
  * has the specify information or the data that is important The body has binary
  * packet information like for files, or zip compressed data
  */
+@ToString
+@EqualsAndHashCode
 public class Packet implements IPacket {
 
     /**
