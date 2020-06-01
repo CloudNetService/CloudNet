@@ -34,7 +34,7 @@ public final class ExampleCallbackSyncAPI {
     public ITask<Integer> getNodeCountAsync() {
         //The callback information from node and the map to an Integer value
         return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket( //Send a packet, which has to get a message back async.
-                CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                 "test_channel",
                 "get_node_count",
                 new JsonDocument(),

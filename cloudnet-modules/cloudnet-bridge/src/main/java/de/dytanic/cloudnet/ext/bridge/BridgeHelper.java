@@ -39,7 +39,7 @@ public final class BridgeHelper {
     public static JsonDocument sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
         try {
             return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                    CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                    CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                     BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                     BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
                     new JsonDocument("networkConnectionInfo", networkConnectionInfo),

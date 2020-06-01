@@ -28,7 +28,7 @@ public class PacketQueryProvider {
 
     @NotNull
     public <R> ITask<R> sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(@NotNull JsonDocument header, byte[] body, @NotNull Function<Pair<JsonDocument, byte[]>, R> function) {
-        return this.sendCallablePacketWithAsDriverSyncAPI(this.defaultNetworkClient.getChannels().iterator().next(), header, body, function);
+        return this.sendCallablePacketWithAsDriverSyncAPI(this.defaultNetworkClient.getFirstChannel(), header, body, function);
     }
 
     @NotNull

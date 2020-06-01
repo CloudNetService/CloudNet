@@ -33,7 +33,7 @@ public class LabyModUtils {
 
     public static LabyModConfiguration getConfiguration() {
         if (cachedConfiguration == null) {
-            ITask<LabyModConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+            ITask<LabyModConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                     LabyModConstants.CLOUDNET_CHANNEL_NAME,
                     LabyModConstants.GET_CONFIGURATION,
                     new JsonDocument(),
@@ -58,7 +58,7 @@ public class LabyModUtils {
 
     @NotNull
     public static ITask<ICloudPlayer> getPlayerByJoinSecret(UUID joinSecret) {
-        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                 LabyModConstants.CLOUDNET_CHANNEL_NAME,
                 LabyModConstants.GET_PLAYER_JOIN_SECRET,
                 new JsonDocument().append("joinSecret", joinSecret),
@@ -67,7 +67,7 @@ public class LabyModUtils {
 
     @NotNull
     public static ITask<ICloudPlayer> getPlayerBySpectateSecret(UUID spectateSecret) {
-        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                 LabyModConstants.CLOUDNET_CHANNEL_NAME,
                 LabyModConstants.GET_PLAYER_SPECTATE_SECRET,
                 new JsonDocument().append("spectateSecret", spectateSecret),

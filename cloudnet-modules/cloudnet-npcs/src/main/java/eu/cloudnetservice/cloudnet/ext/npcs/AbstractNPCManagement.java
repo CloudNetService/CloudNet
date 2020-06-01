@@ -160,7 +160,7 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
 
     public NPCConfiguration getNPCConfigurationFromNode() {
         ITask<NPCConfiguration> npcConfiguration = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                 NPCConstants.NPC_CHANNEL_NAME,
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE),
                 new byte[0],
@@ -184,7 +184,7 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
     @Nullable
     public Set<CloudNPC> getNPCsFromNode() {
         ITask<Set<CloudNPC>> npcs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+                CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                 NPCConstants.NPC_CHANNEL_NAME,
                 new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE),
                 new byte[0],

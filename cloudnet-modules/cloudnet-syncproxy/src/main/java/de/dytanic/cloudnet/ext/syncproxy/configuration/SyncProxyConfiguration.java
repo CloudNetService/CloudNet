@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException;
 public class SyncProxyConfiguration {
 
     public static SyncProxyConfiguration getConfigurationFromNode() {
-        ITask<SyncProxyConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
+        ITask<SyncProxyConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
                 SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY,
                 SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY,
                 new JsonDocument(),

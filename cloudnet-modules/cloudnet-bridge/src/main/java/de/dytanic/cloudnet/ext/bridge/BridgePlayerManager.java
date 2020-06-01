@@ -129,7 +129,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     @NotNull
     public ITask<Integer> getOnlineCountAsync() {
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_count",
                 new JsonDocument(),
@@ -141,7 +141,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     @NotNull
     public ITask<Long> getRegisteredCountAsync() {
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_registered_count",
                 new JsonDocument(),
@@ -156,7 +156,7 @@ public final class BridgePlayerManager implements IPlayerManager {
         Preconditions.checkNotNull(uniqueId);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_uuid",
                 new JsonDocument()
@@ -172,7 +172,7 @@ public final class BridgePlayerManager implements IPlayerManager {
         Preconditions.checkNotNull(name);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_name_as_list",
                 new JsonDocument()
@@ -188,7 +188,7 @@ public final class BridgePlayerManager implements IPlayerManager {
         Preconditions.checkNotNull(environment);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_online_players_by_environment_as_list",
                 new JsonDocument()
@@ -202,7 +202,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_online_players_as_list",
                 new JsonDocument(),
@@ -216,7 +216,7 @@ public final class BridgePlayerManager implements IPlayerManager {
         Preconditions.checkNotNull(uniqueId);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_offline_player_by_uuid",
                 new JsonDocument()
@@ -232,7 +232,7 @@ public final class BridgePlayerManager implements IPlayerManager {
         Preconditions.checkNotNull(name);
 
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_offline_player_by_name_as_list",
                 new JsonDocument()
@@ -246,7 +246,7 @@ public final class BridgePlayerManager implements IPlayerManager {
     @NotNull
     public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
         return this.getCloudNetDriver().getPacketQueryProvider().sendCallablePacket(
-                this.getCloudNetDriver().getNetworkClient().getChannels().iterator().next(),
+                this.getCloudNetDriver().getNetworkClient().getFirstChannel(),
                 BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME,
                 "get_all_registered_offline_players_as_list",
                 new JsonDocument(),
