@@ -51,7 +51,7 @@ public final class CloudflareAPI implements AutoCloseable {
         return CloudflareAPI.instance;
     }
 
-    public Pair<Integer, JsonDocument> createRecord(String serviceName, String email, String apiKey, String zoneId, DNSRecord dnsRecord) {
+    public Pair<Integer, JsonDocument> createRecord(String serviceName, String email, CloudflareConfigurationEntry.TokenType tokenType, String apiKey, String zoneId, DNSRecord dnsRecord) {
         Preconditions.checkNotNull(email);
         Preconditions.checkNotNull(apiKey);
         Preconditions.checkNotNull(zoneId);
@@ -61,7 +61,7 @@ public final class CloudflareAPI implements AutoCloseable {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records").openConnection();
             httpURLConnection.setRequestMethod("POST");
 
-            return this.getJsonResponse(httpURLConnection, email, apiKey, dnsRecord, serviceName, zoneId);
+            return this.getJsonResponse(httpURLConnection, email, tokenType, apiKey, dnsRecord, serviceName, zoneId);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -69,7 +69,7 @@ public final class CloudflareAPI implements AutoCloseable {
         return null;
     }
 
-    public Pair<Integer, JsonDocument> updateRecord(String serviceName, String email, String apiKey, String zoneId, String recordId, DNSRecord dnsRecord) {
+    public Pair<Integer, JsonDocument> updateRecord(String serviceName, String email, CloudflareConfigurationEntry.TokenType tokenType, String apiKey, String zoneId, String recordId, DNSRecord dnsRecord) {
         Preconditions.checkNotNull(email);
         Preconditions.checkNotNull(apiKey);
         Preconditions.checkNotNull(zoneId);
@@ -80,7 +80,7 @@ public final class CloudflareAPI implements AutoCloseable {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records/" + recordId).openConnection();
             httpURLConnection.setRequestMethod("PUT");
 
-            return this.getJsonResponse(httpURLConnection, email, apiKey, dnsRecord, serviceName, zoneId);
+            return this.getJsonResponse(httpURLConnection, email, tokenType, apiKey, dnsRecord, serviceName, zoneId);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -88,10 +88,10 @@ public final class CloudflareAPI implements AutoCloseable {
         return null;
     }
 
-    private Pair<Integer, JsonDocument> getJsonResponse(HttpURLConnection httpURLConnection, String email, String apiKey, DNSRecord dnsRecord, String serviceName, String zoneId) throws IOException {
+    private Pair<Integer, JsonDocument> getJsonResponse(HttpURLConnection httpURLConnection, String email, CloudflareConfigurationEntry.TokenType tokenType, String apiKey, DNSRecord dnsRecord, String serviceName, String zoneId) throws IOException {
         httpURLConnection.setDoOutput(true);
 
-        this.initRequestProperties(httpURLConnection, email, apiKey);
+        this.initRequestProperties(httpURLConnection, email, tokenType, apiKey);
         httpURLConnection.connect();
 
         try (DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream())) {
@@ -103,11 +103,11 @@ public final class CloudflareAPI implements AutoCloseable {
         JsonDocument document = JsonDocument.newDocument(this.readResponse(httpURLConnection));
         httpURLConnection.disconnect();
 
-        this.update(serviceName, statusCode, email, apiKey, zoneId, document);
+        this.update(serviceName, statusCode, email, tokenType, apiKey, zoneId, document);
         return new Pair<>(statusCode, document);
     }
 
-    public Pair<Integer, JsonDocument> deleteRecord(String email, String apiKey, String zoneId, String recordId) {
+    public Pair<Integer, JsonDocument> deleteRecord(String email, CloudflareConfigurationEntry.TokenType tokenType, String apiKey, String zoneId, String recordId) {
         Preconditions.checkNotNull(email);
         Preconditions.checkNotNull(apiKey);
         Preconditions.checkNotNull(zoneId);
@@ -117,7 +117,7 @@ public final class CloudflareAPI implements AutoCloseable {
             HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(CLOUDFLARE_API_V1 + "zones/" + zoneId + "/dns_records/" + recordId).openConnection();
             httpURLConnection.setRequestMethod("DELETE");
 
-            this.initRequestProperties(httpURLConnection, email, apiKey);
+            this.initRequestProperties(httpURLConnection, email, tokenType, apiKey);
             httpURLConnection.connect();
 
             int statusCode = httpURLConnection.getResponseCode();
@@ -170,10 +170,11 @@ public final class CloudflareAPI implements AutoCloseable {
         this.database.update(CLOUDFLARE_STORE_DOCUMENT, document);
     }
 
-    private void update(String serviceName, int statusCode, String email, String apiKey, String zoneId, JsonDocument document) {
+    private void update(String serviceName, int statusCode, String email, CloudflareConfigurationEntry.TokenType tokenType, String apiKey, String zoneId, JsonDocument document) {
         if (statusCode < 400 && document.getDocument("result") != null && document.getDocument("result").contains("id")) {
             this.createdRecords.put(document.getDocument("result").getString("id"), new Pair<>(serviceName, document
                     .append("email", email)
+                    .append("tokenType", tokenType)
                     .append("apiKey", apiKey)
                     .append("zoneId", zoneId)
             ));
@@ -183,15 +184,19 @@ public final class CloudflareAPI implements AutoCloseable {
         }
     }
 
-    private void initRequestProperties(HttpURLConnection httpURLConnection, String email, String apiKey) {
+    private void initRequestProperties(HttpURLConnection httpURLConnection, String email, CloudflareConfigurationEntry.TokenType tokenType, String apiKey) {
         Preconditions.checkNotNull(email);
         Preconditions.checkNotNull(apiKey);
 
         httpURLConnection.setUseCaches(false);
-        //
-        httpURLConnection.setRequestProperty("X-Auth-Email", email);
-        httpURLConnection.setRequestProperty("X-Auth-Key", apiKey);
-        //
+
+        if (tokenType == CloudflareConfigurationEntry.TokenType.GLOBAL) {
+            httpURLConnection.setRequestProperty("X-Auth-Email", email);
+            httpURLConnection.setRequestProperty("X-Auth-Key", apiKey);
+        } else if (tokenType == CloudflareConfigurationEntry.TokenType.BEARER) {
+            httpURLConnection.setRequestProperty("Authorization", "Bearer " + apiKey);
+        }
+
         httpURLConnection.setRequestProperty("Accept", "application/json");
         httpURLConnection.setRequestProperty("Content-Type", "application/json");
     }

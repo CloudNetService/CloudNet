@@ -50,7 +50,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
                 ))
         ));
 
-        this.saveConfig();
+        this.updateConfiguration(this.cloudflareConfiguration);
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
@@ -73,6 +73,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
                         this.getCloudNet().getConfig().getIdentity().getUniqueId(),
                         cloudflareConfigurationEntry.getEmail(),
+                        cloudflareConfigurationEntry.getTokenType(),
                         cloudflareConfigurationEntry.getApiToken(),
                         cloudflareConfigurationEntry.getZoneId(),
                         new DefaultDNSRecord(
@@ -141,6 +142,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
         for (Map.Entry<String, Pair<String, JsonDocument>> entry : CloudflareAPI.getInstance().getCreatedRecords().entrySet()) {
             CloudflareAPI.getInstance().deleteRecord(
                     entry.getValue().getSecond().getString("email"),
+                    entry.getValue().getSecond().get("tokenType", CloudflareConfigurationEntry.TokenType.class),
                     entry.getValue().getSecond().getString("apiKey"),
                     entry.getValue().getSecond().getString("zoneId"),
                     entry.getKey()

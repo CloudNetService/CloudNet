@@ -11,6 +11,8 @@ public class CloudflareConfigurationEntry {
 
     protected boolean enabled;
 
+    protected TokenType tokenType = TokenType.GLOBAL;
+
     protected String hostAddress, email, apiToken, zoneId, domainName;
 
     protected Collection<CloudflareGroupConfiguration> groups;
@@ -34,6 +36,14 @@ public class CloudflareConfigurationEntry {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public TokenType getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(TokenType tokenType) {
+        this.tokenType = tokenType;
     }
 
     public String getHostAddress() {
@@ -82,6 +92,11 @@ public class CloudflareConfigurationEntry {
 
     public void setGroups(Collection<CloudflareGroupConfiguration> groups) {
         this.groups = groups;
+    }
+
+    public enum TokenType {
+        BEARER,
+        GLOBAL
     }
 
 }
