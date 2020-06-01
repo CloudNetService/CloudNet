@@ -76,7 +76,10 @@ public class Packet implements IPacket {
         return this.channel;
     }
 
-    public UUID getUniqueId() {
+    public @NotNull UUID getUniqueId() {
+        if (this.uniqueId == null) {
+            this.uniqueId = UUID.randomUUID();
+        }
         return this.uniqueId;
     }
 

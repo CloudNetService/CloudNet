@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * This is the internal api channel for synchronized communication between driver api and cloudnet node.
@@ -41,8 +43,7 @@ public final class InternalSyncPacketChannel {
         if (WAITING_PACKETS.containsKey(packet.getUniqueId())) {
             try {
                 SynchronizedCallback syncEntry = WAITING_PACKETS.get(packet.getUniqueId());
-                syncEntry.response = packet;
-                syncEntry.task.call();
+                syncEntry.consumer.accept(packet);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -56,6 +57,10 @@ public final class InternalSyncPacketChannel {
         }
     }
 
+    public static void registerQueryHandler(UUID uniqueId, Consumer<IPacket> consumer) {
+        WAITING_PACKETS.put(uniqueId, new SynchronizedCallback(consumer));
+    }
+
     @NotNull
     public static ITask<IPacket> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body) {
         return sendCallablePacket(channel, header, body, null);
@@ -66,13 +71,21 @@ public final class InternalSyncPacketChannel {
         Packet packet = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
         checkCachedValidation();
 
-        SynchronizedCallback syncEntry = new SynchronizedCallback();
-        syncEntry.task = new ListenableTask<>(() -> syncEntry.response, listener);
+        AtomicReference<IPacket> reference = new AtomicReference<>();
+        ITask<IPacket> task = new ListenableTask<>(reference::get, listener);
+        SynchronizedCallback syncEntry = new SynchronizedCallback(response -> {
+            reference.set(response);
+            try {
+                task.call();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
 
         WAITING_PACKETS.put(packet.getUniqueId(), syncEntry);
         channel.sendPacket(packet);
 
-        return syncEntry.task;
+        return task;
     }
 
     private static void checkCachedValidation() {
@@ -83,8 +96,7 @@ public final class InternalSyncPacketChannel {
                 WAITING_PACKETS.remove(entry.getKey());
 
                 try {
-                    entry.getValue().response = Packet.EMPTY;
-                    entry.getValue().task.call();
+                    entry.getValue().consumer.accept(Packet.EMPTY);
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 }
@@ -95,7 +107,10 @@ public final class InternalSyncPacketChannel {
     private static class SynchronizedCallback {
 
         private final long timeOut = System.currentTimeMillis() + 30000;
-        private IPacket response;
-        private volatile ITask<IPacket> task;
+        private final Consumer<IPacket> consumer;
+
+        public SynchronizedCallback(Consumer<IPacket> consumer) {
+            this.consumer = consumer;
+        }
     }
 }
