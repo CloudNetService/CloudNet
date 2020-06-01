@@ -11,7 +11,7 @@ public class CloudflareConfigurationEntry {
 
     protected boolean enabled;
 
-    protected TokenType tokenType = TokenType.GLOBAL;
+    protected AuthenticationMethod authenticationMethod = AuthenticationMethod.GLOBAL_KEY;
 
     protected String hostAddress, email, apiToken, zoneId, domainName;
 
@@ -38,12 +38,12 @@ public class CloudflareConfigurationEntry {
         this.enabled = enabled;
     }
 
-    public TokenType getTokenType() {
-        return tokenType;
+    public AuthenticationMethod getAuthenticationMethod() {
+        return authenticationMethod;
     }
 
-    public void setTokenType(TokenType tokenType) {
-        this.tokenType = tokenType;
+    public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {
+        this.authenticationMethod = authenticationMethod;
     }
 
     public String getHostAddress() {
@@ -94,9 +94,9 @@ public class CloudflareConfigurationEntry {
         this.groups = groups;
     }
 
-    public enum TokenType {
-        BEARER,
-        GLOBAL
+    public enum AuthenticationMethod {
+        GLOBAL_KEY,
+        BEARER_TOKEN
     }
 
 }

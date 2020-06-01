@@ -26,7 +26,7 @@ public final class CloudflareStartAndStopListener {
             Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
                     event.getCloudService().getServiceId().getName(),
                     cloudflareConfigurationEntry.getEmail(),
-                    cloudflareConfigurationEntry.getTokenType(),
+                    cloudflareConfigurationEntry.getAuthenticationMethod(),
                     cloudflareConfigurationEntry.getApiToken(),
                     cloudflareConfigurationEntry.getZoneId(),
                     new SRVRecord(
@@ -67,7 +67,7 @@ public final class CloudflareStartAndStopListener {
             if (entry != null) {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().deleteRecord(
                         cloudflareConfigurationEntry.getEmail(),
-                        cloudflareConfigurationEntry.getTokenType(),
+                        cloudflareConfigurationEntry.getAuthenticationMethod(),
                         cloudflareConfigurationEntry.getApiToken(),
                         cloudflareConfigurationEntry.getZoneId(),
                         entry.getSecond().getDocument("result").getString("id")
