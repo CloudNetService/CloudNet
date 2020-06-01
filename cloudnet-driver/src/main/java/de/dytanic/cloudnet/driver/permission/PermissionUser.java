@@ -73,10 +73,7 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
         buffer.writeUUID(this.uniqueId);
         buffer.writeObjectCollection(this.groups);
 
-        buffer.writeBoolean(this.hashedPassword != null);
-        if (this.hashedPassword != null) {
-            buffer.writeString(this.hashedPassword);
-        }
+        buffer.writeOptionalString(this.hashedPassword);
     }
 
     @Override
@@ -86,6 +83,6 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
         this.uniqueId = buffer.readUUID();
         this.groups = buffer.readObjectCollection(PermissionUserGroupInfo.class);
 
-        this.hashedPassword = buffer.readBoolean() ? buffer.readString() : null;
+        this.hashedPassword = buffer.readOptionalString();
     }
 }

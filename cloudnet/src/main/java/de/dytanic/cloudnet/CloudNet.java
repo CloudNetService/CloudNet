@@ -777,7 +777,7 @@ public final class CloudNet extends CloudNetDriver {
         registry.addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
         registry.addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
         registry.addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
-        registry.addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageListener());
+        registry.addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(true));
 
         registry.addListener(PacketConstants.CLUSTER_SERVICE_INFO_LIST_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
         registry.addListener(PacketConstants.CLUSTER_GROUP_CONFIG_LIST_CHANNEL, new PacketServerSetGroupConfigurationListListener());
@@ -792,8 +792,6 @@ public final class CloudNet extends CloudNetDriver {
         // Node server API
         registry.addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
         registry.addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientSyncAPIPacketListener());
-
-        registry.addListener(PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL, new PacketServerClusterChannelMessageListener());
 
         // Packet server registry
         this.getNetworkServer().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());

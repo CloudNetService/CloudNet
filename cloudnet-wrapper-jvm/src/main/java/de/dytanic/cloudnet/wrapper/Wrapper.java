@@ -143,7 +143,7 @@ public final class Wrapper extends CloudNetDriver {
         //- Packet client registry
         this.networkClient.getPacketRegistry().addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
         this.networkClient.getPacketRegistry().addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
-        this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageListener());
+        this.networkClient.getPacketRegistry().addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener());
 
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener());
 

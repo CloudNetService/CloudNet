@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -12,7 +13,6 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.network.packet.PacketServerClusterChannelMessage;
 import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,13 +41,18 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
     }
 
     @Override
-    public void sendClusterChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument header, byte[] body) {
-        this.saveSendPacket(new PacketServerClusterChannelMessage(channel, message, header, body));
+    public void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage) {
+        this.saveSendPacket(new PacketClientServerChannelMessage(channelMessage, false));
     }
 
     @Override
     public void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.saveSendPacket(new PacketClientServerChannelMessage(channel, message, data));
+        this.sendCustomChannelMessage(ChannelMessage.builder()
+                .channel(channel)
+                .message(message)
+                .content(data)
+                .targetNode(this.nodeInfo.getUniqueId())
+                .build());
     }
 
     @Override

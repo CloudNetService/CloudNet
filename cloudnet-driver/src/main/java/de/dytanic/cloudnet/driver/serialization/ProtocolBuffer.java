@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.serialization;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -27,10 +28,20 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
     public abstract ProtocolBuffer writeString(@NotNull String stringToWrite);
 
+    @Nullable
+    public abstract String readOptionalString();
+
+    public abstract ProtocolBuffer writeOptionalString(@Nullable String stringToWrite);
+
     @NotNull
     public abstract byte[] readArray();
 
     public abstract ProtocolBuffer writeArray(@NotNull byte[] bytes);
+
+    @Nullable
+    public abstract byte[] readOptionalArray();
+
+    public abstract ProtocolBuffer writeOptionalArray(@Nullable byte[] bytes);
 
     @NotNull
     public abstract byte[] toArray();
@@ -70,9 +81,13 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
     public abstract <T extends SerializableObject> ProtocolBuffer writeObjectArray(@NotNull T[] objects);
 
-    public abstract <E extends Enum<E>> E readEnumConstant(Class<E> enumClass);
+    public abstract <E extends Enum<E>> E readEnumConstant(@NotNull Class<E> enumClass);
 
-    public abstract <E extends Enum<E>> ProtocolBuffer writeEnumConstant(E enumConstant);
+    public abstract <E extends Enum<E>> ProtocolBuffer writeEnumConstant(@NotNull E enumConstant);
+
+    public abstract <E extends Enum<E>> E readOptionalEnumConstant(@NotNull Class<E> enumClass);
+
+    public abstract <E extends Enum<E>> ProtocolBuffer writeOptionalEnumConstant(@Nullable E enumConstant);
 
 
     @Override

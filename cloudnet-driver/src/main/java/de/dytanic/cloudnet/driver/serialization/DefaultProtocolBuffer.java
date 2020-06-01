@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ByteProcessor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,20 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
+    public @Nullable String readOptionalString() {
+        return this.readBoolean() ? this.readString() : null;
+    }
+
+    @Override
+    public ProtocolBuffer writeOptionalString(@Nullable String stringToWrite) {
+        this.writeBoolean(stringToWrite != null);
+        if (stringToWrite != null) {
+            this.writeString(stringToWrite);
+        }
+        return this;
+    }
+
+    @Override
     public @NotNull String readString() {
         return new String(this.readArray(), StandardCharsets.UTF_8);
     }
@@ -46,6 +61,20 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     public ProtocolBuffer writeArray(@NotNull byte[] bytes) {
         this.writeVarInt(bytes.length);
         this.writeBytes(bytes);
+        return this;
+    }
+
+    @Override
+    public @Nullable byte[] readOptionalArray() {
+        return this.readBoolean() ? this.readArray() : null;
+    }
+
+    @Override
+    public ProtocolBuffer writeOptionalArray(@Nullable byte[] bytes) {
+        this.writeBoolean(bytes != null);
+        if (bytes != null) {
+            this.writeArray(bytes);
+        }
         return this;
     }
 
@@ -238,13 +267,25 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public <E extends Enum<E>> E readEnumConstant(Class<E> enumClass) {
+    public <E extends Enum<E>> E readEnumConstant(@NotNull Class<E> enumClass) {
         return enumClass.getEnumConstants()[this.readVarInt()];
     }
 
     @Override
-    public <E extends Enum<E>> ProtocolBuffer writeEnumConstant(E enumConstant) {
+    public <E extends Enum<E>> ProtocolBuffer writeEnumConstant(@NotNull E enumConstant) {
         this.writeVarInt(enumConstant.ordinal());
+        return this;
+    }
+
+    @Override
+    public <E extends Enum<E>> E readOptionalEnumConstant(@NotNull Class<E> enumClass) {
+        int value = this.readVarInt();
+        return value != -1 ? enumClass.getEnumConstants()[value] : null;
+    }
+
+    @Override
+    public <E extends Enum<E>> ProtocolBuffer writeOptionalEnumConstant(@Nullable E enumConstant) {
+        this.writeVarInt(enumConstant != null ? enumConstant.ordinal() : -1);
         return this;
     }
 

@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -14,9 +15,9 @@ import java.util.UUID;
 
 public interface IClusterNodeServer extends AutoCloseable {
 
-    void sendClusterChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument header, byte[] body);
-
     void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
+
+    void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage);
 
     @NotNull
     IClusterNodeServerProvider getProvider();

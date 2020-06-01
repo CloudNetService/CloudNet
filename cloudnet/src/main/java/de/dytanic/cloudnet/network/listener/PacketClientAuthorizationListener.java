@@ -40,7 +40,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                         for (IClusterNodeServer clusterNodeServer : this.getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
                             if (clusterNodeServer.isAcceptableConnection(channel, clusterNode.getUniqueId())) {
                                 //- packet channel registry
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageListener());
+                                channel.getPacketRegistry().addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(false));
                                 channel.getPacketRegistry().addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
 
@@ -50,8 +50,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
-
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL, new PacketServerClusterChannelMessageListener());
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientSyncAPIPacketListener());
@@ -92,8 +90,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 cloudService.getServiceId().getTaskServiceId() == serviceId.getTaskServiceId() &&
                                 cloudService.getServiceId().getNodeUniqueId().equals(serviceId.getNodeUniqueId())) {
                             //- packet channel registry
-                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageListener());
-                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageWrapperListener());
+                            channel.getPacketRegistry().addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(true));
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL, new PacketClientServiceInfoUpdateListener());
 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(true));
