@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
@@ -51,7 +52,7 @@ public class ThreadSnapshot implements SerializableObject {
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.id);
         buffer.writeString(this.name);
         buffer.writeEnumConstant(this.threadState);
@@ -60,7 +61,7 @@ public class ThreadSnapshot implements SerializableObject {
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.id = buffer.readLong();
         this.name = buffer.readString();
         this.threadState = buffer.readEnumConstant(Thread.State.class);

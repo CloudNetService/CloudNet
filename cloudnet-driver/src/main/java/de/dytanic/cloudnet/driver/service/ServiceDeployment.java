@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
@@ -33,7 +34,7 @@ public final class ServiceDeployment extends SerializableJsonDocPropertyable imp
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeObject(this.template);
         buffer.writeStringCollection(this.excludes);
 
@@ -41,7 +42,7 @@ public final class ServiceDeployment extends SerializableJsonDocPropertyable imp
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.template = buffer.readObject(ServiceTemplate.class);
         this.excludes = buffer.readStringCollection();
 

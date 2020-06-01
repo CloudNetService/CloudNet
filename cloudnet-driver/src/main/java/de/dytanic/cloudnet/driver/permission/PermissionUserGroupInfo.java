@@ -41,14 +41,14 @@ public class PermissionUserGroupInfo extends SerializableJsonDocPropertyable imp
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(this.group);
         buffer.writeLong(this.timeOutMillis);
         super.write(buffer);
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.group = buffer.readString();
         this.timeOutMillis = buffer.readLong();
         super.read(buffer);

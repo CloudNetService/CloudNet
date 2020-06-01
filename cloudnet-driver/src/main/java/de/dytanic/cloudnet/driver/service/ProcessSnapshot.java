@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
@@ -78,7 +79,7 @@ public class ProcessSnapshot implements SerializableObject {
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.heapUsageMemory);
         buffer.writeLong(this.noHeapUsageMemory);
         buffer.writeLong(this.maxHeapMemory);
@@ -91,7 +92,7 @@ public class ProcessSnapshot implements SerializableObject {
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.heapUsageMemory = buffer.readLong();
         this.noHeapUsageMemory = buffer.readLong();
         this.maxHeapMemory = buffer.readLong();

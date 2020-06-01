@@ -57,7 +57,7 @@ public final class ServiceId implements INameable, SerializableObject {
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeUUID(this.uniqueId);
         buffer.writeString(this.nodeUniqueId);
         buffer.writeString(this.taskName);
@@ -66,7 +66,7 @@ public final class ServiceId implements INameable, SerializableObject {
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.uniqueId = buffer.readUUID();
         this.nodeUniqueId = buffer.readString();
         this.taskName = buffer.readString();

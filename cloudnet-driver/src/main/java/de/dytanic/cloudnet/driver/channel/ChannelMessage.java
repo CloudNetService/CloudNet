@@ -67,16 +67,18 @@ public class ChannelMessage implements SerializableObject {
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(this);
     }
 
+    @NotNull
     public ITask<Collection<ChannelMessage>> sendQueryAsync() {
         return CloudNetDriver.getInstance().getMessenger().sendChannelMessageQueryAsync(this);
     }
 
+    @NotNull
     public Collection<ChannelMessage> sendQuery() {
         return CloudNetDriver.getInstance().getMessenger().sendChannelMessageQuery(this);
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeObject(this.sender);
         buffer.writeString(this.channel);
         buffer.writeOptionalString(this.message);
@@ -86,7 +88,7 @@ public class ChannelMessage implements SerializableObject {
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.sender = buffer.readObject(ChannelMessageSender.class);
         this.channel = buffer.readString();
         this.message = buffer.readOptionalString();

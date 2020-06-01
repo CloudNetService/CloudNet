@@ -64,14 +64,14 @@ public final class Permission implements SerializableObject {
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(this.name);
         buffer.writeInt(this.potency);
         buffer.writeLong(this.timeOutMillis);
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.name = buffer.readString();
         this.potency = buffer.readInt();
         this.timeOutMillis = buffer.readLong();

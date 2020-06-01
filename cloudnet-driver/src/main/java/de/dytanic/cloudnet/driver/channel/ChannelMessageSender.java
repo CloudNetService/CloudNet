@@ -36,13 +36,13 @@ public class ChannelMessageSender implements SerializableObject {
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(this.name);
         buffer.writeEnumConstant(this.type);
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.name = buffer.readString();
         this.type = buffer.readEnumConstant(DriverEnvironment.class);
     }

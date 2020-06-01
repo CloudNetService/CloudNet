@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.serialization;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -116,12 +117,12 @@ public class SerializableJsonDocument extends JsonDocument implements Serializab
     }
     
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(super.toJson());
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         super.clear();
         super.read(buffer.readString());
     }

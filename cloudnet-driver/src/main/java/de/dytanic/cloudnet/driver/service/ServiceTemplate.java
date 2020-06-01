@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,7 +89,7 @@ public class ServiceTemplate implements INameable, SerializableObject {
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(this.prefix);
         buffer.writeString(this.name);
         buffer.writeString(this.storage);
@@ -96,7 +97,7 @@ public class ServiceTemplate implements INameable, SerializableObject {
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.prefix = buffer.readString();
         this.name = buffer.readString();
         this.storage = buffer.readString();

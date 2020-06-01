@@ -67,7 +67,7 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         super.write(buffer);
 
         buffer.writeUUID(this.uniqueId);
@@ -77,7 +77,7 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         super.read(buffer);
 
         this.uniqueId = buffer.readUUID();

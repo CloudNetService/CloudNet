@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocProperty
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -127,7 +128,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.creationTime);
         buffer.writeObject(this.node);
         buffer.writeString(this.version);
@@ -143,7 +144,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.creationTime = buffer.readLong();
         this.node = buffer.readObject(NetworkClusterNode.class);
         this.version = buffer.readString();

@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -205,7 +206,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         super.write(buffer);
         buffer.writeString(this.name);
         buffer.writeString(this.runtime);
@@ -221,7 +222,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         super.read(buffer);
         this.name = buffer.readString();
         this.runtime = buffer.readString();

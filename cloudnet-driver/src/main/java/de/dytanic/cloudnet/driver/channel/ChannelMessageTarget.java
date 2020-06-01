@@ -42,14 +42,14 @@ public class ChannelMessageTarget implements SerializableObject {
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeEnumConstant(this.type);
         buffer.writeOptionalString(this.name);
         buffer.writeOptionalEnumConstant(this.environment);
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.type = buffer.readEnumConstant(Type.class);
         this.name = buffer.readOptionalString();
         this.environment = buffer.readOptionalEnumConstant(ServiceEnvironmentType.class);

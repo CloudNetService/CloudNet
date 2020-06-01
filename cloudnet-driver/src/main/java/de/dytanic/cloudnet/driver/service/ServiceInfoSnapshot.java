@@ -127,7 +127,7 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.creationTime);
         buffer.writeObject(this.address);
         buffer.writeLong(this.connectedTime);
@@ -139,7 +139,7 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.creationTime = buffer.readLong();
         this.address = buffer.readObject(HostAndPort.class);
         this.connectedTime = buffer.readLong();

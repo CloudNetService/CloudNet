@@ -106,7 +106,7 @@ public abstract class AbstractPermissible extends SerializableJsonDocPropertyabl
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.createdTime);
         buffer.writeString(this.name);
         buffer.writeInt(this.potency);
@@ -122,7 +122,7 @@ public abstract class AbstractPermissible extends SerializableJsonDocPropertyabl
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.createdTime = buffer.readLong();
         this.name = buffer.readString();
         this.potency = buffer.readInt();

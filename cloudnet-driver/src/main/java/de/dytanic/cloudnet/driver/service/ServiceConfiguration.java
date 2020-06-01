@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -178,7 +179,7 @@ public final class ServiceConfiguration extends SerializableJsonDocPropertyable 
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeObject(this.serviceId);
         buffer.writeString(this.runtime);
         buffer.writeBoolean(this.autoDeleteOnStop);
@@ -200,7 +201,7 @@ public final class ServiceConfiguration extends SerializableJsonDocPropertyable 
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.serviceId = buffer.readObject(ServiceId.class);
         this.runtime = buffer.readString();
         this.autoDeleteOnStop = buffer.readBoolean();

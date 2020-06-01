@@ -116,7 +116,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         super.write(buffer);
 
         buffer.writeStringCollection(this.groups);
@@ -131,7 +131,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         super.read(buffer);
 
         this.groups = buffer.readStringCollection();

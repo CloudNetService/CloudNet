@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -32,7 +33,7 @@ public class NetworkClusterNode extends SerializableJsonDocPropertyable implemen
     }
 
     @Override
-    public void write(ProtocolBuffer buffer) {
+    public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(this.uniqueId);
         buffer.writeObjectArray(this.listeners);
 
@@ -40,7 +41,7 @@ public class NetworkClusterNode extends SerializableJsonDocPropertyable implemen
     }
 
     @Override
-    public void read(ProtocolBuffer buffer) {
+    public void read(@NotNull ProtocolBuffer buffer) {
         this.uniqueId = buffer.readString();
         this.listeners = buffer.readObjectArray(HostAndPort.class);
 
