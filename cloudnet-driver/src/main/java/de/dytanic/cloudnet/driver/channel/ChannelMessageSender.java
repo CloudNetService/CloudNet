@@ -4,8 +4,12 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+@ToString
+@EqualsAndHashCode
 public class ChannelMessageSender implements SerializableObject {
 
     private String name;
@@ -14,6 +18,9 @@ public class ChannelMessageSender implements SerializableObject {
     public ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironment type) {
         this.name = name;
         this.type = type;
+    }
+
+    public ChannelMessageSender() {
     }
 
     public static ChannelMessageSender self() {

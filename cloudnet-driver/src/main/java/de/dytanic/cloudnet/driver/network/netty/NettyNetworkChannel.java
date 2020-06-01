@@ -16,6 +16,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 final class NettyNetworkChannel implements INetworkChannel {
@@ -59,11 +60,16 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public ITask<IPacket> sendQuery(@NotNull IPacket packet) {
+    public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
         CompletableTask<IPacket> task = new CompletableTask<>();
         InternalSyncPacketChannel.registerQueryHandler(packet.getUniqueId(), task::complete);
         this.sendPacket(packet);
         return task;
+    }
+
+    @Override
+    public IPacket sendQuery(@NotNull IPacket packet) {
+        return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
     }
 
     private void sendPacket0(IPacket packet) {

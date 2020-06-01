@@ -4,14 +4,19 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+@ToString
+@EqualsAndHashCode
 public class ChannelMessage implements SerializableObject {
 
     private ChannelMessageSender sender;
@@ -25,26 +30,35 @@ public class ChannelMessage implements SerializableObject {
         this.sender = sender;
     }
 
+    public ChannelMessage() {
+    }
+
+    @NotNull
     public ChannelMessageSender getSender() {
         return this.sender;
     }
 
+    @NotNull
     public String getChannel() {
         return this.channel;
     }
 
+    @Nullable
     public String getMessage() {
         return this.message;
     }
 
+    @Nullable
     public JsonDocument getHeader() {
         return this.header;
     }
 
+    @Nullable
     public ProtocolBuffer getBody() {
         return this.body;
     }
 
+    @NotNull
     public ChannelMessageTarget getTarget() {
         return this.target;
     }
@@ -87,6 +101,10 @@ public class ChannelMessage implements SerializableObject {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static Builder buildResponseFor(@NotNull ChannelMessage input) {
+        return builder().target(input.sender.getType() == DriverEnvironment.CLOUDNET ? ChannelMessageTarget.Type.NODE : ChannelMessageTarget.Type.SERVICE, input.sender.getName());
     }
 
     public static class Builder {

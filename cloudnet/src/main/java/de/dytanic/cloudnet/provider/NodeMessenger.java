@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
@@ -121,7 +122,24 @@ public class NodeMessenger implements CloudMessenger {
 
     @Override
     public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-        throw new UnsupportedOperationException("not implemented yet"); // TODO
+        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getTarget(), false);
+        if (channels == null || channels.isEmpty()) {
+            return CompletedTask.create(Collections.emptyList());
+        }
+
+        return this.cloudNet.scheduleTask(() -> {
+            Collection<ChannelMessage> result = new ArrayList<>();
+            IPacket packet = new PacketClientServerChannelMessage(channelMessage, true);
+
+            for (INetworkChannel channel : channels) {
+                IPacket response = channel.sendQuery(packet);
+                if (response != null && response.getBody().readBoolean()) {
+                    result.add(response.getBody().readObject(ChannelMessage.class));
+                }
+            }
+
+            return result;
+        });
     }
 
     @Override

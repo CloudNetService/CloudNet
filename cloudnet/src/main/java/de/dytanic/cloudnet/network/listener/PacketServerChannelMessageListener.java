@@ -3,6 +3,8 @@ package de.dytanic.cloudnet.network.listener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -30,12 +32,28 @@ public final class PacketServerChannelMessageListener implements IPacketListener
 
         CloudMessenger messenger = CloudNetDriver.getInstance().getMessenger();
 
-        Collection<ChannelMessage> response = null;
+        Collection<ChannelMessage> response = query ? new ArrayList<>() : null;
+
+        ChannelMessageTarget.Type targetType = message.getTarget().getType();
+        boolean selfReceived = targetType.equals(ChannelMessageTarget.Type.ALL);
+        if (targetType.equals(ChannelMessageTarget.Type.NODE)) {
+            selfReceived = message.getTarget().getName() == null || CloudNetDriver.getInstance().getComponentName().equals(message.getTarget().getName());
+        }
+
+        if (selfReceived) {
+            ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
+            CloudNetDriver.getInstance().getEventManager().callEvent(event);
+
+            if (event.getQueryResponse() != null && query) {
+                response.add(event.getQueryResponse());
+            }
+        }
+
 
         if (this.redirectToCluster) {
 
             if (query) {
-                response = messenger.sendChannelMessageQuery(message);
+                response.addAll(messenger.sendChannelMessageQuery(message));
             } else {
                 messenger.sendChannelMessage(message);
             }
@@ -44,14 +62,16 @@ public final class PacketServerChannelMessageListener implements IPacketListener
             Collection<INetworkChannel> channels = ((NodeMessenger) messenger).getTargetChannels(message.getTarget(), true);
 
             if (channels != null && !channels.isEmpty()) {
-                if (query) {
-                    response = new ArrayList<>();
-                }
-
                 IPacket clientPacket = new PacketClientServerChannelMessage(message, query);
                 for (INetworkChannel targetChannel : channels) {
-                    targetChannel.sendPacket(clientPacket);
-                    // TODO query
+                    if (query) {
+                        IPacket queryResponse = targetChannel.sendQuery(clientPacket);
+                        if (queryResponse != null && queryResponse.getBody().readBoolean()) {
+                            response.add(queryResponse.getBody().readObject(ChannelMessage.class));
+                        }
+                    } else {
+                        targetChannel.sendPacket(clientPacket);
+                    }
                 }
             }
         }

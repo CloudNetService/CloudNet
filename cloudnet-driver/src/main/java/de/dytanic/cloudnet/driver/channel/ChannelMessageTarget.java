@@ -3,9 +3,13 @@ package de.dytanic.cloudnet.driver.channel;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@ToString
+@EqualsAndHashCode
 public class ChannelMessageTarget implements SerializableObject {
 
     private Type type;
@@ -20,6 +24,9 @@ public class ChannelMessageTarget implements SerializableObject {
     public ChannelMessageTarget(@NotNull ServiceEnvironmentType environment) {
         this.type = Type.ENVIRONMENT;
         this.environment = environment;
+    }
+
+    public ChannelMessageTarget() {
     }
 
     public Type getType() {

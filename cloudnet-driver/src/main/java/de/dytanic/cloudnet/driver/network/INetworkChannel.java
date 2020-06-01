@@ -51,6 +51,8 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
      */
     boolean isClientProvidedChannel();
 
-    ITask<IPacket> sendQuery(@NotNull IPacket packet);
+    ITask<IPacket> sendQueryAsync(@NotNull IPacket packet);
+
+    IPacket sendQuery(@NotNull IPacket packet);
 
 }
