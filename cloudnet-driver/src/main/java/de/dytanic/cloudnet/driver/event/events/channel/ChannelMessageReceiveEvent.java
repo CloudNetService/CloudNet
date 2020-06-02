@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.Event;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,11 @@ public final class ChannelMessageReceiveEvent extends Event {
     @NotNull
     public JsonDocument getData() {
         return this.channelMessage.getJson();
+    }
+
+    @NotNull
+    public ProtocolBuffer getBuffer() {
+        return this.channelMessage.getBuffer();
     }
 
     public boolean isQuery() {
