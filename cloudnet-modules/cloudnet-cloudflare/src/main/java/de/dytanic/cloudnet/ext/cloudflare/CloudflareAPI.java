@@ -52,8 +52,6 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     public Pair<Integer, JsonDocument> createRecord(String serviceName, String email, CloudflareConfigurationEntry.AuthenticationMethod authenticationMethod, String apiKey, String zoneId, DNSRecord dnsRecord) {
-        Preconditions.checkNotNull(email);
-        Preconditions.checkNotNull(apiKey);
         Preconditions.checkNotNull(zoneId);
         Preconditions.checkNotNull(dnsRecord);
 
@@ -70,8 +68,6 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     public Pair<Integer, JsonDocument> updateRecord(String serviceName, String email, CloudflareConfigurationEntry.AuthenticationMethod authenticationMethod, String apiKey, String zoneId, String recordId, DNSRecord dnsRecord) {
-        Preconditions.checkNotNull(email);
-        Preconditions.checkNotNull(apiKey);
         Preconditions.checkNotNull(zoneId);
         Preconditions.checkNotNull(recordId);
         Preconditions.checkNotNull(dnsRecord);
@@ -108,8 +104,6 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     public Pair<Integer, JsonDocument> deleteRecord(String email, CloudflareConfigurationEntry.AuthenticationMethod authenticationMethod, String apiKey, String zoneId, String recordId) {
-        Preconditions.checkNotNull(email);
-        Preconditions.checkNotNull(apiKey);
         Preconditions.checkNotNull(zoneId);
         Preconditions.checkNotNull(recordId);
 
@@ -185,12 +179,14 @@ public final class CloudflareAPI implements AutoCloseable {
     }
 
     private void initRequestProperties(HttpURLConnection httpURLConnection, String email, CloudflareConfigurationEntry.AuthenticationMethod authenticationMethod, String apiKey) {
-        Preconditions.checkNotNull(email);
+        Preconditions.checkNotNull(authenticationMethod);
         Preconditions.checkNotNull(apiKey);
 
         httpURLConnection.setUseCaches(false);
 
         if (authenticationMethod == CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY) {
+            Preconditions.checkNotNull(email);
+
             httpURLConnection.setRequestProperty("X-Auth-Email", email);
             httpURLConnection.setRequestProperty("X-Auth-Key", apiKey);
         } else if (authenticationMethod == CloudflareConfigurationEntry.AuthenticationMethod.BEARER_TOKEN) {
