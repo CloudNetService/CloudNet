@@ -41,7 +41,7 @@ public final class ChannelMessageReceiveEvent extends Event {
 
     @Nullable
     public JsonDocument getData() {
-        return this.channelMessage.getHeader();
+        return this.channelMessage.getJson();
     }
 
     public boolean isQuery() {

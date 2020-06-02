@@ -23,8 +23,8 @@ public class ChannelMessage implements SerializableObject {
     private ChannelMessageSender sender;
     private String channel;
     private String message;
-    private JsonDocument header;
-    private ProtocolBuffer body;
+    private JsonDocument json;
+    private ProtocolBuffer buffer;
     private ChannelMessageTarget target;
 
     private ChannelMessage(@NotNull ChannelMessageSender sender) {
@@ -50,13 +50,13 @@ public class ChannelMessage implements SerializableObject {
     }
 
     @Nullable
-    public JsonDocument getHeader() {
-        return this.header;
+    public JsonDocument getJson() {
+        return this.json;
     }
 
     @Nullable
-    public ProtocolBuffer getBody() {
-        return this.body;
+    public ProtocolBuffer getBuffer() {
+        return this.buffer;
     }
 
     @NotNull
@@ -97,8 +97,8 @@ public class ChannelMessage implements SerializableObject {
         buffer.writeObject(this.sender);
         buffer.writeString(this.channel);
         buffer.writeOptionalString(this.message);
-        buffer.writeOptionalString(this.header != null ? this.header.toJson() : null);
-        buffer.writeOptionalArray(this.body != null ? this.body.toArray() : null);
+        buffer.writeOptionalString(this.json != null ? this.json.toJson() : null);
+        buffer.writeOptionalArray(this.buffer != null ? this.buffer.toArray() : null);
         buffer.writeObject(this.target);
     }
 
@@ -108,9 +108,9 @@ public class ChannelMessage implements SerializableObject {
         this.channel = buffer.readString();
         this.message = buffer.readOptionalString();
         String headerJson = buffer.readOptionalString();
-        this.header = headerJson != null ? JsonDocument.newDocument(headerJson) : null;
+        this.json = headerJson != null ? JsonDocument.newDocument(headerJson) : null;
         byte[] body = buffer.readOptionalArray();
-        this.body = body != null ? ProtocolBuffer.wrap(body) : null;
+        this.buffer = body != null ? ProtocolBuffer.wrap(body) : null;
         this.target = buffer.readObject(ChannelMessageTarget.class);
     }
 
@@ -146,7 +146,7 @@ public class ChannelMessage implements SerializableObject {
         }
 
         public Builder jsonContent(@Nullable JsonDocument document) {
-            this.channelMessage.header = document;
+            this.channelMessage.json = document;
             return this;
         }
 
@@ -155,7 +155,7 @@ public class ChannelMessage implements SerializableObject {
         }
 
         public Builder byteContent(@Nullable ProtocolBuffer buffer) {
-            this.channelMessage.body = buffer;
+            this.channelMessage.buffer = buffer;
             return this;
         }
 
