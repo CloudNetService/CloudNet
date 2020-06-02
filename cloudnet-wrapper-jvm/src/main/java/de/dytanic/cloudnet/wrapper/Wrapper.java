@@ -1,12 +1,8 @@
 package de.dytanic.cloudnet.wrapper;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
@@ -20,7 +16,6 @@ import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
@@ -29,7 +24,6 @@ import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
@@ -41,7 +35,6 @@ import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEve
 import de.dytanic.cloudnet.wrapper.module.WrapperModuleProviderHandler;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
-import de.dytanic.cloudnet.wrapper.network.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
 import de.dytanic.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
@@ -62,13 +55,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -350,7 +339,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_TEMPLATE_STORAGE_TEMPLATES,
                 buffer -> buffer.writeString(serviceName),
-                packet -> packet.getBody().readObjectCollection(ServiceTemplate.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceTemplate.class)
         );
     }
 
@@ -369,7 +358,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.SEND_COMMAND_LINE_AS_PERMISSION_USER,
                 buffer -> buffer.writeUUID(uniqueId).writeString(commandLine),
-                packet -> new Pair<>(packet.getBody().readBoolean(), packet.getBody().readStringCollection().toArray(new String[0]))
+                packet -> new Pair<>(packet.getBuffer().readBoolean(), packet.getBuffer().readStringCollection().toArray(new String[0]))
         );
     }
 

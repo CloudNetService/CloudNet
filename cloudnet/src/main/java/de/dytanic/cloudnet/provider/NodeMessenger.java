@@ -2,10 +2,8 @@ package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -16,12 +14,10 @@ import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     private final CloudNet cloudNet;
@@ -137,8 +133,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
             for (INetworkChannel channel : channels) {
                 IPacket response = channel.sendQuery(packet);
-                if (response != null && response.getBody().readBoolean()) {
-                    result.add(response.getBody().readObject(ChannelMessage.class));
+                if (response != null && response.getBuffer().readBoolean()) {
+                    result.add(response.getBuffer().readObject(ChannelMessage.class));
                 }
             }
 

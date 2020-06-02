@@ -85,7 +85,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.FORCE_UPDATE_SERVICE,
                 this::writeDefaults,
-                packet -> this.readDefaults(packet.getBody()).readOptionalObject(ServiceInfoSnapshot.class)
+                packet -> this.readDefaults(packet.getBuffer()).readOptionalObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -102,7 +102,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.ADD_SERVICE_TEMPLATE_TO_CLOUD_SERVICE,
                 buffer -> this.writeDefaults(buffer).writeObject(serviceTemplate),
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -119,7 +119,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.ADD_SERVICE_REMOTE_INCLUSION_TO_CLOUD_SERVICE,
                 buffer -> this.writeDefaults(buffer).writeObject(serviceRemoteInclusion),
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -136,7 +136,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.ADD_SERVICE_DEPLOYMENT_TO_CLOUD_SERVICE,
                 buffer -> this.writeDefaults(buffer).writeObject(serviceDeployment),
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -151,7 +151,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CACHED_LOG_MESSAGES_FROM_CLOUD_SERVICE,
                 this::writeDefaults,
-                packet -> new LinkedBlockingQueue<>(this.readDefaults(packet.getBody()).readStringCollection())
+                packet -> new LinkedBlockingQueue<>(this.readDefaults(packet.getBuffer()).readStringCollection())
         );
     }
 
@@ -168,7 +168,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.SET_CLOUD_SERVICE_LIFE_CYCLE,
                 buffer -> this.writeDefaults(buffer).writeEnumConstant(lifeCycle),
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -183,7 +183,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.RESTART_CLOUD_SERVICE,
                 this::writeDefaults,
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -198,7 +198,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.KILL_CLOUD_SERVICE,
                 this::writeDefaults,
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -215,7 +215,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.RUN_COMMAND_ON_CLOUD_SERVICE,
                 buffer -> writeDefaults(buffer).writeString(command),
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -240,7 +240,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.INCLUDE_WAITING_TEMPLATES_ON_CLOUD_SERVICE,
                 this::writeDefaults,
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -250,7 +250,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.INCLUDE_WAITING_INCLUSIONS_ON_CLOUD_SERVICE,
                 this::writeDefaults,
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 
@@ -260,7 +260,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
         return this.executeVoidDriverAPIMethod(
                 DriverAPIRequestType.DEPLOY_RESOURCES_ON_CLOUD_SERVICE,
                 buffer -> this.writeDefaults(buffer).writeBoolean(removeDeployments),
-                packet -> this.readDefaults(packet.getBody())
+                packet -> this.readDefaults(packet.getBuffer())
         );
     }
 

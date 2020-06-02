@@ -87,7 +87,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_SERVICES_AS_UNIQUE_ID,
-                packet -> packet.getBody().readUUIDCollection()
+                packet -> packet.getBuffer().readUUIDCollection()
         );
     }
 
@@ -97,7 +97,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICE_BY_NAME,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -106,7 +106,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICES,
-                packet -> packet.getBody().readObjectCollection(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
         );
     }
 
@@ -115,7 +115,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServicesAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_STARTED_CLOUD_SERVICES,
-                packet -> packet.getBody().readObjectCollection(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
         );
     }
 
@@ -125,7 +125,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICES_BY_SERVICE_TASK,
                 buffer -> buffer.writeString(taskName),
-                packet -> packet.getBody().readObjectCollection(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
         );
     }
 
@@ -137,7 +137,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICES_BY_ENVIRONMENT,
                 buffer -> buffer.writeEnumConstant(environment),
-                packet -> packet.getBody().readObjectCollection(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
         );
     }
 
@@ -147,7 +147,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICES_BY_GROUP,
                 buffer -> buffer.writeString(group),
-                packet -> packet.getBody().readObjectCollection(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
         );
     }
 
@@ -156,7 +156,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     public ITask<Integer> getServicesCountAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_SERVICES_COUNT,
-                packet -> packet.getBody().readInt()
+                packet -> packet.getBuffer().readInt()
         );
     }
 
@@ -166,7 +166,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_SERVICES_COUNT_BY_GROUP,
                 buffer -> buffer.writeString(group),
-                packet -> packet.getBody().readInt()
+                packet -> packet.getBuffer().readInt()
         );
     }
 
@@ -176,7 +176,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_SERVICES_COUNT_BY_TASK,
                 buffer -> buffer.writeString(taskName),
-                packet -> packet.getBody().readInt()
+                packet -> packet.getBuffer().readInt()
         );
     }
 
@@ -186,7 +186,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICE_BY_UNIQUE_ID,
                 buffer -> buffer.writeUUID(uniqueId),
-                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
         );
     }
 

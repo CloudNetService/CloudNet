@@ -1,14 +1,11 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.serialization.SerializableJsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.DriverAPIUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -16,9 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAPIUser {
 
@@ -108,7 +103,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_SERVICE_TASK,
                 buffer -> buffer.writeObject(serviceTask),
-                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -119,7 +114,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_SERVICE_TASK_AND_ID,
                 buffer -> buffer.writeObject(serviceTask).writeInt(taskId),
-                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -131,7 +126,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_CONFIGURATION,
                 buffer -> buffer.writeObject(serviceConfiguration),
-                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -167,7 +162,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
                         .writeObject(processConfiguration)
                         .writeJsonDocument(properties)
                         .writeInt(port),
-                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -208,7 +203,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
                         .writeObject(processConfiguration)
                         .writeJsonDocument(properties)
                         .writeInt(port),
-                packet -> packet.getBody().readObjectCollection(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
         );
     }
 

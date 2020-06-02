@@ -16,8 +16,8 @@ public final class PacketServerSetServiceTaskListListener implements IPacketList
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        List<ServiceTask> serviceTasks = new ArrayList<>(packet.getBody().readObjectCollection(ServiceTask.class));
-        NetworkUpdateType updateType = packet.getBody().readEnumConstant(NetworkUpdateType.class);
+        List<ServiceTask> serviceTasks = new ArrayList<>(packet.getBuffer().readObjectCollection(ServiceTask.class));
+        NetworkUpdateType updateType = packet.getBuffer().readEnumConstant(NetworkUpdateType.class);
 
         NetworkChannelReceiveServiceTasksUpdateEvent event = new NetworkChannelReceiveServiceTasksUpdateEvent(channel, serviceTasks);
         CloudNetDriver.getInstance().getEventManager().callEvent(event);

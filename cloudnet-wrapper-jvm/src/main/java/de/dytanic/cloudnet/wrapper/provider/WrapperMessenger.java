@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
 
@@ -33,7 +32,7 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
         CompletableTask<Collection<ChannelMessage>> task = new CompletableTask<>();
         ITask<IPacket> packetTask = this.wrapper.getNetworkClient().getFirstChannel().sendQueryAsync(new PacketClientServerChannelMessage(channelMessage, true));
         packetTask
-                .onComplete(packet -> task.complete(packet.getBody().readableBytes() <= 1 ? Collections.emptyList() : packet.getBody().readObjectCollection(ChannelMessage.class)))
+                .onComplete(packet -> task.complete(packet.getBuffer().readableBytes() <= 1 ? Collections.emptyList() : packet.getBuffer().readObjectCollection(ChannelMessage.class)))
                 .onCancelled(v -> task.cancel(true))
                 .addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
         return task;

@@ -18,11 +18,11 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        PacketServerUpdatePermissions.UpdateType updateType = packet.getBody().readEnumConstant(PacketServerUpdatePermissions.UpdateType.class);
+        PacketServerUpdatePermissions.UpdateType updateType = packet.getBuffer().readEnumConstant(PacketServerUpdatePermissions.UpdateType.class);
 
         switch (updateType) {
             case ADD_USER: {
-                IPermissionUser permissionUser = packet.getBody().readObject(PermissionUser.class);
+                IPermissionUser permissionUser = packet.getBuffer().readObject(PermissionUser.class);
                 this.invoke0(new PermissionAddUserEvent(this.getPermissionManagement(), permissionUser));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).addUserWithoutClusterSyncAsync(permissionUser);
@@ -30,7 +30,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             }
             break;
             case ADD_GROUP: {
-                IPermissionGroup permissionGroup = packet.getBody().readObject(PermissionGroup.class);
+                IPermissionGroup permissionGroup = packet.getBuffer().readObject(PermissionGroup.class);
                 this.invoke0(new PermissionAddGroupEvent(this.getPermissionManagement(), permissionGroup));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).addGroupWithoutClusterSyncAsync(permissionGroup);
@@ -38,7 +38,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             }
             break;
             case SET_USERS: {
-                Collection<? extends IPermissionUser> permissionUsers = packet.getBody().readObjectCollection(PermissionUser.class);
+                Collection<? extends IPermissionUser> permissionUsers = packet.getBuffer().readObjectCollection(PermissionUser.class);
                 this.invoke0(new PermissionSetUsersEvent(this.getPermissionManagement(), permissionUsers));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).setUsersWithoutClusterSyncAsync(permissionUsers);
@@ -46,7 +46,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             }
             break;
             case SET_GROUPS: {
-                Collection<? extends IPermissionGroup> permissionGroups = packet.getBody().readObjectCollection(PermissionGroup.class);
+                Collection<? extends IPermissionGroup> permissionGroups = packet.getBuffer().readObjectCollection(PermissionGroup.class);
                 this.invoke0(new PermissionSetGroupsEvent(this.getPermissionManagement(), permissionGroups));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).setGroupsWithoutClusterSyncAsync(permissionGroups);
@@ -54,7 +54,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             }
             break;
             case DELETE_USER: {
-                IPermissionUser permissionUser = packet.getBody().readObject(PermissionUser.class);
+                IPermissionUser permissionUser = packet.getBuffer().readObject(PermissionUser.class);
                 this.invoke0(new PermissionUpdateUserEvent(this.getPermissionManagement(), permissionUser));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).deleteUserWithoutClusterSyncAsync(permissionUser);
@@ -62,7 +62,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             }
             break;
             case UPDATE_USER: {
-                IPermissionUser permissionUser = packet.getBody().readObject(PermissionUser.class);
+                IPermissionUser permissionUser = packet.getBuffer().readObject(PermissionUser.class);
                 this.invoke0(new PermissionDeleteUserEvent(this.getPermissionManagement(), permissionUser));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).updateUserWithoutClusterSyncAsync(permissionUser);
@@ -70,7 +70,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             }
             break;
             case DELETE_GROUP: {
-                IPermissionGroup permissionGroup = packet.getBody().readObject(PermissionGroup.class);
+                IPermissionGroup permissionGroup = packet.getBuffer().readObject(PermissionGroup.class);
                 this.invoke0(new PermissionDeleteGroupEvent(this.getPermissionManagement(), permissionGroup));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).deleteGroupWithoutClusterSyncAsync(permissionGroup);
@@ -78,7 +78,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             }
             break;
             case UPDATE_GROUP: {
-                IPermissionGroup permissionGroup = packet.getBody().readObject(PermissionGroup.class);
+                IPermissionGroup permissionGroup = packet.getBuffer().readObject(PermissionGroup.class);
                 this.invoke0(new PermissionUpdateGroupEvent(this.getPermissionManagement(), permissionGroup));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).updateGroupWithoutClusterSyncAsync(permissionGroup);

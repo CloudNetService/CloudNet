@@ -13,8 +13,8 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        ServiceInfoSnapshot serviceInfoSnapshot = packet.getBody().readObject(ServiceInfoSnapshot.class);
-        PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getBody().readEnumConstant(PacketClientServerServiceInfoPublisher.PublisherType.class);
+        ServiceInfoSnapshot serviceInfoSnapshot = packet.getBuffer().readObject(ServiceInfoSnapshot.class);
+        PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getBuffer().readEnumConstant(PacketClientServerServiceInfoPublisher.PublisherType.class);
 
         switch (publisherType) {
             case UPDATE:

@@ -63,7 +63,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_GROUP_CONFIGURATIONS,
-                packet -> packet.getBody().readObjectCollection(GroupConfiguration.class)
+                packet -> packet.getBuffer().readObjectCollection(GroupConfiguration.class)
         );
     }
 
@@ -75,7 +75,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_GROUP_CONFIGURATION_BY_NAME,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBody().readObject(GroupConfiguration.class)
+                packet -> packet.getBuffer().readObject(GroupConfiguration.class)
         );
     }
 
@@ -87,7 +87,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.IS_GROUP_CONFIGURATION_PRESENT,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBody().readBoolean()
+                packet -> packet.getBuffer().readBoolean()
         );
     }
 

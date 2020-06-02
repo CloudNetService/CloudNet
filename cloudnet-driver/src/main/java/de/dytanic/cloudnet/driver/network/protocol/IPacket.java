@@ -57,7 +57,7 @@ public interface IPacket {
      *
      * @return the body as a ProtocolBuffer
      */
-    ProtocolBuffer getBody();
+    ProtocolBuffer getBuffer();
 
     /**
      * @return the body as a byte array

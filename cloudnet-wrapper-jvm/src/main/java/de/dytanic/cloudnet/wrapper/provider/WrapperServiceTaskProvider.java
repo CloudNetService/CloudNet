@@ -59,7 +59,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_PERMANENT_SERVICE_TASKS,
-                packet -> packet.getBody().readObjectCollection(ServiceTask.class)
+                packet -> packet.getBuffer().readObjectCollection(ServiceTask.class)
         );
     }
 
@@ -71,7 +71,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_PERMANENT_SERVICE_TASK_BY_NAME,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBody().readObject(ServiceTask.class)
+                packet -> packet.getBuffer().readObject(ServiceTask.class)
         );
     }
 
@@ -83,7 +83,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.IS_SERVICE_TASK_PRESENT,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBody().readBoolean()
+                packet -> packet.getBuffer().readBoolean()
         );
     }
 

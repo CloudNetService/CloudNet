@@ -12,7 +12,7 @@ public final class PacketServerSetGlobalServiceInfoListListener implements IPack
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = packet.getBody().readObjectCollection(ServiceInfoSnapshot.class);
+        Collection<ServiceInfoSnapshot> serviceInfoSnapshots = packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class);
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
             if (serviceInfoSnapshot != null) {

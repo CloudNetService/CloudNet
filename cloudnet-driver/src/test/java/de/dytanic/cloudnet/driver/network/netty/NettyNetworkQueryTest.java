@@ -10,9 +10,6 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-
 public class NettyNetworkQueryTest {
 
     private boolean
@@ -43,7 +40,7 @@ public class NettyNetworkQueryTest {
 
         Assert.assertEquals("val", result.getHeader().getString("test"));
 
-        Assert.assertEquals(50, result.getBody().readInt());
+        Assert.assertEquals(50, result.getBuffer().readInt());
 
         networkClient.close();
         networkServer.close();

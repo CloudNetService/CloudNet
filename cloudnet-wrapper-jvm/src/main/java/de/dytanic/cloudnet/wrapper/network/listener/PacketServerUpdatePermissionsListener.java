@@ -14,31 +14,31 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        PacketServerUpdatePermissions.UpdateType updateType = packet.getBody().readEnumConstant(PacketServerUpdatePermissions.UpdateType.class);
+        PacketServerUpdatePermissions.UpdateType updateType = packet.getBuffer().readEnumConstant(PacketServerUpdatePermissions.UpdateType.class);
         switch (updateType) {
             case ADD_USER:
-                this.invoke0(new PermissionAddUserEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObject(PermissionUser.class)));
+                this.invoke0(new PermissionAddUserEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObject(PermissionUser.class)));
                 break;
             case ADD_GROUP:
-                this.invoke0(new PermissionAddGroupEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObject(PermissionGroup.class)));
+                this.invoke0(new PermissionAddGroupEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObject(PermissionGroup.class)));
                 break;
             case SET_USERS:
-                this.invoke0(new PermissionSetUsersEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObjectCollection(PermissionUser.class)));
+                this.invoke0(new PermissionSetUsersEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObjectCollection(PermissionUser.class)));
                 break;
             case SET_GROUPS:
-                this.invoke0(new PermissionSetGroupsEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObjectCollection(PermissionGroup.class)));
+                this.invoke0(new PermissionSetGroupsEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObjectCollection(PermissionGroup.class)));
                 break;
             case DELETE_USER:
-                this.invoke0(new PermissionDeleteUserEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObject(PermissionUser.class)));
+                this.invoke0(new PermissionDeleteUserEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObject(PermissionUser.class)));
                 break;
             case UPDATE_USER:
-                this.invoke0(new PermissionUpdateUserEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObject(PermissionUser.class)));
+                this.invoke0(new PermissionUpdateUserEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObject(PermissionUser.class)));
                 break;
             case DELETE_GROUP:
-                this.invoke0(new PermissionDeleteGroupEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObject(PermissionGroup.class)));
+                this.invoke0(new PermissionDeleteGroupEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObject(PermissionGroup.class)));
                 break;
             case UPDATE_GROUP:
-                this.invoke0(new PermissionUpdateGroupEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBody().readObject(PermissionGroup.class)));
+                this.invoke0(new PermissionUpdateGroupEvent(CloudNetDriver.getInstance().getPermissionManagement(), packet.getBuffer().readObject(PermissionGroup.class)));
                 break;
         }
     }

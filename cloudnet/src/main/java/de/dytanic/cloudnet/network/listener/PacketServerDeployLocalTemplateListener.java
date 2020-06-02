@@ -14,14 +14,14 @@ public final class PacketServerDeployLocalTemplateListener implements IPacketLis
     public void handle(INetworkChannel channel, IPacket packet) {
         ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
 
-        ServiceTemplate template = packet.getBody().readObject(ServiceTemplate.class);
-        boolean preClear = packet.getBody().readBoolean();
+        ServiceTemplate template = packet.getBuffer().readObject(ServiceTemplate.class);
+        boolean preClear = packet.getBuffer().readBoolean();
 
         if (preClear) {
             storage.delete(template);
         }
 
-        byte[] data = packet.getBody().readArray();
+        byte[] data = packet.getBuffer().readArray();
         storage.deploy(data, template);
     }
 

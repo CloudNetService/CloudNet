@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public class PacketServerDriverAPIListener implements IPacketListener {
     @Override
     public void handle(INetworkChannel channel, IPacket packet) throws Exception {
-        DriverAPIRequestType requestType = packet.getBody().readEnumConstant(DriverAPIRequestType.class);
+        DriverAPIRequestType requestType = packet.getBuffer().readEnumConstant(DriverAPIRequestType.class);
 
         switch (requestType) {
             case FORCE_UPDATE_SERVICE: {
@@ -31,7 +31,7 @@ public class PacketServerDriverAPIListener implements IPacketListener {
 
             case SET_CLOUD_SERVICE_LIFE_CYCLE: {
                 this.getCloudServiceProvider(channel, packet, provider -> {
-                    provider.setCloudServiceLifeCycle(packet.getBody().readEnumConstant(ServiceLifeCycle.class));
+                    provider.setCloudServiceLifeCycle(packet.getBuffer().readEnumConstant(ServiceLifeCycle.class));
                     channel.sendPacket(Packet.createResponseFor(packet,
                             ProtocolBuffer.create()
                                     .writeEnumConstant(ServiceDriverAPIResponse.SUCCESS)
@@ -389,8 +389,8 @@ public class PacketServerDriverAPIListener implements IPacketListener {
     }
 
     private void getCloudServiceProvider(INetworkChannel channel, IPacket packet, Consumer<SpecificCloudServiceProvider> consumer) {
-        UUID uniqueId = packet.getBody().readOptionalUUID();
-        String name = packet.getBody().readOptionalString();
+        UUID uniqueId = packet.getBuffer().readOptionalUUID();
+        String name = packet.getBuffer().readOptionalString();
         SpecificCloudServiceProvider provider;
         if (uniqueId != null) {
             provider = CloudNetDriver.getInstance().getCloudServiceProvider(uniqueId);

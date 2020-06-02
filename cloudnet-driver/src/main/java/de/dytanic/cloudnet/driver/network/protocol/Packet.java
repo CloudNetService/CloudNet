@@ -91,7 +91,7 @@ public class Packet implements IPacket {
         return this.header;
     }
 
-    public ProtocolBuffer getBody() {
+    public ProtocolBuffer getBuffer() {
         return this.body;
     }
 

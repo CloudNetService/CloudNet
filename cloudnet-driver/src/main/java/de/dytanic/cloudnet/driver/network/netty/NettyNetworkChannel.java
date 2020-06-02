@@ -88,7 +88,7 @@ final class NettyNetworkChannel implements INetworkChannel {
                                         packet.getChannel(),
                                         packet.getUniqueId().toString(),
                                         packet.getHeader().toJson(),
-                                        packet.getBody() != null ? packet.getBody().readableBytes() : 0
+                                        packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
                                 )
                         );
                     }

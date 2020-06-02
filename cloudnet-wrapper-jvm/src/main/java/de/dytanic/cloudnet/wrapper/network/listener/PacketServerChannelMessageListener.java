@@ -14,8 +14,8 @@ public final class PacketServerChannelMessageListener implements IPacketListener
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        ChannelMessage message = packet.getBody().readObject(ChannelMessage.class);
-        boolean query = packet.getBody().readBoolean();
+        ChannelMessage message = packet.getBuffer().readObject(ChannelMessage.class);
+        boolean query = packet.getBuffer().readBoolean();
 
         ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
         CloudNetDriver.getInstance().getEventManager().callEvent(event);

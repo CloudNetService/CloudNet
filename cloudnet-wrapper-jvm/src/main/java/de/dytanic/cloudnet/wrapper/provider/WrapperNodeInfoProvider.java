@@ -81,7 +81,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
     public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CONSOLE_COMMANDS,
-                packet -> packet.getBody().readObjectCollection(CommandInfo.class)
+                packet -> packet.getBuffer().readObjectCollection(CommandInfo.class)
         );
     }
 
@@ -91,7 +91,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CONSOLE_COMMAND_BY_LINE,
                 buffer -> buffer.writeString(commandLine),
-                packet -> packet.getBody().readObject(CommandInfo.class)
+                packet -> packet.getBuffer().readObject(CommandInfo.class)
         );
     }
 
@@ -103,7 +103,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.TAB_COMPLETE_CONSOLE_COMMAND,
                 buffer -> buffer.writeString(commandLine),
-                packet -> packet.getBody().readStringCollection()
+                packet -> packet.getBuffer().readStringCollection()
         );
     }
 
@@ -115,7 +115,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.SEND_COMMAND_LINE,
                 buffer -> buffer.writeString(commandLine),
-                packet -> packet.getBody().readStringArray()
+                packet -> packet.getBuffer().readStringArray()
         );
     }
 
@@ -125,7 +125,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.SEND_COMMAND_LINE_TO_NODE,
                 buffer -> buffer.writeString(nodeUniqueId).writeString(commandLine),
-                packet -> packet.getBody().readStringArray()
+                packet -> packet.getBuffer().readStringArray()
         );
     }
 
@@ -134,7 +134,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
     public ITask<NetworkClusterNode[]> getNodesAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_NODES,
-                packet -> packet.getBody().readObjectArray(NetworkClusterNode.class)
+                packet -> packet.getBuffer().readObjectArray(NetworkClusterNode.class)
         );
     }
 
@@ -146,7 +146,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_NODE_BY_UNIQUE_ID,
                 buffer -> buffer.writeString(uniqueId),
-                packet -> packet.getBody().readObject(NetworkClusterNode.class)
+                packet -> packet.getBuffer().readObject(NetworkClusterNode.class)
         );
     }
 
@@ -155,7 +155,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
     public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_NODE_INFO_SNAPSHOTS,
-                packet -> packet.getBody().readObjectArray(NetworkClusterNodeInfoSnapshot.class)
+                packet -> packet.getBuffer().readObjectArray(NetworkClusterNodeInfoSnapshot.class)
         );
     }
 
@@ -167,7 +167,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_NODE_INFO_SNAPSHOT_BY_UNIQUE_ID,
                 buffer -> buffer.writeString(uniqueId),
-                packet -> packet.getBody().readObject(NetworkClusterNodeInfoSnapshot.class)
+                packet -> packet.getBuffer().readObject(NetworkClusterNodeInfoSnapshot.class)
         );
     }
 

@@ -13,7 +13,7 @@ public final class PacketServerClusterNodeInfoUpdateListener implements IPacketL
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        NetworkClusterNodeInfoSnapshot snapshot = packet.getBody().readObject(NetworkClusterNodeInfoSnapshot.class);
+        NetworkClusterNodeInfoSnapshot snapshot = packet.getBuffer().readObject(NetworkClusterNodeInfoSnapshot.class);
         IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(snapshot.getNode().getUniqueId());
 
         if (clusterNodeServer != null) {

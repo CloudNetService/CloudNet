@@ -17,8 +17,8 @@ public final class PacketServerSetPermissionDataListener implements IPacketListe
         if (CloudNet.getInstance().getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
             ClusterSynchronizedPermissionManagement permissionManagement = (ClusterSynchronizedPermissionManagement) CloudNet.getInstance().getPermissionManagement();
 
-            Collection<PermissionGroup> permissionGroups = packet.getBody().readObjectCollection(PermissionGroup.class);
-            NetworkUpdateType updateType = packet.getBody().readEnumConstant(NetworkUpdateType.class);
+            Collection<PermissionGroup> permissionGroups = packet.getBuffer().readObjectCollection(PermissionGroup.class);
+            NetworkUpdateType updateType = packet.getBuffer().readEnumConstant(NetworkUpdateType.class);
 
             switch (updateType) {
                 case SET:

@@ -16,8 +16,8 @@ public final class PacketServerSetGroupConfigurationListListener implements IPac
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        List<GroupConfiguration> groupConfigurations = new ArrayList<>(packet.getBody().readObjectCollection(GroupConfiguration.class));
-        NetworkUpdateType updateType = packet.getBody().readEnumConstant(NetworkUpdateType.class);
+        List<GroupConfiguration> groupConfigurations = new ArrayList<>(packet.getBuffer().readObjectCollection(GroupConfiguration.class));
+        NetworkUpdateType updateType = packet.getBuffer().readEnumConstant(NetworkUpdateType.class);
 
         if (updateType != null) {
             NetworkChannelReceiveGroupConfigurationsUpdateEvent event = new NetworkChannelReceiveGroupConfigurationsUpdateEvent(channel, groupConfigurations, updateType);

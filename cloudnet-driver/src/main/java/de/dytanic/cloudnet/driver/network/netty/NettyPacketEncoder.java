@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,7 +23,7 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
                                     packet.getChannel(),
                                     packet.getUniqueId().toString(),
                                     packet.getHeader().toJson(),
-                                    packet.getBody() != null ? packet.getBody().readableBytes() : 0
+                                    packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
                             )
                     );
                 }

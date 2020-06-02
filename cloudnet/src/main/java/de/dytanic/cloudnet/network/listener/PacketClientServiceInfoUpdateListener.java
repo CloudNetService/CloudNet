@@ -12,7 +12,7 @@ public final class PacketClientServiceInfoUpdateListener implements IPacketListe
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        ServiceInfoSnapshot serviceInfoSnapshot = packet.getBody().readObject(ServiceInfoSnapshot.class);
+        ServiceInfoSnapshot serviceInfoSnapshot = packet.getBuffer().readObject(ServiceInfoSnapshot.class);
 
         ICloudServiceManager cloudServiceManager = CloudNet.getInstance().getCloudServiceManager();
         ICloudService cloudService = cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
