@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.driver.provider;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import org.jetbrains.annotations.NotNull;
@@ -24,9 +24,7 @@ public interface CloudMessenger {
      * @param channel the channel to identify the message, this can be anything and doesn't have to be registered
      * @param message the message to identify the message, this can be anything and doesn't have to be registered
      * @param data    extra data for the message
-     * @deprecated use {@link #sendChannelMessage(ChannelMessage)} instead
      */
-    @Deprecated
     default void sendChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetAll().build());
     }
@@ -39,9 +37,7 @@ public interface CloudMessenger {
      * @param channel                   the channel to identify the message, this can be anything and doesn't have to be registered
      * @param message                   the message to identify the message, this can be anything and doesn't have to be registered
      * @param data                      extra data for the message
-     * @deprecated use {@link #sendChannelMessage(ChannelMessage)} instead
      */
-    @Deprecated
     default void sendChannelMessage(@NotNull ServiceInfoSnapshot targetServiceInfoSnapshot, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetService(targetServiceInfoSnapshot.getName()).build());
     }
@@ -54,9 +50,7 @@ public interface CloudMessenger {
      * @param channel           the channel to identify the message, this can be anything and doesn't have to be registered
      * @param message           the message to identify the message, this can be anything and doesn't have to be registered
      * @param data              extra data for the message
-     * @deprecated use {@link #sendChannelMessage(ChannelMessage)} instead
      */
-    @Deprecated
     default void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetTask(targetServiceTask.getName()).build());
     }
@@ -69,9 +63,7 @@ public interface CloudMessenger {
      * @param channel           the channel to identify the message, this can be anything and doesn't have to be registered
      * @param message           the message to identify the message, this can be anything and doesn't have to be registered
      * @param data              extra data for the message
-     * @deprecated use {@link #sendChannelMessage(ChannelMessage)} instead
      */
-    @Deprecated
     default void sendChannelMessage(@NotNull ServiceEnvironmentType targetEnvironment, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
         this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetEnvironment(targetEnvironment).build());
     }
