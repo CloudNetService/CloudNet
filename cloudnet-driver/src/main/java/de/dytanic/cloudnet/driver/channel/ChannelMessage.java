@@ -23,8 +23,8 @@ public class ChannelMessage implements SerializableObject {
     private ChannelMessageSender sender;
     private String channel;
     private String message;
-    private JsonDocument json;
-    private ProtocolBuffer buffer;
+    private JsonDocument json = JsonDocument.EMPTY;
+    private ProtocolBuffer buffer = ProtocolBuffer.EMPTY;
     private ChannelMessageTarget target;
 
     private ChannelMessage(@NotNull ChannelMessageSender sender) {
@@ -49,12 +49,12 @@ public class ChannelMessage implements SerializableObject {
         return this.message;
     }
 
-    @Nullable
+    @NotNull
     public JsonDocument getJson() {
         return this.json;
     }
 
-    @Nullable
+    @NotNull
     public ProtocolBuffer getBuffer() {
         return this.buffer;
     }
@@ -145,16 +145,16 @@ public class ChannelMessage implements SerializableObject {
             return this;
         }
 
-        public Builder jsonContent(@Nullable JsonDocument document) {
+        public Builder json(@NotNull JsonDocument document) {
             this.channelMessage.json = document;
             return this;
         }
 
-        public Builder byteContent(@Nullable byte[] bytes) {
-            return this.byteContent(bytes == null ? null : ProtocolBuffer.wrap(bytes));
+        public Builder buffer(@NotNull byte[] bytes) {
+            return this.buffer(bytes == null ? ProtocolBuffer.EMPTY : ProtocolBuffer.wrap(bytes));
         }
 
-        public Builder byteContent(@Nullable ProtocolBuffer buffer) {
+        public Builder buffer(@NotNull ProtocolBuffer buffer) {
             this.channelMessage.buffer = buffer;
             return this;
         }

@@ -11,7 +11,7 @@ public final class ExampleChannelPublishAndSubscribe {
         ChannelMessage.builder()
                 .channel("user_channel")
                 .message("user_info_publishing")
-                .jsonContent(JsonDocument.newDocument().append("name", "Peter Parker").append("age", 17))
+                .json(JsonDocument.newDocument().append("name", "Peter Parker").append("age", 17))
                 .targetAll()
                 .build()
                 .send();
@@ -22,7 +22,7 @@ public final class ExampleChannelPublishAndSubscribe {
         ChannelMessage.builder()
                 .channel("user_channel")
                 .message("user_info_publishing")
-                .jsonContent(JsonDocument.newDocument().append("name", "Peter Parker").append("age", 17))
+                .json(JsonDocument.newDocument().append("name", "Peter Parker").append("age", 17))
                 .targetService(targetServiceName)
                 .build()
                 .send();

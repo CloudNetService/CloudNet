@@ -15,8 +15,8 @@ public class ChannelMessageSerializerTest {
         ChannelMessage original = ChannelMessage.builder(new ChannelMessageSender("Test", DriverEnvironment.CLOUDNET))
                 .channel("test-channel")
                 .message("test-message")
-                .byteContent(new byte[]{1, 2, 3, 4, 5})
-                .jsonContent(JsonDocument.newDocument("1", "2"))
+                .buffer(new byte[]{1, 2, 3, 4, 5})
+                .json(JsonDocument.newDocument("1", "2"))
                 .targetAll(ChannelMessageTarget.Type.NODE)
                 .build();
 

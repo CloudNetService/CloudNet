@@ -139,7 +139,7 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
                         ChannelMessage.builder()
                                 .channel(NPCConstants.NPC_CHANNEL_NAME)
                                 .message(NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE)
-                                .jsonContent(new JsonDocument("npc", npc))
+                                .json(new JsonDocument("npc", npc))
                                 .build()
                 );
     }
@@ -155,7 +155,7 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
                         ChannelMessage.builder()
                                 .channel(NPCConstants.NPC_CHANNEL_NAME)
                                 .message(NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE)
-                                .jsonContent(new JsonDocument("npc", npc))
+                                .json(new JsonDocument("npc", npc))
                                 .build()
                 );
     }
@@ -169,8 +169,8 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
                                 .build()
                 );
 
-        if (response != null && response.getHeader() != null) {
-            return response.getHeader().get("npcConfiguration", NPCConfiguration.class);
+        if (response != null) {
+            return response.getJson().get("npcConfiguration", NPCConfiguration.class);
         }
 
         return null;
@@ -191,8 +191,8 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
                                 .build()
                 );
 
-        if (response != null && response.getHeader() != null) {
-            return response.getHeader().get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
+        if (response != null) {
+            return response.getJson().get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
         }
 
         return null;

@@ -39,7 +39,7 @@ public final class ChannelMessageReceiveEvent extends Event {
         return this.channelMessage;
     }
 
-    @Nullable
+    @NotNull
     public JsonDocument getData() {
         return this.channelMessage.getJson();
     }

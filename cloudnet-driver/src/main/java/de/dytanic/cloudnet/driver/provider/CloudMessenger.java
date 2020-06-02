@@ -26,7 +26,7 @@ public interface CloudMessenger {
      * @param data    extra data for the message
      */
     default void sendChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetAll().build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).json(data).targetAll().build());
     }
 
     /**
@@ -39,7 +39,7 @@ public interface CloudMessenger {
      * @param data                      extra data for the message
      */
     default void sendChannelMessage(@NotNull ServiceInfoSnapshot targetServiceInfoSnapshot, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetService(targetServiceInfoSnapshot.getName()).build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).json(data).targetService(targetServiceInfoSnapshot.getName()).build());
     }
 
     /**
@@ -52,7 +52,7 @@ public interface CloudMessenger {
      * @param data              extra data for the message
      */
     default void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetTask(targetServiceTask.getName()).build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).json(data).targetTask(targetServiceTask.getName()).build());
     }
 
     /**
@@ -65,7 +65,7 @@ public interface CloudMessenger {
      * @param data              extra data for the message
      */
     default void sendChannelMessage(@NotNull ServiceEnvironmentType targetEnvironment, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetEnvironment(targetEnvironment).build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).json(data).targetEnvironment(targetEnvironment).build());
     }
 
     /**

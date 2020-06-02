@@ -11,6 +11,8 @@ import java.util.UUID;
 
 public abstract class ProtocolBuffer extends ByteBuf {
 
+    public static final ProtocolBuffer EMPTY = create();
+
     public static ProtocolBuffer create() {
         return wrap(Unpooled.buffer());
     }

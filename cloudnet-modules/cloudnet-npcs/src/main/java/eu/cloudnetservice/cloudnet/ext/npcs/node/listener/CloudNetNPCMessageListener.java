@@ -27,7 +27,7 @@ public class CloudNetNPCMessageListener {
                 ChannelMessage.builder()
                         .channel(NPCConstants.NPC_CHANNEL_NAME)
                         .message(NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE)
-                        .jsonContent(new JsonDocument()
+                        .json(new JsonDocument()
                                 .append("npcConfiguration", this.npcModule.getNPCConfiguration())
                                 .append("npcs", this.npcModule.getCachedNPCs()))
                         .build()
@@ -70,13 +70,13 @@ public class CloudNetNPCMessageListener {
                 break;
                 case NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE: {
                     event.setQueryResponse(ChannelMessage.builder()
-                            .jsonContent(new JsonDocument("npcConfiguration", this.npcModule.getNPCConfiguration()))
+                            .json(new JsonDocument("npcConfiguration", this.npcModule.getNPCConfiguration()))
                             .build());
                 }
                 break;
                 case NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE: {
                     event.setQueryResponse(ChannelMessage.builder()
-                            .jsonContent(new JsonDocument("npcs", this.npcModule.getCachedNPCs()))
+                            .json(new JsonDocument("npcs", this.npcModule.getCachedNPCs()))
                             .build());
                 }
                 break;
