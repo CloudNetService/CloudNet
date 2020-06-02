@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -27,7 +28,7 @@ public interface CloudMessenger {
      */
     @Deprecated
     default void sendChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).content(data).targetAll().build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetAll().build());
     }
 
     /**
@@ -42,7 +43,7 @@ public interface CloudMessenger {
      */
     @Deprecated
     default void sendChannelMessage(@NotNull ServiceInfoSnapshot targetServiceInfoSnapshot, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).content(data).targetService(targetServiceInfoSnapshot.getName()).build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetService(targetServiceInfoSnapshot.getName()).build());
     }
 
     /**
@@ -57,7 +58,7 @@ public interface CloudMessenger {
      */
     @Deprecated
     default void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).content(data).targetTask(targetServiceTask.getName()).build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetTask(targetServiceTask.getName()).build());
     }
 
     /**
@@ -72,7 +73,7 @@ public interface CloudMessenger {
      */
     @Deprecated
     default void sendChannelMessage(@NotNull ServiceEnvironmentType targetEnvironment, @NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).content(data).targetEnvironment(targetEnvironment).build());
+        this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).jsonContent(data).targetEnvironment(targetEnvironment).build());
     }
 
     /**
@@ -99,5 +100,25 @@ public interface CloudMessenger {
      */
     @NotNull
     Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage);
+
+    /**
+     * Sends a channel message into the cluster and waits for the result from the receivers.
+     * This method only returns the first of all received messages.
+     *
+     * @param channelMessage the channel message to be sent
+     * @return the response of the first receiver
+     */
+    @NotNull
+    ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage);
+
+    /**
+     * Sends a channel message into the cluster and waits for the result from the receivers.
+     * This method only returns the first of all received messages.
+     *
+     * @param channelMessage the channel message to be sent
+     * @return the response of the first receiver
+     */
+    @Nullable
+    ChannelMessage sendSingleChannelMessageQuery(@NotNull ChannelMessage channelMessage);
 
 }

@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
+import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-public class WrapperMessenger implements CloudMessenger {
+public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
 
     private final Wrapper wrapper;
 
@@ -38,8 +39,4 @@ public class WrapperMessenger implements CloudMessenger {
         return task;
     }
 
-    @Override
-    public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
-        return this.sendChannelMessageQueryAsync(channelMessage).get(10, TimeUnit.SECONDS, Collections.emptyList());
-    }
 }

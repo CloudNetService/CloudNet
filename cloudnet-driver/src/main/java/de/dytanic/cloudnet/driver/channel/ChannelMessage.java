@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -64,17 +65,31 @@ public class ChannelMessage implements SerializableObject {
     }
 
     public void send() {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(this);
+        this.getMessenger().sendChannelMessage(this);
     }
 
     @NotNull
     public ITask<Collection<ChannelMessage>> sendQueryAsync() {
-        return CloudNetDriver.getInstance().getMessenger().sendChannelMessageQueryAsync(this);
+        return this.getMessenger().sendChannelMessageQueryAsync(this);
+    }
+
+    @NotNull
+    public ITask<ChannelMessage> sendSingleQueryAsync() {
+        return this.getMessenger().sendSingleChannelMessageQueryAsync(this);
     }
 
     @NotNull
     public Collection<ChannelMessage> sendQuery() {
-        return CloudNetDriver.getInstance().getMessenger().sendChannelMessageQuery(this);
+        return this.getMessenger().sendChannelMessageQuery(this);
+    }
+
+    @Nullable
+    public ChannelMessage sendSingleQuery() {
+        return this.getMessenger().sendSingleChannelMessageQuery(this);
+    }
+
+    private CloudMessenger getMessenger() {
+        return CloudNetDriver.getInstance().getMessenger();
     }
 
     @Override
@@ -130,16 +145,16 @@ public class ChannelMessage implements SerializableObject {
             return this;
         }
 
-        public Builder content(@Nullable JsonDocument document) {
+        public Builder jsonContent(@Nullable JsonDocument document) {
             this.channelMessage.header = document;
             return this;
         }
 
-        public Builder content(@Nullable byte[] bytes) {
-            return this.content(bytes == null ? null : ProtocolBuffer.wrap(bytes));
+        public Builder byteContent(@Nullable byte[] bytes) {
+            return this.byteContent(bytes == null ? null : ProtocolBuffer.wrap(bytes));
         }
 
-        public Builder content(@Nullable ProtocolBuffer buffer) {
+        public Builder byteContent(@Nullable ProtocolBuffer buffer) {
             this.channelMessage.body = buffer;
             return this;
         }

@@ -50,7 +50,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer {
         this.sendCustomChannelMessage(ChannelMessage.builder()
                 .channel(channel)
                 .message(message)
-                .content(data)
+                .jsonContent(data)
                 .targetNode(this.nodeInfo.getUniqueId())
                 .build());
     }
