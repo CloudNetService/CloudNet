@@ -2,12 +2,11 @@ package eu.cloudnetservice.cloudnet.ext.npcs;
 
 
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoStateWatcher;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
@@ -63,7 +61,7 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
 
-        if (event.getChannel().equals(NPCConstants.NPC_CHANNEL_NAME)) {
+        if (event.getChannel().equals(NPCConstants.NPC_CHANNEL_NAME) && event.getMessage() != null) {
 
             switch (event.getMessage().toLowerCase()) {
                 case NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE: {
@@ -138,9 +136,11 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
     public void sendNPCAddUpdate(@NotNull CloudNPC npc) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
-                        NPCConstants.NPC_CHANNEL_NAME,
-                        NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE,
-                        new JsonDocument("npc", npc)
+                        ChannelMessage.builder()
+                                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                                .message(NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE)
+                                .jsonContent(new JsonDocument("npc", npc))
+                                .build()
                 );
     }
 
@@ -152,25 +152,25 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
     public void sendNPCRemoveUpdate(@NotNull CloudNPC npc) {
         CloudNetDriver.getInstance().getMessenger()
                 .sendChannelMessage(
-                        NPCConstants.NPC_CHANNEL_NAME,
-                        NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE,
-                        new JsonDocument("npc", npc)
+                        ChannelMessage.builder()
+                                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                                .message(NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE)
+                                .jsonContent(new JsonDocument("npc", npc))
+                                .build()
                 );
     }
 
     public NPCConfiguration getNPCConfigurationFromNode() {
-        ITask<NPCConfiguration> npcConfiguration = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
-                NPCConstants.NPC_CHANNEL_NAME,
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE),
-                new byte[0],
-                documentPair -> documentPair.getFirst().get("npcConfiguration", NPCConfiguration.class)
-        );
+        ChannelMessage response = CloudNetDriver.getInstance().getMessenger()
+                .sendSingleChannelMessageQuery(
+                        ChannelMessage.builder()
+                                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                                .message(NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE)
+                                .build()
+                );
 
-        try {
-            return npcConfiguration.get(5, TimeUnit.SECONDS);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        if (response != null && response.getHeader() != null) {
+            return response.getHeader().get("npcConfiguration", NPCConfiguration.class);
         }
 
         return null;
@@ -183,18 +183,16 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
      */
     @Nullable
     public Set<CloudNPC> getNPCsFromNode() {
-        ITask<Set<CloudNPC>> npcs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
-                NPCConstants.NPC_CHANNEL_NAME,
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE),
-                new byte[0],
-                documentPair -> documentPair.getFirst().get("npcs", NPCConstants.NPC_COLLECTION_TYPE)
-        );
+        ChannelMessage response = CloudNetDriver.getInstance().getMessenger()
+                .sendSingleChannelMessageQuery(
+                        ChannelMessage.builder()
+                                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                                .message(NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE)
+                                .build()
+                );
 
-        try {
-            return npcs.get(5, TimeUnit.SECONDS);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        if (response != null && response.getHeader() != null) {
+            return response.getHeader().get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
         }
 
         return null;
