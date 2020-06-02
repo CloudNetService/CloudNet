@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.serialization;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ByteProcessor;
@@ -105,6 +106,24 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
+    public @NotNull String[] readStringArray() {
+        String[] array = new String[this.readVarInt()];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = this.readString();
+        }
+        return array;
+    }
+
+    @Override
+    public ProtocolBuffer writeStringArray(@NotNull String[] array) {
+        this.writeVarInt(array.length);
+        for (String s : array) {
+            this.writeString(s);
+        }
+        return this;
+    }
+
+    @Override
     public @NotNull Collection<String> readStringCollection() {
         int length = this.readVarInt();
         List<String> out = new ArrayList<>(length);
@@ -193,6 +212,49 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
+    public @Nullable UUID readOptionalUUID() {
+        return this.readBoolean() ? this.readUUID() : null;
+    }
+
+    @Override
+    public ProtocolBuffer writeOptionalUUID(@Nullable UUID uuid) {
+        this.writeBoolean(uuid != null);
+        if (uuid != null) {
+            this.writeUUID(uuid);
+        }
+        return this;
+    }
+
+    @Override
+    public @NotNull Collection<UUID> readUUIDCollection() {
+        int size = this.readVarInt();
+        Collection<UUID> uuids = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            uuids.add(this.readUUID());
+        }
+        return uuids;
+    }
+
+    @Override
+    public ProtocolBuffer writeUUIDCollection(@NotNull Collection<UUID> uuids) {
+        this.writeVarInt(uuids.size());
+        for (UUID uuid : uuids) {
+            this.writeUUID(uuid);
+        }
+        return this;
+    }
+
+    @Override
+    public @NotNull JsonDocument readJsonDocument() {
+        return this.readObject(SerializableJsonDocument.class);
+    }
+
+    @Override
+    public ProtocolBuffer writeJsonDocument(@NotNull JsonDocument document) {
+        return this.writeObject(SerializableJsonDocument.asSerializable(document));
+    }
+
+    @Override
     public <T extends SerializableObject> @NotNull T readObject(@NotNull Class<T> objectClass) {
         try {
             T t = objectClass.getDeclaredConstructor().newInstance();
@@ -203,7 +265,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public <T extends SerializableObject> T readObject(@NotNull T targetObject) {
+    public <T extends SerializableObject> @NotNull T readObject(@NotNull T targetObject) {
         targetObject.read(this);
         return targetObject;
     }
@@ -211,6 +273,25 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     @Override
     public ProtocolBuffer writeObject(@NotNull SerializableObject object) {
         object.write(this);
+        return this;
+    }
+
+    @Override
+    public <T extends SerializableObject> @Nullable T readOptionalObject(@NotNull Class<T> objectClass) {
+        return this.readBoolean() ? this.readObject(objectClass) : null;
+    }
+
+    @Override
+    public <T extends SerializableObject> T readOptionalObject(@NotNull T targetObject) {
+        return this.readBoolean() ? this.readObject(targetObject) : null;
+    }
+
+    @Override
+    public ProtocolBuffer writeOptionalObject(@Nullable SerializableObject object) {
+        this.writeBoolean(object != null);
+        if (object != null) {
+            this.writeObject(object);
+        }
         return this;
     }
 

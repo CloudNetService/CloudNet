@@ -22,6 +22,13 @@ public interface SpecificCloudServiceProvider {
     ServiceInfoSnapshot getServiceInfoSnapshot();
 
     /**
+     * Checks whether the service info on this provider is available or not.
+     *
+     * @return {@code true} if it is or {@code false} if not
+     */
+    boolean isValid();
+
+    /**
      * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #getServiceInfoSnapshot()}, this method
      * always returns the current snapshot with the current e.g. CPU and memory usage.
      *
@@ -147,6 +154,14 @@ public interface SpecificCloudServiceProvider {
      */
     @NotNull
     ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync();
+
+    /**
+     * Checks whether the service info on this provider is available or not.
+     *
+     * @return {@code true} if it is or {@code false} if not
+     */
+    @NotNull
+    ITask<Boolean> isValidAsync();
 
     /**
      * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #getServiceInfoSnapshot()}, this method

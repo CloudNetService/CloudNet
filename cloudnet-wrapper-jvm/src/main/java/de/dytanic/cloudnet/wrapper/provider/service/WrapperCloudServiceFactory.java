@@ -4,9 +4,13 @@ import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.serialization.SerializableJsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.wrapper.DriverAPIUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class WrapperCloudServiceFactory implements CloudServiceFactory {
+public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAPIUser {
 
     private final Wrapper wrapper;
 
@@ -29,24 +33,14 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
-        try {
-            return this.createCloudServiceAsync(serviceTask).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.createCloudServiceAsync(serviceTask).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public @Nullable ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId) {
         Preconditions.checkNotNull(serviceTask);
 
-        try {
-            return this.createCloudServiceAsync(serviceTask, taskId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.createCloudServiceAsync(serviceTask, taskId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Nullable
@@ -54,12 +48,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         Preconditions.checkNotNull(serviceConfiguration);
 
-        try {
-            return this.createCloudServiceAsync(serviceConfiguration).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.createCloudServiceAsync(serviceConfiguration).get(5, TimeUnit.SECONDS, null);
     }
 
     @Nullable
@@ -82,12 +71,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         Preconditions.checkNotNull(groups);
         Preconditions.checkNotNull(processConfiguration);
 
-        try {
-            return this.createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS, null);
     }
 
     @Nullable
@@ -113,12 +97,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         Preconditions.checkNotNull(groups);
         Preconditions.checkNotNull(processConfiguration);
 
-        try {
-            return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
@@ -126,20 +105,22 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_SERVICE_TASK,
+                buffer -> buffer.writeObject(serviceTask),
+                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
     public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId) {
         Preconditions.checkNotNull(serviceTask);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceTask").append("serviceTask", serviceTask).append("taskId", taskId), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_SERVICE_TASK_AND_ID,
+                buffer -> buffer.writeObject(serviceTask).writeInt(taskId),
+                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
@@ -147,10 +128,11 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
     public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
         Preconditions.checkNotNull(serviceConfiguration);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_CloudService_by_serviceConfiguration").append("serviceConfiguration", serviceConfiguration), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_CONFIGURATION,
+                buffer -> buffer.writeObject(serviceConfiguration),
+                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
@@ -173,22 +155,20 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         Preconditions.checkNotNull(groups);
         Preconditions.checkNotNull(processConfiguration);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom")
-                        .append("name", name)
-                        .append("runtime", runtime)
-                        .append("autoDeleteOnStop", autoDeleteOnStop)
-                        .append("staticService", staticService)
-                        .append("includes", includes)
-                        .append("templates", templates)
-                        .append("deployments", deployments)
-                        .append("groups", groups)
-                        .append("processConfiguration", processConfiguration)
-                        .append("properties", properties)
-                        .append("port", port),
-                null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.CREATE_CUSTOM_CLOUD_SERVICE,
+                buffer -> buffer.writeString(name)
+                        .writeString(runtime)
+                        .writeBoolean(autoDeleteOnStop)
+                        .writeBoolean(staticService)
+                        .writeObjectCollection(includes)
+                        .writeObjectCollection(deployments)
+                        .writeStringCollection(groups)
+                        .writeObject(processConfiguration)
+                        .writeJsonDocument(properties)
+                        .writeInt(port),
+                packet -> packet.getBody().readObject(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
@@ -214,23 +194,26 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory {
         Preconditions.checkNotNull(groups);
         Preconditions.checkNotNull(processConfiguration);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "create_cloud_service_custom_selected_node_and_amount")
-                        .append("nodeUniqueId", nodeUniqueId)
-                        .append("amount", amount)
-                        .append("name", name)
-                        .append("runtime", runtime)
-                        .append("autoDeleteOnStop", autoDeleteOnStop)
-                        .append("staticService", staticService)
-                        .append("includes", includes)
-                        .append("templates", templates)
-                        .append("deployments", deployments)
-                        .append("groups", groups)
-                        .append("processConfiguration", processConfiguration)
-                        .append("properties", properties)
-                        .append("port", port),
-                null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.CREATE_CUSTOM_CLOUD_SERVICE_WITH_NODE_AND_AMOUNT,
+                buffer -> buffer.writeString(nodeUniqueId)
+                        .writeInt(amount)
+                        .writeString(name)
+                        .writeString(runtime)
+                        .writeBoolean(autoDeleteOnStop)
+                        .writeBoolean(staticService)
+                        .writeObjectCollection(includes)
+                        .writeObjectCollection(deployments)
+                        .writeStringCollection(groups)
+                        .writeObject(processConfiguration)
+                        .writeJsonDocument(properties)
+                        .writeInt(port),
+                packet -> packet.getBody().readObjectCollection(ServiceInfoSnapshot.class)
+        );
+    }
+
+    @Override
+    public INetworkClient getNetworkClient() {
+        return this.wrapper.getNetworkClient();
     }
 }

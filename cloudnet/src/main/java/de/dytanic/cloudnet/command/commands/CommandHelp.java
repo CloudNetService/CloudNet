@@ -4,8 +4,8 @@ import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -100,4 +100,20 @@ public class Packet implements IPacket {
         return this.body == null ? EMPTY_PACKET_BYTE_ARRAY : this.body.toArray();
     }
 
+    public static Packet createResponseFor(IPacket packet, JsonDocument header, ProtocolBuffer body) {
+        return new Packet(-1, packet.getUniqueId(), header, body);
+    }
+
+    public static Packet createResponseFor(IPacket packet, JsonDocument header) {
+        return new Packet(-1, packet.getUniqueId(), header);
+    }
+
+    public static Packet createResponseFor(IPacket packet, ProtocolBuffer body) {
+        return new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, body);
+    }
+
+    public static Packet createResponseFor(IPacket packet) {
+        return new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY);
+    }
+
 }

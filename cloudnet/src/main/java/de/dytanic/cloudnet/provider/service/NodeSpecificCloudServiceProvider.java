@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.provider.service;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
@@ -34,7 +35,7 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     private ICloudService getCloudService() {
         this.checkServiceExists();
         return this.cloudNet.getCloudServiceManager().getCloudService(this.serviceInfoSnapshot.getServiceId().getUniqueId());
-    }
+    } // TODO some methods use this but don't check whether the service exists in the cluster
 
     private void checkServiceExists() {
         if (this.serviceInfoSnapshot == null) {
@@ -49,6 +50,11 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     }
 
     @Override
+    public boolean isValid() {
+        return this.serviceInfoSnapshot != null;
+    }
+
+    @Override
     public ServiceInfoSnapshot forceUpdateServiceInfo() {
         this.checkServiceExists();
         return this.forceUpdateServiceInfoAsync().get(5, TimeUnit.SECONDS, null);
@@ -58,6 +64,11 @@ public class NodeSpecificCloudServiceProvider implements SpecificCloudServicePro
     @NotNull
     public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
         return this.cloudNet.scheduleTask(this::getServiceInfoSnapshot);
+    }
+
+    @Override
+    public @NotNull ITask<Boolean> isValidAsync() {
+        return CompletedTask.create(this.isValid());
     }
 
     @Override

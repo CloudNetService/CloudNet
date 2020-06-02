@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.command;
 
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;

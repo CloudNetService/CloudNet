@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.serialization;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,11 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
     public abstract ProtocolBuffer writeStringCollection(@NotNull Collection<String> list);
 
+    @NotNull
+    public abstract String[] readStringArray();
+
+    public abstract ProtocolBuffer writeStringArray(@NotNull String[] array);
+
     public abstract int readVarInt();
 
     public abstract ProtocolBuffer writeVarInt(int value);
@@ -62,14 +68,38 @@ public abstract class ProtocolBuffer extends ByteBuf {
     @NotNull
     public abstract UUID readUUID();
 
-    public abstract ProtocolBuffer writeUUID(@NotNull UUID uniqueId);
+    public abstract ProtocolBuffer writeUUID(@NotNull UUID uuid);
+
+    @Nullable
+    public abstract UUID readOptionalUUID();
+
+    public abstract ProtocolBuffer writeOptionalUUID(@Nullable UUID uuid);
+
+    @NotNull
+    public abstract Collection<UUID> readUUIDCollection();
+
+    public abstract ProtocolBuffer writeUUIDCollection(@NotNull Collection<UUID> uuids);
+
+    @NotNull
+    public abstract JsonDocument readJsonDocument();
+
+    public abstract ProtocolBuffer writeJsonDocument(@NotNull JsonDocument document);
 
     @NotNull
     public abstract <T extends SerializableObject> T readObject(@NotNull Class<T> objectClass);
 
+    @NotNull
     public abstract <T extends SerializableObject> T readObject(@NotNull T targetObject);
 
     public abstract ProtocolBuffer writeObject(@NotNull SerializableObject object);
+
+    @Nullable
+    public abstract <T extends SerializableObject> T readOptionalObject(@NotNull Class<T> objectClass);
+
+    @Nullable
+    public abstract <T extends SerializableObject> T readOptionalObject(@NotNull T targetObject);
+
+    public abstract ProtocolBuffer writeOptionalObject(@Nullable SerializableObject object);
 
     @NotNull
     public abstract <T extends SerializableObject> Collection<T> readObjectCollection(@NotNull Class<T> objectClass);

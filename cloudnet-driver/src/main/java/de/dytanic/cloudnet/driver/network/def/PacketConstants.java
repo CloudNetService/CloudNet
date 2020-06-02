@@ -7,16 +7,17 @@ public final class PacketConstants {
             INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL = 2,
             INTERNAL_CALLABLE_CHANNEL = 3,
             INTERNAL_H2_DATABASE_UPDATE_MODULE = 5,
-            INTERNAL_DEBUGGING_CHANNEL = 6;
+            INTERNAL_DEBUGGING_CHANNEL = 6,
+            INTERNAL_DRIVER_API = 7;
 
     //cluster
     public static final int
-            CLUSTER_SERVICE_INFO_LIST_CHANNEL = 7,
-            CLUSTER_GROUP_CONFIG_LIST_CHANNEL = 8,
-            CLUSTER_TASK_LIST_CHANNEL = 9,
-            CLUSTER_PERMISSION_DATA_CHANNEL = 10,
-            CLUSTER_TEMPLATE_DEPLOY_CHANNEL = 11,
-            CLUSTER_NODE_INFO_CHANNEL = 12;
+            CLUSTER_SERVICE_INFO_LIST_CHANNEL = 8,
+            CLUSTER_GROUP_CONFIG_LIST_CHANNEL = 9,
+            CLUSTER_TASK_LIST_CHANNEL = 10,
+            CLUSTER_PERMISSION_DATA_CHANNEL = 11,
+            CLUSTER_TEMPLATE_DEPLOY_CHANNEL = 12,
+            CLUSTER_NODE_INFO_CHANNEL = 13;
 
     //events
     public static final int
