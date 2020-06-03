@@ -643,7 +643,7 @@ final class JVMCloudService implements ICloudService {
                 "-Dio.netty.recycler.maxCapacity=0",
                 "-Dio.netty.recycler.maxCapacity.default=0",
                 "-DIReallyKnowWhatIAmDoingISwear=true",
-                "-Dcloudnet.wrapper.receivedMessages.language=" + LanguageManager.getLanguage()
+                "-Dcloudnet.wrapper.messages.language=" + LanguageManager.getLanguage()
         ));
 
         File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
