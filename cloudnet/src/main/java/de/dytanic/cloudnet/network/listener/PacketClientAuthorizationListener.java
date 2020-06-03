@@ -53,7 +53,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
 
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API, new PacketServerDriverAPIListener());
+                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
@@ -99,7 +99,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketServerDatabaseAction());
 
-                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API, new PacketServerDriverAPIListener());
+                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
                             //-
 
                             channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));

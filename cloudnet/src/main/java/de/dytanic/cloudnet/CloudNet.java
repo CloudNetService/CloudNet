@@ -814,7 +814,7 @@ public final class CloudNet extends CloudNetDriver {
 
         // Node server API
         registry.addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
-        registry.addListener(PacketConstants.INTERNAL_DRIVER_API, new PacketServerDriverAPIListener());
+        registry.addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 
         // Packet server registry
         this.getNetworkServer().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());

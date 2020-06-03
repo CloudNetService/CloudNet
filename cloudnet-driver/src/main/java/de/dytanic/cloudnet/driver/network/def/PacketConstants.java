@@ -8,7 +8,7 @@ public final class PacketConstants {
             INTERNAL_CALLABLE_CHANNEL = 3,
             INTERNAL_H2_DATABASE_UPDATE_MODULE = 5,
             INTERNAL_DEBUGGING_CHANNEL = 6,
-            INTERNAL_DRIVER_API = 7;
+            INTERNAL_DRIVER_API_CHANNEL = 7;
 
     //cluster
     public static final int

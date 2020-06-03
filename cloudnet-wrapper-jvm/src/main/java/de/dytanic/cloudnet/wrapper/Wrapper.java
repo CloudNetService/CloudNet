@@ -145,7 +145,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
 
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener());
 
-        this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientWrapperSyncListener());
+        this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerWrapperDriverAPIListener());
         //-
 
         this.moduleProvider.setModuleDirectory(new File(".wrapper/modules"));

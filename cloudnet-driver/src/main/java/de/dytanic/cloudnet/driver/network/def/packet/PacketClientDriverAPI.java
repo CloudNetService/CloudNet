@@ -14,7 +14,7 @@ public class PacketClientDriverAPI extends Packet {
     }
 
     public PacketClientDriverAPI(DriverAPIRequestType type, Consumer<ProtocolBuffer> modifier) {
-        super(PacketConstants.INTERNAL_DRIVER_API, ProtocolBuffer.create().writeEnumConstant(type));
+        super(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, ProtocolBuffer.create().writeEnumConstant(type));
         if (modifier != null) {
             modifier.accept(super.body);
         }
