@@ -1,6 +1,8 @@
-package de.dytanic.cloudnet.driver.serialization;
+package de.dytanic.cloudnet.driver.serialization.json;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

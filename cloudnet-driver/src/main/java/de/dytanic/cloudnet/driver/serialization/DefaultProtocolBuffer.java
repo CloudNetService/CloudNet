@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.serialization;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ByteProcessor;
