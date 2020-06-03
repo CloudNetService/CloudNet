@@ -59,6 +59,14 @@ public final class ChannelMessageReceiveEvent extends Event {
         this.queryResponse = queryResponse;
     }
 
+    public void setJsonResponse(@NotNull JsonDocument json) {
+        this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).json(json).build());
+    }
+
+    public void setBinaryResponse(@NotNull ProtocolBuffer buffer) {
+        this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(buffer).build());
+    }
+
     @Nullable
     public ChannelMessage getQueryResponse() {
         return this.queryResponse;

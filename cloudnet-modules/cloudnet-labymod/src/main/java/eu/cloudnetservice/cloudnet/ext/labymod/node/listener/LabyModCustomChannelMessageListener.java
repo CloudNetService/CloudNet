@@ -2,7 +2,10 @@ package eu.cloudnetservice.cloudnet.ext.labymod.node.listener;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
@@ -23,22 +26,24 @@ public class LabyModCustomChannelMessageListener {
     }
 
     @EventListener
-    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(LabyModConstants.CLOUDNET_CHANNEL_NAME)) {
+    public void handle(ChannelMessageReceiveEvent event) {
+        if (!event.getChannel().equals(LabyModConstants.CLOUDNET_CHANNEL_NAME) || event.getMessage() == null || !event.isQuery()) {
             return;
         }
 
-        switch (event.getId()) {
+        switch (event.getMessage()) {
             case LabyModConstants.GET_CONFIGURATION:
-                event.setCallbackPacket(new JsonDocument().append("labyModConfig", this.module.getConfiguration()));
+                event.setJsonResponse(JsonDocument.newDocument("labyModConfig", this.module.getConfiguration()));
                 break;
 
             case LabyModConstants.GET_PLAYER_JOIN_SECRET:
-                event.setCallbackPacket(new JsonDocument().append("player", this.getPlayerByJoinSecret(event.getHeader().get("joinSecret", UUID.class))));
+                UUID joinSecret = event.getBuffer().readUUID();
+                event.setBinaryResponse(ProtocolBuffer.create().writeOptionalObject(this.getPlayerByJoinSecret(joinSecret)));
                 break;
 
             case LabyModConstants.GET_PLAYER_SPECTATE_SECRET:
-                event.setCallbackPacket(new JsonDocument().append("player", this.getPlayerBySpectateSecret(event.getHeader().get("spectateSecret", UUID.class))));
+                UUID spectateSecret = event.getBuffer().readUUID();
+                event.setBinaryResponse(ProtocolBuffer.create().writeOptionalObject(this.getPlayerBySpectateSecret(spectateSecret)));
                 break;
         }
     }
