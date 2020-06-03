@@ -1,25 +1,24 @@
-package de.dytanic.cloudnet.wrapper;
+package de.dytanic.cloudnet.driver.api;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.wrapper.network.packet.PacketClientDriverAPI;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface DriverAPIUser {
 
-    INetworkClient getNetworkClient();
+    INetworkChannel getNetworkChannel();
 
     default <T> ITask<T> executeDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> modifier, Function<IPacket, T> responseMapper) {
         CompletableTask<T> task = new CompletableTask<>();
 
-        this.getNetworkClient().getFirstChannel().sendQueryAsync(new PacketClientDriverAPI(requestType, modifier))
+        this.getNetworkChannel().sendQueryAsync(new PacketClientDriverAPI(requestType, modifier))
                 .onComplete(packet -> task.complete(responseMapper.apply(packet)))
                 .onCancelled(v -> task.cancel(true))
                 .addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);

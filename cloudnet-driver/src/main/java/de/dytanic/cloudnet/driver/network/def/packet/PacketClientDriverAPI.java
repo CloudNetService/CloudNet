@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.wrapper.network.packet;
+package de.dytanic.cloudnet.driver.network.def.packet;
 
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
@@ -13,10 +13,10 @@ public class PacketClientDriverAPI extends Packet {
         this(type, null);
     }
 
-    public PacketClientDriverAPI(DriverAPIRequestType type, Consumer<ProtocolBuffer> bodyModifier) {
+    public PacketClientDriverAPI(DriverAPIRequestType type, Consumer<ProtocolBuffer> modifier) {
         super(PacketConstants.INTERNAL_DRIVER_API, ProtocolBuffer.create().writeEnumConstant(type));
-        if (bodyModifier != null) {
-            bodyModifier.accept(super.body);
+        if (modifier != null) {
+            modifier.accept(super.body);
         }
     }
 

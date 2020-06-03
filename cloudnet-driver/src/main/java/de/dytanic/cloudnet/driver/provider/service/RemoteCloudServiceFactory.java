@@ -1,26 +1,25 @@
-package de.dytanic.cloudnet.wrapper.provider.service;
+package de.dytanic.cloudnet.driver.provider.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.wrapper.DriverAPIUser;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
-public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAPIUser {
+public class RemoteCloudServiceFactory implements CloudServiceFactory, DriverAPIUser {
 
-    private final Wrapper wrapper;
+    private final Supplier<INetworkChannel> channelSupplier;
 
-    public WrapperCloudServiceFactory(Wrapper wrapper) {
-        this.wrapper = wrapper;
+    public RemoteCloudServiceFactory(Supplier<INetworkChannel> channelSupplier) {
+        this.channelSupplier = channelSupplier;
     }
 
     @Nullable
@@ -210,7 +209,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
     }
 
     @Override
-    public INetworkClient getNetworkClient() {
-        return this.wrapper.getNetworkClient();
+    public INetworkChannel getNetworkChannel() {
+        return this.channelSupplier.get();
     }
 }

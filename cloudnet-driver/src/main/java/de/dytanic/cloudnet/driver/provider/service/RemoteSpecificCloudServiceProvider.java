@@ -1,16 +1,14 @@
-package de.dytanic.cloudnet.wrapper.provider.service;
+package de.dytanic.cloudnet.driver.provider.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.api.ServiceDriverAPIResponse;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.wrapper.DriverAPIUser;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,25 +17,29 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class WrapperSpecificCloudServiceProvider implements SpecificCloudServiceProvider, DriverAPIUser {
+public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceProvider, DriverAPIUser {
 
-    private final Wrapper wrapper;
+    private final INetworkChannel channel;
+    private final GeneralCloudServiceProvider provider;
     private UUID uniqueId;
     private String name;
     private ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public WrapperSpecificCloudServiceProvider(Wrapper wrapper, UUID uniqueId) {
-        this.wrapper = wrapper;
+    public RemoteSpecificCloudServiceProvider(INetworkChannel channel, GeneralCloudServiceProvider provider, UUID uniqueId) {
+        this.channel = channel;
+        this.provider = provider;
         this.uniqueId = uniqueId;
     }
 
-    public WrapperSpecificCloudServiceProvider(Wrapper wrapper, String name) {
-        this.wrapper = wrapper;
+    public RemoteSpecificCloudServiceProvider(INetworkChannel channel, GeneralCloudServiceProvider provider, String name) {
+        this.channel = channel;
+        this.provider = provider;
         this.name = name;
     }
 
-    public WrapperSpecificCloudServiceProvider(Wrapper wrapper, ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.wrapper = wrapper;
+    public RemoteSpecificCloudServiceProvider(INetworkChannel channel, ServiceInfoSnapshot serviceInfoSnapshot) {
+        this.channel = channel;
+        this.provider = null;
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
@@ -63,14 +65,14 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     @Override
     @NotNull
     public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
-        if (this.serviceInfoSnapshot != null) {
+        if (this.serviceInfoSnapshot != null || this.provider == null) {
             return CompletedTask.create(this.serviceInfoSnapshot);
         }
         if (this.uniqueId != null) {
-            return this.wrapper.getCloudServiceProvider().getCloudServiceAsync(this.uniqueId);
+            return this.provider.getCloudServiceAsync(this.uniqueId);
         }
         if (this.name != null) {
-            return this.wrapper.getCloudServiceProvider().getCloudServiceByNameAsync(this.name);
+            return this.provider.getCloudServiceByNameAsync(this.name);
         }
         throw new IllegalArgumentException("Cannot get ServiceInfoSnapshot without uniqueId or name");
     }
@@ -277,7 +279,7 @@ public class WrapperSpecificCloudServiceProvider implements SpecificCloudService
     }
 
     @Override
-    public INetworkClient getNetworkClient() {
-        return this.wrapper.getNetworkClient();
+    public INetworkChannel getNetworkChannel() {
+        return this.channel;
     }
 }

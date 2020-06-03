@@ -4,11 +4,11 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
-import de.dytanic.cloudnet.wrapper.DriverAPIUser;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -172,7 +172,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
     }
 
     @Override
-    public INetworkClient getNetworkClient() {
-        return this.wrapper.getNetworkClient();
+    public INetworkChannel getNetworkChannel() {
+        return this.wrapper.getNetworkChannel();
     }
 }

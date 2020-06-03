@@ -80,9 +80,10 @@ import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
+import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.provider.service.NodeSpecificCloudServiceProvider;
+import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
@@ -91,6 +92,7 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -402,17 +404,38 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
-        return new NodeSpecificCloudServiceProvider(this, name);
+        ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudServiceByName(name);
+        return this.selectCloudServiceProvider(snapshot);
     }
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
-        return new NodeSpecificCloudServiceProvider(this, uniqueId);
+        ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudService(uniqueId);
+        return this.selectCloudServiceProvider(snapshot);
     }
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        return new NodeSpecificCloudServiceProvider(this, serviceInfoSnapshot);
+        return this.selectCloudServiceProvider(serviceInfoSnapshot);
+    }
+
+    @NotNull
+    private SpecificCloudServiceProvider selectCloudServiceProvider(@Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
+        if (serviceInfoSnapshot == null) {
+            return EmptySpecificCloudServiceProvider.INSTANCE;
+        }
+        if (serviceInfoSnapshot.getServiceId().getNodeUniqueId().equals(this.getComponentName())) {
+            ICloudService service = this.cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
+            if (service != null) {
+                return new LocalNodeSpecificCloudServiceProvider(this, service);
+            }
+            return EmptySpecificCloudServiceProvider.INSTANCE;
+        }
+        IClusterNodeServer server = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
+        if (server == null) {
+            return EmptySpecificCloudServiceProvider.INSTANCE;
+        }
+        return server.getCloudServiceProvider(serviceInfoSnapshot);
     }
 
     @NotNull

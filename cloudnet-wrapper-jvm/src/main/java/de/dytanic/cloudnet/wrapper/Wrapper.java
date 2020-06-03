@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
@@ -41,9 +42,9 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
-import de.dytanic.cloudnet.wrapper.provider.service.WrapperCloudServiceFactory;
+import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.wrapper.provider.service.WrapperSpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -85,7 +86,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
      */
     private final List<String> commandLineArguments;
 
-    private final CloudServiceFactory cloudServiceFactory = new WrapperCloudServiceFactory(this);
+    private final CloudServiceFactory cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
     private final GeneralCloudServiceProvider generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
     private final ServiceTaskProvider serviceTaskProvider = new WrapperServiceTaskProvider(this);
     private final GroupConfigurationProvider groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
@@ -239,17 +240,17 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
-        return new WrapperSpecificCloudServiceProvider(this, name);
+        return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, name);
     }
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
-        return new WrapperSpecificCloudServiceProvider(this, uniqueId);
+        return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, uniqueId);
     }
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        return new WrapperSpecificCloudServiceProvider(this, serviceInfoSnapshot);
+        return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), serviceInfoSnapshot);
     }
 
     @NotNull
@@ -563,5 +564,10 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {
         Preconditions.checkNotNull(databaseProvider);
         this.databaseProvider = databaseProvider;
+    }
+
+    @Override
+    public INetworkChannel getNetworkChannel() {
+        return this.networkClient.getFirstChannel();
     }
 }

@@ -3,10 +3,10 @@ package de.dytanic.cloudnet.wrapper.provider;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.wrapper.DriverAPIUser;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -118,7 +118,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
     }
 
     @Override
-    public INetworkClient getNetworkClient() {
-        return this.wrapper.getNetworkClient();
+    public INetworkChannel getNetworkChannel() {
+        return this.wrapper.getNetworkChannel();
     }
 }
