@@ -1,10 +1,11 @@
 package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -12,25 +13,21 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @ToString
 @EqualsAndHashCode
 public class SyncProxyConfiguration {
 
     public static SyncProxyConfiguration getConfigurationFromNode() {
-        ITask<SyncProxyConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
-                SyncProxyConstants.SYNC_PROXY_SYNC_CHANNEL_PROPERTY,
-                SyncProxyConstants.SIGN_CHANNEL_SYNC_ID_GET_SYNC_PROXY_CONFIGURATION_PROPERTY,
-                new JsonDocument(),
-                documentPair -> documentPair.get("syncProxyConfiguration", SyncProxyConfiguration.TYPE));
+        ChannelMessage response = ChannelMessage.builder()
+                .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)
+                .message(SyncProxyConstants.SYNC_PROXY_CHANNEL_GET_CONFIGURATION)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
 
-        try {
-            return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
+        if (response != null) {
+            return response.getJson().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
         }
 
         return null;

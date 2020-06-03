@@ -1,12 +1,11 @@
 package de.dytanic.cloudnet.ext.signs;
 
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -335,18 +333,15 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      */
     @Nullable
     public Collection<Sign> getSignsFromNode() {
-        ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
-                SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
-                new byte[0],
-                documentPair -> documentPair.getFirst().get("signs", SignConstants.COLLECTION_SIGNS)
-        );
+        ChannelMessage response = ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_GET_SIGNS)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
 
-        try {
-            return signs.get(5, TimeUnit.SECONDS);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        if (response != null) {
+            return response.getJson().get("signs", SignConstants.COLLECTION_SIGNS);
         }
 
         return null;

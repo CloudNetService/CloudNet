@@ -1,14 +1,9 @@
 package de.dytanic.cloudnet.ext.signs.configuration;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.ext.signs.SignConstants;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public final class SignConfigurationProvider {
 
@@ -33,16 +28,15 @@ public final class SignConfigurationProvider {
     }
 
     private static SignConfiguration load0() {
-        ITask<SignConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
-                SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
-                SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_CONFIGURATION_PROPERTY,
-                new JsonDocument(),
-                documentPair -> documentPair.get("signConfiguration", SignConfiguration.TYPE));
+        ChannelMessage response = ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_GET_SIGNS_CONFIGURATION)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
 
-        try {
-            return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
+        if (response != null) {
+            return response.getJson().get("signConfiguration", SignConfiguration.TYPE);
         }
 
         return null;
