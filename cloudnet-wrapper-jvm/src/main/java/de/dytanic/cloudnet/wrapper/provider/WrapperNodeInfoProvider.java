@@ -146,7 +146,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_NODE_BY_UNIQUE_ID,
                 buffer -> buffer.writeString(uniqueId),
-                packet -> packet.getBuffer().readObject(NetworkClusterNode.class)
+                packet -> packet.getBuffer().readOptionalObject(NetworkClusterNode.class)
         );
     }
 
@@ -167,7 +167,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_NODE_INFO_SNAPSHOT_BY_UNIQUE_ID,
                 buffer -> buffer.writeString(uniqueId),
-                packet -> packet.getBuffer().readObject(NetworkClusterNodeInfoSnapshot.class)
+                packet -> packet.getBuffer().readOptionalObject(NetworkClusterNodeInfoSnapshot.class)
         );
     }
 

@@ -97,7 +97,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICE_BY_NAME,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -186,7 +186,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICE_BY_UNIQUE_ID,
                 buffer -> buffer.writeUUID(uniqueId),
-                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class)
         );
     }
 

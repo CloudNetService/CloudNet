@@ -103,7 +103,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_SERVICE_TASK,
                 buffer -> buffer.writeObject(serviceTask),
-                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -114,7 +114,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.CREATE_CLOUD_SERVICE_BY_SERVICE_TASK_AND_ID,
                 buffer -> buffer.writeObject(serviceTask).writeInt(taskId),
-                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -157,12 +157,13 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
                         .writeBoolean(autoDeleteOnStop)
                         .writeBoolean(staticService)
                         .writeObjectCollection(includes)
+                        .writeObjectCollection(templates)
                         .writeObjectCollection(deployments)
                         .writeStringCollection(groups)
                         .writeObject(processConfiguration)
                         .writeJsonDocument(properties)
                         .writeInt(port),
-                packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class)
+                packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class)
         );
     }
 
@@ -198,6 +199,7 @@ public class WrapperCloudServiceFactory implements CloudServiceFactory, DriverAP
                         .writeBoolean(autoDeleteOnStop)
                         .writeBoolean(staticService)
                         .writeObjectCollection(includes)
+                        .writeObjectCollection(templates)
                         .writeObjectCollection(deployments)
                         .writeStringCollection(groups)
                         .writeObject(processConfiguration)

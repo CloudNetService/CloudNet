@@ -71,7 +71,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_PERMANENT_SERVICE_TASK_BY_NAME,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBuffer().readObject(ServiceTask.class)
+                packet -> packet.getBuffer().readOptionalObject(ServiceTask.class)
         );
     }
 

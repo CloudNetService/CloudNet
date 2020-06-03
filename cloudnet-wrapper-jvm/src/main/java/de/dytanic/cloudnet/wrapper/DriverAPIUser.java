@@ -16,10 +16,10 @@ public interface DriverAPIUser {
 
     INetworkClient getNetworkClient();
 
-    default <T> ITask<T> executeDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> bodyModifier, Function<IPacket, T> responseMapper) {
+    default <T> ITask<T> executeDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> modifier, Function<IPacket, T> responseMapper) {
         CompletableTask<T> task = new CompletableTask<>();
 
-        this.getNetworkClient().getFirstChannel().sendQueryAsync(new PacketClientDriverAPI(requestType, bodyModifier))
+        this.getNetworkClient().getFirstChannel().sendQueryAsync(new PacketClientDriverAPI(requestType, modifier))
                 .onComplete(packet -> task.complete(responseMapper.apply(packet)))
                 .onCancelled(v -> task.cancel(true))
                 .addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
@@ -31,12 +31,12 @@ public interface DriverAPIUser {
         return this.executeDriverAPIMethod(requestType, null, responseMapper);
     }
 
-    default <T> ITask<T> executeVoidDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> bodyModifier) {
-        return this.executeDriverAPIMethod(requestType, bodyModifier, null);
+    default <T> ITask<T> executeVoidDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> modifier) {
+        return this.executeDriverAPIMethod(requestType, modifier, null);
     }
 
-    default <T> ITask<T> executeVoidDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> bodyModifier, Consumer<IPacket> responseHandler) {
-        return this.executeDriverAPIMethod(requestType, bodyModifier, packet -> {
+    default <T> ITask<T> executeVoidDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> modifier, Consumer<IPacket> responseHandler) {
+        return this.executeDriverAPIMethod(requestType, modifier, packet -> {
             responseHandler.accept(packet);
             return null;
         });
