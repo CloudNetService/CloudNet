@@ -2,16 +2,19 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-public final class NetworkPlayerServerInfo {
+public final class NetworkPlayerServerInfo implements SerializableObject {
 
     public static final Type TYPE = new TypeToken<NetworkPlayerServerInfo>() {
     }.getType();
@@ -124,6 +127,34 @@ public final class NetworkPlayerServerInfo {
 
     public void setNetworkService(NetworkServiceInfo networkService) {
         this.networkService = networkService;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeString(this.name);
+        buffer.writeString(this.xBoxId);
+        buffer.writeDouble(this.health);
+        buffer.writeDouble(this.maxHealth);
+        buffer.writeDouble(this.saturation);
+        buffer.writeInt(this.level);
+        buffer.writeObject(this.location);
+        buffer.writeObject(this.address);
+        buffer.writeObject(this.networkService);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.uniqueId = buffer.readUUID();
+        this.name = buffer.readString();
+        this.xBoxId = buffer.readString();
+        this.health = buffer.readDouble();
+        this.maxHealth = buffer.readDouble();
+        this.saturation = buffer.readDouble();
+        this.level = buffer.readInt();
+        this.location = buffer.readObject(WorldPosition.class);
+        this.address = buffer.readObject(HostAndPort.class);
+        this.networkService = buffer.readObject(NetworkServiceInfo.class);
     }
 
 }

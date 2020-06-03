@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -108,6 +109,26 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
 
     public void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo) {
         this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeString(this.name);
+        buffer.writeString(this.xBoxId);
+        buffer.writeLong(this.firstLoginTimeMillis);
+        buffer.writeLong(this.lastLoginTimeMillis);
+        buffer.writeObject(this.lastNetworkConnectionInfo);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.uniqueId = buffer.readUUID();
+        this.name = buffer.readString();
+        this.xBoxId = buffer.readString();
+        this.firstLoginTimeMillis = buffer.readLong();
+        this.lastLoginTimeMillis = buffer.readLong();
+        this.lastNetworkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
     }
 
 }

@@ -1,11 +1,14 @@
 package de.dytanic.cloudnet.ext.bridge;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public class WorldPosition {
+public class WorldPosition implements SerializableObject {
 
     protected double x, y, z, yaw, pitch;
 
@@ -82,6 +85,28 @@ public class WorldPosition {
 
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeDouble(this.x);
+        buffer.writeDouble(this.y);
+        buffer.writeDouble(this.z);
+        buffer.writeDouble(this.yaw);
+        buffer.writeDouble(this.pitch);
+        buffer.writeString(this.world);
+        buffer.writeOptionalString(this.group);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.x = buffer.readDouble();
+        this.y = buffer.readDouble();
+        this.z = buffer.readDouble();
+        this.yaw = buffer.readDouble();
+        this.pitch = buffer.readDouble();
+        this.world = buffer.readString();
+        this.group = buffer.readOptionalString();
     }
 
 }

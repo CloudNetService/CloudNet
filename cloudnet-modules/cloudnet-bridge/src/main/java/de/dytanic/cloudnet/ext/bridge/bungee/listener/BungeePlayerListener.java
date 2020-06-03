@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.listener;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetBridgePlugin;
@@ -27,10 +26,10 @@ public final class BungeePlayerListener implements Listener {
 
     @EventHandler
     public void handle(LoginEvent event) {
-        JsonDocument response = BridgeHelper.sendChannelMessageProxyLoginRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getConnection()));
-        if (response != null && response.contains("kickReason")) {
+        String kickReason = BridgeHelper.sendChannelMessageProxyLoginRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getConnection()));
+        if (kickReason != null) {
             event.setCancelled(true);
-            event.setCancelReason(TextComponent.fromLegacyText(response.getString("kickReason")));
+            event.setCancelReason(TextComponent.fromLegacyText(kickReason));
         }
     }
 

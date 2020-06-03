@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class CompletedTask<V> implements ITask<V> {
 
@@ -54,6 +55,11 @@ public class CompletedTask<V> implements ITask<V> {
     @Override
     public V get(long time, TimeUnit timeUnit, V def) {
         return this.value;
+    }
+
+    @Override
+    public <T> ITask<T> map(Function<V, T> mapper) {
+        return create(mapper.apply(this.value));
     }
 
     @Override

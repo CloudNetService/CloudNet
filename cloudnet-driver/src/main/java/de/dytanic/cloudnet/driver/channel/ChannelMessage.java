@@ -124,7 +124,7 @@ public class ChannelMessage implements SerializableObject {
     }
 
     public static Builder buildResponseFor(@NotNull ChannelMessage input) {
-        return builder().target(input.sender.getType() == DriverEnvironment.CLOUDNET ? ChannelMessageTarget.Type.NODE : ChannelMessageTarget.Type.SERVICE, input.sender.getName());
+        return builder().channel("").target(input.sender.getType(), input.sender.getName());
     }
 
     public static class Builder {
@@ -168,12 +168,20 @@ public class ChannelMessage implements SerializableObject {
             return this.target(new ChannelMessageTarget(type, name));
         }
 
+        public Builder target(@NotNull DriverEnvironment environment, @Nullable String name) {
+            return this.target(environment == DriverEnvironment.CLOUDNET ? ChannelMessageTarget.Type.NODE : ChannelMessageTarget.Type.SERVICE, name);
+        }
+
         public Builder targetAll(@NotNull ChannelMessageTarget.Type type) {
             return this.target(type, null);
         }
 
         public Builder targetAll() {
             return this.target(ChannelMessageTarget.Type.ALL, null);
+        }
+
+        public Builder targetServices() {
+            return this.targetAll(ChannelMessageTarget.Type.SERVICE);
         }
 
         public Builder targetService(@Nullable String name) {

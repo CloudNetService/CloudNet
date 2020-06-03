@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.ext.bridge;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
@@ -11,10 +11,6 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 public final class BridgeHelper {
 
@@ -36,80 +32,81 @@ public final class BridgeHelper {
         Wrapper.getInstance().publishServiceInfoUpdate();
     }
 
-    public static JsonDocument sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
-        try {
-            return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                    CloudNetDriver.getInstance().getNetworkClient().getFirstChannel(),
-                    BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                    BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
-                    new JsonDocument("networkConnectionInfo", networkConnectionInfo),
-                    Function.identity()
-            ).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    public static ChannelMessage.Builder messageBuilder() {
+        return ChannelMessage.builder().channel(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL);
+    }
+
+    public static String sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
+        ChannelMessage response = messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo))
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
+        return response != null ? response.getBuffer().readOptionalString() : null;
     }
 
     public static void sendChannelMessageProxyLoginSuccess(NetworkConnectionInfo networkConnectionInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_SUCCESS,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-        );
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_SUCCESS)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo))
+                .targetAll()
+                .build()
+                .send();
     }
 
     public static void sendChannelMessageProxyDisconnect(NetworkConnectionInfo networkConnectionInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_DISCONNECT,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-        );
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_DISCONNECT)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo))
+                .targetAll()
+                .build()
+                .send();
     }
 
     public static void sendChannelMessageProxyServerSwitch(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_SWITCH,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-                        .append("networkServiceInfo", networkServiceInfo)
-        );
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_SWITCH)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkServiceInfo))
+                .targetAll()
+                .build()
+                .send();
     }
 
     public static void sendChannelMessageProxyServerConnectRequest(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_CONNECT_REQUEST,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-                        .append("networkServiceInfo", networkServiceInfo)
-        );
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_CONNECT_REQUEST)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkServiceInfo))
+                .targetAll()
+                .build()
+                .send();
     }
 
     public static void sendChannelMessageServerLoginRequest(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-                        .append("networkPlayerServerInfo", networkPlayerServerInfo)
-        );
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
+                .targetAll()
+                .build()
+                .send();
     }
 
     public static void sendChannelMessageServerLoginSuccess(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-                        .append("networkPlayerServerInfo", networkPlayerServerInfo)
-        );
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
+                .targetAll()
+                .build()
+                .send();
     }
 
     public static void sendChannelMessageServerDisconnect(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT,
-                new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-                        .append("networkPlayerServerInfo", networkPlayerServerInfo)
-        );
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT)
+                .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
+                .targetAll()
+                .build()
+                .send();
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(

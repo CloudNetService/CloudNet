@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface ITask<V> extends Future<V>, Callable<V> {
 
@@ -72,4 +73,7 @@ public interface ITask<V> extends Future<V>, Callable<V> {
     V getDef(V def);
 
     V get(long time, TimeUnit timeUnit, V def);
+
+    <T> ITask<T> map(Function<V, T> mapper);
+
 }

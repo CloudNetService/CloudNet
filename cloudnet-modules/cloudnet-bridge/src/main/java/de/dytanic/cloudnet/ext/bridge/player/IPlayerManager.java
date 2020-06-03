@@ -440,6 +440,6 @@ public interface IPlayerManager {
      * @param message    the message to be sent to all online players with the given permission
      * @param permission the permission to check for
      */
-    void broadcastMessage(@NotNull String message, @NotNull String permission);
+    void broadcastMessage(@NotNull String message, @Nullable String permission);
 
 }
