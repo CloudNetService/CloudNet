@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.network.listener;
 
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
@@ -11,18 +12,20 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PacketServerDriverAPIListener implements IPacketListener {
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+    public void handle(INetworkChannel channel, IPacket packet) {
         ProtocolBuffer input = packet.getBuffer();
         DriverAPIRequestType requestType = input.readEnumConstant(DriverAPIRequestType.class);
 
@@ -263,7 +266,7 @@ public class PacketServerDriverAPIListener implements IPacketListener {
                         properties, port
                 );
 
-                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObjectCollection(snapshots)));
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObjectCollection(snapshots != null ? snapshots : Collections.emptyList())));
             }
             break;
 
@@ -370,122 +373,157 @@ public class PacketServerDriverAPIListener implements IPacketListener {
             break;
 
             case PERMISSION_MANAGEMENT_RELOAD: {
-
+                boolean success = this.permissionManagement().reload();
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeBoolean(success)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_ADD_USER: {
-
+                IPermissionUser user = input.readObject(PermissionUser.class);
+                IPermissionUser response = this.permissionManagement().addUser(user);
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObject(response)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_UPDATE_USER: {
-
+                IPermissionUser user = input.readObject(PermissionUser.class);
+                this.permissionManagement().updateUser(user);
+                channel.sendPacket(Packet.createResponseFor(packet));
             }
             break;
 
             case PERMISSION_MANAGEMENT_DELETE_USERS_BY_NAME: {
-
+                String name = input.readString();
+                boolean success = this.permissionManagement().deleteUser(name);
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeBoolean(success)));
             }
             break;
 
-            case PERMISSION_MANAGEMENT_DELETE_USER_BY_UNIQUE_ID: {
-
+            case PERMISSION_MANAGEMENT_DELETE_USER: {
+                IPermissionUser user = input.readObject(PermissionUser.class);
+                boolean success = this.permissionManagement().deleteUser(user);
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeBoolean(success)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_SET_USERS: {
-
+                Collection<? extends IPermissionUser> users = input.readObjectCollection(PermissionUser.class);
+                this.permissionManagement().setUsers(users);
+                channel.sendPacket(Packet.createResponseFor(packet));
             }
             break;
 
             case PERMISSION_MANAGEMENT_ADD_GROUP: {
-
+                IPermissionGroup group = input.readObject(PermissionGroup.class);
+                IPermissionGroup response = this.permissionManagement().addGroup(group);
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObject(response)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_UPDATE_GROUP: {
-
+                IPermissionGroup group = input.readObject(PermissionGroup.class);
+                this.permissionManagement().updateGroup(group);
+                channel.sendPacket(Packet.createResponseFor(packet));
             }
             break;
 
             case PERMISSION_MANAGEMENT_DELETE_GROUP_BY_NAME: {
-
+                String name = input.readString();
+                this.permissionManagement().deleteGroup(name);
+                channel.sendPacket(Packet.createResponseFor(packet));
             }
             break;
 
             case PERMISSION_MANAGEMENT_DELETE_GROUP: {
-
+                IPermissionGroup group = input.readObject(PermissionGroup.class);
+                this.permissionManagement().deleteGroup(group);
+                channel.sendPacket(Packet.createResponseFor(packet));
             }
             break;
 
             case PERMISSION_MANAGEMENT_SET_GROUPS: {
-
+                Collection<? extends IPermissionGroup> groups = input.readObjectCollection(PermissionGroup.class);
+                this.permissionManagement().setGroups(groups);
+                channel.sendPacket(Packet.createResponseFor(packet));
             }
             break;
 
             case GET_CLOUD_SERVICES_BY_ENVIRONMENT: {
-
+                ServiceEnvironmentType environment = input.readEnumConstant(ServiceEnvironmentType.class);
+                Collection<ServiceInfoSnapshot> snapshots = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(environment);
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObjectCollection(snapshots)));
             }
             break;
 
             case SEND_COMMAND_LINE_AS_PERMISSION_USER: {
-
+                Pair<Boolean, String[]> response = CloudNetDriver.getInstance().sendCommandLineAsPermissionUser(input.readUUID(), input.readString());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeBoolean(response.getFirst()).writeStringArray(response.getSecond())));
             }
             break;
 
             case PERMISSION_MANAGEMENT_CONTAINS_USER_BY_UNIQUE_ID: {
-
+                boolean contains = this.permissionManagement().containsUser(input.readUUID());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeBoolean(contains)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_CONTAINS_USER_BY_NAME: {
-
+                boolean contains = this.permissionManagement().containsUser(input.readString());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeBoolean(contains)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_USER_BY_UNIQUE_ID: {
-
+                IPermissionUser user = this.permissionManagement().getUser(input.readUUID());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalObject(user)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_USERS_BY_NAME: {
-
+                Collection<IPermissionUser> users = this.permissionManagement().getUsers(input.readString());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObjectCollection(users)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_FIRST_USER_BY_NAME: {
-
+                IPermissionUser user = this.permissionManagement().getFirstUser(input.readString());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalObject(user)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_USERS: {
-
+                Collection<IPermissionUser> users = this.permissionManagement().getUsers();
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObjectCollection(users)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_USERS_BY_GROUP: {
-
+                Collection<IPermissionUser> users = this.permissionManagement().getUsersByGroup(input.readString());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObjectCollection(users)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_CONTAINS_GROUP: {
-
+                boolean contains = this.permissionManagement().containsGroup(input.readString());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeBoolean(contains)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_GROUP_BY_NAME: {
-
+                IPermissionGroup group = this.permissionManagement().getGroup(input.readString());
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalObject(group)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_GROUPS: {
-
+                Collection<IPermissionGroup> groups = this.permissionManagement().getGroups();
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeObjectCollection(groups)));
             }
             break;
 
             case PERMISSION_MANAGEMENT_GET_DEFAULT_GROUP: {
-
+                IPermissionGroup group = this.permissionManagement().getDefaultPermissionGroup();
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalObject(group)));
             }
             break;
 
@@ -528,6 +566,10 @@ public class PacketServerDriverAPIListener implements IPacketListener {
             modifier.accept(buffer);
         }
         return Packet.createResponseFor(packet, buffer);
+    }
+
+    private IPermissionManagement permissionManagement() {
+        return CloudNetDriver.getInstance().getPermissionManagement();
     }
 
 }

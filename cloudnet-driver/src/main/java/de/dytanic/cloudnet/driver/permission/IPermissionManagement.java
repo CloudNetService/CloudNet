@@ -155,7 +155,7 @@ public interface IPermissionManagement {
      *
      * @param users the new {@link IPermissionUser}s to be stored in the database
      */
-    void setUsers(@Nullable Collection<? extends IPermissionUser> users);
+    void setUsers(@NotNull Collection<? extends IPermissionUser> users);
 
     /**
      * Gets a list of all users stored in the database with the given group.

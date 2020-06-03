@@ -353,7 +353,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.SEND_COMMAND_LINE_AS_PERMISSION_USER,
                 buffer -> buffer.writeUUID(uniqueId).writeString(commandLine),
-                packet -> new Pair<>(packet.getBuffer().readBoolean(), packet.getBuffer().readStringCollection().toArray(new String[0]))
+                packet -> new Pair<>(packet.getBuffer().readBoolean(), packet.getBuffer().readStringArray())
         );
     }
 

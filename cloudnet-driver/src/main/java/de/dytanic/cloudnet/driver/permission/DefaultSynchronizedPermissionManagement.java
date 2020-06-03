@@ -79,7 +79,7 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
     }
 
     @Override
-    default void setUsers(@Nullable Collection<? extends IPermissionUser> users) {
+    default void setUsers(@NotNull Collection<? extends IPermissionUser> users) {
         this.setUsersAsync(users).get(5, TimeUnit.SECONDS, null);
     }
 
