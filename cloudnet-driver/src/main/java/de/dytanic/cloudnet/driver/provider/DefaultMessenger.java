@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.driver.provider;
 
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,12 +12,8 @@ public abstract class DefaultMessenger implements CloudMessenger {
 
     @Override
     public @NotNull ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-        CompletableTask<ChannelMessage> task = new CompletableTask<>();
-        this.sendChannelMessageQueryAsync(channelMessage)
-                .onComplete(channelMessages -> task.complete(channelMessages.isEmpty() ? null : channelMessages.iterator().next()))
-                .onCancelled(v -> task.cancel(true))
-                .addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
-        return task;
+        return this.sendChannelMessageQueryAsync(channelMessage)
+                .map(messages -> messages.isEmpty() ? null : messages.iterator().next());
     }
 
     @Override

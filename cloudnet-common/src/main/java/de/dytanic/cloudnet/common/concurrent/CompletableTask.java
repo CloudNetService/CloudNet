@@ -32,7 +32,7 @@ public class CompletableTask<V> implements ITask<V> {
 
     @Override
     public Callable<V> getCallable() {
-        return () -> this.future.get();
+        return this.future::get;
     }
 
     @Override
