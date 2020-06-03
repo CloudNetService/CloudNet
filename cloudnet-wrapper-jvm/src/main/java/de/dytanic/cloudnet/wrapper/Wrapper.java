@@ -13,7 +13,6 @@ import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.PacketQueryProvider;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
@@ -22,9 +21,7 @@ import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
-import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
-import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.*;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
@@ -42,9 +39,7 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
-import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -134,9 +129,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         } else {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
         }
-        super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
 
-        super.setPermissionManagement(new WrapperPermissionManagement(super.packetQueryProvider, this));
+        super.setPermissionManagement(new WrapperPermissionManagement(this));
 
         //- Packet client registry
         this.networkClient.getPacketRegistry().addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());

@@ -34,7 +34,10 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
-import de.dytanic.cloudnet.driver.network.*;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.INetworkServer;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -81,9 +84,9 @@ import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
+import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
@@ -221,7 +224,6 @@ public final class CloudNet extends CloudNetDriver {
                 this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null,
                 this.networkTaskScheduler
         );
-        super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
 
         this.networkServer = new NettyNetworkServer(NetworkServerChannelHandlerImpl::new,
                 this.config.getClientSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
@@ -813,7 +815,6 @@ public final class CloudNet extends CloudNetDriver {
         registry.addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
 
         // Node server API
-        registry.addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
         registry.addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 
         // Packet server registry

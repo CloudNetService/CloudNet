@@ -18,14 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-/**
- * This is the internal api channel for synchronized communication between driver api and cloudnet node.
- * This Class is unsafe about the architecture, because the complete network framework based of async listening.
- * <p>
- * It's only for the base API by the CloudNetDriver class and the Bridge API
- *
- * @see de.dytanic.cloudnet.driver.CloudNetDriver
- */
 @ApiStatus.Internal
 public final class InternalSyncPacketChannel {
 
@@ -58,33 +50,6 @@ public final class InternalSyncPacketChannel {
     public static void registerQueryHandler(UUID uniqueId, Consumer<IPacket> consumer) {
         checkCachedValidation();
         WAITING_PACKETS.put(uniqueId, new SynchronizedCallback(consumer));
-    }
-
-    @NotNull
-    public static ITask<IPacket> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body) {
-        return sendCallablePacket(channel, header, body, null);
-    }
-
-    @NotNull
-    public static ITask<IPacket> sendCallablePacket(@NotNull INetworkChannel channel, @NotNull JsonDocument header, byte[] body, ITaskListener<IPacket> listener) {
-        Packet packet = new Packet(PacketConstants.INTERNAL_CALLABLE_CHANNEL, header, body);
-        checkCachedValidation();
-
-        AtomicReference<IPacket> reference = new AtomicReference<>();
-        ITask<IPacket> task = new ListenableTask<>(reference::get, listener);
-        SynchronizedCallback syncEntry = new SynchronizedCallback(response -> {
-            reference.set(response);
-            try {
-                task.call();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        });
-
-        WAITING_PACKETS.put(packet.getUniqueId(), syncEntry);
-        channel.sendPacket(packet);
-
-        return task;
     }
 
     private static void checkCachedValidation() {

@@ -51,8 +51,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
 
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
-
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
@@ -95,8 +93,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL, new PacketClientServiceInfoUpdateListener());
 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(true));
-
-                            channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
 
                             channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DATABASE_API_CHANNEL, new PacketServerRemoteDatabaseActionListener());
 
