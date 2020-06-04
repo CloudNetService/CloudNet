@@ -91,7 +91,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CONSOLE_COMMAND_BY_LINE,
                 buffer -> buffer.writeString(commandLine),
-                packet -> packet.getBuffer().readObject(CommandInfo.class)
+                packet -> packet.getBuffer().readOptionalObject(CommandInfo.class)
         );
     }
 

@@ -75,7 +75,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_GROUP_CONFIGURATION_BY_NAME,
                 buffer -> buffer.writeString(name),
-                packet -> packet.getBuffer().readObject(GroupConfiguration.class)
+                packet -> packet.getBuffer().readOptionalObject(GroupConfiguration.class)
         );
     }
 
