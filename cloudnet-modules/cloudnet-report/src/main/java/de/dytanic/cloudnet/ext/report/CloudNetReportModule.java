@@ -84,7 +84,8 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     }
 
     public String getPasteURL() {
-        return this.getConfig().getString("pasteServerUrl");
+        String url = this.getConfig().getString("pasteServerUrl");
+        return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
 
