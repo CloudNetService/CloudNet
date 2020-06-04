@@ -32,7 +32,6 @@ import de.dytanic.cloudnet.driver.service.*;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.function.Function;
 
@@ -209,16 +208,7 @@ public abstract class CloudNetDriver {
      * @return the PID as an int or -1, if it couldn't be fetched
      */
     public int getOwnPID() {
-        if (this.pid == -2) {
-            String runtimeName = ManagementFactory.getRuntimeMXBean().getName();
-            int index = runtimeName.indexOf('@');
-            try {
-                return this.pid = (index < 1 ? -1 : Integer.parseInt(runtimeName.substring(0, index)));
-            } catch (NumberFormatException ignored) {
-                return this.pid = -1;
-            }
-        }
-        return this.pid;
+        return ProcessSnapshot.getOwnPID();
     }
 
     /**
