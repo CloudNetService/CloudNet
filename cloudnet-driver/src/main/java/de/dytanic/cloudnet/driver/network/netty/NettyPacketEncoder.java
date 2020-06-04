@@ -33,7 +33,7 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
         ProtocolBuffer data = ProtocolBuffer.wrap(byteBuf);
 
         data.writeVarInt(packet.getChannel());
-        data.writeUUID(packet.getUniqueId() != null ? packet.getUniqueId() : UUID.randomUUID());
+        data.writeUUID(packet.getUniqueId());
 
         data.writeString(packet.getHeader() != null ? packet.getHeader().toJson() : "{}");
 
