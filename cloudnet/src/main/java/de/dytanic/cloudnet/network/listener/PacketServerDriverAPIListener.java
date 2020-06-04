@@ -39,6 +39,14 @@ public class PacketServerDriverAPIListener implements IPacketListener {
             }
             break;
 
+            case IS_CLOUD_SERVICE_VALID: {
+                this.getCloudServiceProvider(channel, packet, provider -> {
+                    boolean valid = provider.isValid();
+                    channel.sendPacket(this.createSuccessServiceResponseFor(packet, buffer -> buffer.writeBoolean(valid)));
+                });
+            }
+            break;
+
             case SET_CLOUD_SERVICE_LIFE_CYCLE: {
                 this.getCloudServiceProvider(channel, packet, provider -> {
                     provider.setCloudServiceLifeCycle(input.readEnumConstant(ServiceLifeCycle.class));

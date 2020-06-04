@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.api;
 public enum DriverAPIRequestType {
 
     FORCE_UPDATE_SERVICE,
+    IS_CLOUD_SERVICE_VALID,
     SET_CLOUD_SERVICE_LIFE_CYCLE,
     ADD_PERMANENT_SERVICE_TASK,
     REMOVE_PERMANENT_SERVICE_TASK,

@@ -79,7 +79,11 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
 
     @Override
     public @NotNull ITask<Boolean> isValidAsync() {
-        return null; // TODO
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.IS_CLOUD_SERVICE_VALID,
+                this::writeDefaults,
+                packet -> this.readDefaults(packet.getBuffer()).readBoolean()
+        );
     }
 
     @Override
