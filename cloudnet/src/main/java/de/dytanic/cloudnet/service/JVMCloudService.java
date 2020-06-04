@@ -413,19 +413,7 @@ final class JVMCloudService implements ICloudService {
                 new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), this.serviceConfiguration.getPort()),
                 -1,
                 lifeCycle,
-                this.serviceInfoSnapshot != null ?
-                        this.serviceInfoSnapshot.getProcessSnapshot() :
-                        new ProcessSnapshot(
-                                -1,
-                                -1,
-                                -1,
-                                -1,
-                                -1,
-                                -1,
-                                Collections.emptyList(),
-                                -1,
-                                -1
-                        ),
+                this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getProcessSnapshot() : ProcessSnapshot.empty(),
                 this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getProperties() : this.serviceConfiguration.getProperties(),
                 this.serviceConfiguration
         );
@@ -642,7 +630,7 @@ final class JVMCloudService implements ICloudService {
                 "-Dio.netty.recycler.maxCapacity=0",
                 "-Dio.netty.recycler.maxCapacity.default=0",
                 "-DIReallyKnowWhatIAmDoingISwear=true",
-                "-Dcloudnet.wrapper.receivedMessages.language=" + LanguageManager.getLanguage()
+                "-Dcloudnet.wrapper.messages.language=" + LanguageManager.getLanguage()
         ));
 
         File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
