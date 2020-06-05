@@ -36,12 +36,12 @@ public class LabyModCustomChannelMessageListener {
 
             case LabyModConstants.GET_PLAYER_JOIN_SECRET:
                 UUID joinSecret = event.getBuffer().readUUID();
-                event.setBinaryResponse(ProtocolBuffer.create().writeOptionalObject(this.getPlayerByJoinSecret(joinSecret)));
+                event.createBinaryResponse().writeOptionalObject(this.getPlayerByJoinSecret(joinSecret));
                 break;
 
             case LabyModConstants.GET_PLAYER_SPECTATE_SECRET:
                 UUID spectateSecret = event.getBuffer().readUUID();
-                event.setBinaryResponse(ProtocolBuffer.create().writeOptionalObject(this.getPlayerBySpectateSecret(spectateSecret)));
+                event.createBinaryResponse().writeOptionalObject(this.getPlayerBySpectateSecret(spectateSecret));
                 break;
         }
     }
