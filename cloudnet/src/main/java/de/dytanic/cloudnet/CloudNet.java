@@ -19,7 +19,6 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
@@ -660,19 +659,7 @@ public final class CloudNet extends CloudNetDriver {
                 this.cloudServiceManager.getCurrentUsedHeapMemory(),
                 this.cloudServiceManager.getCurrentReservedMemory(),
                 this.config.getMaxMemory(),
-                new ProcessSnapshot(
-                        memoryMXBean.getHeapMemoryUsage().getUsed(),
-                        memoryMXBean.getNonHeapMemoryUsage().getUsed(),
-                        memoryMXBean.getHeapMemoryUsage().getMax(),
-                        ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),
-                        ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
-                        ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
-                        Thread.getAllStackTraces().keySet().stream()
-                                .map(thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority()))
-                                .collect(Collectors.toList()),
-                        CPUUsageResolver.getProcessCPUUsage(),
-                        this.getOwnPID()
-                ),
+                ProcessSnapshot.self(),
                 this.moduleProvider.getModules().stream().map(moduleWrapper -> new NetworkClusterNodeExtensionSnapshot(
                         moduleWrapper.getModuleConfiguration().getGroup(),
                         moduleWrapper.getModuleConfiguration().getName(),

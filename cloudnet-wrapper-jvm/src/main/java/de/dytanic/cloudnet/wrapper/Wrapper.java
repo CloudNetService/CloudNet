@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
@@ -44,8 +43,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +51,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -383,26 +379,12 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
      */
     @NotNull
     public ServiceInfoSnapshot createServiceInfoSnapshot() {
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
                 this.currentServiceInfoSnapshot.getAddress(),
                 this.networkClient.getConnectedTime(),
                 ServiceLifeCycle.RUNNING,
-                new ProcessSnapshot(
-                        memoryMXBean.getHeapMemoryUsage().getUsed(),
-                        memoryMXBean.getNonHeapMemoryUsage().getUsed(),
-                        memoryMXBean.getHeapMemoryUsage().getMax(),
-                        ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),
-                        ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
-                        ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount(),
-                        Thread.getAllStackTraces().keySet()
-                                .stream().map(thread -> new ThreadSnapshot(thread.getId(), thread.getName(), thread.getState(), thread.isDaemon(), thread.getPriority()))
-                                .collect(Collectors.toList()),
-                        CPUUsageResolver.getProcessCPUUsage(),
-                        this.getOwnPID()
-                ),
+                ProcessSnapshot.self(),
                 this.currentServiceInfoSnapshot.getProperties(),
                 this.getServiceConfiguration()
         );

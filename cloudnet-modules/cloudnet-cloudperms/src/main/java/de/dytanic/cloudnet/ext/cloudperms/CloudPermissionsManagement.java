@@ -28,7 +28,9 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     public static CloudPermissionsManagement newInstance() {
-        return new CloudPermissionsPermissionManagement(Objects.requireNonNull(CloudNetDriver.getInstance().getPermissionManagement()));
+        CloudPermissionsManagement management = new CloudPermissionsPermissionManagement(Objects.requireNonNull(CloudNetDriver.getInstance().getPermissionManagement()));
+        CloudNetDriver.getInstance().setPermissionManagement(management);
+        return management;
     }
 
     @Override
