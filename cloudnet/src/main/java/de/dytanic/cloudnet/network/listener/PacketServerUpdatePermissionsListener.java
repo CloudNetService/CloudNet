@@ -18,6 +18,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
+        packet.getBuffer().markReaderIndex();
         PacketServerUpdatePermissions.UpdateType updateType = packet.getBuffer().readEnumConstant(PacketServerUpdatePermissions.UpdateType.class);
 
         switch (updateType) {
@@ -87,6 +88,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             break;
         }
 
+        packet.getBuffer().resetReaderIndex();
         this.sendUpdateToAllServices(packet);
     }
 
