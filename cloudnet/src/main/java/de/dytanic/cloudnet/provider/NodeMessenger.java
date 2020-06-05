@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
@@ -26,7 +27,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         this.cloudNet = cloudNet;
     }
 
-    public Collection<INetworkChannel> getTargetChannels(ChannelMessageTarget target, boolean serviceOnly) {
+    public Collection<INetworkChannel> getTargetChannels(ChannelMessageSender sender, ChannelMessageTarget target, boolean serviceOnly) {
         switch (target.getType()) {
             case NODE: {
                 if (serviceOnly) {
@@ -37,15 +38,18 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             }
             case TASK: {
                 Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider().getCloudServices(target.getName());
-                return this.getSendersFromServices(services, serviceOnly);
+                return this.getSendersFromServices(sender, services, serviceOnly);
             }
             case GROUP: {
                 Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider().getCloudServicesByGroup(target.getName());
-                return this.getSendersFromServices(services, serviceOnly);
+                return this.getSendersFromServices(sender, services, serviceOnly);
             }
             case SERVICE: {
                 ServiceInfoSnapshot service = this.cloudNet.getCloudServiceProvider().getCloudServiceByName(target.getName());
                 if (service == null) {
+                    return null;
+                }
+                if (sender.isEqual(service)) {
                     return null;
                 }
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
@@ -60,18 +64,18 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             }
             case ENVIRONMENT: {
                 Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider().getCloudServices(target.getEnvironment());
-                return this.getSendersFromServices(services, serviceOnly);
+                return this.getSendersFromServices(sender, services, serviceOnly);
             }
             case ALL: {
                 Collection<INetworkChannel> channels = new ArrayList<>();
                 for (ICloudService localService : this.cloudNet.getCloudServiceManager().getLocalCloudServices()) {
-                    if (localService.getNetworkChannel() != null) {
+                    if (localService.getNetworkChannel() != null && !sender.isEqual(localService.getServiceInfoSnapshot())) {
                         channels.add(localService.getNetworkChannel());
                     }
                 }
                 if (!serviceOnly) {
                     for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-                        if (server.getChannel() != null) {
+                        if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
                             channels.add(server.getChannel());
                         }
                     }
@@ -82,12 +86,16 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         return null;
     }
 
-    private Collection<INetworkChannel> getSendersFromServices(Collection<ServiceInfoSnapshot> services, boolean serviceOnly) {
+    private Collection<INetworkChannel> getSendersFromServices(ChannelMessageSender sender, Collection<ServiceInfoSnapshot> services, boolean serviceOnly) {
         if (services.isEmpty()) {
             return Collections.emptyList();
         }
         Collection<INetworkChannel> channels = new ArrayList<>();
         for (ServiceInfoSnapshot service : services) {
+            if (sender.isEqual(service)) {
+                continue;
+            }
+
             if (service.getServiceId().getNodeUniqueId().equals(this.cloudNet.getComponentName())) {
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
                 if (localService != null && localService.getNetworkChannel() != null) {
@@ -109,7 +117,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
-        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getTarget(), false);
+        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTarget(), false);
         if (channels == null || channels.isEmpty()) {
             return;
         }
@@ -122,7 +130,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getTarget(), false);
+        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTarget(), false);
         if (channels == null || channels.isEmpty()) {
             return CompletedTask.create(Collections.emptyList());
         }

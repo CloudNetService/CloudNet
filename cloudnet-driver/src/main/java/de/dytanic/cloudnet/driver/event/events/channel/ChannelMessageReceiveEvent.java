@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +25,16 @@ public final class ChannelMessageReceiveEvent extends Event {
     public ChannelMessageReceiveEvent(@NotNull ChannelMessage message, boolean query) {
         this.channelMessage = message;
         this.query = query;
+    }
+
+    @NotNull
+    public ChannelMessageSender getSender() {
+        return this.channelMessage.getSender();
+    }
+
+    @NotNull
+    public ChannelMessageTarget getTarget() {
+        return this.channelMessage.getTarget();
     }
 
     @NotNull
@@ -65,6 +77,12 @@ public final class ChannelMessageReceiveEvent extends Event {
 
     public void setBinaryResponse(@NotNull ProtocolBuffer buffer) {
         this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(buffer).build());
+    }
+
+    public ProtocolBuffer createBinaryResponse() {
+        ProtocolBuffer buffer = ProtocolBuffer.create();
+        this.setBinaryResponse(buffer);
+        return buffer;
     }
 
     @Nullable

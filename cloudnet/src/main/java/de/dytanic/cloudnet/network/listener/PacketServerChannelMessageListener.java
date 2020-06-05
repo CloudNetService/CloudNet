@@ -63,7 +63,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
             }
 
         } else if (messenger instanceof NodeMessenger) {
-            Collection<INetworkChannel> channels = ((NodeMessenger) messenger).getTargetChannels(message.getTarget(), true);
+            Collection<INetworkChannel> channels = ((NodeMessenger) messenger).getTargetChannels(message.getSender(), message.getTarget(), true);
 
             if (channels != null && !channels.isEmpty()) {
                 IPacket clientPacket = new PacketClientServerChannelMessage(message, query);

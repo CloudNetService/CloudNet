@@ -82,62 +82,44 @@ public final class PlayerManagerListener {
 
         switch (event.getMessage().toLowerCase()) {
             case "get_online_count": {
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeInt(this.nodePlayerManager.getOnlineCount()))
-                        .build());
+                event.createBinaryResponse().writeInt(this.nodePlayerManager.getOnlineCount());
             }
             break;
             case "get_registered_count": {
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeLong(this.nodePlayerManager.getRegisteredCount()))
-                        .build());
+                event.createBinaryResponse().writeLong(this.nodePlayerManager.getRegisteredCount());
             }
             break;
             case "get_online_player_by_uuid": {
                 UUID uniqueId = event.getBuffer().readUUID();
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeOptionalObject(this.nodePlayerManager.getOnlinePlayer(uniqueId)))
-                        .build());
+                event.createBinaryResponse().writeOptionalObject(this.nodePlayerManager.getOnlinePlayer(uniqueId));
             }
             break;
             case "get_online_players_by_name": {
                 String name = event.getBuffer().readString();
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers(name)))
-                        .build());
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers(name));
             }
             break;
             case "get_online_players_by_environment": {
                 ServiceEnvironmentType environment = event.getBuffer().readEnumConstant(ServiceEnvironmentType.class);
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers(environment)))
-                        .build());
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers(environment));
             }
             break;
             case "get_online_players": {
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers()))
-                        .build());
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers());
             }
             break;
             case "get_offline_player_by_uuid": {
                 UUID uniqueId = event.getBuffer().readUUID();
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeOptionalObject(this.nodePlayerManager.getOfflinePlayer(uniqueId)))
-                        .build());
+                event.createBinaryResponse().writeOptionalObject(this.nodePlayerManager.getOfflinePlayer(uniqueId));
             }
             break;
             case "get_offline_players_by_name": {
                 String name = event.getBuffer().readString();
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeObjectCollection(this.nodePlayerManager.getOfflinePlayers(name)))
-                        .build());
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getOfflinePlayers(name));
             }
             break;
             case "get_offline_players": {
-                event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                        .buffer(ProtocolBuffer.create().writeObjectCollection(this.nodePlayerManager.getRegisteredPlayers()))
-                        .build());
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getRegisteredPlayers());
             }
             break;
         }
