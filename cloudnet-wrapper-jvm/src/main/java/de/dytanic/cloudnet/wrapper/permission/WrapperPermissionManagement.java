@@ -113,7 +113,7 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     public ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.PERMISSION_MANAGEMENT_DELETE_USER,
-                buffer -> buffer.writeUUID(permissionUser.getUniqueId()),
+                buffer -> buffer.writeObject(permissionUser),
                 packet -> packet.getBuffer().readBoolean()
         );
     }

@@ -52,7 +52,7 @@ public class CompletableTask<V> implements ITask<V> {
     @Override
     public <T> ITask<T> map(Function<V, T> mapper) {
         CompletableTask<T> task = new CompletableTask<>();
-        this.future.thenAccept(v -> task.complete(mapper.apply(v)));
+        this.future.thenAccept(v -> task.complete(mapper == null ? null : mapper.apply(v)));
         this.onFailure(task.future::completeExceptionally);
         this.onCancelled(otherTask -> task.cancel(true));
         return task;

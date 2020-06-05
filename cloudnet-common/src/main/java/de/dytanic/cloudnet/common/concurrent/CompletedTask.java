@@ -59,7 +59,7 @@ public class CompletedTask<V> implements ITask<V> {
 
     @Override
     public <T> ITask<T> map(Function<V, T> mapper) {
-        return create(mapper.apply(this.value));
+        return create(mapper == null ? null : mapper.apply(this.value));
     }
 
     @Override

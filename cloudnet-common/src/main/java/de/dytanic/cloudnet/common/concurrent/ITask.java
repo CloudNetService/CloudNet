@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -74,6 +75,6 @@ public interface ITask<V> extends Future<V>, Callable<V> {
 
     V get(long time, TimeUnit timeUnit, V def);
 
-    <T> ITask<T> map(Function<V, T> mapper);
+    <T> ITask<T> map(@Nullable Function<V, T> mapper);
 
 }
