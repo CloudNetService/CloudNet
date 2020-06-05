@@ -18,6 +18,7 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
+        packet.getBuffer().markReaderIndex();
         ServiceInfoSnapshot serviceInfoSnapshot = packet.getBuffer().readObject(ServiceInfoSnapshot.class);
         PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getBuffer().readEnumConstant(PacketClientServerServiceInfoPublisher.PublisherType.class);
 
@@ -52,7 +53,8 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
                 break;
         }
 
-        this.sendUpdateToAllServices(serviceInfoSnapshot, publisherType);
+        packet.getBuffer().resetReaderIndex();
+        this.sendUpdateToAllServices(packet);
     }
 
     private void invokeEvent(Event event) {
@@ -63,10 +65,10 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
         return CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots();
     }
 
-    private void sendUpdateToAllServices(ServiceInfoSnapshot serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType type) {
+    private void sendUpdateToAllServices(IPacket packet) {
         for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
-                cloudService.getNetworkChannel().sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, type));
+                cloudService.getNetworkChannel().sendPacket(packet);
             }
         }
     }
