@@ -3,7 +3,6 @@ package eu.cloudnetservice.cloudnet.ext.npcs;
 
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -134,14 +133,13 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
      * @param npc the NPC to add
      */
     public void sendNPCAddUpdate(@NotNull CloudNPC npc) {
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        ChannelMessage.builder()
-                                .channel(NPCConstants.NPC_CHANNEL_NAME)
-                                .message(NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE)
-                                .json(new JsonDocument("npc", npc))
-                                .build()
-                );
+        this.addNPC(npc);
+        ChannelMessage.builder()
+                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                .message(NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE)
+                .json(new JsonDocument("npc", npc))
+                .build()
+                .send();
     }
 
     /**
@@ -150,30 +148,24 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
      * @param npc the NPC to remove
      */
     public void sendNPCRemoveUpdate(@NotNull CloudNPC npc) {
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        ChannelMessage.builder()
-                                .channel(NPCConstants.NPC_CHANNEL_NAME)
-                                .message(NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE)
-                                .json(new JsonDocument("npc", npc))
-                                .build()
-                );
+        this.removeNPC(npc);
+        ChannelMessage.builder()
+                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                .message(NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE)
+                .json(new JsonDocument("npc", npc))
+                .build()
+                .send();
     }
 
     public NPCConfiguration getNPCConfigurationFromNode() {
-        ChannelMessage response = CloudNetDriver.getInstance().getMessenger()
-                .sendSingleChannelMessageQuery(
-                        ChannelMessage.builder()
-                                .channel(NPCConstants.NPC_CHANNEL_NAME)
-                                .message(NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE)
-                                .build()
-                );
+        ChannelMessage response = ChannelMessage.builder()
+                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                .message(NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
 
-        if (response != null) {
-            return response.getJson().get("npcConfiguration", NPCConfiguration.class);
-        }
-
-        return null;
+        return response == null ? null : response.getJson().get("npcConfiguration", NPCConfiguration.class);
     }
 
     /**
@@ -183,19 +175,14 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
      */
     @Nullable
     public Set<CloudNPC> getNPCsFromNode() {
-        ChannelMessage response = CloudNetDriver.getInstance().getMessenger()
-                .sendSingleChannelMessageQuery(
-                        ChannelMessage.builder()
-                                .channel(NPCConstants.NPC_CHANNEL_NAME)
-                                .message(NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE)
-                                .build()
-                );
+        ChannelMessage response = ChannelMessage.builder()
+                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                .message(NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
 
-        if (response != null) {
-            return response.getJson().get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
-        }
-
-        return null;
+        return response == null ? null : response.getJson().get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
     }
 
     public NPCConfiguration getNPCConfiguration() {

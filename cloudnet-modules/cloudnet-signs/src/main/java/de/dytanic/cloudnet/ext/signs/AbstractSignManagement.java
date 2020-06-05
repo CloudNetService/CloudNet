@@ -93,7 +93,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) {
+        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME) || event.getMessage() == null) {
             return;
         }
 
@@ -304,12 +304,13 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param sign the sign to add
      */
     public void sendSignAddUpdate(@NotNull Sign sign) {
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        SignConstants.SIGN_CHANNEL_NAME,
-                        SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE,
-                        new JsonDocument("sign", sign)
-                );
+        this.addSign(sign);
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE)
+                .json(new JsonDocument("sign", sign))
+                .build()
+                .send();
     }
 
     /**
@@ -318,12 +319,13 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param sign the sign to remove
      */
     public void sendSignRemoveUpdate(@NotNull Sign sign) {
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        SignConstants.SIGN_CHANNEL_NAME,
-                        SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE,
-                        new JsonDocument("sign", sign)
-                );
+        this.removeSign(sign);
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE)
+                .json(new JsonDocument("sign", sign))
+                .build()
+                .send();
     }
 
     /**
@@ -340,11 +342,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
                 .build()
                 .sendSingleQuery();
 
-        if (response != null) {
-            return response.getJson().get("signs", SignConstants.COLLECTION_SIGNS);
-        }
-
-        return null;
+        return response == null ? null : response.getJson().get("signs", SignConstants.COLLECTION_SIGNS);
     }
 
     /**
@@ -353,11 +351,12 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param signConfiguration the new SignConfiguration
      */
     public void updateSignConfiguration(@NotNull SignConfiguration signConfiguration) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                SignConstants.SIGN_CHANNEL_NAME,
-                SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-                new JsonDocument("signConfiguration", signConfiguration)
-        );
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION)
+                .json(new JsonDocument("signConfiguration", signConfiguration))
+                .build()
+                .send();
     }
 
     protected void executeStartingTask() {

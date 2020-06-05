@@ -35,11 +35,7 @@ public final class SignConfigurationProvider {
                 .build()
                 .sendSingleQuery();
 
-        if (response != null) {
-            return response.getJson().get("signConfiguration", SignConfiguration.TYPE);
-        }
-
-        return null;
+        return response == null ? null : response.getJson().get("signConfiguration", SignConfiguration.TYPE);
     }
 
 }
