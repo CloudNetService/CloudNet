@@ -133,7 +133,7 @@ public final class NetworkPlayerServerInfo implements SerializableObject {
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeUUID(this.uniqueId);
         buffer.writeString(this.name);
-        buffer.writeString(this.xBoxId);
+        buffer.writeOptionalString(this.xBoxId);
         buffer.writeDouble(this.health);
         buffer.writeDouble(this.maxHealth);
         buffer.writeDouble(this.saturation);
@@ -147,7 +147,7 @@ public final class NetworkPlayerServerInfo implements SerializableObject {
     public void read(@NotNull ProtocolBuffer buffer) {
         this.uniqueId = buffer.readUUID();
         this.name = buffer.readString();
-        this.xBoxId = buffer.readString();
+        this.xBoxId = buffer.readOptionalString();
         this.health = buffer.readDouble();
         this.maxHealth = buffer.readDouble();
         this.saturation = buffer.readDouble();

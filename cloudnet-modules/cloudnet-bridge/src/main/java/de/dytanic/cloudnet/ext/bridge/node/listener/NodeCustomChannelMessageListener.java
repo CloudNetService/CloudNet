@@ -86,7 +86,7 @@ public final class NodeCustomChannelMessageListener {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
+        switch (event.getMessage()) {
             case BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER: {
                 BridgeConfiguration bridgeConfiguration = event.getData().get("bridgeConfiguration", BridgeConfiguration.TYPE);
 
@@ -164,8 +164,8 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST: {
-                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
                 NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
                 if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-request")
@@ -179,8 +179,8 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS: {
-                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
                 NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
                 if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-success")
@@ -195,8 +195,8 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT: {
-                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
                 NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
                 if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-disconnect")

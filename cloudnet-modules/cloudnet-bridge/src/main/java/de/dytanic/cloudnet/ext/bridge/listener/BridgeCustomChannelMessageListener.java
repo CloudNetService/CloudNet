@@ -37,7 +37,7 @@ public final class BridgeCustomChannelMessageListener {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
+        switch (event.getMessage()) {
             case "update_bridge_configuration": {
                 BridgeConfiguration bridgeConfiguration = event.getData().get("bridgeConfiguration", BridgeConfiguration.TYPE);
 

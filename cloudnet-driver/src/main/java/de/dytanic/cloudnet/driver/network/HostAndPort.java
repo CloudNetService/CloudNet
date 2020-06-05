@@ -69,13 +69,13 @@ public class HostAndPort implements SerializableObject {
 
     @Override
     public void write(@NotNull ProtocolBuffer buffer) {
-        buffer.writeString(this.host);
+        buffer.writeOptionalString(this.host);
         buffer.writeInt(this.port);
     }
 
     @Override
     public void read(@NotNull ProtocolBuffer buffer) {
-        this.host = buffer.readString();
+        this.host = buffer.readOptionalString();
         this.port = buffer.readInt();
     }
 }

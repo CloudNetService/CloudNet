@@ -41,12 +41,16 @@ public final class PacketServerChannelMessageListener implements IPacketListener
         }
 
         if (selfReceived) {
+            message.getBuffer().markReaderIndex();
+
             ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
             CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
             if (event.getQueryResponse() != null && query) {
                 response.add(event.getQueryResponse());
             }
+
+            message.getBuffer().resetReaderIndex();
         }
 
 
