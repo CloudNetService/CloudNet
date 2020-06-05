@@ -24,13 +24,11 @@ public class CloudNetNPCMessageListener {
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
         event.getNode().sendCustomChannelMessage(
-                ChannelMessage.builder()
-                        .channel(NPCConstants.NPC_CHANNEL_NAME)
-                        .message(NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE)
-                        .json(new JsonDocument()
-                                .append("npcConfiguration", this.npcModule.getNPCConfiguration())
-                                .append("npcs", this.npcModule.getCachedNPCs()))
-                        .build()
+                NPCConstants.NPC_CHANNEL_NAME,
+                NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE,
+                new JsonDocument()
+                        .append("npcConfiguration", this.npcModule.getNPCConfiguration())
+                        .append("npcs", this.npcModule.getCachedNPCs())
         );
     }
 

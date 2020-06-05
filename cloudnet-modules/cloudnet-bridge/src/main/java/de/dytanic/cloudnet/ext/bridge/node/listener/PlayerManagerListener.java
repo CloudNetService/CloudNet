@@ -40,6 +40,7 @@ public final class PlayerManagerListener {
                 .channel(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)
                 .message("set_online_players")
                 .buffer(ProtocolBuffer.create().writeObjectCollection(this.nodePlayerManager.getOnlineCloudPlayers().values()))
+                .targetNode(event.getNode().getNodeInfo().getUniqueId())
                 .build());
     }
 

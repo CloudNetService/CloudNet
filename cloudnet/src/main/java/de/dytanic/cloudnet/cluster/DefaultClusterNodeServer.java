@@ -61,7 +61,6 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
         if (this.channel != null) {
             this.channel.sendPacket(packet);
         }
-
     }
 
     @Override
