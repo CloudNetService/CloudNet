@@ -14,6 +14,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @ToString
@@ -25,10 +26,11 @@ public class ChannelMessage implements SerializableObject {
     private String message;
     private JsonDocument json = JsonDocument.EMPTY;
     private ProtocolBuffer buffer = ProtocolBuffer.EMPTY;
-    private ChannelMessageTarget target;
+    private Collection<ChannelMessageTarget> targets;
 
     private ChannelMessage(@NotNull ChannelMessageSender sender) {
         this.sender = sender;
+        this.targets = new ArrayList<>();
     }
 
     public ChannelMessage() {
@@ -60,8 +62,8 @@ public class ChannelMessage implements SerializableObject {
     }
 
     @NotNull
-    public ChannelMessageTarget getTarget() {
-        return this.target;
+    public Collection<ChannelMessageTarget> getTargets() {
+        return this.targets;
     }
 
     public void send() {
@@ -99,7 +101,7 @@ public class ChannelMessage implements SerializableObject {
         buffer.writeOptionalString(this.message);
         buffer.writeOptionalString(this.json != null ? this.json.toJson() : null);
         buffer.writeOptionalArray(this.buffer != null ? this.buffer.toArray() : null);
-        buffer.writeObject(this.target);
+        buffer.writeObjectCollection(this.targets);
     }
 
     @Override
@@ -111,7 +113,7 @@ public class ChannelMessage implements SerializableObject {
         this.json = headerJson != null ? JsonDocument.newDocument(headerJson) : null;
         byte[] body = buffer.readOptionalArray();
         this.buffer = body != null ? ProtocolBuffer.wrap(body) : null;
-        this.target = buffer.readObject(ChannelMessageTarget.class);
+        this.targets = buffer.readObjectCollection(ChannelMessageTarget.class);
     }
 
 
@@ -160,7 +162,7 @@ public class ChannelMessage implements SerializableObject {
         }
 
         public Builder target(@NotNull ChannelMessageTarget target) {
-            this.channelMessage.target = target;
+            this.channelMessage.targets.add(target);
             return this;
         }
 
@@ -202,8 +204,9 @@ public class ChannelMessage implements SerializableObject {
 
         public ChannelMessage build() {
             Preconditions.checkNotNull(this.channelMessage.channel, "No channel provided");
-            Preconditions.checkNotNull(this.channelMessage.target, "No target provided");
-            Preconditions.checkNotNull(this.channelMessage.target.getType(), "No type for the target provided");
+            if (this.channelMessage.targets.isEmpty()) {
+                this.targetAll();
+            }
             return this.channelMessage;
         }
 

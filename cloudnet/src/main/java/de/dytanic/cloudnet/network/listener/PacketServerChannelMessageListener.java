@@ -34,23 +34,18 @@ public final class PacketServerChannelMessageListener implements IPacketListener
 
         Collection<ChannelMessage> response = query ? new ArrayList<>() : null;
 
-        ChannelMessageTarget.Type targetType = message.getTarget().getType();
-        boolean selfReceived = targetType.equals(ChannelMessageTarget.Type.ALL);
-        if (targetType.equals(ChannelMessageTarget.Type.NODE)) {
-            selfReceived = message.getTarget().getName() == null || CloudNetDriver.getInstance().getComponentName().equals(message.getTarget().getName());
+        for (ChannelMessageTarget target : message.getTargets()) {
+            this.handleMessage(messenger, response, message, target, query);
         }
 
-        if (selfReceived) {
-            message.getBuffer().markReaderIndex();
+        if (response != null) {
+            channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, ProtocolBuffer.create().writeObjectCollection(response)));
+        }
+    }
 
-            ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
-            CloudNetDriver.getInstance().getEventManager().callEvent(event);
-
-            if (event.getQueryResponse() != null && query) {
-                response.add(event.getQueryResponse());
-            }
-
-            message.getBuffer().resetReaderIndex();
+    private void handleMessage(CloudMessenger messenger, Collection<ChannelMessage> response, ChannelMessage message, ChannelMessageTarget target, boolean query) {
+        if (this.hasReceived(target)) {
+            this.fireEvent(message, response, query);
         }
 
 
@@ -63,7 +58,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
             }
 
         } else if (messenger instanceof NodeMessenger) {
-            Collection<INetworkChannel> channels = ((NodeMessenger) messenger).getTargetChannels(message.getSender(), message.getTarget(), true);
+            Collection<INetworkChannel> channels = ((NodeMessenger) messenger).getTargetChannels(message.getSender(), target, true);
 
             if (channels != null && !channels.isEmpty()) {
                 IPacket clientPacket = new PacketClientServerChannelMessage(message, query);
@@ -79,9 +74,27 @@ public final class PacketServerChannelMessageListener implements IPacketListener
                 }
             }
         }
-
-        if (response != null) {
-            channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, ProtocolBuffer.create().writeObjectCollection(response)));
-        }
     }
+
+    private void fireEvent(ChannelMessage message, Collection<ChannelMessage> response, boolean query) {
+        message.getBuffer().markReaderIndex();
+
+        ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
+        CloudNetDriver.getInstance().getEventManager().callEvent(event);
+
+        if (event.getQueryResponse() != null && query) {
+            response.add(event.getQueryResponse());
+        }
+
+        message.getBuffer().resetReaderIndex();
+    }
+
+    private boolean hasReceived(ChannelMessageTarget target) {
+        ChannelMessageTarget.Type targetType = target.getType();
+        if (targetType.equals(ChannelMessageTarget.Type.NODE)) {
+            return target.getName() == null || CloudNetDriver.getInstance().getComponentName().equals(target.getName());
+        }
+        return targetType.equals(ChannelMessageTarget.Type.ALL);
+    }
+
 }

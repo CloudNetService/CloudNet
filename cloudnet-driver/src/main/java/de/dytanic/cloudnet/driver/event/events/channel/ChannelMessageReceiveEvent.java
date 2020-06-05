@@ -11,6 +11,8 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+
 /**
  * This event is being called whenever a channel message is received.
  * You can send channel messages with the methods in {@link CloudNetDriver#getMessenger()}.
@@ -33,8 +35,8 @@ public final class ChannelMessageReceiveEvent extends Event {
     }
 
     @NotNull
-    public ChannelMessageTarget getTarget() {
-        return this.channelMessage.getTarget();
+    public Collection<ChannelMessageTarget> getTargets() {
+        return this.channelMessage.getTargets();
     }
 
     @NotNull

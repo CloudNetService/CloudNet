@@ -27,6 +27,17 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         this.cloudNet = cloudNet;
     }
 
+    public Collection<INetworkChannel> getTargetChannels(ChannelMessageSender sender, Collection<ChannelMessageTarget> targets, boolean serviceOnly) {
+        Collection<INetworkChannel> allChannels = new ArrayList<>();
+        for (ChannelMessageTarget target : targets) {
+            Collection<INetworkChannel> channels = this.getTargetChannels(sender, target, serviceOnly);
+            if (channels != null) {
+                allChannels.addAll(channels);
+            }
+        }
+        return allChannels;
+    }
+
     public Collection<INetworkChannel> getTargetChannels(ChannelMessageSender sender, ChannelMessageTarget target, boolean serviceOnly) {
         switch (target.getType()) {
             case NODE: {
@@ -117,7 +128,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
-        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTarget(), false);
+        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
         if (channels == null || channels.isEmpty()) {
             return;
         }
@@ -130,7 +141,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTarget(), false);
+        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
         if (channels == null || channels.isEmpty()) {
             return CompletedTask.create(Collections.emptyList());
         }
