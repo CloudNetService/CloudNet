@@ -160,11 +160,25 @@ public final class BungeeCloudNetListener {
             }
             break;
 
-            case "broadcast_message": {
+            case "broadcast_message_component": {
                 String permission = event.getData().getString("permission");
 
                 BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
                         ComponentSerializer.parse(event.getData().getString("messages"));
+
+                for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
+                    if (permission == null || proxiedPlayer.hasPermission(permission)) {
+                        proxiedPlayer.sendMessage(messages);
+                    }
+                }
+            }
+            break;
+
+            case "broadcast_message": {
+                String message = event.getBuffer().readString();
+                String permission = event.getBuffer().readOptionalString();
+
+                BaseComponent[] messages = TextComponent.fromLegacyText(message);
 
                 for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
                     if (permission == null || proxiedPlayer.hasPermission(permission)) {

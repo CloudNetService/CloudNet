@@ -39,7 +39,7 @@ public class BaseComponentMessenger {
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                "broadcast_message",
+                "broadcast_message_component",
                 new JsonDocument()
                         .append("messages", ComponentSerializer.toString(messages))
         );
@@ -50,7 +50,7 @@ public class BaseComponentMessenger {
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                "broadcast_message",
+                "broadcast_message_component",
                 new JsonDocument()
                         .append("messages", ComponentSerializer.toString(messages))
                         .append("permission", permission)

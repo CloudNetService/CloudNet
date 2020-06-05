@@ -115,7 +115,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeUUID(this.uniqueId);
         buffer.writeString(this.name);
-        buffer.writeString(this.xBoxId);
+        buffer.writeOptionalString(this.xBoxId);
         buffer.writeLong(this.firstLoginTimeMillis);
         buffer.writeLong(this.lastLoginTimeMillis);
         buffer.writeObject(this.lastNetworkConnectionInfo);
@@ -125,7 +125,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     public void read(@NotNull ProtocolBuffer buffer) {
         this.uniqueId = buffer.readUUID();
         this.name = buffer.readString();
-        this.xBoxId = buffer.readString();
+        this.xBoxId = buffer.readOptionalString();
         this.firstLoginTimeMillis = buffer.readLong();
         this.lastLoginTimeMillis = buffer.readLong();
         this.lastNetworkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);

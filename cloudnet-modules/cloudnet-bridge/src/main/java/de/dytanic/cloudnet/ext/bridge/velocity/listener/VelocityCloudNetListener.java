@@ -165,14 +165,13 @@ public final class VelocityCloudNetListener {
             }
             break;
             case "broadcast_message": {
-                String permission = event.getData().getString("permission");
+                String message = event.getBuffer().readString();
+                String permission = event.getBuffer().readOptionalString();
 
-                if (event.getData().getString("message") != null) {
-                    TextComponent message = LegacyComponentSerializer.legacyLinking().deserialize(event.getData().getString("message").replace("&", "§"));
-                    for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
-                        if (permission == null || player.hasPermission(permission)) {
-                            player.sendMessage(message);
-                        }
+                TextComponent component = LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§"));
+                for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
+                    if (permission == null || player.hasPermission(permission)) {
+                        player.sendMessage(component);
                     }
                 }
             }
