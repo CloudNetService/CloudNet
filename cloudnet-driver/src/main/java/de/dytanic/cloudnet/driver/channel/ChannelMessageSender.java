@@ -2,8 +2,10 @@ package de.dytanic.cloudnet.driver.channel;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +35,14 @@ public class ChannelMessageSender implements SerializableObject {
 
     public DriverEnvironment getType() {
         return this.type;
+    }
+
+    public boolean isEqual(ServiceInfoSnapshot serviceInfoSnapshot) {
+        return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.getName());
+    }
+
+    public boolean isEqual(NetworkClusterNode node) {
+        return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.getUniqueId());
     }
 
     @Override

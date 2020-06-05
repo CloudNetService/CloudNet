@@ -82,7 +82,7 @@ public final class NodeCustomChannelMessageListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
+        if (!event.getChannel().equals(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
             return;
         }
 
