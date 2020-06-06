@@ -82,7 +82,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.IS_CLOUD_SERVICE_VALID,
                 this::writeDefaults,
-                packet -> this.readDefaults(packet.getBuffer()).readBoolean()
+                packet -> packet.getBuffer().readEnumConstant(ServiceDriverAPIResponse.class) != ServiceDriverAPIResponse.SERVICE_NOT_FOUND
         );
     }
 
