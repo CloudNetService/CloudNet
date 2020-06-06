@@ -27,7 +27,7 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     @Override
     public void handlePostModuleLoad(IModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePostLoadEvent(this.getModuleProvider(), moduleWrapper));
-        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-post-load-module"), this.getModuleProvider(), moduleWrapper));
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-load-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
@@ -44,7 +44,7 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     @Override
     public void handlePostModuleStart(IModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePostStartEvent(this.getModuleProvider(), moduleWrapper));
-        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-post-start-module"), this.getModuleProvider(), moduleWrapper));
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-start-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
@@ -66,7 +66,7 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
         CloudNet.getInstance().getCommandMap().unregisterCommands(moduleWrapper.getClassLoader());
 
         this.callEvent(new ModulePostStopEvent(this.getModuleProvider(), moduleWrapper));
-        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-post-stop-module"), this.getModuleProvider(), moduleWrapper));
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-stop-module"), this.getModuleProvider(), moduleWrapper));
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(moduleWrapper.getClassLoader());
     }
 
@@ -79,13 +79,13 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     @Override
     public void handlePostModuleUnload(IModuleWrapper moduleWrapper) {
         this.callEvent(new ModulePostUnloadEvent(this.getModuleProvider(), moduleWrapper));
-        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-post-unload-module"), this.getModuleProvider(), moduleWrapper));
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-unload-module"), this.getModuleProvider(), moduleWrapper));
     }
 
     @Override
     public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
-        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
                         .replace("%group%", dependency.getGroup())
                         .replace("%name%", dependency.getName())
                         .replace("%version%", dependency.getVersion())
@@ -95,7 +95,7 @@ public final class NodeModuleProviderHandler implements IModuleProviderHandler {
     @Override
     public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
-        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
                         .replace("%group%", dependency.getGroup())
                         .replace("%name%", dependency.getName())
                         .replace("%version%", dependency.getVersion())
