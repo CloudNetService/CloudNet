@@ -71,7 +71,7 @@ import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
-import de.dytanic.cloudnet.network.listener.*;
+import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketServerAuthorizationResponseListener;
 import de.dytanic.cloudnet.network.listener.cluster.*;
@@ -104,7 +104,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -653,8 +652,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public NetworkClusterNodeInfoSnapshot createClusterNodeInfoSnapshot() {
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-
         return new NetworkClusterNodeInfoSnapshot(
                 System.currentTimeMillis(),
                 this.config.getIdentity(),
