@@ -608,17 +608,7 @@ final class JVMCloudService implements ICloudService {
         List<String> commandArguments = new ArrayList<>();
 
         commandArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
-
-        if (CloudNet.getInstance().getConfig().isDefaultJVMOptionParameters()) {
-            commandArguments.addAll(Arrays.asList(
-                    "-XX:+UseG1GC",
-                    "-XX:MaxGCPauseMillis=50",
-                    "-XX:-UseAdaptiveSizePolicy",
-                    "-XX:CompileThreshold=100",
-                    "-XX:+UnlockExperimentalVMOptions",
-                    "-XX:+UseCompressedOops"
-            ));
-        }
+        commandArguments.addAll(CloudNet.getInstance().getConfig().getDefaultJVMFlags().getJvmFlags());
 
         commandArguments.addAll(Arrays.asList(
                 // sys properties

@@ -46,7 +46,9 @@ public final class JsonConfiguration implements IConfiguration {
 
     private int maxMemory, maxServiceConsoleLogCacheSize;
 
-    private boolean printErrorStreamLinesFromServices, defaultJVMOptionParameters;
+    private boolean printErrorStreamLinesFromServices;
+
+    private DefaultJVMFlags defaultJVMFlags;
 
     private String hostAddress;
 
@@ -123,7 +125,10 @@ public final class JsonConfiguration implements IConfiguration {
 
         this.maxServiceConsoleLogCacheSize = this.document.getInt("maxServiceConsoleLogCacheSize", 64);
         this.printErrorStreamLinesFromServices = this.document.getBoolean("printErrorStreamLinesFromServices", true);
-        this.defaultJVMOptionParameters = this.document.getBoolean("defaultJVMOptionParameters", true);
+
+        // replaced by the DefaultJVMFlags-enum
+        this.document.remove("defaultJVMOptionParameters");
+        this.defaultJVMFlags = this.document.get("defaultJVMFlags", DefaultJVMFlags.class, DefaultJVMFlags.DYTANIC);
 
         this.jVMCommand = this.document.getString("jvmCommand",
                 System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") != null ?
@@ -168,7 +173,7 @@ public final class JsonConfiguration implements IConfiguration {
                 .append("printErrorStreamLinesFromServices", this.printErrorStreamLinesFromServices)
                 .append("maxCPUUsageToStartServices", this.maxCPUUsageToStartServices)
                 .append("parallelServiceStartSequence", this.parallelServiceStartSequence)
-                .append("defaultJVMOptionParameters", this.defaultJVMOptionParameters)
+                .append("defaultJVMFlags", this.defaultJVMFlags)
                 .append("runBlockedServiceStartTryLaterAutomatic", this.runBlockedServiceStartTryLaterAutomatic)
                 .append("cluster", this.clusterConfig)
                 .append("hostAddress", this.hostAddress)
@@ -277,13 +282,14 @@ public final class JsonConfiguration implements IConfiguration {
         this.save();
     }
 
-    public boolean isDefaultJVMOptionParameters() {
-        return this.defaultJVMOptionParameters;
+    @Override
+    public DefaultJVMFlags getDefaultJVMFlags() {
+        return this.defaultJVMFlags;
     }
 
     @Override
-    public void setDefaultJVMOptionParameters(boolean defaultJVMOptionParameters) {
-        this.defaultJVMOptionParameters = defaultJVMOptionParameters;
+    public void setDefaultJVMFlags(DefaultJVMFlags defaultJVMFlags) {
+        this.defaultJVMFlags = defaultJVMFlags;
         this.save();
     }
 
