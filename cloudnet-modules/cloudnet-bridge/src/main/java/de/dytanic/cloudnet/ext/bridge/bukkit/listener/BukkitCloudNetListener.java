@@ -63,7 +63,7 @@ public final class BukkitCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.bukkitCall(new BukkitChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.bukkitCall(new BukkitChannelMessageReceiveEvent(event));
     }
 
     @EventListener

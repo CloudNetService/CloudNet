@@ -56,7 +56,7 @@ public final class NukkitCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.nukkitCall(new NukkitChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.nukkitCall(new NukkitChannelMessageReceiveEvent(event));
     }
 
     @EventListener

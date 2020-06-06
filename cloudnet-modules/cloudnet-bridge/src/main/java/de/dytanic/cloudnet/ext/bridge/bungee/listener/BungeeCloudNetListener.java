@@ -107,9 +107,9 @@ public final class BungeeCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.bungeeCall(new BungeeChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.bungeeCall(new BungeeChannelMessageReceiveEvent(event));
 
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) {
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
             return;
         }
 

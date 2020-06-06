@@ -56,7 +56,7 @@ public final class SpongeCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.spongeCall(new SpongeChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.spongeCall(new SpongeChannelMessageReceiveEvent(event));
     }
 
     @EventListener

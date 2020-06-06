@@ -114,9 +114,9 @@ public final class VelocityCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.velocityCall(new VelocityChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.velocityCall(new VelocityChannelMessageReceiveEvent(event));
 
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) {
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
             return;
         }
 
