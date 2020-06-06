@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.network.listener;
+package de.dytanic.cloudnet.network.listener.driver;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;

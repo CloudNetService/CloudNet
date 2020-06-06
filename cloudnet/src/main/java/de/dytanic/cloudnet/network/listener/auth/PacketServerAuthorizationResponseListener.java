@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.network.listener;
+package de.dytanic.cloudnet.network.listener.auth;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;

@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.network.listener;
+package de.dytanic.cloudnet.network.listener.cluster;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
