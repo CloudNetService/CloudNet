@@ -1,8 +1,11 @@
 package de.dytanic.cloudnet.driver.serialization;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
+import de.dytanic.cloudnet.driver.module.ModuleDependency;
+import de.dytanic.cloudnet.driver.module.ModuleRepository;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.*;
 import org.junit.Assert;
@@ -25,10 +28,32 @@ public class NodeInfoSnapshotSerializerTest {
                 Integer.MIN_VALUE,
                 new ProcessSnapshot(-1, -1, -1, -1, -1, -1, Collections.emptyList(), Double.MAX_VALUE, Integer.MIN_VALUE),
                 Arrays.asList(
-                        new NetworkClusterNodeExtensionSnapshot("eu.cloudnetservice.cloudnet.modules", "some-module", "1.2.3.4", "CloudNetService", "https://cloudnetservice.eu", "description for this module"),
-                        new NetworkClusterNodeExtensionSnapshot("eu.cloudnetservice.cloudnet.x", "random-modules", "x.y.z", "unknown", "no website", "another description")
+                        new ModuleConfiguration(
+                                true, true,
+                                "eu.cloudnetservice.cloudnet.x", "random-modules", "x.y.z",
+                                "main", "desc", "CloudNetService",
+                                null,
+                                null,
+                                new ModuleDependency[]{
+                                        new ModuleDependency("URL")
+                                },
+                                null
+                        ),
+                        new ModuleConfiguration(
+                                true, false,
+                                "eu.cloudnetservice.cloudnet.x", "random-modules", "x.y.z",
+                                "eu.cloudnetservice....RandomModule", "description", "CloudNetService",
+                                null,
+                                new ModuleRepository[]{
+                                        new ModuleRepository("cloudnet", "https://repo.cloudnetservice.eu/repository/releases")
+                                },
+                                new ModuleDependency[]{
+                                        new ModuleDependency("cloudnet", "group", "name", "version")
+                                },
+                                JsonDocument.newDocument("properties", "")
+                        )
                 ),
-                Double.MIN_VALUE
+                100D
         );
 
         ProtocolBuffer buffer = ProtocolBuffer.create();

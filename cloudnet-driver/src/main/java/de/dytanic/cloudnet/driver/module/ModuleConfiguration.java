@@ -1,13 +1,16 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public class ModuleConfiguration {
+public class ModuleConfiguration implements SerializableObject {
 
     protected boolean runtimeModule;
 
@@ -106,4 +109,44 @@ public class ModuleConfiguration {
         return this.properties;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeBoolean(this.runtimeModule);
+        buffer.writeBoolean(this.storesSensitiveData);
+        buffer.writeString(this.group);
+        buffer.writeString(this.name);
+        buffer.writeString(this.version);
+        buffer.writeString(this.main);
+        buffer.writeOptionalString(this.description);
+        buffer.writeOptionalString(this.author);
+        buffer.writeOptionalString(this.website);
+        buffer.writeBoolean(this.repos != null);
+        if (this.repos != null) {
+            buffer.writeObjectArray(this.repos);
+        }
+        buffer.writeBoolean(this.dependencies != null);
+        if (this.dependencies != null) {
+            buffer.writeObjectArray(this.dependencies);
+        }
+        buffer.writeBoolean(this.properties != null);
+        if (this.properties != null) {
+            buffer.writeJsonDocument(this.properties);
+        }
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.runtimeModule = buffer.readBoolean();
+        this.storesSensitiveData = buffer.readBoolean();
+        this.group = buffer.readString();
+        this.name = buffer.readString();
+        this.version = buffer.readString();
+        this.main = buffer.readString();
+        this.description = buffer.readOptionalString();
+        this.author = buffer.readOptionalString();
+        this.website = buffer.readOptionalString();
+        this.repos = buffer.readBoolean() ? buffer.readObjectArray(ModuleRepository.class) : null;
+        this.dependencies = buffer.readBoolean() ? buffer.readObjectArray(ModuleDependency.class) : null;
+        this.properties = buffer.readBoolean() ? buffer.readJsonDocument() : null;
+    }
 }

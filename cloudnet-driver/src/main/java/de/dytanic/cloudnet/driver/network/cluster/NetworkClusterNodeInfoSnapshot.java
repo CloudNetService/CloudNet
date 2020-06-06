@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.driver.network.cluster;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
@@ -28,10 +28,10 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
 
     protected int currentServicesCount, usedMemory, reservedMemory, maxMemory;
     protected ProcessSnapshot processSnapshot;
-    protected Collection<NetworkClusterNodeExtensionSnapshot> extensions;
+    protected Collection<ModuleConfiguration> modules;
     private double systemCpuUsage;
 
-    public NetworkClusterNodeInfoSnapshot(long creationTime, NetworkClusterNode node, String version, int currentServicesCount, int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot, Collection<NetworkClusterNodeExtensionSnapshot> extensions, double systemCpuUsage) {
+    public NetworkClusterNodeInfoSnapshot(long creationTime, NetworkClusterNode node, String version, int currentServicesCount, int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot, Collection<ModuleConfiguration> modules, double systemCpuUsage) {
         this.creationTime = creationTime;
         this.node = node;
         this.version = version;
@@ -40,7 +40,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
         this.reservedMemory = reservedMemory;
         this.maxMemory = maxMemory;
         this.processSnapshot = processSnapshot;
-        this.extensions = extensions;
+        this.modules = modules;
         this.systemCpuUsage = systemCpuUsage;
     }
 
@@ -111,12 +111,12 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
         this.processSnapshot = processSnapshot;
     }
 
-    public Collection<NetworkClusterNodeExtensionSnapshot> getExtensions() {
-        return this.extensions;
+    public Collection<ModuleConfiguration> getModules() {
+        return this.modules;
     }
 
-    public void setExtensions(Collection<NetworkClusterNodeExtensionSnapshot> extensions) {
-        this.extensions = extensions;
+    public void setModules(Collection<ModuleConfiguration> modules) {
+        this.modules = modules;
     }
 
     public double getSystemCpuUsage() {
@@ -137,7 +137,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
         buffer.writeInt(this.reservedMemory);
         buffer.writeInt(this.maxMemory);
         buffer.writeObject(this.processSnapshot);
-        buffer.writeObjectCollection(this.extensions);
+        buffer.writeObjectCollection(this.modules);
         buffer.writeDouble(this.systemCpuUsage);
 
         super.write(buffer);
@@ -153,7 +153,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
         this.reservedMemory = buffer.readInt();
         this.maxMemory = buffer.readInt();
         this.processSnapshot = buffer.readObject(ProcessSnapshot.class);
-        this.extensions = buffer.readObjectCollection(NetworkClusterNodeExtensionSnapshot.class);
+        this.modules = buffer.readObjectCollection(ModuleConfiguration.class);
         this.systemCpuUsage = buffer.readDouble();
 
         super.read(buffer);

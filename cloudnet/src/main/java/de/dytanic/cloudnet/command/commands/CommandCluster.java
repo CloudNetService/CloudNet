@@ -212,10 +212,10 @@ public final class CommandCluster extends SubCommandHandler {
                     "Unloaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getUnloadedClassCount(),
                     "Total loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getTotalLoadedClassCount(),
                     " ",
-                    "Extensions: ",
-                    node.getNodeInfoSnapshot().getExtensions().stream().map(networkClusterNodeExtensionSnapshot -> networkClusterNodeExtensionSnapshot.getGroup() + ":" +
-                            networkClusterNodeExtensionSnapshot.getName() + ":" +
-                            networkClusterNodeExtensionSnapshot.getVersion()).collect(Collectors.toList()).toString(),
+                    "Modules: ",
+                    node.getNodeInfoSnapshot().getModules().stream()
+                            .map(module -> module.getGroup() + ":" + module.getName() + ":" + module.getVersion())
+                            .collect(Collectors.toList()).toString(),
                     " ",
                     "Properties:"
             ));

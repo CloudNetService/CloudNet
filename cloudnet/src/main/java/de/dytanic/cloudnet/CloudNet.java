@@ -38,7 +38,6 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.INetworkServer;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
@@ -661,14 +660,7 @@ public final class CloudNet extends CloudNetDriver {
                 this.cloudServiceManager.getCurrentReservedMemory(),
                 this.config.getMaxMemory(),
                 ProcessSnapshot.self(),
-                this.moduleProvider.getModules().stream().map(moduleWrapper -> new NetworkClusterNodeExtensionSnapshot(
-                        moduleWrapper.getModuleConfiguration().getGroup(),
-                        moduleWrapper.getModuleConfiguration().getName(),
-                        moduleWrapper.getModuleConfiguration().getVersion(),
-                        moduleWrapper.getModuleConfiguration().getAuthor(),
-                        moduleWrapper.getModuleConfiguration().getWebsite(),
-                        moduleWrapper.getModuleConfiguration().getDescription()
-                )).collect(Collectors.toList()),
+                this.moduleProvider.getModules().stream().map(IModuleWrapper::getModuleConfiguration).collect(Collectors.toList()),
                 ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
         );
     }
