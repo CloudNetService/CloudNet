@@ -5,31 +5,36 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public class CountingTask<V> implements ITask<V> {
 
     private final V value;
     private final CompletableFuture<V> future = new CompletableFuture<>();
     private final Collection<ITaskListener<V>> listeners = new ArrayList<>();
-    private int count;
+    private AtomicInteger count;
 
     public CountingTask(V value, int initialCount) {
         this.value = value;
-        this.count = initialCount;
+        this.count = new AtomicInteger(initialCount);
     }
 
     public void incrementCount() {
-        ++this.count;
+        this.count.getAndIncrement();
     }
 
     public void countDown() {
-        --this.count;
-        if (this.count <= 0) {
+        if (this.count.decrementAndGet() <= 0) {
             for (ITaskListener<V> listener : this.listeners) {
                 listener.onComplete(this, this.value);
             }
             this.future.complete(this.value);
         }
+    }
+
+    public int currentCount() {
+        return this.count.get();
     }
 
     @Override
@@ -66,6 +71,14 @@ public class CountingTask<V> implements ITask<V> {
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
             return def;
         }
+    }
+
+    @Override
+    public <T> ITask<T> map(Function<V, T> mapper) {
+        CompletableTask<T> task = new CompletableTask<>();
+        this.onComplete(v -> task.complete(mapper == null ? null : mapper.apply(v)));
+        this.onCancelled(otherTask -> task.cancel(true));
+        return task;
     }
 
     @Override

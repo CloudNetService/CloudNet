@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
@@ -40,6 +41,6 @@ public class NettyPacketEncoderDecoderTest {
         packet = (Packet) packets.get(0);
         Assert.assertTrue(packet.getHeader().getBoolean("val"));
 
-        Assert.assertEquals("Test_Nachricht", new String(((Packet) packets.get(1)).getBody(), StandardCharsets.UTF_8));
+        Assert.assertEquals("Test_Nachricht", new String(((Packet) packets.get(1)).getBodyAsArray(), StandardCharsets.UTF_8));
     }
 }

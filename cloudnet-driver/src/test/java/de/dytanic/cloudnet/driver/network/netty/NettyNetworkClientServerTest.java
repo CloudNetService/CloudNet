@@ -65,7 +65,7 @@ public class NettyNetworkClientServerTest {
 
         @Override
         public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-            NettyNetworkClientServerTest.this.cliPacketServerReceive = new String(packet.getBody());
+            NettyNetworkClientServerTest.this.cliPacketServerReceive = new String(packet.getBodyAsArray());
 
             return true;
         }
@@ -98,7 +98,7 @@ public class NettyNetworkClientServerTest {
 
         @Override
         public void handle(INetworkChannel channel, IPacket packet) {
-            NettyNetworkClientServerTest.this.cliPacketClientReceive = new String(packet.getBody());
+            NettyNetworkClientServerTest.this.cliPacketClientReceive = new String(packet.getBodyAsArray());
         }
     }
 

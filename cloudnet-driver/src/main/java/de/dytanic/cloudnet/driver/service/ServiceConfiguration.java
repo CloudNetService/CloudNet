@@ -1,13 +1,18 @@
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public final class ServiceConfiguration extends BasicJsonDocPropertyable {
+public final class ServiceConfiguration extends SerializableJsonDocPropertyable implements SerializableObject {
 
     private ServiceId serviceId;
 
@@ -56,6 +61,9 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
         this.processConfig = processConfig;
         this.properties = properties;
         this.port = port;
+    }
+
+    public ServiceConfiguration() {
     }
 
     public ServiceId getServiceId() {
@@ -168,5 +176,49 @@ public final class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     public ServiceTemplate[] getInitTemplates() {
         return this.initTemplates;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeObject(this.serviceId);
+        buffer.writeString(this.runtime);
+        buffer.writeBoolean(this.autoDeleteOnStop);
+        buffer.writeBoolean(this.staticService);
+        buffer.writeStringCollection(Arrays.asList(this.groups));
+
+        buffer.writeObjectArray(this.includes);
+        buffer.writeObjectArray(this.templates);
+        buffer.writeObjectArray(this.deployments);
+        buffer.writeObjectArray(this.initIncludes);
+        buffer.writeObjectArray(this.initTemplates);
+        buffer.writeObjectArray(this.initDeployments);
+
+        buffer.writeStringCollection(Arrays.asList(this.deletedFilesAfterStop));
+        buffer.writeObject(this.processConfig);
+        buffer.writeInt(this.port);
+
+        super.write(buffer);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.serviceId = buffer.readObject(ServiceId.class);
+        this.runtime = buffer.readString();
+        this.autoDeleteOnStop = buffer.readBoolean();
+        this.staticService = buffer.readBoolean();
+        this.groups = buffer.readStringCollection().toArray(new String[0]);
+
+        this.includes = buffer.readObjectArray(ServiceRemoteInclusion.class);
+        this.templates = buffer.readObjectArray(ServiceTemplate.class);
+        this.deployments = buffer.readObjectArray(ServiceDeployment.class);
+        this.initIncludes = buffer.readObjectArray(ServiceRemoteInclusion.class);
+        this.initTemplates = buffer.readObjectArray(ServiceTemplate.class);
+        this.initDeployments = buffer.readObjectArray(ServiceDeployment.class);
+
+        this.deletedFilesAfterStop = buffer.readStringCollection().toArray(new String[0]);
+        this.processConfig = buffer.readObject(ProcessConfiguration.class);
+        this.port = buffer.readInt();
+
+        super.read(buffer);
     }
 }

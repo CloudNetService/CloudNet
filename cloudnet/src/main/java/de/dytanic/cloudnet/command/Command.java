@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.command;
 
-import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 

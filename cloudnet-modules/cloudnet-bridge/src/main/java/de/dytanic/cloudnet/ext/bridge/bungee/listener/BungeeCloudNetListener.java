@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
@@ -108,9 +107,9 @@ public final class BungeeCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.bungeeCall(new BungeeChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.bungeeCall(new BungeeChannelMessageReceiveEvent(event));
 
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
             return;
         }
 
@@ -161,11 +160,25 @@ public final class BungeeCloudNetListener {
             }
             break;
 
-            case "broadcast_message": {
+            case "broadcast_message_component": {
                 String permission = event.getData().getString("permission");
 
                 BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
                         ComponentSerializer.parse(event.getData().getString("messages"));
+
+                for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
+                    if (permission == null || proxiedPlayer.hasPermission(permission)) {
+                        proxiedPlayer.sendMessage(messages);
+                    }
+                }
+            }
+            break;
+
+            case "broadcast_message": {
+                String message = event.getBuffer().readString();
+                String permission = event.getBuffer().readOptionalString();
+
+                BaseComponent[] messages = TextComponent.fromLegacyText(message);
 
                 for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
                     if (permission == null || proxiedPlayer.hasPermission(permission)) {
@@ -183,11 +196,6 @@ public final class BungeeCloudNetListener {
                         data.contains("uniqueId") && proxiedPlayer.getUniqueId().equals(data.get("uniqueId", UUID.class)))
                 .findFirst()
                 .orElse(null);
-    }
-
-    @EventListener
-    public void handle(NetworkClusterNodeInfoUpdateEvent event) {
-        this.bungeeCall(new BungeeNetworkClusterNodeInfoUpdateEvent(event.getNetworkClusterNodeInfoSnapshot()));
     }
 
     @EventListener

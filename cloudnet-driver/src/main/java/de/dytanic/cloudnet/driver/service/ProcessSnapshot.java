@@ -1,8 +1,11 @@
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
@@ -13,7 +16,7 @@ import java.util.stream.Collectors;
 
 @ToString
 @EqualsAndHashCode
-public class ProcessSnapshot {
+public class ProcessSnapshot implements SerializableObject {
 
     private static final int ownPID;
 
@@ -32,20 +35,20 @@ public class ProcessSnapshot {
         ownPID = parsed;
     }
 
-    private final long heapUsageMemory;
-    private final long noHeapUsageMemory;
-    private final long maxHeapMemory;
+    private long heapUsageMemory;
+    private long noHeapUsageMemory;
+    private long maxHeapMemory;
 
-    private final int currentLoadedClassCount;
+    private int currentLoadedClassCount;
 
-    private final long totalLoadedClassCount;
-    private final long unloadedClassCount;
+    private long totalLoadedClassCount;
+    private long unloadedClassCount;
 
-    private final Collection<ThreadSnapshot> threads;
+    private Collection<ThreadSnapshot> threads;
 
-    private final double cpuUsage;
+    private double cpuUsage;
 
-    private final int pid;
+    private int pid;
 
     public ProcessSnapshot(long heapUsageMemory, long noHeapUsageMemory, long maxHeapMemory, int currentLoadedClassCount, long totalLoadedClassCount, long unloadedClassCount, Collection<ThreadSnapshot> threads, double cpuUsage, int pid) {
         this.heapUsageMemory = heapUsageMemory;
@@ -57,6 +60,9 @@ public class ProcessSnapshot {
         this.threads = threads;
         this.cpuUsage = cpuUsage;
         this.pid = pid;
+    }
+
+    public ProcessSnapshot() {
     }
 
     public long getHeapUsageMemory() {
@@ -95,6 +101,32 @@ public class ProcessSnapshot {
         return this.pid;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeLong(this.heapUsageMemory);
+        buffer.writeLong(this.noHeapUsageMemory);
+        buffer.writeLong(this.maxHeapMemory);
+        buffer.writeInt(this.currentLoadedClassCount);
+        buffer.writeLong(this.totalLoadedClassCount);
+        buffer.writeLong(this.unloadedClassCount);
+        buffer.writeObjectCollection(this.threads);
+        buffer.writeDouble(this.cpuUsage);
+        buffer.writeInt(this.pid);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.heapUsageMemory = buffer.readLong();
+        this.noHeapUsageMemory = buffer.readLong();
+        this.maxHeapMemory = buffer.readLong();
+        this.currentLoadedClassCount = buffer.readInt();
+        this.totalLoadedClassCount = buffer.readLong();
+        this.unloadedClassCount = buffer.readLong();
+        this.threads = buffer.readObjectCollection(ThreadSnapshot.class);
+        this.cpuUsage = buffer.readDouble();
+        this.pid = buffer.readInt();
+    }
+  
     public static ProcessSnapshot empty() {
         return new ProcessSnapshot(-1, -1, -1, -1, -1, -1, Collections.emptyList(), -1, -1);
     }

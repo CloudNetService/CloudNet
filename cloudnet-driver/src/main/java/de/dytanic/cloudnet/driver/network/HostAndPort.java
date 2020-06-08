@@ -1,6 +1,9 @@
 package de.dytanic.cloudnet.driver.network;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -10,7 +13,7 @@ import java.net.SocketAddress;
  * for a server or a client bind address
  */
 @EqualsAndHashCode
-public class HostAndPort {
+public class HostAndPort implements SerializableObject {
 
     /**
      * The host address which is configured by the constructors
@@ -48,6 +51,9 @@ public class HostAndPort {
         this.port = port;
     }
 
+    public HostAndPort() {
+    }
+
     @Override
     public String toString() {
         return this.host + ":" + this.port;
@@ -61,4 +67,15 @@ public class HostAndPort {
         return this.port;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeOptionalString(this.host);
+        buffer.writeInt(this.port);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.host = buffer.readOptionalString();
+        this.port = buffer.readInt();
+    }
 }

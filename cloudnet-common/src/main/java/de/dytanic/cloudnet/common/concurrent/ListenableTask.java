@@ -194,7 +194,7 @@ public class ListenableTask<V> implements ITask<V> {
         ListenableTask<T> task = new ListenableTask<>(reference::get);
 
         this.onComplete(v -> {
-            reference.set(function.apply(v));
+            reference.set(function == null ? null : function.apply(v));
             task.call();
         });
         this.onCancelled(viTask -> {

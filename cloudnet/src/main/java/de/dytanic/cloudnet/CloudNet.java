@@ -33,9 +33,11 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
-import de.dytanic.cloudnet.driver.network.*;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.INetworkServer;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeExtensionSnapshot;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
@@ -44,6 +46,7 @@ import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
@@ -67,7 +70,11 @@ import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
-import de.dytanic.cloudnet.network.listener.*;
+import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
+import de.dytanic.cloudnet.network.listener.auth.PacketClientAuthorizationListener;
+import de.dytanic.cloudnet.network.listener.auth.PacketServerAuthorizationResponseListener;
+import de.dytanic.cloudnet.network.listener.cluster.*;
+import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
 import de.dytanic.cloudnet.network.packet.*;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
@@ -78,9 +85,10 @@ import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
+import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
+import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.provider.service.NodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
@@ -89,12 +97,12 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -217,7 +225,6 @@ public final class CloudNet extends CloudNetDriver {
                 this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null,
                 this.networkTaskScheduler
         );
-        super.packetQueryProvider = new PacketQueryProvider(this.networkClient);
 
         this.networkServer = new NettyNetworkServer(NetworkServerChannelHandlerImpl::new,
                 this.config.getClientSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
@@ -400,17 +407,38 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
-        return new NodeSpecificCloudServiceProvider(this, name);
+        ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudServiceByName(name);
+        return this.selectCloudServiceProvider(snapshot);
     }
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
-        return new NodeSpecificCloudServiceProvider(this, uniqueId);
+        ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudService(uniqueId);
+        return this.selectCloudServiceProvider(snapshot);
     }
 
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        return new NodeSpecificCloudServiceProvider(this, serviceInfoSnapshot);
+        return this.selectCloudServiceProvider(serviceInfoSnapshot);
+    }
+
+    @NotNull
+    private SpecificCloudServiceProvider selectCloudServiceProvider(@Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
+        if (serviceInfoSnapshot == null) {
+            return EmptySpecificCloudServiceProvider.INSTANCE;
+        }
+        if (serviceInfoSnapshot.getServiceId().getNodeUniqueId().equals(this.getComponentName())) {
+            ICloudService service = this.cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
+            if (service != null) {
+                return new LocalNodeSpecificCloudServiceProvider(this, service);
+            }
+            return EmptySpecificCloudServiceProvider.INSTANCE;
+        }
+        IClusterNodeServer server = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
+        if (server == null) {
+            return EmptySpecificCloudServiceProvider.INSTANCE;
+        }
+        return server.getCloudServiceProvider(serviceInfoSnapshot);
     }
 
     @NotNull
@@ -623,8 +651,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public NetworkClusterNodeInfoSnapshot createClusterNodeInfoSnapshot() {
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-
         return new NetworkClusterNodeInfoSnapshot(
                 System.currentTimeMillis(),
                 this.config.getIdentity(),
@@ -634,14 +660,7 @@ public final class CloudNet extends CloudNetDriver {
                 this.cloudServiceManager.getCurrentReservedMemory(),
                 this.config.getMaxMemory(),
                 ProcessSnapshot.self(),
-                this.moduleProvider.getModules().stream().map(moduleWrapper -> new NetworkClusterNodeExtensionSnapshot(
-                        moduleWrapper.getModuleConfiguration().getGroup(),
-                        moduleWrapper.getModuleConfiguration().getName(),
-                        moduleWrapper.getModuleConfiguration().getVersion(),
-                        moduleWrapper.getModuleConfiguration().getAuthor(),
-                        moduleWrapper.getModuleConfiguration().getWebsite(),
-                        moduleWrapper.getModuleConfiguration().getDescription()
-                )).collect(Collectors.toList()),
+                this.moduleProvider.getModules().stream().map(IModuleWrapper::getModuleConfiguration).collect(Collectors.toList()),
                 ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
         );
     }
@@ -717,11 +736,12 @@ public final class CloudNet extends CloudNetDriver {
         this.currentNetworkClusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
 
         this.getEventManager().callEvent(new NetworkClusterNodeInfoConfigureEvent(this.currentNetworkClusterNodeInfoSnapshot));
-        this.sendAll(new PacketServerClusterNodeInfoUpdate(this.currentNetworkClusterNodeInfoSnapshot));
+
+        this.clusterNodeServerProvider.sendPacket(new PacketServerClusterNodeInfoUpdate(this.currentNetworkClusterNodeInfoSnapshot));
     }
 
     public void publishPermissionGroupUpdates(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
-        this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(permissionGroups, updateType, true));
+        this.clusterNodeServerProvider.sendPacket(new PacketServerSetPermissionData(permissionGroups, updateType));
     }
 
     public void publishH2DatabaseDataToCluster(INetworkChannel channel) {
@@ -756,27 +776,26 @@ public final class CloudNet extends CloudNetDriver {
 
 
     private void initPacketRegistryListeners() {
+        IPacketListenerRegistry registry = this.getNetworkClient().getPacketRegistry();
+
         // Packet client registry
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerServiceInfoPublisherListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerUpdatePermissionsListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_EVENTBUS_CHANNEL, new PacketServerChannelMessageListener());
+        registry.addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
+        registry.addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
+        registry.addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
+        registry.addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(false));
 
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetGroupConfigurationListListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetPermissionDataListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerSetServiceTaskListListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerDeployLocalTemplateListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CLUSTER_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
+        registry.addListener(PacketConstants.CLUSTER_SERVICE_INFO_LIST_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
+        registry.addListener(PacketConstants.CLUSTER_GROUP_CONFIG_LIST_CHANNEL, new PacketServerSetGroupConfigurationListListener());
+        registry.addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
+        registry.addListener(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
+        registry.addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
+        registry.addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
 
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
+        registry.addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
+        registry.addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
 
         // Node server API
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientCallablePacketReceiveListener());
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_CALLABLE_CHANNEL, new PacketClientSyncAPIPacketListener());
-
-        this.getNetworkClient().getPacketRegistry().addListener(PacketConstants.INTERNAL_PACKET_CLUSTER_MESSAGE_CHANNEL, new PacketServerClusterChannelMessageListener());
+        registry.addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 
         // Packet server registry
         this.getNetworkServer().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());

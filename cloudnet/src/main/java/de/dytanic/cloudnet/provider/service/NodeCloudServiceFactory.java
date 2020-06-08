@@ -30,7 +30,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         return this.executeOnLogicNode(serviceTask,
                 cloudServiceManager -> cloudServiceManager.runTask(serviceTask),
-                clusterNodeServer -> clusterNodeServer.createCloudService(serviceTask)
+                clusterNodeServer -> clusterNodeServer.getCloudServiceFactory().createCloudService(serviceTask)
         );
     }
 
@@ -39,7 +39,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId) {
         return this.executeOnLogicNode(serviceTask,
                 cloudServiceManager -> cloudServiceManager.runTask(serviceTask, taskId),
-                clusterNodeServer -> clusterNodeServer.createCloudService(serviceTask, taskId)
+                clusterNodeServer -> clusterNodeServer.getCloudServiceFactory().createCloudService(serviceTask, taskId)
         );
     }
 
@@ -86,7 +86,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
             IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(serviceConfiguration.getServiceId().getNodeUniqueId());
 
             if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
-                return clusterNodeServer.createCloudService(serviceConfiguration);
+                return clusterNodeServer.getCloudServiceFactory().createCloudService(serviceConfiguration);
             }
         }
 
@@ -141,7 +141,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(nodeUniqueId);
 
         if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
+            return clusterNodeServer.getCloudServiceFactory().createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
         } else {
             return null;
         }

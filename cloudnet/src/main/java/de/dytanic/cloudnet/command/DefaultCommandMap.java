@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.command;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

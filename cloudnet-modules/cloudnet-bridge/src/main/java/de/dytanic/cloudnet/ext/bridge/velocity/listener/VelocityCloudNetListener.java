@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.*;
@@ -115,9 +114,9 @@ public final class VelocityCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.velocityCall(new VelocityChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.velocityCall(new VelocityChannelMessageReceiveEvent(event));
 
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
             return;
         }
 
@@ -166,14 +165,13 @@ public final class VelocityCloudNetListener {
             }
             break;
             case "broadcast_message": {
-                String permission = event.getData().getString("permission");
+                String message = event.getBuffer().readString();
+                String permission = event.getBuffer().readOptionalString();
 
-                if (event.getData().getString("message") != null) {
-                    TextComponent message = LegacyComponentSerializer.legacyLinking().deserialize(event.getData().getString("message").replace("&", "§"));
-                    for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
-                        if (permission == null || player.hasPermission(permission)) {
-                            player.sendMessage(message);
-                        }
+                TextComponent component = LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§"));
+                for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
+                    if (permission == null || player.hasPermission(permission)) {
+                        player.sendMessage(component);
                     }
                 }
             }
@@ -187,11 +185,6 @@ public final class VelocityCloudNetListener {
                         || data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")))
                 .findFirst()
                 .orElse(null);
-    }
-
-    @EventListener
-    public void handle(NetworkClusterNodeInfoUpdateEvent event) {
-        this.velocityCall(new VelocityNetworkClusterNodeInfoUpdateEvent(event.getNetworkClusterNodeInfoSnapshot()));
     }
 
     @EventListener

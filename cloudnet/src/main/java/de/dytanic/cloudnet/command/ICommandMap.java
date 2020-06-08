@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 
 import java.util.Collection;
 import java.util.List;

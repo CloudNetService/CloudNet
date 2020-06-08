@@ -20,6 +20,11 @@ interface INetworkComponent extends IPacketSender {
      */
     Collection<INetworkChannel> getChannels();
 
+    default INetworkChannel getFirstChannel() {
+        Collection<INetworkChannel> channels = this.getChannels();
+        return channels.isEmpty() ? null : channels.iterator().next();
+    }
+
     /**
      * Close all open connections from this network component
      */

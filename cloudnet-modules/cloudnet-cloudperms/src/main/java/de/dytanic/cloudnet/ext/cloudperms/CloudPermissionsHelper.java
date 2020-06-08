@@ -45,7 +45,7 @@ public class CloudPermissionsHelper {
 
         if (permissionUser != null) {
             permissionsManagement.getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
-            if (shouldUpdateName) {
+            if (shouldUpdateName && !name.equals(permissionUser.getName())) {
                 permissionUser.setName(name);
                 permissionsManagement.updateUser(permissionUser);
             }

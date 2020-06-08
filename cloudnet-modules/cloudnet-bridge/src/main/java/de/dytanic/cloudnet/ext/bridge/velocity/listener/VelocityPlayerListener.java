@@ -29,9 +29,9 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(LoginEvent event) {
-        JsonDocument response = BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
-        if (response != null && response.contains("kickReason")) {
-            event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(response.getString("kickReason"))));
+        String kickReason = BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+        if (kickReason != null) {
+            event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(kickReason)));
         }
     }
 

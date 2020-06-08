@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public interface IPacket {
      *
      * @return the own uniqueId
      */
+    @NotNull
     UUID getUniqueId();
 
     /**
@@ -51,12 +54,15 @@ public interface IPacket {
 
     /**
      * Returns the packet body, for transport for extra data, like files or zip archives or something else
-     * <p>
-     * The max length of the body can only be (Integer.MAX_VALUE - 1)
      *
-     * @return the body as byte array in bytes
+     * @return the body as a ProtocolBuffer
      */
-    byte[] getBody();
+    ProtocolBuffer getBuffer();
+
+    /**
+     * @return the body as a byte array
+     */
+    byte[] getBodyAsArray();
 
     /**
      * @return if there should be debug messages for this type of packet

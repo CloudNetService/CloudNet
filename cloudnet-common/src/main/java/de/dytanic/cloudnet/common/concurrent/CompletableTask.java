@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
 public class CompletableTask<V> implements ITask<V> {
 
@@ -31,7 +32,7 @@ public class CompletableTask<V> implements ITask<V> {
 
     @Override
     public Callable<V> getCallable() {
-        return () -> this.future.get();
+        return this.future::get;
     }
 
     @Override
@@ -46,6 +47,15 @@ public class CompletableTask<V> implements ITask<V> {
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
             return def;
         }
+    }
+
+    @Override
+    public <T> ITask<T> map(Function<V, T> mapper) {
+        CompletableTask<T> task = new CompletableTask<>();
+        this.future.thenAccept(v -> task.complete(mapper == null ? null : mapper.apply(v)));
+        this.onFailure(task.future::completeExceptionally);
+        this.onCancelled(otherTask -> task.cancel(true));
+        return task;
     }
 
     @Override

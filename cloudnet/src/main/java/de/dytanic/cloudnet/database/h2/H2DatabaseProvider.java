@@ -89,9 +89,13 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     public boolean deleteDatabase(String name) {
         Preconditions.checkNotNull(name);
 
+        if (!this.containsDatabase(name)) {
+            return false;
+        }
+
         this.cachedDatabaseInstances.remove(name);
 
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement("DROP TABLE " + name)) {
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement("DROP TABLE IF EXISTS `" + name + "`")) {
             return preparedStatement.executeUpdate() != -1;
         } catch (SQLException exception) {
             exception.printStackTrace();

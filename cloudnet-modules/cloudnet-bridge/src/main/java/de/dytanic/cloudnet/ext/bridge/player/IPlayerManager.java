@@ -177,12 +177,8 @@ public interface IPlayerManager {
      */
     @NotNull
     default ITask<ICloudPlayer> getFirstOnlinePlayerAsync(@NotNull String name) {
-        AtomicReference<ICloudPlayer> result = new AtomicReference<>();
-        ITask<ICloudPlayer> task = new ListenableTask<>(result::get);
-        this.getOnlinePlayersAsync(name)
-                .onComplete(players -> result.set(players.isEmpty() ? null : players.get(0)))
-                .onCancelled(listITask -> task.cancel(true));
-        return task;
+        return this.getOnlinePlayersAsync(name)
+                .map(players -> players.isEmpty() ? null : players.get(0));
     }
 
     /**
@@ -440,6 +436,6 @@ public interface IPlayerManager {
      * @param message    the message to be sent to all online players with the given permission
      * @param permission the permission to check for
      */
-    void broadcastMessage(@NotNull String message, @NotNull String permission);
+    void broadcastMessage(@NotNull String message, @Nullable String permission);
 
 }

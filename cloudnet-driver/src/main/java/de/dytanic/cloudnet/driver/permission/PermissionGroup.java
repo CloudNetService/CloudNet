@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -114,4 +115,33 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         this.defaultGroup = defaultGroup;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        super.write(buffer);
+
+        buffer.writeStringCollection(this.groups);
+
+        buffer.writeString(this.prefix);
+        buffer.writeString(this.color);
+        buffer.writeString(this.suffix);
+        buffer.writeString(this.display);
+
+        buffer.writeInt(this.sortId);
+        buffer.writeBoolean(this.defaultGroup);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        super.read(buffer);
+
+        this.groups = buffer.readStringCollection();
+
+        this.prefix = buffer.readString();
+        this.color = buffer.readString();
+        this.suffix = buffer.readString();
+        this.display = buffer.readString();
+
+        this.sortId = buffer.readInt();
+        this.defaultGroup = buffer.readBoolean();
+    }
 }

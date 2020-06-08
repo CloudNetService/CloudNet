@@ -2,10 +2,10 @@ package eu.cloudnetservice.cloudnet.ext.npcs.node.listener;
 
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
-import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
@@ -33,26 +33,8 @@ public class CloudNetNPCMessageListener {
     }
 
     @EventListener
-    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (event.getChannelName().equalsIgnoreCase(NPCConstants.NPC_CHANNEL_NAME)) {
-
-            switch (event.getId().toLowerCase()) {
-                case NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE: {
-                    event.setCallbackPacket(new JsonDocument("npcs", this.npcModule.getCachedNPCs()));
-                }
-                break;
-                case NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE: {
-                    event.setCallbackPacket(new JsonDocument("npcConfiguration", this.npcModule.getNPCConfiguration()));
-                }
-                break;
-            }
-
-        }
-    }
-
-    @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (event.getChannel().equalsIgnoreCase(NPCConstants.NPC_CHANNEL_NAME)) {
+        if (event.getChannel().equalsIgnoreCase(NPCConstants.NPC_CHANNEL_NAME) && event.getMessage() != null) {
 
             switch (event.getMessage().toLowerCase()) {
                 case NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE: {
@@ -82,6 +64,14 @@ public class CloudNetNPCMessageListener {
                     if (npc != null) {
                         this.npcModule.removeNPC(npc);
                     }
+                }
+                break;
+                case NPCConstants.NPC_CHANNEL_GET_CONFIGURATION_MESSAGE: {
+                    event.setJsonResponse(JsonDocument.newDocument("npcConfiguration", this.npcModule.getNPCConfiguration()));
+                }
+                break;
+                case NPCConstants.NPC_CHANNEL_GET_NPCS_MESSAGE: {
+                    event.setJsonResponse(JsonDocument.newDocument("npcs", this.npcModule.getCachedNPCs()));
                 }
                 break;
             }

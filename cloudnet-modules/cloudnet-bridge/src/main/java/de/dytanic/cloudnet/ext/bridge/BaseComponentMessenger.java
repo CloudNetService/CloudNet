@@ -26,7 +26,7 @@ public class BaseComponentMessenger {
         Preconditions.checkNotNull(messages);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "send_message_to_proxy_player",
                 new JsonDocument()
                         .append("uniqueId", uniqueId)
@@ -38,8 +38,8 @@ public class BaseComponentMessenger {
         Preconditions.checkNotNull(messages);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "broadcast_message",
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+                "broadcast_message_component",
                 new JsonDocument()
                         .append("messages", ComponentSerializer.toString(messages))
         );
@@ -49,8 +49,8 @@ public class BaseComponentMessenger {
         Preconditions.checkNotNull(messages);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "broadcast_message",
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
+                "broadcast_message_component",
                 new JsonDocument()
                         .append("messages", ComponentSerializer.toString(messages))
                         .append("permission", permission)

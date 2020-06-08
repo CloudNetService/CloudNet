@@ -8,7 +8,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 public final class PacketClientAuthorization extends Packet {
 
     public PacketClientAuthorization(PacketAuthorizationType packetAuthorizationType, JsonDocument credentials) {
-        super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument(), null);
+        super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument());
 
         Preconditions.checkNotNull(packetAuthorizationType);
         Preconditions.checkNotNull(credentials);

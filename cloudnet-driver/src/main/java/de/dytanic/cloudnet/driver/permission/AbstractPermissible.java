@@ -1,13 +1,18 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
+@ToString
+@EqualsAndHashCode(callSuper = false)
+public abstract class AbstractPermissible extends SerializableJsonDocPropertyable implements IPermissible {
 
-    protected final long createdTime;
+    protected long createdTime;
     protected String name;
     protected int potency;
     protected List<Permission> permissions;
@@ -98,5 +103,37 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     public Map<String, Collection<Permission>> getGroupPermissions() {
         return this.groupPermissions;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeLong(this.createdTime);
+        buffer.writeString(this.name);
+        buffer.writeInt(this.potency);
+        buffer.writeObjectCollection(this.permissions);
+
+        buffer.writeVarInt(this.groupPermissions.size());
+        this.groupPermissions.forEach((group, permissions) -> {
+            buffer.writeString(group);
+            buffer.writeObjectCollection(permissions);
+        });
+
+        super.write(buffer);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.createdTime = buffer.readLong();
+        this.name = buffer.readString();
+        this.potency = buffer.readInt();
+        this.permissions = new ArrayList<>(buffer.readObjectCollection(Permission.class));
+
+        int size = buffer.readVarInt();
+        this.groupPermissions = new HashMap<>(size);
+        for (int i = 0; i < size; i++) {
+            this.groupPermissions.put(buffer.readString(), buffer.readObjectCollection(Permission.class));
+        }
+
+        super.read(buffer);
     }
 }

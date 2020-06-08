@@ -126,7 +126,7 @@ public final class ExampleCreateCloudService {
                             Collections.EMPTY_LIST
                     ),
                     JsonDocument.newDocument().append("votes", "10"), //define useful properties to call up later
-                    null //automatic defined port or the start port
+                    44955 // start port
             )) {
                 serviceInfoSnapshot.provider().start(); //Start the services
             }

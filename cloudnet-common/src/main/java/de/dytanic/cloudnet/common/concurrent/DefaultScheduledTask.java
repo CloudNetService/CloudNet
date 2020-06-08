@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
@@ -130,6 +131,14 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
         } catch (Throwable throwable) {
             return def;
         }
+    }
+
+    @Override
+    public <T> ITask<T> map(Function<V, T> mapper) {
+        CompletableTask<T> task = new CompletableTask<>();
+        this.onComplete(v -> task.complete(mapper == null ? null : mapper.apply(v)));
+        this.onCancelled(otherTask -> task.cancel(true));
+        return task;
     }
 
     @Override

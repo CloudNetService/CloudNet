@@ -27,7 +27,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
         Preconditions.checkNotNull(serviceName);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "send_on_proxy_player_to_server",
                 new JsonDocument()
                         .append("uniqueId", this.uniqueId)
@@ -40,7 +40,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
         Preconditions.checkNotNull(message);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "kick_on_proxy_player_from_network",
                 new JsonDocument()
                         .append("uniqueId", this.uniqueId)
@@ -53,7 +53,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
         Preconditions.checkNotNull(message);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "send_message_to_proxy_player",
                 new JsonDocument()
                         .append("uniqueId", this.uniqueId)
@@ -67,7 +67,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
         Preconditions.checkNotNull(data);
 
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
+                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 "send_plugin_message_to_proxy_player",
                 new JsonDocument()
                         .append("uniqueId", this.uniqueId)
