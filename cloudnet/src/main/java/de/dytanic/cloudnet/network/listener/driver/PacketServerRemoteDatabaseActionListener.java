@@ -112,7 +112,7 @@ public class PacketServerRemoteDatabaseActionListener implements IPacketListener
 
             case DATABASE_GET_BY_KEY: {
                 JsonDocument document = database.get(buffer.readString());
-                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeJsonDocument(document)));
+                channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalJsonDocument(document)));
             }
             break;
 

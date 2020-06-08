@@ -139,7 +139,7 @@ public class WrapperDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 RemoteDatabaseRequestType.DATABASE_GET_BY_KEY,
                 buffer -> this.writeDefaults(buffer).writeString(key)
-        ).map(packet -> packet.getBuffer().readJsonDocument());
+        ).map(packet -> packet.getBuffer().readOptionalJsonDocument());
     }
 
     @Override

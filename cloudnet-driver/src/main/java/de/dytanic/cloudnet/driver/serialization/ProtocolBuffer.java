@@ -87,6 +87,11 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
     public abstract ProtocolBuffer writeJsonDocument(@NotNull JsonDocument document);
 
+    @Nullable
+    public abstract JsonDocument readOptionalJsonDocument();
+
+    public abstract ProtocolBuffer writeOptionalJsonDocument(@Nullable JsonDocument document);
+
     @NotNull
     public abstract <T extends SerializableObject> T readObject(@NotNull Class<T> objectClass);
 

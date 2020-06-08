@@ -128,10 +128,7 @@ public class ModuleConfiguration implements SerializableObject {
         if (this.dependencies != null) {
             buffer.writeObjectArray(this.dependencies);
         }
-        buffer.writeBoolean(this.properties != null);
-        if (this.properties != null) {
-            buffer.writeJsonDocument(this.properties);
-        }
+        buffer.writeOptionalJsonDocument(this.properties);
     }
 
     @Override
@@ -147,6 +144,6 @@ public class ModuleConfiguration implements SerializableObject {
         this.website = buffer.readOptionalString();
         this.repos = buffer.readBoolean() ? buffer.readObjectArray(ModuleRepository.class) : null;
         this.dependencies = buffer.readBoolean() ? buffer.readObjectArray(ModuleDependency.class) : null;
-        this.properties = buffer.readBoolean() ? buffer.readJsonDocument() : null;
+        this.properties = buffer.readOptionalJsonDocument();
     }
 }

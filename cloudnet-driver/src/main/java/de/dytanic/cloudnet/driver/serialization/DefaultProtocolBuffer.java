@@ -256,6 +256,20 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
+    public @Nullable JsonDocument readOptionalJsonDocument() {
+        return this.readBoolean() ? this.readJsonDocument() : null;
+    }
+
+    @Override
+    public ProtocolBuffer writeOptionalJsonDocument(@Nullable JsonDocument document) {
+        this.writeBoolean(document != null);
+        if (document != null) {
+            this.writeJsonDocument(document);
+        }
+        return this;
+    }
+
+    @Override
     public <T extends SerializableObject> @NotNull T readObject(@NotNull Class<T> objectClass) {
         try {
             T t = objectClass.getDeclaredConstructor().newInstance();
