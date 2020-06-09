@@ -19,6 +19,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
@@ -102,7 +103,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -661,7 +661,7 @@ public final class CloudNet extends CloudNetDriver {
                 this.config.getMaxMemory(),
                 ProcessSnapshot.self(),
                 this.moduleProvider.getModules().stream().map(IModuleWrapper::getModuleConfiguration).collect(Collectors.toList()),
-                ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
+                CPUUsageResolver.getSystemCPUUsage()
         );
     }
 
@@ -674,46 +674,32 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public Collection<IClusterNodeServer> getValidClusterNodeServers(ServiceTask serviceTask) {
-        return this.clusterNodeServerProvider.getNodeServers().stream().filter(clusterNodeServer -> {
-            if (!clusterNodeServer.isConnected()) {
-                return false;
-            }
-            return this.canStartServices(serviceTask, clusterNodeServer.getNodeInfo().getUniqueId());
-        }).collect(Collectors.toList());
+        return this.clusterNodeServerProvider.getNodeServers().stream()
+                .filter(clusterNodeServer ->
+                        clusterNodeServer.isConnected() && this.canStartServices(serviceTask, clusterNodeServer.getNodeInfo().getUniqueId()))
+                .collect(Collectors.toList());
     }
 
+    @Nullable
     public NetworkClusterNodeInfoSnapshot searchLogicNode(ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
-        Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(serviceTask).stream().map(IClusterNodeServer::getNodeInfoSnapshot).collect(Collectors.toList());
+        Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(serviceTask).stream()
+                .map(IClusterNodeServer::getNodeInfoSnapshot)
+                .collect(Collectors.toList());
+
         if (this.canStartServices(serviceTask)) {
             nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
         }
-        boolean windows = nodes.stream().anyMatch(node -> node.getSystemCpuUsage() == -1); //on windows the systemCpuUsage will be always -1, so we cannot find the node with the lowest cpu usage
-        return nodes.stream().max(Comparator.comparingDouble(
-                value -> windows ?
-                        value.getMaxMemory() - value.getReservedMemory() :
-                        (value.getMaxMemory() - value.getReservedMemory()) + (100 - value.getSystemCpuUsage())
+
+        return nodes.stream().min(Comparator.comparingDouble(node ->
+                node.getSystemCpuUsage() + ((double) node.getReservedMemory() / node.getMaxMemory() * 100D)
         )).orElse(null);
     }
 
     public boolean competeWithCluster(ServiceTask serviceTask) {
-        Collection<IClusterNodeServer> clusterNodeServers = this.getValidClusterNodeServers(serviceTask);
-
-        boolean allow = true;
-
-        for (IClusterNodeServer clusterNodeServer : clusterNodeServers) {
-            if (clusterNodeServer.getNodeInfoSnapshot() != null
-                    && clusterNodeServer.getNodeInfoSnapshot().getMaxMemory() - clusterNodeServer.getNodeInfoSnapshot().getReservedMemory()
-                    > this.currentNetworkClusterNodeInfoSnapshot.getMaxMemory() - this.currentNetworkClusterNodeInfoSnapshot.getReservedMemory()
-                    && clusterNodeServer.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage() * clusterNodeServer.getNodeInfoSnapshot().getCurrentServicesCount()
-                    < this.currentNetworkClusterNodeInfoSnapshot.getProcessSnapshot().getCpuUsage() * this.currentNetworkClusterNodeInfoSnapshot.getCurrentServicesCount()
-            ) {
-                allow = false;
-            }
-        }
-
-        return clusterNodeServers.size() == 0 || allow;
+        NetworkClusterNodeInfoSnapshot bestNode = this.searchLogicNode(serviceTask);
+        return bestNode != null && bestNode.getNode().getUniqueId().equals(this.currentNetworkClusterNodeInfoSnapshot.getNode().getUniqueId());
     }
 
     public void unregisterPacketListenersByClassLoader(ClassLoader classLoader) {
