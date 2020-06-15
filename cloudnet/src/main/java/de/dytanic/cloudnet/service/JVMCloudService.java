@@ -32,7 +32,6 @@ import java.util.jar.JarFile;
 final class JVMCloudService extends DefaultCloudService implements ICloudService {
 
     protected static final String RUNTIME = "jvm";
-    private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
     private final DefaultServiceConsoleLogCache serviceConsoleLogCache = new DefaultServiceConsoleLogCache(this);
 
@@ -55,28 +54,6 @@ final class JVMCloudService extends DefaultCloudService implements ICloudService
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        }
-    }
-
-    @Override
-    public void start() throws Exception {
-        try {
-            this.lifeCycleLock.lock();
-
-            if (!CloudNet.getInstance().getConfig().isParallelServiceStartSequence()) {
-                try {
-
-                    START_SEQUENCE_LOCK.lock();
-                    this.start0();
-                } finally {
-                    START_SEQUENCE_LOCK.unlock();
-                }
-            } else {
-                this.start0();
-            }
-
-        } finally {
-            this.lifeCycleLock.unlock();
         }
     }
 
@@ -128,6 +105,16 @@ final class JVMCloudService extends DefaultCloudService implements ICloudService
     public boolean isAlive() {
         return this.lifeCycle == ServiceLifeCycle.DEFINED || this.lifeCycle == ServiceLifeCycle.PREPARED ||
                 (this.lifeCycle == ServiceLifeCycle.RUNNING && this.process != null && this.process.isAlive());
+    }
+
+    @Override
+    protected void startNow() throws Exception {
+        try {
+            this.lifeCycleLock.lock();
+            this.start0();
+        } finally {
+            this.lifeCycleLock.unlock();
+        }
     }
 
     private void start0() throws Exception {

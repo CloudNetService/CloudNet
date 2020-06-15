@@ -33,12 +33,14 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class DefaultCloudService implements ICloudService {
 
     protected static final String TEMP_NAME_SPLITTER = "_";
-
     protected static final long SERVICE_ERROR_RESTART_DELAY = 30;
+    private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
     private final String runtime;
 
@@ -541,5 +543,22 @@ public abstract class DefaultCloudService implements ICloudService {
     }
 
     protected abstract int shutdown(boolean force);
+
+    @Override
+    public void start() throws Exception {
+        if (!CloudNet.getInstance().getConfig().isParallelServiceStartSequence()) {
+            try {
+
+                START_SEQUENCE_LOCK.lock();
+                this.startNow();
+            } finally {
+                START_SEQUENCE_LOCK.unlock();
+            }
+        } else {
+            this.startNow();
+        }
+    }
+
+    protected abstract void startNow() throws Exception;
 
 }
