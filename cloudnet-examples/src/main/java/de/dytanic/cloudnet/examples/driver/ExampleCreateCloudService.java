@@ -59,7 +59,7 @@ public final class ExampleCreateCloudService {
             } else {
                 //Service is not online or doesn't exist
             }
-        }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+        }).fireExceptionOnFailure();
     }
 
     public void createCloudServiceByTask() {

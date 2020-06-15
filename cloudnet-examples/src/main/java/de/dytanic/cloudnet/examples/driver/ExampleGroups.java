@@ -27,7 +27,7 @@ public final class ExampleGroups {
                 ));
 
                 CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(result); //add or update the group configuration
-            }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+            }).fireExceptionOnFailure();
         }
     }
 

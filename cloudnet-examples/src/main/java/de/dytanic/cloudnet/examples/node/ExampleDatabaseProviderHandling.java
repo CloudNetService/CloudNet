@@ -26,7 +26,7 @@ public final class ExampleDatabaseProviderHandling {
                 System.out.println(document.getString("name"));
                 System.out.println(document.getString("lastName"));
                 System.out.println(document.getInt("age"));
-            }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+            }).fireExceptionOnFailure();
         }
 
         List<JsonDocument> responses = database.get("name", "Peter"); //filter with a key/value pair in value
