@@ -86,8 +86,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
             this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
 
-            CloudNet.getInstance().getNetworkClient()
-                    .sendPacket(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER)); // TODO: is this really necessary?
             CloudNet.getInstance().getNetworkServer()
                     .sendPacket(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 

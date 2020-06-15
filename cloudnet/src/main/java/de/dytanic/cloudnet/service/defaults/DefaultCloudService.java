@@ -287,8 +287,6 @@ public abstract class DefaultCloudService implements ICloudService {
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
 
-        CloudNet.getInstance().getNetworkClient()
-                .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE)); // TODO: is this really necessary?
         CloudNet.getInstance().getNetworkServer()
                 .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
     }
@@ -309,7 +307,6 @@ public abstract class DefaultCloudService implements ICloudService {
     public void start() throws Exception {
         if (!CloudNet.getInstance().getConfig().isParallelServiceStartSequence()) {
             try {
-
                 START_SEQUENCE_LOCK.lock();
                 this.startNow();
             } finally {
