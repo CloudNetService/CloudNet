@@ -63,20 +63,7 @@ public interface ICloudService {
     @NotNull
     ServiceInfoSnapshot getLastServiceInfoSnapshot();
 
-    default ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync() {
-        if (this.getNetworkChannel() == null) {
-            return CompletedTask.create(null);
-        }
-
-        return this.getNetworkChannel()
-                .sendQueryAsync(new PacketClientDriverAPI(DriverAPIRequestType.FORCE_UPDATE_SERVICE))
-                .map(packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class))
-                .onComplete(serviceInfoSnapshot -> {
-                    if (serviceInfoSnapshot != null) {
-                        this.updateServiceInfoSnapshot(serviceInfoSnapshot);
-                    }
-                });
-    }
+    ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync();
 
     @Nullable
     Process getProcess();
@@ -117,16 +104,6 @@ public interface ICloudService {
 
     void addDeployment(@NotNull ServiceDeployment deployment);
 
-    default void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.setServiceInfoSnapshot(serviceInfoSnapshot);
-        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
-
-        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-
-        CloudNet.getInstance().getNetworkClient()
-                .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE)); // TODO: is this really necessary?
-        CloudNet.getInstance().getNetworkServer()
-                .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
-    }
+    void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
 }

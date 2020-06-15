@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
-    private static final ICloudServiceFactory DEFAULT_FACTORY = new JVMCloudServiceFactory();
+    private static final ICloudServiceFactory DEFAULT_FACTORY = JVMCloudService::new;
     private final File
             tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
             persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
