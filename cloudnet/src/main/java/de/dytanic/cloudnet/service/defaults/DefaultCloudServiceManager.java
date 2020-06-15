@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.concurrent.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -36,43 +35,13 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
 
     @Override
-    public ICloudService runTask(@NotNull ServiceTask serviceTask) {
-        Preconditions.checkNotNull(serviceTask);
-
-        return this.runTask(serviceTask, this.findTaskId(serviceTask.getName()));
-    }
-
-    @Override
-    public ICloudService runTask(@NotNull ServiceTask serviceTask, int taskId) {
-        Preconditions.checkNotNull(serviceTask);
-
-        return this.runTask(
-                serviceTask.getName(),
-                serviceTask.getRuntime(),
-                taskId,
-                serviceTask.isAutoDeleteOnStop(),
-                serviceTask.isStaticServices(),
-                new ArrayList<>(serviceTask.getIncludes()),
-                new ArrayList<>(serviceTask.getTemplates()),
-                new ArrayList<>(serviceTask.getDeployments()),
-                new ArrayList<>(serviceTask.getGroups()),
-                serviceTask.getDeletedFilesAfterStop(),
-                new ProcessConfiguration(
-                        serviceTask.getProcessConfiguration().getEnvironment(),
-                        serviceTask.getProcessConfiguration().getMaxHeapMemorySize(),
-                        new ArrayList<>(serviceTask.getProcessConfiguration().getJvmOptions())
-                ),
-                serviceTask.getProperties(),
-                serviceTask.getStartPort()
-        );
-    }
-
-    @Override
     public ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration) {
-        CloudServiceCreateEvent cloudServiceCreateEvent = new CloudServiceCreateEvent(serviceConfiguration);
-        CloudNetDriver.getInstance().getEventManager().callEvent(cloudServiceCreateEvent);
+        this.prepareServiceConfiguration(serviceConfiguration);
 
-        if (cloudServiceCreateEvent.isCancelled()) {
+        CloudServiceCreateEvent event = new CloudServiceCreateEvent(serviceConfiguration);
+        CloudNetDriver.getInstance().getEventManager().callEvent(event);
+
+        if (event.isCancelled()) {
             return null;
         }
 
@@ -88,31 +57,49 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
             CloudNet.getInstance().getNetworkServer()
                     .sendPacket(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
-
             CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
         }
 
         return cloudService;
     }
 
-    @Override
-    public ICloudService runTask(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            Collection<String> deletedFilesAfterStop,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    ) {
-        Preconditions.checkNotNull(name);
+    private void prepareServiceConfiguration(ServiceConfiguration configuration) {
+        Collection<String> groups = Arrays.asList(configuration.getGroups());
 
-        return this.runTask(name, runtime, this.findTaskId(name), autoDeleteOnStop, staticService, includes, templates, deployments, groups, deletedFilesAfterStop, processConfiguration, properties, port);
+        if (configuration.getServiceId().getTaskServiceId() == -1) {
+            configuration.getServiceId().setTaskServiceId(this.findTaskId(configuration.getServiceId().getTaskName()));
+        }
+
+        Collection<ServiceTemplate> templates = new ArrayList<>();
+        Collection<ServiceDeployment> deployments = new ArrayList<>();
+        Collection<ServiceRemoteInclusion> inclusions = new ArrayList<>();
+
+        for (GroupConfiguration groupConfiguration : CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations()) {
+            String groupName = groupConfiguration.getName();
+
+            if (!groups.contains(groupName) && groupConfiguration.getTargetEnvironments().contains(configuration.getProcessConfig().getEnvironment())) {
+                groups.add(groupName);
+            }
+
+            if (groups.contains(groupName)) {
+                inclusions.addAll(groupConfiguration.getIncludes());
+                templates.addAll(groupConfiguration.getTemplates());
+                deployments.addAll(groupConfiguration.getDeployments());
+
+                configuration.getProcessConfig().getJvmOptions().addAll(groupConfiguration.getJvmOptions());
+
+                configuration.getProperties().append(groupConfiguration.getProperties());
+            }
+        }
+
+        // adding the task templates after the group templates for them to have a higher priority
+        templates.addAll(Arrays.asList(configuration.getTemplates()));
+        deployments.addAll(Arrays.asList(configuration.getDeployments()));
+        inclusions.addAll(Arrays.asList(configuration.getIncludes()));
+
+        configuration.setTemplates(templates.toArray(new ServiceTemplate[0]));
+        configuration.setDeployments(deployments.toArray(new ServiceDeployment[0]));
+        configuration.setIncludes(inclusions.toArray(new ServiceRemoteInclusion[0]));
     }
 
     private int findTaskId(String taskName) {
@@ -128,115 +115,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     @Override
-    public ICloudService runTask(
-            String name,
-            String runtime,
-            int taskId,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            Collection<String> deletedFilesAfterStop,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    ) {
-        Preconditions.checkNotNull(name);
-        Preconditions.checkNotNull(includes);
-        Preconditions.checkNotNull(templates);
-        Preconditions.checkNotNull(deployments);
-        Preconditions.checkNotNull(groups);
-        Preconditions.checkNotNull(processConfiguration);
-
-        if (this.getReservedTaskIds(name).contains(taskId)) {
-            return null;
-        }
-
-        List<ServiceTemplate> allTemplates = new ArrayList<>();
-
-        for (GroupConfiguration groupConfiguration : CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations()) {
-            String groupName = groupConfiguration.getName();
-
-            if (!groups.contains(groupName) && groupConfiguration.getTargetEnvironments().contains(processConfiguration.getEnvironment())) {
-                groups.add(groupName);
-            }
-
-            if (groups.contains(groupName)) {
-                includes.addAll(groupConfiguration.getIncludes());
-                allTemplates.addAll(groupConfiguration.getTemplates());
-                deployments.addAll(groupConfiguration.getDeployments());
-
-                processConfiguration.getJvmOptions().addAll(groupConfiguration.getJvmOptions());
-
-                if (properties != null) {
-                    properties.append(groupConfiguration.getProperties());
-                }
-            }
-        }
-
-        // adding the task templates after the group templates for them to have a higher priority
-        allTemplates.addAll(templates);
-
-        ServiceConfiguration serviceConfiguration = new ServiceConfiguration(
-                new ServiceId(
-                        UUID.randomUUID(),
-                        CloudNet.getInstance().getConfig().getIdentity().getUniqueId(),
-                        name,
-                        taskId,
-                        processConfiguration.getEnvironment()
-                ),
-                runtime,
-                autoDeleteOnStop,
-                staticService,
-                groups.toArray(new String[0]),
-                includes.toArray(new ServiceRemoteInclusion[0]),
-                allTemplates.toArray(new ServiceTemplate[0]),
-                deployments.toArray(new ServiceDeployment[0]),
-                deletedFilesAfterStop != null ? deletedFilesAfterStop.toArray(new String[0]) : new String[0],
-                processConfiguration,
-                properties,
-                port
-        );
-
-        return this.runTask(serviceConfiguration);
-    }
-
-    @Override
     public void startAllCloudServices() {
-        this.executeForAllServices(cloudService -> {
-            try {
-                cloudService.start();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        });
+        this.executeForAllServices(ICloudService::start);
     }
 
     @Override
     public void stopAllCloudServices() {
-        this.executeForAllServices(cloudService -> {
-            try {
-                cloudService.stop();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        });
+        this.executeForAllServices(ICloudService::stop);
     }
 
     @Override
     public void deleteAllCloudServices() {
-        this.executeForAllServices(cloudService -> {
-            try {
-                cloudService.delete();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        });
+        this.executeForAllServices(ICloudService::delete);
     }
 
-    private void executeForAllServices(Consumer<ICloudService> consumer) {
+    private void executeForAllServices(ThrowableConsumer<ICloudService, Exception> consumer) {
         if (this.cloudServices.isEmpty()) {
             return;
         }
@@ -247,7 +140,11 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         for (ICloudService cloudService : this.cloudServices.values()) {
             executorService.execute(() -> {
-                consumer.accept(cloudService);
+                try {
+                    consumer.accept(cloudService);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
                 countDownLatch.countDown();
             });
         }

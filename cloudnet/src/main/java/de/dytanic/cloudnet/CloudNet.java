@@ -668,29 +668,46 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public boolean canStartServices(ServiceTask serviceTask, String nodeUniqueId) {
-        return serviceTask.getAssociatedNodes() != null && (serviceTask.getAssociatedNodes().isEmpty() || serviceTask.getAssociatedNodes().contains(nodeUniqueId));
+        return this.canStartServices(serviceTask.getAssociatedNodes(), nodeUniqueId);
     }
 
     public boolean canStartServices(ServiceTask serviceTask) {
-        return this.canStartServices(serviceTask, this.getConfig().getIdentity().getUniqueId());
+        return this.canStartServices(serviceTask.getAssociatedNodes());
     }
 
     public Collection<IClusterNodeServer> getValidClusterNodeServers(ServiceTask serviceTask) {
-        return this.clusterNodeServerProvider.getNodeServers().stream()
-                .filter(clusterNodeServer ->
-                        clusterNodeServer.isConnected() && this.canStartServices(serviceTask, clusterNodeServer.getNodeInfo().getUniqueId()))
-                .collect(Collectors.toList());
+        return this.getValidClusterNodeServers(serviceTask.getAssociatedNodes());
     }
 
     @Nullable
     public NetworkClusterNodeInfoSnapshot searchLogicNode(ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
-        Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(serviceTask).stream()
+        return this.searchLogicNode(serviceTask.getAssociatedNodes());
+    }
+
+    public boolean canStartServices(Collection<String> allowedNodes, String nodeUniqueId) {
+        return allowedNodes != null && (allowedNodes.isEmpty() || allowedNodes.contains(nodeUniqueId));
+    }
+
+    public boolean canStartServices(Collection<String> allowedNodes) {
+        return this.canStartServices(allowedNodes, this.getConfig().getIdentity().getUniqueId());
+    }
+
+    public Collection<IClusterNodeServer> getValidClusterNodeServers(Collection<String> allowedNodes) {
+        return this.clusterNodeServerProvider.getNodeServers().stream()
+                .filter(clusterNodeServer ->
+                        clusterNodeServer.isConnected() && this.canStartServices(allowedNodes, clusterNodeServer.getNodeInfo().getUniqueId()))
+                .collect(Collectors.toList());
+    }
+
+    @Nullable
+    public NetworkClusterNodeInfoSnapshot searchLogicNode(Collection<String> allowedNodes) {
+        Collection<NetworkClusterNodeInfoSnapshot> nodes = this.getValidClusterNodeServers(allowedNodes).stream()
                 .map(IClusterNodeServer::getNodeInfoSnapshot)
                 .collect(Collectors.toList());
 
-        if (this.canStartServices(serviceTask)) {
+        if (this.canStartServices(allowedNodes)) {
             nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
         }
 
@@ -866,7 +883,7 @@ public final class CloudNet extends CloudNetDriver {
                         // There is no local existing service to start and there are less services existing of this task
                         // than the specified minServiceCount, so starting a new service, because this is the best node to do so
 
-                        ICloudService cloudService = this.cloudServiceManager.runTask(serviceTask);
+                        ICloudService cloudService = this.cloudServiceManager.runTask(ServiceConfiguration.builder(serviceTask).build());
 
                         if (cloudService != null) {
                             try {

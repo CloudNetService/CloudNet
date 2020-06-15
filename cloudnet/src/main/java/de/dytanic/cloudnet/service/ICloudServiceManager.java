@@ -1,12 +1,17 @@
 package de.dytanic.cloudnet.service;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public interface ICloudServiceManager {
@@ -29,89 +34,8 @@ public interface ICloudServiceManager {
     @NotNull
     Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
 
-    ICloudService runTask(@NotNull ServiceTask serviceTask);
-
-    ICloudService runTask(@NotNull ServiceTask serviceTask, int taskId);
-
+    @ApiStatus.Internal
     ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
-
-    default ICloudService runTask(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    ) {
-        return this.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, Collections.emptyList(), processConfiguration, properties, port);
-    }
-
-    default ICloudService runTask(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            ProcessConfiguration processConfiguration,
-            Integer port
-    ) {
-        return this.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
-    }
-
-    ICloudService runTask(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            Collection<String> deletedFilesAfterStop,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    );
-
-    ICloudService runTask(
-            String name,
-            String runtime,
-            int taskId,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            Collection<String> deletedFilesAfterStop,
-            ProcessConfiguration processConfiguration,
-            JsonDocument properties,
-            Integer port
-    );
-
-    default ICloudService runTask(
-            String name,
-            String runtime,
-            boolean autoDeleteOnStop,
-            boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups,
-            Collection<String> deletedFilesAfterStop,
-            ProcessConfiguration processConfiguration,
-            Integer port
-    ) {
-        return this.runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, deletedFilesAfterStop, processConfiguration, JsonDocument.newDocument(), port);
-    }
 
     void startAllCloudServices();
 

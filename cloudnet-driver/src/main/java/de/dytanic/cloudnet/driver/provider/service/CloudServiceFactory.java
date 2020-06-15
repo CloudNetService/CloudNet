@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.provider.service;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,8 +56,11 @@ public interface CloudServiceFactory {
      * @param processConfiguration the process configuration for the service
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudService(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @Nullable
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default ServiceInfoSnapshot createCloudService(String name,
                                                    String runtime,
                                                    boolean autoDeleteOnStop,
@@ -85,8 +89,11 @@ public interface CloudServiceFactory {
      * @param properties           the properties for the service (those are not used by the cloud, you can define whatever you want as the properties)
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudService(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @Nullable
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     ServiceInfoSnapshot createCloudService(
             String name,
             String runtime,
@@ -117,8 +124,11 @@ public interface CloudServiceFactory {
      * @param processConfiguration the process configuration for the services
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudService(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @Nullable
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
                                                                int amount,
                                                                String name,
@@ -151,8 +161,11 @@ public interface CloudServiceFactory {
      * @param properties           the properties for the services (those are not used by the cloud, you can define whatever you want as the properties)
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudService(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @Nullable
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     Collection<ServiceInfoSnapshot> createCloudService(
             String nodeUniqueId,
             int amount,
@@ -211,8 +224,11 @@ public interface CloudServiceFactory {
      * @param processConfiguration the process configuration for the service
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudServiceAsync(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @NotNull
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                        String runtime,
                                                        boolean autoDeleteOnStop,
@@ -240,8 +256,11 @@ public interface CloudServiceFactory {
      * @param properties           the properties for the service (those are not used by the cloud, you can define whatever you want as the properties)
      * @param port                 the port of the service
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudServiceAsync(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @NotNull
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                    int amount,
                                                                    String name,
@@ -270,8 +289,11 @@ public interface CloudServiceFactory {
      * @param processConfiguration the process configuration for the services
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudServiceAsync(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @NotNull
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
                                                                String runtime,
                                                                boolean autoDeleteOnStop,
@@ -301,8 +323,11 @@ public interface CloudServiceFactory {
      * @param processConfiguration the process configuration for the services
      * @param port                 the port of the services
      * @return the info of the created service or null if the service couldn't be created
+     * @deprecated use {@link #createCloudServiceAsync(ServiceConfiguration)} and {@link ServiceConfiguration#builder()} instead
      */
     @NotNull
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
     default ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
                                                                            int amount,
                                                                            String name,
