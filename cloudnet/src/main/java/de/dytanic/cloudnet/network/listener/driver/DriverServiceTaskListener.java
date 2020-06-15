@@ -24,8 +24,8 @@ public class DriverServiceTaskListener extends CategorizedDriverAPIListener {
         });
         
         super.registerHandler(DriverAPIRequestType.ADD_PERMANENT_SERVICE_TASK, (channel, packet, input) -> {
-            this.provider().addPermanentServiceTask(input.readObject(ServiceTask.class));
-            return ProtocolBuffer.EMPTY;
+            boolean success = this.provider().addPermanentServiceTask(input.readObject(ServiceTask.class));
+            return ProtocolBuffer.create().writeBoolean(success);
         });
 
         super.registerHandler(DriverAPIRequestType.REMOVE_PERMANENT_SERVICE_TASK, (channel, packet, input) -> {
