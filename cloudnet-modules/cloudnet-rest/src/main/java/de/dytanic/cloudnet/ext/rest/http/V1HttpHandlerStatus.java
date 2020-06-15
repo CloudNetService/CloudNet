@@ -33,7 +33,7 @@ public final class V1HttpHandlerStatus extends V1HttpHandler {
                                 .append("Identity", configuration.getIdentity())
                                 .append("currentNetworkClusterNodeInfoSnapshot", this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot())
                                 .append("lastNetworkClusterNodeInfoSnapshot", this.getCloudNet().getLastNetworkClusterNodeInfoSnapshot())
-                                .append("providedServicesCount", this.getCloudNet().getCloudServiceManager().getCloudServices().size())
+                                .append("providedServicesCount", this.getCloudNet().getCloudServiceProvider().getServicesCount())
                                 .append("modules", super.getCloudNet().getModuleProvider().getModules().stream()
                                         .map(moduleWrapper -> moduleWrapper.getModuleConfiguration().getGroup() + ":" +
                                                 moduleWrapper.getModuleConfiguration().getName() + ":" +

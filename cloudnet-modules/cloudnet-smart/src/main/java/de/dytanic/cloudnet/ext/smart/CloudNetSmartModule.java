@@ -93,7 +93,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
             int memory = (networkClusterNodeInfoSnapshot.getMaxMemory() - networkClusterNodeInfoSnapshot.getUsedMemory()) * 100;
             return networkClusterNodeInfoSnapshot.getMaxMemory() > 0 ? memory / networkClusterNodeInfoSnapshot.getMaxMemory() : memory;
         } else {
-            int memory = (this.getCloudNet().getConfig().getMaxMemory() - this.getCloudNet().getCloudServiceManager().getCurrentUsedHeapMemory()) * 100;
+            int memory = (this.getCloudNet().getConfig().getMaxMemory() - this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getUsedMemory()) * 100;
             return this.getCloudNet().getConfig().getMaxMemory() > 0 ? memory / this.getCloudNet().getConfig().getMaxMemory() : memory;
         }
     }
