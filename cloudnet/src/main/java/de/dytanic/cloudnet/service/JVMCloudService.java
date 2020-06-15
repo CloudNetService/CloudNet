@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.UnaryOperator;
 import java.util.jar.JarFile;
 
-final class JVMCloudService extends DefaultCloudService implements ICloudService {
+final class JVMCloudService extends DefaultTemplateCloudService implements ICloudService {
 
     protected static final String RUNTIME = "jvm";
 
