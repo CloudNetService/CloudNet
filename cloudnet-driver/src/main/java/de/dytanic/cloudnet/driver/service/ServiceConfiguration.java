@@ -1,7 +1,9 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
@@ -180,6 +182,14 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
 
     public ServiceTemplate[] getInitTemplates() {
         return this.initTemplates;
+    }
+
+    public ServiceInfoSnapshot createNewService() {
+        return CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(this);
+    }
+
+    public ITask<ServiceInfoSnapshot> createNewServiceAsync() {
+        return CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(this);
     }
 
     @Override
