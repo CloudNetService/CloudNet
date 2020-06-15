@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.service;
+package de.dytanic.cloudnet.service.defaults;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
@@ -16,8 +16,9 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.*;
-import de.dytanic.cloudnet.event.service.CloudServicePostPrepareEvent;
-import de.dytanic.cloudnet.event.service.CloudServicePrePrepareEvent;
+import de.dytanic.cloudnet.event.service.*;
+import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.ICloudServiceManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -320,5 +321,101 @@ public abstract class DefaultCloudService implements ICloudService {
     }
 
     protected abstract void startNow() throws Exception;
+
+    protected void preStart() {
+        System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartEvent(this));
+    }
+
+    protected void prePrepareStart() {
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-pre-start-prepared-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+    }
+
+    protected void postPrepareStart() {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartPrepareEvent(this));
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-start-prepared-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+    }
+
+    protected void postStart() {
+        this.lifeCycle = ServiceLifeCycle.RUNNING;
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartEvent(this));
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-start-message")
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+
+        this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.RUNNING);
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
+    }
+
+    protected boolean preStop() {
+        if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStopEvent(this)).isCancelled()) {
+            return false;
+        }
+
+        System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+        return true;
+    }
+
+    protected void postStop(int exitValue) {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStopEvent(this, exitValue));
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-stop-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+                .replace("%exit_value%", String.valueOf(exitValue))
+        );
+
+        this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.STOPPED);
+
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STOPPED));
+    }
+
+    protected boolean preDelete() {
+        if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreDeleteEvent(this)).isCancelled()) {
+            return false;
+        }
+
+        System.out.println(LanguageManager.getMessage("cloud-service-pre-delete-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+        return true;
+    }
+
+    protected void postDelete() {
+        this.lifeCycle = ServiceLifeCycle.DELETED;
+        this.getCloudServiceManager().getCloudServices().remove(this.getServiceId().getUniqueId());
+        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(this.getServiceId().getUniqueId());
+
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostDeleteEvent(this));
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-delete-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+
+        this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.DELETED);
+        CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
+    }
 
 }

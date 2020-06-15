@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.service;
+package de.dytanic.cloudnet.service.defaults;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.service.CloudServiceDeploymentEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
+import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import org.jetbrains.annotations.NotNull;

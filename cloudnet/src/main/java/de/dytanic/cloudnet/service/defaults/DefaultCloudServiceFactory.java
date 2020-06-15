@@ -1,6 +1,9 @@
-package de.dytanic.cloudnet.service;
+package de.dytanic.cloudnet.service.defaults;
 
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.ICloudServiceFactory;
+import de.dytanic.cloudnet.service.ICloudServiceManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
