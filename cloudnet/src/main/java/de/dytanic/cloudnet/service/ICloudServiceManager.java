@@ -81,20 +81,6 @@ public interface ICloudServiceManager {
 
     Collection<ICloudService> getLocalCloudServices();
 
-    @Nullable
-    ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull UUID uniqueId);
-
-    @Nullable
-    ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull Predicate<ServiceInfoSnapshot> predicate);
-
-    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull String taskName);
-
-    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull ServiceEnvironmentType environment);
-
-    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull Predicate<ServiceInfoSnapshot> predicate);
-
-    Collection<ServiceInfoSnapshot> getServiceInfoSnapshots();
-
     Collection<Integer> getReservedTaskIds(@NotNull String task);
 
     //-

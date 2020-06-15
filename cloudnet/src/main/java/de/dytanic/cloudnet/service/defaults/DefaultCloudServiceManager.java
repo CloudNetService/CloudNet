@@ -193,48 +193,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         return Collections.unmodifiableCollection(this.cloudServices.values());
     }
 
-    @Nullable
-    @Override
-    public ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull UUID uniqueId) {
-        Preconditions.checkNotNull(uniqueId);
-
-        return this.globalServiceInfoSnapshots.get(uniqueId);
-    }
-
-    @Nullable
-    @Override
-    public ServiceInfoSnapshot getServiceInfoSnapshot(@NotNull Predicate<ServiceInfoSnapshot> predicate) {
-        Preconditions.checkNotNull(predicate);
-
-        return this.globalServiceInfoSnapshots.values().stream().filter(predicate).findFirst().orElse(null);
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull String taskName) {
-        Preconditions.checkNotNull(taskName);
-
-        return this.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName));
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull ServiceEnvironmentType environment) {
-        Preconditions.checkNotNull(environment);
-
-        return this.getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getEnvironment() == environment);
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots(@NotNull Predicate<ServiceInfoSnapshot> predicate) {
-        Preconditions.checkNotNull(predicate);
-
-        return this.globalServiceInfoSnapshots.values().stream().filter(predicate).collect(Collectors.toList());
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> getServiceInfoSnapshots() {
-        return this.globalServiceInfoSnapshots.values();
-    }
-
     @Override
     public Collection<Integer> getReservedTaskIds(@NotNull String task) {
         Preconditions.checkNotNull(task);
