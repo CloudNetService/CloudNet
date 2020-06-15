@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -128,10 +129,10 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
             this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.PREPARED);
             this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(this.serviceInfoSnapshot.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
 
+            HostAndPort[] listeners = CloudNet.getInstance().getConfig().getIdentity().getListeners();
             new JsonDocument()
                     .append("connectionKey", this.getConnectionKey())
-                    .append("listener", CloudNet.getInstance().getConfig().getIdentity().getListeners()
-                            [ThreadLocalRandom.current().nextInt(CloudNet.getInstance().getConfig().getIdentity().getListeners().length)])
+                    .append("listener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
                     //-
                     .append("serviceConfiguration", this.getServiceConfiguration())
                     .append("serviceInfoSnapshot", this.serviceInfoSnapshot)
