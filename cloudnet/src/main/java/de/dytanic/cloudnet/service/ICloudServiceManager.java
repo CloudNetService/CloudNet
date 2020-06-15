@@ -6,10 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 public interface ICloudServiceManager {
@@ -20,11 +17,17 @@ public interface ICloudServiceManager {
     @NotNull
     File getPersistenceServicesDirectory();
 
+    @NotNull
     Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
 
+    @NotNull
     Map<UUID, ICloudService> getCloudServices();
 
-    Map<String, ICloudServiceFactory> getCloudServiceFactories();
+    @NotNull
+    Collection<ICloudServiceFactory> getCloudServiceFactories();
+
+    @NotNull
+    Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
 
     ICloudService runTask(@NotNull ServiceTask serviceTask);
 

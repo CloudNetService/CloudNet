@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
-    private static final ICloudServiceFactory DEFAULT_FACTORY = JVMCloudService::new;
+    private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME, JVMCloudService::new);
     private final File
             tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
             persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
@@ -75,15 +75,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         serviceConfiguration.setPort(this.checkAndReplacePort(serviceConfiguration.getPort()));
 
-        ICloudService cloudService = null;
-
-        if (serviceConfiguration.getRuntime() != null && this.cloudServiceFactories.containsKey(serviceConfiguration.getRuntime())) {
-            cloudService = this.cloudServiceFactories.get(serviceConfiguration.getRuntime()).createCloudService(this, serviceConfiguration);
-        }
-
-        if (cloudService == null) {
-            cloudService = DEFAULT_FACTORY.createCloudService(this, serviceConfiguration);
-        }
+        ICloudService cloudService = this.getCloudServiceFactory(serviceConfiguration.getRuntime())
+                .map(factory -> factory.createCloudService(this, serviceConfiguration))
+                .orElseGet(() -> DEFAULT_FACTORY.createCloudService(this, serviceConfiguration));
 
         if (cloudService != null) {
             this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
@@ -408,16 +402,22 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         return this.persistenceServicesDirectory;
     }
 
-    public Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots() {
+    public @NotNull Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots() {
         return this.globalServiceInfoSnapshots;
     }
 
-    public Map<UUID, ICloudService> getCloudServices() {
+    public @NotNull Map<UUID, ICloudService> getCloudServices() {
         return this.cloudServices;
     }
 
-    public Map<String, ICloudServiceFactory> getCloudServiceFactories() {
-        return this.cloudServiceFactories;
+    @NotNull
+    @Override
+    public Collection<ICloudServiceFactory> getCloudServiceFactories() {
+        return this.cloudServiceFactories.values();
     }
 
+    @Override
+    public @NotNull Optional<ICloudServiceFactory> getCloudServiceFactory(String runtime) {
+        return runtime == null ? Optional.empty() : Optional.ofNullable(this.cloudServiceFactories.get(runtime));
+    }
 }

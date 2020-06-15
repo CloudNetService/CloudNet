@@ -31,7 +31,7 @@ import java.util.jar.JarFile;
 
 final class JVMCloudService extends DefaultCloudService implements ICloudService {
 
-    private static final String RUNTIME = "jvm";
+    protected static final String RUNTIME = "jvm";
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
     private final DefaultServiceConsoleLogCache serviceConsoleLogCache = new DefaultServiceConsoleLogCache(this);
