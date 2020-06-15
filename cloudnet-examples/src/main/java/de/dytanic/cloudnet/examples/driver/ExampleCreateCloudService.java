@@ -90,18 +90,14 @@ public final class ExampleCreateCloudService {
         }
     }
 
-    public void stopCloudService(UUID serviceUniqueId) //stop the cloud service. if the configuration for the service autoDeleteOnStop not enabled. You can restart the service
-    {
+    public void stopCloudService(UUID serviceUniqueId) {
+        // stop the cloud service. If the autoDeleteOnStop is not enabled, you can restart the service with the restart method.
         DRIVER.getCloudServiceProvider(serviceUniqueId).stop();
     }
 
-    public void stopAndDeleteService(UUID serviceUniqueId) //stops and deletes the service gracefully
-    {
+    public void stopAndDeleteService(UUID serviceUniqueId) {
+        // stops and deletes the service gracefully
         DRIVER.getCloudServiceProvider(serviceUniqueId).delete();
-    }
-
-    public void createCloudServiceViaCommand(String task) {
-        DRIVER.getNodeInfoProvider().sendCommandLineAsync("create by " + task + " 1 --start"); //send the commandline to the provided node from the service that you the commandline send
     }
 
     public void createCloudServiceFromATaskWithRandomTemplate(String serviceTaskName) {
