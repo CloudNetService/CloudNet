@@ -13,11 +13,23 @@ import java.util.Collection;
 public interface GroupConfigurationProvider {
 
     /**
+     * Reloads the groups.json file
+     */
+    void reload();
+
+    /**
      * Gets all groups that are registered in the cloud
      *
      * @return a list containing the group configurations of all groups
      */
     Collection<GroupConfiguration> getGroupConfigurations();
+
+    /**
+     * Clears all existing groups and sets the given collection as the new groups
+     *
+     * @param groupConfigurations the new groups
+     */
+    void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations);
 
     /**
      * Gets a specific group by its name
@@ -58,12 +70,26 @@ public interface GroupConfigurationProvider {
     void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration);
 
     /**
+     * Reloads the groups.json file
+     */
+    @NotNull
+    ITask<Void> reloadAsync();
+
+    /**
      * Gets all groups that are registered in the cloud
      *
      * @return a list containing the group configurations of all groups
      */
     @NotNull
     ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync();
+
+    /**
+     * Clears all existing groups and sets the given collection as the new groups
+     *
+     * @param groupConfigurations the new groups
+     */
+    @NotNull
+    ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations);
 
     /**
      * Gets a specific group by its name

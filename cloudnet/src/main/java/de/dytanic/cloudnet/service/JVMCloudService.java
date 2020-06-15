@@ -651,7 +651,7 @@ final class JVMCloudService implements ICloudService {
                     .replace("%serviceId%", String.valueOf(this.serviceId.getTaskServiceId()))
                     .replace("%id%", this.serviceId.getUniqueId().toString()));
 
-            ServiceTask serviceTask = this.getCloudServiceManager().getServiceTask(this.serviceId.getTaskName());
+            ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(this.serviceId.getTaskName());
 
             if (serviceTask != null) {
                 serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);

@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveGroupConfigurationsUpdateEvent;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
+import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,27 +20,31 @@ public final class PacketServerSetGroupConfigurationListListener implements IPac
         List<GroupConfiguration> groupConfigurations = new ArrayList<>(packet.getBuffer().readObjectCollection(GroupConfiguration.class));
         NetworkUpdateType updateType = packet.getBuffer().readEnumConstant(NetworkUpdateType.class);
 
-        if (updateType != null) {
-            NetworkChannelReceiveGroupConfigurationsUpdateEvent event = new NetworkChannelReceiveGroupConfigurationsUpdateEvent(channel, groupConfigurations, updateType);
-            CloudNetDriver.getInstance().getEventManager().callEvent(event);
+        if (updateType == null) {
+            return;
+        }
 
-            if (!event.isCancelled()) {
-                groupConfigurations = event.getGroupConfigurations() != null ? event.getGroupConfigurations() : groupConfigurations;
-                switch (updateType) {
-                    case SET:
-                        CloudNet.getInstance().getCloudServiceManager().setGroupConfigurationsWithoutClusterSync(groupConfigurations);
-                        break;
-                    case ADD:
-                        for (GroupConfiguration groupConfiguration : groupConfigurations) {
-                            CloudNet.getInstance().getCloudServiceManager().addGroupConfigurationWithoutClusterSync(groupConfiguration);
-                        }
-                        break;
-                    case REMOVE:
-                        for (GroupConfiguration groupConfiguration : groupConfigurations) {
-                            CloudNet.getInstance().getCloudServiceManager().removeGroupConfigurationWithoutClusterSync(groupConfiguration);
-                        }
-                        break;
-                }
+        NodeGroupConfigurationProvider provider = (NodeGroupConfigurationProvider) CloudNet.getInstance().getGroupConfigurationProvider();
+
+        NetworkChannelReceiveGroupConfigurationsUpdateEvent event = new NetworkChannelReceiveGroupConfigurationsUpdateEvent(channel, groupConfigurations, updateType);
+        CloudNetDriver.getInstance().getEventManager().callEvent(event);
+
+        if (!event.isCancelled()) {
+            groupConfigurations = event.getGroupConfigurations() != null ? event.getGroupConfigurations() : groupConfigurations;
+            switch (updateType) {
+                case SET:
+                    provider.setGroupConfigurationsWithoutClusterSync(groupConfigurations);
+                    break;
+                case ADD:
+                    for (GroupConfiguration groupConfiguration : groupConfigurations) {
+                        provider.addGroupConfigurationWithoutClusterSync(groupConfiguration);
+                    }
+                    break;
+                case REMOVE:
+                    for (GroupConfiguration groupConfiguration : groupConfigurations) {
+                        provider.removeGroupConfigurationWithoutClusterSync(groupConfiguration.getName());
+                    }
+                    break;
             }
         }
     }

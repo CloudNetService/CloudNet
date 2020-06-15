@@ -9,6 +9,8 @@ import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerT
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceVersion;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
+import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
@@ -71,7 +73,9 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     @Override
     public boolean shouldAsk(boolean configFileAvailable) {
-        return !CloudNet.getInstance().getCloudServiceManager().isFileCreated();
+        NodeServiceTaskProvider taskProvider = (NodeServiceTaskProvider) CloudNet.getInstance().getServiceTaskProvider();
+        NodeGroupConfigurationProvider groupProvider = (NodeGroupConfigurationProvider) CloudNet.getInstance().getGroupConfigurationProvider();
+        return !taskProvider.isFileCreated() && !groupProvider.isFileCreated();
     }
 
     private void installGlobalTemplate(GroupConfiguration globalGroup, String name, ServiceVersionType versionType, ServiceVersion version) {

@@ -25,11 +25,16 @@ public class CommandGroups extends CommandServiceConfigurationBase {
                         .applyHandler(CommandGroups::handleDeleteCommands)
                         .applyHandler(CommandGroups::handleAddCommands)
 
+                        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            CloudNet.getInstance().getGroupConfigurationProvider().reload();
+                            sender.sendMessage(LanguageManager.getMessage("command-groups-reload-success"));
+                        }, anyStringIgnoreCase("reload", "rl"))
+
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     sender.sendMessage("- Groups", " ");
 
-                                    for (GroupConfiguration groupConfiguration : CloudNet.getInstance().getCloudServiceManager().getGroupConfigurations()) {
+                                    for (GroupConfiguration groupConfiguration : CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations()) {
                                         if (properties.containsKey("name") &&
                                                 !groupConfiguration.getName().toLowerCase().contains(properties.get("name").toLowerCase())) {
                                             continue;
@@ -132,7 +137,7 @@ public class CommandGroups extends CommandServiceConfigurationBase {
         builder
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            CloudNet.getInstance().getCloudServiceManager().removeGroupConfiguration((String) args.argument("name").get());
+                            CloudNet.getInstance().getGroupConfigurationProvider().removeGroupConfiguration((String) args.argument("name").get());
                             sender.sendMessage(LanguageManager.getMessage("command-groups-delete-group"));
                         },
                         exactStringIgnoreCase("delete"),

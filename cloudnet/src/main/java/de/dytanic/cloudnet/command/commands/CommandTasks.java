@@ -42,13 +42,13 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                 exactStringIgnoreCase("setup")
                         )
                         .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            CloudNet.getInstance().getCloudServiceManager().reload();
+                            CloudNet.getInstance().getServiceTaskProvider().reload();
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-reload-success"));
                         }, anyStringIgnoreCase("reload", "rl"))
                         .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             sender.sendMessage("- Tasks", " ");
 
-                            for (ServiceTask serviceTask : CloudNet.getInstance().getCloudServiceManager().getServiceTasks()) {
+                            for (ServiceTask serviceTask : CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks()) {
                                 if (properties.containsKey("name") &&
                                         !serviceTask.getName().toLowerCase().contains(properties.get("name").toLowerCase())) {
                                     continue;
@@ -131,7 +131,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                 String name = (String) args.argument("name").get();
                                 ServiceEnvironmentType type = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
 
-                                CloudNet.getInstance().getCloudServiceManager().addPermanentServiceTask(new ServiceTask(
+                                CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(new ServiceTask(
                                         new ArrayList<>(),
                                         new ArrayList<>(Collections.singletonList(
                                                 new ServiceTemplate(name, "default", LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE)
@@ -188,7 +188,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             String name = (String) args.argument("name").get();
 
-                            CloudNet.getInstance().getCloudServiceManager().removePermanentServiceTask(name);
+                            CloudNet.getInstance().getServiceTaskProvider().removePermanentServiceTask(name);
                             sender.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
 
                             for (ServiceInfoSnapshot cloudService : CloudNet.getInstance().getCloudServiceProvider().getCloudServices(name)) {
@@ -624,7 +624,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                     minServiceCount
             );
 
-            CloudNet.getInstance().getCloudServiceManager().addPermanentServiceTask(serviceTask);
+            CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
             sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-create-success").replace("%name%", name));
 

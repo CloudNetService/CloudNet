@@ -208,7 +208,7 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
     }
 
     protected static void createEmptyGroupConfiguration(String name) {
-        CloudNet.getInstance().getCloudServiceManager().addGroupConfiguration(new EmptyGroupConfiguration(name));
+        CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(new EmptyGroupConfiguration(name));
     }
 
     protected static void forEachConfigurations(ServiceConfigurationBase[] configurations, Consumer<ServiceConfigurationBase> consumer) {

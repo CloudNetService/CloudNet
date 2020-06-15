@@ -6,7 +6,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public interface ICloudServiceManager {
@@ -22,68 +25,6 @@ public interface ICloudServiceManager {
     Map<UUID, ICloudService> getCloudServices();
 
     Map<String, ICloudServiceFactory> getCloudServiceFactories();
-
-    void init();
-
-
-    List<ServiceTask> getServiceTasks();
-
-    void setServiceTasks(@NotNull Collection<ServiceTask> tasks);
-
-    void setServiceTasksWithoutClusterSync(@NotNull Collection<ServiceTask> tasks);
-
-    default void updatePermanentServiceTask(@NotNull ServiceTask task) {
-        this.addPermanentServiceTask(task);
-    }
-
-    boolean addPermanentServiceTask(@NotNull ServiceTask task);
-
-    void removePermanentServiceTask(@NotNull ServiceTask task);
-
-    void removePermanentServiceTask(@NotNull String name);
-
-    boolean addPermanentServiceTaskWithoutClusterSync(@NotNull ServiceTask task);
-
-    void removePermanentServiceTaskWithoutClusterSync(@NotNull ServiceTask task);
-
-    void removePermanentServiceTaskWithoutClusterSync(@NotNull String name);
-
-    void removeAllPermanentServiceTasks();
-
-    @Nullable
-    ServiceTask getServiceTask(@NotNull String name);
-
-    boolean isTaskPresent(@NotNull String name);
-
-    //-
-
-    default void updateGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-        this.addGroupConfiguration(groupConfiguration);
-    }
-
-    List<GroupConfiguration> getGroupConfigurations();
-
-    void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations);
-
-    void setGroupConfigurationsWithoutClusterSync(@NotNull Collection<GroupConfiguration> groupConfigurations);
-
-    GroupConfiguration getGroupConfiguration(@NotNull String name);
-
-    void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration);
-
-    void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration);
-
-    void addGroupConfigurationWithoutClusterSync(@NotNull GroupConfiguration groupConfiguration);
-
-    void removeGroupConfigurationWithoutClusterSync(@NotNull GroupConfiguration groupConfiguration);
-
-    void removeGroupConfiguration(@NotNull String name);
-
-    void removeGroupConfigurationWithoutClusterSync(@NotNull String name);
-
-    boolean isGroupConfigurationPresent(@NotNull String group);
-
-    //-
 
     ICloudService runTask(@NotNull ServiceTask serviceTask);
 
@@ -231,12 +172,8 @@ public interface ICloudServiceManager {
 
     //-
 
-    void reload();
-
     int getCurrentUsedHeapMemory();
 
     int getCurrentReservedMemory();
-
-    boolean isFileCreated();
 
 }

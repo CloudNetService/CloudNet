@@ -182,7 +182,8 @@ public final class CloudNet extends CloudNetDriver {
 
         logger.addLogHandler(this.queuedConsoleLogHandler = new QueuedConsoleLogHandler());
 
-        this.cloudServiceManager.init();
+        this.serviceTaskProvider.reload();
+        this.groupConfigurationProvider.reload();
 
         this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler());
         this.moduleProvider.setModuleDependencyLoader(new DefaultPersistableModuleDependencyLoader(Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"), "libs")));
@@ -312,7 +313,8 @@ public final class CloudNet extends CloudNetDriver {
         this.getConfigurationRegistry().load();
         this.clusterNodeServerProvider.setClusterServers(this.config.getClusterConfig());
 
-        this.cloudServiceManager.reload();
+        this.serviceTaskProvider.reload();
+        this.groupConfigurationProvider.reload();
 
         this.unloadAll();
 
@@ -836,7 +838,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void launchServices() {
-        for (ServiceTask serviceTask : this.cloudServiceManager.getServiceTasks()) {
+        for (ServiceTask serviceTask : this.serviceTaskProvider.getPermanentServiceTasks()) {
             if (serviceTask.canStartServices()) {
 
                 Collection<ServiceInfoSnapshot> taskServices = this.getCloudServiceProvider().getCloudServices(serviceTask.getName());
