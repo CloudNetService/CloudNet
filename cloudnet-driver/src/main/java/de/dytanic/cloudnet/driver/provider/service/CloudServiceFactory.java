@@ -15,7 +15,7 @@ import java.util.Collection;
 public interface CloudServiceFactory {
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param serviceTask the task the service should be created from
      * @return the info of the created service or null if the service couldn't be created
@@ -24,7 +24,7 @@ public interface CloudServiceFactory {
     ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param serviceTask the task the service should be created from
      * @param taskId      the id of the service
@@ -34,7 +34,7 @@ public interface CloudServiceFactory {
     ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param serviceConfiguration the configuration for the new service
      * @return the info of the created service or null if the service couldn't be created
@@ -43,7 +43,7 @@ public interface CloudServiceFactory {
     ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param name                 the name of the task of the new cloud service (the name of the service will be name-id)
      * @param runtime              the runtime of the new cloud service (normally this is "jvm")
@@ -75,7 +75,7 @@ public interface CloudServiceFactory {
     }
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param name                 the name of the task of the new cloud service (the name of the service will be name-id)
      * @param runtime              the runtime of the new cloud service (normally this is "jvm")
@@ -109,7 +109,7 @@ public interface CloudServiceFactory {
     );
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param nodeUniqueId         the uniqueId of the node where the services should be started on
      * @param amount               the amount of services to be created
@@ -145,7 +145,7 @@ public interface CloudServiceFactory {
     }
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param nodeUniqueId         the uniqueId of the node where the services should be started on
      * @param amount               the amount of services to be created
@@ -183,7 +183,7 @@ public interface CloudServiceFactory {
     );
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param serviceTask the task the service should be created from
      * @return the info of the created service or null if the service couldn't be created
@@ -192,7 +192,7 @@ public interface CloudServiceFactory {
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param serviceTask the task the service should be created from
      * @param taskId      the id of the service
@@ -202,7 +202,7 @@ public interface CloudServiceFactory {
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param serviceConfiguration the configuration for the new service
      * @return the info of the created service or null if the service couldn't be created
@@ -211,7 +211,7 @@ public interface CloudServiceFactory {
     ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param name                 the name of the task of the new cloud service (the name of the service will be name-id)
      * @param runtime              the runtime of the new cloud service (normally this is "jvm")
@@ -242,7 +242,7 @@ public interface CloudServiceFactory {
                                                        Integer port);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param name                 the name of the task of the new cloud service (the name of the service will be name-id)
      * @param runtime              the runtime of the new cloud service (normally this is "jvm")
@@ -276,7 +276,7 @@ public interface CloudServiceFactory {
                                                                    Integer port);
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param name                 the name of the task of the new cloud services (the name of the service will be name-id)
      * @param runtime              the runtime of the new cloud services (normally this is "jvm")
@@ -308,7 +308,7 @@ public interface CloudServiceFactory {
     }
 
     /**
-     * Creates and prepares (= copies the templates) a new cloud service
+     * Creates and prepares a new cloud service
      *
      * @param nodeUniqueId         the uniqueId of the node where the services should be started on
      * @param amount               the amount of services to be created
