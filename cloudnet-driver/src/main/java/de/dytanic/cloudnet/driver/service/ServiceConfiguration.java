@@ -261,13 +261,16 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     /**
      * Builder for the creation of new services.
      * All required parameters are:
-     * - {@link #task(String)}
-     * - {@link #environment(ServiceEnvironmentType)}
-     * - {@link #maxHeapMemory(int)}
-     *
+     * <ul>
+     *     <li>{@link #task(String)}</li>
+     *     <li>{@link #environment(ServiceEnvironmentType)}</li>
+     *     <li>{@link #maxHeapMemory(int)}</li>
+     * </ul>
      * You can create a new service with this example:
+     * <p>
      * {@code ServiceConfiguration.builder().task("Lobby").environment(ServiceEnvironmentType.MINECRAFT_SERVER).maxHeapMemory(512).build().createNewService()}
-     * this will return the newly created {@link ServiceInfoSnapshot} or null if the service couldn't by created.
+     * <p>
+     * this will return the newly created {@link ServiceInfoSnapshot} or null if the service couldn't be created.
      */
     public static class Builder {
 
@@ -305,12 +308,14 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The complete {@link ServiceId} for the new service.
          * Calling this method will override all the following method calls:
-         * - {@link #task(String)}
-         * - {@link #taskId(int)}
-         * - {@link #uniqueId(UUID)}
-         * - {@link #environment(ServiceEnvironmentType)}
-         * - {@link #node(String)}
-         * - {@link #allowedNodes(String...)} / {@link #allowedNodes(Collection)}
+         * <ul>
+         *     <li>{@link #task(String)}</li>
+         *     <li>{@link #taskId(int)}</li>
+         *     <li>{@link #uniqueId(UUID)}</li>
+         *     <li>{@link #environment(ServiceEnvironmentType)}</li>
+         *     <li>{@link #node(String)}</li>
+         *     <li>{@link #allowedNodes(String...)} / {@link #allowedNodes(Collection)}</li>
+         * </ul>
          */
         public Builder serviceId(ServiceId serviceId) {
             this.config.serviceId = serviceId;
