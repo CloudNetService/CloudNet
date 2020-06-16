@@ -299,6 +299,10 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
                     .groups(task.getGroups())
                     .deleteFilesAfterStop(task.getDeletedFilesAfterStop())
 
+                    .templates(task.getTemplates())
+                    .deployments(task.getDeployments())
+                    .inclusions(task.getIncludes())
+
                     .environment(task.getProcessConfiguration().getEnvironment())
                     .maxHeapMemory(task.getProcessConfiguration().getMaxHeapMemorySize())
                     .jvmOptions(task.getProcessConfiguration().getJvmOptions())

@@ -70,6 +70,11 @@ public final class ServiceId implements INameable, SerializableObject {
         this.taskServiceId = taskServiceId;
     }
 
+    @ApiStatus.Internal
+    public void setNodeUniqueId(String nodeUniqueId) {
+        this.nodeUniqueId = nodeUniqueId;
+    }
+
     public ServiceEnvironmentType getEnvironment() {
         return this.environment;
     }

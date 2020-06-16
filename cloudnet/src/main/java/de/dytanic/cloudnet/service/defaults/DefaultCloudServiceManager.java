@@ -52,6 +52,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 .orElseGet(() -> DEFAULT_FACTORY.createCloudService(this, serviceConfiguration));
 
         if (cloudService != null) {
+            cloudService.init();
+
             this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
             this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
 
@@ -64,7 +66,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     private void prepareServiceConfiguration(ServiceConfiguration configuration) {
-        Collection<String> groups = Arrays.asList(configuration.getGroups());
+        configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
+
+        Collection<String> groups = new ArrayList<>(Arrays.asList(configuration.getGroups()));
 
         if (configuration.getServiceId().getTaskServiceId() == -1) {
             configuration.getServiceId().setTaskServiceId(this.findTaskId(configuration.getServiceId().getTaskName()));

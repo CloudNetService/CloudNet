@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,8 +30,7 @@ public class ClusterNodeCloudServiceFactory extends RemoteCloudServiceFactory {
     }
 
     private ServiceConfiguration prepareConfiguration(ServiceConfiguration serviceConfiguration) {
-        ServiceId id = serviceConfiguration.getServiceId();
-        serviceConfiguration.setServiceId(new ServiceId(id.getUniqueId(), this.server.getNodeInfo().getUniqueId(), id.getTaskName(), id.getTaskServiceId(), id.getEnvironment()));
+        serviceConfiguration.getServiceId().setNodeUniqueId(this.server.getNodeInfo().getUniqueId());
         return serviceConfiguration;
     }
 

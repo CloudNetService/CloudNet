@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.service.defaults;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
@@ -33,6 +34,8 @@ public abstract class DefaultCloudService implements ICloudService {
     protected static final long SERVICE_ERROR_RESTART_DELAY = 30;
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
+    private boolean initialized;
+
     private final String runtime;
 
     protected volatile ServiceLifeCycle lifeCycle;
@@ -52,8 +55,6 @@ public abstract class DefaultCloudService implements ICloudService {
         this.cloudServiceManager = cloudServiceManager;
         this.serviceConfiguration = serviceConfiguration;
 
-        this.serviceInfoSnapshot = this.lastServiceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.DEFINED);
-
         this.lifeCycle = ServiceLifeCycle.DEFINED;
 
         this.directory =
@@ -69,11 +70,13 @@ public abstract class DefaultCloudService implements ICloudService {
         }
 
         this.directory.mkdirs();
-
-        this.init();
     }
 
-    protected void init() {
+    @Override
+    public void init() {
+        Preconditions.checkArgument(!this.initialized, "Cannot initialize a service twice");
+        this.initialized = true;
+        this.serviceInfoSnapshot = this.lastServiceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.DEFINED);
         this.initAndPrepareService();
     }
 

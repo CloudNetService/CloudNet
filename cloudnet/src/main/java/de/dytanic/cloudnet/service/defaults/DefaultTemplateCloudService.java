@@ -39,7 +39,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
     }
 
     @Override
-    protected void init() {
+    public void init() {
         this.waitingIncludes.addAll(Arrays.asList(this.getServiceConfiguration().getIncludes()));
         this.waitingTemplates.addAll(Arrays.asList(this.getServiceConfiguration().getTemplates()));
         this.deployments.addAll(Arrays.asList(this.getServiceConfiguration().getDeployments()));
