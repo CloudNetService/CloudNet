@@ -79,6 +79,9 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
 
     @Override
     public @NotNull ITask<Boolean> isValidAsync() {
+        if (this.serviceInfoSnapshot != null) {
+            return CompletedTask.create(true);
+        }
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.IS_CLOUD_SERVICE_VALID,
                 this::writeDefaults,
