@@ -18,7 +18,9 @@ import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkChannelAuthCloudServiceSuccessEvent;
 import de.dytanic.cloudnet.network.ClusterUtils;
-import de.dytanic.cloudnet.network.listener.*;
+import de.dytanic.cloudnet.network.listener.PacketClientServiceInfoUpdateListener;
+import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
+import de.dytanic.cloudnet.network.listener.PacketServerSetGlobalLogLevelListener;
 import de.dytanic.cloudnet.network.listener.cluster.*;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerRemoteDatabaseActionListener;
@@ -119,10 +121,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                     .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                             );
 
-                            this.getCloudNet().getNetworkClient().sendPacket(
-                                    new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
-                            this.getCloudNet().getNetworkServer().sendPacket(
-                                    new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
+                            this.getCloudNet().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
                             return;
                         }
                     }
