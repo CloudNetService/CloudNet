@@ -181,4 +181,15 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
         }
     }
 
+    protected void postConfigureServiceEnvironmentStartParameters(List<String> commandArguments) {
+        switch (this.getServiceConfiguration().getProcessConfig().getEnvironment()) {
+            case MINECRAFT_SERVER:
+                commandArguments.add("nogui");
+                break;
+            case NUKKIT:
+                commandArguments.add("disable-ansi");
+                break;
+        }
+    }
+
 }

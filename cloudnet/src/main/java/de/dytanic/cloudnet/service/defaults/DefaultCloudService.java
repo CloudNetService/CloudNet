@@ -140,8 +140,7 @@ public abstract class DefaultCloudService implements ICloudService {
         return this.serviceInfoSnapshot;
     }
 
-    @Override
-    public void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    protected void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.lastServiceInfoSnapshot = this.serviceInfoSnapshot;
         this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
@@ -341,23 +340,6 @@ public abstract class DefaultCloudService implements ICloudService {
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartEvent(this));
     }
 
-    protected void prePrepareStart() {
-        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-pre-start-prepared-message")
-                .replace("%task%", this.getServiceId().getTaskName())
-                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-                .replace("%id%", this.getServiceId().getUniqueId().toString())
-        );
-    }
-
-    protected void postPrepareStart() {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartPrepareEvent(this));
-        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-start-prepared-message")
-                .replace("%task%", this.getServiceId().getTaskName())
-                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-                .replace("%id%", this.getServiceId().getUniqueId().toString())
-        );
-    }
-
     protected void postStart() {
         this.lifeCycle = ServiceLifeCycle.RUNNING;
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartEvent(this));
@@ -369,6 +351,36 @@ public abstract class DefaultCloudService implements ICloudService {
 
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.RUNNING);
         CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
+    }
+
+    protected void prepareStart() {
+        this.includeInclusions();
+        this.includeTemplates();
+
+        this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.PREPARED);
+        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(this.serviceInfoSnapshot.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
+    }
+
+    protected boolean prePrepareStart() {
+        if (!this.checkEnoughResources() || CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartPrepareEvent(this)).isCancelled()) {
+            return false;
+        }
+
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-pre-start-prepared-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+        return true;
+    }
+
+    protected void postPrepareStart() {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartPrepareEvent(this));
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-start-prepared-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
     }
 
     protected boolean preStop() {
@@ -385,6 +397,19 @@ public abstract class DefaultCloudService implements ICloudService {
     }
 
     protected void postStop(int exitValue) {
+        this.lifeCycle = ServiceLifeCycle.STOPPED;
+
+        if (this.getServiceConfiguration().getDeletedFilesAfterStop() != null) {
+            for (String path : this.getServiceConfiguration().getDeletedFilesAfterStop()) {
+                if (path != null) {
+                    File file = new File(this.getDirectory(), path);
+                    if (file.exists()) {
+                        FileUtils.delete(file);
+                    }
+                }
+            }
+        }
+
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStopEvent(this, exitValue));
         CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-stop-message")
                 .replace("%task%", this.getServiceId().getTaskName())
@@ -396,6 +421,20 @@ public abstract class DefaultCloudService implements ICloudService {
         this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.STOPPED);
 
         CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STOPPED));
+    }
+
+    protected void deleteFiles() {
+        if (!this.preDelete()) {
+            return;
+        }
+
+        this.deployResources();
+
+        if (!this.getServiceConfiguration().isStaticService()) {
+            FileUtils.delete(this.getDirectory());
+        }
+
+        this.postDelete();
     }
 
     protected boolean preDelete() {

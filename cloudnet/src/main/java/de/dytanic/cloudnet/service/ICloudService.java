@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.service;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,12 +49,11 @@ public interface ICloudService {
 
     INetworkChannel getNetworkChannel();
 
+    @ApiStatus.Internal
     void setNetworkChannel(INetworkChannel channel);
 
     @NotNull
     ServiceInfoSnapshot getServiceInfoSnapshot();
-
-    void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
     @NotNull
     ServiceInfoSnapshot getLastServiceInfoSnapshot();

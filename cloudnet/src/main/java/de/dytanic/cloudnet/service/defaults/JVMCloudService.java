@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.service.defaults;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -10,13 +9,13 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,17 +116,11 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
 
     private void start0() throws Exception {
         if (this.lifeCycle == ServiceLifeCycle.PREPARED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
-            if (!this.checkEnoughResources() || CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreStartPrepareEvent(this)).isCancelled()) {
+            if (!super.prePrepareStart()) {
                 return;
             }
 
-            super.prePrepareStart();
-
-            this.includeInclusions();
-            this.includeTemplates();
-
-            this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.PREPARED);
-            this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(this.serviceInfoSnapshot.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
+            super.prepareStart();
 
             HostAndPort[] listeners = CloudNet.getInstance().getConfig().getIdentity().getListeners();
             new JsonDocument()
@@ -140,10 +133,9 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
                     .write(new File(this.getDirectory(), ".wrapper/wrapper.json"));
 
             super.postPrepareStart();
+
             super.preStart();
-
             this.startWrapper();
-
             super.postStart();
         }
     }
@@ -229,17 +221,6 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
                 .start();
     }
 
-    private void postConfigureServiceEnvironmentStartParameters(List<String> commandArguments) {
-        switch (this.getServiceConfiguration().getProcessConfig().getEnvironment()) {
-            case MINECRAFT_SERVER:
-                commandArguments.add("nogui");
-                break;
-            case NUKKIT:
-                commandArguments.add("disable-ansi");
-                break;
-        }
-    }
-
     @Nullable
     private Integer stop0(boolean force) {
         if (this.lifeCycle == ServiceLifeCycle.RUNNING) {
@@ -254,19 +235,6 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
                     this.getNetworkChannel().close();
                 } catch (Exception exception) {
                     exception.printStackTrace();
-                }
-            }
-
-            this.lifeCycle = ServiceLifeCycle.STOPPED;
-
-            if (this.getServiceConfiguration().getDeletedFilesAfterStop() != null) {
-                for (String path : this.getServiceConfiguration().getDeletedFilesAfterStop()) {
-                    if (path != null) {
-                        File file = new File(this.getDirectory(), path);
-                        if (file.exists()) {
-                            FileUtils.delete(file);
-                        }
-                    }
                 }
             }
 
@@ -327,17 +295,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
             return;
         }
 
-        if (!super.preDelete()) {
-            return;
-        }
-
-        this.deployResources();
-
-        if (!this.getServiceConfiguration().isStaticService()) {
-            FileUtils.delete(this.getDirectory());
-        }
-
-        super.postDelete();
+        super.deleteFiles();
     }
 
     @NotNull
