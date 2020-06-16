@@ -11,6 +11,8 @@ import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
+import de.dytanic.cloudnet.service.handler.DefaultCloudServiceHandler;
 import de.dytanic.cloudnet.util.PortValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +28,8 @@ import java.util.stream.Collectors;
 
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
-    private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME, JVMCloudService::new);
+    private static final CloudServiceHandler HANDLER = DefaultCloudServiceHandler.INSTANCE;
+    private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME, (manager, configuration) -> new JVMCloudService(manager, configuration, HANDLER));
     private final File
             tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
             persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));

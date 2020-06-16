@@ -4,6 +4,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -15,8 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 
 public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudService {
-    public DefaultMinecraftCloudService(String runtime, ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration) {
-        super(runtime, cloudServiceManager, serviceConfiguration);
+    public DefaultMinecraftCloudService(String runtime, ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
+        super(runtime, cloudServiceManager, serviceConfiguration, handler);
     }
 
     @Override

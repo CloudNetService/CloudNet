@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.event.service.CloudServiceDeploymentEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +35,8 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
     private final Queue<ServiceRemoteInclusion> waitingIncludes = new ConcurrentLinkedQueue<>();
     private final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
 
-    public DefaultTemplateCloudService(String runtime, ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration) {
-        super(runtime, cloudServiceManager, serviceConfiguration);
+    public DefaultTemplateCloudService(String runtime, ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
+        super(runtime, cloudServiceManager, serviceConfiguration, handler);
     }
 
     @Override

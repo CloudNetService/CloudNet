@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 
 final class JVMCloudService extends DefaultMinecraftCloudService implements ICloudService {
@@ -32,13 +31,11 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
 
     private final DefaultServiceConsoleLogCache serviceConsoleLogCache = new DefaultServiceConsoleLogCache(this);
 
-    private final Lock lifeCycleLock = new ReentrantLock();
-
     private Process process;
     private volatile boolean restartState = false;
 
-    JVMCloudService(ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration) {
-        super(RUNTIME, cloudServiceManager, serviceConfiguration);
+    JVMCloudService(ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
+        super(RUNTIME, cloudServiceManager, serviceConfiguration, handler);
     }
 
     @Override
@@ -105,42 +102,20 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     }
 
     @Override
-    protected void startNow() throws Exception {
-        try {
-            this.lifeCycleLock.lock();
-            this.start0();
-        } finally {
-            this.lifeCycleLock.unlock();
-        }
+    protected void writeConfiguration() {
+        HostAndPort[] listeners = CloudNet.getInstance().getConfig().getIdentity().getListeners();
+        new JsonDocument()
+                .append("connectionKey", this.getConnectionKey())
+                .append("listener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
+                //-
+                .append("serviceConfiguration", this.getServiceConfiguration())
+                .append("serviceInfoSnapshot", this.serviceInfoSnapshot)
+                .append("sslConfig", CloudNet.getInstance().getConfig().getServerSslConfig())
+                .write(new File(this.getDirectory(), ".wrapper/wrapper.json"));
     }
 
-    private void start0() throws Exception {
-        if (this.lifeCycle == ServiceLifeCycle.PREPARED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
-            if (!super.prePrepareStart()) {
-                return;
-            }
-
-            super.prepareStart();
-
-            HostAndPort[] listeners = CloudNet.getInstance().getConfig().getIdentity().getListeners();
-            new JsonDocument()
-                    .append("connectionKey", this.getConnectionKey())
-                    .append("listener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
-                    //-
-                    .append("serviceConfiguration", this.getServiceConfiguration())
-                    .append("serviceInfoSnapshot", this.serviceInfoSnapshot)
-                    .append("sslConfig", CloudNet.getInstance().getConfig().getServerSslConfig())
-                    .write(new File(this.getDirectory(), ".wrapper/wrapper.json"));
-
-            super.postPrepareStart();
-
-            super.preStart();
-            this.startWrapper();
-            super.postStart();
-        }
-    }
-
-    private void startWrapper() throws Exception {
+    @Override
+    protected void startProcess() throws Exception {
         List<String> commandArguments = new ArrayList<>();
 
         commandArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
