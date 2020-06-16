@@ -156,15 +156,9 @@ public abstract class DefaultCloudService implements ICloudService {
 
     protected void initAndPrepareService() {
         if (this.lifeCycle == ServiceLifeCycle.DEFINED || this.lifeCycle == ServiceLifeCycle.STOPPED) {
-            if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePrePrepareEvent(this)).isCancelled()) {
+            if (!this.prePrepare()) {
                 return;
             }
-
-            System.out.println(LanguageManager.getMessage("cloud-service-pre-prepared-message")
-                    .replace("%task%", this.getServiceId().getTaskName())
-                    .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-                    .replace("%id%", this.getServiceId().getUniqueId().toString())
-            );
 
             new File(this.directory, ".wrapper").mkdirs();
 
@@ -201,18 +195,7 @@ public abstract class DefaultCloudService implements ICloudService {
                 }
             }
 
-            this.lifeCycle = ServiceLifeCycle.PREPARED;
-            CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostPrepareEvent(this));
-
-            this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
-            this.cloudServiceManager.getGlobalServiceInfoSnapshots().put(this.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
-            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
-
-            CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-prepared-message")
-                    .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-                    .replace("%task%", this.getServiceId().getTaskName())
-                    .replace("%id%", this.getServiceId().getUniqueId().toString())
-            );
+            this.postPrepare();
         }
     }
 
@@ -301,8 +284,6 @@ public abstract class DefaultCloudService implements ICloudService {
         return this.shutdown(true);
     }
 
-    protected abstract int shutdown(boolean force);
-
     @Override
     public void start() throws Exception {
         if (!CloudNet.getInstance().getConfig().isParallelServiceStartSequence()) {
@@ -317,7 +298,37 @@ public abstract class DefaultCloudService implements ICloudService {
         }
     }
 
+    protected abstract int shutdown(boolean force);
+
     protected abstract void startNow() throws Exception;
+
+    protected boolean prePrepare() {
+        if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePrePrepareEvent(this)).isCancelled()) {
+            return false;
+        }
+
+        System.out.println(LanguageManager.getMessage("cloud-service-pre-prepared-message")
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+        return true;
+    }
+
+    protected void postPrepare() {
+        this.lifeCycle = ServiceLifeCycle.PREPARED;
+        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostPrepareEvent(this));
+
+        this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
+        this.cloudServiceManager.getGlobalServiceInfoSnapshots().put(this.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+
+        CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-prepared-message")
+                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+                .replace("%task%", this.getServiceId().getTaskName())
+                .replace("%id%", this.getServiceId().getUniqueId().toString())
+        );
+    }
 
     protected void preStart() {
         System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message")
