@@ -3,9 +3,11 @@ package de.dytanic.cloudnet.cluster;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -19,20 +21,19 @@ public class ClusterNodeCloudServiceFactory extends RemoteCloudServiceFactory {
     }
 
     @Override
-    public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
-        return super.createCloudServiceAsync(this.prepareServiceTask(serviceTask));
+    public @Nullable ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
+        return super.createCloudService(this.prepareConfiguration(serviceConfiguration));
     }
 
     @Override
-    public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId) {
-        return super.createCloudServiceAsync(this.prepareServiceTask(serviceTask), taskId);
+    public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
+        return super.createCloudServiceAsync(this.prepareConfiguration(serviceConfiguration));
     }
 
-    private ServiceTask prepareServiceTask(ServiceTask serviceTask) {
-        ServiceTask clone = serviceTask.makeClone();
-        clone.getAssociatedNodes().clear();
-        clone.getAssociatedNodes().add(this.server.getNodeInfo().getUniqueId());
-        return clone;
+    private ServiceConfiguration prepareConfiguration(ServiceConfiguration serviceConfiguration) {
+        ServiceId id = serviceConfiguration.getServiceId();
+        serviceConfiguration.setServiceId(new ServiceId(id.getUniqueId(), this.server.getNodeInfo().getUniqueId(), id.getTaskName(), id.getTaskServiceId(), id.getEnvironment()));
+        return serviceConfiguration;
     }
 
 }

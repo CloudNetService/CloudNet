@@ -29,7 +29,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         Preconditions.checkNotNull(serviceConfiguration);
 
-        if (serviceConfiguration.getServiceId() == null || serviceConfiguration.getServiceId().getNodeUniqueId() == null) {
+        if (serviceConfiguration.getServiceId() == null) {
             return null;
         }
 
@@ -51,10 +51,10 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
             ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(serviceConfiguration);
             return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
         } else {
-            IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(node);
+            IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(node);
 
-            if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
-                return clusterNodeServer.getCloudServiceFactory().createCloudService(serviceConfiguration);
+            if (server != null && server.isConnected()) {
+                return server.getCloudServiceFactory().createCloudService(serviceConfiguration);
             }
         }
 
