@@ -64,7 +64,6 @@ import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import de.dytanic.cloudnet.event.command.CommandPostProcessEvent;
 import de.dytanic.cloudnet.event.command.CommandPreProcessEvent;
-import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.event.permission.PermissionServiceSetEvent;
 import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
@@ -90,9 +89,9 @@ import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
-import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
@@ -108,54 +107,45 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public final class CloudNet extends CloudNetDriver {
 
     public static final int TPS = 10;
-    public static volatile boolean RUNNING = true;
     private static CloudNet instance;
 
+    private final CloudNetTick mainLoop = new CloudNetTick(this);
 
     private final LogLevel defaultLogLevel = LogLevel.getDefaultLogLevel(System.getProperty("cloudnet.logging.defaultlevel")).orElse(LogLevel.FATAL);
-
-    private final ICommandMap commandMap = new DefaultCommandMap();
 
     private final File moduleDirectory = new File(System.getProperty("cloudnet.modules.directory", "modules"));
 
     private final IConfiguration config = new JsonConfiguration();
-
     private final IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(Paths.get(System.getProperty("cloudnet.registry.global.path", "local/registry")));
-
-    private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
 
     private final IClusterNodeServerProvider clusterNodeServerProvider = new DefaultClusterNodeServerProvider();
 
     private final ITaskScheduler networkTaskScheduler = new DefaultTaskScheduler();
 
-
     private final List<String> commandLineArguments;
-
     private final Properties commandLineProperties;
 
     private final IConsole console;
+    private final ICommandMap commandMap = new DefaultCommandMap();
 
     private final QueuedConsoleLogHandler queuedConsoleLogHandler;
-
     private final ConsoleCommandSender consoleCommandSender;
 
-
-    @NotNull
-    private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
     private IHttpServer httpServer;
     private IPermissionManagement permissionManagement;
 
+    private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
     private final CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
     private final GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
+
     private final ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
     private final GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
     private final NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
@@ -167,6 +157,8 @@ public final class CloudNet extends CloudNetDriver {
 
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
+
+    private volatile boolean running = true;
 
     CloudNet(List<String> commandLineArguments, ILogger logger, IConsole console) {
         super(logger);
@@ -280,7 +272,7 @@ public final class CloudNet extends CloudNetDriver {
         this.eventManager.callEvent(new CloudNetNodePostInitializationEvent());
 
         this.runConsole();
-        this.mainloop();
+        this.mainLoop.start();
     }
 
     private void setNetworkListeners() {
@@ -327,8 +319,8 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public void stop() {
-        if (RUNNING) {
-            RUNNING = false;
+        if (this.running) {
+            this.running = false;
         } else {
             return;
         }
@@ -377,6 +369,10 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public @NotNull String getComponentName() {
         return this.config.getIdentity().getUniqueId();
+    }
+
+    public boolean isRunning() {
+        return this.running;
     }
 
     public LogLevel getDefaultLogLevel() {
@@ -574,10 +570,7 @@ public final class CloudNet extends CloudNetDriver {
 
     @NotNull
     public <T> ITask<T> runTask(Callable<T> runnable) {
-        ITask<T> task = new ListenableTask<>(runnable);
-
-        this.processQueue.offer(task);
-        return task;
+        return this.mainLoop.runTask(runnable);
     }
 
     @NotNull
@@ -804,116 +797,6 @@ public final class CloudNet extends CloudNetDriver {
 
         // Packet server registry
         this.getNetworkServer().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());
-    }
-
-    private void mainloop() {
-        long value = System.currentTimeMillis();
-        long millis = 1000 / TPS;
-        int start1Tick = 0, start3Tick = 0 / 2;
-
-        while (RUNNING) {
-            try {
-                long diff = System.currentTimeMillis() - value;
-                if (diff < millis) {
-                    try {
-                        Thread.sleep(millis - diff);
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                    }
-                }
-
-                value = System.currentTimeMillis();
-
-                while (!this.processQueue.isEmpty()) {
-                    if (this.processQueue.peek() != null) {
-                        Objects.requireNonNull(this.processQueue.poll()).call();
-                    } else {
-                        this.processQueue.poll();
-                    }
-                }
-
-                if (start1Tick++ >= TPS) {
-                    this.launchServices();
-                    start1Tick = 0;
-                }
-
-                this.stopDeadServices();
-
-                if (start3Tick++ >= TPS) {
-                    this.sendNodeUpdate();
-                    start3Tick = 0;
-                }
-
-                this.updateServiceLogs();
-
-                this.eventManager.callEvent(new CloudNetTickEvent());
-
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    private void launchServices() {
-        for (ServiceTask serviceTask : this.serviceTaskProvider.getPermanentServiceTasks()) {
-            if (serviceTask.canStartServices()) {
-
-                Collection<ServiceInfoSnapshot> taskServices = this.getCloudServiceProvider().getCloudServices(serviceTask.getName());
-
-                long runningTaskServices = taskServices.stream()
-                        .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
-                        .count();
-
-                if (this.canStartServices(serviceTask) && serviceTask.getMinServiceCount() > runningTaskServices) {
-
-                    // there are still less running services of this task than the specified minServiceCount, so looking for a local service which isn't started yet
-                    Optional<ICloudService> nonStartedServiceOptional = this.getCloudServiceManager().getLocalCloudServices(serviceTask.getName())
-                            .stream()
-                            .filter(cloudService -> cloudService.getLifeCycle() == ServiceLifeCycle.DEFINED
-                                    || cloudService.getLifeCycle() == ServiceLifeCycle.PREPARED)
-                            .findFirst();
-
-                    if (nonStartedServiceOptional.isPresent()) {
-                        try {
-                            nonStartedServiceOptional.get().start();
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
-                        }
-                    } else if (serviceTask.getMinServiceCount() > taskServices.size() && this.competeWithCluster(serviceTask)) {
-                        // There is no local existing service to start and there are less services existing of this task
-                        // than the specified minServiceCount, so starting a new service, because this is the best node to do so
-
-                        ICloudService cloudService = this.cloudServiceManager.runTask(ServiceConfiguration.builder(serviceTask).build());
-
-                        if (cloudService != null) {
-                            try {
-                                cloudService.start();
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void stopDeadServices() {
-        for (ICloudService cloudService : this.cloudServiceManager.getCloudServices().values()) {
-            if (!cloudService.isAlive()) {
-                cloudService.stop();
-            }
-        }
-    }
-
-    private void sendNodeUpdate() {
-        this.publishNetworkClusterNodeInfoSnapshotUpdate();
-    }
-
-    private void updateServiceLogs() {
-        for (ICloudService cloudService : this.cloudServiceManager.getCloudServices().values()) {
-            cloudService.getServiceConsoleLogCache().update();
-        }
     }
 
     private void unloadAll() {
