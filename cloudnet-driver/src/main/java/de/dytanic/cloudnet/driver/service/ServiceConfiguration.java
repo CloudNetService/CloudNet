@@ -284,7 +284,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         }
 
         /**
-         * Applies every option of the given {@link ServiceTask} object instead of the Properties.
+         * Applies every option of the given {@link ServiceTask} object except for the Properties.
          * This will override every previously set option of this builder.
          */
         public Builder task(ServiceTask task) {
