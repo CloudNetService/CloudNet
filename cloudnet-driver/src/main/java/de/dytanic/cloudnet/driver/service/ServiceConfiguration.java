@@ -396,7 +396,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         }
 
         /**
-         * Where this service should be deleted on stop (doesn't affect files of a static service) or the life cycle
+         * Whether this service should be deleted on stop (doesn't affect files of a static service) or the life cycle
          * should be changed to {@link ServiceLifeCycle#PREPARED}.
          */
         public Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
