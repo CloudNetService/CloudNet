@@ -1,15 +1,9 @@
 package de.dytanic.cloudnet.service;
 
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +12,8 @@ import java.util.List;
 import java.util.Queue;
 
 public interface ICloudService {
+
+    void init();
 
     @NotNull
     String getRuntime();
@@ -53,30 +49,16 @@ public interface ICloudService {
 
     INetworkChannel getNetworkChannel();
 
+    @ApiStatus.Internal
     void setNetworkChannel(INetworkChannel channel);
 
     @NotNull
     ServiceInfoSnapshot getServiceInfoSnapshot();
 
-    void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
-
     @NotNull
     ServiceInfoSnapshot getLastServiceInfoSnapshot();
 
-    default ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync() {
-        if (this.getNetworkChannel() == null) {
-            return CompletedTask.create(null);
-        }
-
-        return this.getNetworkChannel()
-                .sendQueryAsync(new PacketClientDriverAPI(DriverAPIRequestType.FORCE_UPDATE_SERVICE))
-                .map(packet -> packet.getBuffer().readObject(ServiceInfoSnapshot.class))
-                .onComplete(serviceInfoSnapshot -> {
-                    if (serviceInfoSnapshot != null) {
-                        this.updateServiceInfoSnapshot(serviceInfoSnapshot);
-                    }
-                });
-    }
+    ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync();
 
     @Nullable
     Process getProcess();
@@ -117,16 +99,6 @@ public interface ICloudService {
 
     void addDeployment(@NotNull ServiceDeployment deployment);
 
-    default void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.setServiceInfoSnapshot(serviceInfoSnapshot);
-        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
-
-        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-
-        CloudNet.getInstance().getNetworkClient()
-                .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
-        CloudNet.getInstance().getNetworkServer()
-                .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
-    }
+    void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
 }

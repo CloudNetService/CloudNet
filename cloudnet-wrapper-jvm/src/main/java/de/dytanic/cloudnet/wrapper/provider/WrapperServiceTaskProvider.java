@@ -3,10 +3,10 @@ package de.dytanic.cloudnet.wrapper.provider;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,8 +22,18 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
     }
 
     @Override
+    public void reload() {
+        this.reloadAsync().get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
     public Collection<ServiceTask> getPermanentServiceTasks() {
         return this.getPermanentServiceTasksAsync().get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
+        this.setPermanentServiceTasksAsync(serviceTasks).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
@@ -39,8 +49,8 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
     }
 
     @Override
-    public void addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
-        this.addPermanentServiceTaskAsync(serviceTask).get(5, TimeUnit.SECONDS, null);
+    public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
+        return this.addPermanentServiceTaskAsync(serviceTask).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
@@ -55,11 +65,24 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
     }
 
     @Override
+    public @NotNull ITask<Void> reloadAsync() {
+        return this.executeVoidDriverAPIMethod(DriverAPIRequestType.RELOAD_TASKS, null);
+    }
+
+    @Override
     @NotNull
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_PERMANENT_SERVICE_TASKS,
                 packet -> packet.getBuffer().readObjectCollection(ServiceTask.class)
+        );
+    }
+
+    @Override
+    public @NotNull ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
+        return this.executeVoidDriverAPIMethod(
+                DriverAPIRequestType.SET_PERMANENT_SERVICE_TASKS,
+                buffer -> buffer.writeObjectCollection(serviceTasks)
         );
     }
 
@@ -89,12 +112,13 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
 
     @Override
     @NotNull
-    public ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
+    public ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
         Preconditions.checkNotNull(serviceTask);
 
-        return this.executeVoidDriverAPIMethod(
+        return this.executeDriverAPIMethod(
                 DriverAPIRequestType.ADD_PERMANENT_SERVICE_TASK,
-                buffer -> buffer.writeObject(serviceTask)
+                buffer -> buffer.writeObject(serviceTask),
+                packet -> packet.getBuffer().readBoolean()
         );
     }
 

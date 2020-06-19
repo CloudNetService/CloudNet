@@ -32,7 +32,8 @@ public final class CommandReload extends CommandDefault implements ITabCompleter
             if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("conf")) {
                 this.getCloudNet().getConfig().load();
                 this.getCloudNet().getConfigurationRegistry().load();
-                this.getCloudNet().getCloudServiceManager().reload();
+                this.getCloudNet().getServiceTaskProvider().reload();
+                this.getCloudNet().getGroupConfigurationProvider().reload();
                 this.getCloudNet().getPermissionManagement().reload();
                 sender.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
             }

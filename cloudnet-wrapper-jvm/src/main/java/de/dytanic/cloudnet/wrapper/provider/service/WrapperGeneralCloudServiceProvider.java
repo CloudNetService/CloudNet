@@ -31,7 +31,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Nullable
     @Override
-    public ServiceInfoSnapshot getCloudServiceByName(String name) {
+    public ServiceInfoSnapshot getCloudServiceByName(@NotNull String name) {
         return this.getCloudServiceByNameAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
@@ -46,24 +46,24 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices(String taskName) {
+    public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
         return this.getCloudServicesAsync(taskName).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
+    public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment) {
         Preconditions.checkNotNull(environment);
         return this.getCloudServicesAsync(environment).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(String group) {
+    public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group) {
         return this.getCloudServicesByGroupAsync(group).get(5, TimeUnit.SECONDS, null);
     }
 
     @Nullable
     @Override
-    public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
+    public ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId) {
         return this.getCloudServiceAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
@@ -73,12 +73,12 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     }
 
     @Override
-    public int getServicesCountByGroup(String group) {
+    public int getServicesCountByGroup(@NotNull String group) {
         return this.getServicesCountByGroupAsync(group).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public int getServicesCountByTask(String taskName) {
+    public int getServicesCountByTask(@NotNull String taskName) {
         return this.getServicesCountByTaskAsync(taskName).get(5, TimeUnit.SECONDS, null);
     }
 
@@ -93,7 +93,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     @NotNull
-    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
+    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(@NotNull String name) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICE_BY_NAME,
                 buffer -> buffer.writeString(name),
@@ -121,7 +121,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull String taskName) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICES_BY_SERVICE_TASK,
                 buffer -> buffer.writeString(taskName),
@@ -131,7 +131,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull ServiceEnvironmentType environment) {
         Preconditions.checkNotNull(environment);
 
         return this.executeDriverAPIMethod(
@@ -143,7 +143,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(@NotNull String group) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICES_BY_GROUP,
                 buffer -> buffer.writeString(group),
@@ -162,7 +162,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     @NotNull
-    public ITask<Integer> getServicesCountByGroupAsync(String group) {
+    public ITask<Integer> getServicesCountByGroupAsync(@NotNull String group) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_SERVICES_COUNT_BY_GROUP,
                 buffer -> buffer.writeString(group),
@@ -172,7 +172,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     @NotNull
-    public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
+    public ITask<Integer> getServicesCountByTaskAsync(@NotNull String taskName) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_SERVICES_COUNT_BY_TASK,
                 buffer -> buffer.writeString(taskName),
@@ -182,7 +182,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     @NotNull
-    public ITask<ServiceInfoSnapshot> getCloudServiceAsync(UUID uniqueId) {
+    public ITask<ServiceInfoSnapshot> getCloudServiceAsync(@NotNull UUID uniqueId) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_CLOUD_SERVICE_BY_UNIQUE_ID,
                 buffer -> buffer.writeUUID(uniqueId),

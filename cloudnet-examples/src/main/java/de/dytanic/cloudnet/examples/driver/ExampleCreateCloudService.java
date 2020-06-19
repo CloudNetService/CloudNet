@@ -1,9 +1,7 @@
 package de.dytanic.cloudnet.examples.driver;
 
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.*;
 
 import java.util.*;
@@ -40,9 +38,9 @@ public final class ExampleCreateCloudService {
         //use the short cut async
         CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServiceByNameAsync(name).onComplete(serviceInfoSnapshot -> {
             if (serviceInfoSnapshot != null) {
-                //service exist
+                //service exists
             } else {
-                //service doesn't exit
+                //service doesn't exist
             }
         });
 
@@ -59,13 +57,13 @@ public final class ExampleCreateCloudService {
             } else {
                 //Service is not online or doesn't exist
             }
-        }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+        }).fireExceptionOnFailure();
     }
 
     public void createCloudServiceByTask() {
         if (DRIVER.getServiceTaskProvider().isServiceTaskPresent("Lobby")) {
             ServiceTask serviceTask = DRIVER.getServiceTaskProvider().getServiceTask("Lobby"); //getDef ServiceTask instance
-            ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(serviceTask); //Creates a service on cluster and returns the initial snapshot
+            ServiceInfoSnapshot serviceInfoSnapshot = ServiceConfiguration.builder(serviceTask).build().createNewService(); //Creates a service on cluster and returns the initial snapshot
 
             if (serviceInfoSnapshot != null) {
                 serviceInfoSnapshot.provider().start(); //Starting service
@@ -74,77 +72,32 @@ public final class ExampleCreateCloudService {
     }
 
     public void createCustomCloudService() {
-        ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.getCloudServiceFactory().createCloudService(
-                "Lobby", //task name
-                "jvm", //runtime null or jvm or an custom from a custom module
-                false, //auto delete on stop
-                false, //if the created service static or not
-                new ArrayList<>(), // service remote inclusions
-                Collections.singletonList(new ServiceTemplate( //Service templates
-                        "Lobby",
-                        "default",
-                        "local"
-                )),
-                new ArrayList<>(), //service deployments
-                Arrays.asList("Lobby", "Global"), //groups
-                new ProcessConfiguration( //process configurations
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
-                        356,
-                        new ArrayList<>()
-                ),
-                JsonDocument.newDocument().append("votes", "10"), //define useful properties to call up later
-                null //automatic defined port or the start port
-        );
+        ServiceInfoSnapshot serviceInfoSnapshot = ServiceConfiguration.builder()
+                .task("Lobby")
+                .node("Node-1")
+                .autoDeleteOnStop(false)
+                .staticService(false)
+                .templates(new ServiceTemplate("Lobby", "default", "local"))
+                .groups("Lobby", "Global")
+                .maxHeapMemory(512)
+                .environment(ServiceEnvironmentType.MINECRAFT_SERVER)
+                .properties(JsonDocument.newDocument("votes", "10"))
+                .build()
+                .createNewService();
 
         if (serviceInfoSnapshot != null) {
             serviceInfoSnapshot.provider().start();
         }
     }
 
-    public void createCustomCloudServiceCountsOnOneSpecificNode() {
-        DRIVER.getNodeInfoProvider().getNodesAsync().onComplete(networkClusterNodes -> {
-            NetworkClusterNode node = networkClusterNodes[0];
-
-            for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(
-                    node.getUniqueId(),
-                    2,
-                    "PremiumLobby",
-                    "jvm",
-                    true,
-                    false,
-                    new ArrayList<>(),
-                    Collections.singletonList(new ServiceTemplate(
-                            "Lobby",
-                            "default",
-                            "local"
-                    )),
-                    new ArrayList<>(),
-                    Collections.singletonList("Lobby"),
-                    new ProcessConfiguration(
-                            ServiceEnvironmentType.MINECRAFT_SERVER,
-                            356,
-                            Collections.EMPTY_LIST
-                    ),
-                    JsonDocument.newDocument().append("votes", "10"), //define useful properties to call up later
-                    44955 // start port
-            )) {
-                serviceInfoSnapshot.provider().start(); //Start the services
-            }
-        });
-    }
-
-    public void stopCloudService(UUID serviceUniqueId) //stop the cloud service. if the configuration for the service autoDeleteOnStop not enabled. You can restart the service
-    {
+    public void stopCloudService(UUID serviceUniqueId) {
+        // stop the cloud service. If the autoDeleteOnStop is not enabled, you can restart the service with the restart method.
         DRIVER.getCloudServiceProvider(serviceUniqueId).stop();
     }
 
-    public void stopAndDeleteService(UUID serviceUniqueId) //stops and deletes the service gracefully
-    {
+    public void stopAndDeleteService(UUID serviceUniqueId) {
+        // stops and deletes the service gracefully
         DRIVER.getCloudServiceProvider(serviceUniqueId).delete();
-    }
-
-    public void createCloudServiceViaCommand(String task) {
-        DRIVER.getNodeInfoProvider().sendCommandLineAsync("create by " + task + " 1 --start"); //send the commandline to the provided node from the service that you the commandline send
     }
 
     public void createCloudServiceFromATaskWithRandomTemplate(String serviceTaskName) {
@@ -160,7 +113,7 @@ public final class ExampleCreateCloudService {
                             serviceTask.getTemplates()
             );
 
-            ServiceInfoSnapshot serviceInfoSnapshot = DRIVER.getCloudServiceFactory().createCloudService(serviceTask);
+            ServiceInfoSnapshot serviceInfoSnapshot = ServiceConfiguration.builder(serviceTask).build().createNewService();
             if (serviceInfoSnapshot != null) {
                 serviceInfoSnapshot.provider().start();
             }

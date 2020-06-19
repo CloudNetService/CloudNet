@@ -143,7 +143,7 @@ public final class CloudNetTickListener {
     }
 
     private void handlePercentStart() {
-        for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+        for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices()) {
             if (cloudService.getLifeCycle() == ServiceLifeCycle.RUNNING &&
                     cloudService.getServiceInfoSnapshot().getProperties().contains("Online-Count") &&
                     cloudService.getServiceInfoSnapshot().getProperties().contains("Max-Players")) {

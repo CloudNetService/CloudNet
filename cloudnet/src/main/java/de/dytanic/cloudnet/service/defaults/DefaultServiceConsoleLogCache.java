@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.service;
+package de.dytanic.cloudnet.service.defaults;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.logging.LogLevel;
@@ -6,6 +6,8 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServiceConsoleLogReceiveEntryEvent;
+import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

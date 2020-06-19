@@ -3,10 +3,10 @@ package de.dytanic.cloudnet.wrapper.provider;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,8 +23,18 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    public void reload() {
+        this.reloadAsync().get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
     public Collection<GroupConfiguration> getGroupConfigurations() {
         return this.getGroupConfigurationsAsync().get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+        this.setGroupConfigurationsAsync(groupConfigurations).get(5, TimeUnit.SECONDS, null);
     }
 
     @Nullable
@@ -59,11 +69,24 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     }
 
     @Override
+    public @NotNull ITask<Void> reloadAsync() {
+        return this.executeVoidDriverAPIMethod(DriverAPIRequestType.RELOAD_GROUPS, null);
+    }
+
+    @Override
     @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_GROUP_CONFIGURATIONS,
                 packet -> packet.getBuffer().readObjectCollection(GroupConfiguration.class)
+        );
+    }
+
+    @Override
+    public @NotNull ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+        return this.executeVoidDriverAPIMethod(
+                DriverAPIRequestType.SET_GROUP_CONFIGURATIONS,
+                buffer -> buffer.writeObjectCollection(groupConfigurations)
         );
     }
 

@@ -14,7 +14,7 @@ public final class ProcessConfiguration implements SerializableObject {
 
     protected ServiceEnvironmentType environment;
 
-    protected int maxHeapMemorySize;
+    protected int maxHeapMemorySize = -1;
 
     protected Collection<String> jvmOptions;
 
