@@ -199,10 +199,10 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     @Override
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeObject(this.serviceId);
-        buffer.writeString(this.runtime);
+        buffer.writeOptionalString(this.runtime);
         buffer.writeBoolean(this.autoDeleteOnStop);
         buffer.writeBoolean(this.staticService);
-        buffer.writeStringCollection(Arrays.asList(this.groups));
+        buffer.writeStringCollection(this.groups == null ? Collections.emptyList() : Arrays.asList(this.groups));
 
         buffer.writeObjectArray(this.includes);
         buffer.writeObjectArray(this.templates);
@@ -221,7 +221,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
             buffer.writeObjectArray(this.initDeployments);
         }
 
-        buffer.writeStringCollection(Arrays.asList(this.deletedFilesAfterStop));
+        buffer.writeStringCollection(this.deletedFilesAfterStop == null ? Collections.emptyList() : Arrays.asList(this.deletedFilesAfterStop));
         buffer.writeObject(this.processConfig);
         buffer.writeInt(this.port);
 
@@ -231,7 +231,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     @Override
     public void read(@NotNull ProtocolBuffer buffer) {
         this.serviceId = buffer.readObject(ServiceId.class);
-        this.runtime = buffer.readString();
+        this.runtime = buffer.readOptionalString();
         this.autoDeleteOnStop = buffer.readBoolean();
         this.staticService = buffer.readBoolean();
         this.groups = buffer.readStringCollection().toArray(new String[0]);

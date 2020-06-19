@@ -704,9 +704,11 @@ public final class CloudNet extends CloudNetDriver {
             nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
         }
 
-        return nodes.stream().min(Comparator.comparingDouble(node ->
-                node.getSystemCpuUsage() + ((double) node.getReservedMemory() / node.getMaxMemory() * 100D)
-        )).orElse(null);
+        return nodes.stream()
+                .filter(Objects::nonNull)
+                .min(Comparator.comparingDouble(node ->
+                        node.getSystemCpuUsage() + ((double) node.getReservedMemory() / node.getMaxMemory() * 100D)
+                )).orElse(null);
     }
 
     public boolean competeWithCluster(ServiceTask serviceTask) {
