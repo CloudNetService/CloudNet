@@ -183,12 +183,12 @@ public final class DefaultCommandMap implements ICommandMap {
     public boolean dispatchCommand0(ICommandSender commandSender, String commandLine) {
         String[] args = this.parseArgs(commandLine);
 
-        if (!this.registeredCommands.containsKey(args[0].toLowerCase())) {
+        if (args.length == 0 || !this.registeredCommands.containsKey(args[0].toLowerCase())) {
             return false;
         }
 
-        Command command = this.registeredCommands.get(args[0].toLowerCase());
         String commandName = args[0].toLowerCase();
+        Command command = this.registeredCommands.get(commandName);
 
         if (command.getPermission() != null && !commandSender.hasPermission(command.getPermission())) {
             return false;
@@ -228,6 +228,10 @@ public final class DefaultCommandMap implements ICommandMap {
             }
 
             builder.append(c);
+        }
+
+        if (inQuote) {
+            builder.append('"');
         }
 
         if (builder.length() != 0) {
