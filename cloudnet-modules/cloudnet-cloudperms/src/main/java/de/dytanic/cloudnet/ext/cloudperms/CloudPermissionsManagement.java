@@ -365,24 +365,6 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
         return wrapped.setGroupsAsync(groups);
     }
 
-    /**
-     * @deprecated The wrapper itself checks the permissions for every group now
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
-    public boolean hasPlayerPermission(IPermissionUser permissionUser, String perm) {
-        return this.hasPermission(permissionUser, perm);
-    }
-
-    /**
-     * @deprecated The wrapper itself checks the permissions for every group now
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.4")
-    public PermissionCheckResult getPlayerPermissionResult(IPermissionUser permissionUser, String perm) {
-        return this.getPermissionResult(permissionUser, perm);
-    }
-
     @Override
     public Map<UUID, IPermissionUser> getCachedPermissionUsers() {
         return this.wrapped instanceof CachedPermissionManagement ? ((CachedPermissionManagement) this.wrapped).getCachedPermissionUsers() : null;

@@ -43,7 +43,7 @@ public final class CommandCloudNet extends Command implements TabExecutor {
             }
         }
 
-        String[] messages = CloudNetDriver.getInstance().sendCommandLine(commandLine);
+        String[] messages = CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLine(commandLine);
 
         if (messages != null) {
             for (String message : messages) {
