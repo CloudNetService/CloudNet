@@ -49,8 +49,6 @@ public abstract class CloudNetDriver {
     protected final ILogger logger;
     protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
-    private int pid = -2;
-
     public CloudNetDriver(@NotNull ILogger logger) {
         this.logger = logger;
     }
