@@ -8,7 +8,6 @@ import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
@@ -86,6 +85,7 @@ public final class VelocityPlayerListener {
     @Subscribe
     public void handle(DisconnectEvent event) {
         BridgeHelper.sendChannelMessageProxyDisconnect(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+        BridgeProxyHelper.clearFallbackProfile(event.getPlayer().getUniqueId());
 
         VelocityCloudNetHelper.getProxyServer().getScheduler().buildTask(this.plugin, VelocityCloudNetHelper::updateServiceInfo)
                 .delay(50, TimeUnit.MILLISECONDS).schedule();
