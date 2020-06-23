@@ -62,7 +62,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     }
 
     @Override
-    protected int shutdown(boolean force) {
+    protected int shutdownNow(boolean force) {
         Integer exitCode = 0;
 
         try {

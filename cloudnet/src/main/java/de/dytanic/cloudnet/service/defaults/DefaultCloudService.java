@@ -39,6 +39,8 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     protected boolean firstStartupOnStaticService = false;
     private final File directory;
 
+    private boolean shutdownState;
+
     public DefaultCloudService(@NotNull String runtime, @NotNull ICloudServiceManager cloudServiceManager, @NotNull ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
         super(runtime, cloudServiceManager, serviceConfiguration, handler);
         this.directory =
@@ -148,7 +150,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         return true;
     }
-    
+
     protected ServiceInfoSnapshot createServiceInfoSnapshot(ServiceLifeCycle lifeCycle) {
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
@@ -211,7 +213,17 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
         }
     }
 
-    protected abstract int shutdown(boolean force);
+    private int shutdown(boolean force) {
+        if (this.shutdownState) {
+            return -1;
+        }
+        this.shutdownState = true;
+        int exitValue = this.shutdownNow(force);
+        this.shutdownState = false;
+        return exitValue;
+    }
+
+    protected abstract int shutdownNow(boolean force);
 
     protected abstract void startProcess() throws Exception;
 
