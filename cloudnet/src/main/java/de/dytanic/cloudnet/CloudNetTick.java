@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -57,10 +56,9 @@ public class CloudNetTick {
                 value = System.currentTimeMillis();
 
                 while (!this.processQueue.isEmpty()) {
-                    if (this.processQueue.peek() != null) {
-                        Objects.requireNonNull(this.processQueue.poll()).call();
-                    } else {
-                        this.processQueue.poll();
+                    ITask<?> task = this.processQueue.poll();
+                    if (task != null) {
+                        task.call();
                     }
                 }
 
