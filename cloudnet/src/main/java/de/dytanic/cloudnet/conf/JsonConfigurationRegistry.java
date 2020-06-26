@@ -8,6 +8,7 @@ import lombok.ToString;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 @ToString
 @EqualsAndHashCode
@@ -24,69 +25,47 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
         this.load();
     }
 
+    private IConfigurationRegistry update(String key, Consumer<JsonDocument> modifier) {
+        Preconditions.checkNotNull(key);
+
+        modifier.accept(this.entries);
+        this.save();
+
+        return this;
+    }
+
     @Override
     public IConfigurationRegistry put(String key, Object object) {
-        Preconditions.checkNotNull(key);
+        return this.update(key, document -> document.append(key, object));
+    }
+
+    @Override
+    public IConfigurationRegistry put(String key, String object) {
         Preconditions.checkNotNull(object);
-
-        this.entries.append(key, object);
-        this.save();
-
-        return this;
+        return this.update(key, document -> document.append(key, object));
     }
 
     @Override
-    public IConfigurationRegistry put(String key, String string) {
-        Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(string);
-
-        this.entries.append(key, string);
-        this.save();
-
-        return this;
+    public IConfigurationRegistry put(String key, Number object) {
+        Preconditions.checkNotNull(object);
+        return this.update(key, document -> document.append(key, object));
     }
 
     @Override
-    public IConfigurationRegistry put(String key, Number number) {
-        Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(number);
-
-        this.entries.append(key, number);
-        this.save();
-
-        return this;
+    public IConfigurationRegistry put(String key, Boolean object) {
+        Preconditions.checkNotNull(object);
+        return this.update(key, document -> document.append(key, object));
     }
 
     @Override
-    public IConfigurationRegistry put(String key, Boolean bool) {
-        Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(bool);
-
-        this.entries.append(key, bool);
-        this.save();
-
-        return this;
-    }
-
-    @Override
-    public IConfigurationRegistry put(String key, byte[] bytes) {
-        Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(bytes);
-
-        this.entries.append(key, bytes);
-        this.save();
-
-        return this;
+    public IConfigurationRegistry put(String key, byte[] object) {
+        Preconditions.checkNotNull(object);
+        return this.update(key, document -> document.append(key, object));
     }
 
     @Override
     public IConfigurationRegistry remove(String key) {
-        Preconditions.checkNotNull(key);
-
-        this.entries.remove(key);
-        this.save();
-
-        return this;
+        return this.update(key, document -> document.remove(key));
     }
 
     @Override
