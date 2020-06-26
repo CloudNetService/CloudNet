@@ -59,7 +59,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
         if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
-                this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
+                return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
                         .group(this.bossGroup, this.workerGroup)
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.IP_TOS, 24)
@@ -72,9 +72,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
                         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
                         .sync()
                         .channel()
-                        .closeFuture()));
-
-                return true;
+                        .closeFuture())) == null;
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
