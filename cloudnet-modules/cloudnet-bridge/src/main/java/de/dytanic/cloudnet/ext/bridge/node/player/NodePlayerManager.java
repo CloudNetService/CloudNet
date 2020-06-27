@@ -8,13 +8,9 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.player.*;
-import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
-import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -174,7 +170,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
         this.messageBuilder()
                 .message("update_offline_cloud_player")
                 .buffer(ProtocolBuffer.create().writeObject(cloudOfflinePlayer))
-                .targetServices()
+                .targetAll()
                 .build()
                 .send();
     }
@@ -191,7 +187,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
         this.messageBuilder()
                 .message("update_online_cloud_player")
                 .buffer(ProtocolBuffer.create().writeObject(cloudPlayer))
-                .targetServices()
+                .targetAll()
                 .build()
                 .send();
     }

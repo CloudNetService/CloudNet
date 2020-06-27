@@ -3,12 +3,18 @@ package de.dytanic.cloudnet.ext.bridge.player.executor;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class DefaultPlayerExecutor implements PlayerExecutor {
+
+    private static final ServiceEnvironmentType[] TARGET_ENVIRONMENTS = Arrays.stream(ServiceEnvironmentType.values())
+            .filter(ServiceEnvironmentType::isMinecraftProxy)
+            .toArray(ServiceEnvironmentType[]::new);
 
     private final UUID uniqueId;
 
@@ -17,9 +23,12 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
     }
 
     public static ChannelMessage.Builder builder() {
-        return ChannelMessage.builder()
-                .channel(BridgeConstants.BRIDGE_PLAYER_API_CHANNEL)
-                .targetServices();
+        ChannelMessage.Builder builder = ChannelMessage.builder()
+                .channel(BridgeConstants.BRIDGE_PLAYER_API_CHANNEL);
+        for (ServiceEnvironmentType targetEnvironment : TARGET_ENVIRONMENTS) {
+            builder.targetEnvironment(targetEnvironment);
+        }
+        return builder;
     }
 
     @Override
