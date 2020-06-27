@@ -21,8 +21,6 @@ public final class PacketServerChannelMessageListener implements IPacketListener
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
         if (query) {
-            event.setQueryResponse(ChannelMessage.buildResponseFor(message).json(JsonDocument.newDocument("response", "x")).buffer(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).build());
-
             ProtocolBuffer buffer = ProtocolBuffer.create();
             buffer.writeBoolean(event.getQueryResponse() != null);
             if (event.getQueryResponse() != null) {
