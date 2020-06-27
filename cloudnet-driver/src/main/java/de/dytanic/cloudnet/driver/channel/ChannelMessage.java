@@ -198,6 +198,10 @@ public class ChannelMessage implements SerializableObject {
             return this.target(ChannelMessageTarget.Type.NODE, name);
         }
 
+        public Builder targetNodes() {
+            return this.targetAll(ChannelMessageTarget.Type.NODE);
+        }
+
         public Builder targetEnvironment(@NotNull ServiceEnvironmentType environment) {
             return this.target(new ChannelMessageTarget(environment));
         }

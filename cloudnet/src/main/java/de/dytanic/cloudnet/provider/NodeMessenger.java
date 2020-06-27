@@ -44,14 +44,30 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 if (serviceOnly) {
                     return null;
                 }
+                if (target.getName() == null) {
+                    Collection<INetworkChannel> channels = new ArrayList<>();
+                    for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
+                        if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
+                            channels.add(server.getChannel());
+                        }
+                    }
+                    return channels;
+                }
+
                 IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(target.getName());
                 return server != null ? Collections.singletonList(server.getChannel()) : null;
             }
             case TASK: {
+                if (target.getName() == null) {
+                    return this.getAll(sender, serviceOnly);
+                }
                 Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider().getCloudServices(target.getName());
                 return this.getSendersFromServices(sender, services, serviceOnly);
             }
             case GROUP: {
+                if (target.getName() == null) {
+                    return this.getAll(sender, serviceOnly);
+                }
                 Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider().getCloudServicesByGroup(target.getName());
                 return this.getSendersFromServices(sender, services, serviceOnly);
             }
