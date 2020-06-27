@@ -56,6 +56,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 return this.getSendersFromServices(sender, services, serviceOnly);
             }
             case SERVICE: {
+                if (target.getName() == null) {
+                    return this.getAll(sender, serviceOnly);
+                }
                 ServiceInfoSnapshot service = this.cloudNet.getCloudServiceProvider().getCloudServiceByName(target.getName());
                 if (service == null) {
                     return null;
@@ -78,23 +81,27 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 return this.getSendersFromServices(sender, services, serviceOnly);
             }
             case ALL: {
-                Collection<INetworkChannel> channels = new ArrayList<>();
-                for (ICloudService localService : this.cloudNet.getCloudServiceManager().getLocalCloudServices()) {
-                    if (localService.getNetworkChannel() != null && !sender.isEqual(localService.getServiceInfoSnapshot())) {
-                        channels.add(localService.getNetworkChannel());
-                    }
-                }
-                if (!serviceOnly) {
-                    for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-                        if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
-                            channels.add(server.getChannel());
-                        }
-                    }
-                }
-                return channels;
+                return this.getAll(sender, serviceOnly);
             }
         }
         return null;
+    }
+
+    private Collection<INetworkChannel> getAll(ChannelMessageSender sender, boolean serviceOnly) {
+        Collection<INetworkChannel> channels = new ArrayList<>();
+        for (ICloudService localService : this.cloudNet.getCloudServiceManager().getLocalCloudServices()) {
+            if (localService.getNetworkChannel() != null && !sender.isEqual(localService.getServiceInfoSnapshot())) {
+                channels.add(localService.getNetworkChannel());
+            }
+        }
+        if (!serviceOnly) {
+            for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
+                if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
+                    channels.add(server.getChannel());
+                }
+            }
+        }
+        return channels;
     }
 
     private Collection<INetworkChannel> getSendersFromServices(ChannelMessageSender sender, Collection<ServiceInfoSnapshot> services, boolean serviceOnly) {

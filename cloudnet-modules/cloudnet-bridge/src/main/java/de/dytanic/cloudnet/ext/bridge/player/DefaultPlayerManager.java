@@ -29,15 +29,14 @@ public abstract class DefaultPlayerManager implements IPlayerManager {
     public void broadcastMessage(@NotNull String message, @Nullable String permission) {
         Preconditions.checkNotNull(message);
 
-        this.messageBuilder()
+        DefaultPlayerExecutor.builder()
                 .message("broadcast_message")
                 .buffer(ProtocolBuffer.create().writeString(message).writeOptionalString(permission))
-                .targetAll()
                 .build().send();
     }
 
     public ChannelMessage.Builder messageBuilder() {
-        return ChannelMessage.builder().channel(BridgeConstants.BRIDGE_PLAYER_API_CHANNEL);
+        return ChannelMessage.builder().channel(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL);
     }
 
 }

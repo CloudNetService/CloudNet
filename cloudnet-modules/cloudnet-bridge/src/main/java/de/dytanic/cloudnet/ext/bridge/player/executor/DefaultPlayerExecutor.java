@@ -19,7 +19,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
     public static ChannelMessage.Builder builder() {
         return ChannelMessage.builder()
                 .channel(BridgeConstants.BRIDGE_PLAYER_API_CHANNEL)
-                .targetAll();
+                .targetServices();
     }
 
     @Override
