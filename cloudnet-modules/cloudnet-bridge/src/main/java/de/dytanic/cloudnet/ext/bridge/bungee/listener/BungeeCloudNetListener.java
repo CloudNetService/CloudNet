@@ -1,28 +1,18 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.listener;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
-import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.*;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.net.InetSocketAddress;
-import java.util.Base64;
-import java.util.UUID;
 
 public final class BungeeCloudNetListener {
 
@@ -108,94 +98,6 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
         this.bungeeCall(new BungeeChannelMessageReceiveEvent(event));
-
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
-            return;
-        }
-
-        switch (event.getMessage().toLowerCase()) {
-            case "send_on_proxy_player_to_server": {
-                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
-
-                if (proxiedPlayer != null && event.getData().getString("serviceName") != null) {
-                    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(event.getData().getString("serviceName"));
-
-                    if (serverInfo != null) {
-                        proxiedPlayer.connect(serverInfo);
-                    }
-                }
-            }
-            break;
-            case "kick_on_proxy_player_from_network": {
-                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
-
-                if (proxiedPlayer != null && event.getData().getString("kickMessage") != null) {
-                    proxiedPlayer.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', event.getData().getString("kickMessage"))));
-                }
-            }
-            break;
-            case "send_message_to_proxy_player": {
-                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
-
-                if (proxiedPlayer != null) {
-                    BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
-                            ComponentSerializer.parse(event.getData().getString("messages"));
-                    proxiedPlayer.sendMessage(messages);
-                }
-            }
-            break;
-            case "send_plugin_message_to_proxy_player": {
-                ProxiedPlayer proxiedPlayer = this.getPlayer(event.getData());
-
-                if (proxiedPlayer != null && event.getData().contains("tag") && event.getData().contains("data")) {
-                    String tag = event.getData().getString("tag");
-                    byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
-
-                    if (!ProxyServer.getInstance().getChannels().contains(tag)) {
-                        ProxyServer.getInstance().registerChannel(tag);
-                    }
-
-                    proxiedPlayer.sendData(tag, data);
-                }
-            }
-            break;
-
-            case "broadcast_message_component": {
-                String permission = event.getData().getString("permission");
-
-                BaseComponent[] messages = event.getData().contains("message") ? TextComponent.fromLegacyText(event.getData().getString("message")) :
-                        ComponentSerializer.parse(event.getData().getString("messages"));
-
-                for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
-                    if (permission == null || proxiedPlayer.hasPermission(permission)) {
-                        proxiedPlayer.sendMessage(messages);
-                    }
-                }
-            }
-            break;
-
-            case "broadcast_message": {
-                String message = event.getBuffer().readString();
-                String permission = event.getBuffer().readOptionalString();
-
-                BaseComponent[] messages = TextComponent.fromLegacyText(message);
-
-                for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
-                    if (permission == null || proxiedPlayer.hasPermission(permission)) {
-                        proxiedPlayer.sendMessage(messages);
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    public ProxiedPlayer getPlayer(JsonDocument data) {
-        return ProxyServer.getInstance().getPlayers().stream()
-                .filter(proxiedPlayer ->
-                        data.contains("uniqueId") && proxiedPlayer.getUniqueId().equals(data.get("uniqueId", UUID.class)))
-                .findFirst()
-                .orElse(null);
     }
 
     @EventListener

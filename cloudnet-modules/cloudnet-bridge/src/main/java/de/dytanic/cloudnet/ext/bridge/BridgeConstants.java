@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge;
 public interface BridgeConstants {
 
     String BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL = "cloudnet-bridge-channel";
+    String BRIDGE_PLAYER_API_CHANNEL = "cloudnet-bridge-player-channel";
 
     String
             BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION = "cloudnet_bridge_get_bridge_configuration",

@@ -17,6 +17,7 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandCloudNet;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityCloudNetListener;
+import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
@@ -72,6 +73,7 @@ public final class VelocityCloudNetBridgePlugin {
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new VelocityCloudNetListener());
+        CloudNetDriver.getInstance().getEventManager().registerListener(new VelocityPlayerExecutorListener(this.proxyServer));
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 

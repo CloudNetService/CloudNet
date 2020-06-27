@@ -110,6 +110,15 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         return this.groups;
     }
 
+    public boolean hasGroup(String group) {
+        for (String s : this.groups) {
+            if (s.equalsIgnoreCase(group)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setGroups(String[] groups) {
         this.groups = groups;
     }

@@ -22,6 +22,34 @@ public interface PlayerExecutor {
     void connect(@NotNull String serviceName);
 
     /**
+     * Connects an online player to one service selected by the selector out of the global list of services.
+     *
+     * @param selectorType the type for sorting
+     */
+    void connect(@NotNull ServerSelectorType selectorType);
+
+    /**
+     * Connects an online player to a fallback exactly like it is done in the hub command or on login.
+     */
+    void connectToFallback();
+
+    /**
+     * Connects an online player to one service selected by the selector out of the global list of services
+     * with the given group.
+     *
+     * @param selectorType the type for sorting
+     */
+    void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType);
+
+    /**
+     * Connects an online player to one service selected by the selector out of the global list of services
+     * with the given task.
+     *
+     * @param selectorType the type for sorting
+     */
+    void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType);
+
+    /**
      * Kicks an online player from the network with a specific reason.
      *
      * @param message the reason for the kick which will be displayed in the players client
