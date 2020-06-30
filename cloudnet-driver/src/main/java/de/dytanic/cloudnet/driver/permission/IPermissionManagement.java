@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public interface IPermissionManagement {
 
@@ -230,6 +231,36 @@ public interface IPermissionManagement {
      */
     void setGroups(@Nullable Collection<? extends IPermissionGroup> groups);
 
+    /**
+     * Gets the permission group with the given name by using {@link #getGroup(String)} and, if not null, puts it into the consumer, after
+     * that, the group will be updated by using {@link #updateGroup(IPermissionGroup)}.
+     *
+     * @param name     the name of the group
+     * @param modifier the Consumer to modify the user
+     * @return the modified user
+     */
+    IPermissionGroup modifyGroup(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier);
+
+    /**
+     * Gets the permission user with the given uniqueId by using {@link #getUser(UUID)} and, if not null, puts them into the consumer, after
+     * that, the user will be updated by using {@link #updateUser(IPermissionUser)}.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @param modifier the Consumer to modify the user
+     * @return the modified user
+     */
+    IPermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier);
+
+    /**
+     * Gets every user matching the given name by using {@link #getUsers(String)} and puts them into the consumer, after
+     * that, every user will be updated by using {@link #updateUser(IPermissionUser)}.
+     *
+     * @param name     the name of the users
+     * @param modifier the Consumer to modify the available users
+     * @return a list of all modified users
+     */
+    List<IPermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier);
+
     @NotNull
     ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser);
 
@@ -415,5 +446,35 @@ public interface IPermissionManagement {
      */
     @NotNull
     ITask<Void> setGroupsAsync(@Nullable Collection<? extends IPermissionGroup> groups);
+
+    /**
+     * Gets the permission group with the given name by using {@link #getGroupAsync(String)} and, if not null, puts it into the consumer, after
+     * that, the group will be updated by using {@link #updateGroup(IPermissionGroup)}.
+     *
+     * @param name     the name of the group
+     * @param modifier the Consumer to modify the user
+     * @return the modified user
+     */
+    ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier);
+
+    /**
+     * Gets the permission user with the given uniqueId by using {@link #getUserAsync(UUID)} and, if not null, puts them into the consumer, after
+     * that, the user will be updated by using {@link #updateUser(IPermissionUser)}.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @param modifier the Consumer to modify the user
+     * @return the modified user
+     */
+    ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier);
+
+    /**
+     * Gets every user matching the given name by using {@link #getUsersAsync(String)} and puts them into the consumer, after
+     * that, every user will be updated by using {@link #updateUser(IPermissionUser)}.
+     *
+     * @param name     the name of the users
+     * @param modifier the Consumer to modify the available users
+     * @return a list of all modified users
+     */
+    ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier);
 
 }

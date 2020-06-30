@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public interface DefaultSynchronizedPermissionManagement extends IPermissionManagement {
 
@@ -123,4 +124,18 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
         this.setGroupsAsync(groups).get(5, TimeUnit.SECONDS, null);
     }
 
+    @Override
+    default IPermissionGroup modifyGroup(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
+        return this.modifyGroupAsync(name, modifier).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    default List<IPermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
+        return this.modifyUsersAsync(name, modifier).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    default IPermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
+        return this.modifyUserAsync(uniqueId, modifier).get(5, TimeUnit.SECONDS, null);
+    }
 }

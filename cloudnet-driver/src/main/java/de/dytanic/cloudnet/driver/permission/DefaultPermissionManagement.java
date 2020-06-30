@@ -1,9 +1,11 @@
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -267,4 +269,45 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
         return permissions;
     }
 
+    @Override
+    public ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
+        ITask<IPermissionGroup> task = this.getGroupAsync(name);
+
+        task.onComplete(group -> {
+            if (group != null) {
+                modifier.accept(group);
+                this.updateGroup(group);
+            }
+        });
+
+        return task;
+    }
+
+    @Override
+    public ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
+        ITask<IPermissionUser> task = this.getUserAsync(uniqueId);
+
+        task.onComplete(user -> {
+            if (user != null) {
+                modifier.accept(user);
+                this.updateUser(user);
+            }
+        });
+
+        return task;
+    }
+
+    @Override
+    public ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
+        ITask<List<IPermissionUser>> task = this.getUsersAsync(name);
+
+        task.onComplete(users -> {
+            for (IPermissionUser user : users) {
+                modifier.accept(user);
+                this.updateUser(user);
+            }
+        });
+
+        return task;
+    }
 }
