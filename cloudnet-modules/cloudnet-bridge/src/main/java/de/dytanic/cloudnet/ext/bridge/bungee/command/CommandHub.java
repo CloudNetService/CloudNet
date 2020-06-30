@@ -11,7 +11,7 @@ import net.md_5.bungee.api.plugin.Command;
 public final class CommandHub extends Command {
 
     public CommandHub() {
-        super("hub");
+        super(BridgeConfigurationProvider.load().getLobbyCommandAliases().stream().findFirst().orElse("hub"));
     }
 
     @Override
@@ -42,6 +42,6 @@ public final class CommandHub extends Command {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"lobby", "l", "leave"};
+        return BridgeConfigurationProvider.load().getLobbyCommandAliases().toArray(new String[0]);
     }
 }

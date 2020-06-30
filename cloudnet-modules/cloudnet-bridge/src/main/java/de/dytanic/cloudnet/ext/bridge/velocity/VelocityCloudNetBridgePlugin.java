@@ -10,6 +10,7 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
@@ -17,7 +18,6 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandCloudNet;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityCloudNetListener;
-import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
@@ -73,13 +73,16 @@ public final class VelocityCloudNetBridgePlugin {
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new VelocityCloudNetListener());
-        CloudNetDriver.getInstance().getEventManager().registerListener(new VelocityPlayerExecutorListener(this.proxyServer));
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 
     private void registerCommands() {
         this.proxyServer.getCommandManager().register(new CommandCloudNet(), "cloudnet", "cloud", "cl");
-        this.proxyServer.getCommandManager().register(new CommandHub(), "hub", "l", "leave", "lobby");
+        if(BridgeConfigurationProvider.load().isHubCommandEnabled()
+                && !BridgeConfigurationProvider.load().getLobbyCommandAliases().isEmpty()) {
+            this.proxyServer.getCommandManager().register(new CommandHub(),
+                    BridgeConfigurationProvider.load().getLobbyCommandAliases().toArray(new String[0]));
+        }
     }
 
     private void initServers() {
@@ -91,7 +94,7 @@ public final class VelocityCloudNetBridgePlugin {
                 }
 
                 String name = serviceInfoSnapshot.getServiceId().getName();
-                this.proxyServer.registerServer(new ServerInfo(name, new InetSocketAddress(
+                proxyServer.registerServer(new ServerInfo(name, new InetSocketAddress(
                         serviceInfoSnapshot.getAddress().getHost(),
                         serviceInfoSnapshot.getAddress().getPort()
                 )));

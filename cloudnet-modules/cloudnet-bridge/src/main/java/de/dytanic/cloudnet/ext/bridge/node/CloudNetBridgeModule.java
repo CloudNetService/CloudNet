@@ -15,14 +15,12 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     private static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>();
+    private static final ArrayList<String> DEFAULT_HUB_COMMAND_ALIASES = new ArrayList<>();
 
     static {
         DEFAULT_MESSAGES.put("command-hub-success-connect", "&7You did successfully connect to %server%");
@@ -32,6 +30,11 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
         DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode");
         DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%");
         DEFAULT_MESSAGES.put("already-connected", "§cYou are already connected to this network!");
+
+        DEFAULT_HUB_COMMAND_ALIASES.add("lobby");
+        DEFAULT_HUB_COMMAND_ALIASES.add("hub");
+        DEFAULT_HUB_COMMAND_ALIASES.add("leave");
+
     }
 
     private static CloudNetBridgeModule instance;
@@ -52,14 +55,16 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     public void createConfiguration() {
         this.getModuleWrapper().getDataFolder().mkdirs();
 
-        this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
+        this.bridgeConfiguration = getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
                 "&7Cloud &8| &b",
                 true,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
                 DEFAULT_MESSAGES,
-                true
+                true,
+                true,
+                DEFAULT_HUB_COMMAND_ALIASES
         ));
 
         if (this.bridgeConfiguration.getMessages() != null) {
@@ -72,8 +77,18 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
             this.bridgeConfiguration.setMessages(new HashMap<>(DEFAULT_MESSAGES));
         }
 
-        this.getConfig().append("config", this.bridgeConfiguration);
-        this.saveConfig();
+        if (this.bridgeConfiguration.getLobbyCommandAliases() != null) {
+            for (String lobbyCommandAlias : this.bridgeConfiguration.getLobbyCommandAliases()) {
+                if(!this.bridgeConfiguration.getLobbyCommandAliases().contains(lobbyCommandAlias)) {
+                    this.bridgeConfiguration.getLobbyCommandAliases().add(lobbyCommandAlias);
+                }
+            }
+        } else {
+            this.bridgeConfiguration.setLobbyCommandAliases(DEFAULT_HUB_COMMAND_ALIASES);
+        }
+
+        getConfig().append("config", this.bridgeConfiguration);
+        saveConfig();
     }
 
     public ProxyFallbackConfiguration createDefaultFallbackConfiguration(String targetGroup) {
@@ -85,40 +100,40 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     }
 
     public void writeConfiguration(BridgeConfiguration bridgeConfiguration) {
-        this.getConfig().append("config", bridgeConfiguration);
-        this.saveConfig();
+        getConfig().append("config", bridgeConfiguration);
+        saveConfig();
     }
 
     @ModuleTask(order = 36, event = ModuleLifeCycle.STARTED)
     public void initNodePlayerManager() {
         super.getCloudNet().getServicesRegistry().registerService(IPlayerManager.class, "NodePlayerManager", this.nodePlayerManager);
 
-        this.registerListener(new PlayerManagerListener(this.nodePlayerManager));
+        registerListener(new PlayerManagerListener(this.nodePlayerManager));
     }
 
     @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
     public void registerHandlers() {
-        this.getHttpServer().registerHandler("/api/v1/modules/bridge/config",
+        getHttpServer().registerHandler("/api/v1/modules/bridge/config",
                 new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        this.registerCommand(new CommandReloadBridge());
-        this.registerCommand(new CommandPlayers(this.nodePlayerManager));
+        registerCommand(new CommandReloadBridge());
+        registerCommand(new CommandPlayers(this.nodePlayerManager));
     }
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        this.registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
+        registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
                 new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgePlayerDisconnectListener(this.nodePlayerManager),
                 new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener());
     }
 
     @Override
     public JsonDocument reloadConfig() {
-        this.getModuleWrapper().getDataFolder().mkdirs();
-        File file = new File(this.getModuleWrapper().getDataFolder(), "config.json");
+        getModuleWrapper().getDataFolder().mkdirs();
+        File file = new File(getModuleWrapper().getDataFolder(), "config.json");
 
         if (!file.exists()) {
             this.createConfiguration();
