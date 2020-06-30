@@ -24,11 +24,11 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
     private Map<String, String> messages;
     private boolean logPlayerConnections = true;
     private boolean hubCommandEnabled = true;
-    private ArrayList<String> hubCommandAliases;
+    private Collection<String> hubCommandAliases;
 
     public BridgeConfiguration(String prefix, boolean onlyProxyProtection, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups,
                                Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Map<String, String> messages,
-                               boolean logPlayerConnections, boolean hubCommandEnabled, ArrayList<String> hubCommandAliases) {
+                               boolean logPlayerConnections, boolean hubCommandEnabled, Collection<String> hubCommandAliases) {
         this.prefix = prefix;
         this.onlyProxyProtection = onlyProxyProtection;
         this.excludedOnlyProxyWalkableGroups = excludedOnlyProxyWalkableGroups;
@@ -51,7 +51,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
     }
 
     public boolean isOnlyProxyProtection() {
-        return onlyProxyProtection;
+        return this.onlyProxyProtection;
     }
 
     public void setOnlyProxyProtection(boolean onlyProxyProtection) {
@@ -98,12 +98,8 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         this.logPlayerConnections = logPlayerConnections;
     }
 
-    public ArrayList<String> getLobbyCommandAliases() {
+    public Collection<String> getLobbyCommandAliases() {
         return hubCommandAliases;
-    }
-
-    public void setLobbyCommandAliases(ArrayList<String> lobbyCommandAliases) {
-        this.hubCommandAliases = lobbyCommandAliases;
     }
 
     public boolean isHubCommandEnabled() {

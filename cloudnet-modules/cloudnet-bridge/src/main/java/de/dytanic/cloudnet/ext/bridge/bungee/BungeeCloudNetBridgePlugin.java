@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.bungee.command.CommandCloudNet;
 import de.dytanic.cloudnet.ext.bridge.bungee.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeeCloudNetListener;
+import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
@@ -78,7 +79,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
     private void registerCommands() {
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandCloudNet());
 
-        if(BridgeConfigurationProvider.load().isHubCommandEnabled()
+        if (BridgeConfigurationProvider.load().isHubCommandEnabled()
                 && !BridgeConfigurationProvider.load().getLobbyCommandAliases().isEmpty()) {
             ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandHub());
         }
@@ -91,6 +92,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new BungeeCloudNetListener());
+        CloudNetDriver.getInstance().getEventManager().registerListener(new BungeePlayerExecutorListener());
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 }
