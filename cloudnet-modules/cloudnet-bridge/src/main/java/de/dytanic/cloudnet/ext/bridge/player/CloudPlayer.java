@@ -131,7 +131,7 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
         buffer.writeObject(this.loginService);
         buffer.writeObject(this.connectedService);
         buffer.writeObject(this.networkConnectionInfo);
-        buffer.writeObject(this.networkPlayerServerInfo);
+        buffer.writeOptionalObject(this.networkPlayerServerInfo);
         buffer.writeJsonDocument(this.onlineProperties);
     }
 
@@ -141,7 +141,7 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
         this.loginService = buffer.readObject(NetworkServiceInfo.class);
         this.connectedService = buffer.readObject(NetworkServiceInfo.class);
         this.networkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
-        this.networkPlayerServerInfo = buffer.readObject(NetworkPlayerServerInfo.class);
+        this.networkPlayerServerInfo = buffer.readOptionalObject(NetworkPlayerServerInfo.class);
         this.onlineProperties = buffer.readJsonDocument();
     }
 
