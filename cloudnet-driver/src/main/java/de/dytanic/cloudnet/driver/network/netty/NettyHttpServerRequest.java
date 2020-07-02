@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class NettyHttpServerRequest implements IHttpRequest {
+final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequest {
 
     protected final NettyHttpServerContext context;
 
@@ -125,14 +125,14 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public HttpVersion version() {
-        return this.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
+        return super.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
     }
 
     @Override
     public IHttpRequest version(HttpVersion version) {
         Preconditions.checkNotNull(version);
 
-        this.httpRequest.setProtocolVersion(this.getNettyHttpVersion(version));
+        this.httpRequest.setProtocolVersion(super.getNettyHttpVersion(version));
         return this;
     }
 
@@ -173,30 +173,6 @@ final class NettyHttpServerRequest implements IHttpRequest {
         Preconditions.checkNotNull(text);
 
         return this.body(text.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private HttpVersion getCloudNetHttpVersion(io.netty.handler.codec.http.HttpVersion httpVersion) {
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0) {
-            return HttpVersion.HTTP_1_0;
-        }
-
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
-            return HttpVersion.HTTP_1_1;
-        }
-
-        return HttpVersion.HTTP_1_0;
-    }
-
-    private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(HttpVersion httpVersion) {
-        if (httpVersion == HttpVersion.HTTP_1_0) {
-            return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
-        }
-
-        if (httpVersion == HttpVersion.HTTP_1_1) {
-            return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-        }
-
-        return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
     }
 
 }

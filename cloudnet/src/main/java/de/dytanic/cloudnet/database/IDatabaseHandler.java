@@ -1,15 +1,16 @@
 package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.database.Database;
 
 public interface IDatabaseHandler {
 
-    void handleInsert(IDatabase database, String key, JsonDocument document);
+    void handleInsert(Database database, String key, JsonDocument document);
 
-    void handleUpdate(IDatabase database, String key, JsonDocument document);
+    void handleUpdate(Database database, String key, JsonDocument document);
 
-    void handleDelete(IDatabase database, String key);
+    void handleDelete(Database database, String key);
 
-    void handleClear(IDatabase database);
+    void handleClear(Database database);
 
 }

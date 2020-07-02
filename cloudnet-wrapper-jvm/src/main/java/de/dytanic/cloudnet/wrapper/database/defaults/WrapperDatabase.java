@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 public class WrapperDatabase implements IDatabase {
 
@@ -79,6 +80,11 @@ public class WrapperDatabase implements IDatabase {
     @Override
     public Map<String, JsonDocument> entries() {
         return this.entriesAsync().getDef(Collections.emptyMap());
+    }
+
+    @Override
+    public Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate) {
+        return this.filterAsync(predicate).get(5, TimeUnit.SECONDS, Collections.emptyMap());
     }
 
     @Override
@@ -212,6 +218,19 @@ public class WrapperDatabase implements IDatabase {
                 documents.put(packet.getBuffer().readString(), packet.getBuffer().readJsonDocument());
             }
             return documents;
+        });
+    }
+
+    @Override
+    public @NotNull ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate) {
+        return this.entriesAsync().map(map -> {
+            Map<String, JsonDocument> result = new HashMap<>();
+            map.forEach((key, document) -> {
+                if (predicate.test(key, document)) {
+                    result.put(key, document);
+                }
+            });
+            return result;
         });
     }
 

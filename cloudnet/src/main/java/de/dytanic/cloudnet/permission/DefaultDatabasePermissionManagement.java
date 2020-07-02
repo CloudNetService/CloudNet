@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.*;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.permission.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -397,7 +397,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         }
     }
 
-    public IDatabase getDatabase() {
+    public Database getDatabase() {
         return this.getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
     }
 

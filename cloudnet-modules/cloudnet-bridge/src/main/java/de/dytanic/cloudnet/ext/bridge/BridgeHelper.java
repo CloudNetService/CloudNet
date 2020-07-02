@@ -36,6 +36,17 @@ public final class BridgeHelper {
         return ChannelMessage.builder().channel(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL);
     }
 
+    public static NetworkServiceInfo createOwnNetworkServiceInfo() {
+        return createNetworkServiceInfo(Wrapper.getInstance().getCurrentServiceInfoSnapshot());
+    }
+
+    public static NetworkServiceInfo createNetworkServiceInfo(ServiceInfoSnapshot serviceInfoSnapshot) {
+        return new NetworkServiceInfo(
+                serviceInfoSnapshot.getServiceId(),
+                serviceInfoSnapshot.getConfiguration().getGroups()
+        );
+    }
+
     public static String sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
         ChannelMessage response = messageBuilder()
                 .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST)

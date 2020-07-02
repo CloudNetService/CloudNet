@@ -6,8 +6,8 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
 
 import java.io.ByteArrayOutputStream;
@@ -30,19 +30,14 @@ public final class CloudflareAPI implements AutoCloseable {
 
     private static CloudflareAPI instance;
 
-    /*
-    @Getter
-    private final File file;
-    */
-    private final IDatabase database;
+    private final Database database;
 
     private final Map<String, Pair<String, JsonDocument>> createdRecords = new ConcurrentHashMap<>();
 
-    protected CloudflareAPI(IDatabase database) {
+    protected CloudflareAPI(Database database) {
         instance = this;
 
         this.database = database;
-        //this.file = file;
 
         this.read();
     }
@@ -145,7 +140,6 @@ public final class CloudflareAPI implements AutoCloseable {
         if (document == null) {
             document = new JsonDocument("cache", Collections.EMPTY_MAP);
         }
-        //Document document = Document.newDocument(this.file);
 
         this.createdRecords.clear();
         this.createdRecords.putAll(document.get("cache", MAP_STRING_DOCUMENT, Collections.EMPTY_MAP));
@@ -160,7 +154,6 @@ public final class CloudflareAPI implements AutoCloseable {
 
         document.append("cache", this.createdRecords);
 
-        //new Document("cache", this.createdRecords).write(this.file);
         this.database.update(CLOUDFLARE_STORE_DOCUMENT, document);
     }
 
@@ -223,7 +216,7 @@ public final class CloudflareAPI implements AutoCloseable {
         return null;
     }
 
-    public IDatabase getDatabase() {
+    public Database getDatabase() {
         return this.database;
     }
 

@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
+import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
@@ -16,11 +17,9 @@ import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
-import de.dytanic.cloudnet.driver.provider.CloudMessenger;
-import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
-import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
-import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
-import de.dytanic.cloudnet.driver.provider.service.*;
+import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
+import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
@@ -29,7 +28,6 @@ import de.dytanic.cloudnet.wrapper.database.defaults.DefaultWrapperDatabaseProvi
 import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
-import de.dytanic.cloudnet.wrapper.module.WrapperModuleProviderHandler;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.*;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
@@ -77,13 +75,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
      */
     private final List<String> commandLineArguments;
 
-    private final CloudServiceFactory cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
-    private final GeneralCloudServiceProvider generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
-    private final ServiceTaskProvider serviceTaskProvider = new WrapperServiceTaskProvider(this);
-    private final GroupConfigurationProvider groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
-    private final NodeInfoProvider nodeInfoProvider = new WrapperNodeInfoProvider(this);
-    private final CloudMessenger messenger = new WrapperMessenger(this);
-
     /**
      * CloudNetDriver.getNetworkClient()
      *
@@ -106,6 +97,13 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     Wrapper(List<String> commandLineArguments, ILogger logger) {
         super(logger);
         setInstance(this);
+
+        super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
+        super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
+        super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
+        super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
+        super.nodeInfoProvider = new WrapperNodeInfoProvider(this);
+        super.messenger = new WrapperMessenger(this);
 
         this.commandLineArguments = commandLineArguments;
 
@@ -139,7 +137,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         //-
 
         this.moduleProvider.setModuleDirectory(new File(".wrapper/modules"));
-        this.moduleProvider.setModuleProviderHandler(new WrapperModuleProviderHandler());
+        this.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
         this.driverEnvironment = DriverEnvironment.WRAPPER;
     }
 
@@ -204,30 +202,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         return this.getServiceId().getName();
     }
 
-    @NotNull
-    @Override
-    public CloudServiceFactory getCloudServiceFactory() {
-        return this.cloudServiceFactory;
-    }
-
-    @NotNull
-    @Override
-    public ServiceTaskProvider getServiceTaskProvider() {
-        return this.serviceTaskProvider;
-    }
-
-    @NotNull
-    @Override
-    public NodeInfoProvider getNodeInfoProvider() {
-        return this.nodeInfoProvider;
-    }
-
-    @NotNull
-    @Override
-    public GroupConfigurationProvider getGroupConfigurationProvider() {
-        return this.groupConfigurationProvider;
-    }
-
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, name);
@@ -242,19 +216,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), serviceInfoSnapshot);
     }
-
-    @NotNull
-    @Override
-    public GeneralCloudServiceProvider getCloudServiceProvider() {
-        return this.generalCloudServiceProvider;
-    }
-
-    @NotNull
-    @Override
-    public CloudMessenger getMessenger() {
-        return this.messenger;
-    }
-
 
     /**
      * Application wrapper implementation of this method. See the full documentation at the
