@@ -17,6 +17,8 @@ public interface PlayerProvider {
     @NotNull
     Collection<String> asNames();
 
+    int count();
+
     @NotNull
     ITask<Collection<? extends ICloudPlayer>> asPlayersAsync();
 
@@ -25,5 +27,8 @@ public interface PlayerProvider {
 
     @NotNull
     ITask<Collection<String>> asNamesAsync();
+
+    @NotNull
+    ITask<Integer> countAsync();
 
 }

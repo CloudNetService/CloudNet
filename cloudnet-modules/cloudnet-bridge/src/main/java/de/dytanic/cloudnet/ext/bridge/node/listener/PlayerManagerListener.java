@@ -116,6 +116,10 @@ public final class PlayerManagerListener {
                 event.createBinaryResponse().writeStringCollection(this.nodePlayerManager.onlinePlayers().asNames());
             }
             break;
+            case "online_players_count": {
+                event.createBinaryResponse().writeVarInt(this.nodePlayerManager.onlinePlayers().count());
+            }
+            break;
             case "online_players_task_player": {
                 String task = event.getBuffer().readString();
                 event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.taskOnlinePlayers(task).asPlayers());
@@ -131,6 +135,11 @@ public final class PlayerManagerListener {
                 event.createBinaryResponse().writeStringCollection(this.nodePlayerManager.taskOnlinePlayers(task).asNames());
             }
             break;
+            case "online_players_task_count": {
+                String task = event.getBuffer().readString();
+                event.createBinaryResponse().writeVarInt(this.nodePlayerManager.taskOnlinePlayers(task).count());
+            }
+            break;
             case "online_players_group_player": {
                 String group = event.getBuffer().readString();
                 event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.groupOnlinePlayers(group).asPlayers());
@@ -144,6 +153,11 @@ public final class PlayerManagerListener {
             case "online_players_group_name": {
                 String group = event.getBuffer().readString();
                 event.createBinaryResponse().writeStringCollection(this.nodePlayerManager.groupOnlinePlayers(group).asNames());
+            }
+            break;
+            case "online_players_group_count": {
+                String group = event.getBuffer().readString();
+                event.createBinaryResponse().writeVarInt(this.nodePlayerManager.groupOnlinePlayers(group).count());
             }
             break;
             case "get_offline_player_by_uuid": {

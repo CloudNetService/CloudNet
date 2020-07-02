@@ -40,6 +40,11 @@ public class NodePlayerProvider implements PlayerProvider {
     }
 
     @Override
+    public int count() {
+        return (int) this.playerSupplier.get().count();
+    }
+
+    @Override
     public @NotNull ITask<Collection<? extends ICloudPlayer>> asPlayersAsync() {
         return this.playerManager.schedule(this::asPlayers);
     }
@@ -54,4 +59,8 @@ public class NodePlayerProvider implements PlayerProvider {
         return this.playerManager.schedule(this::asNames);
     }
 
+    @Override
+    public @NotNull ITask<Integer> countAsync() {
+        return this.playerManager.schedule(this::count);
+    }
 }

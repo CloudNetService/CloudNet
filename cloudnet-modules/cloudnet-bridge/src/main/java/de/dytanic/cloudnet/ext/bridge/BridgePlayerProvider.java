@@ -42,6 +42,11 @@ public class BridgePlayerProvider implements PlayerProvider {
     }
 
     @Override
+    public int count() {
+        return this.countAsync().get(5, TimeUnit.SECONDS, -1);
+    }
+
+    @Override
     public @NotNull ITask<Collection<? extends ICloudPlayer>> asPlayersAsync() {
         return this.sendQuery("_player").map(message -> message.getBuffer().readObjectCollection(CloudPlayer.class));
     }
@@ -54,6 +59,11 @@ public class BridgePlayerProvider implements PlayerProvider {
     @Override
     public @NotNull ITask<Collection<String>> asNamesAsync() {
         return this.sendQuery("_name").map(message -> message.getBuffer().readStringCollection());
+    }
+
+    @Override
+    public @NotNull ITask<Integer> countAsync() {
+        return this.sendQuery("_count").map(message -> message.getBuffer().readVarInt());
     }
 
     private ITask<ChannelMessage> sendQuery(String keySuffix) {
