@@ -1,31 +1,23 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.*;
-import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
-import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
+@ApiStatus.Internal
 public final class BridgePlayerManager extends DefaultPlayerManager implements IPlayerManager {
+
+    private final PlayerProvider allPlayersProvider = new BridgePlayerProvider(this, "online_players", null);
 
     /**
      * @deprecated IPlayerManager should be accessed through the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
@@ -48,79 +40,52 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
     @Nullable
     @Override
     public ICloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
-        try {
-            return this.getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
+        return this.getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
-        try {
-            return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS, Collections.emptyList());
     }
 
     @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
-        try {
-            return this.getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS, Collections.emptyList());
     }
 
     @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers() {
-        try {
-            return this.getOnlinePlayersAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
+        return new ArrayList<>(this.onlinePlayers().asPlayers());
+    }
 
-        return new ArrayList<>();
+    @Override
+    public @NotNull PlayerProvider onlinePlayers() {
+        return this.allPlayersProvider;
+    }
+
+    @Override
+    public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
+        return new BridgePlayerProvider(this, "online_players_task", ProtocolBuffer.create().writeString(task));
+    }
+
+    @Override
+    public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
+        return new BridgePlayerProvider(this, "online_players_group", ProtocolBuffer.create().writeString(group));
     }
 
     @Override
     public ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
-        try {
-            return this.getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
+        return this.getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public @NotNull List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
-        try {
-            return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-        try {
-            return this.getRegisteredPlayersAsync().get(5, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getRegisteredPlayersAsync().get(5, TimeUnit.MINUTES, null);
     }
 
     @Override
@@ -191,12 +156,7 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
     @Override
     @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-        return this.messageBuilder()
-                .message("get_online_players")
-                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-                .build()
-                .sendSingleQueryAsync()
-                .map(message -> Arrays.asList(message.getBuffer().readObjectArray(CloudPlayer.class)));
+        return this.onlinePlayers().asPlayersAsync().map(ArrayList::new);
     }
 
     @Override

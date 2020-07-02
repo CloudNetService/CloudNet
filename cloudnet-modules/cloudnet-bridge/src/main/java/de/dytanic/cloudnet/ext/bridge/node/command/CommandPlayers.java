@@ -39,7 +39,7 @@ public final class CommandPlayers extends SubCommandHandler {
 
                                     List<String> messages = new ArrayList<>();
 
-                                    for (ICloudPlayer player : playerManager.getOnlinePlayers()) {
+                                    for (ICloudPlayer player : playerManager.onlinePlayers().asPlayers()) {
                                         if (properties.containsKey("name") &&
                                                 !player.getName().toLowerCase().contains(properties.get("name").toLowerCase())) {
                                             continue;
@@ -79,7 +79,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                         return;
                                     }
 
-                                    for (ICloudPlayer cloudPlayer : playerManager.getOnlinePlayers()) {
+                                    for (ICloudPlayer cloudPlayer : playerManager.onlinePlayers().asPlayers()) {
                                         sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
                                                 (cloudPlayer.getLoginService() != null ?
                                                         cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
@@ -140,10 +140,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                 "name",
                                 LanguageManager.getMessage("module-bridge-command-players-player-not-online"),
                                 name -> !playerManager.getOnlinePlayers(name).isEmpty(),
-                                () -> playerManager.getRegisteredCount() <= MAX_ONLINE_PLAYERS_FOR_COMPLETION ?
-                                        playerManager.getOnlinePlayers().stream()
-                                                .map(ICloudPlayer::getName)
-                                                .collect(Collectors.toList()) : null
+                                () -> playerManager.getRegisteredCount() <= MAX_ONLINE_PLAYERS_FOR_COMPLETION ? playerManager.onlinePlayers().asNames() : null
                         ))
 
                         .generateCommand(
