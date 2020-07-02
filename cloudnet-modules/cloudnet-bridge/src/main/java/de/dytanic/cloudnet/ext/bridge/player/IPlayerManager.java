@@ -92,8 +92,6 @@ public interface IPlayerManager {
 
     /**
      * Gets a PlayerProvider which returns a list of all online players on the whole network.
-     *
-     * @return a list containing all players that are online on the network
      */
     @NotNull
     PlayerProvider onlinePlayers();
@@ -241,8 +239,10 @@ public interface IPlayerManager {
      * Gets a list of all online players on the whole network.
      *
      * @return a list containing all players that are online on the network
+     * @deprecated Replace with {@link #onlinePlayers()}
      */
     @NotNull
+    @Deprecated
     ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync();
 
     /**

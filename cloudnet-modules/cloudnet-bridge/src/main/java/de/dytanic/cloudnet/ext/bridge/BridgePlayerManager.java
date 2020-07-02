@@ -10,10 +10,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public final class BridgePlayerManager extends DefaultPlayerManager implements IPlayerManager {
@@ -56,7 +53,7 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
 
     @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers() {
-        return this.getOnlinePlayersAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
+        return new ArrayList<>(this.onlinePlayers().asPlayers());
     }
 
     @Override
@@ -157,12 +154,7 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
     @Override
     @NotNull
     public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-        return this.messageBuilder()
-                .message("get_online_players")
-                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-                .build()
-                .sendSingleQueryAsync()
-                .map(message -> Arrays.asList(message.getBuffer().readObjectArray(CloudPlayer.class)));
+        return this.onlinePlayers().asPlayersAsync().map(ArrayList::new);
     }
 
     @Override
