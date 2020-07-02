@@ -154,14 +154,7 @@ public class WrapperDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 RemoteDatabaseRequestType.DATABASE_GET_BY_FIELD,
                 buffer -> this.writeDefaults(buffer).writeString(fieldName).writeString(String.valueOf(fieldValue))
-        ).map(packet -> {
-            int size = packet.getBuffer().readVarInt();
-            List<JsonDocument> documents = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                documents.add(packet.getBuffer().readJsonDocument());
-            }
-            return documents;
-        });
+        ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
     }
 
     @Override
@@ -170,14 +163,7 @@ public class WrapperDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 RemoteDatabaseRequestType.DATABASE_GET_BY_FILTERS,
                 buffer -> this.writeDefaults(buffer).writeJsonDocument(filters)
-        ).map(packet -> {
-            int size = packet.getBuffer().readVarInt();
-            List<JsonDocument> documents = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                documents.add(packet.getBuffer().readJsonDocument());
-            }
-            return documents;
-        });
+        ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
     }
 
     @Override
@@ -195,14 +181,16 @@ public class WrapperDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 RemoteDatabaseRequestType.DATABASE_DOCUMENTS,
                 this::writeDefaults
-        ).map(packet -> {
-            int size = packet.getBuffer().readVarInt();
-            List<JsonDocument> documents = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                documents.add(packet.getBuffer().readJsonDocument());
-            }
-            return documents;
-        });
+        ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
+    }
+
+    private List<JsonDocument> asJsonDocumentList(ProtocolBuffer buffer) {
+        int size = buffer.readVarInt();
+        List<JsonDocument> documents = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            documents.add(buffer.readJsonDocument());
+        }
+        return documents;
     }
 
     @Override

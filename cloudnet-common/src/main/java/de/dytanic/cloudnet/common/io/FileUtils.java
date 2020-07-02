@@ -240,18 +240,7 @@ public final class FileUtils {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteBuffer,
                     StandardCharsets.UTF_8)) {
                 for (Path dir : directories) {
-                    if (Files.exists(dir)) {
-                        if (Files.isDirectory(dir)) {
-                            convert0(zipOutputStream, dir);
-                        } else {
-                            zipOutputStream
-                                    .putNextEntry(new ZipEntry(dir.toFile().getName()));
-                            try (InputStream inputStream = Files.newInputStream(dir)) {
-                                copy(inputStream, zipOutputStream);
-                            }
-                            zipOutputStream.closeEntry();
-                        }
-                    }
+                    zipDir(dir, zipOutputStream);
                 }
             }
 
@@ -283,17 +272,21 @@ public final class FileUtils {
 
     private static void zipStream(Path source, OutputStream buffer) throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(buffer, StandardCharsets.UTF_8)) {
-            if (Files.exists(source)) {
-                if (Files.isDirectory(source)) {
-                    convert0(zipOutputStream, source);
-                } else {
-                    zipOutputStream.putNextEntry(new ZipEntry(source.toFile().getName()));
-                    try (InputStream inputStream = Files.newInputStream(source)) {
-                        copy(inputStream, zipOutputStream);
-                    }
+            zipDir(source, zipOutputStream);
+        }
+    }
 
-                    zipOutputStream.closeEntry();
+    private static void zipDir(Path source, ZipOutputStream zipOutputStream) throws IOException {
+        if (Files.exists(source)) {
+            if (Files.isDirectory(source)) {
+                convert0(zipOutputStream, source);
+            } else {
+                zipOutputStream.putNextEntry(new ZipEntry(source.toFile().getName()));
+                try (InputStream inputStream = Files.newInputStream(source)) {
+                    copy(inputStream, zipOutputStream);
                 }
+
+                zipOutputStream.closeEntry();
             }
         }
     }
