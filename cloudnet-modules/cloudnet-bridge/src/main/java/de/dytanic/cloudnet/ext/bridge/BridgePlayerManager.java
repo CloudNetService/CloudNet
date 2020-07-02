@@ -1,21 +1,15 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.*;
-import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
-import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,9 +17,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 public final class BridgePlayerManager extends DefaultPlayerManager implements IPlayerManager {
+
+    private final PlayerProvider allPlayersProvider = new BridgePlayerProvider(this, "online_players", null);
 
     /**
      * @deprecated IPlayerManager should be accessed through the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
@@ -88,6 +83,21 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
         }
 
         return new ArrayList<>();
+    }
+
+    @Override
+    public @NotNull PlayerProvider onlinePlayers() {
+        return this.allPlayersProvider;
+    }
+
+    @Override
+    public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
+        return new BridgePlayerProvider(this, "online_players_task", ProtocolBuffer.create().writeString(task));
+    }
+
+    @Override
+    public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
+        return new BridgePlayerProvider(this, "online_players_group", ProtocolBuffer.create().writeString(group));
     }
 
     @Override

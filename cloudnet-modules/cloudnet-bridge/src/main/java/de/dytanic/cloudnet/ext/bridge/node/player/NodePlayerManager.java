@@ -10,14 +10,12 @@ import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.ext.bridge.node.NodePlayerProvider;
 import de.dytanic.cloudnet.ext.bridge.player.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -27,6 +25,8 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
 
     private final String databaseName;
+
+    private final PlayerProvider allPlayersProvider = new NodePlayerProvider(this, () -> this.onlineCloudPlayers.values().stream());
 
     public NodePlayerManager(String databaseName) {
         this.databaseName = databaseName;
@@ -80,6 +80,33 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     @Override
     public @NotNull List<CloudPlayer> getOnlinePlayers() {
         return new ArrayList<>(this.onlineCloudPlayers.values());
+    }
+
+    @Override
+    public @NotNull PlayerProvider onlinePlayers() {
+        return this.allPlayersProvider;
+    }
+
+    @Override
+    public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
+        return new NodePlayerProvider(this,
+                () -> this.onlineCloudPlayers.values().stream()
+                        .filter(cloudPlayer ->
+                                cloudPlayer.getConnectedService().getTaskName().equalsIgnoreCase(task) ||
+                                        cloudPlayer.getLoginService().getTaskName().equalsIgnoreCase(task)
+                        )
+        );
+    }
+
+    @Override
+    public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
+        return new NodePlayerProvider(this,
+                () -> this.onlineCloudPlayers.values().stream()
+                        .filter(cloudPlayer ->
+                                Arrays.stream(cloudPlayer.getConnectedService().getGroups()).anyMatch(s -> s.equalsIgnoreCase(group)) ||
+                                        Arrays.stream(cloudPlayer.getLoginService().getGroups()).anyMatch(s -> s.equalsIgnoreCase(group))
+                        )
+        );
     }
 
     @Override
@@ -201,7 +228,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
 
     @NotNull
-    private <T> ITask<T> schedule(Callable<T> callable) {
+    public <T> ITask<T> schedule(Callable<T> callable) {
         return CloudNet.getInstance().getTaskScheduler().schedule(callable);
     }
 

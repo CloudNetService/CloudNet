@@ -84,9 +84,33 @@ public interface IPlayerManager {
      * Gets a list of all online players on the whole network.
      *
      * @return a list containing all players that are online on the network
+     * @deprecated Replace with {@link #onlinePlayers()}
      */
     @NotNull
+    @Deprecated
     List<? extends ICloudPlayer> getOnlinePlayers();
+
+    /**
+     * Gets a PlayerProvider which returns a list of all online players on the whole network.
+     *
+     * @return a list containing all players that are online on the network
+     */
+    @NotNull
+    PlayerProvider onlinePlayers();
+
+    /**
+     * Gets a PlayerProvider which returns a list of all online players on a specific task.
+     *
+     * @return a list containing all players that are online on that task
+     */
+    @NotNull
+    PlayerProvider taskOnlinePlayers(@NotNull String task);
+
+    /**
+     * Gets a PlayerProvider which returns a list of all online players on a specific group.
+     */
+    @NotNull
+    PlayerProvider groupOnlinePlayers(@NotNull String group);
 
     /**
      * Gets a registered player by its UUID out of the cloud
