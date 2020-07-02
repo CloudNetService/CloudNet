@@ -10,13 +10,11 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public final class BridgePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
@@ -43,46 +41,22 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
     @Nullable
     @Override
     public ICloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
-        try {
-            return this.getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
+        return this.getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
-        try {
-            return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS, Collections.emptyList());
     }
 
     @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
-        try {
-            return this.getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS, Collections.emptyList());
     }
 
     @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers() {
-        try {
-            return this.getOnlinePlayersAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getOnlinePlayersAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
     }
 
     @Override
@@ -102,35 +76,17 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
 
     @Override
     public ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
-        try {
-            return this.getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
+        return this.getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public @NotNull List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
-        try {
-            return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-        try {
-            return this.getRegisteredPlayersAsync().get(5, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return new ArrayList<>();
+        return this.getRegisteredPlayersAsync().get(5, TimeUnit.MINUTES, null);
     }
 
     @Override
