@@ -1,17 +1,8 @@
 package de.dytanic.cloudnet.launcher.version;
 
-
 import java.nio.file.Path;
 
 public class InstalledVersionInfo extends DefaultVersionInfo implements VersionInfo {
-
-    protected Path targetDirectory;
-
-    protected String gitHubRepository;
-
-    protected String appVersion;
-
-    protected long releaseTimestamp = -1;
 
     public InstalledVersionInfo(Path targetDirectory, String gitHubRepository) {
         this.targetDirectory = targetDirectory;
