@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.node.NodePlayerProvider;
 import de.dytanic.cloudnet.ext.bridge.player.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@ApiStatus.Internal
 public final class NodePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();

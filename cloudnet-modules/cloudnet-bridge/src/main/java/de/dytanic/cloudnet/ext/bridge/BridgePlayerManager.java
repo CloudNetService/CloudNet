@@ -7,12 +7,14 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+@ApiStatus.Internal
 public final class BridgePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
     private final PlayerProvider allPlayersProvider = new BridgePlayerProvider(this, "online_players", null);
