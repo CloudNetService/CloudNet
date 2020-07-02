@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.permission;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.permission.*;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerUpdatePermissions;

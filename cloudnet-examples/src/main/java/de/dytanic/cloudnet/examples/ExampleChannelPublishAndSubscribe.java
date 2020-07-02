@@ -6,8 +6,6 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
-import java.util.UUID;
-
 public final class ExampleChannelPublishAndSubscribe {
 
     public void publishGlobalMessage() {

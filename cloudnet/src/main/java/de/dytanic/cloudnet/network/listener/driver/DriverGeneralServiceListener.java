@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.network.listener.driver;
 
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPICategory;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
