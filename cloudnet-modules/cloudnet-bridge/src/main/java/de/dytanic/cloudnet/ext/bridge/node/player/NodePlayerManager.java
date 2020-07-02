@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.node.player;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -18,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class NodePlayerManager extends DefaultPlayerManager implements IPlayerManager {
