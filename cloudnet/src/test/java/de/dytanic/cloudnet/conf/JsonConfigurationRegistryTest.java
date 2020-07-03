@@ -48,7 +48,7 @@ public final class JsonConfigurationRegistryTest {
         Assert.assertNotNull(person.properties);
 
         Assert.assertEquals("Peter Parker", person.name);
-        Assert.assertEquals(24, person.alter);
+        Assert.assertEquals(24, person.age);
 
         Assert.assertTrue(person.properties.contains("address"));
 
@@ -62,15 +62,15 @@ public final class JsonConfigurationRegistryTest {
         Assert.assertFalse(configurationRegistry.contains("a"));
     }
 
-    private final class Person {
+    private static final class Person {
 
         private final JsonDocument properties;
-        private String name;
-        private int alter;
+        private final String name;
+        private final int age;
 
-        public Person(String name, int alter, JsonDocument properties) {
+        public Person(String name, int age, JsonDocument properties) {
             this.name = name;
-            this.alter = alter;
+            this.age = age;
             this.properties = properties;
         }
     }

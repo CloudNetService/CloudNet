@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -37,7 +36,7 @@ public class NettySSLHttpServerTest {
                 selfSignedCertificate.privateKey()
         ))) {
             Assert.assertTrue(httpServer.isSslEnabled());
-            Assert.assertTrue(httpServer.registerHandler("/test/power", (IHttpHandler) (path, context) -> context.response()
+            Assert.assertTrue(httpServer.registerHandler("/test/power", (path, context) -> context.response()
                     .header("Content-Type", "text/plain")
                     .body("Data-Set")
                     .statusCode(200)).addListener(port));

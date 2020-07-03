@@ -12,7 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 
 public class BridgePlayerDisconnectListener {
 
-    private NodePlayerManager nodePlayerManager;
+    private final NodePlayerManager nodePlayerManager;
 
     public BridgePlayerDisconnectListener(NodePlayerManager nodePlayerManager) {
         this.nodePlayerManager = nodePlayerManager;

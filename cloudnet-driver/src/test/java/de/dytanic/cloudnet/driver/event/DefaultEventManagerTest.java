@@ -60,7 +60,7 @@ public final class DefaultEventManagerTest {
         Assert.assertEquals("value_789", testEvent.value);
     }
 
-    private final class TestEvent extends Event {
+    private static final class TestEvent extends Event {
 
         public String value;
 

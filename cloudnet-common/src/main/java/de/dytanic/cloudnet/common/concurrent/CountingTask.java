@@ -13,7 +13,7 @@ public class CountingTask<V> implements ITask<V> {
     private final V value;
     private final CompletableFuture<V> future = new CompletableFuture<>();
     private final Collection<ITaskListener<V>> listeners = new ArrayList<>();
-    private AtomicInteger count;
+    private final AtomicInteger count;
 
     public CountingTask(V value, int initialCount) {
         this.value = value;
