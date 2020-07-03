@@ -153,11 +153,11 @@ public class ChannelMessage implements SerializableObject {
         }
 
         public Builder buffer(@NotNull byte[] bytes) {
-            return this.buffer(bytes == null ? ProtocolBuffer.EMPTY : ProtocolBuffer.wrap(bytes));
+            return this.buffer(bytes == null ? null : ProtocolBuffer.wrap(bytes));
         }
 
-        public Builder buffer(@NotNull ProtocolBuffer buffer) {
-            this.channelMessage.buffer = buffer;
+        public Builder buffer(@Nullable ProtocolBuffer buffer) {
+            this.channelMessage.buffer = buffer == null ? ProtocolBuffer.EMPTY : buffer;
             return this;
         }
 

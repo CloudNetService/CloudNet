@@ -46,7 +46,7 @@ public class LabyModCustomChannelMessageListener {
     }
 
     private ICloudPlayer getPlayerByJoinSecret(UUID joinSecret) {
-        return this.playerManager.getOnlinePlayers()
+        return this.playerManager.onlinePlayers().asPlayers()
                 .stream()
                 .filter(o -> LabyModUtils.getLabyModOptions(o) != null)
                 .filter(o -> LabyModUtils.getLabyModOptions(o).getJoinSecret() != null)
@@ -56,7 +56,7 @@ public class LabyModCustomChannelMessageListener {
     }
 
     private ICloudPlayer getPlayerBySpectateSecret(UUID spectateSecret) {
-        return this.playerManager.getOnlinePlayers()
+        return this.playerManager.onlinePlayers().asPlayers()
                 .stream()
                 .filter(o -> LabyModUtils.getLabyModOptions(o) != null)
                 .filter(o -> LabyModUtils.getLabyModOptions(o).getSpectateSecret() != null)
