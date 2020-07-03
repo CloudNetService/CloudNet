@@ -1,5 +1,7 @@
 # Cloud Network Environment Technology 3 for Minecraft
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a1795a612e7946899febf5c11ec091d1)](https://app.codacy.com/gh/CloudNetService/CloudNet-v3?utm_source=github.com&utm_medium=referral&utm_content=CloudNetService/CloudNet-v3&utm_campaign=Badge_Grade_Dashboard)
+
 ![CloudNet V3 Logo](./docs/images/header.png)
 
 ## What is CloudNet?
