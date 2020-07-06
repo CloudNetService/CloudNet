@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.service.defaults;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import org.jetbrains.annotations.NotNull;
@@ -44,8 +45,15 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
     }
 
     private void configureServiceEnvironment() throws IOException {
+        ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(super.serviceConfiguration.getServiceId().getTaskName());
+        boolean rewriteIp = serviceTask == null || !serviceTask.isDisableIpRewrite();
+
         switch (this.getServiceConfiguration().getProcessConfig().getEnvironment()) {
             case BUNGEECORD: {
+                if (!rewriteIp) {
+                    break;
+                }
+
                 File file = new File(this.getDirectory(), "config.yml");
                 this.copyDefaultFile("files/bungee/config.yml", file);
 
@@ -53,6 +61,10 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
             }
             break;
             case WATERDOG: {
+                if (!rewriteIp) {
+                    break;
+                }
+
                 File file = new File(this.getDirectory(), "config.yml");
                 this.copyDefaultFile("files/waterdog/config.yml", file);
 
@@ -60,6 +72,10 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
             }
             break;
             case VELOCITY: {
+                if (!rewriteIp) {
+                    break;
+                }
+
                 File file = new File(this.getDirectory(), "velocity.toml");
                 this.copyDefaultFile("files/velocity/velocity.toml", file);
 
@@ -86,8 +102,10 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
                 }
 
                 properties.setProperty("server-name", this.getServiceId().getName());
-                properties.setProperty("server-port", String.valueOf(this.getServiceConfiguration().getPort()));
-                properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
+                if (rewriteIp) {
+                    properties.setProperty("server-port", String.valueOf(this.getServiceConfiguration().getPort()));
+                    properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
+                }
 
                 try (OutputStream outputStream = new FileOutputStream(file);
                      OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
@@ -112,6 +130,10 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
             }
             break;
             case NUKKIT: {
+                if (!rewriteIp) {
+                    break;
+                }
+
                 File file = new File(this.getDirectory(), "server.properties");
                 this.copyDefaultFile("files/nukkit/server.properties", file);
 
@@ -131,6 +153,10 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
             }
             break;
             case GLOWSTONE: {
+                if (!rewriteIp) {
+                    break;
+                }
+
                 File file = new File(this.getDirectory(), "config/glowstone.yml");
                 file.getParentFile().mkdirs();
 

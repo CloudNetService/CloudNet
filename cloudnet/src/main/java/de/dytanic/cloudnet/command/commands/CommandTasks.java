@@ -286,6 +286,15 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         exactStringIgnoreCase("environment"),
                         exactEnum(ServiceEnvironmentType.class)
                 )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                                forEachTasks(
+                                        (ServiceConfigurationBase[]) internalProperties.get("tasks"),
+                                        task -> task.setDisableIpRewrite((boolean) args.argument("value").orElse(false))
+                                ),
+                        exactStringIgnoreCase("disableIpRewrite"),
+                        bool("value")
+                )
 
                 .removeLastPostHandler();
     }

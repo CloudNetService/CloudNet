@@ -18,6 +18,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
 
     private String runtime;
 
+    private boolean disableIpRewrite;
+
     private boolean maintenance, autoDeleteOnStop, staticServices;
 
     private Collection<String> associatedNodes = new ArrayList<>();
@@ -92,6 +94,14 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
 
     public boolean canStartServices() {
         return !this.maintenance && System.currentTimeMillis() > this.serviceStartAbilityTime;
+    }
+
+    public boolean isDisableIpRewrite() {
+        return this.disableIpRewrite;
+    }
+
+    public void setDisableIpRewrite(boolean disableIpRewrite) {
+        this.disableIpRewrite = disableIpRewrite;
     }
 
     public String getName() {
@@ -210,6 +220,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
         super.write(buffer);
         buffer.writeString(this.name);
         buffer.writeString(this.runtime);
+        buffer.writeBoolean(this.disableIpRewrite);
         buffer.writeBoolean(this.maintenance);
         buffer.writeBoolean(this.autoDeleteOnStop);
         buffer.writeBoolean(this.staticServices);
@@ -226,6 +237,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
         super.read(buffer);
         this.name = buffer.readString();
         this.runtime = buffer.readString();
+        this.disableIpRewrite = buffer.readBoolean();
         this.maintenance = buffer.readBoolean();
         this.autoDeleteOnStop = buffer.readBoolean();
         this.staticServices = buffer.readBoolean();
