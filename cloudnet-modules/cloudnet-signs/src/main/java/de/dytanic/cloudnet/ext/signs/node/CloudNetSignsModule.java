@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.signs.node;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
@@ -82,7 +82,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
     }
 
     public Collection<Sign> loadSigns() {
-        IDatabase database = this.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+        Database database = this.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(SIGN_STORE_DOCUMENT);
 
         return document != null ? document.get("signs", SignConstants.COLLECTION_SIGNS, new ArrayList<>()) : new ArrayList<>();
@@ -91,7 +91,7 @@ public final class CloudNetSignsModule extends NodeCloudNetModule {
     public void write(Collection<Sign> signs) {
         Preconditions.checkNotNull(signs);
 
-        IDatabase database = this.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+        Database database = this.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(SIGN_STORE_DOCUMENT);
 
         if (document == null) {

@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.lang.reflect.Type;
@@ -74,17 +75,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
             serviceTask.setAssociatedNodes(new ArrayList<>());
         }
 
-        if (serviceTask.getTemplates() == null) {
-            serviceTask.setTemplates(new ArrayList<>());
-        }
-
-        if (serviceTask.getIncludes() == null) {
-            serviceTask.setIncludes(new ArrayList<>());
-        }
-
-        if (serviceTask.getDeployments() == null) {
-            serviceTask.setDeployments(new ArrayList<>());
-        }
+        RestUtils.replaceNulls(serviceTask);
 
         int status = !CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(serviceTask.getName()) ?
                 HttpResponseCode.HTTP_OK

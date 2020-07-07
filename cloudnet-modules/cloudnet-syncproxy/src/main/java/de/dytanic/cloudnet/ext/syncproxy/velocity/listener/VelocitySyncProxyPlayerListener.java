@@ -60,7 +60,7 @@ public final class VelocitySyncProxyPlayerListener {
                                                         UUID.randomUUID()
                                                 )).collect(Collectors.toList())
                                         :
-                                        Collections.EMPTY_LIST
+                                        Collections.emptyList()
                         ),
                         LegacyComponentSerializer.legacyLinking().deserialize((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
                                 .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())

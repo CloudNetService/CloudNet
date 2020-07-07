@@ -8,8 +8,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import java.util.UUID;
-
 final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
     @Override

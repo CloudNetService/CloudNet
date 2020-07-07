@@ -103,95 +103,51 @@ public class SignConfigurationEntry {
                 ),
                 new SignLayoutConfiguration(
                         Arrays.asList(
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Server",
-                                                "starting",
-                                                ""
-                                        },
-                                        startingBlock,
-                                        -1
-                                ),
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Server",
-                                                "starting .",
-                                                ""
-                                        },
-                                        startingBlock,
-                                        -1
-                                ),
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Server",
-                                                "starting ..",
-                                                ""
-                                        },
-                                        startingBlock,
-                                        -1
-                                ),
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Server",
-                                                "starting ...",
-                                                ""
-                                        },
-                                        startingBlock,
-                                        -1
-                                )
+                                createDefaultStartingLayout(startingBlock),
+                                createDefaultStartingLayout(startingBlock),
+                                createDefaultStartingLayout(startingBlock),
+                                createDefaultStartingLayout(startingBlock)
                         ),
                         2
                 ),
                 new SignLayoutConfiguration(
                         Arrays.asList(
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Waiting for",
-                                                "server",
-                                                ""
-                                        },
-                                        searchingBlock,
-                                        -1
-                                ),
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Waiting for",
-                                                "server .",
-                                                ""
-                                        },
-                                        searchingBlock,
-                                        -1
-                                ),
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Waiting for",
-                                                "server ..",
-                                                ""
-                                        },
-                                        searchingBlock,
-                                        -1
-                                ),
-                                new SignLayout(
-                                        new String[]{
-                                                "",
-                                                "Waiting for",
-                                                "server ...",
-                                                ""
-                                        },
-                                        searchingBlock,
-                                        -1
-                                )
+                                createDefaultWaitingLayout(searchingBlock),
+                                createDefaultWaitingLayout(searchingBlock),
+                                createDefaultWaitingLayout(searchingBlock),
+                                createDefaultWaitingLayout(searchingBlock)
                         ),
                         2
                 ));
 
+    }
+
+    private static SignLayout createDefaultStartingLayout(String startingBlock) {
+        return createDefaultLayout(
+                new String[]{
+                        "",
+                        "Server",
+                        "starting ...",
+                        ""
+                },
+                startingBlock
+        );
+    }
+
+    private static SignLayout createDefaultWaitingLayout(String searchingBlock) {
+        return createDefaultLayout(
+                new String[]{
+                        "",
+                        "Waiting for",
+                        "server ...",
+                        ""
+                },
+                searchingBlock
+        );
+    }
+
+    private static SignLayout createDefaultLayout(String[] lines, String block) {
+        return new SignLayout(lines, block, -1);
     }
 
     public String getTargetGroup() {

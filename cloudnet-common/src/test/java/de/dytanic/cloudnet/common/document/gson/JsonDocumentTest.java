@@ -54,8 +54,8 @@ public class JsonDocumentTest {
         Assert.assertEquals(0, document.size());
     }
 
-    private class TestClass {
-        private String data;
+    private static class TestClass {
+        private final String data;
 
         public TestClass(String data) {
             this.data = data;

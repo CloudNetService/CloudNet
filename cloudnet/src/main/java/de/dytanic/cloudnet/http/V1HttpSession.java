@@ -55,7 +55,6 @@ public final class V1HttpSession {
         SessionEntry sessionEntry = new SessionEntry(
                 System.nanoTime(),
                 System.currentTimeMillis(),
-                context.channel().clientAddress().getHost(),
                 UUID.randomUUID().toString(),
                 permissionUser.getUniqueId().toString()
         );
@@ -160,14 +159,13 @@ public final class V1HttpSession {
 
     public static class SessionEntry {
 
-        long creationTime, lastUsageMillis;
+        private final long creationTime;
+        private final String uniqueId, userUniqueId;
+        private long lastUsageMillis;
 
-        String host, uniqueId, userUniqueId;
-
-        public SessionEntry(long creationTime, long lastUsageMillis, String host, String uniqueId, String userUniqueId) {
+        public SessionEntry(long creationTime, long lastUsageMillis, String uniqueId, String userUniqueId) {
             this.creationTime = creationTime;
             this.lastUsageMillis = lastUsageMillis;
-            this.host = host;
             this.uniqueId = uniqueId;
             this.userUniqueId = userUniqueId;
         }

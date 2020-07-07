@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 public class WrapperDatabase implements IDatabase {
 
@@ -82,6 +83,11 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    public Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate) {
+        return this.filterAsync(predicate).get(5, TimeUnit.SECONDS, Collections.emptyMap());
+    }
+
+    @Override
     public void iterate(BiConsumer<String, JsonDocument> consumer) {
         this.iterateAsync(consumer).getDef(null);
     }
@@ -148,14 +154,7 @@ public class WrapperDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 RemoteDatabaseRequestType.DATABASE_GET_BY_FIELD,
                 buffer -> this.writeDefaults(buffer).writeString(fieldName).writeString(String.valueOf(fieldValue))
-        ).map(packet -> {
-            int size = packet.getBuffer().readVarInt();
-            List<JsonDocument> documents = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                documents.add(packet.getBuffer().readJsonDocument());
-            }
-            return documents;
-        });
+        ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
     }
 
     @Override
@@ -164,14 +163,7 @@ public class WrapperDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 RemoteDatabaseRequestType.DATABASE_GET_BY_FILTERS,
                 buffer -> this.writeDefaults(buffer).writeJsonDocument(filters)
-        ).map(packet -> {
-            int size = packet.getBuffer().readVarInt();
-            List<JsonDocument> documents = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                documents.add(packet.getBuffer().readJsonDocument());
-            }
-            return documents;
-        });
+        ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
     }
 
     @Override
@@ -189,14 +181,16 @@ public class WrapperDatabase implements IDatabase {
         return this.databaseProvider.executeQuery(
                 RemoteDatabaseRequestType.DATABASE_DOCUMENTS,
                 this::writeDefaults
-        ).map(packet -> {
-            int size = packet.getBuffer().readVarInt();
-            List<JsonDocument> documents = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                documents.add(packet.getBuffer().readJsonDocument());
-            }
-            return documents;
-        });
+        ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
+    }
+
+    private List<JsonDocument> asJsonDocumentList(ProtocolBuffer buffer) {
+        int size = buffer.readVarInt();
+        List<JsonDocument> documents = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            documents.add(buffer.readJsonDocument());
+        }
+        return documents;
     }
 
     @Override
@@ -212,6 +206,19 @@ public class WrapperDatabase implements IDatabase {
                 documents.put(packet.getBuffer().readString(), packet.getBuffer().readJsonDocument());
             }
             return documents;
+        });
+    }
+
+    @Override
+    public @NotNull ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate) {
+        return this.entriesAsync().map(map -> {
+            Map<String, JsonDocument> result = new HashMap<>();
+            map.forEach((key, document) -> {
+                if (predicate.test(key, document)) {
+                    result.put(key, document);
+                }
+            });
+            return result;
         });
     }
 

@@ -9,9 +9,7 @@ import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -112,10 +110,7 @@ public final class BukkitCloudNetHelper extends BridgeServerHelper {
                 new HostAndPort("0.0.0.0", Bukkit.getServer().getPort()),
                 Bukkit.getServer().getOnlineMode(),
                 false,
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
@@ -146,10 +141,7 @@ public final class BukkitCloudNetHelper extends BridgeServerHelper {
                 player.getLevel(),
                 worldPosition,
                 new HostAndPort(player.getAddress()),
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 

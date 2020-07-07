@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeePlayerFallbackEvent;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
@@ -133,10 +132,7 @@ public final class BungeeCloudNetHelper {
                 new HostAndPort(pendingConnection.getListener().getHost()),
                 pendingConnection.isOnlineMode(),
                 pendingConnection.isLegacy(),
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 

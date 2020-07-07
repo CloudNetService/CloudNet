@@ -19,10 +19,10 @@ public abstract class SQLDatabase implements IDatabase {
 
     private static final String TABLE_COLUMN_KEY = "Name", TABLE_COLUMN_VALUE = "Document";
 
-    protected SQLDatabaseProvider databaseProvider;
-    protected String name;
+    protected final SQLDatabaseProvider databaseProvider;
+    protected final String name;
 
-    protected ExecutorService executorService;
+    protected final ExecutorService executorService;
 
     public SQLDatabase(SQLDatabaseProvider databaseProvider, String name, ExecutorService executorService) {
         Preconditions.checkNotNull(databaseProvider);

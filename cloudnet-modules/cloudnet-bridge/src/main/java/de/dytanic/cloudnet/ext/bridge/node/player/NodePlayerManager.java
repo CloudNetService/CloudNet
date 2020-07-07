@@ -5,8 +5,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.node.NodePlayerProvider;
@@ -42,11 +42,9 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
         return (NodePlayerManager) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
     }
 
-
-    public IDatabase getDatabase() {
+    public Database getDatabase() {
         return CloudNet.getInstance().getDatabaseProvider().getDatabase(this.databaseName);
     }
-
 
     @Override
     public int getOnlineCount() {

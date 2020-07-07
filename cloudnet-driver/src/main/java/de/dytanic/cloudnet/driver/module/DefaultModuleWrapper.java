@@ -52,9 +52,6 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
     private void init(URL url) throws Exception {
-        //ModuleConfiguration moduleConfiguration;
-        //Document moduleConfigurationSource;
-
         try (FinalizeURLClassLoader classLoader = new FinalizeURLClassLoader(url);
              InputStream inputStream = classLoader.getResourceAsStream(MODULE_CONFIG_PATH)) {
             if (inputStream == null) {

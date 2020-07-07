@@ -28,10 +28,10 @@ import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
-import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -51,12 +51,6 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.driver.provider.CloudMessenger;
-import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
-import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
-import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
-import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
@@ -143,13 +137,6 @@ public final class CloudNet extends CloudNetDriver {
     private IPermissionManagement permissionManagement;
 
     private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
-    private final CloudServiceFactory cloudServiceFactory = new NodeCloudServiceFactory(this);
-    private final GeneralCloudServiceProvider generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
-
-    private final ServiceTaskProvider serviceTaskProvider = new NodeServiceTaskProvider(this);
-    private final GroupConfigurationProvider groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
-    private final NodeInfoProvider nodeInfoProvider = new NodeNodeInfoProvider(this);
-    private final CloudMessenger messenger = new NodeMessenger(this);
 
     private final DefaultInstallation defaultInstallation = new DefaultInstallation();
 
@@ -165,6 +152,13 @@ public final class CloudNet extends CloudNetDriver {
         setInstance(this);
 
         logger.setLevel(this.defaultLogLevel);
+
+        super.cloudServiceFactory = new NodeCloudServiceFactory(this);
+        super.generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
+        super.serviceTaskProvider = new NodeServiceTaskProvider(this);
+        super.groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
+        super.nodeInfoProvider = new NodeNodeInfoProvider(this);
+        super.messenger = new NodeMessenger(this);
 
         this.console = console;
         this.commandLineArguments = commandLineArguments;
@@ -194,11 +188,13 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public synchronized void start() throws Exception {
         File tempDirectory = new File(System.getProperty("cloudnet.tempDir", "temp"));
-        tempDirectory.mkdirs();
+        Preconditions.checkArgument(tempDirectory.mkdirs(), "Failed to create temp directory '" + tempDirectory + "'");
 
-        new File(tempDirectory, "caches").mkdir();
+        File cachesDirectory = new File(tempDirectory, "caches");
+        Preconditions.checkArgument(cachesDirectory.mkdirs(), "Failed to create caches directory '" + cachesDirectory + "'");
 
         try (InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
+            Preconditions.checkNotNull(inputStream, "Missing wrapper.jar");
             Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
@@ -379,30 +375,6 @@ public final class CloudNet extends CloudNetDriver {
         return this.defaultLogLevel;
     }
 
-    @NotNull
-    @Override
-    public CloudServiceFactory getCloudServiceFactory() {
-        return this.cloudServiceFactory;
-    }
-
-    @NotNull
-    @Override
-    public ServiceTaskProvider getServiceTaskProvider() {
-        return this.serviceTaskProvider;
-    }
-
-    @NotNull
-    @Override
-    public NodeInfoProvider getNodeInfoProvider() {
-        return this.nodeInfoProvider;
-    }
-
-    @NotNull
-    @Override
-    public GroupConfigurationProvider getGroupConfigurationProvider() {
-        return this.groupConfigurationProvider;
-    }
-
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudServiceByName(name);
@@ -437,18 +409,6 @@ public final class CloudNet extends CloudNetDriver {
             return EmptySpecificCloudServiceProvider.INSTANCE;
         }
         return server.getCloudServiceProvider(serviceInfoSnapshot);
-    }
-
-    @NotNull
-    @Override
-    public GeneralCloudServiceProvider getCloudServiceProvider() {
-        return this.generalCloudServiceProvider;
-    }
-
-    @NotNull
-    @Override
-    public CloudMessenger getMessenger() {
-        return this.messenger;
     }
 
     private void initServiceVersions() {
@@ -767,7 +727,7 @@ public final class CloudNet extends CloudNetDriver {
             if (!map.containsKey(name)) {
                 map.put(name, new HashMap<>());
             }
-            IDatabase database = this.databaseProvider.getDatabase(name);
+            Database database = this.databaseProvider.getDatabase(name);
             map.get(name).putAll(database.entries());
         }
 
@@ -1012,7 +972,7 @@ public final class CloudNet extends CloudNetDriver {
         return this.permissionManagement;
     }
 
-    public AbstractDatabaseProvider getDatabaseProvider() {
+    public @NotNull AbstractDatabaseProvider getDatabaseProvider() {
         return this.databaseProvider;
     }
 

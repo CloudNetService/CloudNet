@@ -14,7 +14,7 @@ import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
 
 public class LabyModListener {
 
-    private AbstractLabyModManagement labyModManagement;
+    private final AbstractLabyModManagement labyModManagement;
 
     public LabyModListener(AbstractLabyModManagement labyModManagement) {
         this.labyModManagement = labyModManagement;

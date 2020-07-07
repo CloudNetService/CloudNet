@@ -63,7 +63,7 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
         return "Hello World";
     }
 
-    private final class CallableCounter implements Callable<Integer> {
+    private static final class CallableCounter implements Callable<Integer> {
 
         private int counter = 0;
 
