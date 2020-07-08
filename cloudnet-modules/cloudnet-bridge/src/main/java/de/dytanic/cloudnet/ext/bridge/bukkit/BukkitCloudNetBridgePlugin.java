@@ -29,7 +29,7 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "cloudnet:main");
         Wrapper.getInstance().getTaskScheduler().schedule(BridgeHelper::updateServiceInfo);
 
-        Bukkit.getScheduler().runTaskTimer(this, this::runFireServerListPingEvent, 0, 10);
+        this.runFireServerListPingEvent();
     }
 
     @Override
@@ -49,29 +49,24 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
     }
 
     private void runFireServerListPingEvent() {
-        ServerListPingEvent serverListPingEvent = new ServerListPingEvent(
-                new InetSocketAddress("127.0.0.1", 53345).getAddress(),
-                BridgeServerHelper.getMotd(),
-                Bukkit.getOnlinePlayers().size(),
-                BridgeServerHelper.getMaxPlayers()
-        );
-
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             boolean hasToUpdate = false, value = false;
 
             try {
+                ServerListPingEvent serverListPingEvent = new ServerListPingEvent(
+                        new InetSocketAddress("127.0.0.1", 53345).getAddress(),
+                        BridgeServerHelper.getMotd(),
+                        Bukkit.getOnlinePlayers().size(),
+                        BridgeServerHelper.getMaxPlayers()
+                );
                 Bukkit.getPluginManager().callEvent(serverListPingEvent);
 
                 if (!serverListPingEvent.getMotd().equalsIgnoreCase(BridgeServerHelper.getMotd())) {
                     hasToUpdate = true;
-
                     BridgeServerHelper.setMotd(serverListPingEvent.getMotd());
 
                     String lowerMotd = serverListPingEvent.getMotd().toLowerCase();
-
-                    if (lowerMotd.contains("running") ||
-                            lowerMotd.contains("ingame") ||
-                            lowerMotd.contains("playing")) {
+                    if (lowerMotd.contains("running") || lowerMotd.contains("ingame") || lowerMotd.contains("playing")) {
                         value = true;
                     }
                 }
@@ -92,6 +87,6 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        });
+        }, 0, 10);
     }
 }
