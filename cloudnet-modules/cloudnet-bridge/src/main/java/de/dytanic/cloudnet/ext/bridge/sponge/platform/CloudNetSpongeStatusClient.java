@@ -8,9 +8,9 @@ import org.spongepowered.api.network.status.StatusClient;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 
-class CloudNetSpongeStatusClient implements StatusClient {
+public class CloudNetSpongeStatusClient implements StatusClient {
 
-    static final StatusClient INSTANCE = new CloudNetSpongeStatusClient();
+    public static final StatusClient INSTANCE = new CloudNetSpongeStatusClient();
 
     private final InetSocketAddress address = new InetSocketAddress("127.0.0.1", 53345);
     private final MinecraftVersion minecraftVersion = Sponge.getPlatform().getMinecraftVersion();

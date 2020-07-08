@@ -11,7 +11,7 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-class CloudNetSpongeClientPingEventResponse implements ClientPingServerEvent.Response {
+public class CloudNetSpongeClientPingEventResponse implements ClientPingServerEvent.Response {
 
     private Text description = Text.of(BridgeServerHelper.getMotd());
     private final Players players = CloudNetSpongeClientPingEventResponsePlayers.fromCloudNet();
