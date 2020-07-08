@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.sponge.platform;
 
 import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.server.ClientPingServerEvent;
@@ -14,7 +13,7 @@ class CloudNetSpongeClientPingEventResponsePlayers implements ClientPingServerEv
 
     static @NotNull ClientPingServerEvent.Response.Players fromCloudNet() {
         return new CloudNetSpongeClientPingEventResponsePlayers(
-                Wrapper.getInstance().getCurrentServiceInfoSnapshot().getProperties().getInt("Online-Count"),
+                Sponge.getServer().getOnlinePlayers().size(),
                 BridgeServerHelper.getMaxPlayers()
         );
     }
