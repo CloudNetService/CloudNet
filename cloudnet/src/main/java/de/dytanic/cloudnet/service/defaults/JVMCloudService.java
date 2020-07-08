@@ -282,7 +282,4 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         return this.process;
     }
 
-    public boolean isRestartState() {
-        return this.restartState;
-    }
 }

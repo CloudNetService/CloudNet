@@ -1,10 +1,9 @@
 package de.dytanic.cloudnet.examples.node;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.database.Database;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ public final class ExampleDatabaseProviderHandling {
     public void testDatabaseProvider() throws Throwable {
         AbstractDatabaseProvider databaseProvider = CloudNet.getInstance().getDatabaseProvider();
 
-        IDatabase database = databaseProvider.getDatabase("My custom Database");
+        Database database = databaseProvider.getDatabase("My custom Database");
         database.insert("Peter", new JsonDocument()
                 .append("name", "Peter")
                 .append("lastName", "Parker")

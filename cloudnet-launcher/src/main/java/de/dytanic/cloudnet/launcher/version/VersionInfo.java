@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.launcher.version;
 
-
 import java.nio.file.Path;
 
 public interface VersionInfo {

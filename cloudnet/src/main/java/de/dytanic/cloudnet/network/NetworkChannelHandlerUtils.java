@@ -15,8 +15,6 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
 
 final class NetworkChannelHandlerUtils {
 

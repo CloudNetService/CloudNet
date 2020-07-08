@@ -1,18 +1,11 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
-import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-
-public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent {
+public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent implements WrappedChannelMessageReceiveEvent {
 
     private static final HandlerList handlerList = new HandlerList();
 
@@ -22,59 +15,9 @@ public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent 
         this.event = event;
     }
 
-    @NotNull
-    public ChannelMessageSender getSender() {
-        return this.event.getSender();
-    }
-
-    @NotNull
-    public Collection<ChannelMessageTarget> getTargets() {
-        return this.event.getTargets();
-    }
-
-    @NotNull
-    public String getChannel() {
-        return this.event.getChannel();
-    }
-
-    @Nullable
-    public String getMessage() {
-        return this.event.getMessage();
-    }
-
-    @NotNull
-    public ChannelMessage getChannelMessage() {
-        return this.event.getChannelMessage();
-    }
-
-    @NotNull
-    public JsonDocument getData() {
-        return this.event.getData();
-    }
-
-    @NotNull
-    public ProtocolBuffer getBuffer() {
-        return this.event.getBuffer();
-    }
-
-    public boolean isQuery() {
-        return this.event.isQuery();
-    }
-
-    public void setQueryResponse(@Nullable ChannelMessage queryResponse) {
-        this.event.setQueryResponse(queryResponse);
-    }
-
-    public void setJsonResponse(@NotNull JsonDocument json) {
-        this.event.setJsonResponse(json);
-    }
-
-    public void setBinaryResponse(@NotNull ProtocolBuffer buffer) {
-        this.event.setBinaryResponse(buffer);
-    }
-
-    public ProtocolBuffer createBinaryResponse() {
-        return this.event.createBinaryResponse();
+    @Override
+    public ChannelMessageReceiveEvent getWrapped() {
+        return this.event;
     }
 
     public static HandlerList getHandlerList() {
@@ -86,5 +29,4 @@ public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent 
     public HandlerList getHandlers() {
         return handlerList;
     }
-
 }

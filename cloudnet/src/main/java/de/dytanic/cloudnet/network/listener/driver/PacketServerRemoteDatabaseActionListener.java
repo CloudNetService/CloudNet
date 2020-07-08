@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.network.listener.driver;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
@@ -47,7 +47,7 @@ public class PacketServerRemoteDatabaseActionListener implements IPacketListener
             return;
         }
 
-        IDatabase database = databaseProvider.getDatabase(buffer.readString());
+        Database database = databaseProvider.getDatabase(buffer.readString());
 
         switch (requestType) {
 

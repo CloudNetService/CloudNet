@@ -10,7 +10,6 @@ import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
@@ -52,11 +51,9 @@ public final class VelocityPlayerListener {
         ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getResult().getServer().get().getServerInfo().getName());
 
         if (serviceInfoSnapshot != null) {
-            BridgeHelper.sendChannelMessageProxyServerConnectRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    new NetworkServiceInfo(
-                            serviceInfoSnapshot.getServiceId(),
-                            serviceInfoSnapshot.getConfiguration().getGroups()
-                    )
+            BridgeHelper.sendChannelMessageProxyServerConnectRequest(
+                    VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+                    BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
             );
         }
     }
@@ -66,11 +63,9 @@ public final class VelocityPlayerListener {
         ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getServer().getServerInfo().getName());
 
         if (serviceInfoSnapshot != null) {
-            BridgeHelper.sendChannelMessageProxyServerSwitch(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    new NetworkServiceInfo(
-                            serviceInfoSnapshot.getServiceId(),
-                            serviceInfoSnapshot.getConfiguration().getGroups()
-                    )
+            BridgeHelper.sendChannelMessageProxyServerSwitch(
+                    VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+                    BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
             );
         }
     }

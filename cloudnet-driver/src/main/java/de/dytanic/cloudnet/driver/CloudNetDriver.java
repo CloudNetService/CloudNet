@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
@@ -36,6 +37,13 @@ public abstract class CloudNetDriver {
     private static CloudNetDriver instance;
 
     protected IPermissionManagement permissionManagement;
+
+    protected CloudServiceFactory cloudServiceFactory;
+    protected GeneralCloudServiceProvider generalCloudServiceProvider;
+    protected ServiceTaskProvider serviceTaskProvider;
+    protected GroupConfigurationProvider groupConfigurationProvider;
+    protected NodeInfoProvider nodeInfoProvider;
+    protected CloudMessenger messenger;
 
     protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
 
@@ -81,19 +89,29 @@ public abstract class CloudNetDriver {
     public abstract String getComponentName();
 
     @NotNull
-    public abstract CloudServiceFactory getCloudServiceFactory();
+    public CloudServiceFactory getCloudServiceFactory() {
+        return this.cloudServiceFactory;
+    }
 
     @NotNull
-    public abstract ServiceTaskProvider getServiceTaskProvider();
+    public ServiceTaskProvider getServiceTaskProvider() {
+        return this.serviceTaskProvider;
+    }
 
     @NotNull
-    public abstract NodeInfoProvider getNodeInfoProvider();
+    public NodeInfoProvider getNodeInfoProvider() {
+        return this.nodeInfoProvider;
+    }
 
     @NotNull
-    public abstract GroupConfigurationProvider getGroupConfigurationProvider();
+    public GroupConfigurationProvider getGroupConfigurationProvider() {
+        return this.groupConfigurationProvider;
+    }
 
     @NotNull
-    public abstract CloudMessenger getMessenger();
+    public CloudMessenger getMessenger() {
+        return this.messenger;
+    }
 
     @NotNull
     public IPermissionManagement getPermissionManagement() {
@@ -108,6 +126,9 @@ public abstract class CloudNetDriver {
 
         this.permissionManagement = permissionManagement;
     }
+
+    @NotNull
+    public abstract DatabaseProvider getDatabaseProvider();
 
     /**
      * Returns a new service specific CloudServiceProvider
@@ -142,7 +163,9 @@ public abstract class CloudNetDriver {
      * @return the instance of the {@link GeneralCloudServiceProvider}
      */
     @NotNull
-    public abstract GeneralCloudServiceProvider getCloudServiceProvider();
+    public GeneralCloudServiceProvider getCloudServiceProvider() {
+        return this.generalCloudServiceProvider;
+    }
 
     @NotNull
     public abstract INetworkClient getNetworkClient();
