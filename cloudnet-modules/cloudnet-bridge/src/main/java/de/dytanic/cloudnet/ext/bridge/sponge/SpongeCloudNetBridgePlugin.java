@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListene
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.sponge.listener.SpongeCloudNetListener;
 import de.dytanic.cloudnet.ext.bridge.sponge.listener.SpongePlayerListener;
+import de.dytanic.cloudnet.ext.bridge.sponge.platform.SpongeClientServerPingEventCaller;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
@@ -25,7 +26,6 @@ public final class SpongeCloudNetBridgePlugin {
 
     @Listener
     public synchronized void handle(GameStartedServerEvent event) {
-
         SpongeCloudNetHelper.init();
 
         CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
@@ -35,6 +35,8 @@ public final class SpongeCloudNetBridgePlugin {
 
         this.initListeners();
         BridgeHelper.updateServiceInfo();
+
+        SpongeClientServerPingEventCaller.startCalling(this);
     }
 
     @Listener
@@ -42,6 +44,7 @@ public final class SpongeCloudNetBridgePlugin {
         Sponge.getEventManager().unregisterListeners(this);
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+        SpongeClientServerPingEventCaller.closeNow();
     }
 
     private void initListeners() {
