@@ -1,13 +1,13 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
     }
 
     private AbstractDatabaseProvider getDatabaseProvider() {
-        return getCloudNet().getDatabaseProvider();
+        return this.getCloudNet().getDatabaseProvider();
     }
 
     @Override
@@ -28,13 +28,12 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
 
     @Override
     public void handleGet(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+        Database database = this.getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()
                 .header("Content-Type", "application/json")
-                .statusCode(HttpResponseCode.HTTP_OK)
-        ;
+                .statusCode(HttpResponseCode.HTTP_OK);
 
         if (context.request().pathParameters().containsKey("key")) {
             context
@@ -42,11 +41,11 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
                     .body(database.contains(context.request().pathParameters().get("key")) ?
                             database.get(context.request().pathParameters().get("key")).toJson()
                             :
-                            new JsonDocument().toJson())
-            ;
+                            new JsonDocument().toJson()
+                    );
 
         } else {
-            Map<String, String> queryFilters = Maps.newHashMap();
+            Map<String, String> queryFilters = new HashMap<>();
 
             for (Map.Entry<String, List<String>> queryEntry : context.request().queryParameters().entrySet()) {
                 queryFilters.put(queryEntry.getKey(), queryEntry.getValue().get(0));
@@ -57,14 +56,13 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
                     .body(GSON.toJson(database.get(new JsonDocument(queryFilters))))
                     .context()
                     .closeAfter(true)
-                    .cancelNext()
-            ;
+                    .cancelNext();
         }
     }
 
     @Override
     public void handlePost(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+        Database database = this.getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()
@@ -72,8 +70,7 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
                 .statusCode(HttpResponseCode.HTTP_OK)
                 .context()
                 .closeAfter(true)
-                .cancelNext()
-        ;
+                .cancelNext();
 
         if (context.request().pathParameters().containsKey("key")) {
             try {
@@ -82,22 +79,20 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
 
                 context
                         .response()
-                        .body(new JsonDocument("success", database.insert(context.request().pathParameters().get("key"), jsonDocument)).toString())
-                ;
+                        .body(new JsonDocument("success", database.insert(context.request().pathParameters().get("key"), jsonDocument)).toString());
 
             } catch (Exception ignored) {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_BAD_REQUEST)
-                        .body(new JsonDocument("reason", "Your input data must to be json").toJson())
-                ;
+                        .body(new JsonDocument("reason", "Your input data must to be json").toJson());
             }
         }
     }
 
     @Override
     public void handleDelete(String path, IHttpContext context) {
-        IDatabase database = getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
+        Database database = this.getDatabaseProvider().getDatabase(context.request().pathParameters().get("name"));
 
         context
                 .response()
@@ -105,21 +100,18 @@ public final class V1HttpHandlerDatabase extends V1HttpHandler {
                 .statusCode(HttpResponseCode.HTTP_OK)
                 .context()
                 .closeAfter(true)
-                .cancelNext()
-        ;
+                .cancelNext();
 
         if (context.request().pathParameters().containsKey("key")) {
             context
                     .response()
-                    .body(new JsonDocument("success", database.delete(context.request().pathParameters().get("key"))).toJson())
-            ;
+                    .body(new JsonDocument("success", database.delete(context.request().pathParameters().get("key"))).toJson());
         } else {
             database.clear();
 
             context
                     .response()
-                    .body(new JsonDocument("success", true).toJson())
-            ;
+                    .body(new JsonDocument("success", true).toJson());
         }
     }
 }

@@ -4,6 +4,8 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -25,15 +27,15 @@ public class AsyncPrintStream extends PrintStream {
     private static final Thread worker = new Thread() {
 
         {
-            setName("AsyncPrint-Thread");
-            setPriority(Thread.MIN_PRIORITY);
-            setDaemon(true);
-            start();
+            this.setName("AsyncPrint-Thread");
+            this.setPriority(Thread.MIN_PRIORITY);
+            this.setDaemon(true);
+            this.start();
         }
 
         @Override
         public void run() {
-            while (!isInterrupted()) {
+            while (!this.isInterrupted()) {
                 try {
                     Runnable runnable = ASYNC_QUEUE.take();
                     runnable.run();
@@ -67,7 +69,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(int x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(String x) {
@@ -76,7 +78,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(String x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(long x) {
@@ -85,7 +87,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(long x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(char x) {
@@ -94,7 +96,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(char x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(double x) {
@@ -103,7 +105,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(double x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(float x) {
@@ -112,7 +114,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(float x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(Object x) {
@@ -121,7 +123,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(Object x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(char[] x) {
@@ -129,8 +131,8 @@ public class AsyncPrintStream extends PrintStream {
     }
 
     @Override
-    public void println(char[] x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+    public void println(@NotNull char[] x) {
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
     private void println0(boolean x) {
@@ -139,7 +141,7 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void println(boolean x) {
-        ASYNC_QUEUE.offer(() -> println0(x));
+        ASYNC_QUEUE.offer(() -> this.println0(x));
     }
 
 
@@ -149,8 +151,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(int x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -162,8 +164,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(String x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -175,8 +177,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(long x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -188,8 +190,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(char x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -201,8 +203,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(double x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -214,8 +216,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(float x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -227,8 +229,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(Object x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -239,9 +241,9 @@ public class AsyncPrintStream extends PrintStream {
     }
 
     @Override
-    public void print(char[] x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+    public void print(@NotNull char[] x) {
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }
@@ -253,8 +255,8 @@ public class AsyncPrintStream extends PrintStream {
 
     @Override
     public void print(boolean x) {
-        if (!isWorkerThread()) {
-            ASYNC_QUEUE.offer(() -> print0(x));
+        if (!this.isWorkerThread()) {
+            ASYNC_QUEUE.offer(() -> this.print0(x));
         } else {
             super.print(x);
         }

@@ -1,443 +1,539 @@
 package de.dytanic.cloudnet.command.commands;
 
+import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.command.ITabCompleter;
+import de.dytanic.cloudnet.command.sub.CommandInterrupt;
+import de.dytanic.cloudnet.command.sub.SubCommandArgumentWrapper;
+import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
+import de.dytanic.cloudnet.common.collection.Triple;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.ConsoleColor;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class CommandPermissions extends CommandDefault implements ITabCompleter {
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
-    private final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+public class CommandPermissions extends SubCommandHandler {
+
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public CommandPermissions() {
-        super("permissions", "perms");
+        super(
+                SubCommandBuilder.create()
+
+                        .preExecute(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    if (CloudNet.getInstance().getPermissionManagement() == null) {
+                                        sender.sendMessage(LanguageManager.getMessage("command-permissions-not-enabled"));
+                                        throw new CommandInterrupt();
+                                    }
+                                }
+                        )
+
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    CloudNet.getInstance().getPermissionManagement().reload();
+                                    sender.sendMessage(LanguageManager.getMessage("command-permissions-reload-permissions-success"));
+                                },
+                                anyStringIgnoreCase("reload", "rl")
+                        )
+
+                        .prefix(anyStringIgnoreCase("create", "new"))
+                        .applyHandler(CommandPermissions::handleCreateCommands)
+                        .removeLastPrefix()
+
+                        .prefix(anyStringIgnoreCase("delete", "remove"))
+                        .applyHandler(CommandPermissions::handleDeleteCommands)
+                        .removeLastPrefix()
+
+                        .prefix(anyStringIgnoreCase("user", "u"))
+                        .applyHandler(CommandPermissions::handleUserCommands)
+                        .removeLastPrefix()
+
+                        .prefix(anyStringIgnoreCase("group", "g"))
+                        .applyHandler(CommandPermissions::handleGroupCommands)
+                        .removeLastPrefix()
+
+                        .getSubCommands(),
+                "permissions", "perms"
+        );
+        super.prefix = "cloudnet";
+        super.permission = "cloudnet.command." + super.names[0];
+        super.description = LanguageManager.getMessage("command-description-permissions");
     }
 
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        if (args.length == 0) {
-            sender.sendMessage(
-                    "perms users group <group>",
-                    "perms create user <name> <password> <potency>",
-                    "perms delete user <uniqueId>",
-                    "perms create group <name> <potency>",
-                    "perms delete group <name>",
-                    "perms user <name>",
-                    "perms user <name> password <password>",
-                    "perms user <name> rename <name>",
-                    "perms user <name> check <password>",
-                    "perms user <name> add group <name>",
-                    "perms user <name> add group <name> <time in days>",
-                    "perms user <name> remove group <name>",
-                    "perms user <name> add permission <permission> <potency>",
-                    "perms user <name> add permission <permission> <potency> <time in days : lifetime>",
-                    "perms user <name> add permission <permission> <potency> <time in days : lifetime> <target>",
-                    "perms user <name> remove permission <permission>",
-                    "perms user <name> remove permission <permission> <target>",
-                    "perms group",
-                    "perms group <name>",
-                    "perms group <name> setSortId <sortId>",
-                    "perms group <name> setDisplay <sortId>",
-                    "perms group <name> setDefaultGroup <true : false>",
-                    "perms group <name> setPrefix <prefix> | '_' as ' ' ",
-                    "perms group <name> setSuffix <suffix> | '_' as ' ' ",
-                    "perms group <name> setColor <color>",
-                    "perms group <name> add permission <permission> <potency>",
-                    "perms group <name> add permission <permission> <potency> <time in days : lifetime>",
-                    "perms group <name> add permission <permission> <potency> <time in days : lifetime> <target>",
-                    "perms group <name> remove permission <permission>",
-                    "perms group <name> remove permission <permission> <target>",
-                    "perms group <name> add group <name>",
-                    "perms group <name> remove group <name>"
-            );
-            return;
-        }
-
-        IPermissionManagement permissionManagement = getCloudNet().getPermissionManagement();
-
-        switch (args[0].toLowerCase()) {
-            case "reload":
-                getCloudNet().getPermissionManagement().reload();
-                sender.sendMessage(LanguageManager.getMessage("command-permissions-reload-permissions-success"));
-                break;
-            case "users":
-                if (args.length >= 3) {
-                    if (args[1].equalsIgnoreCase("group")) {
-                        for (IPermissionUser permissionUser : permissionManagement.getUsersByGroup(args[2])) {
-                            this.displayUser(sender, permissionUser);
-                        }
-                    }
-                }
-                break;
-            case "create":
-                if (args.length > 2) {
-                    if (args[1].equalsIgnoreCase("user")) {
-                        if (args.length == 5) {
-                            if (permissionManagement.containsUser(args[2])) {
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-create-user-already-exists"));
-                                return;
-                            }
-
-                            try {
-                                IPermissionUser permissionUser = permissionManagement.addUser(args[2], args[3], Integer.parseInt(args[4]));
-                                sender.sendMessage(
-                                        LanguageManager.getMessage("command-permissions-create-user-successful")
-                                                .replace("%name%", permissionUser.getName())
-                                );
-
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                            }
-
-                            return;
-                        }
-                    }
-
-                    if (args[1].equalsIgnoreCase("group")) {
-                        if (args.length == 4) {
-                            if (permissionManagement.getGroup(args[2]) != null) {
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-create-group-already-exists"));
-                                return;
-                            }
-
-                            try {
-                                IPermissionGroup group = permissionManagement.addGroup(args[2], Integer.parseInt(args[3]));
-                                sender.sendMessage(
-                                        LanguageManager.getMessage("command-permissions-create-group-successful")
-                                                .replace("%name%", group.getName())
-                                );
-
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                            }
-
-                            return;
-                        }
-                    }
-                }
-                break;
-            case "delete":
-                if (args.length == 3) {
-                    if (args[1].equalsIgnoreCase("user")) {
-                        permissionManagement.deleteUser(args[2]);
-
-                        sender.sendMessage(LanguageManager.getMessage("command-permissions-delete-user-successful").replace("%name%", args[2]));
-                        return;
-                    }
-
-                    if (args[1].equalsIgnoreCase("group")) {
-                        permissionManagement.deleteGroup(args[2]);
-
-                        sender.sendMessage(LanguageManager.getMessage("command-permissions-delete-group-successful").replace("%name%", args[2]));
-                        return;
-                    }
-                }
-                break;
-            case "user":
-
-                if (args.length == 1) {
-                    return;
-                }
-
-                List<IPermissionUser> permissionUsers = permissionManagement.getUsers(args[1]);
-                IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
-
-                if (permissionUser != null) {
-                    if (args.length == 2) {
-                        this.displayUser(sender, permissionUser);
-                        return;
-                    }
-
-                    if (args.length == 4) {
-                        if (args[2].equalsIgnoreCase("password")) {
-                            permissionUser.changePassword(args[3]);
-                            permissionManagement.updateUser(permissionUser);
-
-                            sender.sendMessage(LanguageManager.getMessage("command-permissions-user-change-password-success")
-                                    .replace("%name%", args[1])
+    private static void handleCreateCommands(SubCommandBuilder builder) {
+        builder
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionUser permissionUser = CloudNet.getInstance().getPermissionManagement().addUser((String) args.argument(2), (String) args.argument(3), (int) args.argument(4));
+                            sender.sendMessage(
+                                    LanguageManager.getMessage("command-permissions-create-user-successful")
+                                            .replace("%name%", permissionUser.getName())
                             );
-                            return;
-                        }
-                        if (args[2].equalsIgnoreCase("check")) {
-                            sender.sendMessage(LanguageManager.getMessage("command-permissions-user-check-password")
-                                    .replace("%name%", permissionUser.getName())
-                                    .replace("%checked%", String.valueOf(permissionUser.checkPassword(args[3])))
+                        },
+                        anyStringIgnoreCase("user", "u"),
+                        dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-permissions-create-user-already-exists"),
+                                input -> !CloudNet.getInstance().getPermissionManagement().containsUser(input)
+                        ),
+                        dynamicString("password"),
+                        integer("potency")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionGroup group = CloudNet.getInstance().getPermissionManagement().addGroup((String) args.argument(2), (int) args.argument(3));
+                            sender.sendMessage(
+                                    LanguageManager.getMessage("command-permissions-create-group-successful")
+                                            .replace("%name%", group.getName())
                             );
-                        }
+                        },
+                        anyStringIgnoreCase("group", "g"),
+                        dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-permissions-create-group-already-exists"),
+                                input -> !CloudNet.getInstance().getPermissionManagement().containsGroup(input)
+                        ),
+                        integer("potency")
+                );
+    }
 
-                        if (args[2].equalsIgnoreCase("rename")) {
-                            permissionUser.setName(args[3]);
-                            permissionManagement.updateUser(permissionUser);
+    private static void handleDeleteCommands(SubCommandBuilder builder) {
+        builder
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            CloudNet.getInstance().getPermissionManagement().deleteUser((String) args.argument(2));
+
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-delete-user-successful").replace("%name%", (String) args.argument(2)));
+                        },
+                        anyStringIgnoreCase("user", "u"),
+                        dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-permissions-user-not-found"),
+                                input -> CloudNet.getInstance().getPermissionManagement().containsUser(input)
+                        )
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            CloudNet.getInstance().getPermissionManagement().deleteGroup((String) args.argument(2));
+
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-delete-group-successful").replace("%name%", (String) args.argument(2)));
+                        },
+                        anyStringIgnoreCase("group", "g"),
+                        dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-permissions-group-not-found"),
+                                input -> CloudNet.getInstance().getPermissionManagement().containsGroup(input),
+                                () -> CloudNet.getInstance().getPermissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList())
+                        )
+                );
+    }
+
+    private static void handleUserCommands(SubCommandBuilder builder) {
+        builder
+                .prefix(dynamicString(
+                        "user",
+                        LanguageManager.getMessage("command-permissions-user-not-found"),
+                        input -> CloudNet.getInstance().getPermissionManagement().containsUser(input)
+                ))
+                .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                        internalProperties.put("user", CloudNet.getInstance().getPermissionManagement().getFirstUser((String) args.argument(1)))
+                )
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayUser(sender, (IPermissionUser) internalProperties.get("user"))
+                )
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionUser user = (IPermissionUser) internalProperties.get("user");
+                            String oldName = user.getName();
+                            String name = (String) args.argument("name").get();
+
+                            user.setName(name);
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
 
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-user-rename-success")
-                                    .replace("%name%", args[1])
-                                    .replace("%new_name%", args[3])
+                                    .replace("%name%", oldName)
+                                    .replace("%new_name%", name)
                             );
-                            return;
-                        }
-                        return;
-                    }
-                    if (args.length >= 5) {
-                        if (args[2].equalsIgnoreCase("add")) {
-                            if (args[3].equalsIgnoreCase("group")) {
-                                if (permissionManagement.getGroup(args[4]) != null) {
-                                    if (args.length == 6 && Validate.testStringParseToInt(args[5])) {
-                                        permissionUser.addGroup(args[4], Integer.parseInt(args[5]), TimeUnit.DAYS);
-                                    } else {
-                                        permissionUser.addGroup(args[4]);
-                                    }
+                        },
+                        exactStringIgnoreCase("rename"),
+                        dynamicString("name")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionUser user = (IPermissionUser) internalProperties.get("user");
+                            String password = (String) args.argument("password").get();
 
-                                    permissionManagement.updateUser(permissionUser);
-                                    sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
-                                            .replace("%name%", args[1])
-                                            .replace("%group%", args[4])
-                                    );
-                                } else {
-                                    sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-group-not-exists")
-                                            .replace("%group%", args[4])
-                                    );
-                                }
-                                return;
-                            }
-                        }
-                        if (args[2].equalsIgnoreCase("remove")) {
-                            if (args[3].equalsIgnoreCase("group")) {
-                                permissionUser.removeGroup(args[4]);
+                            user.changePassword(password);
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
 
-                                permissionManagement.updateUser(permissionUser);
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-user-remove-group-successful")
-                                        .replace("%name%", args[1])
-                                        .replace("%group%", args[4])
-                                );
-                                return;
-                            }
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-user-change-password-success").replace("%name%", user.getName()));
+                        },
+                        exactStringIgnoreCase("changePassword"),
+                        dynamicString("password")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionUser user = (IPermissionUser) internalProperties.get("user");
+                            String password = (String) args.argument("password").get();
 
-                            if (args[3].equalsIgnoreCase("permission")) {
-                                if (args.length == 6) {
-                                    permissionUser.removePermission(args[5], args[4]);
-                                } else {
-                                    permissionUser.removePermission(args[4]);
-                                }
-
-                                permissionManagement.updateUser(permissionUser);
-
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-user-remove-permission-successful")
-                                        .replace("%name%", permissionUser.getName())
-                                        .replace("%permission%", args[4])
-                                );
-                                return;
-                            }
-                        }
-                    }
-                    if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
-                        if (args[2].equalsIgnoreCase("add")) {
-                            try {
-                                this.addPermission(permissionUser, args);
-
-                                permissionManagement.updateUser(permissionUser);
-
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-permission-successful")
-                                        .replace("%name%", permissionUser.getName())
-                                        .replace("%permission%", args[4])
-                                        .replace("%potency%", args[5])
-                                );
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                            }
-                            return;
-                        }
-                    }
-                } else {
-                    sender.sendMessage(LanguageManager.getMessage("command-permissions-user-not-found").replace("%name%", args[1]));
-                }
-                break;
-            case "group":
-
-                if (args.length == 1) {
-                    sender.sendMessage("Groups: ", " ");
-                    for (IPermissionGroup group : permissionManagement.getGroups()) {
-                        this.displayGroup(sender, group);
-                        sender.sendMessage(" ");
-                    }
-
-                    return;
-                }
-
-                IPermissionGroup permissionGroup = permissionManagement.getGroup(args[1]);
-
-                if (permissionGroup != null) {
-                    if (args.length == 2) {
-                        this.displayGroup(sender, permissionGroup);
-                        return;
-                    }
-                    if (args.length == 4) {
-                        switch (args[2].toLowerCase()) {
-                            case "setsortid":
-                                if (Validate.testStringParseToInt(args[3])) {
-                                    permissionGroup.setSortId(Integer.parseInt(args[3]));
-                                    permissionManagement.updateGroup(permissionGroup);
-                                    sender.sendMessage(
-                                            LanguageManager.getMessage("command-permissions-group-update-property")
-                                                    .replace("%group%", permissionGroup.getName())
-                                                    .replace("%value%", args[3])
-                                                    .replace("%property%", args[2])
-                                    );
-                                }
-                                break;
-                            case "setdefaultgroup":
-                                permissionGroup.setDefaultGroup(args[3].equalsIgnoreCase("true"));
-                                permissionManagement.updateGroup(permissionGroup);
-                                sender.sendMessage(
-                                        LanguageManager.getMessage("command-permissions-group-update-property")
-                                                .replace("%group%", permissionGroup.getName())
-                                                .replace("%value%", args[3])
-                                                .replace("%property%", args[2])
-                                );
-                                break;
-                            case "setsuffix":
-                                permissionGroup.setSuffix(args[3].replace("_", " "));
-                                permissionManagement.updateGroup(permissionGroup);
-                                sender.sendMessage(
-                                        LanguageManager.getMessage("command-permissions-group-update-property")
-                                                .replace("%group%", permissionGroup.getName())
-                                                .replace("%value%", args[3])
-                                                .replace("%property%", args[2])
-                                );
-                                break;
-                            case "setprefix":
-
-                                permissionGroup.setPrefix(args[3].replace("_", " "));
-                                permissionManagement.updateGroup(permissionGroup);
-                                sender.sendMessage(
-                                        LanguageManager.getMessage("command-permissions-group-update-property")
-                                                .replace("%group%", permissionGroup.getName())
-                                                .replace("%value%", args[3])
-                                                .replace("%property%", args[2])
-                                );
-                                break;
-                            case "setdisplay":
-
-                                permissionGroup.setDisplay(args[3].replace("_", " "));
-                                permissionManagement.updateGroup(permissionGroup);
-                                sender.sendMessage(
-                                        LanguageManager.getMessage("command-permissions-group-update-property")
-                                                .replace("%group%", permissionGroup.getName())
-                                                .replace("%property%", args[2])
-                                                .replace("%value%", args[3])
-                                );
-                                break;
-                            case "setcolor":
-
-                                String color = args[3];
-
-                                if (color != null && color.length() == 2) {
-                                    permissionGroup.setColor(args[3]);
-                                    permissionManagement.updateGroup(permissionGroup);
-                                    sender.sendMessage(
-                                            LanguageManager.getMessage("command-permissions-group-update-property")
-                                                    .replace("%group%", permissionGroup.getName())
-                                                    .replace("%property%", args[2])
-                                                    .replace("%value%", color.replaceAll("§", "[color]").replaceAll("&", "[color]"))
-                                    );
-                                }
-                                break;
-                        }
-                    }
-                    if (args.length >= 5) {
-                        if (args[2].equalsIgnoreCase("add")) {
-                            if (args[3].equalsIgnoreCase("group")) {
-                                if (!permissionGroup.getGroups().contains(args[4])) {
-                                    permissionGroup.getGroups().add(args[4]);
-                                }
-
-                                permissionManagement.updateGroup(permissionGroup);
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-group-successful")
-                                        .replace("%name%", args[1])
-                                        .replace("%group%", args[4])
-                                );
-                                return;
-                            }
-                        }
-                        if (args[2].equalsIgnoreCase("remove")) {
-                            if (args[3].equalsIgnoreCase("group")) {
-                                permissionGroup.getGroups().remove(args[4]);
-
-                                permissionManagement.updateGroup(permissionGroup);
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-group-successful")
-                                        .replace("%name%", args[1])
-                                        .replace("%group%", args[4])
-                                );
-                                return;
-                            }
-
-                            if (args[3].equalsIgnoreCase("permission")) {
-                                if (args.length == 6) {
-                                    permissionGroup.removePermission(args[5], args[4]);
-                                } else {
-                                    permissionGroup.removePermission(args[4]);
-                                }
-
-                                permissionManagement.updateGroup(permissionGroup);
-
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
-                                        .replace("%name%", permissionGroup.getName())
-                                        .replace("%permission%", args[4])
-                                );
-                                return;
-                            }
-                            return;
-                        }
-                    }
-
-                    if (args.length >= 6 && args[3].equalsIgnoreCase("permission")) {
-                        if (args[2].equalsIgnoreCase("add")) {
-                            try {
-                                this.addPermission(permissionGroup, args);
-
-                                permissionManagement.updateGroup(permissionGroup);
-
-                                sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-permission-successful")
-                                        .replace("%name%", permissionGroup.getName())
-                                        .replace("%permission%", args[4])
-                                        .replace("%potency%", args[5])
-                                );
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                            }
-                            return;
-                        }
-
-                        if (args[2].equalsIgnoreCase("remove")) {
-                            permissionGroup.removePermission(args[5], args[4]);
-                            permissionManagement.updateGroup(permissionGroup);
-
-                            sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
-                                    .replace("%name%", permissionGroup.getName())
-                                    .replace("%permission%", args[4])
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-user-check-password")
+                                    .replace("%name%", user.getName())
+                                    .replace("%checked%", String.valueOf(user.checkPassword(password)))
                             );
-                            return;
-                        }
-                    }
-                } else {
-                    sender.sendMessage(LanguageManager.getMessage("command-permissions-group-not-found").replace("%name%", args[1]));
-                }
-                break;
-        }
+                        },
+                        exactStringIgnoreCase("check"),
+                        dynamicString("password")
+                )
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionUser user = ((IPermissionUser) internalProperties.get("user"));
+                            String group = (String) args.argument("name").get();
+                            user.addGroup(group);
+
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
+                                    .replace("%name%", user.getName())
+                                    .replace("%group%", group)
+                            );
+                        },
+                        exactStringIgnoreCase("add"),
+                        anyStringIgnoreCase("group", "g"),
+                        dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-permissions-group-not-found"),
+                                input -> CloudNet.getInstance().getPermissionManagement().containsGroup(input)
+                        )
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionUser user = ((IPermissionUser) internalProperties.get("user"));
+                            String group = (String) args.argument("name").get();
+                            String timeString = (String) args.argument("time in days | lifetime").orElse("lifetime");
+                            long timeout = timeString.equalsIgnoreCase("lifetime") ? -1 : TimeUnit.DAYS.toMillis(Long.parseLong(timeString)) + System.currentTimeMillis();
+                            user.addGroup(group, timeout);
+
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-user-add-group-successful")
+                                    .replace("%name%", user.getName())
+                                    .replace("%group%", group)
+                            );
+                        },
+                        exactStringIgnoreCase("add"),
+                        anyStringIgnoreCase("group", "g"),
+                        dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-permissions-group-not-found"),
+                                input -> CloudNet.getInstance().getPermissionManagement().containsGroup(input)
+                        ),
+                        dynamicString(
+                                "time in days | lifetime",
+                                input -> input.equalsIgnoreCase("lifetime") || Ints.tryParse(input) != null
+                        )
+                )
+
+                .applyHandler(ignored -> handlePermissionCommands(
+                        builder,
+                        triple -> {
+                            IPermissionUser user = (IPermissionUser) triple.getSecond().get("user");
+
+                            Permission permission = addPermission(user, triple.getThird());
+
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-user-add-permission-successful")
+                                    .replace("%name%", user.getName())
+                                    .replace("%permission%", permission.getName())
+                                    .replace("%potency%", String.valueOf(permission.getPotency()))
+                            );
+                        },
+                        triple -> {
+                            IPermissionUser user = (IPermissionUser) triple.getSecond().get("user");
+                            String permission = removePermission(user, triple.getThird());
+
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-user-remove-permission-successful")
+                                    .replace("%name%", user.getName())
+                                    .replace("%permission%", permission)
+                            );
+                        })
+                )
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionUser user = (IPermissionUser) internalProperties.get("user");
+                            String group = (String) args.argument("group").get();
+                            user.removeGroup(group);
+
+                            CloudNet.getInstance().getPermissionManagement().updateUser(user);
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-user-remove-group-successful")
+                                    .replace("%name%", user.getName())
+                                    .replace("%group%", group)
+                            );
+                        },
+                        anyStringIgnoreCase("remove", "rm"),
+                        anyStringIgnoreCase("group", "g"),
+                        dynamicString("group")
+
+                )
+
+
+                .removeLastPrefix()
+                .removeLastPreHandler();
     }
 
-    private void displayUser(ICommandSender sender, IPermissionUser permissionUser) {
+    private static void handleGroupCommands(SubCommandBuilder builder) {
+        builder
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            sender.sendMessage("Groups: ", " ");
+                            for (IPermissionGroup group : CloudNet.getInstance().getPermissionManagement().getGroups()) {
+                                displayGroup(sender, group);
+                                sender.sendMessage(" ");
+                            }
+                        }
+                )
+
+                .prefix(dynamicString(
+                        "group",
+                        LanguageManager.getMessage("command-permissions-group-not-found"),
+                        input -> CloudNet.getInstance().getPermissionManagement().containsGroup(input),
+                        () -> CloudNet.getInstance().getPermissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList())
+                ))
+                .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                        internalProperties.put("group", CloudNet.getInstance().getPermissionManagement().getGroup((String) args.argument(1)))
+                )
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayGroup(sender, (IPermissionGroup) internalProperties.get("group"))
+                )
+
+                .prefix(exactStringIgnoreCase("set"))
+                .postExecute(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionGroup group = (IPermissionGroup) internalProperties.get("group");
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+
+                            sender.sendMessage(
+                                    LanguageManager.getMessage("command-permissions-group-update-property")
+                                            .replace("%group%", group.getName())
+                                            .replace("%value%", String.valueOf(args.argument(4)))
+                                            .replace("%property%", (String) args.argument(3))
+                            );
+                        }
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setSortId((Integer) args.argument(4)),
+                        exactStringIgnoreCase("sortId"),
+                        positiveInteger("sortId")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setDisplay((String) args.argument(4)),
+                        subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("display"),
+                        dynamicString("display")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setPrefix((String) args.argument(4)),
+                        subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("prefix"),
+                        dynamicString("prefix")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setSuffix((String) args.argument(4)),
+                        subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("suffix"),
+                        dynamicString("suffix")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setDefaultGroup((boolean) args.argument(4)),
+                        exactStringIgnoreCase("defaultGroup"),
+                        bool("defaultGroup")
+                )
+                .removeLastPostHandler()
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionGroup group = (IPermissionGroup) internalProperties.get("group");
+
+                            String rawColor = (String) args.argument(4);
+
+                            group.setColor(rawColor);
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+
+                            String rawColorCode = rawColor.replace("&", "").replace("§", "");
+                            ConsoleColor color = rawColorCode.length() == 0 ? null : ConsoleColor.getByChar(rawColorCode.charAt(0));
+
+                            sender.sendMessage(
+                                    LanguageManager.getMessage("command-permissions-group-update-property")
+                                            .replace("%group%", group.getName())
+                                            .replace("%value%", color != null ? "&" + color.getIndex() + color.name() : rawColor)
+                                            .replace("%property%", (String) args.argument(3))
+                            );
+                        },
+                        subCommand -> subCommand.appendUsage("| 1.13+"),
+                        exactStringIgnoreCase("color"),
+                        dynamicString("color", 2)
+                )
+                .removeLastPrefix()
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionGroup group = ((IPermissionGroup) internalProperties.get("group"));
+                            String name = (String) args.argument("name").get();
+                            group.getGroups().add(name);
+
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-group-successful")
+                                    .replace("%name%", group.getName())
+                                    .replace("%group%", name)
+                            );
+                        },
+                        exactStringIgnoreCase("add"),
+                        anyStringIgnoreCase("group", "g"),
+                        dynamicString(
+                                "name",
+                                LanguageManager.getMessage("command-permissions-group-not-found"),
+                                input -> CloudNet.getInstance().getPermissionManagement().containsGroup(input)
+                        )
+                )
+
+                .applyHandler(ignored -> handlePermissionCommands(
+                        builder,
+                        triple -> {
+                            IPermissionGroup group = (IPermissionGroup) triple.getSecond().get("group");
+
+                            Permission permission = addPermission(group, triple.getThird());
+
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-group-add-permission-successful")
+                                    .replace("%name%", group.getName())
+                                    .replace("%permission%", permission.getName())
+                                    .replace("%potency%", String.valueOf(permission.getPotency()))
+                            );
+                        },
+                        triple -> {
+                            IPermissionGroup group = (IPermissionGroup) triple.getSecond().get("group");
+                            String permission = removePermission(group, triple.getThird());
+
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+                            triple.getFirst().sendMessage(LanguageManager.getMessage("command-permissions-group-remove-permission-successful")
+                                    .replace("%name%", group.getName())
+                                    .replace("%permission%", permission)
+                            );
+                        })
+                )
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionGroup group = (IPermissionGroup) internalProperties.get("group");
+                            String name = (String) args.argument("name").get();
+                            group.getGroups().remove(name);
+
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+                            sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-group-successful")
+                                    .replace("%name%", name)
+                                    .replace("%group%", group.getName())
+                            );
+                        },
+                        anyStringIgnoreCase("remove", "rm"),
+                        anyStringIgnoreCase("group", "g"),
+                        dynamicString("name")
+                )
+
+                .removeLastPrefix()
+                .removeLastPreHandler();
+    }
+
+    private static void handlePermissionCommands(SubCommandBuilder builder, Consumer<Triple<ICommandSender, Map<String, Object>, SubCommandArgumentWrapper>> addPermissionHandler,
+                                                 Consumer<Triple<ICommandSender, Map<String, Object>, SubCommandArgumentWrapper>> removePermissionHandler) {
+        builder
+                .prefix(exactStringIgnoreCase("add"))
+                .prefix(anyStringIgnoreCase("permission", "perm"))
+                .prefix(dynamicString("permission"))
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args))
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        integer("potency")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        integer("potency"),
+                        dynamicString(
+                                "targetGroup",
+                                LanguageManager.getMessage("command-permissions-target-group-not-found"),
+                                input -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(input)
+                        )
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        integer("potency"),
+                        dynamicString(
+                                "time in days | lifetime",
+                                input -> input.equalsIgnoreCase("lifetime") || Ints.tryParse(input) != null
+                        )
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        dynamicString(
+                                "targetGroup",
+                                LanguageManager.getMessage("command-permissions-target-group-not-found"),
+                                input -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(input),
+                                () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList())
+                        )
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> addPermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        integer("potency"),
+                        dynamicString(
+                                "time in days | lifetime",
+                                input -> input.equalsIgnoreCase("lifetime") || Ints.tryParse(input) != null
+                        ),
+                        dynamicString(
+                                "targetGroup",
+                                LanguageManager.getMessage("command-permissions-target-group-not-found"),
+                                input -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(input),
+                                () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList())
+                        )
+                )
+                .executeMultipleTimes(3, SubCommandBuilder::removeLastPrefix) //add permission <permission>
+
+                .prefix(anyStringIgnoreCase("remove", "rm"))
+
+                .prefix(anyStringIgnoreCase("permission", "perm"))
+                .prefix(dynamicString("permission"))
+                .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> removePermissionHandler.accept(new Triple<>(sender, internalProperties, args)))
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> removePermissionHandler.accept(new Triple<>(sender, internalProperties, args)),
+                        dynamicString(
+                                "targetGroup",
+                                LanguageManager.getMessage("command-permissions-target-group-not-found"),
+                                input -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(input),
+                                () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList())
+                        )
+                )
+                .executeMultipleTimes(3, SubCommandBuilder::removeLastPrefix); //remove permission <permission>
+    }
+
+    private static void displayUser(ICommandSender sender, IPermissionUser permissionUser) {
         sender.sendMessage(
                 "* " + permissionUser.getUniqueId() + ":" + permissionUser.getName() + " | " + permissionUser.getPotency(),
                 "Groups: "
@@ -445,20 +541,20 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
 
         for (PermissionUserGroupInfo groupInfo : permissionUser.getGroups()) {
             sender.sendMessage("- " + groupInfo.getGroup() + ": " + (groupInfo.getTimeOutMillis() > 0 ?
-                    dateFormat.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
+                    DATE_FORMAT.format(groupInfo.getTimeOutMillis()) : "LIFETIME"));
         }
-        if (permissionUser.getGroups().isEmpty() && CloudNet.getInstance().getPermissionManagement() != null) {
+        if (permissionUser.getGroups().isEmpty()) {
             sender.sendMessage("- " + CloudNet.getInstance().getPermissionManagement().getDefaultPermissionGroup().getName() + ": LIFETIME");
         }
 
         sender.sendMessage(" ");
-        this.displayPermissions(sender, permissionUser);
+        displayPermissions(sender, permissionUser);
     }
 
-    private void displayGroup(ICommandSender sender, IPermissionGroup permissionGroup) {
+    private static void displayGroup(ICommandSender sender, IPermissionGroup permissionGroup) {
         sender.sendMessage(
                 "* " + permissionGroup.getName() + " | " + permissionGroup.getPotency(),
-                "Parent groups: " + permissionGroup.getGroups(),
+                "Inherits: " + permissionGroup.getGroups(),
                 "Default: " + permissionGroup.isDefaultGroup() + " | SortId: " + permissionGroup.getSortId(),
                 "Prefix: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getPrefix() : permissionGroup.getPrefix().replace("&", "§")),
                 "Color: " + permissionGroup.getColor().replace("&", "[color]"),
@@ -466,15 +562,15 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
                 "Display: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getDisplay() : permissionGroup.getDisplay().replace("&", "§"))
         );
 
-        this.displayPermissions(sender, permissionGroup);
+        displayPermissions(sender, permissionGroup);
     }
 
-    private void displayPermissions(ICommandSender sender, IPermissible permissible) {
+    private static void displayPermissions(ICommandSender sender, IPermissible permissible) {
         sender.sendMessage("Permissions: ");
         for (Permission permission : permissible.getPermissions()) {
             sender.sendMessage("- " + permission.getName() + ":" + permission.getPotency() + " | Timeout " +
                     (permission.getTimeOutMillis() > 0 ?
-                            dateFormat.format(permission.getTimeOutMillis()) : "LIFETIME"));
+                            DATE_FORMAT.format(permission.getTimeOutMillis()) : "LIFETIME"));
         }
 
         sender.sendMessage(" ");
@@ -485,170 +581,42 @@ public final class CommandPermissions extends CommandDefault implements ITabComp
             for (Permission permission : groupPermissions.getValue()) {
                 sender.sendMessage("- " + permission.getName() + ":" + permission.getPotency() + " | Timeout " +
                         (permission.getTimeOutMillis() > 0 ?
-                                dateFormat.format(permission.getTimeOutMillis()) : "LIFETIME"));
+                                DATE_FORMAT.format(permission.getTimeOutMillis()) : "LIFETIME"));
             }
         }
     }
 
-    @Override
-    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        if (args.length <= 1) {
-            return Arrays.asList("user", "group", "users", "create", "delete");
+    private static Permission addPermission(IPermissible permissible, SubCommandArgumentWrapper args) {
+        String permissionName = (String) args.argument("permission").get();
+        int potency = (int) args.argument("potency").orElse(1);
+        String timeString = (String) args.argument("time in days | lifetime").orElse("lifetime");
+        long timeout = timeString.equalsIgnoreCase("lifetime") ? -1 : TimeUnit.DAYS.toMillis(Long.parseLong(timeString)) + System.currentTimeMillis();
+        String targetGroup = (String) args.argument("targetGroup").orElse(null);
+
+
+        Permission permission = new Permission(permissionName, potency, timeout);
+
+        if (targetGroup != null) {
+            permissible.addPermission(targetGroup, permission);
+        } else {
+            permissible.addPermission(permission);
         }
 
-        if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("users")) {
-                return Collections.singletonList("group");
-            }
-
-            if (args[0].equalsIgnoreCase("create")) {
-                return Arrays.asList("user", "group");
-            }
-
-            if (args[0].equalsIgnoreCase("delete")) {
-                return Arrays.asList("user", "group");
-            }
-
-            if (args[0].equalsIgnoreCase("group")) {
-                return this.getGroupNames();
-            }
-        }
-
-        if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("delete") && args[1].equalsIgnoreCase("group")) {
-                return this.getGroupNames();
-            }
-            if (args[0].equalsIgnoreCase("users") && args[1].equalsIgnoreCase("group")) {
-                return this.getGroupNames();
-            }
-            if (args[0].equalsIgnoreCase("user")) {
-                return Arrays.asList("password", "rename", "check", "add", "remove");
-            }
-            if (args[0].equalsIgnoreCase("group")) {
-                return Arrays.asList("setSortId", "setDisplay", "setDefaultGroup", "setPrefix", "setSuffix", "setColor", "add", "remove");
-            }
-        }
-
-        if (args.length == 4) {
-            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
-                if (args[2].equalsIgnoreCase("add") || args[2].equalsIgnoreCase("remove")) {
-                    return Arrays.asList("group", "permission");
-                }
-            }
-        }
-
-        if (args.length == 5) {
-            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
-                if (args[2].equalsIgnoreCase("add")) {
-                    if (args[3].equalsIgnoreCase("group")) {
-                        return this.getGroupNames();
-                    }
-                }
-                if (args[2].equalsIgnoreCase("remove")) {
-                    if (args[3].equalsIgnoreCase("group")) {
-                        return this.getGroupNames();
-                    }
-                    if (args[3].equalsIgnoreCase("permission")) {
-                        return this.getUserPermissions(args[1]);
-                    }
-                }
-            }
-        }
-
-        if (args.length == 6) {
-            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
-                if (args[2].equalsIgnoreCase("remove")) {
-                    if (args[3].equalsIgnoreCase("permission")) {
-                        return args[0].equalsIgnoreCase("user") ?
-                                this.getGroupsForUserPermission(args[1], args[4]) :
-                                this.getGroupsForGroupPermission(args[1], args[4]);
-                    }
-                }
-            }
-        }
-
-        if (args.length == 9) {
-            if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("group")) {
-                if (args[2].equalsIgnoreCase("add")) {
-                    if (args[3].equalsIgnoreCase("permission")) {
-                        return getCloudNet().getGroupConfigurationProvider().getGroupConfigurations().stream().map(GroupConfiguration::getName).collect(Collectors.toList());
-                    }
-                }
-            }
-        }
-
-        return null;
+        return permission;
     }
 
-    private void addPermission(IPermissible permissible, String[] args) {
-        if (!Validate.testStringParseToInt(args[5])) {
-            return;
+    private static String removePermission(IPermissible permissible, SubCommandArgumentWrapper args) {
+        String permission = (String) args.argument("permission").get();
+        Optional<Object> optionalTargetGroup = args.argument("targetGroup");
+
+        if (optionalTargetGroup.isPresent()) {
+            String targetGroup = (String) optionalTargetGroup.get();
+            permissible.removePermission(targetGroup, permission);
+        } else {
+            permissible.removePermission(permission);
         }
 
-        switch (args.length) {
-            case 6:
-                permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                break;
-            case 7:
-
-                if (Validate.testStringParseToInt(args[6])) {
-                    permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                } else {
-                    permissible.addPermission(new Permission(args[4], Integer.parseInt(args[5])));
-                }
-
-                break;
-            case 8:
-
-                if (Validate.testStringParseToInt(args[6])) {
-                    permissible.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5]), Integer.parseInt(args[6]), TimeUnit.DAYS));
-                } else {
-                    permissible.addPermission(args[7], new Permission(args[4], Integer.parseInt(args[5])));
-                }
-
-                break;
-        }
-    }
-
-    private Collection<String> getGroupNames() {
-        return getCloudNet().getPermissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList());
-    }
-
-    private Collection<String> getUserPermissions(String user) {
-        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUsers(user);
-        IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
-        if (permissionUser != null) {
-            Collection<String> outNames = new ArrayList<>(permissionUser.getPermissionNames());
-            for (Collection<Permission> permissions : permissionUser.getGroupPermissions().values()) {
-                permissions.stream().map(Permission::getName).forEach(outNames::add);
-            }
-            return outNames;
-        }
-        return null;
-    }
-
-    private Collection<String> getGroupsForUserPermission(String user, String permissionName) {
-        List<IPermissionUser> permissionUsers = getCloudNet().getPermissionManagement().getUsers(user);
-        IPermissionUser permissionUser = permissionUsers.isEmpty() ? null : permissionUsers.get(0);
-        return this.getGroupsForPermission(permissionUser, permissionName);
-    }
-
-    private Collection<String> getGroupsForGroupPermission(String group, String permissionName) {
-        IPermissionGroup permissionGroup = getCloudNet().getPermissionManagement().getGroup(group);
-        return this.getGroupsForPermission(permissionGroup, permissionName);
-    }
-
-    private Collection<String> getGroupsForPermission(IPermissible permissible, String permissionName) {
-        if (permissible != null) {
-            Collection<String> outGroups = new ArrayList<>();
-            for (Map.Entry<String, Collection<Permission>> entry : permissible.getGroupPermissions().entrySet()) {
-                if (entry.getValue().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(permissionName))) {
-                    outGroups.add(entry.getKey());
-                }
-            }
-            return outGroups;
-        }
-        return null;
+        return permission;
     }
 
 }

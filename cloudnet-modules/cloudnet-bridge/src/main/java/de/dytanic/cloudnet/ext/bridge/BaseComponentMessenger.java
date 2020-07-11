@@ -1,49 +1,54 @@
 package de.dytanic.cloudnet.ext.bridge;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
+
+import java.util.UUID;
 
 public class BaseComponentMessenger {
+
     private BaseComponentMessenger() {
         throw new UnsupportedOperationException();
     }
 
     public static void sendMessage(ICloudPlayer cloudPlayer, BaseComponent[] messages) {
-        Validate.checkNotNull(cloudPlayer);
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(cloudPlayer);
 
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_message_to_proxy_player",
-                new JsonDocument()
-                        .append("uniqueId", cloudPlayer.getUniqueId())
-                        .append("messages", messages)
-        );
+        sendMessage(cloudPlayer.getUniqueId(), messages);
+    }
+
+    public static void sendMessage(UUID uniqueId, BaseComponent[] messages) {
+        Preconditions.checkNotNull(uniqueId);
+        Preconditions.checkNotNull(messages);
+
+        DefaultPlayerExecutor.builder()
+                .message("send_message_component")
+                .buffer(ProtocolBuffer.create()
+                        .writeUUID(uniqueId)
+                        .writeString(ComponentSerializer.toString(messages))
+                )
+                .build().send();
     }
 
     public static void broadcastMessage(BaseComponent[] messages) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "broadcast_message",
-                new JsonDocument()
-                        .append("messages", messages)
-        );
+        broadcastMessage(messages, null);
     }
 
     public static void broadcastMessage(BaseComponent[] messages, String permission) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "broadcast_message",
-                new JsonDocument()
-                        .append("messages", messages)
-                        .append("permission", permission)
-        );
+        DefaultPlayerExecutor.builder()
+                .message("broadcast_message_component")
+                .buffer(ProtocolBuffer.create()
+                        .writeString(ComponentSerializer.toString(messages))
+                        .writeOptionalString(permission)
+                )
+                .build().send();
     }
 }

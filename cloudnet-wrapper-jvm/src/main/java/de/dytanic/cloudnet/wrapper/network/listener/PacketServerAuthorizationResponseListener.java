@@ -23,13 +23,13 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
         if (packet.getHeader().contains("access") && packet.getHeader().contains("text")) {
-            result = packet.getHeader().getBoolean("access");
+            this.result = packet.getHeader().getBoolean("access");
 
             try {
-                lock.lock();
-                condition.signalAll();
+                this.lock.lock();
+                this.condition.signalAll();
             } finally {
-                lock.unlock();
+                this.lock.unlock();
             }
         }
     }

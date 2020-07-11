@@ -10,7 +10,7 @@ import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 public final class SpongePlayerListener {
 
-    private SpongeExecutorService executorService;
+    private final SpongeExecutorService executorService;
 
     public SpongePlayerListener(SpongeCloudNetBridgePlugin plugin) {
         this.executorService = Sponge.getGame().getScheduler().createSyncExecutor(plugin);

@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.console.ConsoleLogHandler;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine2Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
-import de.dytanic.cloudnet.console.util.HeaderReader;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,7 +27,6 @@ public final class Main {
         logger.setLevel(LogLevel.FATAL);
 
         initLoggerAndConsole(console, logger);
-        HeaderReader.readAndPrintHeader(console);
 
         CloudNet cloudNet = new CloudNet(Arrays.asList(args), logger, console);
         cloudNet.start();

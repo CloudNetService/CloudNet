@@ -18,19 +18,19 @@ abstract class NettySSLServer {
     }
 
     protected void init() throws Exception {
-        if (sslConfiguration != null) {
-            if (sslConfiguration.getCertificatePath() != null &&
-                    sslConfiguration.getPrivateKeyPath() != null) {
-                SslContextBuilder builder = SslContextBuilder.forServer(sslConfiguration.getCertificatePath(), sslConfiguration.getPrivateKeyPath());
+        if (this.sslConfiguration != null) {
+            if (this.sslConfiguration.getCertificatePath() != null &&
+                    this.sslConfiguration.getPrivateKeyPath() != null) {
+                SslContextBuilder builder = SslContextBuilder.forServer(this.sslConfiguration.getCertificatePath(), this.sslConfiguration.getPrivateKeyPath());
 
-                if (sslConfiguration.getTrustCertificatePath() != null) {
-                    builder.trustManager(sslConfiguration.getTrustCertificatePath());
+                if (this.sslConfiguration.getTrustCertificatePath() != null) {
+                    builder.trustManager(this.sslConfiguration.getTrustCertificatePath());
                 } else {
                     builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
                 }
 
                 this.sslContext = builder
-                        .clientAuth(sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+                        .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
                         .build();
             } else {
                 SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();

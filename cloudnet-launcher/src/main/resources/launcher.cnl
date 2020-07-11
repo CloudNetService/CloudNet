@@ -2,17 +2,26 @@
 # You can add or change properties for the CloudNet runtime
 # You can use the '#' symbol to make a comment
 
+# disables all updates and extracts the fallback version on every start
+# this property should only be enabled when wanting to launch custom builds without version selection problems
+var cloudnet.launcher.dev-mode false
+
 var cloudnet.launcher.select.version default
-var cloudnet.launcher.devmode false
 var cloudnet.versions.url https://cloudnetservice.eu/cloudnet/versions.json
 var cloudnet.repository https://cloudnetservice.eu/cloudnet/updates/
 var cloudnet.repository.github CloudNetService/CloudNet-v3
 var cloudnet.auto-update true
 var cloudnet.messages.language english
 
-var cloudnet.logging.defaultlevel FATAL
+# this makes the launcher download and start snapshot versions of the cloud
+# it's not recommended to enable this in production, snapshot versions aren't fully tested and might contain bugs
+var cloudnet.snapshots.use-snapshots false
+# the launcher will fetch builds from the Jenkins job on this url
+var cloudnet.snapshots.job.url https://ci.cloudnetservice.eu/job/CloudNetService/job/CloudNet-v3/job/development/
+
 # available default log levels: INFO, IMPORTANT, COMMAND, WARNING, ERROR, FATAL, EXTENDED, DEBUG, ALL
 # each level includes all messages for levels lower than itself (in the above list: left to right) too
+var cloudnet.logging.defaultlevel FATAL
 
 # CloudNet runtime properties
 #var cloudnet.tempDir temp

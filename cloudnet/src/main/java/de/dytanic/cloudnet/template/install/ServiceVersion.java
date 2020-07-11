@@ -13,7 +13,7 @@ public class ServiceVersion {
     private int minJavaVersion, maxJavaVersion;
     private boolean deprecated;
     private JsonDocument properties = new JsonDocument();
-    private Map<String, String> additionalDownloads = new HashMap<>();
+    private final Map<String, String> additionalDownloads = new HashMap<>();
 
     public ServiceVersion(String name, String url, int minJavaVersion, int maxJavaVersion, boolean deprecated, JsonDocument properties) {
         this.name = name;
@@ -55,19 +55,19 @@ public class ServiceVersion {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getUrl() {
-        return url;
+        return this.url;
     }
 
     public JsonDocument getProperties() {
-        return properties;
+        return this.properties;
     }
 
     public Map<String, String> getAdditionalDownloads() {
-        return additionalDownloads;
+        return this.additionalDownloads;
     }
 
 }

@@ -1,69 +1,60 @@
 package de.dytanic.cloudnet.provider.service;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.provider.service.DefaultCloudServiceFactory;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Collections;
 
-public class NodeCloudServiceFactory implements CloudServiceFactory {
+public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implements CloudServiceFactory {
 
-    private CloudNet cloudNet;
+    private final CloudNet cloudNet;
 
     public NodeCloudServiceFactory(CloudNet cloudNet) {
         this.cloudNet = cloudNet;
     }
 
+    @Nullable
     @Override
-    public ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+    public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
+        Preconditions.checkNotNull(serviceConfiguration);
 
-        try {
-            NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot = this.cloudNet.searchLogicNode(serviceTask);
-            if (networkClusterNodeInfoSnapshot == null) {
+        if (serviceConfiguration.getServiceId() == null) {
+            return null;
+        }
+
+        String node = serviceConfiguration.getServiceId().getNodeUniqueId();
+        if (node == null) {
+            Collection<String> allowedNodes = serviceConfiguration.getServiceId().getAllowedNodes();
+            if (allowedNodes == null) {
+                allowedNodes = Collections.emptyList();
+            }
+            NetworkClusterNodeInfoSnapshot snapshot = this.cloudNet.searchLogicNode(allowedNodes);
+            if (snapshot == null) {
                 return null;
             }
 
-            if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(networkClusterNodeInfoSnapshot.getNode().getUniqueId())) {
-                ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(serviceTask);
-                return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
-            } else {
-                IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(networkClusterNodeInfoSnapshot.getNode().getUniqueId());
-
-                if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
-                    return clusterNodeServer.createCloudService(serviceTask);
-                }
-            }
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            node = snapshot.getNode().getUniqueId();
         }
 
-        return null;
-    }
-
-    @Override
-    public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
-        Validate.checkNotNull(serviceConfiguration);
-
-        if (serviceConfiguration.getServiceId() == null || serviceConfiguration.getServiceId().getNodeUniqueId() == null) {
-            return null;
-        }
-
-        if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(serviceConfiguration.getServiceId().getNodeUniqueId())) {
+        if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(node)) {
             ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(serviceConfiguration);
             return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
         } else {
-            IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(serviceConfiguration.getServiceId().getNodeUniqueId());
+            IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(node);
 
-            if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
-                return clusterNodeServer.createCloudService(serviceConfiguration);
+            if (server != null && server.isConnected()) {
+                return server.getCloudServiceFactory().createCloudService(serviceConfiguration);
             }
         }
 
@@ -71,98 +62,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
 
     @Override
-    public ServiceInfoSnapshot createCloudService(String name, String runtime, boolean autoDeleteOnStop, boolean staticService, Collection<ServiceRemoteInclusion> includes,
-                                                  Collection<ServiceTemplate> templates,
-                                                  Collection<ServiceDeployment> deployments,
-                                                  Collection<String> groups,
-                                                  ProcessConfiguration processConfiguration,
-                                                  JsonDocument properties, Integer port) {
-        ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
-        return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
-    }
-
-    @Override
-    public Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-                                                              Collection<ServiceRemoteInclusion> includes,
-                                                              Collection<ServiceTemplate> templates,
-                                                              Collection<ServiceDeployment> deployments,
-                                                              Collection<String> groups,
-                                                              ProcessConfiguration processConfiguration,
-                                                              JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(nodeUniqueId)) {
-            Collection<ServiceInfoSnapshot> collection = Iterables.newArrayList();
-
-            for (int i = 0; i < amount; i++) {
-                ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(
-                        name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port != null ? port++ : null
-                );
-
-                if (cloudService != null) {
-                    collection.add(cloudService.getServiceInfoSnapshot());
-                }
-            }
-
-            return collection;
-        }
-
-        IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(nodeUniqueId);
-
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
-            return clusterNodeServer.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask) {
-        return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceTask));
-    }
-
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
+    public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
         return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceConfiguration));
     }
 
-    @Override
-    public ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-                                                              Collection<ServiceRemoteInclusion> includes,
-                                                              Collection<ServiceTemplate> templates,
-                                                              Collection<ServiceDeployment> deployments,
-                                                              Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        return this.cloudNet.scheduleTask(() -> this.createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port));
-    }
-
-    @Override
-    public ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
-            String nodeUniqueId, int amount, String name, String runtime, boolean autoDeleteOnStop, boolean staticService,
-            Collection<ServiceRemoteInclusion> includes,
-            Collection<ServiceTemplate> templates,
-            Collection<ServiceDeployment> deployments,
-            Collection<String> groups, ProcessConfiguration processConfiguration, JsonDocument properties, Integer port) {
-        Validate.checkNotNull(nodeUniqueId);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(includes);
-        Validate.checkNotNull(templates);
-        Validate.checkNotNull(deployments);
-        Validate.checkNotNull(groups);
-        Validate.checkNotNull(processConfiguration);
-
-        return this.cloudNet.scheduleTask(() -> this.createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups, processConfiguration, properties, port));
-    }
 }

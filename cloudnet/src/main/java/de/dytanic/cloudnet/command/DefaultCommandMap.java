@@ -1,17 +1,16 @@
 package de.dytanic.cloudnet.command;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public final class DefaultCommandMap implements ICommandMap {
 
-    private final Map<String, Command> registeredCommands = Maps.newConcurrentHashMap();
+    private final Map<String, Command> registeredCommands = new ConcurrentHashMap<>();
 
     @Override
     public void registerCommand(Command command) {
@@ -33,7 +32,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     @Override
     public void unregisterCommand(Class<? extends Command> command) {
-        Validate.checkNotNull(command);
+        Preconditions.checkNotNull(command);
 
         for (Command commandEntry : this.registeredCommands.values()) {
             if (commandEntry.getClass().equals(command)) {
@@ -50,7 +49,7 @@ public final class DefaultCommandMap implements ICommandMap {
 
     @Override
     public void unregisterCommands(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
         for (Command commandEntry : this.registeredCommands.values()) {
             if (commandEntry.getClass().getClassLoader().equals(classLoader)) {
@@ -78,7 +77,7 @@ public final class DefaultCommandMap implements ICommandMap {
             Command command = this.getCommandFromLine(commandLine);
 
             if (command instanceof ITabCompleter) {
-                String[] args = commandLine.split(" ");
+                String[] args = this.parseArgs(commandLine);
                 String testString = args.length <= 1 || commandLine.endsWith(" ") ? "" : args[args.length - 1].toLowerCase().trim();
                 if (commandLine.endsWith(" ")) {
                     args = Arrays.copyOfRange(args, 1, args.length + 1);
@@ -88,9 +87,7 @@ public final class DefaultCommandMap implements ICommandMap {
                 }
 
                 Collection<String> responses = ((ITabCompleter) command).complete(commandLine, args, Properties.parseLine(args));
-                if (responses != null && !responses.isEmpty()) {
-                    return responses.stream().filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString))).collect(Collectors.toList());
-                }
+                return this.filterResponses(testString, responses);
             }
         }
         return Collections.emptyList();
@@ -113,17 +110,25 @@ public final class DefaultCommandMap implements ICommandMap {
             String testString = args[args.length - 1].toLowerCase().trim();
 
             Collection<String> responses = ((ITabCompleter) command).complete(String.join(" ", args), Arrays.copyOfRange(args, 1, args.length), properties);
-            if (responses != null && !responses.isEmpty()) {
-                return responses.stream().filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString))).collect(Collectors.toList());
-            }
+            return this.filterResponses(testString, responses);
         }
 
         return Collections.emptyList();
     }
 
+    private List<String> filterResponses(String testString, Collection<String> responses) {
+        if (responses == null || responses.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return responses.stream()
+                .filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString)))
+                .map(response -> response.contains(" ") ? "\"" + response + "\"" : response)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public Collection<CommandInfo> getCommandInfos() {
-        Collection<Command> commands = Iterables.newArrayList();
+        Collection<Command> commands = new ArrayList<>();
 
         for (Command command : this.registeredCommands.values()) {
             if (!commands.contains(command)) {
@@ -131,7 +136,7 @@ public final class DefaultCommandMap implements ICommandMap {
             }
         }
 
-        return Iterables.map(commands, this::commandInfoFilter);
+        return commands.stream().map(this::commandInfoFilter).collect(Collectors.toList());
     }
 
     @Override
@@ -149,8 +154,8 @@ public final class DefaultCommandMap implements ICommandMap {
             return null;
         }
 
-        String[] a = commandLine.split(" ");
-        return a.length >= 1 ? this.registeredCommands.get(a[0].toLowerCase()) : null;
+        String[] args = this.parseArgs(commandLine);
+        return args.length >= 1 ? this.registeredCommands.get(args[0].toLowerCase()) : null;
     }
 
     @Override
@@ -176,29 +181,64 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     public boolean dispatchCommand0(ICommandSender commandSender, String commandLine) {
-        String[] args = commandLine.split(" ");
+        String[] args = this.parseArgs(commandLine);
 
-        if (!this.registeredCommands.containsKey(args[0].toLowerCase())) {
+        if (args.length == 0 || !this.registeredCommands.containsKey(args[0].toLowerCase())) {
             return false;
         }
 
-        Command command = this.registeredCommands.get(args[0].toLowerCase());
         String commandName = args[0].toLowerCase();
+        Command command = this.registeredCommands.get(commandName);
 
         if (command.getPermission() != null && !commandSender.hasPermission(command.getPermission())) {
             return false;
         }
 
-        args = args.length > 1 ? commandLine.replaceFirst(args[0] + " ", "").split(" ") : new String[0];
+        args = Arrays.copyOfRange(args, 1, args.length);
 
         try {
             command.execute(commandSender, commandName, args, commandLine, Properties.parseLine(args));
             return true;
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Throwable throwable) {
+            throw new CommandExecutionException(commandLine, throwable);
         }
-        return false;
+    }
+
+    private String[] parseArgs(String line) {
+        if (line.trim().isEmpty()) {
+            return new String[0];
+        }
+
+        Collection<String> args = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        char[] chars = line.toCharArray();
+        boolean inQuote = false;
+
+        for (char c : chars) {
+            if (c == '"') {
+                inQuote = !inQuote;
+                continue;
+            }
+
+            if (!inQuote && c == ' ') {
+                args.add(builder.toString());
+                builder.setLength(0);
+                continue;
+            }
+
+            builder.append(c);
+        }
+
+        if (inQuote) {
+            builder.append('"');
+        }
+
+        if (builder.length() != 0) {
+            args.add(builder.toString());
+        }
+
+        return args.toArray(new String[0]);
     }
 
 

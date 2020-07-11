@@ -4,10 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.GameRules;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
@@ -15,43 +12,38 @@ import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public final class NukkitCloudNetHelper {
+public final class NukkitCloudNetHelper extends BridgeServerHelper {
 
-    private static volatile String
-            apiMotd = Server.getInstance().getMotd(),
-            extra = "",
-            state = "LOBBY";
-
-    private static volatile int maxPlayers = Server.getInstance().getMaxPlayers();
-
+    public static void init() {
+        BridgeServerHelper.setMotd(Server.getInstance().getMotd());
+        BridgeServerHelper.setState("LOBBY");
+        BridgeServerHelper.setMaxPlayers(Server.getInstance().getMaxPlayers());
+    }
 
     private NukkitCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static void changeToIngame() {
-        BridgeHelper.changeToIngame(s -> NukkitCloudNetHelper.state = s);
-    }
-
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", Server.getInstance().getVersion())
                 .append("Codename", Server.getInstance().getCodename())
                 .append("Nukkit-Version", Server.getInstance().getApiVersion())
                 .append("Online-Count", Server.getInstance().getOnlinePlayers().size())
-                .append("Max-Players", maxPlayers)
-                .append("Motd", apiMotd)
-                .append("Extra", extra)
-                .append("State", state)
+                .append("Max-Players", BridgeServerHelper.getMaxPlayers())
+                .append("Motd", BridgeServerHelper.getMotd())
+                .append("Extra", BridgeServerHelper.getExtra())
+                .append("State", BridgeServerHelper.getState())
                 .append("Allow-Nether", Server.getInstance().isNetherAllowed())
                 .append("Allow-Flight", Server.getInstance().getAllowFlight())
-                .append("Players", Iterables.map(Server.getInstance().getOnlinePlayers().values(), player -> new NukkitCloudNetPlayerInfo(
+                .append("Players", Server.getInstance().getOnlinePlayers().values().stream().map(player -> new NukkitCloudNetPlayerInfo(
                         player.getHealth(),
                         player.getMaxHealth(),
                         player.getFoodData().getLevel(),
@@ -68,8 +60,8 @@ public final class NukkitCloudNetHelper {
                         new HostAndPort(player.getAddress(), player.getPort()),
                         player.getUniqueId(),
                         player.getName()
-                )))
-                .append("Plugins", Iterables.map(Server.getInstance().getPluginManager().getPlugins().values(), plugin -> {
+                )).collect(Collectors.toList()))
+                .append("Plugins", Server.getInstance().getPluginManager().getPlugins().values().stream().map(plugin -> {
                     PluginInfo pluginInfo = new PluginInfo(plugin.getName(), plugin.getDescription().getVersion());
 
                     pluginInfo.getProperties()
@@ -85,12 +77,12 @@ public final class NukkitCloudNetHelper {
                     ;
 
                     return pluginInfo;
-                }))
-                .append("Worlds", Iterables.map(Server.getInstance().getLevels().values(), level -> {
-                    Map<String, String> gameRules = Maps.newHashMap();
+                }).collect(Collectors.toList()))
+                .append("Worlds", Server.getInstance().getLevels().values().stream().map(level -> {
+                    Map<String, String> gameRules = new HashMap<>();
 
                     for (GameRule gameRule : level.getGameRules().getRules()) {
-                        GameRules.Value type = level.getGameRules().getGameRules().get(gameRule);
+                        GameRules.Value<?> type = level.getGameRules().getGameRules().get(gameRule);
 
                         switch (type.getType()) {
                             case FLOAT:
@@ -109,8 +101,7 @@ public final class NukkitCloudNetHelper {
                     }
 
                     return new WorldInfo(null, level.getName(), getDifficultyToString(Server.getInstance().getDifficulty()), gameRules);
-                }))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static String getDifficultyToString(int value) {
@@ -135,11 +126,7 @@ public final class NukkitCloudNetHelper {
                 new HostAndPort("0.0.0.0", Server.getInstance().getPort()),
                 true,
                 false,
-                new NetworkServiceInfo(
-                        ServiceEnvironmentType.NUKKIT,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
@@ -169,43 +156,8 @@ public final class NukkitCloudNetHelper {
                 player.getExperienceLevel(),
                 worldPosition,
                 new HostAndPort(player.getAddress(), player.getPort()),
-                new NetworkServiceInfo(
-                        ServiceEnvironmentType.NUKKIT,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
-    public static String getApiMotd() {
-        return NukkitCloudNetHelper.apiMotd;
-    }
-
-    public static void setApiMotd(String apiMotd) {
-        NukkitCloudNetHelper.apiMotd = apiMotd;
-    }
-
-    public static String getExtra() {
-        return NukkitCloudNetHelper.extra;
-    }
-
-    public static void setExtra(String extra) {
-        NukkitCloudNetHelper.extra = extra;
-    }
-
-    public static String getState() {
-        return NukkitCloudNetHelper.state;
-    }
-
-    public static void setState(String state) {
-        NukkitCloudNetHelper.state = state;
-    }
-
-    public static int getMaxPlayers() {
-        return NukkitCloudNetHelper.maxPlayers;
-    }
-
-    public static void setMaxPlayers(int maxPlayers) {
-        NukkitCloudNetHelper.maxPlayers = maxPlayers;
-    }
 }

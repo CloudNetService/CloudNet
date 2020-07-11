@@ -1,11 +1,13 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -39,7 +41,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
 
 
     public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer) {
-        Validate.checkNotNull(cloudPlayer);
+        Preconditions.checkNotNull(cloudPlayer);
 
         CloudOfflinePlayer cloudOfflinePlayer = new CloudOfflinePlayer(
                 cloudPlayer.getUniqueId(),
@@ -56,10 +58,11 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     }
 
     @Override
-    public void setProperties(JsonDocument properties) {
+    public void setProperties(@NotNull JsonDocument properties) {
         this.properties = properties;
     }
 
+    @NotNull
     public UUID getUniqueId() {
         return this.uniqueId;
     }
@@ -72,7 +75,7 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
         return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
@@ -104,8 +107,28 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
         return this.lastNetworkConnectionInfo;
     }
 
-    public void setLastNetworkConnectionInfo(NetworkConnectionInfo lastNetworkConnectionInfo) {
+    public void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo) {
         this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeString(this.name);
+        buffer.writeOptionalString(this.xBoxId);
+        buffer.writeLong(this.firstLoginTimeMillis);
+        buffer.writeLong(this.lastLoginTimeMillis);
+        buffer.writeObject(this.lastNetworkConnectionInfo);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.uniqueId = buffer.readUUID();
+        this.name = buffer.readString();
+        this.xBoxId = buffer.readOptionalString();
+        this.firstLoginTimeMillis = buffer.readLong();
+        this.lastLoginTimeMillis = buffer.readLong();
+        this.lastNetworkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
     }
 
 }

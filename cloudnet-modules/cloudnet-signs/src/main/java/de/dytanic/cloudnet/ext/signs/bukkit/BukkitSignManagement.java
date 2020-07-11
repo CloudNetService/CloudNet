@@ -1,11 +1,12 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignLayout;
-import de.dytanic.cloudnet.ext.signs.SignPosition;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -14,6 +15,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,12 +24,10 @@ import java.util.Iterator;
 
 public final class BukkitSignManagement extends AbstractSignManagement {
 
-    private static BukkitSignManagement instance;
     private final BukkitCloudNetSignsPlugin plugin;
 
     BukkitSignManagement(BukkitCloudNetSignsPlugin plugin) {
         super();
-        instance = this;
 
         this.plugin = plugin;
 
@@ -35,13 +36,17 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         super.updateSigns();
     }
 
+    /**
+     * @deprecated SignManagement should be accessed via the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static BukkitSignManagement getInstance() {
-        return BukkitSignManagement.instance;
+        return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
     }
 
 
     @Override
-    protected void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
+    protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             Location location = this.toLocation(sign.getWorldPosition());
 
@@ -77,20 +82,20 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     @Override
-    protected void runTaskLater(Runnable runnable, long delay) {
+    protected void runTaskLater(@NotNull Runnable runnable, long delay) {
         Bukkit.getScheduler().runTaskLater(this.plugin, runnable, delay);
     }
 
     private void updateSign(Location location, Sign sign, org.bukkit.block.Sign bukkitSign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(location);
-        Validate.checkNotNull(bukkitSign);
-        Validate.checkNotNull(signLayout);
+        Preconditions.checkNotNull(location);
+        Preconditions.checkNotNull(bukkitSign);
+        Preconditions.checkNotNull(signLayout);
 
         if (signLayout.getLines() != null &&
                 signLayout.getLines().length == 4) {
 
             for (int i = 0; i < 4; i++) {
-                String line = ChatColor.translateAlternateColorCodes('&', super.addDataToLine(sign, signLayout.getLines()[i], serviceInfoSnapshot));
+                String line = ChatColor.translateAlternateColorCodes('&', super.replaceServiceInfo(signLayout.getLines()[i], sign.getTargetGroup(), serviceInfoSnapshot));
                 bukkitSign.setLine(i, line);
             }
 
@@ -101,31 +106,33 @@ public final class BukkitSignManagement extends AbstractSignManagement {
     }
 
     private void changeBlock(Location location, String blockType, int subId) {
-        Validate.checkNotNull(location);
+        Preconditions.checkNotNull(location);
 
-        if (blockType != null && subId != -1) {
-
+        if (blockType != null) {
             BlockState signBlockState = location.getBlock().getState();
-            MaterialData signMaterialData = signBlockState.getData();
 
-            BlockFace signBlockFace;
+            // trying to use the new block data api
+            BlockFace signBlockFace = this.getSignFacing(signBlockState);
 
-            if (signMaterialData instanceof org.bukkit.material.Sign) { // will return false on 1.14+, even if it's a wall sign
-                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signMaterialData;
+            // if this fails, trying to use the legacy api
+            if (signBlockFace == null) {
+                MaterialData signMaterialData = signBlockState.getData();
 
-                signBlockFace = sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
-            } else { // trying to get the facing over directionals from the 1.13+ api
-                signBlockFace = this.getSignFacing(signBlockState);
+                if (signMaterialData instanceof org.bukkit.material.Sign) {
+                    org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signMaterialData;
+                    signBlockFace = sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
+                }
             }
 
             if (signBlockFace != null) {
-
                 BlockState backBlockState = location.getBlock().getRelative(signBlockFace.getOppositeFace()).getState();
                 Material backBlockMaterial = Material.getMaterial(blockType.toUpperCase());
 
                 if (backBlockMaterial != null) {
                     backBlockState.setType(backBlockMaterial);
-                    backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    if (subId > -1) {
+                        backBlockState.setData(new MaterialData(backBlockMaterial, (byte) subId));
+                    }
                     backBlockState.update(true);
                 }
 
@@ -162,14 +169,14 @@ public final class BukkitSignManagement extends AbstractSignManagement {
         }
     }
 
-    public Location toLocation(SignPosition signPosition) {
-        Validate.checkNotNull(signPosition);
+    public Location toLocation(WorldPosition worldPosition) {
+        Preconditions.checkNotNull(worldPosition);
 
-        return Bukkit.getWorld(signPosition.getWorld()) != null ? new Location(
-                Bukkit.getWorld(signPosition.getWorld()),
-                signPosition.getX(),
-                signPosition.getY(),
-                signPosition.getZ()
+        return Bukkit.getWorld(worldPosition.getWorld()) != null ? new Location(
+                Bukkit.getWorld(worldPosition.getWorld()),
+                worldPosition.getX(),
+                worldPosition.getY(),
+                worldPosition.getZ()
         ) : null;
     }
 

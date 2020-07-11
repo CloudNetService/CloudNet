@@ -112,24 +112,24 @@ public class LogLevel implements ILevelable {
     }
 
     public String getLowerName() {
-        return lowerName;
+        return this.lowerName;
     }
 
     public String getUpperName() {
-        return upperName;
+        return this.upperName;
     }
 
     @Override
     public int getLevel() {
-        return level;
+        return this.level;
     }
 
     public boolean isAsync() {
-        return async;
+        return this.async;
     }
 
     public boolean isColorized() {
-        return colorized;
+        return this.colorized;
     }
 
     public static Optional<LogLevel> getDefaultLogLevel(String name) {

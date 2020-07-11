@@ -1,15 +1,18 @@
 package de.dytanic.cloudnet.ext.bridge;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public class WorldPosition {
+public class WorldPosition implements SerializableObject {
 
     protected double x, y, z, yaw, pitch;
 
-    protected String world;
+    protected String world, group;
 
     public WorldPosition(double x, double y, double z, double yaw, double pitch, String world) {
         this.x = x;
@@ -18,6 +21,11 @@ public class WorldPosition {
         this.yaw = yaw;
         this.pitch = pitch;
         this.world = world;
+    }
+
+    public WorldPosition(double x, double y, double z, double yaw, double pitch, String world, String group) {
+        this(x, y, z, yaw, pitch, world);
+        this.group = group;
     }
 
     public WorldPosition() {
@@ -69,6 +77,36 @@ public class WorldPosition {
 
     public void setWorld(String world) {
         this.world = world;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeDouble(this.x);
+        buffer.writeDouble(this.y);
+        buffer.writeDouble(this.z);
+        buffer.writeDouble(this.yaw);
+        buffer.writeDouble(this.pitch);
+        buffer.writeString(this.world);
+        buffer.writeOptionalString(this.group);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.x = buffer.readDouble();
+        this.y = buffer.readDouble();
+        this.z = buffer.readDouble();
+        this.yaw = buffer.readDouble();
+        this.pitch = buffer.readDouble();
+        this.world = buffer.readString();
+        this.group = buffer.readOptionalString();
     }
 
 }

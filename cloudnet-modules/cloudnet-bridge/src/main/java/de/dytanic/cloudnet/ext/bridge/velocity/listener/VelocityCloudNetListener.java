@@ -1,25 +1,17 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.listener;
 
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
-import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.*;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
-import net.kyori.text.TextComponent;
 
 import java.net.InetSocketAddress;
-import java.util.Optional;
-import java.util.UUID;
 
 public final class VelocityCloudNetListener {
 
@@ -58,7 +50,7 @@ public final class VelocityCloudNetListener {
             }
 
             VelocityCloudNetHelper.removeServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceStopEvent(event.getServiceInfo()));
@@ -67,7 +59,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceInfoUpdateEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceInfoUpdateEvent(event.getServiceInfo()));
@@ -76,7 +68,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceRegisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceRegisterEvent(event.getServiceInfo()));
@@ -85,7 +77,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceConnectNetworkEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceConnectNetworkEvent(event.getServiceInfo()));
@@ -94,7 +86,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceDisconnectNetworkEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.put(event.getServiceInfo().getServiceId().getName(), event.getServiceInfo());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
@@ -103,7 +95,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            VelocityCloudNetHelper.SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION.remove(event.getServiceInfo().getServiceId().getName());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
@@ -111,65 +103,7 @@ public final class VelocityCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.velocityCall(new VelocityChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
-
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
-            return;
-        }
-
-        switch (event.getMessage().toLowerCase()) {
-            case "send_on_proxy_player_to_server": {
-                Player player = getPlayer(event.getData());
-
-                if (player != null && event.getData().getString("serviceName") != null) {
-                    Optional<RegisteredServer> serverInfo = VelocityCloudNetHelper.getProxyServer().getServer(event.getData().getString("serviceName"));
-
-                    if (serverInfo != null && serverInfo.isPresent()) {
-                        player.createConnectionRequest(serverInfo.get()).connect();
-                    }
-                }
-            }
-            break;
-            case "kick_on_proxy_player_from_network": {
-                Player player = getPlayer(event.getData());
-
-                if (player != null && event.getData().getString("kickMessage") != null) {
-                    player.disconnect(TextComponent.of((event.getData().getString("kickMessage")).replace("&", "§")));
-                }
-            }
-            break;
-            case "send_message_to_proxy_player": {
-                Player player = getPlayer(event.getData());
-
-                if (player != null && event.getData().getString("message") != null) {
-                    player.sendMessage(TextComponent.of((event.getData().getString("message")).replace("&", "§")));
-                }
-            }
-            break;
-            case "broadcast_message": {
-                String permission = event.getData().getString("permission");
-
-                if (event.getData().getString("message") != null) {
-                    TextComponent message = TextComponent.of(event.getData().getString("message").replace("&", "§"));
-                    for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
-                        if (permission == null || player.hasPermission(permission)) {
-                            player.sendMessage(message);
-                        }
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    private Player getPlayer(JsonDocument data) {
-        return Iterables.first(VelocityCloudNetHelper.getProxyServer().getAllPlayers(), player -> data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class)) ||
-                data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")));
-    }
-
-    @EventListener
-    public void handle(NetworkClusterNodeInfoUpdateEvent event) {
-        this.velocityCall(new VelocityNetworkClusterNodeInfoUpdateEvent(event.getNetworkClusterNodeInfoSnapshot()));
+        this.velocityCall(new VelocityChannelMessageReceiveEvent(event));
     }
 
     @EventListener

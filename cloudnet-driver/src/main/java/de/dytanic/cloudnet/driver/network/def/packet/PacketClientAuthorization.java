@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.def.packet;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -8,10 +8,10 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 public final class PacketClientAuthorization extends Packet {
 
     public PacketClientAuthorization(PacketAuthorizationType packetAuthorizationType, JsonDocument credentials) {
-        super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument(), null);
+        super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument());
 
-        Validate.checkNotNull(packetAuthorizationType);
-        Validate.checkNotNull(credentials);
+        Preconditions.checkNotNull(packetAuthorizationType);
+        Preconditions.checkNotNull(credentials);
 
         this.header.append("authorization", packetAuthorizationType).append("credentials", credentials);
     }
@@ -21,7 +21,7 @@ public final class PacketClientAuthorization extends Packet {
         NODE_TO_NODE(0),
         WRAPPER_TO_NODE(1);
 
-        private int value;
+        private final int value;
 
         PacketAuthorizationType(int value) {
             this.value = value;

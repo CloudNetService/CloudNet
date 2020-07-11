@@ -4,9 +4,10 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 
 public class FTPCredentials {
 
-    private HostAndPort address;
-    private String username, password;
-    private String baseDirectory;
+    private final HostAndPort address;
+    private final String username;
+    private final String password;
+    private final String baseDirectory;
 
     public FTPCredentials(HostAndPort address, String username, String password, String baseDirectory) {
         this.address = address;

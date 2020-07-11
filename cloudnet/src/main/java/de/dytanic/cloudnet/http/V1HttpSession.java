@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.http;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -10,18 +9,21 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 
 public final class V1HttpSession {
 
+    private static final Pattern BASE64_PATTERN = Pattern.compile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$");
     private static final String COOKIE_NAME = "CloudNet-REST_V1-Session." + new Random().nextInt();
 
     private static final long EXPIRE_TIME = 1000 * 60 * 60 * 24;
 
-    private final Collection<SessionEntry> entries = Iterables.newCopyOnWriteArrayList();
+    private final Collection<SessionEntry> entries = new CopyOnWriteArrayList<>();
 
     public boolean auth(IHttpContext context) throws Exception {
-        if (isAuthorized(context)) {
-            logout(context);
+        if (this.isAuthorized(context)) {
+            this.logout(context);
         }
 
         if (!context.request().hasHeader("Authorization")) {
@@ -34,13 +36,17 @@ public final class V1HttpSession {
             return false;
         }
 
+        if (!BASE64_PATTERN.matcher(typeAndCredentials[1]).matches()) {
+            return false;
+        }
+
         String[] credentials = new String(Base64.getDecoder().decode(typeAndCredentials[1]), StandardCharsets.UTF_8).split(":");
         if (credentials.length != 2) {
             return false;
         }
 
         List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
-        IPermissionUser permissionUser = Iterables.first(permissionUsers, iPermissionUser -> iPermissionUser.checkPassword(credentials[1]));
+        IPermissionUser permissionUser = permissionUsers.stream().filter(iPermissionUser -> iPermissionUser.checkPassword(credentials[1])).findFirst().orElse(null);
 
         if (permissionUser == null) {
             return false;
@@ -49,14 +55,13 @@ public final class V1HttpSession {
         SessionEntry sessionEntry = new SessionEntry(
                 System.nanoTime(),
                 System.currentTimeMillis(),
-                context.channel().clientAddress().getHost(),
                 UUID.randomUUID().toString(),
                 permissionUser.getUniqueId().toString()
         );
 
         context.addCookie(new HttpCookie(
                 COOKIE_NAME,
-                createKey(sessionEntry, context),
+                this.createKey(sessionEntry, context),
                 null,
                 "/",
                 sessionEntry.lastUsageMillis + EXPIRE_TIME))
@@ -64,24 +69,24 @@ public final class V1HttpSession {
                 .statusCode(200)
         ;
 
-        entries.add(sessionEntry);
+        this.entries.add(sessionEntry);
         return true;
     }
 
-    public boolean isAuthorized(IHttpContext context) throws Exception {
+    public boolean isAuthorized(IHttpContext context) {
         if (!context.hasCookie(COOKIE_NAME)) {
             return false;
         }
 
         HttpCookie httpCookie = context.cookie(COOKIE_NAME);
 
-        SessionEntry sessionEntry = getValidSessionEntry(httpCookie.getValue(), context);
+        SessionEntry sessionEntry = this.getValidSessionEntry(httpCookie.getValue(), context);
         if (sessionEntry == null) {
             return false;
         }
 
         if ((sessionEntry.lastUsageMillis + EXPIRE_TIME) < System.currentTimeMillis()) {
-            logout(context);
+            this.logout(context);
             return false;
         }
 
@@ -96,7 +101,7 @@ public final class V1HttpSession {
         }
 
         for (SessionEntry entry : this.entries) {
-            if (cookieValue.equals(createKey(entry, context))) {
+            if (cookieValue.equals(this.createKey(entry, context))) {
                 return entry;
             }
         }
@@ -105,9 +110,9 @@ public final class V1HttpSession {
     }
 
     public void logout(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
-        SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
+        SessionEntry sessionEntry = this.getValidSessionEntry(this.getCookieValue(context), context);
         if (sessionEntry != null) {
             this.entries.remove(sessionEntry);
         }
@@ -116,11 +121,11 @@ public final class V1HttpSession {
     }
 
     public IPermissionUser getUser(IHttpContext context) {
-        Validate.checkNotNull(context);
+        Preconditions.checkNotNull(context);
 
-        SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
+        SessionEntry sessionEntry = this.getValidSessionEntry(this.getCookieValue(context), context);
 
-        return getUser(sessionEntry, context);
+        return this.getUser(sessionEntry, context);
     }
 
     private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) {
@@ -154,14 +159,13 @@ public final class V1HttpSession {
 
     public static class SessionEntry {
 
-        long creationTime, lastUsageMillis;
+        private final long creationTime;
+        private final String uniqueId, userUniqueId;
+        private long lastUsageMillis;
 
-        String host, uniqueId, userUniqueId;
-
-        public SessionEntry(long creationTime, long lastUsageMillis, String host, String uniqueId, String userUniqueId) {
+        public SessionEntry(long creationTime, long lastUsageMillis, String uniqueId, String userUniqueId) {
             this.creationTime = creationTime;
             this.lastUsageMillis = lastUsageMillis;
-            this.host = host;
             this.uniqueId = uniqueId;
             this.userUniqueId = userUniqueId;
         }

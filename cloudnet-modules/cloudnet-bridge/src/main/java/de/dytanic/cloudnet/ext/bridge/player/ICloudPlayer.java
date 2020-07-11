@@ -1,6 +1,10 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
-public interface ICloudPlayer extends ICloudOfflinePlayer {
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
+
+public interface ICloudPlayer extends ICloudOfflinePlayer, SerializableObject {
 
     NetworkServiceInfo getLoginService();
 
@@ -17,4 +21,9 @@ public interface ICloudPlayer extends ICloudOfflinePlayer {
     NetworkPlayerServerInfo getNetworkPlayerServerInfo();
 
     void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo);
+
+    JsonDocument getOnlineProperties();
+
+    PlayerExecutor getPlayerExecutor();
+
 }

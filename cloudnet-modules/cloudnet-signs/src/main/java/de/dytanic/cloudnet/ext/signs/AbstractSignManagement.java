@@ -1,60 +1,57 @@
 package de.dytanic.cloudnet.ext.signs;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.ext.bridge.ServiceInfoStateWatcher;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationProvider;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationTaskEntry;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public abstract class AbstractSignManagement {
+public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
-    private static final Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>>
-            ENTRY_COMPARATOR = new ServiceInfoSnapshotEntryComparator(),
-            ENTRY_COMPARATOR_2 = new ServiceInfoSnapshotEntryComparator2();
+    private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>
+            ENTRY_NAME_COMPARATOR = Comparator.comparing(entry -> entry.getFirst().getName()),
+            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getValue());
 
-    private static AbstractSignManagement instance;
     private final AtomicInteger[] indexes = new AtomicInteger[]{
             new AtomicInteger(-1), //starting
             new AtomicInteger(-1) //search
     };
-    private final Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> services = Maps.newConcurrentHashMap();
     protected Set<Sign> signs;
 
     public AbstractSignManagement() {
-        instance = this;
+        Collection<Sign> signsFromNode = this.getSignsFromNode();
+        this.signs = signsFromNode == null ? new HashSet<>() : signsFromNode.stream()
+                .filter(sign -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup()))
+                .collect(Collectors.toSet());
 
-        this.signs = new HashSet<>();
-        this.signs.addAll(this.getSignsFromNode());
-
-        // fetching the already existing services and making them available for the signs, if matching
-        Wrapper.getInstance().getCloudServiceProvider().getCloudServices().stream()
-                .filter(this::isMatchingCloudService)
-                .forEach(serviceInfoSnapshot -> this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry), false));
+        super.includeExistingServices();
     }
 
+    /**
+     * @deprecated SignManagement should be accessed via the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
+     */
+    @Deprecated
     public static AbstractSignManagement getInstance() {
-        return instance;
+        return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
     }
 
-    protected abstract void updateSignNext(Sign sign, SignLayout signLayout, ServiceInfoSnapshot serviceInfoSnapshot);
+    protected abstract void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot);
 
     /**
      * Removes all signs that don't exist anymore
@@ -67,81 +64,88 @@ public abstract class AbstractSignManagement {
      * @param runnable the task
      * @param delay    the delay the task should have
      */
-    protected abstract void runTaskLater(Runnable runnable, long delay);
+    protected abstract void runTaskLater(@NotNull Runnable runnable, long delay);
 
-    private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction) {
-        this.putService(serviceInfoSnapshot, stateFunction, true);
-    }
 
-    private void putService(ServiceInfoSnapshot serviceInfoSnapshot, Function<SignConfigurationEntry, ServiceInfoState> stateFunction, boolean updateSigns) {
-        if (!this.isMatchingCloudService(serviceInfoSnapshot)) {
-            return;
-        }
-
-        SignConfigurationEntry entry = this.getOwnSignConfigurationEntry();
-        if (entry == null) {
-            return;
-        }
-
-        this.services.put(serviceInfoSnapshot.getServiceId().getUniqueId(), new Pair<>(serviceInfoSnapshot, stateFunction.apply(entry)));
-        if (updateSigns) {
-            this.updateSigns();
-        }
-    }
-
-    public void onRegisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
-    }
-
-    public void onStartService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STARTING);
-    }
-
-    public void onConnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
-    }
-
-    public void onUpdateServiceInfo(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.putService(serviceInfoSnapshot, entry -> this.fromServiceInfoSnapshot(serviceInfoSnapshot, entry));
-    }
-
-    public void onDisconnectService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
-    }
-
-    public void onStopService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.putService(serviceInfoSnapshot, entry -> ServiceInfoState.STOPPED);
-    }
-
-    public void onUnregisterService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (!this.isMatchingCloudService(serviceInfoSnapshot)) {
-            return;
-        }
-
-        SignConfigurationEntry entry = this.getOwnSignConfigurationEntry();
-        if (entry == null) {
-            return;
-        }
-
-        this.services.remove(serviceInfoSnapshot.getServiceId().getUniqueId());
+    @Override
+    protected void handleUpdate() {
         this.updateSigns();
     }
 
-    public void onSignAdd(Sign sign) {
-        Validate.checkNotNull(sign);
+    @Override
+    protected boolean shouldWatchService(ServiceInfoSnapshot serviceInfoSnapshot) {
+        if (serviceInfoSnapshot != null) {
 
-        this.signs.add(sign);
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+            ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
+            ServiceEnvironmentType serviceEnvironment = serviceInfoSnapshot.getServiceId().getEnvironment();
+
+            return (serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer())
+                    || (serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer());
+        }
+
+        return false;
     }
 
-    public void onSignRemove(Sign sign) {
-        Validate.checkNotNull(sign);
+    @Override
+    protected boolean shouldShowFullServices() {
+        return !this.getOwnSignConfigurationEntry().isSwitchToSearchingWhenServiceIsFull();
+    }
 
-        Sign signEntry = Iterables.first(this.signs, filterSign -> filterSign.getSignId() == sign.getSignId());
-
-        if (signEntry != null) {
-            this.signs.remove(signEntry);
+    @EventListener
+    public void handle(ChannelMessageReceiveEvent event) {
+        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME) || event.getMessage() == null) {
+            return;
         }
+
+        switch (event.getMessage().toLowerCase()) {
+            case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
+                SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
+                SignConfigurationProvider.setLocal(signConfiguration);
+            }
+            break;
+            case SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE: {
+                Sign sign = event.getData().get("sign", Sign.TYPE);
+
+                if (sign != null) {
+                    this.addSign(sign);
+                }
+            }
+            break;
+            case SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE: {
+                Sign sign = event.getData().get("sign", Sign.TYPE);
+
+                if (sign != null) {
+                    this.removeSign(sign);
+                }
+            }
+            break;
+        }
+    }
+
+    /**
+     * Adds a sign to this wrapper instance
+     *
+     * @param sign the sign to add
+     * @return if the sign is allowed to exist on this wrapper instance
+     */
+    public boolean addSign(@NotNull Sign sign) {
+        if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
+            this.signs.add(sign);
+            CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes a sign from this wrapper instance
+     *
+     * @param sign the sign to remove
+     */
+    public void removeSign(@NotNull Sign sign) {
+        this.signs.stream()
+                .filter(filterSign -> filterSign.getSignId() == sign.getSignId())
+                .findFirst().ifPresent(signEntry -> this.signs.remove(signEntry));
 
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
@@ -152,58 +156,51 @@ public abstract class AbstractSignManagement {
             return;
         }
 
-        List<Sign> signs = Iterables.newArrayList(Iterables.filter(this.signs, sign -> Iterables.contains(sign.getProvidedGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups())));
-
+        List<Sign> signs = new ArrayList<>(this.signs);
         Collections.sort(signs);
-        if (signs.isEmpty()) {
-            return;
-        }
 
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter = Iterables.newArrayList();
-        List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries = Iterables.newArrayList(Iterables.filter(this.services.entrySet(),
-                item -> item.getValue().getSecond() != ServiceInfoState.STOPPED));
-
-        entries.sort(ENTRY_COMPARATOR);
+        List<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> entries = super.services.values().stream()
+                .filter(pair -> pair.getSecond() != ServiceInfoStateWatcher.ServiceInfoState.STOPPED)
+                .sorted(ENTRY_NAME_COMPARATOR)
+                .collect(Collectors.toList());
 
         for (Sign sign : signs) {
-            this.updateSign(sign, signConfiguration, cachedFilter, entries);
+            this.updateSign(sign, signConfiguration, entries);
         }
     }
 
     private void updateSign(Sign sign,
                             SignConfigurationEntry signConfiguration,
-                            List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> cachedFilter,
-                            List<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> entries) {
-        Iterables.filter(entries, entry -> {
-            boolean access = Iterables.contains(sign.getTargetGroup(), entry.getValue().getFirst().getConfiguration().getGroups());
+                            List<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> entries) {
 
-            if (sign.getTemplatePath() != null) {
-                boolean condition = false;
+        Optional<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> optionalEntry = entries.stream()
+                .filter(entry -> {
+                    boolean access = Arrays.asList(entry.getFirst().getConfiguration().getGroups()).contains(sign.getTargetGroup());
 
-                for (ServiceTemplate template : entry.getValue().getFirst().getConfiguration().getTemplates()) {
-                    if (sign.getTemplatePath().equals(template.getTemplatePath())) {
-                        condition = true;
-                        break;
+                    if (sign.getTemplatePath() != null) {
+                        boolean condition = false;
+
+                        for (ServiceTemplate template : entry.getFirst().getConfiguration().getTemplates()) {
+                            if (sign.getTemplatePath().equals(template.getTemplatePath())) {
+                                condition = true;
+                                break;
+                            }
+                        }
+
+                        access = condition;
                     }
-                }
 
-                access = condition;
-            }
+                    return access;
+                })
+                .min(ENTRY_STATE_COMPARATOR);
 
-            return access;
-        }, cachedFilter);
+        if (optionalEntry.isPresent()) {
+            Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState> entry = optionalEntry.get();
 
-        cachedFilter.sort(ENTRY_COMPARATOR_2);
-
-        if (!cachedFilter.isEmpty()) {
-            Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> entry = cachedFilter.get(0);
-
-            sign.setServiceInfoSnapshot(entry.getValue().getFirst());
-
-            this.applyState(sign, signConfiguration, entry.getValue().getFirst(), entry.getValue().getSecond());
+            sign.setServiceInfoSnapshot(entry.getFirst());
+            this.applyState(sign, signConfiguration, entry.getFirst(), entry.getSecond());
 
             entries.remove(entry);
-
         } else {
             sign.setServiceInfoSnapshot(null);
 
@@ -211,11 +208,9 @@ public abstract class AbstractSignManagement {
                 this.updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(this.indexes[1].get()), null);
             }
         }
-
-        cachedFilter.clear();
     }
 
-    private void applyState(Sign sign, SignConfigurationEntry signConfiguration, ServiceInfoSnapshot serviceInfoSnapshot, ServiceInfoState state) {
+    private void applyState(Sign sign, SignConfigurationEntry signConfiguration, ServiceInfoSnapshot serviceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState state) {
         switch (state) {
             case STOPPED: {
                 sign.setServiceInfoSnapshot(null);
@@ -284,201 +279,87 @@ public abstract class AbstractSignManagement {
         }
     }
 
-    protected String addDataToLine(Sign sign, String input, ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(input);
-
-        if (serviceInfoSnapshot == null) {
-            return input;
-        }
-
-        input = input.replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName());
-        input = input.replace("%task_id%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()));
-        input = input.replace("%group%", sign.getTargetGroup());
-        input = input.replace("%name%", serviceInfoSnapshot.getServiceId().getName());
-        input = input.replace("%uuid%", serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0]);
-        input = input.replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId());
-        input = input.replace("%environment%", String.valueOf(serviceInfoSnapshot.getServiceId().getEnvironment()));
-        input = input.replace("%life_cycle%", String.valueOf(serviceInfoSnapshot.getLifeCycle()));
-        input = input.replace("%runtime%", serviceInfoSnapshot.getConfiguration().getRuntime());
-        input = input.replace("%port%", String.valueOf(serviceInfoSnapshot.getConfiguration().getPort()));
-        input = input.replace("%cpu_usage%", CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(serviceInfoSnapshot.getProcessSnapshot().getCpuUsage()));
-        input = input.replace("%threads%", String.valueOf(serviceInfoSnapshot.getProcessSnapshot().getThreads().size()));
-
-
-        input = input.replace("%online%",
-                (serviceInfoSnapshot.getProperties().contains("Online") && serviceInfoSnapshot.getProperties().getBoolean("Online")
-                        ? "Online" : "Offline"
-                ));
-        input = input.replace("%online_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Online-Count")));
-        input = input.replace("%max_players%", String.valueOf(serviceInfoSnapshot.getProperties().getInt("Max-Players")));
-        input = input.replace("%motd%", serviceInfoSnapshot.getProperties().getString("Motd", ""));
-        input = input.replace("%extra%", serviceInfoSnapshot.getProperties().getString("Extra", ""));
-        input = input.replace("%state%", serviceInfoSnapshot.getProperties().getString("State", ""));
-        input = input.replace("%version%", serviceInfoSnapshot.getProperties().getString("Version", ""));
-        input = input.replace("%whitelist%", (serviceInfoSnapshot.getProperties().contains("Whitelist-Enabled") &&
-                serviceInfoSnapshot.getProperties().getBoolean("Whitelist-Enabled")
-                ? "Enabled" : "Disabled"
-        ));
-
-        return input;
-    }
-
     private SignConfigurationTaskEntry getValidSignConfigurationTaskEntryFromSignConfigurationEntry(SignConfigurationEntry entry, String targetTask) {
-        return Iterables.first(entry.getTaskLayouts(), signConfigurationTaskEntry -> signConfigurationTaskEntry.getTask() != null &&
-                signConfigurationTaskEntry.getEmptyLayout() != null &&
-                signConfigurationTaskEntry.getFullLayout() != null &&
-                signConfigurationTaskEntry.getOnlineLayout() != null &&
-                signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask));
+        return entry.getTaskLayouts().stream()
+                .filter(signConfigurationTaskEntry -> signConfigurationTaskEntry.getTask() != null &&
+                        signConfigurationTaskEntry.getEmptyLayout() != null &&
+                        signConfigurationTaskEntry.getFullLayout() != null &&
+                        signConfigurationTaskEntry.getOnlineLayout() != null &&
+                        signConfigurationTaskEntry.getTask().equalsIgnoreCase(targetTask))
+                .findFirst()
+                .orElse(null);
     }
 
     public SignConfigurationEntry getOwnSignConfigurationEntry() {
-        return Iterables.first(SignConfigurationProvider.load().getConfigurations(),
-                signConfigurationEntry -> Iterables.contains(signConfigurationEntry.getTargetGroup(), Wrapper.getInstance().getServiceConfiguration().getGroups()));
+        return SignConfigurationProvider.load().getConfigurations().stream()
+                .filter(signConfigurationEntry -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(signConfigurationEntry.getTargetGroup()))
+                .findFirst()
+                .orElse(null);
     }
 
-    private boolean isEmptyService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.isConnected() &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online") &&
-                serviceInfoSnapshot.getProperties().contains("Online-Count") &&
-                serviceInfoSnapshot.getProperties().getInt("Online-Count") == 0;
+
+    /**
+     * Adds a sign to the whole cluster and the database
+     *
+     * @param sign the sign to add
+     */
+    public void sendSignAddUpdate(@NotNull Sign sign) {
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE)
+                .json(new JsonDocument("sign", sign))
+                .build()
+                .send();
     }
 
-    private boolean isFullService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.isConnected() &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online") &&
-                serviceInfoSnapshot.getProperties().contains("Online-Count") &&
-                serviceInfoSnapshot.getProperties().contains("Max-Players") &&
-                serviceInfoSnapshot.getProperties().getInt("Online-Count") >=
-                        serviceInfoSnapshot.getProperties().getInt("Max-Players");
+    /**
+     * Removes a sign from the whole cluster and the database
+     *
+     * @param sign the sign to remove
+     */
+    public void sendSignRemoveUpdate(@NotNull Sign sign) {
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE)
+                .json(new JsonDocument("sign", sign))
+                .build()
+                .send();
     }
 
-    private boolean isStartingService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING && !serviceInfoSnapshot.getProperties().contains("Online");
+    /**
+     * Returns all signs contained in the CloudNet sign database
+     *
+     * @return all signs or null, if an error occurred
+     */
+    @Nullable
+    public Collection<Sign> getSignsFromNode() {
+        ChannelMessage response = ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_GET_SIGNS)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
+
+        return response == null ? null : response.getJson().get("signs", SignConstants.COLLECTION_SIGNS);
     }
 
-    private boolean isIngameService(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING
-                && serviceInfoSnapshot.isConnected()
-                &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online")
-                && (
-                (serviceInfoSnapshot.getProperties().contains("Motd") &&
-                        (
-                                serviceInfoSnapshot.getProperties().getString("Motd").toLowerCase().contains("ingame") ||
-                                        serviceInfoSnapshot.getProperties().getString("Motd").toLowerCase().contains("running")
-                        )
-                ) ||
-                        (serviceInfoSnapshot.getProperties().contains("Extra") &&
-                                (
-                                        serviceInfoSnapshot.getProperties().getString("Extra").toLowerCase().contains("ingame") ||
-                                                serviceInfoSnapshot.getProperties().getString("Extra").toLowerCase().contains("running")
-                                )
-                        ) ||
-                        (serviceInfoSnapshot.getProperties().contains("State") &&
-                                (
-                                        serviceInfoSnapshot.getProperties().getString("State").toLowerCase().contains("ingame") ||
-                                                serviceInfoSnapshot.getProperties().getString("State").toLowerCase().contains("running")
-                                )
-                        )
-        );
-    }
-
-    private ServiceInfoState fromServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot, SignConfigurationEntry signConfiguration) {
-        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING || this.isIngameService(serviceInfoSnapshot)) {
-            return ServiceInfoState.STOPPED;
-        }
-
-        if (this.isEmptyService(serviceInfoSnapshot)) {
-            return ServiceInfoState.EMPTY_ONLINE;
-        }
-
-        if (this.isFullService(serviceInfoSnapshot)) {
-            if (!signConfiguration.isSwitchToSearchingWhenServiceIsFull()) {
-                return ServiceInfoState.FULL_ONLINE;
-            } else {
-                return ServiceInfoState.STOPPED;
-            }
-        }
-
-        if (this.isStartingService(serviceInfoSnapshot)) {
-            return ServiceInfoState.STARTING;
-        }
-
-        if (serviceInfoSnapshot.isConnected() &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online")) {
-            return ServiceInfoState.ONLINE;
-        } else {
-            return ServiceInfoState.STOPPED;
-        }
-    }
-
-    public void sendSignAddUpdate(Sign sign) {
-        Validate.checkNotNull(sign);
-
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        SignConstants.SIGN_CHANNEL_NAME,
-                        SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE,
-                        new JsonDocument("sign", sign)
-                );
-    }
-
-    public void sendSignRemoveUpdate(Sign sign) {
-        Validate.checkNotNull(sign);
-
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        SignConstants.SIGN_CHANNEL_NAME,
-                        SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE,
-                        new JsonDocument("sign", sign)
-                );
-    }
-
-    protected Collection<Sign> getSignsFromNode() {
-        ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
-                new byte[0],
-                documentPair -> documentPair.getFirst().get("signs", SignConstants.COLLECTION_SIGNS)
-        );
-
-        try {
-            return signs.get(5, TimeUnit.SECONDS);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public void updateSignConfiguration(SignConfiguration signConfiguration) {
-        Validate.checkNotNull(signConfiguration);
-
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                SignConstants.SIGN_CHANNEL_NAME,
-                SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-                new JsonDocument("signConfiguration", signConfiguration)
-        );
-    }
-
-    private boolean isMatchingCloudService(ServiceInfoSnapshot serviceInfoSnapshot) {
-
-        if (serviceInfoSnapshot != null) {
-
-            ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
-            ServiceEnvironmentType serviceEnvironment = serviceInfoSnapshot.getServiceId().getEnvironment();
-
-            return (serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer())
-                    || (serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer());
-        }
-
-        return false;
+    /**
+     * Updates the SignConfiguration in the whole cluster
+     *
+     * @param signConfiguration the new SignConfiguration
+     */
+    public void updateSignConfiguration(@NotNull SignConfiguration signConfiguration) {
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION)
+                .json(new JsonDocument("signConfiguration", signConfiguration))
+                .build()
+                .send();
     }
 
     protected void executeStartingTask() {
         SignConfigurationEntry signConfigurationEntry = this.getOwnSignConfigurationEntry();
-        AtomicInteger startingIndex = indexes[0];
+        AtomicInteger startingIndex = this.indexes[0];
 
         if (signConfigurationEntry != null && signConfigurationEntry.getStartingLayouts() != null &&
                 signConfigurationEntry.getStartingLayouts().getSignLayouts().size() > 0) {
@@ -532,54 +413,18 @@ public abstract class AbstractSignManagement {
         CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
     }
 
-    public Map<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> getServices() {
-        return this.services;
-    }
-
     public AtomicInteger[] getIndexes() {
         return this.indexes;
     }
 
+    /**
+     * Returns a copy of the signs allowed to exist on this wrapper instance
+     * Use {@link AbstractSignManagement#addSign(Sign)} and {@link AbstractSignManagement#removeSign(Sign)} for local modification
+     *
+     * @return a copy of the signs
+     */
     public Set<Sign> getSigns() {
-        return this.signs;
-    }
-
-    public void setSigns(Set<Sign> signs) {
-        this.signs = signs;
-    }
-
-    private enum ServiceInfoState {
-        STOPPED(0),
-        STARTING(1),
-        EMPTY_ONLINE(2),
-        ONLINE(3),
-        FULL_ONLINE(4);
-
-        private final int value;
-
-        ServiceInfoState(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return this.value;
-        }
-    }
-
-    private static final class ServiceInfoSnapshotEntryComparator implements Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> {
-
-        @Override
-        public int compare(Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> o1, Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> o2) {
-            return o1.getValue().getFirst().getServiceId().getName().compareTo(o2.getValue().getFirst().getServiceId().getName());
-        }
-    }
-
-    private static final class ServiceInfoSnapshotEntryComparator2 implements Comparator<Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>>> {
-
-        @Override
-        public int compare(Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> o1, Map.Entry<UUID, Pair<ServiceInfoSnapshot, ServiceInfoState>> o2) {
-            return o1.getValue().getSecond().getValue() + o2.getValue().getSecond().getValue();
-        }
+        return new HashSet<>(this.signs);
     }
 
 }

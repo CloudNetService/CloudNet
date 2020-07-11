@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
 import org.junit.Assert;
 import org.junit.Test;
 

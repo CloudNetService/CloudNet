@@ -2,7 +2,7 @@ defaultTasks 'clean', 'build', 'test', 'jar'
 
 allprojects {
 
-    def major = 3, minor = 3, patch = 0, versionType = "SNAPSHOT"
+    def major = 3, minor = 4, patch = 0, versionType = "SNAPSHOT"
 
     group 'de.dytanic.cloudnet'
     version "$major.$minor.$patch-$versionType"
@@ -12,32 +12,26 @@ allprojects {
         mavenCentral()
 
         maven {
+            url 'https://repo.dmulloy2.net/nexus/repository/public/'
+        }
+
+        maven {
+            name 'jitpack.io'
+            url 'https://jitpack.io'
+        }
+
+        maven {
             name 'spongepowered'
             url 'https://repo.spongepowered.org/maven'
         }
 
         maven {
-            name 'vault'
-            url 'https://repo.md-5.net/repository/releases'
-        }
-
-        maven {
-            name 'spigotmc-1'
-            url 'https://repo.md-5.net/service/local/repositories/repobo-rel/content/'
-        }
-
-        maven {
-            name 'spigotmc-2'
+            name 'spigotmc-repo'
             url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
         }
 
         maven {
-            name 'md-5'
-            url 'https://repo.md-5.net/content/repositories/repobo-rel/'
-        }
-
-        maven {
-            name 'sonatype'
+            name 'bungeecord-repo'
             url 'https://oss.sonatype.org/content/repositories/snapshots'
         }
 
@@ -51,13 +45,25 @@ allprojects {
             url 'https://repo.nukkitx.com/maven-snapshots'
         }
 
+        maven {
+            name 'sonatype'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+
+        maven {
+            name 'vault'
+            url 'https://repo.md-5.net/repository/releases'
+        }
+
     }
 
     project.ext {
 
-        cloudNetCodeName = 'Eruption'
+        cloudNetCodeName = 'Hurricane'
 
         //Dependencies
+        dependencyGuavaVersion = '28.2-jre'
+        dependencyAnnotationsVersion = '19.0.0'
         dependencyLombokVersion = '1.18.6'
         dependencyH2Version = '1.4.197'
         dependencyGsonVersion = '2.8.6'
@@ -68,8 +74,7 @@ allprojects {
         dependencyBukkitVersion = '1.15.2-R0.1-SNAPSHOT'
         dependencySpongeVersion = '7.0.0'
         dependencyBungeeCordVersion = '1.15-SNAPSHOT'
-        dependencyVelocityVersion = '1.0.0-SNAPSHOT'
-        //dependencyGoMintVersion = '1.0.0-SNAPSHOT'
+        dependencyVelocityVersion = '1.1.0-SNAPSHOT'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
 
         testJunitVersion = '4.12'
@@ -88,7 +93,9 @@ allprojects {
 
         //cloudNet modules
         cloudnetModuleBridgeFileName = 'cloudnet-bridge.jar'
+        cloudnetModuleLabyModFileName = 'cloudnet-labymod.jar'
         cloudnetModuleSignsFileName = 'cloudnet-signs.jar'
+        cloudnetModuleNPCsFileName = 'cloudnet-npcs.jar'
         cloudnetModuleSmartFileName = 'cloudnet-smart.jar'
         cloudnetModuleSyncProxyFileName = 'cloudnet-syncproxy.jar'
         cloudnetModuleCloudflareFileName = 'cloudnet-cloudflare.jar'
@@ -108,7 +115,7 @@ allprojects {
                 .append("repo maven https://repo1.maven.org/maven2\n")
                 .append("# dependencies\n\n")
 
-        pro.configurations.compile.resolvedConfiguration.resolvedArtifacts.forEach({
+        pro.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.forEach({
 
             if (it.moduleVersion.id.group != project.group) {
 
@@ -156,7 +163,8 @@ subprojects {
     if (project.name == 'cloudnet-modules' || project.name == 'cloudnet-plugins') return
 
     apply plugin: 'java'
-    apply plugin: 'maven'
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
 
     compileJava {
         options.encoding = 'UTF-8'
@@ -174,37 +182,49 @@ subprojects {
     targetCompatibility = 1.8
 
     dependencies {
+        implementation group: 'org.jetbrains', name: 'annotations', version: dependencyAnnotationsVersion
         compileOnly group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
-        testCompile group: 'junit', name: 'junit', version: testJunitVersion
+        testImplementation group: 'junit', name: 'junit', version: testJunitVersion
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
     }
 
-    task sourceJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allJava
+        archiveClassifier.set('sources')
     }
 
-    task deploymentJar(type: Jar, dependsOn: sourceJar) {
-
-        def pro = project
-        from sourceSets.main.output
-
-        doLast {
-            pom {
-
-            }.writeTo("$buildDir/libs/${pro.name}-${pro.version}.pom")
-        }
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
+    task javadocJar(type: Jar) {
         from javadoc
+        archiveClassifier.set('javadoc')
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact sourcesJar
+                artifact javadocJar
+            }
+        }
+        repositories {
+            maven {
+                if (project.version.endsWith("RELEASE")) {
+                    url 'https://repo.cloudnetservice.eu/repository/releases/'
+                } else {
+                    url 'https://repo.cloudnetservice.eu/repository/snapshots/'
+                }
+
+                credentials {
+                    username = project.hasProperty("mavenUser") ? project.property("mavenUser") : ""
+                    password = project.hasProperty("mavenPassword") ? project.property("mavenPassword") : ""
+                }
+            }
+        }
     }
 
 }
 
 task allJavadoc(type: Javadoc) {
-
     dependsOn ':cloudnet-launcher:jar'
 
     destinationDir = new File(buildDir, 'javadoc')

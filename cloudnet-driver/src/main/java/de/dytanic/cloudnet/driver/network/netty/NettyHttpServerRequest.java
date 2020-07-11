@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
@@ -11,10 +10,11 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class NettyHttpServerRequest implements IHttpRequest {
+final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequest {
 
     protected final NettyHttpServerContext context;
 
@@ -48,7 +48,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public String uri() {
-        return httpRequest.uri();
+        return this.httpRequest.uri();
     }
 
     @Override
@@ -68,26 +68,26 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public String header(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return this.httpRequest.headers().getAsString(name);
     }
 
     @Override
     public int headerAsInt(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return this.httpRequest.headers().getInt(name);
     }
 
     @Override
     public boolean headerAsBoolean(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return Boolean.parseBoolean(this.httpRequest.headers().get(name));
     }
 
     @Override
     public IHttpRequest header(String name, String value) {
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(value);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(value);
 
         this.httpRequest.headers().set(name, value);
         return this;
@@ -95,7 +95,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public IHttpRequest removeHeader(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         this.httpRequest.headers().remove(name);
         return this;
     }
@@ -108,13 +108,13 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public boolean hasHeader(String name) {
-        Validate.checkNotNull(name);
+        Preconditions.checkNotNull(name);
         return this.httpRequest.headers().contains(name);
     }
 
     @Override
     public Map<String, String> headers() {
-        Map<String, String> maps = Maps.newHashMap(this.httpRequest.headers().size());
+        Map<String, String> maps = new HashMap<>(this.httpRequest.headers().size());
 
         for (String key : this.httpRequest.headers().names()) {
             maps.put(key, this.httpRequest.headers().get(key));
@@ -125,34 +125,34 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public HttpVersion version() {
-        return this.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
+        return super.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
     }
 
     @Override
     public IHttpRequest version(HttpVersion version) {
-        Validate.checkNotNull(version);
+        Preconditions.checkNotNull(version);
 
-        this.httpRequest.setProtocolVersion(this.getNettyHttpVersion(version));
+        this.httpRequest.setProtocolVersion(super.getNettyHttpVersion(version));
         return this;
     }
 
     @Override
     public byte[] body() {
-        if (httpRequest instanceof FullHttpRequest) {
-            if (body == null) {
+        if (this.httpRequest instanceof FullHttpRequest) {
+            if (this.body == null) {
                 FullHttpRequest httpRequest = (FullHttpRequest) this.httpRequest;
 
                 int length = httpRequest.content().readableBytes();
 
                 if (httpRequest.content().hasArray()) {
-                    body = httpRequest.content().array();
+                    this.body = httpRequest.content().array();
                 } else {
-                    body = new byte[length];
-                    httpRequest.content().getBytes(httpRequest.content().readerIndex(), body);
+                    this.body = new byte[length];
+                    httpRequest.content().getBytes(httpRequest.content().readerIndex(), this.body);
                 }
             }
 
-            return body;
+            return this.body;
         }
 
         return new byte[0];
@@ -160,7 +160,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public String bodyAsString() {
-        return new String(body(), StandardCharsets.UTF_8);
+        return new String(this.body(), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -170,33 +170,9 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public IHttpRequest body(String text) {
-        Validate.checkNotNull(text);
+        Preconditions.checkNotNull(text);
 
         return this.body(text.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private HttpVersion getCloudNetHttpVersion(io.netty.handler.codec.http.HttpVersion httpVersion) {
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0) {
-            return HttpVersion.HTTP_1_0;
-        }
-
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
-            return HttpVersion.HTTP_1_1;
-        }
-
-        return HttpVersion.HTTP_1_0;
-    }
-
-    private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(HttpVersion httpVersion) {
-        if (httpVersion == HttpVersion.HTTP_1_0) {
-            return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
-        }
-
-        if (httpVersion == HttpVersion.HTTP_1_1) {
-            return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-        }
-
-        return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
     }
 
 }

@@ -32,20 +32,20 @@ public class LogOutputStream extends ByteArrayOutputStream {
     }
 
     public ILogger getLogger() {
-        return logger;
+        return this.logger;
     }
 
     public LogLevel getLogLevel() {
-        return logLevel;
+        return this.logLevel;
     }
 
     @Override
     public void flush() throws IOException {
-        String input = toString(StandardCharsets.UTF_8.name());
+        String input = this.toString(StandardCharsets.UTF_8.name());
         this.reset();
 
         if (input != null && !input.isEmpty() && !input.equals(System.lineSeparator())) {
-            logger.log(logLevel, input);
+            this.logger.log(this.logLevel, input);
         }
     }
 }

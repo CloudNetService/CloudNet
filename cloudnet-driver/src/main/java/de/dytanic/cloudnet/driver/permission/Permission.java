@@ -1,41 +1,48 @@
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
 @ToString
 @EqualsAndHashCode
-public final class Permission {
+public final class Permission implements SerializableObject {
 
-    private final String name;
+    private String name;
 
     private int potency;
 
     private long timeOutMillis;
 
-    public Permission(String name, int potency) {
+    public Permission(@NotNull String name, int potency) {
         this.name = name;
         this.potency = potency;
     }
 
-    public Permission(String name, int potency, long time, TimeUnit timeUnit) {
+    public Permission(@NotNull String name, int potency, long time, @NotNull TimeUnit timeUnit) {
         this.name = name;
         this.potency = potency;
         this.timeOutMillis = System.currentTimeMillis() + timeUnit.toMillis(time);
     }
 
-    public Permission(String name) {
+    public Permission(@NotNull String name) {
         this.name = name;
     }
 
-    public Permission(String name, int potency, long timeOutMillis) {
+    public Permission(@NotNull String name, int potency, long timeOutMillis) {
         this.name = name;
         this.potency = potency;
         this.timeOutMillis = timeOutMillis;
     }
 
+    public Permission() {
+    }
+
+    @NotNull
     public String getName() {
         return this.name;
     }
@@ -56,4 +63,17 @@ public final class Permission {
         this.timeOutMillis = timeOutMillis;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeString(this.name);
+        buffer.writeInt(this.potency);
+        buffer.writeLong(this.timeOutMillis);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.name = buffer.readString();
+        this.potency = buffer.readInt();
+        this.timeOutMillis = buffer.readLong();
+    }
 }

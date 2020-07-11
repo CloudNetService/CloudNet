@@ -1,15 +1,22 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-public class GroupConfiguration extends ServiceConfigurationBase implements INameable {
+@EqualsAndHashCode(callSuper = false)
+@ToString(callSuper = true)
+public class GroupConfiguration extends ServiceConfigurationBase implements INameable, SerializableObject {
 
     protected String name;
-    protected Collection<String> jvmOptions = Iterables.newArrayList();
-    protected Collection<ServiceEnvironmentType> targetEnvironments = Iterables.newArrayList();
+    protected Collection<String> jvmOptions = new ArrayList<>();
+    protected Collection<ServiceEnvironmentType> targetEnvironments = new ArrayList<>();
 
     public GroupConfiguration() {
     }
@@ -26,15 +33,37 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     }
 
     public Collection<String> getJvmOptions() {
-        return jvmOptions;
+        return this.jvmOptions;
     }
 
     public Collection<ServiceEnvironmentType> getTargetEnvironments() {
-        return targetEnvironments;
+        return this.targetEnvironments;
     }
 
     public String getName() {
         return this.name;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        super.write(buffer);
+        buffer.writeString(this.name);
+        buffer.writeStringCollection(this.jvmOptions);
+        buffer.writeVarInt(this.targetEnvironments.size());
+        for (ServiceEnvironmentType environment : this.targetEnvironments) {
+            buffer.writeEnumConstant(environment);
+        }
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        super.read(buffer);
+        this.name = buffer.readString();
+        this.jvmOptions = buffer.readStringCollection();
+        int size = buffer.readVarInt();
+        this.targetEnvironments = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            this.targetEnvironments.add(buffer.readEnumConstant(ServiceEnvironmentType.class));
+        }
+    }
 }

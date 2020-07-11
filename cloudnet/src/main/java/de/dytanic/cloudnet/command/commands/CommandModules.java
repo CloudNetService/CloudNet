@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.command.commands;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
@@ -33,7 +32,8 @@ public final class CommandModules extends CommandDefault implements ITabComplete
 
         if (args.length == 0) {
             sender.sendMessage(
-                    "Modules(" + moduleWrappers.size() + "): " + Arrays.toString(Iterables.map(moduleWrappers, moduleWrapper -> moduleWrapper.getModule().getName()).toArray(new String[0])),
+                    "Modules (" + moduleWrappers.size() + "): " + Arrays.toString(moduleWrappers.stream()
+                            .map(moduleWrapper -> moduleWrapper.getModule().getName()).toArray(String[]::new)),
                     " ",
                     "modules list installed | group=<name> name=<name> version=<version> author=<author>",
                     "modules list installable | group=<name> name=<name> version=<version> author=<author>",

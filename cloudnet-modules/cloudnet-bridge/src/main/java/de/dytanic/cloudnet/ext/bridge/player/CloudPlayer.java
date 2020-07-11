@@ -2,8 +2,12 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
+import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -21,6 +25,8 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
 
     protected NetworkPlayerServerInfo networkPlayerServerInfo;
 
+    protected JsonDocument onlineProperties;
+
     public CloudPlayer(ICloudOfflinePlayer cloudOfflinePlayer,
                        NetworkServiceInfo loginService,
                        NetworkServiceInfo connectedService,
@@ -37,6 +43,7 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
 
         //
         this.properties = cloudOfflinePlayer.getProperties();
+        this.onlineProperties = new JsonDocument();
         //
 
         this.loginService = loginService;
@@ -106,6 +113,36 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
 
     public void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {
         this.networkPlayerServerInfo = networkPlayerServerInfo;
+    }
+
+    @Override
+    public JsonDocument getOnlineProperties() {
+        return this.onlineProperties;
+    }
+
+    @Override
+    public PlayerExecutor getPlayerExecutor() {
+        return new DefaultPlayerExecutor(this.getUniqueId());
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        super.write(buffer);
+        buffer.writeObject(this.loginService);
+        buffer.writeObject(this.connectedService);
+        buffer.writeObject(this.networkConnectionInfo);
+        buffer.writeOptionalObject(this.networkPlayerServerInfo);
+        buffer.writeJsonDocument(this.onlineProperties);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        super.read(buffer);
+        this.loginService = buffer.readObject(NetworkServiceInfo.class);
+        this.connectedService = buffer.readObject(NetworkServiceInfo.class);
+        this.networkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
+        this.networkPlayerServerInfo = buffer.readOptionalObject(NetworkPlayerServerInfo.class);
+        this.onlineProperties = buffer.readJsonDocument();
     }
 
 }

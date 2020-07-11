@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.module;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.Command;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -15,44 +15,44 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 public abstract class NodeCloudNetModule extends DriverModule {
 
     public final void registerCommand(Command command) {
-        getCloudNet().getCommandMap().registerCommand(command);
+        this.getCloudNet().getCommandMap().registerCommand(command);
     }
 
     public final <T extends ITemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage) {
-        Validate.checkNotNull(serviceName);
-        Validate.checkNotNull(templateStorage);
+        Preconditions.checkNotNull(serviceName);
+        Preconditions.checkNotNull(templateStorage);
 
-        getRegistry().registerService(ITemplateStorage.class, serviceName, templateStorage);
+        this.getRegistry().registerService(ITemplateStorage.class, serviceName, templateStorage);
 
         return templateStorage;
     }
 
     public final <T extends AbstractDatabaseProvider> T registerDatabaseProvider(String serviceName, T databaseProvider) {
-        Validate.checkNotNull(serviceName);
-        Validate.checkNotNull(databaseProvider);
+        Preconditions.checkNotNull(serviceName);
+        Preconditions.checkNotNull(databaseProvider);
 
-        getRegistry().registerService(AbstractDatabaseProvider.class, serviceName, databaseProvider);
+        this.getRegistry().registerService(AbstractDatabaseProvider.class, serviceName, databaseProvider);
 
         return databaseProvider;
     }
 
     public final IHttpServer registerHttpHandler(String path, IHttpHandler... httpHandlers) {
-        Validate.checkNotNull(path);
-        Validate.checkNotNull(httpHandlers);
+        Preconditions.checkNotNull(path);
+        Preconditions.checkNotNull(httpHandlers);
 
-        return getHttpServer().registerHandler(path, httpHandlers);
+        return this.getHttpServer().registerHandler(path, httpHandlers);
     }
 
     public final AbstractDatabaseProvider getDatabaseProvider() {
-        return getCloudNet().getDatabaseProvider();
+        return this.getCloudNet().getDatabaseProvider();
     }
 
     public final IHttpServer getHttpServer() {
-        return getCloudNet().getHttpServer();
+        return this.getCloudNet().getHttpServer();
     }
 
     public final NetworkClusterNode getIdentity() {
-        return getCloudNetConfig().getIdentity();
+        return this.getCloudNetConfig().getIdentity();
     }
 
     public final IConfiguration getCloudNetConfig() {

@@ -2,10 +2,11 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public final class BukkitBridgeConfigurationUpdateEvent extends BukkitBridgeEvent {
 
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
     private final BridgeConfiguration bridgeConfiguration;
 
     public BukkitBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
@@ -16,6 +17,7 @@ public final class BukkitBridgeConfigurationUpdateEvent extends BukkitBridgeEven
         return BukkitBridgeConfigurationUpdateEvent.handlerList;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlerList;

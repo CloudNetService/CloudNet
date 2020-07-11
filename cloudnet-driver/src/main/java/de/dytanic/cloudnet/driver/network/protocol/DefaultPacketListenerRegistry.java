@@ -1,19 +1,20 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Default IPacketListenerRegistry implementation
  */
 public final class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
 
-    private final Map<Integer, List<IPacketListener>> listeners = Maps.newConcurrentHashMap();
+    private final Map<Integer, List<IPacketListener>> listeners = new ConcurrentHashMap<>();
 
     private final IPacketListenerRegistry parent;
 
@@ -27,21 +28,21 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
 
     @Override
     public void addListener(int channel, IPacketListener... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         if (!this.listeners.containsKey(channel)) {
-            this.listeners.put(channel, Iterables.newCopyOnWriteArrayList());
+            this.listeners.put(channel, new CopyOnWriteArrayList<>());
         }
 
         for (IPacketListener listener : listeners) {
-            Validate.checkNotNull(listener);
+            Preconditions.checkNotNull(listener);
             this.listeners.get(channel).add(listener);
         }
     }
 
     @Override
     public void removeListener(int channel, IPacketListener... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         if (this.listeners.containsKey(channel)) {
             this.listeners.get(channel).removeAll(Arrays.asList(listeners));
@@ -63,11 +64,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     @Override
     public void removeListeners(ClassLoader classLoader) {
         for (Map.Entry<Integer, List<IPacketListener>> listenerCollectionEntry : this.listeners.entrySet()) {
-            for (IPacketListener listener : listenerCollectionEntry.getValue()) {
-                if (listener.getClass().getClassLoader().equals(classLoader)) {
-                    listenerCollectionEntry.getValue().remove(listener);
-                }
-            }
+            listenerCollectionEntry.getValue().removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
         }
     }
 
@@ -96,7 +93,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
 
     @Override
     public Collection<IPacketListener> getListeners() {
-        Collection<IPacketListener> listeners = Iterables.newCopyOnWriteArrayList();
+        Collection<IPacketListener> listeners = new CopyOnWriteArrayList<>();
 
         for (List<IPacketListener> list : this.listeners.values()) {
             listeners.addAll(list);
@@ -107,19 +104,23 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
 
     @Override
     public void handlePacket(INetworkChannel channel, IPacket packet) {
-        Validate.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
-        if (packet.isShowDebug()) {
-            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(
-                    String.format(
-                            "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
-                            channel.getClientAddress().toString(),
-                            packet.getChannel(),
-                            packet.getUniqueId().toString(),
-                            packet.getHeader().toJson(),
-                            packet.getBody() != null ? packet.getBody().length : 0
-                    )
-            ));
+        if (packet.isShowDebug() && this.parent == null) {
+            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                    cloudNetDriver.getLogger().debug(
+                            String.format(
+                                    "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
+                                    channel.getClientAddress().toString(),
+                                    packet.getChannel(),
+                                    packet.getUniqueId().toString(),
+                                    packet.getHeader().toJson(),
+                                    packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
+                            )
+                    );
+                }
+            });
         }
 
         if (this.parent != null) {

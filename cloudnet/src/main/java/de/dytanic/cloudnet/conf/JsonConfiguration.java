@@ -1,8 +1,7 @@
 package de.dytanic.cloudnet.conf;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -47,7 +46,9 @@ public final class JsonConfiguration implements IConfiguration {
 
     private int maxMemory, maxServiceConsoleLogCacheSize;
 
-    private boolean printErrorStreamLinesFromServices, defaultJVMOptionParameters;
+    private boolean printErrorStreamLinesFromServices;
+
+    private DefaultJVMFlags defaultJVMFlags;
 
     private String hostAddress;
 
@@ -68,17 +69,18 @@ public final class JsonConfiguration implements IConfiguration {
     public void load() {
         this.document = JsonDocument.newDocument(CONFIG_FILE_PATH);
 
-        Collection<String> addresses = Iterables.newHashSet();
+        Collection<String> addresses = new HashSet<>();
         addresses.add("127.0.0.1");
         addresses.add("127.0.1.1");
 
         try {
-            Iterables.forEach(NetworkInterface.getNetworkInterfaces(), networkInterface -> Iterables.forEach(networkInterface.getInetAddresses(), inetAddress -> addresses.add(inetAddress.getHostAddress())));
+            Collections.list(NetworkInterface.getNetworkInterfaces()).forEach(networkInterface ->
+                    Collections.list(networkInterface.getInetAddresses()).forEach(inetAddress -> addresses.add(inetAddress.getHostAddress())));
         } catch (SocketException exception) {
             exception.printStackTrace();
         }
 
-        String address = defaultHostAddress;
+        String address = this.defaultHostAddress;
 
         if (address == null) {
             try {
@@ -123,7 +125,10 @@ public final class JsonConfiguration implements IConfiguration {
 
         this.maxServiceConsoleLogCacheSize = this.document.getInt("maxServiceConsoleLogCacheSize", 64);
         this.printErrorStreamLinesFromServices = this.document.getBoolean("printErrorStreamLinesFromServices", true);
-        this.defaultJVMOptionParameters = this.document.getBoolean("defaultJVMOptionParameters", true);
+
+        // replaced by the DefaultJVMFlags-enum
+        this.document.remove("defaultJVMOptionParameters");
+        this.defaultJVMFlags = this.document.get("defaultJVMFlags", DefaultJVMFlags.class, DefaultJVMFlags.DYTANIC);
 
         this.jVMCommand = this.document.getString("jvmCommand",
                 System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") != null ?
@@ -155,8 +160,8 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void save() {
-        if (document == null) {
-            document = new JsonDocument();
+        if (this.document == null) {
+            this.document = new JsonDocument();
         }
 
         this.document
@@ -168,7 +173,7 @@ public final class JsonConfiguration implements IConfiguration {
                 .append("printErrorStreamLinesFromServices", this.printErrorStreamLinesFromServices)
                 .append("maxCPUUsageToStartServices", this.maxCPUUsageToStartServices)
                 .append("parallelServiceStartSequence", this.parallelServiceStartSequence)
-                .append("defaultJVMOptionParameters", this.defaultJVMOptionParameters)
+                .append("defaultJVMFlags", this.defaultJVMFlags)
                 .append("runBlockedServiceStartTryLaterAutomatic", this.runBlockedServiceStartTryLaterAutomatic)
                 .append("cluster", this.clusterConfig)
                 .append("hostAddress", this.hostAddress)
@@ -199,7 +204,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void setClusterConfig(NetworkCluster clusterConfig) {
-        Validate.checkNotNull(clusterConfig);
+        Preconditions.checkNotNull(clusterConfig);
 
         this.clusterConfig = clusterConfig;
         this.save();
@@ -211,7 +216,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void setIpWhitelist(Collection<String> whitelist) {
-        Validate.checkNotNull(whitelist);
+        Preconditions.checkNotNull(whitelist);
 
         this.ipWhitelist = whitelist;
         this.save();
@@ -277,13 +282,14 @@ public final class JsonConfiguration implements IConfiguration {
         this.save();
     }
 
-    public boolean isDefaultJVMOptionParameters() {
-        return this.defaultJVMOptionParameters;
+    @Override
+    public DefaultJVMFlags getDefaultJVMFlags() {
+        return this.defaultJVMFlags;
     }
 
     @Override
-    public void setDefaultJVMOptionParameters(boolean defaultJVMOptionParameters) {
-        this.defaultJVMOptionParameters = defaultJVMOptionParameters;
+    public void setDefaultJVMFlags(DefaultJVMFlags defaultJVMFlags) {
+        this.defaultJVMFlags = defaultJVMFlags;
         this.save();
     }
 
@@ -297,7 +303,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void setHttpListeners(Collection<HostAndPort> httpListeners) {
-        Validate.checkNotNull(httpListeners);
+        Preconditions.checkNotNull(httpListeners);
 
         this.httpListeners = httpListeners;
         this.save();

@@ -1,141 +1,151 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Pair;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
-public class WrapperGroupConfigurationProvider implements GroupConfigurationProvider {
+public class WrapperGroupConfigurationProvider implements GroupConfigurationProvider, DriverAPIUser {
 
-    private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
-
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperGroupConfigurationProvider(Wrapper wrapper) {
         this.wrapper = wrapper;
     }
 
     @Override
+    public void reload() {
+        this.reloadAsync().get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
     public Collection<GroupConfiguration> getGroupConfigurations() {
-        try {
-            return this.getGroupConfigurationsAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.getGroupConfigurationsAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public GroupConfiguration getGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
+    public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+        this.setGroupConfigurationsAsync(groupConfigurations).get(5, TimeUnit.SECONDS, null);
+    }
 
-        try {
-            return this.getGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    @Nullable
+    @Override
+    public GroupConfiguration getGroupConfiguration(@NotNull String name) {
+        Preconditions.checkNotNull(name);
+        return this.getGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public boolean isGroupConfigurationPresent(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.isGroupConfigurationPresentAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return false;
+    public boolean isGroupConfigurationPresent(@NotNull String name) {
+        Preconditions.checkNotNull(name);
+        return this.isGroupConfigurationPresentAsync(name).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
-    public void addGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
-
-        try {
-            this.addGroupConfigurationAsync(groupConfiguration).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
+    public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
+        this.addGroupConfigurationAsync(groupConfiguration).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public void removeGroupConfiguration(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            this.removeGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
+    public void removeGroupConfiguration(@NotNull String name) {
+        Preconditions.checkNotNull(name);
+        this.removeGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public void removeGroupConfiguration(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
         this.removeGroupConfiguration(groupConfiguration.getName());
     }
 
     @Override
+    public @NotNull ITask<Void> reloadAsync() {
+        return this.executeVoidDriverAPIMethod(DriverAPIRequestType.RELOAD_GROUPS, null);
+    }
+
+    @Override
+    @NotNull
     public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_groupConfigurations"), null,
-                documentPair -> documentPair.getFirst().get("groupConfigurations", new TypeToken<Collection<GroupConfiguration>>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_GROUP_CONFIGURATIONS,
+                packet -> packet.getBuffer().readObjectCollection(GroupConfiguration.class)
+        );
     }
 
     @Override
-    public ITask<GroupConfiguration> getGroupConfigurationAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_group_configuration").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("groupConfiguration", new TypeToken<GroupConfiguration>() {
-                }.getType()));
+    public @NotNull ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+        return this.executeVoidDriverAPIMethod(
+                DriverAPIRequestType.SET_GROUP_CONFIGURATIONS,
+                buffer -> buffer.writeObjectCollection(groupConfigurations)
+        );
     }
 
     @Override
-    public ITask<Boolean> isGroupConfigurationPresentAsync(String name) {
-        Validate.checkNotNull(name);
+    @NotNull
+    public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_group_configuration_present").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_GROUP_CONFIGURATION_BY_NAME,
+                buffer -> buffer.writeString(name),
+                packet -> packet.getBuffer().readOptionalObject(GroupConfiguration.class)
+        );
     }
 
     @Override
-    public ITask<Void> addGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    @NotNull
+    public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_group_configuration").append("groupConfiguration", groupConfiguration), null,
-                VOID_FUNCTION);
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.IS_GROUP_CONFIGURATION_PRESENT,
+                buffer -> buffer.writeString(name),
+                packet -> packet.getBuffer().readBoolean()
+        );
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(String name) {
-        Validate.checkNotNull(name);
+    @NotNull
+    public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_group_configuration").append("name", name), null,
-                VOID_FUNCTION);
+        return this.executeVoidDriverAPIMethod(
+                DriverAPIRequestType.ADD_GROUP_CONFIGURATION,
+                buffer -> buffer.writeObject(groupConfiguration)
+        );
     }
 
     @Override
-    public ITask<Void> removeGroupConfigurationAsync(GroupConfiguration groupConfiguration) {
-        Validate.checkNotNull(groupConfiguration);
+    @NotNull
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
+
+        return this.executeVoidDriverAPIMethod(
+                DriverAPIRequestType.REMOVE_GROUP_CONFIGURATION,
+                buffer -> buffer.writeString(name)
+        );
+    }
+
+    @Override
+    @NotNull
+    public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+        Preconditions.checkNotNull(groupConfiguration);
 
         return this.removeGroupConfigurationAsync(groupConfiguration.getName());
+    }
+
+    @Override
+    public INetworkChannel getNetworkChannel() {
+        return this.wrapper.getNetworkChannel();
     }
 }

@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
@@ -13,28 +15,31 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     private boolean cancelled;
 
-    private Sign clickedSign;
+    private final Sign clickedSign;
 
     private String targetServer;
 
-    public BukkitCloudSignInteractEvent(Player who, Sign clickedSign, String targetServer) {
+    public BukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign clickedSign, @Nullable String targetServer) {
         super(who);
         this.clickedSign = clickedSign;
         this.targetServer = targetServer;
     }
 
+    @NotNull
     public Sign getClickedSign() {
-        return clickedSign;
+        return this.clickedSign;
     }
 
+    @Nullable
     public String getTargetServer() {
-        return targetServer;
+        return this.targetServer;
     }
 
     public void setTargetServer(String targetServer) {
         this.targetServer = targetServer;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLER_LIST;
@@ -42,12 +47,12 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     @Override
     public boolean isCancelled() {
-        return cancelled;
+        return this.cancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-        cancelled = cancel;
+        this.cancelled = cancel;
     }
 
 }

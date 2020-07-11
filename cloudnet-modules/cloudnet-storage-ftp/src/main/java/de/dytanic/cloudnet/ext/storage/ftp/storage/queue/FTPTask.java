@@ -41,7 +41,7 @@ class FTPTask<V> extends ListenableTask<V> {
     }
 
     Exception getException() {
-        return exception;
+        return this.exception;
     }
 
 }

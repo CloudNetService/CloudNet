@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.console;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +32,7 @@ public interface IConsole extends AutoCloseable {
 
     void setCommandInputValue(String commandInputValue);
 
+    @NotNull
     ITask<String> readLine();
 
     void enableAllHandlers();

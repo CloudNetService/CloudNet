@@ -18,7 +18,7 @@ public final class DefaultCommandMapTest {
 
             @Override
             public void sendMessage(String message) {
-                b = message;
+                DefaultCommandMapTest.this.b = message;
             }
 
             @Override
@@ -40,15 +40,17 @@ public final class DefaultCommandMapTest {
         final Command command = new Command() {
 
             {
-                names = new String[]{"test"};
-                description = "description";
-                prefix = "test";
+                this.names = new String[]{"test asdf"};
+                this.description = "description";
+                this.prefix = "test 123";
             }
 
             @Override
             public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-                Assert.assertEquals(2, args.length);
-                Assert.assertEquals("val", args[1]);
+                Assert.assertEquals(3, args.length);
+                Assert.assertEquals("Dytanic", args[0]);
+                Assert.assertEquals("derrop", args[1]);
+                Assert.assertEquals("val 1 2 3 4", args[2]);
 
                 DefaultCommandMapTest.this.name = args[0];
 
@@ -58,17 +60,17 @@ public final class DefaultCommandMapTest {
 
         commandMap.registerCommand(command);
 
-        Assert.assertNotNull(commandMap.getCommand("TEST"));
-        Assert.assertNotNull(commandMap.getCommand("test:test"));
+        Assert.assertNotNull(commandMap.getCommand("TEST asdf"));
+        Assert.assertNotNull(commandMap.getCommand("test 123:test asdf"));
         Assert.assertEquals(2, commandMap.getCommandNames().size());
-        Assert.assertTrue(commandMap.dispatchCommand(commandSender, "test:test Dytanic val"));
+        Assert.assertTrue(commandMap.dispatchCommand(commandSender, "\"test 123:test asdf\" \"Dytanic\" derrop \"val 1 2 3 4\""));
 
         commandMap.unregisterCommand(command.getClass());
         Assert.assertEquals(0, commandMap.getCommandNames().size());
 
         Assert.assertNotNull(this.name);
         Assert.assertEquals("Dytanic", this.name);
-        Assert.assertEquals("Hello, world!", b);
+        Assert.assertEquals("Hello, world!", this.b);
     }
 
 }

@@ -1,11 +1,13 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -22,7 +24,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     public static final Type TYPE = new TypeToken<PermissionGroup>() {
     }.getType();
 
-    protected Collection<String> groups = Iterables.newArrayList();
+    protected Collection<String> groups = new ArrayList<>();
 
     private String prefix = "&7";
     private String color = "&7";
@@ -69,15 +71,15 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         return this.prefix;
     }
 
-    public void setPrefix(String prefix) {
+    public void setPrefix(@NotNull String prefix) {
         this.prefix = prefix;
     }
 
     public String getColor() {
-        return color;
+        return this.color;
     }
 
-    public void setColor(String color) {
+    public void setColor(@NotNull String color) {
         this.color = color;
     }
 
@@ -85,7 +87,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         return this.suffix;
     }
 
-    public void setSuffix(String suffix) {
+    public void setSuffix(@NotNull String suffix) {
         this.suffix = suffix;
     }
 
@@ -93,7 +95,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         return this.display;
     }
 
-    public void setDisplay(String display) {
+    public void setDisplay(@NotNull String display) {
         this.display = display;
     }
 
@@ -113,4 +115,33 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         this.defaultGroup = defaultGroup;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        super.write(buffer);
+
+        buffer.writeStringCollection(this.groups);
+
+        buffer.writeString(this.prefix);
+        buffer.writeString(this.color);
+        buffer.writeString(this.suffix);
+        buffer.writeString(this.display);
+
+        buffer.writeInt(this.sortId);
+        buffer.writeBoolean(this.defaultGroup);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        super.read(buffer);
+
+        this.groups = buffer.readStringCollection();
+
+        this.prefix = buffer.readString();
+        this.color = buffer.readString();
+        this.suffix = buffer.readString();
+        this.display = buffer.readString();
+
+        this.sortId = buffer.readInt();
+        this.defaultGroup = buffer.readBoolean();
+    }
 }

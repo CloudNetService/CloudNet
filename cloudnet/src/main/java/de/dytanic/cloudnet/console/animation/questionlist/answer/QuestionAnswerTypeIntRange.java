@@ -3,7 +3,8 @@ package de.dytanic.cloudnet.console.animation.questionlist.answer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 
 public class QuestionAnswerTypeIntRange extends QuestionAnswerTypeInt {
-    private int minValue, maxValue;
+    private final int minValue;
+    private final int maxValue;
 
     public QuestionAnswerTypeIntRange(int minValue, int maxValue) {
         this.minValue = minValue;

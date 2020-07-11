@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.event;
 
-import de.dytanic.cloudnet.common.Validate;
+import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 
 import java.lang.reflect.Method;
@@ -14,7 +15,7 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager registerListener(Object listener) {
-        Validate.checkNotNull(listener);
+        Preconditions.checkNotNull(listener);
 
         this.registerListener0(listener);
         return this;
@@ -22,14 +23,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListener(Object listener) {
-        Validate.checkNotNull(listener);
+        Preconditions.checkNotNull(listener);
 
         for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
-                if (registeredEventListener.getInstance().equals(listener)) {
-                    listeners.getValue().remove(registeredEventListener);
-                }
-            }
+            listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().equals(listener));
         }
 
         return this;
@@ -37,14 +34,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListener(Class<?> listener) {
-        Validate.checkNotNull(listener);
+        Preconditions.checkNotNull(listener);
 
         for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
-                if (registeredEventListener.getInstance().getClass().equals(listener)) {
-                    listeners.getValue().remove(registeredEventListener);
-                }
-            }
+            listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().getClass().equals(listener));
         }
 
         return this;
@@ -52,14 +45,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListeners(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
         for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-            for (IRegisteredEventListener registeredEventListener : listeners.getValue()) {
-                if (registeredEventListener.getInstance().getClass().getClassLoader().equals(classLoader)) {
-                    listeners.getValue().remove(registeredEventListener);
-                }
-            }
+            listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().getClass().getClassLoader().equals(classLoader));
         }
 
         return this;
@@ -67,10 +56,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListeners(Object... listeners) {
-        Validate.checkNotNull(listeners);
+        Preconditions.checkNotNull(listeners);
 
         for (Object listener : listeners) {
-            unregisterListener(listener);
+            this.unregisterListener(listener);
         }
 
         return this;
@@ -78,10 +67,10 @@ public final class DefaultEventManager implements IEventManager {
 
     @Override
     public IEventManager unregisterListeners(Class<?>... classes) {
-        Validate.checkNotNull(classes);
+        Preconditions.checkNotNull(classes);
 
         for (Object listener : classes) {
-            unregisterListener(listener);
+            this.unregisterListener(listener);
         }
 
         return this;
@@ -98,9 +87,9 @@ public final class DefaultEventManager implements IEventManager {
         if (channel == null) {
             channel = "*";
         }
-        Validate.checkNotNull(event);
+        Preconditions.checkNotNull(event);
 
-        fireEvent(channel, event);
+        this.fireEvent(channel, event);
         return event;
     }
 
@@ -113,10 +102,10 @@ public final class DefaultEventManager implements IEventManager {
                 listeners.addAll(entry);
             }
 
-            fireEvent0(listeners, event);
+            this.fireEvent0(listeners, event);
 
         } else if (this.registeredListeners.containsKey(channel)) {
-            fireEvent0(this.registeredListeners.get(channel), event);
+            this.fireEvent0(this.registeredListeners.get(channel), event);
         }
     }
 
@@ -129,13 +118,17 @@ public final class DefaultEventManager implements IEventManager {
     }
 
     private void registerListener0(Object listener) {
-        for (Method method : listener.getClass().getDeclaredMethods()) {
-            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getLogger().debug(String.format(
-                    "Registering listener method %s:%s from class loader %s",
-                    listener.getClass().getName(),
-                    method.getName(),
-                    listener.getClass().getClassLoader().getClass().getName()
-            )));
+        for (Method method : listener.getClass().getMethods()) {
+            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                    cloudNetDriver.getLogger().debug(String.format(
+                            "Registering listener method %s:%s from class loader %s",
+                            listener.getClass().getName(),
+                            method.getName(),
+                            listener.getClass().getClassLoader().getClass().getName()
+                    ));
+                }
+            });
             if (
                     method.getParameterCount() == 1 &&
                             method.isAnnotationPresent(EventListener.class) &&

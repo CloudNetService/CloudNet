@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.template;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.Validate;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -43,10 +43,10 @@ public final class TemplateStorageUtil {
     }
 
     public static boolean createAndPrepareTemplate(ITemplateStorage storage, String prefix, String name, ServiceEnvironmentType environment) throws IOException {
-        Validate.checkNotNull(storage);
-        Validate.checkNotNull(prefix);
-        Validate.checkNotNull(name);
-        Validate.checkNotNull(environment);
+        Preconditions.checkNotNull(storage);
+        Preconditions.checkNotNull(prefix);
+        Preconditions.checkNotNull(name);
+        Preconditions.checkNotNull(environment);
 
         ServiceTemplate serviceTemplate = new ServiceTemplate(prefix, name, storage.getName());
 
@@ -57,15 +57,6 @@ public final class TemplateStorageUtil {
             byte[] buffer = new byte[3072];
 
             switch (environment) {
-                case PROX_PROX: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "config.yml");
-                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/proxprox/config.yml")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, outputStream, buffer);
-                        }
-                    }
-                }
-                break;
                 case BUNGEECORD: {
                     prepareProxyTemplate(storage, serviceTemplate, buffer, "config.yml", "files/bungee/config.yml");
                 }
@@ -88,15 +79,6 @@ public final class TemplateStorageUtil {
 
                     try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "nukkit.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nukkit/nukkit.yml")) {
-                        if (inputStream != null) {
-                            FileUtils.copy(inputStream, outputStream, buffer);
-                        }
-                    }
-                }
-                break;
-                case GO_MINT: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.yml");
-                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }

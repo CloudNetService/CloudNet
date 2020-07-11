@@ -1,11 +1,11 @@
 package de.dytanic.cloudnet.permission.command;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class DefaultPermissionUserCommandSender implements IPermissionUserCommandSender {
 
@@ -13,7 +13,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     protected final IPermissionManagement permissionManagement;
 
-    protected final Queue<String> writtenMessages = Iterables.newConcurrentLinkedQueue();
+    protected final Queue<String> writtenMessages = new ConcurrentLinkedQueue<>();
 
     public DefaultPermissionUserCommandSender(IPermissionUser permissionUser, IPermissionManagement permissionManagement) {
         this.permissionUser = permissionUser;
@@ -22,12 +22,12 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     @Override
     public String getName() {
-        return permissionUser.getName();
+        return this.permissionUser.getName();
     }
 
     @Override
     public void sendMessage(String message) {
-        Validate.checkNotNull(message);
+        Preconditions.checkNotNull(message);
 
         this.writtenMessages.add(message);
 
@@ -38,7 +38,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     @Override
     public void sendMessage(String... messages) {
-        Validate.checkNotNull(messages);
+        Preconditions.checkNotNull(messages);
 
         for (String message : messages) {
             this.sendMessage(message);
@@ -47,7 +47,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
 
     @Override
     public boolean hasPermission(String permission) {
-        return permissionManagement.hasPermission(this.permissionUser, permission);
+        return this.permissionManagement.hasPermission(this.permissionUser, permission);
     }
 
     public IPermissionUser getPermissionUser() {

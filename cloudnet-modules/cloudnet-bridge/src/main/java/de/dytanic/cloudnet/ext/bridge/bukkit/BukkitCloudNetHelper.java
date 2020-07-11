@@ -1,10 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
@@ -12,43 +9,31 @@ import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public final class BukkitCloudNetHelper {
-
-    private static volatile String
-            apiMotd = Bukkit.getMotd(),
-            extra = "",
-            state = "LOBBY";
-
-    private static volatile int
-            maxPlayers = Bukkit.getMaxPlayers();
-
-    private static JavaPlugin plugin;
-
+public final class BukkitCloudNetHelper extends BridgeServerHelper {
 
     private BukkitCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static void changeToIngame() {
-        BridgeHelper.changeToIngame(s -> BukkitCloudNetHelper.state = s);
+    public static void init() {
+        BridgeServerHelper.setMotd(Bukkit.getMotd());
+        BridgeServerHelper.setState("LOBBY");
+        BridgeServerHelper.setMaxPlayers(Bukkit.getMaxPlayers());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
-        Collection<BukkitCloudNetPlayerInfo> players = Iterables.newArrayList();
+        Collection<BukkitCloudNetPlayerInfo> players = new ArrayList<>();
         Bukkit.getOnlinePlayers().forEach(player -> {
             Location location = player.getLocation();
 
@@ -72,23 +57,23 @@ public final class BukkitCloudNetHelper {
         });
 
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", Bukkit.getVersion())
                 .append("Bukkit-Version", Bukkit.getBukkitVersion())
                 .append("Online-Count", Bukkit.getOnlinePlayers().size())
-                .append("Max-Players", maxPlayers)
-                .append("Motd", apiMotd)
-                .append("Extra", extra)
-                .append("State", state)
+                .append("Max-Players", BridgeServerHelper.getMaxPlayers())
+                .append("Motd", BridgeServerHelper.getMotd())
+                .append("Extra", BridgeServerHelper.getExtra())
+                .append("State", BridgeServerHelper.getState())
                 .append("Outgoing-Channels", Bukkit.getMessenger().getOutgoingChannels())
                 .append("Incoming-Channels", Bukkit.getMessenger().getIncomingChannels())
                 .append("Online-Mode", Bukkit.getOnlineMode())
                 .append("Whitelist-Enabled", Bukkit.hasWhitelist())
-                .append("Whitelist", Iterables.map(Bukkit.getWhitelistedPlayers(), OfflinePlayer::getName))
+                .append("Whitelist", Bukkit.getWhitelistedPlayers().stream().map(OfflinePlayer::getName).collect(Collectors.toList()))
                 .append("Allow-Nether", Bukkit.getAllowNether())
                 .append("Allow-End", Bukkit.getAllowEnd())
                 .append("Players", players)
-                .append("Plugins", Iterables.map(Arrays.asList(Bukkit.getPluginManager().getPlugins()), plugin -> {
+                .append("Plugins", Arrays.stream(Bukkit.getPluginManager().getPlugins()).map(plugin -> {
                     PluginInfo pluginInfo = new PluginInfo(plugin.getName(), plugin.getDescription().getVersion());
 
                     pluginInfo.getProperties()
@@ -104,17 +89,16 @@ public final class BukkitCloudNetHelper {
                     ;
 
                     return pluginInfo;
-                }))
-                .append("Worlds", Iterables.map(Bukkit.getWorlds(), world -> {
-                    Map<String, String> gameRules = Maps.newHashMap();
+                }).collect(Collectors.toList()))
+                .append("Worlds", Bukkit.getWorlds().stream().map(world -> {
+                    Map<String, String> gameRules = new HashMap<>();
 
                     for (String entry : world.getGameRules()) {
                         gameRules.put(entry, world.getGameRuleValue(entry));
                     }
 
                     return new WorldInfo(world.getUID(), world.getName(), world.getDifficulty().name(), gameRules);
-                }))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
@@ -126,11 +110,7 @@ public final class BukkitCloudNetHelper {
                 new HostAndPort("0.0.0.0", Bukkit.getServer().getPort()),
                 Bukkit.getServer().getOnlineMode(),
                 false,
-                new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
@@ -161,52 +141,8 @@ public final class BukkitCloudNetHelper {
                 player.getLevel(),
                 worldPosition,
                 new HostAndPort(player.getAddress()),
-                new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
-
-    public static String getApiMotd() {
-        return BukkitCloudNetHelper.apiMotd;
-    }
-
-    public static void setApiMotd(String apiMotd) {
-        BukkitCloudNetHelper.apiMotd = apiMotd;
-    }
-
-    public static String getExtra() {
-        return BukkitCloudNetHelper.extra;
-    }
-
-    public static void setExtra(String extra) {
-        BukkitCloudNetHelper.extra = extra;
-    }
-
-    public static String getState() {
-        return BukkitCloudNetHelper.state;
-    }
-
-    public static void setState(String state) {
-        BukkitCloudNetHelper.state = state;
-    }
-
-    public static int getMaxPlayers() {
-        return BukkitCloudNetHelper.maxPlayers;
-    }
-
-    public static void setMaxPlayers(int maxPlayers) {
-        BukkitCloudNetHelper.maxPlayers = maxPlayers;
-    }
-
-    public static JavaPlugin getPlugin() {
-        return BukkitCloudNetHelper.plugin;
-    }
-
-    public static void setPlugin(JavaPlugin plugin) {
-        BukkitCloudNetHelper.plugin = plugin;
-    }
 }

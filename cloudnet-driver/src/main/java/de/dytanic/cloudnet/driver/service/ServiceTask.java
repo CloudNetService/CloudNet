@@ -1,18 +1,24 @@
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class ServiceTask extends ServiceConfigurationBase {
+public class ServiceTask extends ServiceConfigurationBase implements INameable, SerializableObject {
 
     private String name;
 
     private String runtime;
+
+    private boolean disableIpRewrite;
 
     private boolean maintenance, autoDeleteOnStop, staticServices;
 
@@ -71,6 +77,11 @@ public class ServiceTask extends ServiceConfigurationBase {
     public ServiceTask() {
     }
 
+    @Override
+    public Collection<String> getJvmOptions() {
+        return this.processConfiguration.getJvmOptions();
+    }
+
     /**
      * Forbids this task to auto start new services for a specific time on the current node.
      * This method has no effect when executed on a wrapper instances.
@@ -83,6 +94,14 @@ public class ServiceTask extends ServiceConfigurationBase {
 
     public boolean canStartServices() {
         return !this.maintenance && System.currentTimeMillis() > this.serviceStartAbilityTime;
+    }
+
+    public boolean isDisableIpRewrite() {
+        return this.disableIpRewrite;
+    }
+
+    public void setDisableIpRewrite(boolean disableIpRewrite) {
+        this.disableIpRewrite = disableIpRewrite;
     }
 
     public String getName() {
@@ -142,7 +161,7 @@ public class ServiceTask extends ServiceConfigurationBase {
     }
 
     public Collection<String> getDeletedFilesAfterStop() {
-        return deletedFilesAfterStop;
+        return this.deletedFilesAfterStop;
     }
 
     public void setDeletedFilesAfterStop(Collection<String> deletedFilesAfterStop) {
@@ -194,5 +213,39 @@ public class ServiceTask extends ServiceConfigurationBase {
                 this.startPort,
                 this.minServiceCount
         );
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        super.write(buffer);
+        buffer.writeString(this.name);
+        buffer.writeString(this.runtime);
+        buffer.writeBoolean(this.disableIpRewrite);
+        buffer.writeBoolean(this.maintenance);
+        buffer.writeBoolean(this.autoDeleteOnStop);
+        buffer.writeBoolean(this.staticServices);
+        buffer.writeStringCollection(this.associatedNodes);
+        buffer.writeStringCollection(this.groups);
+        buffer.writeStringCollection(this.deletedFilesAfterStop);
+        buffer.writeObject(this.processConfiguration);
+        buffer.writeInt(this.startPort);
+        buffer.writeInt(this.minServiceCount);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        super.read(buffer);
+        this.name = buffer.readString();
+        this.runtime = buffer.readString();
+        this.disableIpRewrite = buffer.readBoolean();
+        this.maintenance = buffer.readBoolean();
+        this.autoDeleteOnStop = buffer.readBoolean();
+        this.staticServices = buffer.readBoolean();
+        this.associatedNodes = buffer.readStringCollection();
+        this.groups = buffer.readStringCollection();
+        this.deletedFilesAfterStop = buffer.readStringCollection();
+        this.processConfiguration = buffer.readObject(ProcessConfiguration.class);
+        this.startPort = buffer.readInt();
+        this.minServiceCount = buffer.readInt();
     }
 }

@@ -1,5 +1,5 @@
 jar {
-    archiveName = 'cloudnet-chat.jar'
+    archiveFileName.set('cloudnet-chat.jar')
 }
 
 dependencies {

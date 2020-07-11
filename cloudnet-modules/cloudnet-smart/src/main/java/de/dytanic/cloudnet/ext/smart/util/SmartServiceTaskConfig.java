@@ -9,7 +9,6 @@ import lombok.ToString;
 public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig> {
 
     protected boolean enabled = false;
-
     protected int priority = 10;
 
     protected boolean directTemplatesAndInclusionsSetup = true;
@@ -17,16 +16,15 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
     protected int preparedServices = 0;
 
     protected boolean dynamicMemoryAllocation = false;
-
     protected int dynamicMemoryAllocationRange = 256;
 
     protected int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture = 0;
-
     protected int autoStopTimeByUnusedServiceInSeconds = 180;
 
     protected int percentOfPlayersForANewServiceByInstance = 100;
-
     protected int forAnewInstanceDelayTimeInSeconds = 300;
+
+    protected int minNonFullServices = 0;
 
     protected TemplateInstaller templateInstaller = TemplateInstaller.INSTALL_ALL;
 
@@ -35,8 +33,8 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
     public SmartServiceTaskConfig(
             int priority, boolean directTemplatesAndInclusionsSetup, int preparedServices, boolean dynamicMemoryAllocation,
             int dynamicMemoryAllocationRange, int percentOfPlayersToCheckShouldAutoStopTheServiceInFuture, int autoStopTimeByUnusedServiceInSeconds,
-            boolean switchToPreparedServiceAfterAutoStopTimeByUnusedService, int percentOfPlayersForANewServiceByInstance,
-            int forAnewInstanceDelayTimeInSeconds, TemplateInstaller templateInstaller, int maxServiceCount) {
+            int percentOfPlayersForANewServiceByInstance, int forAnewInstanceDelayTimeInSeconds,
+            int minNonFullServices, TemplateInstaller templateInstaller, int maxServiceCount) {
         this.enabled = false;
         this.priority = priority;
         this.directTemplatesAndInclusionsSetup = directTemplatesAndInclusionsSetup;
@@ -47,6 +45,7 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
         this.autoStopTimeByUnusedServiceInSeconds = autoStopTimeByUnusedServiceInSeconds;
         this.percentOfPlayersForANewServiceByInstance = percentOfPlayersForANewServiceByInstance;
         this.forAnewInstanceDelayTimeInSeconds = forAnewInstanceDelayTimeInSeconds;
+        this.minNonFullServices = minNonFullServices;
         this.templateInstaller = templateInstaller;
         this.maxServiceCount = maxServiceCount;
     }
@@ -56,11 +55,11 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
 
     @Override
     public int compareTo(SmartServiceTaskConfig o) {
-        return priority + o.priority;
+        return this.priority + o.priority;
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return this.enabled;
     }
 
     public void setEnabled(boolean enabled) {
@@ -139,6 +138,14 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
         this.forAnewInstanceDelayTimeInSeconds = forAnewInstanceDelayTimeInSeconds;
     }
 
+    public int getMinNonFullServices() {
+        return this.minNonFullServices;
+    }
+
+    public void setMinNonFullServices(int minNonFullServices) {
+        this.minNonFullServices = minNonFullServices;
+    }
+
     public TemplateInstaller getTemplateInstaller() {
         return this.templateInstaller;
     }
@@ -148,7 +155,7 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
     }
 
     public int getMaxServiceCount() {
-        return maxServiceCount;
+        return this.maxServiceCount;
     }
 
     public void setMaxServiceCount(int maxServiceCount) {

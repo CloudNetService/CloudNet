@@ -1,13 +1,12 @@
 package de.dytanic.cloudnet.ext.bridge.node.listener;
 
-import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
-import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
@@ -15,128 +14,164 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 
 public final class PlayerManagerListener {
 
-    private static final Type TYPE_CLOUD_PLAYERS_LIST = new TypeToken<List<CloudPlayer>>() {
-    }.getType();
+    private final NodePlayerManager nodePlayerManager;
+
+    public PlayerManagerListener(NodePlayerManager nodePlayerManager) {
+        this.nodePlayerManager = nodePlayerManager;
+    }
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
-        for (ICloudPlayer cloudPlayer : NodePlayerManager.getInstance().getOnlineCloudPlayers().values()) {
+        for (ICloudPlayer cloudPlayer : this.nodePlayerManager.getOnlineCloudPlayers().values()) {
             if (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getUniqueId().equals(event.getServiceInfo().getServiceId().getUniqueId())) {
-                NodePlayerManager.getInstance().getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
+                this.nodePlayerManager.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
             }
         }
     }
 
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-        event.getNode().sendCustomChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME,
-                "send_all_online_players",
-                new JsonDocument("cloudPlayers", NodePlayerManager.getInstance().getOnlineCloudPlayers().values())
-        );
+        event.getNode().sendCustomChannelMessage(ChannelMessage.builder()
+                .channel(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)
+                .message("set_online_players")
+                .buffer(ProtocolBuffer.create().writeObjectCollection(this.nodePlayerManager.getOnlineCloudPlayers().values()))
+                .targetNode(event.getNode().getNodeInfo().getUniqueId())
+                .build());
     }
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
             return;
         }
 
         switch (event.getMessage().toLowerCase()) {
-            case "send_all_online_players": {
-                List<CloudPlayer> cloudPlayers = event.getData().get("cloudPlayers", TYPE_CLOUD_PLAYERS_LIST);
+            case "set_online_players": {
+                Collection<CloudPlayer> cloudPlayers = event.getBuffer().readObjectCollection(CloudPlayer.class);
 
-                if (cloudPlayers != null) {
-                    for (CloudPlayer cloudPlayer : cloudPlayers) {
-                        NodePlayerManager.getInstance().getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
-                    }
+                for (CloudPlayer cloudPlayer : cloudPlayers) {
+                    this.nodePlayerManager.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
                 }
             }
             break;
             case "update_offline_cloud_player": {
-                ICloudOfflinePlayer cloudOfflinePlayer = event.getData().get("offlineCloudPlayer", CloudOfflinePlayer.TYPE);
+                ICloudOfflinePlayer cloudOfflinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
 
-                if (cloudOfflinePlayer != null) {
-                    NodePlayerManager.getInstance().updateOfflinePlayer0(cloudOfflinePlayer);
-                }
+                this.nodePlayerManager.updateOfflinePlayer0(cloudOfflinePlayer);
             }
             break;
             case "update_online_cloud_player": {
-                ICloudPlayer cloudPlayer = event.getData().get("cloudPlayer", CloudPlayer.TYPE);
+                ICloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
 
-                if (cloudPlayer != null) {
-                    NodePlayerManager.getInstance().updateOnlinePlayer0(cloudPlayer);
-                }
+                this.nodePlayerManager.updateOnlinePlayer0(cloudPlayer);
             }
             break;
         }
     }
 
     @EventListener
-    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CALLABLE_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
+    public void handleQuery(ChannelMessageReceiveEvent event) {
+        if (!event.getChannel().equals(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || !event.isQuery() || event.getMessage() == null) {
             return;
         }
 
-        switch (event.getId().toLowerCase()) {
+        switch (event.getMessage().toLowerCase()) {
             case "get_online_count": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("onlineCount", NodePlayerManager.getInstance().getOnlineCount())
-                );
+                event.createBinaryResponse().writeInt(this.nodePlayerManager.getOnlineCount());
             }
             break;
             case "get_registered_count": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("registeredCount", NodePlayerManager.getInstance().getRegisteredCount())
-                );
+                event.createBinaryResponse().writeLong(this.nodePlayerManager.getRegisteredCount());
             }
             break;
-            case "get_online_players_by_uuid": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("cloudPlayer", NodePlayerManager.getInstance().getOnlinePlayer(event.getHeader().get("uniqueId", UUID.class)))
-                );
+            case "get_online_player_by_uuid": {
+                UUID uniqueId = event.getBuffer().readUUID();
+                event.createBinaryResponse().writeOptionalObject(this.nodePlayerManager.getOnlinePlayer(uniqueId));
             }
             break;
-            case "get_online_players_by_name_as_list": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("cloudPlayers", NodePlayerManager.getInstance().getOnlinePlayers(event.getHeader().getString("name")))
-                );
+            case "get_online_players_by_name": {
+                String name = event.getBuffer().readString();
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers(name));
             }
             break;
-            case "get_online_players_by_environment_as_list": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("cloudPlayers", NodePlayerManager.getInstance().getOnlinePlayers(event.getHeader().get("environment", ServiceEnvironmentType.class)))
-                );
+            case "get_online_players_by_environment": {
+                ServiceEnvironmentType environment = event.getBuffer().readEnumConstant(ServiceEnvironmentType.class);
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getOnlinePlayers(environment));
             }
             break;
-            case "get_all_online_players_as_list": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("cloudPlayers", NodePlayerManager.getInstance().getOnlinePlayers())
-                );
+            case "online_players_player": {
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.onlinePlayers().asPlayers());
+            }
+            break;
+            case "online_players_uuid": {
+                event.createBinaryResponse().writeUUIDCollection(this.nodePlayerManager.onlinePlayers().asUUIDs());
+            }
+            break;
+            case "online_players_name": {
+                event.createBinaryResponse().writeStringCollection(this.nodePlayerManager.onlinePlayers().asNames());
+            }
+            break;
+            case "online_players_count": {
+                event.createBinaryResponse().writeVarInt(this.nodePlayerManager.onlinePlayers().count());
+            }
+            break;
+            case "online_players_task_player": {
+                String task = event.getBuffer().readString();
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.taskOnlinePlayers(task).asPlayers());
+            }
+            break;
+            case "online_players_task_uuid": {
+                String task = event.getBuffer().readString();
+                event.createBinaryResponse().writeUUIDCollection(this.nodePlayerManager.taskOnlinePlayers(task).asUUIDs());
+            }
+            break;
+            case "online_players_task_name": {
+                String task = event.getBuffer().readString();
+                event.createBinaryResponse().writeStringCollection(this.nodePlayerManager.taskOnlinePlayers(task).asNames());
+            }
+            break;
+            case "online_players_task_count": {
+                String task = event.getBuffer().readString();
+                event.createBinaryResponse().writeVarInt(this.nodePlayerManager.taskOnlinePlayers(task).count());
+            }
+            break;
+            case "online_players_group_player": {
+                String group = event.getBuffer().readString();
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.groupOnlinePlayers(group).asPlayers());
+            }
+            break;
+            case "online_players_group_uuid": {
+                String group = event.getBuffer().readString();
+                event.createBinaryResponse().writeUUIDCollection(this.nodePlayerManager.groupOnlinePlayers(group).asUUIDs());
+            }
+            break;
+            case "online_players_group_name": {
+                String group = event.getBuffer().readString();
+                event.createBinaryResponse().writeStringCollection(this.nodePlayerManager.groupOnlinePlayers(group).asNames());
+            }
+            break;
+            case "online_players_group_count": {
+                String group = event.getBuffer().readString();
+                event.createBinaryResponse().writeVarInt(this.nodePlayerManager.groupOnlinePlayers(group).count());
             }
             break;
             case "get_offline_player_by_uuid": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("offlineCloudPlayer", NodePlayerManager.getInstance().getOfflinePlayer(event.getHeader().get("uniqueId", UUID.class)))
-                );
+                UUID uniqueId = event.getBuffer().readUUID();
+                event.createBinaryResponse().writeOptionalObject(this.nodePlayerManager.getOfflinePlayer(uniqueId));
             }
             break;
-            case "get_offline_player_by_name_as_list": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("offlineCloudPlayers", NodePlayerManager.getInstance().getOfflinePlayers(event.getHeader().getString("name")))
-                );
+            case "get_offline_players_by_name": {
+                String name = event.getBuffer().readString();
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getOfflinePlayers(name));
             }
             break;
-            case "get_all_registered_offline_players_as_list": {
-                event.setCallbackPacket(new JsonDocument()
-                        .append("offlineCloudPlayers", NodePlayerManager.getInstance().getRegisteredPlayers())
-                );
+            case "get_offline_players": {
+                event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getRegisteredPlayers());
             }
             break;
         }

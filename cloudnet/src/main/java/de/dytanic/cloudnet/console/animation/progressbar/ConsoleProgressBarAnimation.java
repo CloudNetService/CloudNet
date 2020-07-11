@@ -8,11 +8,11 @@ import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
     private long length;
     private long currentValue;
-    private char progressChar;
-    private char emptyChar;
-    private char lastProgressChar;
-    private String prefix;
-    private String suffix;
+    private final char progressChar;
+    private final char emptyChar;
+    private final char lastProgressChar;
+    private final String prefix;
+    private final String suffix;
 
     /**
      * Creates a new {@link ConsoleProgressBarAnimation}
@@ -112,7 +112,7 @@ public class ConsoleProgressBarAnimation extends AbstractConsoleAnimation {
     }
 
     protected String format(String input, double percent) {
-        long millis = System.currentTimeMillis() - getStartTime();
+        long millis = System.currentTimeMillis() - this.getStartTime();
         long time = millis / 1000;
         return input == null ? "" : input
                 .replace("%value%", this.formatCurrentValue(this.currentValue))

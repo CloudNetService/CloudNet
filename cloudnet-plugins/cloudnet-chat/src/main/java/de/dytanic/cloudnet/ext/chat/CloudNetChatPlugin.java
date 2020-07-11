@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.ext.chat;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,20 +17,25 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        this.getConfig().options().copyDefaults(true);
+        this.saveConfig();
 
-        this.format = getConfig().getString("format");
+        this.format = this.getConfig().getString("format");
 
-        getServer().getPluginManager().registerEvents(this, this);
+        this.getServer().getPluginManager().registerEvents(this, this);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void handleChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
 
-        IPermissionUser user = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
-        IPermissionGroup group = CloudPermissionsManagement.getInstance().getHighestPermissionGroup(user);
+        IPermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(player.getUniqueId());
+
+        if (user == null) {
+            return;
+        }
+
+        IPermissionGroup group = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(user);
 
         String message = event.getMessage().replace("%", "%%");
         if (player.hasPermission("cloudnet.chat.color")) {

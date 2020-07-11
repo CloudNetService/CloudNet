@@ -4,8 +4,8 @@ import cn.nukkit.Player;
 import cn.nukkit.permission.PermissibleBase;
 import cn.nukkit.permission.Permission;
 import cn.nukkit.permission.PermissionAttachmentInfo;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.HashMap;
@@ -15,24 +15,26 @@ import java.util.stream.Collectors;
 public final class NukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private final Player player;
+    private final IPermissionManagement permissionsManagement;
 
-    public NukkitCloudNetCloudPermissionsPermissible(Player player) {
+    public NukkitCloudNetCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
         super(player);
 
         this.player = player;
+        this.permissionsManagement = permissionsManagement;
     }
 
     @Override
     public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
         Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
-        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
         if (permissionUser == null) {
             return infos;
         }
 
         for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
             infos.putAll(
-                    CloudPermissionsManagement.getInstance().getAllPermissions(permissionUser, group)
+                    this.permissionsManagement.getAllPermissions(permissionUser, group)
                             .stream()
                             .map(permission -> new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0))
                             .collect(Collectors.toMap(PermissionAttachmentInfo::getPermission, o -> o))
@@ -44,17 +46,17 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     @Override
     public boolean isPermissionSet(String name) {
-        return hasPermission(name);
+        return this.hasPermission(name);
     }
 
     @Override
     public boolean isPermissionSet(Permission perm) {
-        return isPermissionSet(perm.getName());
+        return this.isPermissionSet(perm.getName());
     }
 
     @Override
     public boolean hasPermission(Permission perm) {
-        return hasPermission(perm.getName());
+        return this.hasPermission(perm.getName());
     }
 
     @Override
@@ -63,8 +65,8 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
             return false;
         }
 
-        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(player.getUniqueId());
-        return permissionUser != null && CloudPermissionsManagement.getInstance().hasPlayerPermission(permissionUser, inName);
+        IPermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
+        return permissionUser != null && this.permissionsManagement.hasPermission(permissionUser, inName);
     }
 
     public Player getPlayer() {

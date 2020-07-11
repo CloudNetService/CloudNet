@@ -1,16 +1,18 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
+@ToString
+@EqualsAndHashCode(callSuper = false)
+public abstract class AbstractPermissible extends SerializableJsonDocPropertyable implements IPermissible {
 
-    protected final long createdTime;
+    protected long createdTime;
     protected String name;
     protected int potency;
     protected List<Permission> permissions;
@@ -19,47 +21,33 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     public AbstractPermissible() {
         this.createdTime = System.currentTimeMillis();
-        this.permissions = Iterables.newArrayList();
-        this.groupPermissions = Maps.newHashMap();
+        this.permissions = new ArrayList<>();
+        this.groupPermissions = new HashMap<>();
     }
 
-    @Override
-    public boolean addPermission(Permission permission) {
-        if (permission == null || permission.getName() == null) {
-            return false;
-        }
-
-        Permission exist = this.getPermission(permission.getName());
-
-        if (exist != null) {
-            this.permissions.remove(exist);
-        }
-
-        this.permissions.add(permission);
-
-        return true;
-    }
-
-    @Override
-    public boolean addPermission(String group, Permission permission) {
-        if (group == null || permission == null) {
-            return false;
-        }
-
-        if (!groupPermissions.containsKey(group)) {
-            groupPermissions.put(group, Iterables.newArrayList());
-        }
-
-        groupPermissions.get(group).add(permission);
-        return true;
-    }
-
-    @Override
-    public boolean removePermission(String permission) {
+    private boolean addPermission(Collection<Permission> permissions, Permission permission) {
         if (permission == null) {
             return false;
         }
 
+        permissions.removeIf(existingPermission -> existingPermission.getName().equalsIgnoreCase(permission.getName()));
+        permissions.add(permission);
+
+        return true;
+    }
+
+    @Override
+    public boolean addPermission(@NotNull Permission permission) {
+        return this.addPermission(this.permissions, permission);
+    }
+
+    @Override
+    public boolean addPermission(@NotNull String group, @NotNull Permission permission) {
+        return this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new ArrayList<>()), permission);
+    }
+
+    @Override
+    public boolean removePermission(@NotNull String permission) {
         Permission exist = this.getPermission(permission);
 
         if (exist != null) {
@@ -70,24 +58,19 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     }
 
     @Override
-    public boolean removePermission(String group, String permission) {
-        if (group == null || permission == null) {
-            return false;
-        }
-
-        if (groupPermissions.containsKey(group)) {
-            Permission p = Iterables.first(groupPermissions.get(group), perm -> perm.getName().equalsIgnoreCase(permission));
-
-            if (p != null) {
-                groupPermissions.get(group).remove(p);
-            }
-
-            if (groupPermissions.get(group).isEmpty()) {
-                groupPermissions.remove(group);
+    public boolean removePermission(@NotNull String group, @NotNull String permission) {
+        if (this.groupPermissions.containsKey(group)) {
+            Optional<Permission> optionalPermission = this.groupPermissions.get(group).stream().filter(perm -> perm.getName().equalsIgnoreCase(permission)).findFirst();
+            if (optionalPermission.isPresent()) {
+                this.groupPermissions.get(group).remove(optionalPermission.get());
+                if (this.groupPermissions.get(group).isEmpty()) {
+                    this.groupPermissions.remove(group);
+                }
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public long getCreatedTime() {
@@ -98,7 +81,7 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
         return this.name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
@@ -120,5 +103,37 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
 
     public Map<String, Collection<Permission>> getGroupPermissions() {
         return this.groupPermissions;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeLong(this.createdTime);
+        buffer.writeString(this.name);
+        buffer.writeInt(this.potency);
+        buffer.writeObjectCollection(this.permissions);
+
+        buffer.writeVarInt(this.groupPermissions.size());
+        this.groupPermissions.forEach((group, permissions) -> {
+            buffer.writeString(group);
+            buffer.writeObjectCollection(permissions);
+        });
+
+        super.write(buffer);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.createdTime = buffer.readLong();
+        this.name = buffer.readString();
+        this.potency = buffer.readInt();
+        this.permissions = new ArrayList<>(buffer.readObjectCollection(Permission.class));
+
+        int size = buffer.readVarInt();
+        this.groupPermissions = new HashMap<>(size);
+        for (int i = 0; i < size; i++) {
+            this.groupPermissions.put(buffer.readString(), buffer.readObjectCollection(Permission.class));
+        }
+
+        super.read(buffer);
     }
 }

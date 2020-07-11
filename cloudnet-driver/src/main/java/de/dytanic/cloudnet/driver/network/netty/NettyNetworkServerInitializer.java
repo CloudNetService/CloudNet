@@ -17,9 +17,9 @@ final class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
 
     @Override
     protected void initChannel(Channel ch) {
-        if (nettyNetworkServer.sslContext != null) {
+        if (this.nettyNetworkServer.sslContext != null) {
             ch.pipeline()
-                    .addLast(nettyNetworkServer.sslContext.newHandler(ch.alloc()));
+                    .addLast(this.nettyNetworkServer.sslContext.newHandler(ch.alloc()));
         }
 
         ch.pipeline()
@@ -27,7 +27,7 @@ final class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
                 .addLast("packet-decoder", new NettyPacketDecoder())
                 .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
                 .addLast("packet-encoder", new NettyPacketEncoder())
-                .addLast("network-server-handler", new NettyNetworkServerHandler(nettyNetworkServer, hostAndPort))
+                .addLast("network-server-handler", new NettyNetworkServerHandler(this.nettyNetworkServer, this.hostAndPort))
         ;
     }
 }

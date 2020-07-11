@@ -40,7 +40,7 @@ public final class ServicesRegistryTest {
 
     }
 
-    private class B implements A {
+    private static class B implements A {
 
         @Override
         public int getValue() {
@@ -48,7 +48,7 @@ public final class ServicesRegistryTest {
         }
     }
 
-    private class C implements A {
+    private static class C implements A {
 
         @Override
         public int getValue() {

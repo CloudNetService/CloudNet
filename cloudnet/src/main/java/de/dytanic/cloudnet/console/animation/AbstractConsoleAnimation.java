@@ -14,7 +14,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     private long startTime;
     private int cursorUp = 1;
     private boolean staticCursor;
-    private Collection<Runnable> finishHandler = new ArrayList<>();
+    private final Collection<Runnable> finishHandler = new ArrayList<>();
 
     public AbstractConsoleAnimation() {
 
@@ -110,7 +110,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     @Override
     public final void run() {
         this.startTime = System.currentTimeMillis();
-        while (!Thread.interrupted() && !handleTick()) {
+        while (!Thread.interrupted() && !this.handleTick()) {
             try {
                 Thread.sleep(this.updateInterval);
             } catch (InterruptedException exception) {

@@ -24,7 +24,7 @@ public class JsonConfigurationTest {
         configuration.setIpWhitelist(Collections.singletonList("0.0.1.0"));
 
         configuration.setMaxCPUUsageToStartServices(45);
-        configuration.setDefaultJVMOptionParameters(true);
+        configuration.setDefaultJVMFlags(IConfiguration.DefaultJVMFlags.AIKAR);
         configuration.setHttpListeners(Collections.singletonList(new HostAndPort("127.0.1.1", 444)));
         configuration.setParallelServiceStartSequence(true);
         configuration.setRunBlockedServiceStartTryLaterAutomatic(false);
@@ -35,7 +35,7 @@ public class JsonConfigurationTest {
         Assert.assertEquals(1, configuration.getIpWhitelist().size());
         Assert.assertEquals(configuration.getMaxMemory(), rand);
 
-        Assert.assertTrue(configuration.isDefaultJVMOptionParameters());
+        Assert.assertEquals(configuration.getDefaultJVMFlags(), IConfiguration.DefaultJVMFlags.AIKAR);
         Assert.assertTrue(configuration.getHttpListeners().contains(new HostAndPort("127.0.1.1", 444)));
         Assert.assertTrue(configuration.isParallelServiceStartSequence());
         Assert.assertFalse(configuration.isRunBlockedServiceStartTryLaterAutomatic());

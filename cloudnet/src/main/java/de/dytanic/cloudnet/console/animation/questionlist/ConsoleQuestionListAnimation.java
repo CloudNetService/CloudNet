@@ -18,24 +18,26 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
-    private Supplier<String> headerSupplier, footerSupplier;
-    private Supplier<Collection<String>> lastCachedMessagesSupplier;
+    private final Supplier<String> headerSupplier;
+    private final Supplier<String> footerSupplier;
+    private final Supplier<Collection<String>> lastCachedMessagesSupplier;
 
-    private String overwritePrompt;
+    private final String overwritePrompt;
 
     private String previousPrompt;
     private boolean previousPrintingEnabled;
     private List<String> previousHistory;
 
-    private Map<String, Object> results = new HashMap<>();
+    private final Map<String, Object> results = new HashMap<>();
 
     private Queue<QuestionListEntry<?>> entries = new LinkedBlockingQueue<>();
 
-    private Collection<BiConsumer<QuestionListEntry<?>, Object>> entryCompletionListeners = new ArrayList<>();
+    private final Collection<BiConsumer<QuestionListEntry<?>, Object>> entryCompletionListeners = new ArrayList<>();
 
     private int currentCursor = 1;
 
     private boolean cancelled = false;
+    private boolean cancellable = true;
 
     public ConsoleQuestionListAnimation(Supplier<Collection<String>> lastCachedMessagesSupplier, Supplier<String> headerSupplier, Supplier<String> footerSupplier, String overwritePrompt) {
         this(null, lastCachedMessagesSupplier, headerSupplier, footerSupplier, overwritePrompt);
@@ -56,8 +58,53 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         this.entries.add(entry);
     }
 
+    public void addEntriesFirst(QuestionListEntry<?>... entries) {
+        if (entries.length == 0) {
+            return;
+        }
+        Queue<QuestionListEntry<?>> newEntries = new LinkedBlockingQueue<>(Arrays.asList(entries));
+        newEntries.addAll(this.entries);
+        this.entries = newEntries;
+    }
+
+    public void addEntriesAfter(String keyBefore, QuestionListEntry<?>... entries) {
+        if (entries.length == 0) {
+            return;
+        }
+        Queue<QuestionListEntry<?>> newEntries = new LinkedBlockingQueue<>();
+        for (QuestionListEntry<?> oldEntry : this.entries) {
+            newEntries.add(oldEntry);
+            if (oldEntry.getKey().equals(keyBefore)) {
+                newEntries.addAll(Arrays.asList(entries));
+            }
+        }
+        this.entries = newEntries;
+    }
+
+    public void addEntriesBefore(String keyAfter, QuestionListEntry<?>... entries) {
+        if (entries.length == 0) {
+            return;
+        }
+        Queue<QuestionListEntry<?>> newEntries = new LinkedBlockingQueue<>();
+        for (QuestionListEntry<?> oldEntry : this.entries) {
+            if (oldEntry.getKey().equals(keyAfter)) {
+                newEntries.addAll(Arrays.asList(entries));
+            }
+            newEntries.add(oldEntry);
+        }
+        this.entries = newEntries;
+    }
+
     public boolean isCancelled() {
         return this.cancelled;
+    }
+
+    public void setCancellable(boolean cancellable) {
+        this.cancellable = cancellable;
+    }
+
+    public boolean isCancellable() {
+        return this.cancellable;
     }
 
     public Map<String, Object> getResults() {
@@ -95,7 +142,9 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-explain"));
-        console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
+        if (this.isCancellable()) {
+            console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
+        }
 
         console.disableAllHandlers();
 
@@ -156,7 +205,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     }
 
     private boolean validateInput(QuestionAnswerType<?> answerType, QuestionListEntry<?> entry, String input) {
-        if (input.equalsIgnoreCase("cancel")) {
+        if (this.isCancellable() && input.equalsIgnoreCase("cancel")) {
             this.cancelled = true;
             this.entries.clear();
 
@@ -185,9 +234,17 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
         try {
             super.eraseLastLine(); //erase prompt
-            super.getConsole().forceWriteLine("&c" + answerType.getInvalidInputMessage(input));
+
+            String[] lines = answerType.getInvalidInputMessage(input).split(System.lineSeparator());
+            for (String line : lines) {
+                super.getConsole().forceWriteLine("&c" + line);
+            }
+
             Thread.sleep(3000);
-            super.eraseLastLine(); //erase invalid input message
+
+            super.getConsole().writeRaw(this.eraseLines(Ansi.ansi().reset(), lines.length).toString()); //erase invalid input message
+
+            super.getConsole().setCommandHistory(answerType.getCompletableAnswers());
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }

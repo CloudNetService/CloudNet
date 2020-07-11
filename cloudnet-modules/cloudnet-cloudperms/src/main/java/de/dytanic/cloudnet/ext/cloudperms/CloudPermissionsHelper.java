@@ -1,9 +1,14 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 public class CloudPermissionsHelper {
 
@@ -11,29 +16,38 @@ public class CloudPermissionsHelper {
         throw new UnsupportedOperationException();
     }
 
-    public static void initPermissionUser(UUID uniqueId, String name) {
-        initPermissionUser(uniqueId, name, true);
+    public static void initPermissionUser(CachedPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler) {
+        initPermissionUser(permissionsManagement, uniqueId, name, disconnectHandler, true);
     }
 
-    public static void initPermissionUser(UUID uniqueId, String name, boolean shouldUpdateName) {
-        IPermissionUser permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
+    public static void initPermissionUser(CachedPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler, boolean shouldUpdateName) {
+        IPermissionUser permissionUser = null;
+        try {
+            permissionUser = permissionsManagement.getUserAsync(uniqueId).get(3, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException exception) {
+            exception.printStackTrace();
+        } catch (TimeoutException exception) {
+            disconnectHandler.accept("§cAn internal error occurred while loading the permissions"); // TODO configurable
+            return;
+        }
 
         if (permissionUser == null) {
-            CloudPermissionsManagement.getInstance().addUser(new PermissionUser(
+            permissionsManagement.addUser(new PermissionUser(
                     uniqueId,
                     name,
                     null,
                     0
             ));
 
-            permissionUser = CloudPermissionsManagement.getInstance().getUser(uniqueId);
+            permissionUser = permissionsManagement.getUser(uniqueId);
+            shouldUpdateName = false;
         }
 
         if (permissionUser != null) {
-            CloudPermissionsManagement.getInstance().getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
-            if (shouldUpdateName) {
+            permissionsManagement.getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
+            if (shouldUpdateName && !name.equals(permissionUser.getName())) {
                 permissionUser.setName(name);
-                CloudPermissionsManagement.getInstance().updateUser(permissionUser);
+                permissionsManagement.updateUser(permissionUser);
             }
         }
     }

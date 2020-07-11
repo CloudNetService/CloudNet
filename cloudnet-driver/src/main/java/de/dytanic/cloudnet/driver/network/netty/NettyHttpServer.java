@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
-import de.dytanic.cloudnet.common.collection.Maps;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
@@ -16,16 +14,20 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public final class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
-    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = Maps.newConcurrentHashMap();
+    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-    protected final List<HttpHandlerEntry> registeredHandlers = Iterables.newCopyOnWriteArrayList();
+    protected final List<HttpHandlerEntry> registeredHandlers = new CopyOnWriteArrayList<>();
 
     protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup(), workerGroup = NettyUtils.newEventLoopGroup();
 
@@ -42,7 +44,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public boolean isSslEnabled() {
-        return sslContext != null;
+        return this.sslContext != null;
     }
 
     @Override
@@ -52,13 +54,13 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public boolean addListener(HostAndPort hostAndPort) {
-        Validate.checkNotNull(hostAndPort);
-        Validate.checkNotNull(hostAndPort.getHost());
+        Preconditions.checkNotNull(hostAndPort);
+        Preconditions.checkNotNull(hostAndPort.getHost());
 
-        if (!channelFutures.containsKey(hostAndPort.getPort())) {
+        if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
-                this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-                        .group(bossGroup, workerGroup)
+                return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
+                        .group(this.bossGroup, this.workerGroup)
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.IP_TOS, 24)
                         .childOption(ChannelOption.AUTO_READ, true)
@@ -70,9 +72,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
                         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
                         .sync()
                         .channel()
-                        .closeFuture()));
-
-                return true;
+                        .closeFuture())) == null;
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
@@ -93,8 +93,8 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public IHttpServer registerHandler(String path, Integer port, int priority, IHttpHandler... handlers) {
-        Validate.checkNotNull(path);
-        Validate.checkNotNull(handlers);
+        Preconditions.checkNotNull(path);
+        Preconditions.checkNotNull(handlers);
 
         if (!path.startsWith("/")) {
             path = "/" + path;
@@ -125,46 +125,34 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
 
     @Override
     public IHttpServer removeHandler(IHttpHandler handler) {
-        Validate.checkNotNull(handler);
+        Preconditions.checkNotNull(handler);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
-            if (registeredHandler.httpHandler.equals(handler)) {
-                this.registeredHandlers.remove(registeredHandler);
-            }
-        }
+        this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.equals(handler));
 
         return this;
     }
 
     @Override
     public IHttpServer removeHandler(Class<? extends IHttpHandler> handler) {
-        Validate.checkNotNull(handler);
+        Preconditions.checkNotNull(handler);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
-            if (registeredHandler.httpHandler.getClass().equals(handler)) {
-                this.registeredHandlers.remove(registeredHandler);
-            }
-        }
+        this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().equals(handler));
 
         return this;
     }
 
     @Override
     public IHttpServer removeHandler(ClassLoader classLoader) {
-        Validate.checkNotNull(classLoader);
+        Preconditions.checkNotNull(classLoader);
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
-            if (registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader)) {
-                this.registeredHandlers.remove(registeredHandler);
-            }
-        }
+        this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader));
 
         return this;
     }
 
     @Override
     public Collection<IHttpHandler> getHttpHandlers() {
-        return Iterables.map(this.registeredHandlers, httpHandlerEntry -> httpHandlerEntry.httpHandler);
+        return this.registeredHandlers.stream().map(httpHandlerEntry -> httpHandlerEntry.httpHandler).collect(Collectors.toList());
     }
 
     @Override
@@ -205,8 +193,8 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         }
 
         @Override
-        public int compareTo(HttpHandlerEntry httpHandlerEntry) {
-            Validate.checkNotNull(httpHandlerEntry);
+        public int compareTo(@NotNull HttpHandlerEntry httpHandlerEntry) {
+            Preconditions.checkNotNull(httpHandlerEntry);
 
             return this.priority + httpHandlerEntry.priority;
         }

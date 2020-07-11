@@ -1,9 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.sponge;
 
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Iterables;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
@@ -11,8 +9,7 @@ import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
@@ -21,41 +18,37 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public final class SpongeCloudNetHelper {
-
-    private static volatile String
-            apiMotd = Sponge.getServer().getMotd().toPlain(),
-            extra = "",
-            state = "LOBBY";
-    private static volatile int maxPlayers = Sponge.getServer().getMaxPlayers();
+public final class SpongeCloudNetHelper extends BridgeServerHelper {
 
     private SpongeCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
 
-
-    public static void changeToIngame() {
-        BridgeHelper.changeToIngame(s -> SpongeCloudNetHelper.state = s);
+    public static void init() {
+        BridgeServerHelper.setMotd(Sponge.getServer().getMotd().toPlain());
+        BridgeServerHelper.setState("LOBBY");
+        BridgeServerHelper.setMaxPlayers(Sponge.getServer().getMaxPlayers());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
-        Validate.checkNotNull(serviceInfoSnapshot);
+        Preconditions.checkNotNull(serviceInfoSnapshot);
 
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", Sponge.getPlatform().getMinecraftVersion())
                 .append("Sponge-Version", Sponge.getPlatform().getContainer(Platform.Component.API).getVersion())
                 .append("Online-Count", Sponge.getServer().getOnlinePlayers().size())
-                .append("Max-Players", maxPlayers)
-                .append("Motd", apiMotd)
-                .append("Extra", extra)
-                .append("State", state)
+                .append("Max-Players", BridgeServerHelper.getMaxPlayers())
+                .append("Motd", BridgeServerHelper.getMotd())
+                .append("Extra", BridgeServerHelper.getExtra())
+                .append("State", BridgeServerHelper.getState())
                 .append("Outgoing-Channels", Sponge.getChannelRegistrar().getRegisteredChannels(Platform.Type.SERVER))
                 .append("Incoming-Channels", Sponge.getChannelRegistrar().getRegisteredChannels(Platform.Type.CLIENT))
                 .append("Online-Mode", Sponge.getServer().getOnlineMode())
                 .append("Whitelist-Enabled", Sponge.getServer().hasWhitelist())
-                .append("Players", Iterables.map(Sponge.getServer().getOnlinePlayers(), player -> {
+                .append("Players", Sponge.getServer().getOnlinePlayers().stream().map(player -> {
                     Location<World> location = player.getLocation();
 
                     Optional<ExperienceHolderData> holderData = player.get(ExperienceHolderData.class);
@@ -78,8 +71,8 @@ public final class SpongeCloudNetHelper {
                             ),
                             new HostAndPort(player.getConnection().getAddress())
                     );
-                }))
-                .append("Plugins", Iterables.map(Sponge.getGame().getPluginManager().getPlugins(), pluginContainer -> {
+                }).collect(Collectors.toList()))
+                .append("Plugins", Sponge.getGame().getPluginManager().getPlugins().stream().map(pluginContainer -> {
                     PluginInfo pluginInfo = new PluginInfo(pluginContainer.getId(), pluginContainer.getVersion().isPresent() ? pluginContainer.getVersion().get() : null);
 
                     pluginInfo.getProperties()
@@ -89,8 +82,10 @@ public final class SpongeCloudNetHelper {
                             .append("description", pluginContainer.getDescription().isPresent() ? pluginContainer.getDescription().get() : null);
 
                     return pluginInfo;
-                }))
-                .append("Worlds", Iterables.map(Sponge.getServer().getWorlds(), world -> new WorldInfo(world.getUniqueId(), world.getName(), world.getDifficulty().getName(), world.getGameRules())));
+                }).collect(Collectors.toList()))
+                .append("Worlds", Sponge.getServer().getWorlds().stream()
+                        .map(world -> new WorldInfo(world.getUniqueId(), world.getName(), world.getDifficulty().getName(), world.getGameRules()))
+                        .collect(Collectors.toList()));
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(Player player) {
@@ -104,11 +99,7 @@ public final class SpongeCloudNetHelper {
                 new HostAndPort(Sponge.getServer().getBoundAddress().orElse(null)),
                 onlineMode,
                 false,
-                new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
@@ -118,7 +109,7 @@ public final class SpongeCloudNetHelper {
         if (login) {
             worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
         } else {
-            Location location = player.getLocation();
+            Location<?> location = player.getLocation();
             worldPosition = new WorldPosition(
                     location.getX(),
                     location.getY(),
@@ -140,43 +131,8 @@ public final class SpongeCloudNetHelper {
                 holderData.map(experienceHolderData -> experienceHolderData.level().get()).orElse(0),
                 worldPosition,
                 new HostAndPort(player.getConnection().getAddress()),
-                new NetworkServiceInfo(
-                        ServiceEnvironmentType.MINECRAFT_SERVER,
-                        Wrapper.getInstance().getServiceId().getUniqueId(),
-                        Wrapper.getInstance().getServiceId().getName()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
-    public static String getApiMotd() {
-        return SpongeCloudNetHelper.apiMotd;
-    }
-
-    public static void setApiMotd(String apiMotd) {
-        SpongeCloudNetHelper.apiMotd = apiMotd;
-    }
-
-    public static String getExtra() {
-        return SpongeCloudNetHelper.extra;
-    }
-
-    public static void setExtra(String extra) {
-        SpongeCloudNetHelper.extra = extra;
-    }
-
-    public static String getState() {
-        return SpongeCloudNetHelper.state;
-    }
-
-    public static void setState(String state) {
-        SpongeCloudNetHelper.state = state;
-    }
-
-    public static int getMaxPlayers() {
-        return SpongeCloudNetHelper.maxPlayers;
-    }
-
-    public static void setMaxPlayers(int maxPlayers) {
-        SpongeCloudNetHelper.maxPlayers = maxPlayers;
-    }
 }

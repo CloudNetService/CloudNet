@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.launcher.version.update;
 
-import de.dytanic.cloudnet.launcher.version.util.GitCommit;
+import de.dytanic.cloudnet.launcher.LauncherUtils;
+import de.dytanic.cloudnet.launcher.version.DefaultVersionInfo;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -8,19 +9,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
-public final class RepositoryUpdater implements Updater {
+public final class RepositoryUpdater extends DefaultVersionInfo implements Updater {
 
-    private String url;
-
-    private String repositoryVersion;
-
-    private String appVersion;
-
-    private String gitHubRepository;
-
-    private GitCommit latestGitCommit;
-
-    private Path targetDirectory;
+    private final String url;
 
     public RepositoryUpdater(String url) {
         this.url = url.endsWith("/") ? url : url + "/";
@@ -30,14 +21,14 @@ public final class RepositoryUpdater implements Updater {
     public boolean init(Path versionDirectory, String githubRepository) {
         this.gitHubRepository = githubRepository;
 
-        try (InputStream inputStream = this.readFromURL(this.url + "repository")) {
+        try (InputStream inputStream = LauncherUtils.readFromURL(this.url + "repository")) {
             Properties properties = new Properties();
             properties.load(inputStream);
 
             if (properties.containsKey("app-version")) {
                 this.repositoryVersion = properties.getProperty("repository-version");
                 this.appVersion = properties.getProperty("app-version");
-                this.latestGitCommit = this.requestLatestGitCommit(properties.getProperty("git-commit"));
+                this.releaseTimestamp = Long.parseLong(properties.getProperty("release-timestamp", "-1"));
 
                 this.targetDirectory = versionDirectory.resolve(this.getFullVersion());
 
@@ -60,7 +51,7 @@ public final class RepositoryUpdater implements Updater {
 
             Files.createDirectories(path.getParent());
 
-            try (InputStream inputStream = this.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
+            try (InputStream inputStream = LauncherUtils.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
                 Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
             }
 
@@ -71,31 +62,6 @@ public final class RepositoryUpdater implements Updater {
         }
 
         return false;
-    }
-
-    @Override
-    public String getRepositoryVersion() {
-        return this.repositoryVersion;
-    }
-
-    @Override
-    public String getCurrentVersion() {
-        return this.appVersion;
-    }
-
-    @Override
-    public String getGitHubRepository() {
-        return this.gitHubRepository;
-    }
-
-    @Override
-    public GitCommit getLatestGitCommit() {
-        return this.latestGitCommit;
-    }
-
-    @Override
-    public Path getTargetDirectory() {
-        return this.targetDirectory;
     }
 
 }

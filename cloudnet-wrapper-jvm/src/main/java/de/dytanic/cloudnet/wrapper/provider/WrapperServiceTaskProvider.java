@@ -1,138 +1,148 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.collection.Pair;
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
-public class WrapperServiceTaskProvider implements ServiceTaskProvider {
+public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAPIUser {
 
-    private static final Function<Pair<JsonDocument, byte[]>, Void> VOID_FUNCTION = documentPair -> null;
-
-    private Wrapper wrapper;
+    private final Wrapper wrapper;
 
     public WrapperServiceTaskProvider(Wrapper wrapper) {
         this.wrapper = wrapper;
     }
 
     @Override
+    public void reload() {
+        this.reloadAsync().get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
     public Collection<ServiceTask> getPermanentServiceTasks() {
-        try {
-            return this.getPermanentServiceTasksAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.getPermanentServiceTasksAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public ServiceTask getServiceTask(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.getServiceTaskAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
+        this.setPermanentServiceTasksAsync(serviceTasks).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public boolean isServiceTaskPresent(String name) {
-        Validate.checkNotNull(name);
-
-        try {
-            return this.isServiceTaskPresentAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return false;
+    public ServiceTask getServiceTask(@NotNull String name) {
+        Preconditions.checkNotNull(name);
+        return this.getServiceTaskAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public void addPermanentServiceTask(ServiceTask serviceTask) {
-        try {
-            this.addPermanentServiceTaskAsync(serviceTask).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
+    public boolean isServiceTaskPresent(@NotNull String name) {
+        Preconditions.checkNotNull(name);
+        return this.isServiceTaskPresentAsync(name).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
-    public void removePermanentServiceTask(String name) {
-        try {
-            this.removePermanentServiceTaskAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
+    public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
+        return this.addPermanentServiceTaskAsync(serviceTask).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override
-    public void removePermanentServiceTask(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+    public void removePermanentServiceTask(@NotNull String name) {
+        this.removePermanentServiceTaskAsync(name).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
+        Preconditions.checkNotNull(serviceTask);
         this.removePermanentServiceTask(serviceTask.getName());
     }
 
     @Override
+    public @NotNull ITask<Void> reloadAsync() {
+        return this.executeVoidDriverAPIMethod(DriverAPIRequestType.RELOAD_TASKS, null);
+    }
+
+    @Override
+    @NotNull
     public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_permanent_serviceTasks"), null,
-                documentPair -> documentPair.getFirst().get("serviceTasks", new TypeToken<Collection<ServiceTask>>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_PERMANENT_SERVICE_TASKS,
+                packet -> packet.getBuffer().readObjectCollection(ServiceTask.class)
+        );
     }
 
     @Override
-    public ITask<ServiceTask> getServiceTaskAsync(String name) {
-        Validate.checkNotNull(name);
-
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_service_task").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("serviceTask", new TypeToken<ServiceTask>() {
-                }.getType()));
+    public @NotNull ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
+        return this.executeVoidDriverAPIMethod(
+                DriverAPIRequestType.SET_PERMANENT_SERVICE_TASKS,
+                buffer -> buffer.writeObjectCollection(serviceTasks)
+        );
     }
 
     @Override
-    public ITask<Boolean> isServiceTaskPresentAsync(String name) {
-        Validate.checkNotNull(name);
+    @NotNull
+    public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "is_service_task_present").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("result", new TypeToken<Boolean>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_PERMANENT_SERVICE_TASK_BY_NAME,
+                buffer -> buffer.writeString(name),
+                packet -> packet.getBuffer().readOptionalObject(ServiceTask.class)
+        );
     }
 
     @Override
-    public ITask<Void> addPermanentServiceTaskAsync(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+    @NotNull
+    public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "add_permanent_service_task").append("serviceTask", serviceTask), null,
-                VOID_FUNCTION);
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.IS_SERVICE_TASK_PRESENT,
+                buffer -> buffer.writeString(name),
+                packet -> packet.getBuffer().readBoolean()
+        );
     }
 
     @Override
-    public ITask<Void> removePermanentServiceTaskAsync(String name) {
-        Validate.checkNotNull(name);
+    @NotNull
+    public ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
+        Preconditions.checkNotNull(serviceTask);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "remove_permanent_service_task").append("name", name), null,
-                VOID_FUNCTION);
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.ADD_PERMANENT_SERVICE_TASK,
+                buffer -> buffer.writeObject(serviceTask),
+                packet -> packet.getBuffer().readBoolean()
+        );
     }
 
     @Override
-    public ITask<Void> removePermanentServiceTaskAsync(ServiceTask serviceTask) {
-        Validate.checkNotNull(serviceTask);
+    @NotNull
+    public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
+        Preconditions.checkNotNull(name);
+
+        return this.executeVoidDriverAPIMethod(
+                DriverAPIRequestType.REMOVE_PERMANENT_SERVICE_TASK,
+                buffer -> buffer.writeString(name)
+        );
+    }
+
+    @Override
+    @NotNull
+    public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
+        Preconditions.checkNotNull(serviceTask);
 
         return this.removePermanentServiceTaskAsync(serviceTask.getName());
     }
 
+    @Override
+    public INetworkChannel getNetworkChannel() {
+        return this.wrapper.getNetworkChannel();
+    }
 }

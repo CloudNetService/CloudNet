@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.console;
 
+import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ITabCompleter;
-import de.dytanic.cloudnet.common.Validate;
-import de.dytanic.cloudnet.common.Value;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
@@ -10,12 +10,14 @@ import jline.console.ConsoleReader;
 import jline.console.history.History;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -25,19 +27,19 @@ public final class JLine2Console implements IConsole {
 
     private final String
             user = System.getProperty("user.name"),
-            version = System.getProperty("cloudnet.launcher.select.version");
+            version = CloudNet.class.getPackage().getImplementationVersion();
     private String prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
 
-    private String screenName = version;
+    private String screenName = this.version;
 
-    private Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
+    private final Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
 
     private boolean printingEnabled = true;
 
-    private Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
-    private Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
+    private final Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
+    private final Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public JLine2Console() throws Exception {
         AnsiConsole.systemInstall();
@@ -90,7 +92,7 @@ public final class JLine2Console implements IConsole {
 
     @Override
     public void startAnimation(AbstractConsoleAnimation animation) {
-        Validate.checkNotNull(animation);
+        Preconditions.checkNotNull(animation);
 
         animation.setConsole(this);
 
@@ -148,14 +150,15 @@ public final class JLine2Console implements IConsole {
     }
 
     @Override
+    @NotNull
     public ITask<String> readLine() {
-        Value<String> value = new Value<>();
-        ITask<String> task = new ListenableTask<>(value::getValue);
+        AtomicReference<String> reference = new AtomicReference<>();
+        ITask<String> task = new ListenableTask<>(reference::get);
 
         UUID uniqueId = UUID.randomUUID();
         this.consoleInputHandler.put(uniqueId, new ConsoleHandler<>(input -> {
             this.consoleInputHandler.remove(uniqueId);
-            value.setValue(input);
+            reference.set(input);
             try {
                 task.call();
             } catch (Exception exception) {
@@ -205,7 +208,7 @@ public final class JLine2Console implements IConsole {
         this.toggleHandlers(false, this.consoleInputHandler.values());
     }
 
-    private void toggleHandlers(boolean enabled, Collection handlers) {
+    private void toggleHandlers(boolean enabled, Collection<?> handlers) {
         for (Object handler : handlers) {
             ((ConsoleHandler<?>) handler).setEnabled(enabled);
         }

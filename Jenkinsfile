@@ -1,6 +1,7 @@
 pipeline {
   agent any
   tools {
+    gradle 'Gradle6'
     jdk 'Java11'
   }
   options {
@@ -9,19 +10,20 @@ pipeline {
   stages {
     stage('Clean') {
       steps {
-        sh 'chmod +x ./gradlew';
-        sh './gradlew clean';
+        configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
+          sh 'gradle clean';
+        }
       }
     }
     stage('Test') {
       steps {
-        sh './gradlew test';
+        sh 'gradle test';
         junit '**/build/test-results/test/*.xml';
       }
     }
     stage('Build') {
       steps {
-        sh './gradlew jar';
+        sh 'gradle jar';
       }
     }
     stage('Release ZIP') {
@@ -29,11 +31,18 @@ pipeline {
         echo 'Creating CloudNet.zip file...';
         sh 'mkdir -p temp';
         sh 'cp -r .template/* temp/';
+
         sh 'mkdir temp/dev';
         sh 'mkdir temp/dev/examples';
         sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples';
-        sh 'mkdir temp/plugins';
-        sh 'cp cloudnet-plugins/**/build/libs/*.jar temp/plugins/';
+
+        sh 'mkdir temp/extras/plugins';
+        sh 'cp cloudnet-plugins/**/build/libs/*.jar temp/extras/plugins/';
+
+        sh 'mkdir temp/extras/modules';
+        sh 'cp cloudnet-modules/cloudnet-labymod/build/libs/*.jar temp/extras/modules/';
+        sh 'cp cloudnet-modules/cloudnet-npcs/build/libs/*.jar temp/extras/modules/';
+
         sh 'cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar';
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip';
         sh 'rm -r temp/';
@@ -53,24 +62,36 @@ pipeline {
         sh 'rm -r temp/';
       }
     }
-    stage('Maven') {
+    stage('Maven Publish') {
+      when {
+        anyOf {
+          branch 'master';
+          branch 'development';
+        }
+      }
       steps {
-        echo 'Creating artifacts for the maven repo...';
-        sh './gradlew sourceJar';
-        sh './gradlew deploymentJar';
-        sh './gradlew javadocJar';
+        echo 'Publishing artifacts to Apache Archiva...';
+        sh 'gradle publish';
       }
     }
     stage('Javadoc') {
         steps {
           echo 'Creating javadoc...';
-          sh './gradlew allJavadoc';
+          sh 'gradle allJavadoc';
           zip archive: true, dir: 'build/javadoc', glob: '', zipFile: 'Javadoc.zip';
         }
     }
     stage('Archive') {
       steps {
-        archiveArtifacts artifacts: '**/build/libs/*.jar'
+        archiveArtifacts artifacts: '**/build/libs/*.jar';
+        archiveArtifacts artifacts: '**/build/libs/*.cnl';
+      }
+    }
+  }
+  post {
+    always {
+      withCredentials([string(credentialsId: 'cloudnet-discord-ci-webhook', variable: 'url')]) {
+        discordSend description: 'New build for CloudNet v3!', footer: 'New build!', link: env.BUILD_URL, successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), title: JOB_NAME, webhookURL: url
       }
     }
   }

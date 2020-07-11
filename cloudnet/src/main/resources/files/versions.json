@@ -4,6 +4,7 @@
       "name": "paperspigot",
       "targetEnvironment": "MINECRAFT_SERVER_PAPER_SPIGOT",
       "installerType": "BUILD",
+      "website": "https://papermc.io",
       "versions": [
         {
           "name": "latest",
@@ -99,7 +100,48 @@
     {
       "name": "spigot",
       "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
+      "installerType": "DOWNLOAD",
+      "website": "https://getbukkit.org",
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.15.2.jar"
+        },
+        {
+          "name": "1.15.2",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.15.2.jar"
+        },
+        {
+          "name": "1.13.2",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.13.2.jar"
+        },
+        {
+          "name": "1.12.2",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.12.2.jar"
+        },
+        {
+          "name": "1.11.2",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar"
+        },
+        {
+          "name": "1.10.2",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar"
+        },
+        {
+          "name": "1.9.4",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar"
+        },
+        {
+          "name": "1.8.8",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"
+        }
+      ]
+    },
+    {
+      "name": "buildtools",
+      "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
       "installerType": "BUILD",
+      "website": "https://spigotmc.org",
       "versions": [
         {
           "name": "latest",
@@ -116,7 +158,7 @@
           }
         },
         {
-          "name": "1.15.1",
+          "name": "1.15.2",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 13,
           "properties": {
@@ -223,6 +265,7 @@
       "name": "spongevanilla",
       "targetEnvironment": "MINECRAFT_SERVER_SPONGE_VANILLA",
       "installerType": "DOWNLOAD",
+      "website": "https://spongepowered.org",
       "versions": [
         {
           "name": "latest",
@@ -250,6 +293,7 @@
       "name": "forge",
       "targetEnvironment": "MINECRAFT_SERVER_FORGE",
       "installerType": "BUILD",
+      "website": "https://minecraftforge.net",
       "versions": [
         {
           "name": "latest",
@@ -417,6 +461,7 @@
       "name": "spongeforge",
       "targetEnvironment": "MINECRAFT_SERVER_FORGE",
       "installerType": "BUILD",
+      "website": "https://spongepowered.org / https://minecraftforge.net",
       "versions": [
         {
           "name": "latest",
@@ -500,6 +545,7 @@
       "name": "glowstone",
       "targetEnvironment": "GLOWSTONE_DEFAULT",
       "installerType": "DOWNLOAD",
+      "website": "https://github.com/GlowstoneMC",
       "versions": [
         {
           "name": "latest",
@@ -519,6 +565,7 @@
       "name": "waterdog",
       "targetEnvironment": "WATERDOG_DEFAULT",
       "installerType": "DOWNLOAD",
+      "website": "https://ci.codemc.org/job/yesdog/job/Waterdog",
       "versions": [
         {
           "name": "latest",
@@ -530,6 +577,7 @@
       "name": "bungeecord",
       "targetEnvironment": "BUNGEECORD_DEFAULT",
       "installerType": "DOWNLOAD",
+      "website": "https://ci.md-5.net/job/BungeeCord",
       "versions": [
         {
           "name": "latest",
@@ -541,10 +589,11 @@
       "name": "travertine",
       "targetEnvironment": "BUNGEECORD_TRAVERTINE",
       "installerType": "DOWNLOAD",
+      "website": "https://papermc.io",
       "versions": [
         {
           "name": "latest",
-          "url": "https://papermc.io/ci/view/WaterfallMC/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"
+          "url": "https://papermc.io/ci/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"
         }
       ]
     },
@@ -552,10 +601,11 @@
       "name": "hexacord",
       "targetEnvironment": "BUNGEECORD_HEXACORD",
       "installerType": "DOWNLOAD",
+      "website": "https://github.com/HexagonMC/BungeeCord",
       "versions": [
         {
           "name": "latest",
-          "url": "https://yivesmirror.com/files/hexacord/HexaCord-v246.jar"
+          "url": "https://github.com/HexagonMC/BungeeCord/releases/latest/download/BungeeCord.jar"
         }
       ]
     },
@@ -563,6 +613,7 @@
       "name": "waterfall",
       "targetEnvironment": "BUNGEECORD_WATERFALL",
       "installerType": "DOWNLOAD",
+      "website": "https://papermc.io",
       "versions": [
         {
           "name": "latest",
@@ -574,10 +625,11 @@
       "name": "velocity",
       "targetEnvironment": "VELOCITY_DEFAULT",
       "installerType": "DOWNLOAD",
+      "website": "https://velocitypowered.com",
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.4-SNAPSHOT-all.jar"
+          "url": "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.6-SNAPSHOT-all.jar"
         }
       ]
     },
@@ -585,6 +637,7 @@
       "name": "nukkit",
       "targetEnvironment": "NUKKIT_DEFAULT",
       "installerType": "DOWNLOAD",
+      "website": "https://nukkitx.com",
       "versions": [
         {
           "name": "latest",

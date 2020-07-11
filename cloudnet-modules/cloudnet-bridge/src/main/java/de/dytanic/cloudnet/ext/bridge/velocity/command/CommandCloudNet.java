@@ -3,14 +3,17 @@ package de.dytanic.cloudnet.ext.bridge.velocity.command;
 import com.velocitypowered.api.command.Command;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
-import net.kyori.text.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.optional.qual.MaybePresent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public final class CommandCloudNet implements Command {
 
@@ -21,7 +24,7 @@ public final class CommandCloudNet implements Command {
         }
 
         if (args.length == 0) {
-            source.sendMessage(TextComponent.of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + "/cloudnet <command>"));
+            source.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + "/cloudnet <command>"));
             return;
         }
 
@@ -32,7 +35,7 @@ public final class CommandCloudNet implements Command {
             if (commandInfo != null && commandInfo.getPermission() != null) {
                 if (!source.hasPermission(commandInfo.getPermission())) {
                     source.sendMessage(
-                            TextComponent.of(
+                            LegacyComponentSerializer.legacyLinking().deserialize(
                                     BridgeConfigurationProvider.load().getMessages().get("command-cloud-sub-command-no-permission")
                                             .replace("%command%", commandLine)
                             )
@@ -42,12 +45,12 @@ public final class CommandCloudNet implements Command {
             }
         }
 
-        String[] messages = CloudNetDriver.getInstance().sendCommandLine(commandLine);
+        String[] messages = CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLine(commandLine);
 
         if (messages != null) {
             for (String message : messages) {
                 if (message != null) {
-                    source.sendMessage(TextComponent.of(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + message));
+                    source.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + message));
                 }
             }
         }

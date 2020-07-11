@@ -12,8 +12,8 @@ import de.dytanic.cloudnet.launcher.version.VersionInfo;
 import de.dytanic.cloudnet.launcher.version.update.FallbackUpdater;
 import de.dytanic.cloudnet.launcher.version.update.RepositoryUpdater;
 import de.dytanic.cloudnet.launcher.version.update.Updater;
+import de.dytanic.cloudnet.launcher.version.update.jenkins.JenkinsUpdater;
 import de.dytanic.cloudnet.launcher.version.util.Dependency;
-import de.dytanic.cloudnet.launcher.version.util.GitCommit;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,17 +25,14 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 public final class CloudNetLauncher {
     private static final Consumer<String> PRINT = System.out::println;
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     private static final Path CONFIG_PATH = Paths.get(System.getProperty("cloudnet.launcher.config", "launcher.cnl"));
     private static final Path LAUNCHER_DIR_PATH = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
@@ -43,13 +40,14 @@ public final class CloudNetLauncher {
     private static final Path LAUNCHER_VERSIONS = LAUNCHER_DIR_PATH.resolve("versions");
     private static final Path LAUNCHER_LIBS = LAUNCHER_DIR_PATH.resolve("libs");
 
-    private Map<String, String> variables = new HashMap<>();
-    private Map<String, String> repositories = new HashMap<>();
+    private final Map<String, String> variables = new HashMap<>();
+    private final Map<String, String> repositories = new HashMap<>();
 
-    private String gitHubRepository;
+    private Collection<String> updaterVersionNames = new HashSet<>();
+
     private VersionInfo selectedVersion;
 
-    private List<Dependency> dependencies = new ArrayList<>();
+    private final List<Dependency> dependencies = new ArrayList<>();
 
     public static void main(String[] args) {
         System.setProperty("file.encoding", "UTF-8");
@@ -59,8 +57,8 @@ public final class CloudNetLauncher {
 
         if (user.equalsIgnoreCase("root") || user.equalsIgnoreCase("administrator")) {
             PRINT.accept("===================================================================");
-            PRINT.accept("You currently use an administrative user for this application");
-            PRINT.accept("It's better and save, if you create an extra user which you start CloudNet");
+            PRINT.accept("You are currently using an administrative user for this application!");
+            PRINT.accept("Please consider switching to an extra user for CloudNet.");
             PRINT.accept("===================================================================");
         }
 
@@ -96,7 +94,7 @@ public final class CloudNetLauncher {
             Thread.sleep(TimeUnit.SECONDS.toMillis(3));
 
             this.startApplication(args, dependencyResources);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException | InterruptedException exception) {
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InterruptedException exception) {
             throw new RuntimeException("Failed to start the application!", exception);
         }
     }
@@ -138,79 +136,85 @@ public final class CloudNetLauncher {
                 PRINT.accept("Successfully installed CloudNet version " + updater.getCurrentVersion());
             } else {
                 PRINT.accept("Error while installing CloudNet!");
-                updater.deleteUpdateFiles();
+                LauncherUtils.deleteFile(updater.getTargetDirectory());
                 System.exit(-1);
             }
         } else {
             PRINT.accept("Using installed CloudNet version " + this.selectedVersion.getCurrentVersion());
         }
 
-        this.variables.put(Constants.CLOUDNET_SELECTED_VERSION, this.selectedVersion.getFullVersion());
-
-        GitCommit latestGitCommit = this.selectedVersion.getLatestGitCommit();
-
-        if (latestGitCommit.isKnown() && latestGitCommit.hasInformation()) {
-            GitCommit.GitCommitAuthor author = latestGitCommit.getAuthor();
-
-            PRINT.accept("");
-
-            PRINT.accept(String.format("Latest commit is %s, authored by %s (%s)", latestGitCommit.getSha(), author.getName(), author.getEmail()));
-            PRINT.accept(String.format("Commit message: \"%s\"", latestGitCommit.getMessage()));
-            PRINT.accept("Commit time: " + DATE_FORMATTER.format(
-                    author.getDate().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-            ));
-
-            PRINT.accept("");
-        } else {
-            PRINT.accept("Unable to fetch the latest git commit, custom or outdated build?");
-        }
-
+        this.variables.put(LauncherUtils.CLOUDNET_SELECTED_VERSION, this.selectedVersion.getFullVersion());
     }
 
     private VersionInfo selectVersion() {
         Map<String, VersionInfo> loadedVersionInfo = this.loadVersions();
 
-        String selectedVersion = this.variables.get(Constants.CLOUDNET_SELECTED_VERSION);
+        String selectedVersion = this.variables.get(LauncherUtils.CLOUDNET_SELECTED_VERSION);
         if (selectedVersion != null && loadedVersionInfo.containsKey(selectedVersion)) {
             return loadedVersionInfo.get(selectedVersion);
         }
 
         Collection<VersionInfo> versionInfoCollection = loadedVersionInfo.values();
 
-        return versionInfoCollection.stream().filter(versionInfo -> !versionInfo.getLatestGitCommit().isKnown())
-                .findFirst()
-                .orElseGet(() ->
-                        versionInfoCollection.stream()
-                                .max(Comparator.comparingLong(versionInfo -> versionInfo.getLatestGitCommit().getTime()))
-                                .orElse(null)
-                );
+        VersionInfo newestVersion = versionInfoCollection.stream()
+                .max(Comparator.comparingLong(VersionInfo::getReleaseTimestamp))
+                .orElse(loadedVersionInfo.get(LauncherUtils.FALLBACK_VERSION));
+
+        // Looking for installed versions that are outdated and deleting them.
+        // This is necessary because too many installed versions can lead to rate-limiting of GitHub's api,
+        // which will make version selection impossible.
+        versionInfoCollection.stream()
+                .filter(versionInfo -> versionInfo instanceof InstalledVersionInfo
+                        && !versionInfo.getFullVersion().equals(newestVersion.getFullVersion())
+                        && !this.updaterVersionNames.contains(versionInfo.getFullVersion()))
+                .forEach(versionInfo -> {
+                    PRINT.accept(String.format("Deleting outdated version %s...", versionInfo.getFullVersion()));
+                    try {
+                        LauncherUtils.deleteFile(versionInfo.getTargetDirectory());
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    }
+                });
+
+        return newestVersion;
     }
 
     private Map<String, VersionInfo> loadVersions() {
         Map<String, VersionInfo> versionInfo = new HashMap<>();
-        this.gitHubRepository = this.variables.get(Constants.CLOUDNET_REPOSITORY_GITHUB);
+        String gitHubRepository = this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY_GITHUB);
 
         // handles the installing of the artifacts contained in the launcher itself
-        versionInfo.put(Constants.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(Constants.FALLBACK_VERSION), this.gitHubRepository));
+        versionInfo.put(LauncherUtils.FALLBACK_VERSION, new FallbackUpdater(LAUNCHER_VERSIONS.resolve(LauncherUtils.FALLBACK_VERSION), gitHubRepository));
 
-        if (this.variables.get(Constants.LAUNCHER_DEV_MODE).equalsIgnoreCase("true")) {
+        if (this.variables.get(LauncherUtils.LAUNCHER_DEV_MODE).equalsIgnoreCase("true")) {
             // dev mode is on, only using the fallback version
             return versionInfo;
         }
 
-        if (this.variables.get(Constants.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
-            Updater updater = new RepositoryUpdater(this.variables.get(Constants.CLOUDNET_REPOSITORY));
+        if (this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY_AUTO_UPDATE).equalsIgnoreCase("true")) {
+            Updater updater = new RepositoryUpdater(this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY));
 
-            if (updater.init(LAUNCHER_VERSIONS, this.gitHubRepository)) {
+            if (updater.init(LAUNCHER_VERSIONS, gitHubRepository)) {
                 versionInfo.put(updater.getFullVersion(), updater);
             }
         }
 
+        if (this.variables.get(LauncherUtils.CLOUDNET_SNAPSHOTS).equalsIgnoreCase("true")) {
+            Updater updater = new JenkinsUpdater(this.variables.get(LauncherUtils.CLOUDNET_SNAPSHOTS_JOB_URL));
+
+            if (updater.init(LAUNCHER_VERSIONS, gitHubRepository)) {
+                versionInfo.put(updater.getFullVersion(), updater);
+            }
+        }
+
+        this.updaterVersionNames = versionInfo.entrySet().stream()
+                .filter(entry -> entry.getValue() instanceof Updater)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
         try {
             Files.list(LAUNCHER_VERSIONS)
-                    .forEach(path -> versionInfo.put(path.getFileName().toString(), new InstalledVersionInfo(path, this.gitHubRepository)));
+                    .forEach(path -> versionInfo.put(path.getFileName().toString(), new InstalledVersionInfo(path, gitHubRepository)));
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -247,7 +251,7 @@ public final class CloudNetLauncher {
 
             PRINT.accept(String.format("Installing dependency %s from repository %s...", dependencyName, dependency.getRepository()));
 
-            try (InputStream inputStream = this.selectedVersion.readFromURL(repositoryURL + "/" + dependency.toPath().toString().replace(File.separatorChar, '/'))) {
+            try (InputStream inputStream = LauncherUtils.readFromURL(repositoryURL + "/" + dependency.toPath().toString().replace(File.separatorChar, '/'))) {
                 Files.copy(inputStream, path);
             }
 
@@ -269,7 +273,7 @@ public final class CloudNetLauncher {
         }
     }
 
-    private void startApplication(String[] args, Collection<URL> dependencyResources) throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void startApplication(String[] args, Collection<URL> dependencyResources) throws IOException, ClassNotFoundException, NoSuchMethodException {
         Path targetPath = this.selectedVersion.getTargetDirectory().resolve("cloudnet.jar");
         Path driverTargetPath = this.selectedVersion.getTargetDirectory().resolve("driver.jar");
 
@@ -288,7 +292,16 @@ public final class CloudNetLauncher {
         ClassLoader classLoader = new URLClassLoader(dependencyResources.toArray(new URL[0]));
         Method method = classLoader.loadClass(mainClass).getMethod("main", String[].class);
 
-        method.invoke(null, (Object) args);
+        Thread thread = new Thread(() -> {
+            try {
+                method.invoke(null, (Object) args);
+            } catch (IllegalAccessException | InvocationTargetException exception) {
+                exception.printStackTrace();
+            }
+        }, "Application-Thread");
+        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.setContextClassLoader(classLoader);
+        thread.start();
     }
 
 }

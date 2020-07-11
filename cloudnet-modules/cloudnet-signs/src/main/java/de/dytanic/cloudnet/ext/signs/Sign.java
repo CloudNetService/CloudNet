@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.signs;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -19,11 +20,11 @@ public class Sign implements Comparable<Sign> {
     protected String providedGroup, targetGroup, templatePath;
 
     @EqualsAndHashCode.Include
-    protected SignPosition worldPosition;
+    protected WorldPosition worldPosition;
 
     private volatile ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public Sign(String providedGroup, String targetGroup, SignPosition worldPosition, String templatePath) {
+    public Sign(String providedGroup, String targetGroup, WorldPosition worldPosition, String templatePath) {
         this.signId = System.currentTimeMillis();
 
         this.providedGroup = providedGroup;
@@ -34,7 +35,7 @@ public class Sign implements Comparable<Sign> {
 
     @Override
     public int compareTo(Sign toCompare) {
-        return Long.compare(signId, toCompare.getSignId());
+        return Long.compare(this.signId, toCompare.getSignId());
     }
 
     public long getSignId() {
@@ -69,11 +70,11 @@ public class Sign implements Comparable<Sign> {
         this.templatePath = templatePath;
     }
 
-    public SignPosition getWorldPosition() {
+    public WorldPosition getWorldPosition() {
         return this.worldPosition;
     }
 
-    public void setWorldPosition(SignPosition worldPosition) {
+    public void setWorldPosition(WorldPosition worldPosition) {
         this.worldPosition = worldPosition;
     }
 

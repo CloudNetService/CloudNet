@@ -41,7 +41,7 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
 
         server.getPacketRegistry().addListener(1, (channel, packet) -> {
             if (packet.getHeader().contains("hello") && packet.getHeader().getString("hello").equalsIgnoreCase("Unit test") &&
-                    new String(packet.getBody()).equalsIgnoreCase("Test Test Test 1 2 4")) {
+                    new String(packet.getBodyAsArray()).equalsIgnoreCase("Test Test Test 1 2 4")) {
                 task.call();
             }
         });

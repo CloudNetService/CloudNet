@@ -1,17 +1,18 @@
 package de.dytanic.cloudnet.wrapper.database.defaults;
 
-import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
+import de.dytanic.cloudnet.wrapper.network.packet.PacketClientDatabaseAction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
 
@@ -36,54 +37,28 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> containsDatabaseAsync(String name) {
-        return this.executeQuery(name, "contains", response -> response.getSecond()[0] == 1);
+        return this.executeQuery(RemoteDatabaseRequestType.CONTAINS_DATABASE, buffer -> buffer.writeString(name))
+                .map(packet -> packet.getBuffer().readBoolean());
     }
 
     @Override
+    @NotNull
     public ITask<Boolean> deleteDatabaseAsync(String name) {
-        return this.executeQuery(name, "delete", response -> response.getSecond()[0] == 1);
+        return this.executeQuery(RemoteDatabaseRequestType.DELETE_DATABASE, buffer -> buffer.writeString(name))
+                .map(packet -> packet.getBuffer().readBoolean());
     }
 
     @Override
+    @NotNull
     public ITask<Collection<String>> getDatabaseNamesAsync() {
-        return this.executeQuery("databases", response -> response.getFirst().get("databases", new TypeToken<Collection<String>>() {
-        }.getType()));
+        return this.executeQuery(RemoteDatabaseRequestType.GET_DATABASES, null).map(packet -> packet.getBuffer().readStringCollection());
     }
 
-    <V> ITask<V> executeQuery(String message, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
-        return this.executeQuery(
-                new JsonDocument()
-                        .append("message", message),
-                responseMapper
-        );
-    }
-
-    <V> ITask<V> executeQuery(String database, String message, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
-        return this.executeQuery(
-                new JsonDocument()
-                        .append("database", database)
-                        .append("message", message),
-                responseMapper
-        );
-    }
-
-    <V> ITask<V> executeQuery(String database, String message, JsonDocument extras, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
-        return this.executeQuery(
-                new JsonDocument()
-                        .append("database", database)
-                        .append("message", message)
-                        .append(extras),
-                responseMapper
-        );
-    }
-
-    <V> ITask<V> executeQuery(JsonDocument header, Function<Pair<JsonDocument, byte[]>, V> responseMapper) {
-        return Wrapper.getInstance().getPacketQueryProvider().sendCallablePacket(
-                Wrapper.getInstance().getNetworkClient().getChannels().iterator().next(),
-                null,
-                header, Packet.EMPTY_PACKET_BYTE_ARRAY, responseMapper
-        );
+    ITask<IPacket> executeQuery(RemoteDatabaseRequestType requestType, Consumer<ProtocolBuffer> modifier) {
+        return CloudNetDriver.getInstance().getNetworkClient().getFirstChannel()
+                .sendQueryAsync(new PacketClientDatabaseAction(requestType, modifier));
     }
 
 }
