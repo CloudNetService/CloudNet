@@ -188,10 +188,10 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public synchronized void start() throws Exception {
         File tempDirectory = new File(System.getProperty("cloudnet.tempDir", "temp"));
-        Preconditions.checkArgument(tempDirectory.mkdirs(), "Failed to create temp directory '" + tempDirectory + "'");
+        tempDirectory.mkdirs();
 
         File cachesDirectory = new File(tempDirectory, "caches");
-        Preconditions.checkArgument(cachesDirectory.mkdirs(), "Failed to create caches directory '" + cachesDirectory + "'");
+        cachesDirectory.mkdirs();
 
         try (InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
             Preconditions.checkNotNull(inputStream, "Missing wrapper.jar");
