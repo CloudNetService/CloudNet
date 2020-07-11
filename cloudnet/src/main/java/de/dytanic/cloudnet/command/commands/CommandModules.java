@@ -156,10 +156,6 @@ public final class CommandModules extends CommandDefault implements ITabComplete
             messages.add("* Required modules: " + Arrays.stream(moduleInfo.getDepends()).map(ModuleId::toString).collect(Collectors.joining(", ")));
         }
 
-        if (moduleInfo.getConflicts() != null && moduleInfo.getConflicts().length != 0) {
-            messages.add("* Conflicts with other modules: " + Arrays.stream(moduleInfo.getConflicts()).map(ModuleId::toString).collect(Collectors.joining(", ")));
-        }
-
         messages.add(" ");
 
         sender.sendMessage(messages.toArray(new String[0]));
