@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.defaults.DefaultModuleProvider;
 import de.dytanic.cloudnet.driver.module.defaults.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
@@ -98,6 +99,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         super(logger);
         setInstance(this);
 
+        super.moduleProvider = new DefaultModuleProvider(false, null);
         super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
         super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
         super.serviceTaskProvider = new WrapperServiceTaskProvider(this);

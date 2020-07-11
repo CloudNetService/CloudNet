@@ -13,7 +13,6 @@ import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.defaults.DefaultModuleProvider;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
@@ -49,7 +48,7 @@ public abstract class CloudNetDriver {
 
     protected final IEventManager eventManager = new DefaultEventManager();
 
-    protected final IModuleProvider moduleProvider = new DefaultModuleProvider(true);
+    protected IModuleProvider moduleProvider;
 
     protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
     protected final ILogger logger;

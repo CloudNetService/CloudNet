@@ -60,6 +60,8 @@ public final class JsonConfiguration implements IConfiguration {
 
     private String defaultHostAddress;
 
+    private boolean autoUpdateModulesEnabled;
+
     @Override
     public boolean isFileExists() {
         return Files.exists(CONFIG_FILE_PATH);
@@ -115,6 +117,8 @@ public final class JsonConfiguration implements IConfiguration {
                         UUID.randomUUID(),
                 Collections.emptyList()
         ));
+
+        this.autoUpdateModulesEnabled = this.document.getBoolean("autoUpdateModules", true);
 
         this.maxCPUUsageToStartServices = this.document.getDouble("maxCPUUsageToStartServices", 100D);
         this.parallelServiceStartSequence = this.document.getBoolean("parallelServiceStartSequence", true);
@@ -328,6 +332,21 @@ public final class JsonConfiguration implements IConfiguration {
 
     public String getJVMCommand() {
         return this.jVMCommand;
+    }
+
+    @Override
+    public boolean isAutoUpdateModulesEnabled() {
+        return this.autoUpdateModulesEnabled;
+    }
+
+    @Override
+    public void setAutoUpdateModulesEnabled(boolean autoUpdateModules) {
+        if (this.autoUpdateModulesEnabled == autoUpdateModules) {
+            return;
+        }
+
+        this.autoUpdateModulesEnabled = autoUpdateModules;
+        this.save();
     }
 
     public String getDefaultHostAddress() {

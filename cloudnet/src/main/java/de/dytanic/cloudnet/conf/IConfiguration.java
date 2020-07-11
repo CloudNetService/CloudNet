@@ -75,6 +75,10 @@ public interface IConfiguration {
 
     String getJVMCommand();
 
+    boolean isAutoUpdateModulesEnabled();
+
+    void setAutoUpdateModulesEnabled(boolean autoUpdateModules);
+
     enum DefaultJVMFlags {
         NONE(Collections.emptyList()),
         DYTANIC(Arrays.asList(

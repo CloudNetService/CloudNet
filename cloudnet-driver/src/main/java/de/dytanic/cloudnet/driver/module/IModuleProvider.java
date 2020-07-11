@@ -17,8 +17,6 @@ public interface IModuleProvider {
 
     boolean isAutoUpdateEnabled();
 
-    void setAutoUpdateEnabled(boolean autoUpdateEnabled);
-
     File getModuleDirectory();
 
     void setModuleDirectory(File moduleDirectory);

@@ -66,6 +66,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             URL updatedUrl = this.installUpdate(url);
             if (updatedUrl != null) {
                 url = updatedUrl;
+                this.loadConfiguration(url);
             }
         }
 

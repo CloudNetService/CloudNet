@@ -33,6 +33,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.defaults.DefaultModuleProvider;
 import de.dytanic.cloudnet.driver.module.dependency.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -153,6 +154,7 @@ public final class CloudNet extends CloudNetDriver {
 
         logger.setLevel(this.defaultLogLevel);
 
+        super.moduleProvider = new DefaultModuleProvider(true, this.config::isAutoUpdateModulesEnabled);
         super.cloudServiceFactory = new NodeCloudServiceFactory(this);
         super.generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
         super.serviceTaskProvider = new NodeServiceTaskProvider(this);

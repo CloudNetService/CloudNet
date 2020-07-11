@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -34,29 +35,25 @@ public final class DefaultModuleProvider implements IModuleProvider {
     private final RemoteModuleRepository moduleRepository = new RemoteModuleRepository();
     private final ModuleInstaller moduleInstaller;
 
-    private boolean autoUpdateEnabled;
+    private final Supplier<Boolean> autoUpdateEnabledSupplier;
 
     private File moduleDirectory = new File("modules");
 
-    public DefaultModuleProvider(boolean cacheModules, UnaryOperator<InputStream> inputStreamModifier) {
+    public DefaultModuleProvider(boolean cacheModules, Supplier<Boolean> autoUpdateSuplier, UnaryOperator<InputStream> inputStreamModifier) {
+        this.autoUpdateEnabledSupplier = autoUpdateSuplier;
         this.moduleInstaller = new DefaultModuleInstaller(this, inputStreamModifier, this.moduleRepository.getBaseURL());
         if (cacheModules) {
             this.moduleRepository.fillCache();
         }
     }
 
-    public DefaultModuleProvider(boolean cacheModules) {
-        this(cacheModules, null);
+    public DefaultModuleProvider(boolean cacheModules, Supplier<Boolean> autoUpdateSuplier) {
+        this(cacheModules, autoUpdateSuplier, null);
     }
 
     @Override
     public boolean isAutoUpdateEnabled() {
-        return this.autoUpdateEnabled;
-    }
-
-    @Override
-    public void setAutoUpdateEnabled(boolean autoUpdateEnabled) {
-        this.autoUpdateEnabled = autoUpdateEnabled;
+        return this.autoUpdateEnabledSupplier != null && this.autoUpdateEnabledSupplier.get();
     }
 
     @Override
