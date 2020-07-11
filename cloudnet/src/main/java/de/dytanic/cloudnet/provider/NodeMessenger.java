@@ -47,7 +47,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 if (target.getName() == null) {
                     Collection<INetworkChannel> channels = new ArrayList<>();
                     for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-                        if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
+                        if (server.getChannel() != null) {
                             channels.add(server.getChannel());
                         }
                     }
@@ -79,9 +79,6 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 if (service == null) {
                     return null;
                 }
-                if (sender.isEqual(service)) {
-                    return null;
-                }
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
                 if (localService != null) {
                     return localService.getNetworkChannel() != null ? Collections.singletonList(localService.getNetworkChannel()) : null;
@@ -106,7 +103,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     private Collection<INetworkChannel> getAll(ChannelMessageSender sender, boolean serviceOnly) {
         Collection<INetworkChannel> channels = new ArrayList<>();
         for (ICloudService localService : this.cloudNet.getCloudServiceManager().getLocalCloudServices()) {
-            if (localService.getNetworkChannel() != null && !sender.isEqual(localService.getServiceInfoSnapshot())) {
+            if (localService.getNetworkChannel() != null) {
                 channels.add(localService.getNetworkChannel());
             }
         }
@@ -126,10 +123,6 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         }
         Collection<INetworkChannel> channels = new ArrayList<>();
         for (ServiceInfoSnapshot service : services) {
-            if (sender.isEqual(service)) {
-                continue;
-            }
-
             if (service.getServiceId().getNodeUniqueId().equals(this.cloudNet.getComponentName())) {
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
                 if (localService != null && localService.getNetworkChannel() != null) {
